@@ -54,8 +54,8 @@ final class TestRawStvisitLogic {
     /** A date/time used in test records. */
     private static final LocalDateTime datetime8 = LocalDateTime.of(2021, 10, 11, 12, 13, 15);
 
-    /** A date/time used in test records. */
-    private static final LocalDateTime datetime9 = LocalDateTime.of(2021, 10, 11, 12, 13, 16);
+//    /** A date/time used in test records. */
+//    private static final LocalDateTime datetime9 = LocalDateTime.of(2021, 10, 11, 12, 13, 16);
 
     /** A date/time used in test records. */
     private static final LocalDateTime datetime10 = LocalDateTime.of(2021, 10, 11, 12, 13, 17);
@@ -110,11 +110,19 @@ final class TestRawStvisitLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stvisit");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawStvisit raw1 = new RawStvisit("111111111", datetime1, datetime2, "TC", "100");
+                final RawStvisit raw2 = new RawStvisit("111111111", datetime3, datetime4, "TC", "99");
+                final RawStvisit raw3 = new RawStvisit("222222222", datetime5, datetime6, "LC", "AB");
+
+                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw1), "Failed to insert stvisit 1");
+                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw2), "Failed to insert stvisit 2");
+                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw3), "Failed to insert stvisit 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -126,66 +134,12 @@ final class TestRawStvisitLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stvisit");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stvisit' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawStvisit raw1 = new RawStvisit("111111111", datetime1, datetime2, "TC", "100");
-                final RawStvisit raw2 = new RawStvisit("111111111", datetime3, datetime4, "TC", "99");
-                final RawStvisit raw3 = new RawStvisit("222222222", datetime5, datetime6, "LC", "AB");
-
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw1), "Failed to insert stvisit 1");
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw2), "Failed to insert stvisit 2");
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw3), "Failed to insert stvisit 3");
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting stvisit rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'stvisit' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStvisit> all = RawStvisitLogic.INSTANCE.queryAll(cache);
@@ -232,24 +186,22 @@ final class TestRawStvisitLogic {
                 assertTrue(found3, "Stvisit 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stvisit rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByStudent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStvisit> all = RawStvisitLogic.queryByStudent(cache, "111111111");
@@ -287,24 +239,22 @@ final class TestRawStvisitLogic {
                 assertTrue(found2, "Stvisit 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stvisit by student: " + ex.getMessage());
         }
-
-        return "queryByStudent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("startNewVisit results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStvisitLogic.INSTANCE.startNewVisit(cache, "123456789", datetime7, "TC", "1"),
@@ -348,24 +298,22 @@ final class TestRawStvisitLogic {
                 assertTrue(found2, "Stvisit 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while starting new visit: " + ex.getMessage());
         }
-
-        return "startNewVisit results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("getInProgressStudentVisits results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStvisit> all = RawStvisitLogic.getInProgressStudentVisits(cache, "123456789");
@@ -394,24 +342,22 @@ final class TestRawStvisitLogic {
                 assertTrue(found, "Stvisit not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying in-progress visits: " + ex.getMessage());
         }
-
-        return "getInProgressStudentVisits results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("endInProgressVisit results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStvisitLogic.endInProgressVisit(cache, "123456789",
@@ -421,24 +367,22 @@ final class TestRawStvisitLogic {
 
                 assertEquals(0, all.size(), "Incorrect record count from queryByStudent");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying in-progress visits: " + ex.getMessage());
         }
-
-        return "endInProgressVisit results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0008() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStvisit raw2 = new RawStvisit("111111111", datetime3, datetime4, "TC", "99");
@@ -499,14 +443,12 @@ final class TestRawStvisitLogic {
                 assertTrue(found5, "Stvisit 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting stvisit: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -514,7 +456,7 @@ final class TestRawStvisitLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -524,7 +466,7 @@ final class TestRawStvisitLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

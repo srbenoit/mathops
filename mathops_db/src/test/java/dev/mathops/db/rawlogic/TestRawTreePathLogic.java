@@ -81,11 +81,29 @@ final class TestRawTreePathLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM tree_path");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawTreePath raw1 = new RawTreePath("iso", CoreConstants.SLASH, Integer.valueOf(0),
+                        Integer.valueOf(1), "ISO");
+                final RawTreePath raw2 = new RawTreePath("org", "iso", Integer.valueOf(1), Integer.valueOf(3),
+                        "IDENTIFIED-ORGANIZATION");
+                final RawTreePath raw3 = new RawTreePath("nist", "org", Integer.valueOf(2), Integer.valueOf(5),"NIST");
+                final RawTreePath raw4 = new RawTreePath("dod", "org", Integer.valueOf(2), Integer.valueOf(6),"DOD");
+                final RawTreePath raw5 = new RawTreePath("internet", "dod", Integer.valueOf(3), Integer.valueOf(1),
+                        "INTERNET");
+                final RawTreePath raw6 = new RawTreePath("private", "internet", Integer.valueOf(4), Integer.valueOf(4),
+                        "PRIVATE");
+
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw1), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw2), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw3), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw4), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw5), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw6), "Failed to insert tree_path");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -97,84 +115,12 @@ final class TestRawTreePathLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM tree_path");
-                }
-
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning tables: " + ex.getMessage());
-        }
-
-        return "Cleaned 'milestone' and 'tree_path' tables";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawTreePath raw1 = new RawTreePath("iso", CoreConstants.SLASH, Integer.valueOf(0),
-                        Integer.valueOf(1), "ISO");
-
-                final RawTreePath raw2 = new RawTreePath("org", "iso", Integer.valueOf(1), Integer.valueOf(3),
-                        "IDENTIFIED-ORGANIZATION");
-
-                final RawTreePath raw3 = new RawTreePath("nist", "org", Integer.valueOf(2), Integer.valueOf(5),
-                        "NIST");
-
-                final RawTreePath raw4 = new RawTreePath("dod", "org", Integer.valueOf(2), Integer.valueOf(6),
-                        "DOD");
-
-                final RawTreePath raw5 = new RawTreePath("internet", "dod", Integer.valueOf(3), Integer.valueOf(1),
-                        "INTERNET");
-
-                final RawTreePath raw6 = new RawTreePath("private", "internet", Integer.valueOf(4), Integer.valueOf(4),
-                        "PRIVATE");
-
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw1), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw2), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw3), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw4), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw5), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw6), "Failed to insert tree_path");
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting tree_path rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'tree_path' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawTreePath> all = RawTreePathLogic.INSTANCE.queryAll(cache);
@@ -255,24 +201,22 @@ final class TestRawTreePathLogic {
                 assertTrue(found6, "tree_path 6 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all tree_path rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByDepthAndParent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawTreePath> all = RawTreePathLogic.queryByDepthAndParent(cache, 2, "org");
@@ -313,24 +257,22 @@ final class TestRawTreePathLogic {
                 assertTrue(found4, "tree_path 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying tree_path rows by depth, parent: " + ex.getMessage());
         }
-
-        return "queryByDepthAndParent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByCourse results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawTreePath rec = RawTreePathLogic.query(cache, "dod", 2, "org");
@@ -346,24 +288,22 @@ final class TestRawTreePathLogic {
                 assertTrue(found, "tree_path 1 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all tree_path rows for course: " + ex.getMessage());
         }
-
-        return "queryByCourse results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateSortOrder")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             final RawTreePath toUpdate = new RawTreePath("dod", "org", Integer.valueOf(2), Integer.valueOf(60), null);
 
@@ -384,24 +324,22 @@ final class TestRawTreePathLogic {
                 assertTrue(found, "tree_path not valid after update sort order");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while updating sort order" + ex.getMessage());
         }
-
-        return "updateSortOrder() behaved correctly";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateLabel")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             final RawTreePath toUpdate = new RawTreePath("dod", "org", Integer.valueOf(2), Integer.valueOf(60), null);
 
@@ -421,24 +359,22 @@ final class TestRawTreePathLogic {
                 assertTrue(found, "tree_path not valid after update label");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while updating label" + ex.getMessage());
         }
-
-        return "updateLabel() behaved correctly";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0008() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawTreePath raw2 = new RawTreePath("org", "iso", Integer.valueOf(1), Integer.valueOf(3),
@@ -515,14 +451,12 @@ final class TestRawTreePathLogic {
                 assertTrue(found6, "tree_path 6 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting users: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -530,7 +464,7 @@ final class TestRawTreePathLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -539,7 +473,7 @@ final class TestRawTreePathLogic {
 
                 conn.commit();
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

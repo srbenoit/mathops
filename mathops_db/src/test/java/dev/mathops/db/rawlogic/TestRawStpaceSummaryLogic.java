@@ -109,11 +109,27 @@ final class TestRawStpaceSummaryLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stpace_summary");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawStpaceSummary raw1 = new RawStpaceSummary(SP21, "111111111", "M 117", "001", "N",
+                        Integer.valueOf(5), "A", Integer.valueOf(4), Integer.valueOf(541), Integer.valueOf(1), date1,
+                        "Y", date2, Integer.valueOf(2));
+
+                final RawStpaceSummary raw2 = new RawStpaceSummary(SM22, "222222222", "M 118", "002", "Y",
+                        Integer.valueOf(4), "B", Integer.valueOf(3), Integer.valueOf(432), Integer.valueOf(2), date3,
+                        "N", date4, Integer.valueOf(5));
+
+                final RawStpaceSummary raw3 = new RawStpaceSummary(FA23, "333333333", "M 124", "003", "A",
+                        Integer.valueOf(3), "C", Integer.valueOf(2), Integer.valueOf(321), Integer.valueOf(1), date5,
+                        "D", date6, Integer.valueOf(9));
+
+                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw1), "Failed to insert stpace_summary 1");
+                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw2), "Failed to insert stpace_summary 2");
+                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw3), "Failed to insert stpace_summary 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -125,110 +141,12 @@ final class TestRawStpaceSummaryLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stpace_summary");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stpace_summary' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawStpaceSummary raw1 = new RawStpaceSummary(
-                        SP21,
-                        "111111111",
-                        "M 117",
-                        "001",
-                        "N",
-                        Integer.valueOf(5),
-                        "A",
-                        Integer.valueOf(4),
-                        Integer.valueOf(541),
-                        Integer.valueOf(1),
-                        date1,
-                        "Y",
-                        date2,
-                        Integer.valueOf(2));
-
-                final RawStpaceSummary raw2 = new RawStpaceSummary(
-                        SM22,
-                        "222222222",
-                        "M 118",
-                        "002",
-                        "Y",
-                        Integer.valueOf(4),
-                        "B",
-                        Integer.valueOf(3),
-                        Integer.valueOf(432),
-                        Integer.valueOf(2),
-                        date3,
-                        "N",
-                        date4,
-                        Integer.valueOf(5));
-
-                final RawStpaceSummary raw3 = new RawStpaceSummary(
-                        FA23,
-                        "333333333",
-                        "M 124",
-                        "003",
-                        "A",
-                        Integer.valueOf(3),
-                        "C",
-                        Integer.valueOf(2),
-                        Integer.valueOf(321),
-                        Integer.valueOf(1),
-                        date5,
-                        "D",
-                        date6,
-                        Integer.valueOf(9));
-
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw1), "Failed to insert stpace_summary 1");
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw2), "Failed to insert stpace_summary 2");
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw3), "Failed to insert stpace_summary 3");
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting stpace_summary rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'stpace_summary' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStpaceSummary> all = RawStpaceSummaryLogic.INSTANCE.queryAll(cache);
@@ -311,41 +229,27 @@ final class TestRawStpaceSummaryLogic {
                 assertTrue(found3, "Stpace_summary 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stpace_summary rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final RawStpaceSummary raw2 = new RawStpaceSummary(
-                        SM22,
-                        "222222222",
-                        "M 118",
-                        "002",
-                        "Y",
-                        Integer.valueOf(4),
-                        "B",
-                        Integer.valueOf(3),
-                        Integer.valueOf(432),
-                        Integer.valueOf(2),
-                        date3,
-                        "N",
-                        date4,
-                        Integer.valueOf(5));
+                final RawStpaceSummary raw2 = new RawStpaceSummary(SM22, "222222222", "M 118", "002", "Y",
+                        Integer.valueOf(4), "B", Integer.valueOf(3), Integer.valueOf(432), Integer.valueOf(2), date3,
+                        "N", date4, Integer.valueOf(5));
 
                 final boolean result = RawStpaceSummaryLogic.INSTANCE.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
@@ -412,14 +316,12 @@ final class TestRawStpaceSummaryLogic {
                 assertTrue(found3, "Stpace_summary 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting stpace_summary: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -427,7 +329,7 @@ final class TestRawStpaceSummaryLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -437,7 +339,7 @@ final class TestRawStpaceSummaryLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

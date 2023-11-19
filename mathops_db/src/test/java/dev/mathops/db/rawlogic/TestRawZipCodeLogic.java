@@ -79,11 +79,19 @@ final class TestRawZipCodeLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM zip_code");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawZipCode raw1 = new RawZipCode("80111", "City1", "AA");
+                final RawZipCode raw2 = new RawZipCode("80222", "City2", "BB");
+                final RawZipCode raw3 = new RawZipCode("80333", "City3", "CC");
+
+                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw1), "Failed to insert zip code 1");
+                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw2), "Failed to insert zip code 2");
+                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw3), "Failed to insert zip code 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -95,67 +103,12 @@ final class TestRawZipCodeLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM zip_code");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'zip_code' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawZipCode raw1 = new RawZipCode("80111", "City1", "AA");
-                final RawZipCode raw2 = new RawZipCode("80222", "City2", "BB");
-                final RawZipCode raw3 = new RawZipCode("80333", "City3", "CC");
-
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw1), "Failed to insert zip code 1");
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw2), "Failed to insert zip code 2");
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw3), "Failed to insert zip code 3");
-
-                conn.commit();
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting zip_code rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'zip_code' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawZipCode> all = RawZipCodeLogic.INSTANCE.queryAll(cache);
@@ -186,24 +139,22 @@ final class TestRawZipCodeLogic {
                 assertTrue(found3, "ZipCode 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all zip_code rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results were correct")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawZipCode raw2 = new RawZipCode("80222", "City2", "BB");
@@ -234,14 +185,12 @@ final class TestRawZipCodeLogic {
                 assertTrue(found3, "ZipCode 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting zip_code: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -249,7 +198,7 @@ final class TestRawZipCodeLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -259,7 +208,7 @@ final class TestRawZipCodeLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

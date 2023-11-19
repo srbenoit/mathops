@@ -92,56 +92,12 @@ final class TestRawStsurveyqaLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stsurveyqa");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while initializing tables: " + ex.getMessage());
-        }
-    }
 
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stsurveyqa");
-                }
-
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning tables: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stsurveyqa' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
                 final RawStsurveyqa raw1 = new RawStsurveyqa("111111111", "POOOO", date1, Integer.valueOf(1), "A",
                         Integer.valueOf(100));
 
@@ -166,26 +122,23 @@ final class TestRawStsurveyqaLogic {
                 assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stsurveyqa 4");
                 assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert stsurveyqa 5");
                 assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw6), "Failed to insert stsurveyqa 6");
-
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while inserting stsurveyqa rows: " + ex.getMessage());
+            fail("Exception while initializing tables: " + ex.getMessage());
         }
-
-        return "Inserted all test 'stsurveyqa' records";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStsurveyqa> all = RawStsurveyqaLogic.INSTANCE.queryAll(cache);
@@ -268,24 +221,22 @@ final class TestRawStsurveyqaLogic {
                 assertTrue(found6, "Stsurveyqa 6 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all surveyqa rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryLatestByStudentProfile results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStsurveyqa> all =
@@ -328,24 +279,22 @@ final class TestRawStsurveyqaLogic {
                 assertTrue(found5, "Stsurveyqa 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying latest stsurveyqa by student, version: " + ex.getMessage());
         }
-
-        return "queryLatestByStudentProfile results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryLatestByStudentProfile results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStsurveyqa> all = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, "222222222",
@@ -377,24 +326,22 @@ final class TestRawStsurveyqaLogic {
                 assertTrue(found4, "Stsurveyqa 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying latest stsurveyqa by student, version: " + ex.getMessage());
         }
-
-        return "queryLatestByStudentProfile results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStsurveyqa raw2 = new RawStsurveyqa("111111111", "POOOO", date1,
@@ -473,14 +420,12 @@ final class TestRawStsurveyqaLogic {
                 assertTrue(found6, "Stsurveyqa 6 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting stsurveyqa: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -488,7 +433,7 @@ final class TestRawStsurveyqaLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -497,7 +442,7 @@ final class TestRawStsurveyqaLogic {
 
                 conn.commit();
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

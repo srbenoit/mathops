@@ -89,11 +89,24 @@ final class TestRawStmsgLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stmsg");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawStmsg raw1 = new RawStmsg("111111111", date12, Integer.valueOf(2), Integer.valueOf(1), "TP1",
+                        "MSG1", "Sender1");
+
+                final RawStmsg raw2 = new RawStmsg("111111111", date13, Integer.valueOf(3), Integer.valueOf(2), "TP2",
+                        "MSG2", "Sender2");
+
+                final RawStmsg raw3 = new RawStmsg("222222222", date14, Integer.valueOf(4), Integer.valueOf(3), "TP3",
+                        "MSG3", "Sender3");
+
+                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmsg 1");
+                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmsg 2");
+                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmsg 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -105,86 +118,12 @@ final class TestRawStmsgLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stmsg");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stmsg' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawStmsg raw1 = new RawStmsg("111111111",
-                        date12,
-                        Integer.valueOf(2),
-                        Integer.valueOf(1),
-                        "TP1",
-                        "MSG1",
-                        "Sender1");
-
-                final RawStmsg raw2 = new RawStmsg("111111111",
-                        date13,
-                        Integer.valueOf(3),
-                        Integer.valueOf(2),
-                        "TP2",
-                        "MSG2",
-                        "Sender2");
-
-                final RawStmsg raw3 = new RawStmsg("222222222",
-                        date14,
-                        Integer.valueOf(4),
-                        Integer.valueOf(3),
-                        "TP3",
-                        "MSG3",
-                        "Sender3");
-
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmsg 1");
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmsg 2");
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmsg 3");
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting stmsg rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'stmsg' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStmsg> all = RawStmsgLogic.INSTANCE.queryAll(cache);
@@ -239,24 +178,22 @@ final class TestRawStmsgLogic {
                 assertTrue(found3, "Stmsg 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stmsg rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByStudent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStmsg> all = RawStmsgLogic.queryByStudent(cache, "111111111");
@@ -300,81 +237,70 @@ final class TestRawStmsgLogic {
                 assertTrue(found2, "Stmsg 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying stmsg rows by student: " + ex.getMessage());
         }
-
-        return "queryByStudent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("count results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final Integer count = RawStmsgLogic.count(cache);
 
                 assertEquals(Integer.valueOf(3), count, "count returned incorrect value");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying count: " + ex.getMessage());
         }
-
-        return "count results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("getLatest results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final LocalDate latest = RawStmsgLogic.getLatest(cache);
 
                 assertEquals(date14, latest, "getLatest returned incorrect value");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying latest message date: " + ex.getMessage());
         }
-
-        return "getLatest results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final RawStmsg raw2 = new RawStmsg("111111111",
-                        date13,
-                        Integer.valueOf(3),
-                        Integer.valueOf(2),
-                        "TP2",
-                        "MSG2",
-                        "Sender2");
+                final RawStmsg raw2 = new RawStmsg("111111111", date13, Integer.valueOf(3), Integer.valueOf(2), "TP2",
+                        "MSG2", "Sender2");
 
                 final boolean result = RawStmsgLogic.INSTANCE.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
@@ -420,14 +346,12 @@ final class TestRawStmsgLogic {
                 assertTrue(found3, "Stmsg 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting stmsg: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -435,7 +359,7 @@ final class TestRawStmsgLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -445,7 +369,7 @@ final class TestRawStmsgLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

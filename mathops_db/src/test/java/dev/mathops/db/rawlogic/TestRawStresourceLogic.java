@@ -117,55 +117,12 @@ final class TestRawStresourceLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
-                }
-                conn.commit();
-
-                final Cache cache = new Cache(dbProfile, conn);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while initializing tables: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
                     stmt.executeUpdate("DELETE FROM stresource");
                 }
                 conn.commit();
 
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
+                final Cache cache = new Cache(dbProfile, conn);
 
-        return "Cleaned 'stresource' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
                 final RawStresource raw1 = new RawStresource("111111111", "res1", date12, Integer.valueOf(300),
                         date13, date24, Integer.valueOf(400), Integer.valueOf(3), date11);
 
@@ -178,28 +135,23 @@ final class TestRawStresourceLogic {
                 assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw1), "Failed to insert stresource 1");
                 assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw2), "Failed to insert stresource 2");
                 assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw3), "Failed to insert stresource 3");
-
-                conn.commit();
-
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while inserting stresource rows: " + ex.getMessage());
+            fail("Exception while initializing tables: " + ex.getMessage());
         }
-
-        return "Inserted all test 'stresource' records";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStresource> all = RawStresourceLogic.INSTANCE.queryAll(cache);
@@ -262,24 +214,22 @@ final class TestRawStresourceLogic {
                 assertTrue(found3, "Stresource 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stresource rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByStudent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStresource> all = RawStresourceLogic.queryByStudent(cache, "111111111");
@@ -329,24 +279,22 @@ final class TestRawStresourceLogic {
                 assertTrue(found2, "Stresource 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stresource by student: " + ex.getMessage());
         }
-
-        return "queryByStudent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryOutstanding results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStresource test = RawStresourceLogic.queryOutstanding(cache, "res2");
@@ -366,24 +314,22 @@ final class TestRawStresourceLogic {
                 assertTrue(found, "Stresource not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying outstanding row: " + ex.getMessage());
         }
-
-        return "queryOutstanding results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStresource outstanding = RawStresourceLogic.queryOutstanding(cache, "res2");
@@ -453,24 +399,22 @@ final class TestRawStresourceLogic {
                 assertTrue(found3, "Stresource 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stresource rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStresource raw2 = new RawStresource("111111111", "res2", date34,
@@ -527,14 +471,12 @@ final class TestRawStresourceLogic {
                 assertTrue(found3, "Stresource 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting users: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -542,7 +484,7 @@ final class TestRawStresourceLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -552,7 +494,7 @@ final class TestRawStresourceLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

@@ -90,55 +90,12 @@ final class TestRawUsersLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
-                }
-                conn.commit();
-
-                final Cache cache = new Cache(dbProfile, conn);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while initializing tables: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
                     stmt.executeUpdate("DELETE FROM users");
                 }
                 conn.commit();
 
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
+                final Cache cache = new Cache(dbProfile, conn);
 
-        return "Cleaned 'users' tables";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
                 final RawUsers raw1 = new RawUsers(new TermKey("FA21"), "111111111", Long.valueOf(1000L), "UOOOO",
                         date1, Integer.valueOf(2), "CA", "N");
 
@@ -151,27 +108,23 @@ final class TestRawUsersLogic {
                 assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw1), "Failed to insert users 1");
                 assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw2), "Failed to insert users 2");
                 assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw3), "Failed to insert users 3");
-
-                conn.commit();
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while inserting users rows: " + ex.getMessage());
+            fail("Exception while initializing tables: " + ex.getMessage());
         }
-
-        return "Inserted all test 'users' records";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawUsers> all = RawUsersLogic.INSTANCE.queryAll(cache);
@@ -234,24 +187,22 @@ final class TestRawUsersLogic {
                 assertTrue(found3, "Users 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all users rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByStudent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawUsers> all = RawUsersLogic.queryByStudent(cache, "111111111");
@@ -301,24 +252,22 @@ final class TestRawUsersLogic {
                 assertTrue(found2, "Users 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all users rows for student: " + ex.getMessage());
         }
-
-        return "queryByStudent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawUsers raw2 = new RawUsers(new TermKey("FA21"), "111111111", Long.valueOf(2000L), "UPPPP",
@@ -374,14 +323,12 @@ final class TestRawUsersLogic {
                 assertTrue(found3, "users 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting users: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -389,7 +336,7 @@ final class TestRawUsersLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -399,7 +346,7 @@ final class TestRawUsersLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

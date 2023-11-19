@@ -100,55 +100,12 @@ final class TestRawTestingCenterLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
-                }
-                conn.commit();
-
-                final Cache cache = new Cache(dbProfile, conn);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while initializing tables: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
                     stmt.executeUpdate("DELETE FROM testing_centers");
                 }
                 conn.commit();
 
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning tables: " + ex.getMessage());
-        }
+                final Cache cache = new Cache(dbProfile, conn);
 
-        return "Cleaned 'testing_centers' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
                 final RawTestingCenter raw1 = new RawTestingCenter("CENTER 1", "Center One", "1 First Street",
                         "Apartment A", null, "Fort Collins", "CO", "80535", "Y", dateTime1, dateTime2, null, null,
                         "N", "Y");
@@ -160,24 +117,22 @@ final class TestRawTestingCenterLogic {
                 assertTrue(RawTestingCenterLogic.INSTANCE.insert(cache, raw1), "Failed to insert testing_centers");
                 assertTrue(RawTestingCenterLogic.INSTANCE.insert(cache, raw2), "Failed to insert testing_centers");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while inserting testing_centers rows: " + ex.getMessage());
+            fail("Exception while initializing tables: " + ex.getMessage());
         }
-
-        return "Inserted all test 'testing_centers' records";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawTestingCenter> all = RawTestingCenterLogic.INSTANCE.queryAll(cache);
@@ -244,24 +199,22 @@ final class TestRawTestingCenterLogic {
                 assertTrue(found2, "Testing Center 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all testing_centers rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("query results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawTestingCenter center1 = RawTestingCenterLogic.query(cache, "CENTER 1");
@@ -284,24 +237,22 @@ final class TestRawTestingCenterLogic {
                 assertEquals("N", center1.isRemote, "Bad remote flag");
                 assertEquals("Y", center1.isProctored, "Bad proctored flag");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying testing_centers rows: " + ex.getMessage());
         }
-
-        return "query results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawTestingCenter raw2 = new RawTestingCenter("CENTER 2", "Center Two", "2 Second Street",
@@ -357,14 +308,12 @@ final class TestRawTestingCenterLogic {
                 assertTrue(found1, "Testing Center 1 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting testing_centers: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -372,7 +321,7 @@ final class TestRawTestingCenterLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -382,7 +331,7 @@ final class TestRawTestingCenterLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

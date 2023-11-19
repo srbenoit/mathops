@@ -79,11 +79,19 @@ final class TestRawUserClearanceLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM user_clearance");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawUserClearance raw1 = new RawUserClearance("user01", "fxn001", Integer.valueOf(1), "pwd01");
+                final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
+                final RawUserClearance raw3 = new RawUserClearance("user02", "fxn003", Integer.valueOf(3), "pwd03");
+
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw1), "Failed to insert user_clearance 1");
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw2), "Failed to insert user_clearance 2");
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw3), "Failed to insert user_clearance 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -95,67 +103,12 @@ final class TestRawUserClearanceLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM user_clearance");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'user_clearance' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawUserClearance raw1 = new RawUserClearance("user01", "fxn001", Integer.valueOf(1), "pwd01");
-                final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
-                final RawUserClearance raw3 = new RawUserClearance("user02", "fxn003", Integer.valueOf(3), "pwd03");
-
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw1), "Failed to insert user_clearance 1");
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw2), "Failed to insert user_clearance 2");
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw3), "Failed to insert user_clearance 3");
-
-                conn.commit();
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting user_clearance rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'user_clearance' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawUserClearance> all = RawUserClearanceLogic.INSTANCE.queryAll(cache);
@@ -196,24 +149,22 @@ final class TestRawUserClearanceLogic {
                 assertTrue(found3, "user clearance 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all user_clearance rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAllForLogin results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawUserClearance> all = RawUserClearanceLogic.queryAllForLogin(cache, "user01");
@@ -247,24 +198,22 @@ final class TestRawUserClearanceLogic {
                 assertTrue(found2, "user clearance 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all user_clearance rows for login: " + ex.getMessage());
         }
-
-        return "queryAllForLogin results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
@@ -303,14 +252,12 @@ final class TestRawUserClearanceLogic {
                 assertTrue(found3, "user clearance 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting user_clearance: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -318,7 +265,7 @@ final class TestRawUserClearanceLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -328,7 +275,7 @@ final class TestRawUserClearanceLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

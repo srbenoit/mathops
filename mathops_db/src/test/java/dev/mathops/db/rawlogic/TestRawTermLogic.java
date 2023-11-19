@@ -128,11 +128,19 @@ final class TestRawTermLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM term");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
+                final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
+                final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12);
+
+                assertTrue(TermLogic.get(cache).insert(cache, raw1), "Failed to insert term");
+                assertTrue(TermLogic.get(cache).insert(cache, raw2), "Failed to insert term");
+                assertTrue(TermLogic.get(cache).insert(cache, raw3), "Failed to insert term");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -144,65 +152,12 @@ final class TestRawTermLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM term");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning tables: " + ex.getMessage());
-        }
-
-        return "Cleaned 'term' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
-                final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
-                final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12);
-
-                assertTrue(TermLogic.get(cache).insert(cache, raw1), "Failed to insert term");
-                assertTrue(TermLogic.get(cache).insert(cache, raw2), "Failed to insert term");
-                assertTrue(TermLogic.get(cache).insert(cache, raw3), "Failed to insert term");
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting term rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'term' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<TermRec> all = TermLogic.get(cache).queryAll(cache);
@@ -261,24 +216,22 @@ final class TestRawTermLogic {
                 assertTrue(found3, "Term 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all term rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryActive results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec test = TermLogic.get(cache).queryActive(cache);
@@ -295,24 +248,22 @@ final class TestRawTermLogic {
 
                 assertTrue(found, "Active term not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying active term: " + ex.getMessage());
         }
-
-        return "queryActive results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryPrior results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec test = TermLogic.get(cache).queryPrior(cache);
@@ -329,24 +280,22 @@ final class TestRawTermLogic {
 
                 assertTrue(found, "Prior term not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying prior term: " + ex.getMessage());
         }
-
-        return "queryPrior results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryNext results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec test = TermLogic.get(cache).queryNext(cache);
@@ -363,24 +312,22 @@ final class TestRawTermLogic {
 
                 assertTrue(found, "Next term not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying next term: " + ex.getMessage());
         }
-
-        return "queryNext results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("query results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec test = TermLogic.get(cache).query(cache, termSM21);
@@ -397,24 +344,22 @@ final class TestRawTermLogic {
 
                 assertTrue(found, "Queried term not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying term: " + ex.getMessage());
         }
-
-        return "query results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByIndex results")
     void test0008() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec test = TermLogic.get(cache).queryByIndex(cache, -1);
@@ -431,24 +376,22 @@ final class TestRawTermLogic {
 
                 assertTrue(found, "Queried index term not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying term by index: " + ex.getMessage());
         }
-
-        return "queryByIndex results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("getFutureTerms results")
     void test0009() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<TermRec> all = TermLogic.get(cache).getFutureTerms(cache);
@@ -475,24 +418,22 @@ final class TestRawTermLogic {
                 assertTrue(found3, "Term 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all future term rows: " + ex.getMessage());
         }
-
-        return "getFutureTerms results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0010() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
@@ -544,14 +485,12 @@ final class TestRawTermLogic {
                 assertTrue(found3, "Term 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting term: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -559,7 +498,7 @@ final class TestRawTermLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -569,7 +508,7 @@ final class TestRawTermLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

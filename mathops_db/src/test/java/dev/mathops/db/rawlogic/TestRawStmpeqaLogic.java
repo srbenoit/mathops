@@ -90,11 +90,28 @@ final class TestRawStmpeqaLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stmpeqa");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawStmpeqa raw1 = new RawStmpeqa("111111111", "AAAAA", date1, Integer.valueOf(123456),
+                        Integer.valueOf(1), "Ans1", "N", "z", "Tree.ref.1");
+
+                final RawStmpeqa raw2 = new RawStmpeqa("111111111", "AAAAA", date1, Integer.valueOf(123456),
+                        Integer.valueOf(2), "Ans2", "Y", "y", "Tree.ref.2");
+
+                final RawStmpeqa raw3 = new RawStmpeqa("222222222", "BBBBB", date2, Integer.valueOf(222333),
+                        Integer.valueOf(3), "Ans3", "A", "x", "Tree.ref.3");
+
+                final RawStmpeqa raw4 = new RawStmpeqa("333333333", "CCCCC", date3, Integer.valueOf(333444),
+                        Integer.valueOf(4), "Ans4", "B", "w", "Tree.ref.4");
+
+                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmpeqa 1");
+                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmpeqa 2");
+                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmpeqa 3");
+                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmpeqa 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -106,105 +123,12 @@ final class TestRawStmpeqaLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stmpeqa");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stmpeqa' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawStmpeqa raw1 = new RawStmpeqa("111111111",
-                        "AAAAA",
-                        date1,
-                        Integer.valueOf(123456),
-                        Integer.valueOf(1),
-                        "Ans1",
-                        "N",
-                        "z",
-                        "Tree.ref.1");
-
-                final RawStmpeqa raw2 = new RawStmpeqa("111111111",
-                        "AAAAA",
-                        date1,
-                        Integer.valueOf(123456),
-                        Integer.valueOf(2),
-                        "Ans2",
-                        "Y",
-                        "y",
-                        "Tree.ref.2");
-
-                final RawStmpeqa raw3 = new RawStmpeqa("222222222",
-                        "BBBBB",
-                        date2,
-                        Integer.valueOf(222333),
-                        Integer.valueOf(3),
-                        "Ans3",
-                        "A",
-                        "x",
-                        "Tree.ref.3");
-
-                final RawStmpeqa raw4 = new RawStmpeqa("333333333",
-                        "CCCCC",
-                        date3,
-                        Integer.valueOf(333444),
-                        Integer.valueOf(4),
-                        "Ans4",
-                        "B",
-                        "w",
-                        "Tree.ref.4");
-
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmpeqa 1");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmpeqa 2");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmpeqa 3");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmpeqa 4");
-
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting stmpeqa rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'stmpeqa' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
@@ -280,24 +204,22 @@ final class TestRawStmpeqaLogic {
                 assertTrue(found4, "Stmpeqa 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stmpeqa rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
@@ -373,24 +295,22 @@ final class TestRawStmpeqaLogic {
                 assertTrue(found4, "Stmpeqa 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stmpeqa rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("deleteAllForExam results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStmpe stmpe = new RawStmpe("111111111", "AAAAA", "2021", date1,
@@ -448,24 +368,22 @@ final class TestRawStmpeqaLogic {
                 assertTrue(found4, "Stmpeqa 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after deleteAllForExam: " + ex.getMessage());
         }
-
-        return "deleteAllForExam results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0008() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStmpeqa raw3 = new RawStmpeqa("222222222",
@@ -515,14 +433,12 @@ final class TestRawStmpeqaLogic {
                 assertTrue(found4, "Stmpeqa 4 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after delete: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -530,7 +446,7 @@ final class TestRawStmpeqaLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -540,7 +456,7 @@ final class TestRawStmpeqaLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

@@ -96,11 +96,32 @@ final class TestRawStqaLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                    stmt.executeUpdate("DELETE FROM stqa");
                 }
                 conn.commit();
 
                 final Cache cache = new Cache(dbProfile, conn);
+
+                final RawStqa raw1 = new RawStqa(Long.valueOf(10101010L), Integer.valueOf(11), Integer.valueOf(1),
+                        "5.5.1", "Agree", "111111111", "17UE1", "Y", date12, "a", Integer.valueOf(80000));
+
+                final RawStqa raw2 = new RawStqa(Long.valueOf(10101010L), Integer.valueOf(22), Integer.valueOf(2),
+                        "5.5.2", "Disagree", "111111111", "17UE1", "N", date23, "b", Integer.valueOf(80001));
+
+                final RawStqa raw3 = new RawStqa(Long.valueOf(20202020L), Integer.valueOf(33), Integer.valueOf(3),
+                        "5.5.3", "True", "111111111", "17UE3", "Z", date34, "c", Integer.valueOf(80002));
+
+                final RawStqa raw4 = new RawStqa(Long.valueOf(30303030L), Integer.valueOf(44), Integer.valueOf(4),
+                        "5.5.4", "AA", "222222222", "18UE2", "P", date45, "d", Integer.valueOf(80003));
+
+                final RawStqa raw5 = new RawStqa(Long.valueOf(40404040L), Integer.valueOf(55), Integer.valueOf(5),
+                        "5.5.5", "BB", "333333333", "18UE3", "Q", date56, "e", Integer.valueOf(80004));
+
+                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stqa 1");
+                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stqa 2");
+                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stqa 3");
+                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stqa 4");
+                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert stqa 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -112,124 +133,12 @@ final class TestRawStqaLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM stqa");
-                }
-                conn.commit();
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
-
-        return "Cleaned 'stqa' table";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
-                final RawStqa raw1 = new RawStqa(Long.valueOf(10101010L),
-                        Integer.valueOf(11),
-                        Integer.valueOf(1),
-                        "5.5.1",
-                        "Agree",
-                        "111111111",
-                        "17UE1",
-                        "Y",
-                        date12,
-                        "a",
-                        Integer.valueOf(80000));
-
-                final RawStqa raw2 = new RawStqa(Long.valueOf(10101010L),
-                        Integer.valueOf(22),
-                        Integer.valueOf(2),
-                        "5.5.2",
-                        "Disagree",
-                        "111111111",
-                        "17UE1",
-                        "N",
-                        date23,
-                        "b",
-                        Integer.valueOf(80001));
-
-                final RawStqa raw3 = new RawStqa(Long.valueOf(20202020L),
-                        Integer.valueOf(33),
-                        Integer.valueOf(3),
-                        "5.5.3",
-                        "True",
-                        "111111111",
-                        "17UE3",
-                        "Z",
-                        date34,
-                        "c",
-                        Integer.valueOf(80002));
-
-                final RawStqa raw4 = new RawStqa(Long.valueOf(30303030L),
-                        Integer.valueOf(44),
-                        Integer.valueOf(4),
-                        "5.5.4",
-                        "AA",
-                        "222222222",
-                        "18UE2",
-                        "P",
-                        date45,
-                        "d",
-                        Integer.valueOf(80003));
-
-                final RawStqa raw5 = new RawStqa(Long.valueOf(40404040L),
-                        Integer.valueOf(55),
-                        Integer.valueOf(5),
-                        "5.5.5",
-                        "BB",
-                        "333333333",
-                        "18UE3",
-                        "Q",
-                        date56,
-                        "e",
-                        Integer.valueOf(80004));
-
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stqa 1");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stqa 2");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stqa 3");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stqa 4");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert stqa 5");
-
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while inserting stqa rows: " + ex.getMessage());
-        }
-
-        return "Inserted all test 'stqa' records";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStqa> all = RawStqaLogic.INSTANCE.queryAll(cache);
@@ -333,24 +242,22 @@ final class TestRawStqaLogic {
                 assertTrue(found5, "Stqa 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all stqa rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByStudent results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStqa> all = RawStqaLogic.queryByStudent(cache, "111111111");
@@ -422,24 +329,22 @@ final class TestRawStqaLogic {
                 assertTrue(found3, "Stqa 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying stqa rows by student: " + ex.getMessage());
         }
-
-        return "queryByStudent results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryBySerial results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStqa> all = RawStqaLogic.queryBySerial(cache, Long.valueOf(10101010L));
@@ -496,36 +401,25 @@ final class TestRawStqaLogic {
                 assertTrue(found2, "Stqa 2 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying stqa rows by serial number: " + ex.getMessage());
         }
-
-        return "queryBySerial results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateAnsCorrect results")
     void test0006() {
 
-        final RawStqa raw5 = new RawStqa(Long.valueOf(40404040L),
-                Integer.valueOf(55),
-                Integer.valueOf(5),
-                "5.5.5",
-                "BB",
-                "333333333",
-                "18UE3",
-                "Q",
-                date56,
-                "e",
-                Integer.valueOf(80004));
+        final RawStqa raw5 = new RawStqa(Long.valueOf(40404040L), Integer.valueOf(55), Integer.valueOf(5),
+                "5.5.5", "BB", "333333333", "18UE3", "Q", date56, "e", Integer.valueOf(80004));
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final boolean result = RawStqaLogic.updateAnsCorrect(cache, raw5, "A");
@@ -571,19 +465,17 @@ final class TestRawStqaLogic {
                 assertTrue(found5, "Stqa 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateAnsCorrect: " + ex.getMessage());
         }
-
-        return "updateAnsCorrect results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("deleteAllForAttempt results")
     void test0007() {
 
         final RawStexam stexam = new RawStexam(Long.valueOf(10101010L), "17UE1", "111111111", date12,
@@ -591,8 +483,8 @@ final class TestRawStqaLogic {
                 null, "M 117", Integer.valueOf(1), "UE", "N", "TC", null);
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final boolean result = RawStqaLogic.deleteAllForAttempt(cache, stexam);
@@ -670,36 +562,25 @@ final class TestRawStqaLogic {
                 assertTrue(found5, "Stqa 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying stqa rows after deleteAllForAttempt: " + ex.getMessage());
         }
-
-        return "deleteAllForAttempt results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0008() {
 
-        final RawStqa raw3 = new RawStqa(Long.valueOf(20202020L),
-                Integer.valueOf(33),
-                Integer.valueOf(3),
-                "5.5.3",
-                "True",
-                "111111111",
-                "17UE3",
-                "Z",
-                date34,
-                "c",
-                Integer.valueOf(80002));
+        final RawStqa raw3 = new RawStqa(Long.valueOf(20202020L), Integer.valueOf(33), Integer.valueOf(3),
+                "5.5.3", "True", "111111111", "17UE3", "Z", date34, "c", Integer.valueOf(80002));
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final boolean result = RawStqaLogic.INSTANCE.delete(cache, raw3);
@@ -761,14 +642,12 @@ final class TestRawStqaLogic {
                 assertTrue(found5, "Stqa 5 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying stqa rows after delete: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -776,7 +655,7 @@ final class TestRawStqaLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -786,7 +665,7 @@ final class TestRawStqaLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

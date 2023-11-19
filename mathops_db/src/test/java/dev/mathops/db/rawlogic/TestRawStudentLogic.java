@@ -125,55 +125,12 @@ final class TestRawStudentLogic {
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
-                }
-                conn.commit();
-
-                final Cache cache = new Cache(dbProfile, conn);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while initializing tables: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0001() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
                     stmt.executeUpdate("DELETE FROM student");
                 }
                 conn.commit();
 
-            } finally {
-                this.ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while cleaning table: " + ex.getMessage());
-        }
+                final Cache cache = new Cache(dbProfile, conn);
 
-        return "Cleaned 'student' tables";
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("")
-    void test0002() {
-
-        try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-
-            try {
                 final RawStudent raw1 = new RawStudent("111111111",
                         Integer.valueOf(12345), "Anderson", "Thomas",
                         "Neo", "A", termSP20,
@@ -219,26 +176,23 @@ final class TestRawStudentLogic {
                 assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw1), "Failed to insert student 1");
                 assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw2), "Failed to insert student 2");
                 assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw3), "Failed to insert student 3");
-
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while inserting student rows: " + ex.getMessage());
+            fail("Exception while initializing tables: " + ex.getMessage());
         }
-
-        return "Inserted all test 'student' records";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAll results")
     void test0003() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
@@ -417,24 +371,22 @@ final class TestRawStudentLogic {
                 assertTrue(found3, "Student 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all student rows: " + ex.getMessage());
         }
-
-        return "queryAll results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("query results")
     void test0004() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.query(cache, "111111111", false);
@@ -482,24 +434,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student: " + ex.getMessage());
         }
-
-        return "query results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByInternalId results")
     void test0005() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.queryByInternalId(cache, Integer.valueOf(12345));
@@ -548,24 +498,22 @@ final class TestRawStudentLogic {
                 assertTrue(found, "Student not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student by PIDM: " + ex.getMessage());
         }
-
-        return "queryByInternalId results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByLastName with match results")
     void test0006() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.queryByLastName(cache, "AnDeRsOn");
@@ -614,24 +562,22 @@ final class TestRawStudentLogic {
                 assertTrue(found, "Student not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student by PIDM: " + ex.getMessage());
         }
-
-        return "queryByLastName with match results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByLastName with match results")
     void test0007() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.queryByLastName(cache, "Smith");
@@ -639,24 +585,22 @@ final class TestRawStudentLogic {
                 assertNull(stu, "No record returned by queryByLastName");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student by PIDM: " + ex.getMessage());
         }
-
-        return "queryByLastName with match results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByName with match results")
     void test0008() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.queryByName(cache, "ThomaS", "AnDeRsOn");
@@ -705,48 +649,44 @@ final class TestRawStudentLogic {
                 assertTrue(found, "Student not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student by PIDM: " + ex.getMessage());
         }
-
-        return "queryByName with match results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryByName with no match results")
     void test0009() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final RawStudent stu = RawStudentLogic.queryByName(cache, "Thomas", "Smith");
 
                 assertNull(stu, "Bad record returned by queryByName");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student by PIDM: " + ex.getMessage());
         }
-
-        return "queryByName with no match results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAllByName results")
     void test0010() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStudent> all = RawStudentLogic.queryAllByName(cache, "A%", "Smith");
@@ -844,48 +784,44 @@ final class TestRawStudentLogic {
                 assertTrue(found3, "Student 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all student rows by name: " + ex.getMessage());
         }
-
-        return "queryAllByName results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("queryAllByName results")
     void test0011() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 final List<RawStudent> all = RawStudentLogic.queryAllByName(cache, "J%", "Smith");
 
                 assertEquals(0, all.size(), "Incorrect record count from queryAllByName");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all student rows by name: " + ex.getMessage());
         }
-
-        return "queryAllByName results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateInternalId results")
     void test0012() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateInternalId(cache, "111111111", Integer.valueOf(123450)),
@@ -936,24 +872,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateInternalId: " + ex.getMessage());
         }
-
-        return "updateInternalId results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateName results")
     void test0013() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateName(cache, "111111111", "Benoit", "Steven", "Steve", "R"),
@@ -1004,24 +938,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateName: " + ex.getMessage());
         }
-
-        return "updateName results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateApplicationTerm results")
     void test0014() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateApplicationTerm(cache, "111111111", termSM22),
@@ -1072,24 +1004,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateApplicationTerm: " + ex.getMessage());
         }
-
-        return "updateApplicationTerm results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateClassLevel results")
     void test0015() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateClassLevel(cache, "111111111", "X"), "updateClassLevel failed");
@@ -1139,24 +1069,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateClassLevel: " + ex.getMessage());
         }
-
-        return "updateClassLevel results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateProgram results")
     void test0016() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateProgram(cache, "111111111", "AA", "BB", "CC", "DD"),
@@ -1207,24 +1135,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateProgram: " + ex.getMessage());
         }
-
-        return "updateProgram results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateAnticGradTerm results")
     void test0017() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateAnticGradTerm(cache, "111111111", termFA30),
@@ -1275,24 +1201,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateAnticGradTerm: " + ex.getMessage());
         }
-
-        return "updateAnticGradTerm results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateNumTransferCredits results")
     void test0018() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateNumTransferCredits(cache, "111111111", "1.99"),
@@ -1343,24 +1267,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateNumTransferCredits: " + ex.getMessage());
         }
-
-        return "updateNumTransferCredits results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateHighSchool results")
     void test0019() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateHighSchool(cache, "111111111", "HS4", "4.0", Integer.valueOf(1),
@@ -1411,24 +1333,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateHighSchool: " + ex.getMessage());
         }
-
-        return "updateHighSchool results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateTestScores results")
     void test0020() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateTestScores(cache, "111111111", Integer.valueOf(25),
@@ -1479,24 +1399,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateTestScores: " + ex.getMessage());
         }
-
-        return "updateTestScores results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateResidency results")
     void test0021() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateResidency(cache, "111111111", "RR"), "updateTestScores failed");
@@ -1546,28 +1464,25 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateResidency: " + ex.getMessage());
         }
-
-        return "updateResidency results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateBirthDate results")
     void test0022() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                assertTrue(RawStudentLogic.updateBirthDate(cache, "111111111", date1011),
-                        "updateBirthDate failed");
+                assertTrue(RawStudentLogic.updateBirthDate(cache, "111111111", date1011), "updateBirthDate failed");
 
                 final RawStudent stu = RawStudentLogic.query(cache, "111111111", false);
 
@@ -1614,24 +1529,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateBirthDate: " + ex.getMessage());
         }
-
-        return "updateBirthDate results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateGender results")
     void test0023() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateGender(cache, "111111111", "Z"), "updateGender failed");
@@ -1681,24 +1594,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateGender: " + ex.getMessage());
         }
-
-        return "updateGender results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateHoldSeverity results")
     void test0024() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateHoldSeverity(cache, "111111111", "V"), "updateHoldSeverity failed");
@@ -1748,24 +1659,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateHoldSeverity: " + ex.getMessage());
         }
-
-        return "updateHoldSeverity results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateTimeLimitFactor results")
     void test0025() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateTimeLimitFactor(cache, "111111111", PI),
@@ -1816,24 +1725,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateTimeLimitFactor: " + ex.getMessage());
         }
-
-        return "updateTimeLimitFactor results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateLicensed results")
     void test0026() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateLicensed(cache, "111111111", "W"), "updateLicensed failed");
@@ -1883,24 +1790,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateLicensed: " + ex.getMessage());
         }
-
-        return "updateLicensed results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateCampus results")
     void test0027() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateCampus(cache, "111111111", "1"), "updateCampus failed");
@@ -1950,24 +1855,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateCampus: " + ex.getMessage());
         }
-
-        return "updateCampus results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateEmail results")
     void test0028() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateEmail(cache, "111111111", "stu@mail", "adv@mail"),
@@ -2018,24 +1921,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateEmail: " + ex.getMessage());
         }
-
-        return "updateEmail results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateAdmission results")
     void test0029() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateAdmission(cache, "111111111", "2", Boolean.TRUE),
@@ -2086,24 +1987,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateAdmission: " + ex.getMessage());
         }
-
-        return "updateAdmission results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updateCourseOrder results")
     void test0030() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updateCourseOrder(cache, "111111111", "3"), "updateCourseOrder failed");
@@ -2153,24 +2052,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updateCourseOrder: " + ex.getMessage());
         }
-
-        return "updateCourseOrder results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("updatePacingStructure results")
     void test0031() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
                 assertTrue(RawStudentLogic.updatePacingStructure(cache, "111111111", "4"),
@@ -2221,24 +2118,22 @@ final class TestRawStudentLogic {
 
                 assertTrue(found, "Student not found");
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying after updatePacingStructure: " + ex.getMessage());
         }
-
-        return "updatePacingStructure results were correct";
     }
 
     /** Test case. */
     @Test
-    @DisplayName("")
+    @DisplayName("delete results")
     void test0032() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
 
             try {
 
@@ -2393,14 +2288,12 @@ final class TestRawStudentLogic {
                 assertTrue(found3, "Student 3 not found");
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting student: " + ex.getMessage());
         }
-
-        return "delete results were correct";
     }
 
     /** Clean up. */
@@ -2408,7 +2301,7 @@ final class TestRawStudentLogic {
     static void cleanUp() {
 
         try {
-            final DbConnection conn = this.ctx.checkOutConnection();
+            final DbConnection conn = ctx.checkOutConnection();
 
             try {
                 try (final Statement stmt = conn.createStatement()) {
@@ -2418,7 +2311,7 @@ final class TestRawStudentLogic {
                 conn.commit();
 
             } finally {
-                this.ctx.checkInConnection(conn);
+                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
