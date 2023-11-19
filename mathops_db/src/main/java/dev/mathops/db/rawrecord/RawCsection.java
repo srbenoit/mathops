@@ -1,0 +1,593 @@
+package dev.mathops.db.rawrecord;
+
+import dev.mathops.core.EqualityTests;
+import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.db.TermKey;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Objects;
+
+/**
+ * A raw "csection" record.
+ */
+public final class RawCsection extends RawTermRecordBase implements Comparable<RawCsection> {
+
+    /** A field name. */
+    public static final String FLD_COURSE = "course";
+
+    /** A field name. */
+    public static final String FLD_SECT = "sect";
+
+    /** A field name. */
+    public static final String FLD_SECTION_ID = "section_id";
+
+    /** A field name. */
+    public static final String FLD_ARIES_START_DT = "aries_start_dt";
+
+    /** A field name. */
+    public static final String FLD_ARIES_END_DT = "aries_end_dt";
+
+    /** A field name. */
+    public static final String FLD_START_DT = "start_dt";
+
+    /** A field name. */
+    public static final String FLD_EXAM_DELETE_DT = "exam_delete_dt";
+
+    /** A field name. */
+    public static final String FLD_INSTRN_TYPE = "instrn_type";
+
+    /** A field name. */
+    public static final String FLD_INSTRUCTOR = "instructor";
+
+    /** A field name. */
+    public static final String FLD_CAMPUS = "campus";
+
+    /** A field name. */
+    public static final String FLD_PACING_STRUCTURE = "pacing_structure";
+
+    /** A field name. */
+    public static final String FLD_MTG_DAYS = "mtg_days";
+
+    /** A field name. */
+    public static final String FLD_CLASSROOM_ID = "classroom_id";
+
+    /** A field name. */
+    public static final String FLD_LST_STCRS_CREAT_DT = "lst_stcrs_creat_dt";
+
+    /** A field name. */
+    public static final String FLD_GRADING_STD = "grading_std";
+
+    /** A field name. */
+    public static final String FLD_A_MIN_SCORE = "a_min_score";
+
+    /** A field name. */
+    public static final String FLD_B_MIN_SCORE = "b_min_score";
+
+    /** A field name. */
+    public static final String FLD_C_MIN_SCORE = "c_min_score";
+
+    /** A field name. */
+    public static final String FLD_D_MIN_SCORE = "d_min_score";
+
+    /** A field name. */
+    public static final String FLD_SURVEY_ID = "survey_id";
+
+    /** A field name. */
+    public static final String FLD_COURSE_LABEL_SHOWN = "course_label_shown";
+
+    /** A field name. */
+    public static final String FLD_DISPLAY_SCORE = "display_score";
+
+    /** A field name. */
+    public static final String FLD_DISPLAY_GRADE_SCALE = "display_grade_scale";
+
+    /** A field name. */
+    public static final String FLD_COUNT_IN_MAX_COURSES = "count_in_max_courses";
+
+    /** A field name. */
+    public static final String FLD_ONLINE = "online";
+
+    /** A field name. */
+    public static final String FLD_BOGUS = "bogus";
+
+    /** A field name. */
+    public static final String FLD_CANVAS_ID = "canvas_id";
+
+    /** A field name. */
+    public static final String FLD_SUBTERM = "subterm";
+
+    /** The 'course' field value. */
+    public String course;
+
+    /** The 'sect' field value. */
+    public String sect;
+
+    /** The 'section_id' field value. */
+    public String sectionId;
+
+    /** The 'aries_start_dt' field value. */
+    public LocalDate ariesStartDt;
+
+    /** The 'aries_end_dt' field value. */
+    public LocalDate ariesEndDt;
+
+    /** The 'start_dt' field value. */
+    public LocalDate startDt;
+
+    /** The 'exam_delete_dt' field value. */
+    public LocalDate examDeleteDt;
+
+    /** The 'instrn_type' field value. */
+    public String instrnType;
+
+    /** The 'instructor' field value. */
+    public String instructor;
+
+    /** The 'campus' field value. */
+    public String campus;
+
+    /** The 'pacing_structure' field value. */
+    public String pacingStructure;
+
+    /** The 'mtg_days' field value. */
+    public String mtgDays;
+
+    /** The 'classroom_id' field value. */
+    public String classroomId;
+
+    /** The 'lst_stcrs_creat_dt' field value. */
+    public LocalDate lstStcrsCreatDt;
+
+    /** The 'grading_std' field value. */
+    public String gradingStd;
+
+    /** The 'a_min_score' field value. */
+    public Integer aMinScore;
+
+    /** The 'b_min_score' field value. */
+    public Integer bMinScore;
+
+    /** The 'c_min_score' field value. */
+    public Integer cMinScore;
+
+    /** The 'd_min_score' field value. */
+    public Integer dMinScore;
+
+    /** The 'survey_id' field value. */
+    public String surveyId;
+
+    /** The 'course_label_shown' field value. */
+    public String courseLabelShown;
+
+    /** The 'display_score' field value. */
+    public String displayScore;
+
+    /** The 'display_grade_scale' field value. */
+    public String displayGradeScale;
+
+    /** The 'count_in_max_courses' field value. */
+    public String countInMaxCourses;
+
+    /** The 'online' field value. */
+    public String online;
+
+    /** The 'bogus' field value. */
+    public String bogus;
+
+    /** The 'canvas_id' field value. */
+    public String canvasId;
+
+    /** The 'subterm' field value. */
+    public String subterm;
+
+    /**
+     * Constructs a new {@code RawCsection}.
+     */
+    public RawCsection() {
+
+        super();
+    }
+
+    /**
+     * Constructs a new {@code RawCsection} by parsing the string format generated by {@code serializedString}.
+     *
+     * @param toParse the string to parse
+     * @return the parsed object
+     * @throws IllegalArgumentException if the string cannot be parsed
+     */
+    public static RawCsection parse(final String toParse) {
+
+        final RawCsection result = new RawCsection();
+
+        result.parseString(toParse);
+
+        return result;
+    }
+
+    /**
+     * Sets a field based on its name and the string representation of its value.
+     *
+     * <p>
+     * If the field name is not recognized, no action is taken (perhaps the object is being deserialized from an old
+     * record created at a time when a field was present that has since been removed).
+     *
+     * <p>
+     * If a field name is recognized, however, and the value provided cannot be interpreted, an
+     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
+     * {@code null}.
+     *
+     * @param name  the field name
+     * @param value the value
+     * @throws IllegalArgumentException if the string cannot be parsed
+     */
+    @Override
+    protected void setField(final String name, final String value)
+            throws IllegalArgumentException {
+
+        if (FLD_TERM.equals(name)) {
+            this.termKey = TermKey.parseLongString(value);
+        } else if (FLD_COURSE.equals(name)) {
+            this.course = value;
+        } else if (FLD_SECT.equals(name)) {
+            this.sect = value;
+        } else if (FLD_SECTION_ID.equals(name)) {
+            this.sectionId = value;
+        } else if (FLD_ARIES_START_DT.equals(name)) {
+            this.ariesStartDt = LocalDate.parse(value);
+        } else if (FLD_ARIES_END_DT.equals(name)) {
+            this.ariesEndDt = LocalDate.parse(value);
+        } else if (FLD_START_DT.equals(name)) {
+            this.startDt = LocalDate.parse(value);
+        } else if (FLD_EXAM_DELETE_DT.equals(name)) {
+            this.examDeleteDt = LocalDate.parse(value);
+        } else if (FLD_INSTRN_TYPE.equals(name)) {
+            this.instrnType = value;
+        } else if (FLD_INSTRUCTOR.equals(name)) {
+            this.instructor = value;
+        } else if (FLD_CAMPUS.equals(name)) {
+            this.campus = value;
+        } else if (FLD_PACING_STRUCTURE.equals(name)) {
+            this.pacingStructure = value;
+        } else if (FLD_MTG_DAYS.equals(name)) {
+            this.mtgDays = value;
+        } else if (FLD_CLASSROOM_ID.equals(name)) {
+            this.classroomId = value;
+        } else if (FLD_LST_STCRS_CREAT_DT.equals(name)) {
+            this.lstStcrsCreatDt = LocalDate.parse(value);
+        } else if (FLD_GRADING_STD.equals(name)) {
+            this.gradingStd = value;
+        } else if (FLD_A_MIN_SCORE.equals(name)) {
+            this.aMinScore = Integer.valueOf(value);
+        } else if (FLD_B_MIN_SCORE.equals(name)) {
+            this.bMinScore = Integer.valueOf(value);
+        } else if (FLD_C_MIN_SCORE.equals(name)) {
+            this.cMinScore = Integer.valueOf(value);
+        } else if (FLD_D_MIN_SCORE.equals(name)) {
+            this.dMinScore = Integer.valueOf(value);
+        } else if (FLD_SURVEY_ID.equals(name)) {
+            this.surveyId = value;
+        } else if (FLD_COURSE_LABEL_SHOWN.equals(name)) {
+            this.courseLabelShown = value;
+        } else if (FLD_DISPLAY_SCORE.equals(name)) {
+            this.displayScore = value;
+        } else if (FLD_DISPLAY_GRADE_SCALE.equals(name)) {
+            this.displayGradeScale = value;
+        } else if (FLD_COUNT_IN_MAX_COURSES.equals(name)) {
+            this.countInMaxCourses = value;
+        } else if (FLD_ONLINE.equals(name)) {
+            this.online = value;
+        } else if (FLD_BOGUS.equals(name)) {
+            this.bogus = value;
+        } else if (FLD_CANVAS_ID.equals(name)) {
+            this.canvasId = value;
+        } else if (FLD_SUBTERM.equals(name)) {
+            this.subterm = value;
+        }
+    }
+
+    /**
+     * Constructs a new {@code RawCsection}.
+     *
+     * @param theTermKey           the term key
+     * @param theCourse            the course
+     * @param theSect              the sect
+     * @param theSectionId         the section ID
+     * @param theAriesStartDt      the Aries start date
+     * @param theAriesEndDt        the Aries end date
+     * @param theStartDt           the start date
+     * @param theExamDeleteDt      the exam delete date
+     * @param theInstrnType        the instruction type
+     * @param theInstructor        the instructor
+     * @param theCampus            the campus
+     * @param thePacingStructure   the pacing structure
+     * @param theMtgDays           the days the class meets
+     * @param theClassroomId       the classroom ID
+     * @param theLstStcrsCreatDt   the last 'stcourse' create date
+     * @param theGradingStd        the grading standard
+     * @param theAMinScore         the minimum score for an A
+     * @param theBMinScore         the minimum score for an B, null if B not given
+     * @param theCMinScore         the minimum score for an C, null if C not given
+     * @param theDMinScore         the minimum score for an D, null if D not given
+     * @param theSurveyId          the survey ID
+     * @param theCourseLabelShown  "Y" if the course label should be shown
+     * @param theDisplayScore      "Y" if student score should be shown
+     * @param theDisplayGradeScale "Y" if the grading scale should be shown
+     * @param theCountInMaxCourses "Y" if the course should count toward max open courses
+     * @param theOnline            "Y" if the course is online
+     * @param theBogus             "Y" if the course is "bogus", and does not appear in the catalog
+     * @param theCanvasId          the ID of the Canvas curse that corresponds to this section, if any
+     * @param theSubterm           the subterm this section occupies ("FULL" or "LATE" so far)
+     */
+    public RawCsection(final TermKey theTermKey, final String theCourse, final String theSect,
+                       final String theSectionId, final LocalDate theAriesStartDt, final LocalDate theAriesEndDt,
+                       final LocalDate theStartDt, final LocalDate theExamDeleteDt, final String theInstrnType,
+                       final String theInstructor, final String theCampus, final String thePacingStructure,
+                       final String theMtgDays, final String theClassroomId, final LocalDate theLstStcrsCreatDt,
+                       final String theGradingStd, final Integer theAMinScore, final Integer theBMinScore,
+                       final Integer theCMinScore, final Integer theDMinScore, final String theSurveyId,
+                       final String theCourseLabelShown, final String theDisplayScore,
+                       final String theDisplayGradeScale, final String theCountInMaxCourses,
+                       final String theOnline, final String theBogus, final String theCanvasId,
+                       final String theSubterm) {
+
+        super(theTermKey);
+
+        this.course = theCourse;
+        this.sect = theSect;
+        this.sectionId = theSectionId;
+        this.ariesStartDt = theAriesStartDt;
+        this.ariesEndDt = theAriesEndDt;
+        this.startDt = theStartDt;
+        this.examDeleteDt = theExamDeleteDt;
+        this.instrnType = theInstrnType;
+        this.instructor = theInstructor;
+        this.campus = theCampus;
+        this.pacingStructure = thePacingStructure;
+        this.mtgDays = theMtgDays;
+        this.classroomId = theClassroomId;
+        this.lstStcrsCreatDt = theLstStcrsCreatDt;
+        this.gradingStd = theGradingStd;
+        this.aMinScore = theAMinScore;
+        this.bMinScore = theBMinScore;
+        this.cMinScore = theCMinScore;
+        this.dMinScore = theDMinScore;
+        this.surveyId = theSurveyId;
+        this.courseLabelShown = theCourseLabelShown;
+        this.displayScore = theDisplayScore;
+        this.displayGradeScale = theDisplayGradeScale;
+        this.countInMaxCourses = theCountInMaxCourses;
+        this.online = theOnline;
+        this.bogus = theBogus;
+        this.canvasId = theCanvasId;
+        this.subterm = theSubterm;
+    }
+
+    /**
+     * Extracts an "csection" record from a result set.
+     *
+     * @param rs the result set from which to retrieve the record
+     * @return the record
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static RawCsection fromResultSet(final ResultSet rs) throws SQLException {
+
+        final RawCsection result = new RawCsection();
+
+        result.course = getStringField(rs, FLD_COURSE);
+        result.sect = getStringField(rs, FLD_SECT);
+        result.termKey = getTermAndYear(rs, FLD_TERM, FLD_TERM_YR);
+        result.sectionId = getStringField(rs, FLD_SECTION_ID);
+        result.ariesStartDt = getDateField(rs, FLD_ARIES_START_DT);
+        result.ariesEndDt = getDateField(rs, FLD_ARIES_END_DT);
+        result.startDt = getDateField(rs, FLD_START_DT);
+        result.examDeleteDt = getDateField(rs, FLD_EXAM_DELETE_DT);
+        result.instrnType = getStringField(rs, FLD_INSTRN_TYPE);
+        result.instructor = getStringField(rs, FLD_INSTRUCTOR);
+        result.campus = getStringField(rs, FLD_CAMPUS);
+        result.pacingStructure = getStringField(rs, FLD_PACING_STRUCTURE);
+        result.mtgDays = getStringField(rs, FLD_MTG_DAYS);
+        result.classroomId = getStringField(rs, FLD_CLASSROOM_ID);
+        result.lstStcrsCreatDt = getDateField(rs, FLD_LST_STCRS_CREAT_DT);
+        result.gradingStd = getStringField(rs, FLD_GRADING_STD);
+        result.aMinScore = getIntegerField(rs, FLD_A_MIN_SCORE);
+        result.bMinScore = getIntegerField(rs, FLD_B_MIN_SCORE);
+        result.cMinScore = getIntegerField(rs, FLD_C_MIN_SCORE);
+        result.dMinScore = getIntegerField(rs, FLD_D_MIN_SCORE);
+        result.surveyId = getStringField(rs, FLD_SURVEY_ID);
+        result.courseLabelShown = getStringField(rs, FLD_COURSE_LABEL_SHOWN);
+        result.displayScore = getStringField(rs, FLD_DISPLAY_SCORE);
+        result.displayGradeScale = getStringField(rs, FLD_DISPLAY_GRADE_SCALE);
+        result.countInMaxCourses = getStringField(rs, FLD_COUNT_IN_MAX_COURSES);
+        result.online = getStringField(rs, FLD_ONLINE);
+        result.bogus = getStringField(rs, FLD_BOGUS);
+        result.canvasId = getStringField(rs, FLD_CANVAS_ID);
+        result.subterm = getStringField(rs, FLD_SUBTERM);
+
+        return result;
+    }
+
+    /**
+     * Compares two records for order.
+     *
+     * @param o the object to be compared
+     * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
+     *         the specified object
+     */
+    @Override
+    public int compareTo(final RawCsection o) {
+
+        int result = compareAllowingNull(this.termKey, o.termKey);
+
+        if (result == 0) {
+            result = compareAllowingNull(this.course, o.course);
+            if (result == 0) {
+                result = compareAllowingNull(this.sect, o.sect);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Generates a string serialization of the record. Each concrete subclass should have a constructor that accepts a
+     * single {@code String} to reconstruct the object from this string.
+     *
+     * @return the string
+     */
+    @Override
+    public String serializedString() {
+
+        final HtmlBuilder htm = new HtmlBuilder(40);
+
+        appendField(htm, FLD_TERM, this.termKey);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_COURSE, this.course);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_SECT, this.sect);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_SECTION_ID, this.sectionId);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_ARIES_START_DT, this.ariesStartDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_ARIES_END_DT, this.ariesEndDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.startDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_EXAM_DELETE_DT, this.examDeleteDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_INSTRN_TYPE, this.instrnType);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_INSTRUCTOR, this.instructor);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_CAMPUS, this.campus);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_PACING_STRUCTURE, this.pacingStructure);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_MTG_DAYS, this.mtgDays);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_CLASSROOM_ID, this.classroomId);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_LST_STCRS_CREAT_DT, this.lstStcrsCreatDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_GRADING_STD, this.gradingStd);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_A_MIN_SCORE, this.aMinScore);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_B_MIN_SCORE, this.bMinScore);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_C_MIN_SCORE, this.cMinScore);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_D_MIN_SCORE, this.dMinScore);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_SURVEY_ID, this.surveyId);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_COURSE_LABEL_SHOWN, this.courseLabelShown);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_DISPLAY_SCORE, this.displayScore);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_DISPLAY_GRADE_SCALE, this.displayGradeScale);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_COUNT_IN_MAX_COURSES, this.countInMaxCourses);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_ONLINE, this.online);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_BOGUS, this.bogus);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_CANVAS_ID, this.canvasId);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_SUBTERM, this.subterm);
+
+        return htm.toString();
+    }
+
+    /**
+     * Generates a hash code for the object.
+     *
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+
+        return EqualityTests.objectHashCode(this.termKey)
+                + EqualityTests.objectHashCode(this.course)
+                + EqualityTests.objectHashCode(this.sect)
+                + EqualityTests.objectHashCode(this.sectionId)
+                + EqualityTests.objectHashCode(this.ariesStartDt)
+                + EqualityTests.objectHashCode(this.ariesEndDt)
+                + EqualityTests.objectHashCode(this.startDt)
+                + EqualityTests.objectHashCode(this.examDeleteDt)
+                + EqualityTests.objectHashCode(this.instrnType)
+                + EqualityTests.objectHashCode(this.instructor)
+                + EqualityTests.objectHashCode(this.campus)
+                + EqualityTests.objectHashCode(this.pacingStructure)
+                + EqualityTests.objectHashCode(this.mtgDays)
+                + EqualityTests.objectHashCode(this.classroomId)
+                + EqualityTests.objectHashCode(this.lstStcrsCreatDt)
+                + EqualityTests.objectHashCode(this.gradingStd)
+                + EqualityTests.objectHashCode(this.aMinScore)
+                + EqualityTests.objectHashCode(this.bMinScore)
+                + EqualityTests.objectHashCode(this.cMinScore)
+                + EqualityTests.objectHashCode(this.dMinScore)
+                + EqualityTests.objectHashCode(this.surveyId)
+                + EqualityTests.objectHashCode(this.courseLabelShown)
+                + EqualityTests.objectHashCode(this.displayScore)
+                + EqualityTests.objectHashCode(this.displayGradeScale)
+                + EqualityTests.objectHashCode(this.countInMaxCourses)
+                + EqualityTests.objectHashCode(this.online)
+                + EqualityTests.objectHashCode(this.bogus)
+                + EqualityTests.objectHashCode(this.canvasId)
+                + EqualityTests.objectHashCode(this.subterm);
+    }
+
+    /**
+     * Tests whether this object is equal to another.
+     *
+     * @param obj the other object
+     * @return true if equal; false if not
+     */
+    @Override
+    public boolean equals(final Object obj) {
+
+        final boolean equal;
+
+        if (obj == this) {
+            equal = true;
+        } else if (obj instanceof final RawCsection rec) {
+            equal = Objects.equals(this.termKey, rec.termKey)
+                    && Objects.equals(this.course, rec.course)
+                    && Objects.equals(this.sect, rec.sect)
+                    && Objects.equals(this.sectionId, rec.sectionId)
+                    && Objects.equals(this.ariesStartDt, rec.ariesStartDt)
+                    && Objects.equals(this.ariesEndDt, rec.ariesEndDt)
+                    && Objects.equals(this.startDt, rec.startDt)
+                    && Objects.equals(this.examDeleteDt, rec.examDeleteDt)
+                    && Objects.equals(this.instrnType, rec.instrnType)
+                    && Objects.equals(this.instructor, rec.instructor)
+                    && Objects.equals(this.campus, rec.campus)
+                    && Objects.equals(this.pacingStructure, rec.pacingStructure)
+                    && Objects.equals(this.mtgDays, rec.mtgDays)
+                    && Objects.equals(this.classroomId, rec.classroomId)
+                    && Objects.equals(this.lstStcrsCreatDt, rec.lstStcrsCreatDt)
+                    && Objects.equals(this.gradingStd, rec.gradingStd)
+                    && Objects.equals(this.aMinScore, rec.aMinScore)
+                    && Objects.equals(this.bMinScore, rec.bMinScore)
+                    && Objects.equals(this.cMinScore, rec.cMinScore)
+                    && Objects.equals(this.dMinScore, rec.dMinScore)
+                    && Objects.equals(this.surveyId, rec.surveyId)
+                    && Objects.equals(this.courseLabelShown, rec.courseLabelShown)
+                    && Objects.equals(this.displayScore, rec.displayScore)
+                    && Objects.equals(this.displayGradeScale, rec.displayGradeScale)
+                    && Objects.equals(this.countInMaxCourses, rec.countInMaxCourses)
+                    && Objects.equals(this.online, rec.online)
+                    && Objects.equals(this.bogus, rec.bogus)
+                    && Objects.equals(this.canvasId, rec.canvasId)
+                    && Objects.equals(this.subterm, rec.subterm);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
+}

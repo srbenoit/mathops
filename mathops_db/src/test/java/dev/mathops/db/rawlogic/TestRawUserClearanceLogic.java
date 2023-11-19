@@ -1,0 +1,338 @@
+package dev.mathops.db.rawlogic;
+
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.DbContext;
+import dev.mathops.db.cfg.ContextMap;
+import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.cfg.ESchemaUse;
+import dev.mathops.db.rawrecord.RawUserClearance;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
+/**
+ * Tests for the {@code RawUserClearanceLogic} class.
+ */
+final class TestRawUserClearanceLogic {
+
+    /** The database profile. */
+    private static DbProfile dbProfile = null;
+
+    /** The database context. */
+    private static DbContext ctx = null;
+
+    /** Initialize the test class. */
+    @BeforeAll
+    static void initTests() {
+
+        dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+        if (dbProfile == null) {
+            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_TEST_PROFILE));
+        }
+
+        ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        if (ctx == null) {
+            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PRIMARY_CONTEXT));
+        }
+
+        // Make sure we're in the TEST database
+        try {
+            final DbConnection conn = ctx.checkOutConnection();
+
+            try {
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
+
+                    if (rs.next()) {
+                        final String which = rs.getString(1);
+                        if (which != null && !"TEST".equals(which.trim())) {
+                            throw new IllegalArgumentException(
+                                    TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                        }
+                    } else {
+                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
+                    }
+                }
+            } finally {
+                ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+
+        try {
+            final DbConnection conn = ctx.checkOutConnection();
+
+            try {
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM xxxxxxxxxxxxx");
+                }
+                conn.commit();
+
+                final Cache cache = new Cache(dbProfile, conn);
+            } finally {
+                ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while initializing tables: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("")
+    void test0001() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+
+            try {
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM user_clearance");
+                }
+                conn.commit();
+
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while cleaning table: " + ex.getMessage());
+        }
+
+        return "Cleaned 'user_clearance' table";
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("")
+    void test0002() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+            final Cache cache = new Cache(this.dbProfile, conn);
+
+            try {
+                final RawUserClearance raw1 = new RawUserClearance("user01", "fxn001", Integer.valueOf(1), "pwd01");
+                final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
+                final RawUserClearance raw3 = new RawUserClearance("user02", "fxn003", Integer.valueOf(3), "pwd03");
+
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw1), "Failed to insert user_clearance 1");
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw2), "Failed to insert user_clearance 2");
+                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw3), "Failed to insert user_clearance 3");
+
+                conn.commit();
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while inserting user_clearance rows: " + ex.getMessage());
+        }
+
+        return "Inserted all test 'user_clearance' records";
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("")
+    void test0003() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+            final Cache cache = new Cache(this.dbProfile, conn);
+
+            try {
+                final List<RawUserClearance> all = RawUserClearanceLogic.INSTANCE.queryAll(cache);
+
+                assertEquals(3, all.size(), "Incorrect record count from queryAll");
+
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+
+                for (final RawUserClearance test : all) {
+
+                    if ("user01".equals(test.login) && "fxn001".equals(test.clearFunction)
+                            && Integer.valueOf(1).equals(test.clearType) && "pwd01".equals(test.clearPasswd)) {
+
+                        found1 = true;
+
+                    } else if ("user01".equals(test.login) && "fxn002".equals(test.clearFunction)
+                            && Integer.valueOf(2).equals(test.clearType) && "pwd02".equals(test.clearPasswd)) {
+
+                        found2 = true;
+
+                    } else if ("user02".equals(test.login) && "fxn003".equals(test.clearFunction)
+                            && Integer.valueOf(3).equals(test.clearType) && "pwd03".equals(test.clearPasswd)) {
+
+                        found3 = true;
+
+                    } else {
+                        Log.warning("Unexpected login ", test.login);
+                        Log.warning("Unexpected clearFunction ", test.clearFunction);
+                        Log.warning("Unexpected clearType ", test.clearType);
+                        Log.warning("Unexpected clearPasswd ", test.clearPasswd);
+                    }
+                }
+
+                assertTrue(found1, "user clearance 1 not found");
+                assertTrue(found2, "user clearance 2 not found");
+                assertTrue(found3, "user clearance 3 not found");
+
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all user_clearance rows: " + ex.getMessage());
+        }
+
+        return "queryAll results were correct";
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("")
+    void test0004() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+            final Cache cache = new Cache(this.dbProfile, conn);
+
+            try {
+                final List<RawUserClearance> all = RawUserClearanceLogic.queryAllForLogin(cache, "user01");
+
+                assertEquals(2, all.size(), "Incorrect record count from queryAll");
+
+                boolean found1 = false;
+                boolean found2 = false;
+
+                for (final RawUserClearance test : all) {
+
+                    if ("user01".equals(test.login) && "fxn001".equals(test.clearFunction)
+                            && Integer.valueOf(1).equals(test.clearType) && "pwd01".equals(test.clearPasswd)) {
+
+                        found1 = true;
+
+                    } else if ("user01".equals(test.login) && "fxn002".equals(test.clearFunction)
+                            && Integer.valueOf(2).equals(test.clearType) && "pwd02".equals(test.clearPasswd)) {
+
+                        found2 = true;
+
+                    } else {
+                        Log.warning("Unexpected login ", test.login);
+                        Log.warning("Unexpected clearFunction ", test.clearFunction);
+                        Log.warning("Unexpected clearType ", test.clearType);
+                        Log.warning("Unexpected clearPasswd ", test.clearPasswd);
+                    }
+                }
+
+                assertTrue(found1, "user clearance 1 not found");
+                assertTrue(found2, "user clearance 2 not found");
+
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all user_clearance rows for login: " + ex.getMessage());
+        }
+
+        return "queryAllForLogin results were correct";
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("")
+    void test0005() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+            final Cache cache = new Cache(this.dbProfile, conn);
+
+            try {
+                final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
+
+                final boolean result = RawUserClearanceLogic.INSTANCE.delete(cache, raw2);
+                assertTrue(result, "delete returned false");
+
+                final List<RawUserClearance> all = RawUserClearanceLogic.INSTANCE.queryAll(cache);
+
+                assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
+
+                boolean found1 = false;
+                boolean found3 = false;
+
+                for (final RawUserClearance test : all) {
+
+                    if ("user01".equals(test.login) && "fxn001".equals(test.clearFunction)
+                            && Integer.valueOf(1).equals(test.clearType) && "pwd01".equals(test.clearPasswd)) {
+
+                        found1 = true;
+
+                    } else if ("user02".equals(test.login) && "fxn003".equals(test.clearFunction)
+                            && Integer.valueOf(3).equals(test.clearType) && "pwd03".equals(test.clearPasswd)) {
+
+                        found3 = true;
+
+                    } else {
+                        Log.warning("Unexpected login ", test.login);
+                        Log.warning("Unexpected clearFunction ", test.clearFunction);
+                        Log.warning("Unexpected clearType ", test.clearType);
+                        Log.warning("Unexpected clearPasswd ", test.clearPasswd);
+                    }
+                }
+
+                assertTrue(found1, "user clearance 1 not found");
+                assertTrue(found3, "user clearance 3 not found");
+
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while deleting user_clearance: " + ex.getMessage());
+        }
+
+        return "delete results were correct";
+    }
+
+    /** Clean up. */
+    @AfterAll
+    static void cleanUp() {
+
+        try {
+            final DbConnection conn = this.ctx.checkOutConnection();
+
+            try {
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM user_clearance");
+                }
+
+                conn.commit();
+
+            } finally {
+                this.ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while cleaning table: " + ex.getMessage());
+        }
+    }
+}

@@ -1,0 +1,169 @@
+package dev.mathops.db.rawlogic;
+
+import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.db.Cache;
+import dev.mathops.db.rawrecord.RawExceptStu;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A utility class to work with except_stu key records.
+ *
+ * <pre>
+ * Table:  'etext_key'
+ *
+ * Column name          Type                      Nulls   Key
+ * -------------------  ------------------------  ------  -----
+ * stu_id               char(9)                   no      PK
+ * course               char(6)                   no      PK
+ * unit                 smallint                  no      PK
+ * course_enroll        char(6)                   no
+ * hwork_status         char(1)                   no
+ * term                 char(2)                   no
+ * term_yr              smallint                  no
+ * sect                 char(4)                   no
+ * sect_enroll          char(4)                   no
+ * </pre>
+ */
+public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
+
+    /** A single instance. */
+    public static final RawExceptStuLogic INSTANCE = new RawExceptStuLogic();
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     */
+    private RawExceptStuLogic() {
+
+        super();
+    }
+
+    /**
+     * Inserts a new record.
+     *
+     * @param cache  the data cache
+     * @param record the record to insert
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean insert(final Cache cache, final RawExceptStu record) throws SQLException {
+
+        if (record.stuId == null || record.course == null || record.unit == null) {
+            throw new SQLException("Null value in primary key field.");
+        }
+
+        final String sql = SimpleBuilder.concat("INSERT INTO except_stu ",
+                "(term,term_yr,stu_id,course,unit,course_enroll,hwork_status,sect,sect_enroll) VALUES (",
+                sqlStringValue(record.termKey.termCode), ",",
+                sqlIntegerValue(record.termKey.shortYear), ",",
+                sqlStringValue(record.stuId), ",",
+                sqlStringValue(record.course), ",",
+                sqlIntegerValue(record.unit), ",",
+                sqlStringValue(record.courseEnroll), ",",
+                sqlStringValue(record.hworkStatus), ",",
+                sqlStringValue(record.sect), ",",
+                sqlStringValue(record.sectEnroll), ")");
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Deletes a record.
+     *
+     * @param cache  the data cache
+     * @param record the record to delete
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean delete(final Cache cache, final RawExceptStu record) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("DELETE FROM except_stu ",
+                "WHERE stu_id=", sqlStringValue(record.stuId),
+                "  AND course=", sqlStringValue(record.course),
+                "  AND unit=", sqlIntegerValue(record.unit));
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Gets all records.
+     *
+     * @param cache the data cache
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public List<RawExceptStu> queryAll(final Cache cache) throws SQLException {
+
+        return doListQuery(cache, "SELECT * FROM except_stu");
+    }
+
+    /**
+     * Queries for all records for a student and course.
+     *
+     * @param cache  the data cache
+     * @param stuId  the student ID
+     * @param course the course ID
+     * @return the complete set of records in the database
+     * @throws SQLException if there is an error performing the query
+     */
+    public static List<RawExceptStu> queryByStudentCourse(final Cache cache, final String stuId,
+                                                          final String course) throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM except_stu WHERE stu_id=",
+                sqlStringValue(stuId), " AND course=",
+                sqlStringValue(course));
+
+        return doListQuery(cache, sql);
+    }
+
+    /**
+     * Performs a query that returns list of records.
+     *
+     * @param cache the data cache
+     * @param sql   the query SQL
+     * @return the list of records returned
+     * @throws SQLException if there is an error performing the query
+     */
+    private static List<RawExceptStu> doListQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawExceptStu> result = new ArrayList<>(20);
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.add(RawExceptStu.fromResultSet(rs));
+            }
+        }
+
+        return result;
+    }
+}

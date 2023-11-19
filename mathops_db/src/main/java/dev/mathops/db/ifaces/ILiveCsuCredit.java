@@ -1,0 +1,24 @@
+package dev.mathops.db.ifaces;
+
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.IDataObject;
+import dev.mathops.db.rec.LiveCsuCredit;
+
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * An interface for management of {@code LiveCsuCredit} records.
+ */
+public interface ILiveCsuCredit extends IDataObject<LiveCsuCredit> {
+
+    /**
+     * Queries for a particular student.
+     *
+     * @param conn      the database connection, checked out to this thread
+     * @param studentId the student ID
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error performing the query
+     */
+    List<LiveCsuCredit> query(DbConnection conn, String studentId) throws SQLException;
+}
