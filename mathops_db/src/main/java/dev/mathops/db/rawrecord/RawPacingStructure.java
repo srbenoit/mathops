@@ -195,9 +195,8 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
@@ -265,7 +264,7 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
      * @param theTermKey            the term key
      * @param thePacingStructure    the pacing structure ID
      * @param theDefPaceTrack       the default pace track
-     * @param theRequireLicensed    the "Y" if requires student be licensed; "N" if not
+     * @param theRequireLicensed    the "Y" if the pacing structure requires student be licensed; "N" if not
      * @param theRequirePartic      "Y" if participation is required; "N" if not
      * @param theMaxParticMissed    the maximum number of participation credits the student can miss
      * @param theAllowInc           "Y" to allow incompletes; "N" otherwise
@@ -332,7 +331,7 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
     }
 
     /**
-     * Extracts an "remote_mpe" record from a result set.
+     * Extracts a "remote_mpe" record from a result set.
      *
      * @param rs the result set from which to retrieve the record
      * @return the record

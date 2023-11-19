@@ -77,7 +77,7 @@ public final class LiveReg implements Serializable, Comparable<LiveReg> {
     /** The student's residency. */
     public final String residency;
 
-    /** The student's birth date. */
+    /** The student's birthdate. */
     public final LocalDate birthDate;
 
     /** The student's gender. */
@@ -133,7 +133,7 @@ public final class LiveReg implements Serializable, Comparable<LiveReg> {
      * @param theSatrScore           the revised SAT score
      * @param theApScore             the AP score
      * @param theResidency           the residency
-     * @param theBirthDate           the birth date
+     * @param theBirthDate           the birthdate
      * @param theGender              the gender
      * @param theEmail               the email address
      * @param theAdviserEmail        the adviser's email address

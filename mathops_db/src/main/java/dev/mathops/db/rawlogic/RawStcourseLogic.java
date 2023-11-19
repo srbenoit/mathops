@@ -381,7 +381,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     }
 
     /**
-     * Queries for all courses the student is registered in in a particular term.
+     * Queries for all courses the student is registered in a particular term.
      *
      * @param cache          the data cache
      * @param studentId      the ID of the student to query

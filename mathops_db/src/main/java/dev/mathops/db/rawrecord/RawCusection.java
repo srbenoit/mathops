@@ -160,9 +160,8 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
@@ -228,12 +227,12 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
      * @param theHwMoveonScore   the homework move-on score
      * @param theNbrAtmptsAllow  the total number of unit/final exam attempts allowed
      * @param theAtmptsPerReview the number of unit exam attempts per review exam
-     * @param theFirstTestDt     the the first date the unit exam can be taken
+     * @param theFirstTestDt     the first date the unit exam can be taken
      * @param theLastTestDt      the last date the unit exam can be taken
-     * @param theBeginTestPeriod the the beginning of the test period
+     * @param theBeginTestPeriod the beginning of the test period
      * @param theEndTestPeriod   the end of the test period
      * @param theCouponCost      the cost in coupons to take the unit exam outside the testing window
-     * @param theLastCouponDt    the the last date unit exam can be taken with coupons
+     * @param theLastCouponDt    the last date unit exam can be taken with coupons
      * @param theShowTestWindow  "Y" to show the testing window
      * @param theUnproctoredExam the "Y" to allow the unit exam to be taken unproctored
      * @param theRePointsOntime  the number of points awarded for completing the review exam on time
@@ -272,7 +271,7 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
     }
 
     /**
-     * Extracts an "cusection" record from a result set.
+     * Extracts a "cusection" record from a result set.
      *
      * @param rs the result set from which to retrieve the record
      * @return the record

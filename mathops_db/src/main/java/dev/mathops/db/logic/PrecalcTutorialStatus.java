@@ -38,7 +38,7 @@ public final class PrecalcTutorialStatus {
      */
     public final Set<String> eligiblePrecalcExamCourses;
 
-    /** Dates the web site is available. */
+    /** Dates the website is available. */
     public DateRangeGroups webSiteAvailability;
 
     /**

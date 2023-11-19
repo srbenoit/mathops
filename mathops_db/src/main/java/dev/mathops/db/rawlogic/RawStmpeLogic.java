@@ -498,7 +498,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
     }
 
     /**
-     * Queries for the students with test data relating to checkin (IDs beginning with "99CI").
+     * Queries for the students with test data relating to a checkin (IDs beginning with "99CI").
      *
      * @param studentId the ID of the student to query
      * @param result    the list to which to add results
@@ -552,7 +552,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
 
         final String[] firstLast = RawStudentLogic.genStudentName(stuId);
 
-        final Long serial = Long.valueOf((long) (Integer.MAX_VALUE + stuId.hashCode() + index));
+        final Long serial = Long.valueOf(Integer.MAX_VALUE + stuId.hashCode() + index);
         final LocalDateTime whenFinished = LocalDateTime.now();
         final LocalDateTime whenStarted = whenFinished.minusHours(1L);
         final String howValidated = PPPPP.equals(version) ? "P" : "S";
@@ -708,7 +708,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
 
         history.clear();
 
-        // Get earliest date for which to return data...
+        // Get the earliest date for which to return data...
         LocalDate earliest;
         if (numDays <= 1) {
             earliest = today;

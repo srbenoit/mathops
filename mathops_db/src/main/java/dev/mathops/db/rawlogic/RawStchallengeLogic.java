@@ -258,7 +258,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
     }
 
     /**
-     * Queries for the students with test data relating to checkin (IDs beginning with "99CI").
+     * Queries for the students with test data relating to a checkin (IDs beginning with "99CI").
      *
      * @param studentId the ID of the student to query
      * @param result    the list to which to add results
@@ -285,7 +285,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
     }
 
     /**
-     * Queries for the students with test data relating to checkin (IDs beginning with "99CI").
+     * Queries for the students with test data relating to a checkin (IDs beginning with "99CI").
      *
      * @param stuId  the ID of the student to query
      * @param course the ID of the course to query
@@ -340,7 +340,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
 
         return new RawStchallenge(stuId, courseId, examId, "1718", now.toLocalDate(), Integer.valueOf(finish - 60),
                 Integer.valueOf(finish), firstLast[1], firstLast[0], null, null,
-                Long.valueOf((long) (Integer.MAX_VALUE + stuId.hashCode())), Integer.valueOf(0), "N", "P");
+                Long.valueOf(Integer.MAX_VALUE + stuId.hashCode()), Integer.valueOf(0), "N", "P");
     }
 
     /**
@@ -403,7 +403,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
 
         history.clear();
 
-        // Get earliest date for which to return data...
+        // Get the earliest date for which to return data...
         LocalDate earliest;
         if (numDays <= 1) {
             earliest = today;

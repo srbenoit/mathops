@@ -505,7 +505,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param cache     the data cache
      * @param firstName the first name
      * @param lastName  the last name
-     * @return if the first and last last name uniquely determined a student, that student record; if there are no
+     * @return if the first and last name uniquely determined a student, that student record; if there are no
      *         students with the specified name, or if there are multiple students with the name, {@code null}
      * @throws SQLException if there is an error accessing the database
      */
@@ -929,11 +929,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     }
 
     /**
-     * Updates a student's birth date.
+     * Updates a student's birthdate.
      *
      * @param cache        the data cache
-     * @param studentId    the ID of the student whose birth date to update
-     * @param newBirthDate the new birth date
+     * @param studentId    the ID of the student whose birthdate to update
+     * @param newBirthDate the new birthdate
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
@@ -1486,7 +1486,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                     // March to August - treat as Spring of same year
                     anticGradTerm = new TermKey(ETermName.SPRING, year);
                 } else {
-                    // September to December- treat as Fall of same year
+                    // September to December - treat as Fall of same year
                     anticGradTerm = new TermKey(ETermName.FALL, year);
                 }
             }
@@ -2069,7 +2069,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     static /* default */ String[] genStudentName(final String studentId) {
 
         // Fixed seed for repeatable sequence of names
-        final RandomGenerator rnd = new Random((long) studentId.hashCode());
+        final RandomGenerator rnd = new Random(studentId.hashCode());
         final HtmlBuilder htm = new HtmlBuilder(21);
 
         final String[] firstAndLast = new String[2];

@@ -163,7 +163,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
             throws SQLException;
 
     /**
-     * An "student unit mastery" criteria record used to perform arbitrary queries.
+     * A "student unit mastery" criteria record used to perform arbitrary queries.
      */
     public static class Criteria {
 

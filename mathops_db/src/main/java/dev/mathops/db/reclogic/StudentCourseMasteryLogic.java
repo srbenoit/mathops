@@ -127,7 +127,7 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
     public abstract List<StudentCourseMasteryRec> generalQuery(Cache cache, Criteria queryCriteria) throws SQLException;
 
     /**
-     * An "student course mastery" criteria record used to perform arbitrary queries.
+     * A "student course mastery" criteria record used to perform arbitrary queries.
      */
     public static final class Criteria {
 

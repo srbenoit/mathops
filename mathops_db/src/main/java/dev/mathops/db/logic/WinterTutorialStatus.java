@@ -26,7 +26,7 @@ public final class WinterTutorialStatus {
     /** The precalculus tutorials (M 1170 through M 1260) for which the student is eligible over Winter break. */
     final Set<String> eligibleTutorials;
 
-    /** Dates the web site is available (from campus_calendar). */
+    /** Dates the website is available (from campus_calendar). */
     public DateRangeGroups webSiteAvailability;
 
     /**

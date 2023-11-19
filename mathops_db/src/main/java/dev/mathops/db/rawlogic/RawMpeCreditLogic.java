@@ -734,7 +734,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
     }
 
     /**
-     * Queries for the students with test data related to check-in.
+     * Queries for the students with test data related to the checkin.
      *
      * @param studentId the ID of the student to query
      * @param result    the list to which to add results
@@ -782,6 +782,6 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                                            final String placementResult, final String examId) {
 
         return new RawMpeCredit(studentId, courseId, placementResult, LocalDate.now(), null,
-                Long.valueOf((long) (Integer.MAX_VALUE + studentId.hashCode() + index)), examId, "TC");
+                Long.valueOf(Integer.MAX_VALUE + studentId.hashCode() + index), examId, "TC");
     }
 }

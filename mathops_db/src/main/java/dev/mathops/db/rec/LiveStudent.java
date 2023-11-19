@@ -83,7 +83,7 @@ public final class LiveStudent implements Serializable, Comparable<LiveStudent> 
     /** The estimated graduation date. */
     public final LocalDate estGradDate;
 
-    /** The student's birth date. */
+    /** The student's birthdate. */
     public final LocalDate birthDate;
 
     /** The gender. */
@@ -126,7 +126,7 @@ public final class LiveStudent implements Serializable, Comparable<LiveStudent> 
      * @param theAdmitTerm           the admit term
      * @param theAdmitType           the admit type
      * @param theEstGradDate         the estimated graduation date
-     * @param theBirthDate           the student's birth date
+     * @param theBirthDate           the student's birthdate
      * @param theGender              the student's gender
      * @param theEmail               the student's email
      * @param theAdviserEmail        the adviser's email

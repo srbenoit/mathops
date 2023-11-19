@@ -36,12 +36,12 @@ public final class Installation extends SimpleErrorWarningLog {
      * @param theCfgFile the name of the configuration file ({@code null} to use the default file name)
      * @throws InvalidPathException if the base directory does not represent a legitimate path
      */
-    /* default */ Installation(final File theBaseDir, final String theCfgFile)
-            throws InvalidPathException {
+    /* default */ Installation(final File theBaseDir, final String theCfgFile) throws InvalidPathException {
 
         super();
 
         // Validate the path
+        //noinspection ResultOfMethodCallIgnored
         theBaseDir.toPath();
 
         this.baseDir = theBaseDir;

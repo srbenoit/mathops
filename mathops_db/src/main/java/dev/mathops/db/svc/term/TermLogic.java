@@ -101,7 +101,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
     public abstract TermRec queryPrior(Cache cache) throws SQLException;
 
     /**
-     * Queries for an term by its key.
+     * Queries for a term by its key.
      *
      * @param cache   the data cache
      * @param termKey the key of the term to query
@@ -121,7 +121,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
     public abstract List<TermRec> generalQuery(Cache cache, Criteria queryCriteria) throws SQLException;
 
     /**
-     * An "term" criteria record used to perform arbitrary queries.
+     * A "term" criteria record used to perform arbitrary queries.
      */
     public static final class Criteria {
 
@@ -362,7 +362,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         }
 
         /**
-         * Queries for an term by its key.
+         * Queries for a term by its key.
          *
          * @param cache   the data cache
          * @param termKey the key of the term to query
@@ -637,7 +637,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         }
 
         /**
-         * Queries for an term by its key.
+         * Queries for a term by its key.
          *
          * @param cache   the data cache
          * @param termKey the key of the term to query

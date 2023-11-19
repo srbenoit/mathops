@@ -144,19 +144,17 @@ public enum CourseLogic {
 
                     final int totalScore = maxUnit1 + maxUnit2 + maxUnit3 + maxUnit4 + maxFinal + ontime1 + ontime2
                             + ontime3 + ontime4;
+                    final Integer newScore = Integer.valueOf(totalScore);
 
                     if (totalScore >= 54) {
-                        final Integer newScore = Integer.valueOf(totalScore);
 
                         final String grade;
-                        if (newScore.intValue() >= 65) {
+                        if (totalScore >= 65) {
                             grade = "A";
-                        } else if (newScore.intValue() >= 62) {
+                        } else if (totalScore >= 62) {
                             grade = "B";
-                        } else if (newScore.intValue() >= 54) {
-                            grade = "C";
                         } else {
-                            grade = "U";
+                            grade = "C";
                         }
 
                         if (RawStcourseLogic.updateCompletedScoreGrade(cache, stuId, stcourse.course, stcourse.sect,
@@ -170,8 +168,9 @@ public enum CourseLogic {
                             error = "Unable to mark course as Completed";
                         }
                     } else if ("Y".equals(stcourse.completed)) {
+
                         if (RawStcourseLogic.updateCompletedScoreGrade(cache, stuId, stcourse.course, stcourse.sect,
-                                stcourse.termKey, "N", null, null)) {
+                                stcourse.termKey, "N", newScore, "U")) {
 
                             stcourse.completed = "N";
                             stcourse.score = null;

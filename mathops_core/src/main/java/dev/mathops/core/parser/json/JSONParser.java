@@ -40,8 +40,7 @@ public enum JSONParser {
         final Object result = scanElement(chars, range);
 
         if (range[1] != chars.length) {
-            throw new ParsingException(range[1], chars.length,
-                    "Unexpected characters at end of JSON data");
+            throw new ParsingException(range[1], chars.length, "Unexpected characters at end of JSON data");
         }
 
         return result;
@@ -119,15 +118,13 @@ public enum JSONParser {
      * @return the parsed {@code JSONObject}
      * @throws ParsingException if parsing failed
      */
-    private static JSONObject scanObject(final char[] chars, final int[] range)
-            throws ParsingException {
+    private static JSONObject scanObject(final char[] chars, final int[] range) throws ParsingException {
 
         ++range[1];
         scanWs(chars, range);
 
         if (range[1] == range[2]) {
-            throw new ParsingException(range[1] - 1, range[2], //
-                    "Missing closing '}' after object.");
+            throw new ParsingException(range[1] - 1, range[2], "Missing closing '}' after object.");
         }
 
         final int start = range[1];
@@ -146,8 +143,7 @@ public enum JSONParser {
             } else {
                 final String context = new String(chars, start, range[1]);
                 Log.warning(context);
-                throw new ParsingException(range[1] - 1, range[2],
-                        "Missing closing '}' after object.");
+                throw new ParsingException(range[1] - 1, range[2], "Missing closing '}' after object.");
             }
         }
 
@@ -197,8 +193,7 @@ public enum JSONParser {
 
         scanWs(chars, range);
         if (range[1] == range[2]) {
-            throw new ParsingException(range[1] - 1, range[2],
-                    "JSON data ended when expecting string member name");
+            throw new ParsingException(range[1] - 1, range[2], "JSON data ended when expecting string member name");
         }
 
         final String name = scanString(chars, range);
@@ -210,8 +205,7 @@ public enum JSONParser {
                     "JSON data ended when expecting ':' after object member name.");
         }
         if (chars[range[1]] != ':') {
-            throw new ParsingException(range[1], range[1] + 1,
-                    "Expected ':' after object member name.");
+            throw new ParsingException(range[1], range[1] + 1, "Expected ':' after object member name.");
         }
         ++range[1];
 
@@ -238,8 +232,7 @@ public enum JSONParser {
         ++range[1];
         scanWs(chars, range);
         if (range[1] == range[2]) {
-            throw new ParsingException(range[1] - 1, range[2], //
-                    "JSON data ended within array.");
+            throw new ParsingException(range[1] - 1, range[2], "JSON data ended within array.");
         }
 
         final Object[] array;
@@ -342,8 +335,7 @@ public enum JSONParser {
         final int start = range[1];
 
         if (chars[range[1]] != '"') {
-            throw new ParsingException(range[1], range[1] + 1,
-                    "Expected opening quotation mark on string.");
+            throw new ParsingException(range[1], range[1] + 1, "Expected opening quotation mark on string.");
         }
 
         ++range[1];
@@ -356,8 +348,7 @@ public enum JSONParser {
         }
         if (chars[range[1]] != '"') {
             throw new ParsingException(range[1], range[1] + 1,
-                    "Expected closing quotation mark on string: ["
-                            + new String(chars, start, range[1] + 1) + "]");
+                    "Expected closing quotation mark on string: [" + new String(chars, start, range[1] + 1) + "]");
         }
         ++range[1];
 
@@ -463,16 +454,14 @@ public enum JSONParser {
         final int pos = range[1];
 
         if (pos == range[2]) {
-            throw new ParsingException(pos - 1, range[2],
-                    "JSON data ended within character escape.");
+            throw new ParsingException(pos - 1, range[2], "JSON data ended within character escape.");
         }
 
         char ch = chars[pos];
 
         if (ch == 'u') {
             if (pos + 4 >= range[2]) {
-                throw new ParsingException(pos - 1, range[2], //
-                        "Invalid unicode escape in string.");
+                throw new ParsingException(pos - 1, range[2], "Invalid unicode escape in string.");
             }
             ++range[1];
 
@@ -486,8 +475,7 @@ public enum JSONParser {
             ++range[1];
 
             if (h1 == -1 || h2 == -1 || h3 == -1 || h4 == -1) {
-                throw new ParsingException(pos, pos + 5, //
-                        "Invalid unicode escape in string.");
+                throw new ParsingException(pos, pos + 5, "Invalid unicode escape in string.");
             }
 
             final int uncode = (h1 << 12) + (h2 << 8) + (h3 << 4) + h4;
@@ -507,14 +495,7 @@ public enum JSONParser {
         } else if (ch == 'b') {
             ch = '\b';
             ++range[1];
-        } else if (ch == '"') {
-            ch = '"';
-            ++range[1];
-        } else if (ch == '\\') {
-            ch = '\\';
-            ++range[1];
-        } else if (ch == '/') {
-            ch = '/';
+        } else if (ch == '"' || ch == '\\' || ch == '/') {
             ++range[1];
         } else {
             throw new ParsingException(pos - 1, pos, "Invalid escape in string.");
@@ -551,8 +532,7 @@ public enum JSONParser {
         } else if (ch >= 'A' && ch <= 'F') {
             result = ch - 'A' + 10;
         } else {
-            throw new ParsingException(range[1], range[1] + 1, //
-                    "Invalid hex character");
+            throw new ParsingException(range[1], range[1] + 1, "Invalid hex character");
         }
 
         return result;
@@ -611,8 +591,7 @@ public enum JSONParser {
         if (ch == '-') {
             ++range[1];
             if (range[1] == range[2]) {
-                throw new ParsingException(start, range[2], //
-                        "JSON data ended within number");
+                throw new ParsingException(start, range[2], "JSON data ended within number");
             }
             ch = chars[range[1]];
         }
@@ -681,8 +660,7 @@ public enum JSONParser {
         if (ch == '.') {
             ++range[1];
             if (range[1] == range[2]) {
-                throw new ParsingException(start, range[2], //
-                        "JSON data ended within number");
+                throw new ParsingException(start, range[2], "JSON data ended within number");
             }
 
             ch = chars[range[1]];
@@ -691,8 +669,7 @@ public enum JSONParser {
                     ++range[1];
                 }
             } else {
-                throw new ParsingException(start, range[2], //
-                        "JSON data ended within number");
+                throw new ParsingException(start, range[2], "JSON data ended within number");
             }
         }
     }

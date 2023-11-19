@@ -255,9 +255,6 @@ final class TestRawStmathplanLogic {
                 final List<RawStmathplan> all = RawStmathplanLogic.queryLatestByStudentPage(cache, "111111111",
                         "AAAAA");
 
-                // public static List<RawStmathplan> queryLatestByStudentPage(final Cache cache,
-                // final String studentId, final String pageId) throws SQLException {
-
                 assertEquals(1, all.size(), "Incorrect record count from queryLatestByStudentPage");
 
                 boolean found = false;

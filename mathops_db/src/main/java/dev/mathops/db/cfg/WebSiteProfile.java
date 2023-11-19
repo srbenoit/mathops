@@ -3,7 +3,7 @@ package dev.mathops.db.cfg;
 import dev.mathops.core.CoreConstants;
 
 /**
- * Represents a web site (define db by host and path), with a selected database profile.
+ * Represents a website (define db by host and path), with a selected database profile.
  *
  * <p>
  * XML Representation:

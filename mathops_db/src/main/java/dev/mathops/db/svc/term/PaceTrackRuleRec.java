@@ -40,7 +40,7 @@ public final class PaceTrackRuleRec extends RecBase implements Comparable<PaceTr
     public final String subterm;
 
     /**
-     * The student's "pace', which is the number of courses they are working to complete within the sub-term.  The
+     * The student's "pace", which is the number of courses they are working to complete within the sub-term.  The
      * milestone schedule will be generated based on completing this number of courses over the course of the sub-term.
      */
     public final Integer pace;
@@ -68,7 +68,7 @@ public final class PaceTrackRuleRec extends RecBase implements Comparable<PaceTr
      * Constructs a new {@code PaceTrackRuleRec}.
      *
      * @param theSubterm   the ID of the sub-term (may not be {@code null})
-     * @param thePace      the student's pace' (may not be {@code null})
+     * @param thePace      the student's pace (may not be {@code null})
      * @param thePaceTrack the pace track (may not be {@code null})
      * @param theCriteria  the criteria used to assign a student to a track (may not be {@code null})
      */
@@ -123,9 +123,8 @@ public final class PaceTrackRuleRec extends RecBase implements Comparable<PaceTr
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value

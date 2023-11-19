@@ -54,8 +54,8 @@ public final class Cache {
     /** The term schema name. */
     public final String termSchemaName;
 
-    /** The anlyt schema name. */
-    private final String anlytSchemaName;
+//    /** The anlyt schema name. */
+//    private final String anlytSchemaName;
 
     /** Cached single records. */
     private final Map<String, RecBase> singleRecords;
@@ -91,11 +91,11 @@ public final class Cache {
         if (type == EDbInstallationType.INFORMIX) {
             this.mainSchemaName = "math";
             this.termSchemaName = "math";
-            this.anlytSchemaName = "math";
+//            this.anlytSchemaName = "math";
         } else if (type == EDbInstallationType.POSTGRESQL) {
             if (db.use == EDbUse.PROD) {
                 this.mainSchemaName = "main";
-                this.anlytSchemaName = "anlyt";
+//                this.anlytSchemaName = "anlyt";
                 final TermRec active = TermLogic.Postgres.INSTANCE.queryActive(this);
                 if (active == null) {
                     throw new IllegalArgumentException("No active TermRec found");
@@ -105,11 +105,11 @@ public final class Cache {
             } else if (db.use == EDbUse.DEV) {
                 this.mainSchemaName = "main_d";
                 this.termSchemaName = "term_d";
-                this.anlytSchemaName = "anlyt";
+//                this.anlytSchemaName = "anlyt";
             } else {
                 this.mainSchemaName = "main_t";
                 this.termSchemaName = "term_t";
-                this.anlytSchemaName = "anlyt_t";
+//                this.anlytSchemaName = "anlyt_t";
             }
         } else {
             throw new IllegalArgumentException("No TERM implementation for " + type + " database");

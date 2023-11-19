@@ -105,7 +105,7 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
             throws SQLException;
 
     /**
-     * An "mastery_attempt_qa" criteria record used to perform arbitrary queries.
+     * A "mastery_attempt_qa" criteria record used to perform arbitrary queries.
      */
     public static final class Criteria {
 

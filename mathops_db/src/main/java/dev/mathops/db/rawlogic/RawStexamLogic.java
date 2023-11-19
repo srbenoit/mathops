@@ -320,7 +320,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     public static void getHistory(final Cache cache, final Collection<? super List<RawStexam>> history,
                                   final int numDays, final LocalDate today, final String... courses) throws SQLException {
 
-        // Get earliest date for which to return data...
+        // Get the earliest date for which to return data...
         LocalDate earliest;
         if (numDays <= 1) {
             earliest = today;

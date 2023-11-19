@@ -534,7 +534,7 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
     public static void getHistory(final Cache cache, final Collection<? super List<RawStmathplan>> history,
                                   final int numDays, final LocalDate today) throws SQLException {
 
-        // Get earliest date for which to return data...
+        // Get the earliest date for which to return data...
         LocalDate earliest;
         if (numDays <= 1) {
             earliest = today;

@@ -22,7 +22,7 @@ public final class RawStd extends RecBase implements Comparable<RawStd> {
 
     /**
      * The 'mastery_groups' field value. An OR of bit flags, one for each item group that must be mastered to have
-     * mastered the standard. Typically 0x01, 0x03, or 0x07, if there are 1, 2, or 3 item groups needed, respectively.
+     * mastered the standard. Typically, 0x01, 0x03, or 0x07, if there are 1, 2, or 3 item groups needed, respectively.
      */
     public Integer masteryGroups;
 
@@ -58,9 +58,8 @@ public final class RawStd extends RecBase implements Comparable<RawStd> {
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value

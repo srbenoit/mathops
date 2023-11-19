@@ -76,9 +76,8 @@ public final class RawAdminHold extends RecBase implements Comparable<RawAdminHo
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
@@ -108,7 +107,7 @@ public final class RawAdminHold extends RecBase implements Comparable<RawAdminHo
      * @param theHoldId       the hold ID
      * @param theSevAdminHold the hold severity ("F" for fatal, "N" for nonfatal)
      * @param theTimesDisplay the number of times this hold has been applied for a resource
-     * @param theCreateDt     the create date
+     * @param theCreateDt     the creation date
      */
     public RawAdminHold(final String theStuId, final String theHoldId, final String theSevAdminHold,
                         final Integer theTimesDisplay, final LocalDate theCreateDt) {

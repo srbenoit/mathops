@@ -61,7 +61,7 @@ import java.util.Set;
  * <li>
  * </ul>
  * <p>
- * Logic permits the option (as a static boolean) of whether or not to allow DCE/DCEN students (as
+ * Logic permits the option (as a static boolean) of whether to allow DCE/DCEN students (as
  * indicated in special student records) to use the unproctored exam. Detailed logic is as follows:
  *
  * <ul>

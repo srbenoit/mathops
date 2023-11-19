@@ -106,9 +106,8 @@ public final class RawSthwqa extends RecBase implements Comparable<RawSthwqa> {
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
@@ -145,7 +144,7 @@ public final class RawSthwqa extends RecBase implements Comparable<RawSthwqa> {
      *
      * @param theSerialNbr   the exam serial number
      * @param theQuestionNbr the question number
-     * @param theAnswerNbr   the answer number (for multi-part questions)
+     * @param theAnswerNbr   the answer number (for multipart questions)
      * @param theObjective   the objective
      * @param theStuAnswer   the student answer (stored for multiple choice/multiple selection)
      * @param theStuId       the student ID
@@ -174,7 +173,7 @@ public final class RawSthwqa extends RecBase implements Comparable<RawSthwqa> {
     }
 
     /**
-     * Extracts an "sthwqa" record from a result set.
+     * Extracts a "sthwqa" record from a result set.
      *
      * @param rs the result set from which to retrieve the record
      * @return the record

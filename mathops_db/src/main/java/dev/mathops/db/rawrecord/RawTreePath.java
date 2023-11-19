@@ -34,7 +34,7 @@ public final class RawTreePath extends RecBase implements Comparable<RawTreePath
     /** The 'ident' field value. */
     public String ident;
 
-    /** The 'parent_ident' field value (null for top-level nodes"). */
+    /** The 'parent_ident' field value (null for top-level nodes). */
     public String parentIdent;
 
     /** The 'depth' field value (0 for top-level nodes, 1 for their children, etc.). */
@@ -78,9 +78,8 @@ public final class RawTreePath extends RecBase implements Comparable<RawTreePath
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
@@ -124,7 +123,7 @@ public final class RawTreePath extends RecBase implements Comparable<RawTreePath
     }
 
     /**
-     * Extracts an "tree_path" record from a result set.
+     * Extracts a "tree_path" record from a result set.
      *
      * @param rs the result set from which to retrieve the record
      * @return the record

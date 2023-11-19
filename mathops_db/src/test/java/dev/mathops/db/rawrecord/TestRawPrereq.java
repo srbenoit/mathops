@@ -37,13 +37,9 @@ final class TestRawPrereq {
         // No action
     }
 
-    /**
-     * A test case.
-     *
-     * @return a message to attach to a "passed" test result
-     */
+    /** Test case. */
     @Test
-        @DisplayName("")
+    @DisplayName("Constructor")
     void test0001() {
 
         final RawPrereq obj = new RawPrereq(TEST_TERM, TEST_COURSE, TEST_PREREQUISITE);

@@ -8,10 +8,10 @@ import dev.mathops.db.type.CatalogCourseNumber;
 import java.util.Objects;
 
 /**
- * A prerequisite associated with a catalog course.  Logically, a prerequisite is a tree structure that may have AND and
- * OR subtrees.  In the database, each record represents a node in this tree.  A node has a type, which can be "Simple",
- * meaning this is a leaf node defining a course, with possible minimum grade and flag specifying if it can be taken
- * concurrently, or "And" or "Or", which each define a branch node with child nodes.
+ * A prerequisite associated with a catalog course.  Logically, a prerequisite is a tree structure that may have AND
+ * plus OR subtrees.  In the database, each record represents a node in this tree.  A node has a type, which can be
+ * "Simple", meaning this is a leaf node defining a course, with possible minimum grade and flag specifying if it can
+ * be taken concurrently, or "And" or "Or", which each define a branch node with child nodes.
  *
  * <p>
  * Each record has a unique ID, and child nodes have a parent node ID to create the tree structure.

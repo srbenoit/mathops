@@ -26,7 +26,7 @@ public final class PlacementStatus {
     public final Set<String> availableUnproctoredIds;
 
     /**
-     * Flag indicating whether or not the student is allowed (based only on application term) to use the math placement
+     * Flag indicating whether the student is allowed (based only on application term) to use the math placement
      * tool without proctoring (regardless of whether they are currently eligible or not, or whether they have used an
      * unproctored attempt).
      */
@@ -35,7 +35,7 @@ public final class PlacementStatus {
     /**
      * If {@code allowedToUseUnproctored} is true, this will hold a short phrase indicating why unproctored access is
      * allowed for the student, suitable for use in a sentence like "Because [PHRASE], you may complete the placement
-     * tool one time without proctoring.
+     * tool one time without proctoring".
      *
      * <p>
      * Examples of potential phrases are could be "you are an incoming first-year student" or "you are registered
@@ -91,7 +91,7 @@ public final class PlacementStatus {
     public final SortedSet<String> earnedCreditFor;
 
     /**
-     * Flag indicating whether or not the student has satisfied the transfer requirement in mathematics.
+     * Flag indicating whether the student has satisfied the transfer requirement in mathematics.
      */
     public boolean transferSatisfied;
 

@@ -6102,7 +6102,7 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
 
         xml.addln("<div class='vid'>");
         xml.addln(" <img src='/images/video.png' alt=''/><a class='linkbtn' href='video.html?course=", courseId,
-                "&media-id=", mediaId, "&unit=", Integer.toString(unit), "&lesson=", Long.valueOf((long) objective),
+                "&media-id=", mediaId, "&unit=", Integer.toString(unit), "&lesson=", Long.valueOf(objective),
                 "&mode=%%MODE%%'>Helpful Tips</a>");
         xml.addln("</div>");
         xml.addln("<div class='clear'></div>");

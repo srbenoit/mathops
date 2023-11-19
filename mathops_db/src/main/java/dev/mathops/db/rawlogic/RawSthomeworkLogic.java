@@ -352,7 +352,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                                   final int numDays, final LocalDate today, final String... courses)
             throws SQLException {
 
-        // Get earliest date for which to return data...
+        // Get the earliest date for which to return data...
         LocalDate earliest;
         if (numDays <= 1) {
             earliest = today;

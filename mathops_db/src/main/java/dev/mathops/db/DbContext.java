@@ -96,7 +96,7 @@ public final class DbContext {
             try {
                 Thread.sleep(CHECKOUT_SLEEP);
             } catch (final InterruptedException ex) {
-                Thread.interrupted();
+                Thread.currentThread().interrupt();
             }
         }
 

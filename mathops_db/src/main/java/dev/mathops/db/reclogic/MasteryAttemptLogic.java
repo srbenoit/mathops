@@ -96,7 +96,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
      *
      * @param cache     the data cache
      * @param serialNbr the serial number of the attempt for which to query
-     * @param examId    the the exam ID of the attempt for which to query
+     * @param examId    the exam ID of the attempt for which to query
      * @return the record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
@@ -334,7 +334,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
          *
          * @param cache     the data cache
          * @param serialNbr the serial number of the attempt for which to query
-         * @param examId    the the exam ID of the attempt for which to query
+         * @param examId    the exam ID of the attempt for which to query
          * @return the exam; {@code null} if not found
          * @throws SQLException if there is an error performing the query
          */
@@ -589,7 +589,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
          *
          * @param cache     the data cache
          * @param serialNbr the serial number of the attempt for which to query
-         * @param examId    the the exam ID of the attempt for which to query
+         * @param examId    the exam ID of the attempt for which to query
          * @return the exam; {@code null} if not found
          * @throws SQLException if there is an error performing the query
          */

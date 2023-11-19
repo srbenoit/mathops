@@ -80,22 +80,22 @@ public final class RawCampusCalendar extends RecBase implements Comparable<RawCa
     /** Walk-in placement exam session. */
     public static final String DT_DESC_WALKIN_PLACEMENT = "walk_in";
 
-    /** First date of the first upcoming placement web site maintenance window. */
+    /** First date of the first upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_START1 = "plc_maint_start1";
 
-    /** Last date of the first upcoming placement web site maintenance window. */
+    /** Last date of the first upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_END1 = "plc_maint_end1";
 
-    /** First date of the second upcoming placement web site maintenance window. */
+    /** First date of the second upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_START2 = "plc_maint_start2";
 
-    /** Last date of the second upcoming placement web site maintenance window. */
+    /** Last date of the second upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_END2 = "plc_maint_end2";
 
-    /** First date of the third upcoming placement web site maintenance window. */
+    /** First date of the third upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_START3 = "plc_maint_start3";
 
-    /** Last date of the third upcoming placement web site maintenance window. */
+    /** Last date of the third upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_END3 = "plc_maint_end3";
 
     /** Last date students can add Summer courses (only present in SM terms). */
@@ -157,9 +157,8 @@ public final class RawCampusCalendar extends RecBase implements Comparable<RawCa
      * record created at a time when a field was present that has since been removed).
      *
      * <p>
-     * If a field name is recognized, however, and the value provided cannot be interpreted, an
-     * {@code IllegalArgumentException} is thrown. Such an exception is also thrown if the field name or value string is
-     * {@code null}.
+     * An {@code IllegalArgumentException} is thrown if a field name is recognized but the value provided cannot be
+     * interpreted or if the field name or value string is {@code null}.
      *
      * @param name  the field name
      * @param value the value
