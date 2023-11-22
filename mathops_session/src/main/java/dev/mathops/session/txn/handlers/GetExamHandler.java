@@ -1,0 +1,571 @@
+package dev.mathops.session.txn.handlers;
+
+import dev.mathops.assessment.InstructionalCache;
+import dev.mathops.assessment.document.template.DocColumn;
+import dev.mathops.assessment.document.template.DocNonwrappingSpan;
+import dev.mathops.assessment.document.template.DocParagraph;
+import dev.mathops.assessment.document.template.DocText;
+import dev.mathops.assessment.document.template.DocWrappingSpan;
+import dev.mathops.assessment.exam.ExamObj;
+import dev.mathops.assessment.exam.ExamProblem;
+import dev.mathops.assessment.exam.ExamSection;
+import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
+import dev.mathops.assessment.problem.template.ProblemAutoCorrectTemplate;
+import dev.mathops.core.TemporalUtils;
+import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.log.Log;
+import dev.mathops.core.log.LogBase;
+import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.ChallengeExamStatus;
+import dev.mathops.db.logic.PlacementLogic;
+import dev.mathops.db.logic.PlacementStatus;
+import dev.mathops.db.rawlogic.RawAdminHoldLogic;
+import dev.mathops.db.rawlogic.RawExamLogic;
+import dev.mathops.db.rawlogic.RawMpeLogLogic;
+import dev.mathops.db.rawlogic.RawPendingExamLogic;
+import dev.mathops.db.rawlogic.RawStexamLogic;
+import dev.mathops.db.rawlogic.RawStqaLogic;
+import dev.mathops.db.rawrecord.RawAdminHold;
+import dev.mathops.db.rawrecord.RawMpeLog;
+import dev.mathops.db.rawrecord.RawPendingExam;
+import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.rawrecord.RawStexam;
+import dev.mathops.db.rawrecord.RawStqa;
+import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.svc.term.TermLogic;
+import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.session.ExamWriter;
+import dev.mathops.session.sitelogic.servlet.ExamEligibilityTester;
+import dev.mathops.session.txn.messages.AbstractRequestBase;
+import dev.mathops.session.txn.messages.AvailableExam;
+import dev.mathops.session.txn.messages.GetExamReply;
+import dev.mathops.session.txn.messages.GetExamRequest;
+
+import java.awt.Font;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * A handler for requests to start an exam received by the server. Requests include a login session ID and the exam
+ * version being requested, and replies include the realized exam, or a list of errors or holds that prevented the exam
+ * from being realized.
+ * <p>
+ * This class is not thread-safe. Use a new handler within each thread.
+ */
+public final class GetExamHandler extends AbstractHandlerBase {
+
+    /**
+     * Construct a new {@code GetExamHandler}.
+     *
+     * @param theDbProfile the database profile under which the handler is being accessed
+     */
+    public GetExamHandler(final DbProfile theDbProfile) {
+
+        super(theDbProfile);
+    }
+
+    /**
+     * Processes a message from the client.
+     *
+     * @param cache   the data cache
+     * @param message the message received from the client
+     * @return the reply to be sent to the client, or null if the connection should be closed
+     */
+    @Override
+    public String process(final Cache cache, final AbstractRequestBase message) {
+
+        setMachineId(message);
+        touch(cache);
+
+        String result;
+
+        // Validate the type of request
+        if (message instanceof final GetExamRequest request) {
+            try {
+                result = processRequest(cache, request);
+            } catch (final SQLException ex) {
+                final GetExamReply reply = new GetExamReply();
+                reply.error = "Error accessing the database: " + ex.getMessage();
+                result = reply.toXml();
+            }
+        } else {
+            Log.info("GetExamHandler called with ", message.getClass().getName());
+
+            final GetExamReply reply = new GetExamReply();
+            reply.error = "Invalid request type for get exam request";
+            result = reply.toXml();
+        }
+
+        return result;
+    }
+
+    /**
+     * Process a request from the client.
+     *
+     * @param cache   the data cache
+     * @param request the {@code GetExamRequest} received from the client
+     * @return the generated reply XML to send to the client
+     * @throws SQLException if there is an error accessing the database
+     */
+    private String processRequest(final Cache cache, final GetExamRequest request) throws SQLException {
+
+        final GetExamReply reply = new GetExamReply();
+
+        boolean ok = loadStudentInfo(cache, request.studentId, reply);
+
+        if (ok) {
+
+            LogBase.setSessionInfo("TXN", request.studentId);
+
+            // Look up the exam and store it in an AvailableExam object.
+            final AvailableExam avail = new AvailableExam();
+
+            if (request.examVersion != null) {
+                avail.exam = RawExamLogic.query(cache, request.examVersion);
+                if (avail.exam == null) {
+                    reply.error = "No exam found with the requested version";
+                    ok = false;
+                }
+            } else if (request.examCourse != null && request.examUnit != null && request.examType != null) {
+
+                avail.exam = RawExamLogic.queryActiveByCourseUnitType(cache, request.examCourse, request.examUnit,
+                        request.examType);
+                if (avail.exam == null) {
+                    reply.error = "Failed to query for exam for course, unit, and type.";
+                    ok = false;
+                }
+            } else {
+                Log.info("Invalid parameters supplied in GetExamRequest");
+                ok = false;
+            }
+
+            final ZonedDateTime now = ZonedDateTime.now();
+
+            if (ok) {
+                final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, getStudent().stuId);
+
+                // We need to verify the exam and fill in the remaining fields in AvailableExam
+                final HtmlBuilder reasons = new HtmlBuilder(100);
+                reply.status = GetExamReply.SUCCESS;
+
+                boolean isProctored = "Y".equals(getTestingCenter().isProctored);
+
+                // FIXME: Hardcode - add proctored field to request
+                if ("PPPPP".equals(request.examVersion) || "MPTTC".equals(request.examVersion)) {
+                    isProctored = true;
+                }
+
+                String section = null;
+                boolean eligible;
+                if ("Q".equals(avail.exam.examType)) {
+
+                    // NOTE: This includes user's exams
+                    if ("M 100U".equals(avail.exam.course)) {
+                        eligible = true;
+
+                        final RawStudent stu = getStudent();
+                        if (stu.timelimitFactor != null) {
+                            avail.timelimitFactor = stu.timelimitFactor;
+                        }
+                    } else {
+                        try {
+                            final PlacementLogic logic = new PlacementLogic(cache, getStudent().stuId,
+                                    getStudent().aplnTerm, now);
+                            final PlacementStatus status = logic.status;
+                            final Set<String> availablePlacement = isProctored ? status.availableLocalProctoredIds
+                                    : status.availableUnproctoredIds;
+
+                            if (availablePlacement.isEmpty()) {
+                                eligible = false;
+                                reasons.add(isProctored ? status.whyProctoredUnavailable
+                                        : status.whyUnproctoredUnavailable);
+                            } else {
+                                eligible = true;
+
+                                final RawStudent stu = getStudent();
+                                if (stu.timelimitFactor != null) {
+                                    avail.timelimitFactor = stu.timelimitFactor;
+                                }
+                            }
+                        } catch (final SQLException ex) {
+                            Log.warning(ex);
+                            reasons.add("Error querying placement status.");
+                            eligible = false;
+                        }
+                    }
+                } else if ("CH".equals(avail.exam.examType)) {
+
+                    final ChallengeExamLogic logic = new ChallengeExamLogic(cache, getStudent().stuId);
+                    final ChallengeExamStatus status = logic.getStatus(avail.exam.course);
+
+                    if (status.availableExamId == null) {
+                        eligible = false;
+                        reasons.add(status.reasonUnavailable);
+                    } else {
+                        eligible = true;
+
+                        final RawStudent stu = getStudent();
+                        if (stu.timelimitFactor != null) {
+                            avail.timelimitFactor = stu.timelimitFactor;
+                        }
+                    }
+                } else {
+                    final ExamEligibilityTester examtest = new ExamEligibilityTester(getStudent().stuId);
+
+                    eligible = examtest.isExamEligible(cache, now, avail, reasons, holds, request.checkEligibility);
+
+                    if (examtest.getCourseSection() != null) {
+                        section = examtest.getCourseSection().sect;
+                    }
+                }
+
+                if (eligible) {
+
+                    // Generate a serial number for the exam
+                    final long serial = generateSerialNumber(false);
+
+                    TermRec term = null;
+                    if (ok) {
+                        term = TermLogic.get(cache).queryActive(cache);
+                        if (term == null) {
+                            ok = false;
+                        }
+                    }
+
+                    if (ok && term != null) {
+                        buildPresentedExam(cache, avail.exam.treeRef, serial, reply, term, isProctored);
+
+                        final ExamObj exam = reply.presentedExam;
+
+                        Log.info("Built presented exam ", exam.examVersion);
+
+                        final DocColumn newInstr = new DocColumn();
+                        newInstr.tag = "instructions";
+
+                        DocParagraph para = new DocParagraph();
+                        para.setColorName("navy");
+
+                        DocText text = new DocText("Instructions:");
+                        para.add(text);
+                        newInstr.add(para);
+
+                        final String singular = "M 101".equals(avail.exam.course) ? "quiz" : "exam";
+                        final String plural = "M 101".equals(avail.exam.course) ? "quizzes" : "exams";
+
+                        // Alter the exam instructions based on section number
+                        if (section != null && !section.isEmpty()
+                                && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
+
+                            // Instructions for Distance Math courses
+                            para = new DocParagraph();
+                            para.add(new DocText("This " + singular + " consists of "
+                                    + exam.getNumProblems()
+                                    + " questions. Your score will be based on the number of "
+                                    + "questions answered correctly. There is at least one "
+                                    + "correct response to each question. To correctly answer a "
+                                    + "question on this " + singular + ", you must choose "));
+
+                            final DocWrappingSpan all = new DocWrappingSpan();
+                            all.tag = "span";
+                            all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                            all.add(new DocText("ALL"));
+                            para.add(all);
+
+                            para.add(new DocText(" correct responses to that question."));
+                            newInstr.add(para);
+
+                            exam.instructions = newInstr;
+
+                        } else {
+                            final String type = avail.exam.examType;
+
+                            if ("U".equals(type) || "F".equals(type)) {
+
+                                // Instructions for all Resident course unit and final exams
+                                para = new DocParagraph();
+                                para.add(new DocText("This " + singular + " has a time limit.  The time remaining to "
+                                        + "complete the " + singular + " is displayed at the top right hand "
+                                        + "corner of your computer screen."));
+                                newInstr.add(para);
+
+                                newInstr.add(new DocParagraph());
+
+                                para = new DocParagraph();
+
+                                final DocNonwrappingSpan note = new DocNonwrappingSpan();
+                                note.tag = "span";
+                                note.outlines = 8;
+                                note.add(new DocText("PLEASE NOTE"));
+                                para.add(note);
+
+                                text = new DocText(": all " + plural + " taken in the Precalculus");
+                                para.add(text);
+
+                                text = new DocText(" Center must be submitted by the posted "
+                                        + "closing time, even if your time limit has not expired.");
+                                para.add(text);
+                                newInstr.add(para);
+
+                                newInstr.add(new DocParagraph());
+                                newInstr.add(new DocParagraph());
+
+                                para = new DocParagraph();
+                                para.add(new DocText("This " + singular + " consists of "
+                                        + exam.getNumProblems()
+                                        + " questions. Your score will be based on the number of questions answered "
+                                        + "correctly. There is at least one correct response to each question. To "
+                                        + "correctly answer a question on this " + singular + ", you must choose "));
+
+                                final DocWrappingSpan all = new DocWrappingSpan();
+                                all.tag = "span";
+                                all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                                all.add(new DocText("ALL"));
+                                para.add(all);
+
+                                para.add(new DocText(" correct responses to that question."));
+                                newInstr.add(para);
+
+                                newInstr.add(new DocParagraph());
+                                newInstr.add(new DocParagraph());
+
+                                para = new DocParagraph();
+
+                                final DocNonwrappingSpan warn = new DocNonwrappingSpan();
+                                warn.tag = "span";
+                                warn.setFontStyle(Integer.valueOf(Font.BOLD));
+                                warn.outlines = 8;
+                                warn.add(new DocText("WARNING"));
+                                para.add(warn);
+
+                                para.add(new DocText(": You are "));
+
+                                final DocNonwrappingSpan not = new DocNonwrappingSpan();
+                                not.tag = "span";
+                                not.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                                not.add(new DocText("NOT"));
+                                para.add(not);
+
+                                para.add(new DocText(
+                                        " permitted to use reference materials of any kind on this " + singular
+                                                + ". If you are found to be in possession of reference materials "
+                                                + "while working on this " + singular + ", even if unintentional, "
+                                                + "you will be charged with academic misconduct."));
+                                newInstr.add(para);
+
+                                exam.instructions = newInstr;
+                            }
+                        }
+
+                        if (RawRecordConstants.M100P.equals(avail.exam.course)) {
+
+                            // Log the fact that a placement exam was begun
+                            final LocalDateTime start = TemporalUtils.toLocalDateTime(
+                                    Instant.ofEpochMilli(reply.presentedExam.realizationTime));
+                            final int startTime = start.getHour() * 60 + start.getMinute();
+
+                            final RawMpeLog mpelog = new RawMpeLog(getStudent().stuId, term.academicYear,
+                                    avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
+                                    Long.valueOf(serial), Integer.valueOf(startTime), null);
+
+                            RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
+                        }
+
+                        // Apply time limit factor adjustment
+                        if (avail.timelimitFactor != null && reply.presentedExam.allowedSeconds != null) {
+                            final double secs = (double) reply.presentedExam.allowedSeconds.intValue()
+                                    * avail.timelimitFactor.doubleValue();
+                            reply.presentedExam.allowedSeconds = Long.valueOf(Math.round(secs));
+                        }
+
+                        if (holds != null && !holds.isEmpty()) {
+                            final int count = holds.size();
+                            reply.holds = new String[count];
+
+                            for (int i = 0; i < count; ++i) {
+                                reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
+                            }
+                        }
+
+                        // Store the pending exam row if record is from testing center machine
+                        if (request.machineId != null || RawRecordConstants.M100P.equals(avail.exam.course)) {
+
+                            final LocalDateTime realized = TemporalUtils.toLocalDateTime(
+                                    Instant.ofEpochMilli(reply.presentedExam.realizationTime));
+                            final LocalTime tm = realized.toLocalTime();
+                            final int min = tm.getHour() * 60 + tm.getMinute();
+
+                            final RawPendingExam pending = new RawPendingExam(Long.valueOf(serial),
+                                    reply.presentedExam.examVersion, getStudent().stuId, realized.toLocalDate(),
+                                    null, Integer.valueOf(min), null, null, null, null, avail.exam.course,
+                                    avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
+
+                            RawPendingExamLogic.INSTANCE.insert(cache, pending);
+                        }
+                    }
+                } else {
+                    reply.error = reasons.toString();
+
+                    if (reply.error.isEmpty()) {
+                        reply.error = null;
+                    }
+
+                    Log.info("Exam not eligible: " + reply.error);
+                }
+            }
+        } else {
+            reply.error = "Unable to load session information";
+        }
+
+        return reply.toXml();
+    }
+
+    /**
+     * Attempt to construct a realized exam and install it in the reply message. On errors, the reply message errors
+     * field will be set to the cause of the error.
+     *
+     * @param cache       the data cache
+     * @param ref         the reference to the exam to be loaded
+     * @param serial      the serial number to associate with the exam
+     * @param reply       the reply message to populate with the realized exam or the error status
+     * @param term        the term under which to file the presented exam
+     * @param isProctored {@code true} if the exam is proctored; {@code false} if not
+     */
+    private void buildPresentedExam(final Cache cache, final String ref, final long serial,
+                                    final GetExamReply reply, final TermRec term, final boolean isProctored) {
+
+        final ExamObj exam = InstructionalCache.getExam(ref);
+
+        if (exam == null) {
+            reply.status = GetExamReply.CANNOT_LOAD_EXAM_TEMPLATE;
+            Log.warning("Unable to load template for " + ref);
+        } else if (exam.ref == null) {
+            reply.status = GetExamReply.CANNOT_LOAD_EXAM_TEMPLATE;
+            Log.warning("Errors loading exam template");
+        } else {
+            final Collection<Integer> autoPassItems = new ArrayList<>(10);
+
+            // See which items the student has already gotten correct twice on this exam version
+            try {
+                final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, getStudent().stuId,
+                        exam.examVersion, false);
+
+                final String examCourse = exam.course;
+                if (stexams.size() > 1 && (RawRecordConstants.M117.equals(examCourse)
+                        || RawRecordConstants.M118.equals(examCourse)
+                        || RawRecordConstants.M124.equals(examCourse)
+                        || RawRecordConstants.M125.equals(examCourse)
+                        || RawRecordConstants.M126.equals(examCourse))) {
+
+                    final List<RawStqa> answers = RawStqaLogic.queryByStudent(cache, getStudent().stuId);
+
+                    // Map from question number to count of correct answers
+                    final Map<Integer, Integer> correctCount = new HashMap<>(20);
+
+                    for (final RawStexam stexam : stexams) {
+                        final Long sernum = stexam.serialNbr;
+
+                        if (sernum != null) {
+                            for (final RawStqa qa : answers) {
+                                if (sernum.equals(qa.serialNbr) && "Y".equals(qa.ansCorrect)) {
+
+                                    final Integer questionNbr = qa.questionNbr;
+                                    final Integer count = correctCount.get(questionNbr);
+                                    final Integer newCount;
+                                    if (count == null) {
+                                        newCount = Integer.valueOf(1);
+                                    } else {
+                                        newCount = Integer.valueOf(count.intValue() + 1);
+                                    }
+
+                                    correctCount.put(questionNbr, newCount);
+                                }
+                            }
+                        }
+                    }
+
+                    for (final Map.Entry<Integer, Integer> entry : correctCount.entrySet()) {
+                        if (entry.getValue().intValue() >= 2) {
+                            // Student has answered this question correctly twice before - replace
+                            // that item with an "automatically correct" item.
+
+                            final Integer question = entry.getKey();
+                            autoPassItems.add(question);
+                        }
+                    }
+                }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to look up exam history", ex);
+            }
+
+            // Now we must add the exam's problems so it can be realized.
+            final int numSect = exam.getNumSections();
+
+            for (int onSect = 0; onSect < numSect; ++onSect) {
+                final ExamSection esect = exam.getSection(onSect);
+                final int numProb = esect.getNumProblems();
+
+                for (int onProb = 0; onProb < numProb; ++onProb) {
+
+                    final ExamProblem eprob = esect.getProblem(onProb);
+                    final int num = eprob.getNumProblems();
+
+                    if (autoPassItems.contains(Integer.valueOf(eprob.problemId))) {
+                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                        for (int i = 0; i < num; ++i) {
+                            eprob.setProblem(i, prb);
+                        }
+                    } else {
+                        for (int i = 0; i < num; ++i) {
+                            AbstractProblemTemplate prb = eprob.getProblem(i);
+
+                            if (prb == null || prb.ref == null) {
+                                Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice "
+                                        + i + " getProblem() returned " + prb);
+                            } else {
+                                prb = InstructionalCache.getProblem(prb.ref);
+
+                                if (prb != null) {
+                                    eprob.setProblem(i, prb);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (exam.realize("Y".equals(getTestingCenter().isRemote), isProctored,
+                    serial)) {
+                reply.presentedExam = exam;
+                reply.status = GetExamReply.SUCCESS;
+                reply.studentId = getStudent().stuId;
+
+                if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
+                        reply.toXml())) {
+                    Log.warning("Unable to cache exam " + ref);
+                    reply.presentedExam = null;
+                    reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+                }
+            } else {
+                Log.warning("Unable to realize " + ref);
+                reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+            }
+        }
+
+        // TODO: Pre-populate "Survey" section of exam with existing answers.
+
+        if (reply.status == GetExamReply.SUCCESS) {
+            reply.presentedExam = exam;
+        }
+    }
+}

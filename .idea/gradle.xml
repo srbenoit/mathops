@@ -4,13 +4,20 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/jwabbit" />
+            <option value="$PROJECT_DIR$/mathops_app" />
+            <option value="$PROJECT_DIR$/mathops_assessment" />
             <option value="$PROJECT_DIR$/mathops_core" />
             <option value="$PROJECT_DIR$/mathops_db" />
+            <option value="$PROJECT_DIR$/mathops_dbjobs" />
+            <option value="$PROJECT_DIR$/mathops_font" />
+            <option value="$PROJECT_DIR$/mathops_session" />
+            <option value="$PROJECT_DIR$/mathops_web" />
           </set>
         </option>
       </GradleProjectSettings>

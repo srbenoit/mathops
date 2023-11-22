@@ -1,0 +1,100 @@
+package dev.mathops.web.site;
+
+import dev.mathops.db.cfg.DbProfile;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * A singleton, thread-safe timer that can record the number of accesses to any named context and the total time spent
+ * processing that context. It tracks name-status pairs where the status is an access counter and total elapsed time
+ * value.
+ */
+final class ServletTimer {
+
+    /** The singleton instance. */
+    private static final Object INSTANCE_SYNCH = new Object();
+
+    /** The singleton instance. */
+    private static ServletTimer instance;
+
+    /** Object on which to synchronize access to map. */
+    private final Object synch;
+
+    /** Map from database profile to map from location name to counters. */
+    private final Map<DbProfile, Map<String, ServletTimerCounters>> map;
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     */
+    private ServletTimer() {
+
+        this.synch = new Object();
+        this.map = new TreeMap<>();
+    }
+
+    /**
+     * Gets the singleton instance.
+     *
+     * @return the instance
+     */
+    static ServletTimer getInstance() {
+
+        synchronized (INSTANCE_SYNCH) {
+            if (instance == null) {
+                instance = new ServletTimer();
+            }
+
+            return instance;
+        }
+    }
+
+    /**
+     * Records access to a location within a context.
+     *
+     * @param dbProfile the database profile under which the access was made
+     * @param location  the location being called
+     * @param elapsed   the elapsed time
+     */
+    void recordAccess(final DbProfile dbProfile, final String location, final long elapsed) {
+
+        if (dbProfile != null && location != null) {
+            synchronized (this.synch) {
+                final Map<String, ServletTimerCounters> submap = this.map.computeIfAbsent(dbProfile,
+                        s -> new TreeMap<>());
+
+                ServletTimerCounters counters = submap.get(location);
+                if (counters == null) {
+                    counters = new ServletTimerCounters();
+                    submap.put(location, counters);
+                }
+
+                counters.add(elapsed);
+            }
+        }
+    }
+
+    /**
+     * Returns a copy of the data.
+     *
+     * @return the data
+     */
+    public Map<DbProfile, Map<String, ServletTimerCounters>> getData() {
+
+        final Map<DbProfile, Map<String, ServletTimerCounters>> result = new TreeMap<>();
+
+        synchronized (this.synch) {
+
+            for (final Map.Entry<DbProfile, Map<String, ServletTimerCounters>> entry : this.map.entrySet()) {
+                final Map<String, ServletTimerCounters> submap = new TreeMap<>();
+                result.put(entry.getKey(), submap);
+
+                for (final Map.Entry<String, ServletTimerCounters> inner : entry.getValue().entrySet()) {
+                    submap.put(inner.getKey(), inner.getValue().copy());
+                }
+            }
+        }
+
+        return result;
+    }
+}

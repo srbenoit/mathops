@@ -1,0 +1,75 @@
+package dev.mathops.dbjobs.batch.daily;
+
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.DbContext;
+import dev.mathops.db.cfg.ContextMap;
+import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.cfg.ESchemaUse;
+import dev.mathops.db.rawlogic.RawStcourseLogic;
+import dev.mathops.db.rawrecord.RawStcourse;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * Sets open status to 'N' for any in-progress Incompletes where i_deadline_dt < TODAY (and open status is not already
+ * 'N').
+ */
+public enum CloseIncompletes {
+    ;
+
+    /** Flag to set batch into debug mode. */
+    private static final boolean DEBUG = false;
+
+    /**
+     * Executes the job.
+     */
+    public static void execute() {
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+        final DbProfile profile = map.getCodeProfile(Contexts.BATCH_PATH);
+        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+
+        try {
+            final DbConnection conn = ctx.checkOutConnection();
+            try {
+                final Cache cache = new Cache(profile, conn);
+                final LocalDate tomorrow = LocalDate.now().plusDays(1L);
+
+                Log.info("Running CLOSE_INCOMPLETES job");
+
+                final List<RawStcourse> inc = RawStcourseLogic.queryOpenIncompletes(cache);
+                for (final RawStcourse row : inc) {
+                    if ("Y".equals(row.openStatus) && row.iDeadlineDt != null && row.iDeadlineDt.isBefore(tomorrow)) {
+
+                        Log.info("    CLOSE_INCOMPLETES setting open_status to 'N'");
+
+                        if (!DEBUG) {
+                            RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, row.stuId, row.course,
+                                    row.sect, row.termKey, "N", row.finalClassRoll, row.lastClassRollDt);
+                        }
+
+                    }
+                }
+            } finally {
+                ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
+
+    /**
+     * Main method to execute the batch job.
+     *
+     * @param args command-line arguments.
+     */
+    public static void main(final String... args) {
+
+        execute();
+    }
+}

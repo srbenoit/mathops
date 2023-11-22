@@ -1,0 +1,109 @@
+button.nav4 {
+  display:block;
+  height:33px;
+  width:calc(100% - 20px);
+  cursor:pointer;
+  background-color:white;
+  color:#59595B;
+  font-family:open-sans-regular,sans-serif;
+  font-size:15px;
+  line-height:1.4em;
+  margin:5px 10px;
+  padding:2px;
+  border:2px solid #59595B;
+  text-align:center;
+  transition:background-color .2s, color .2s;
+  vertical-align:top;
+}
+button.nav4.selected {
+  padding:0;
+  border:4px solid #59595B;
+  background:#fbfae8;
+  color:black;
+  box-shadow:4px 4px 7px 1px rgba(33,33,33,.33);
+}
+button.nav4:hover {
+  background-color:#59595B;
+  color:white;
+  transition:background-color .2s, color .2s;
+}
+@media (min-width: 500px) {
+  button.nav4 {
+    width:calc(100% - 20px);
+  }
+}
+@media (min-width: 800px) {
+  button.nav4 {
+    display:inline-block; 
+    height:54px;
+    width:calc(25% - 15px);
+  }
+  button.nav4#first {margin-left:0;}
+  button.nav4#last {margin-right:0;}
+}
+
+div.videobox {
+  display:inline-block;
+  width:100%;
+  height:134px;
+  vertical-align:top;
+  border:1px #C8C372 solid;
+}
+video.videofeed {
+  background-color:#59595B;
+  width:100%;
+  height:100%;
+}
+div.controlsbox {
+  display:inline-block;
+  width:100%;
+  height:28px;
+  vertical-align:top;
+  padding:3px 0 3px 0;
+  background:#1e4d2b;
+  text-align:center;
+}
+div.controlsbox button {
+  height:22px;
+  font-size:14px;
+}
+
+
+nav.action {
+    text-align:center;
+    width:100%; 
+}
+@media (min-width: 600px) {
+  nav.action {
+    float:left;
+    width:auto;
+    text-align:left; 
+  }
+}
+
+button.action {
+  height:84px;
+  width:160px;
+  cursor:pointer;
+  background-color: white;
+  color:#1e4d2b;
+  display: inline-block;
+  font-family:open-sans-regular,sans-serif;
+  font-size:16px;
+  line-height:1.4em;
+  margin:0 10px;
+  padding:0;
+  border: 2px solid #1e4d2b;
+  text-align:center;
+  transition: background-color .2s, color .2s;
+}
+button.action:hover {
+  background-color:#1e4d2b;
+  color: white;
+  transition: background-color .2s, color .2s;
+}
+
+
+
+
+

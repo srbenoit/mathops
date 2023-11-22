@@ -1,0 +1,156 @@
+A data dictionary for the PostgreSQL database, with standard field names and data types to be used
+across schema objects.
+
+
+
+academic_year       CHAR(4)         -- An academic year, such as "2324" for 2023/2024.
+                                    --     This example would include SM23, FA23, SP24
+
+active_index        SMALLINT        -- The index of a term with respect to the active term.
+                                    --     0 for the active term
+                                    --     1 for the next future term, 2 for the term after that
+                                    --     -1 for the prior term, -2 for the term before that
+
+assignment_id       VARCHAR(20)     -- The unique ID of an assignment
+                                    --     'version' in the old 'homework' table
+                                    --     Versions like '1711H' for old courses
+                                    --     IDs like 'C41_SR' for Skills Review in new courses, where
+                                    --         C41 indicates chapter, SR indicates Skills Review
+                                    --     IDs like 'C41_LT1_P' for Learning Target practice sets
+                                    --         in new courses, where C41 indicates chapter, LT1
+                                    --         indicates Learning Target 1, P indicates practice 
+                                    --     IDs like 'C4145_EX_1' for Explorations in new courses,
+                                    --         where C4145 indicates chapter range explored, and
+                                    --         numeric index allows for multiple assignments
+
+assignment_type     CHAR(2)         -- An assignment type (codes defined in EAssignmentType)
+                                    --     'HW' for a homework/practice set
+                                    --     'LB' for a lab
+                                    --     'EX' for an exploration
+                                    --     'DI' for a discussion posting
+
+button_label        VARCHAR(50)     -- The label for a button to access some object.
+
+correct             CHAR(1)         -- A correctness indicator:
+                                    --     'Y' if correct
+                                    --     'N' if not
+
+course_id           CHAR(10)        -- The unique ID of a course, like "M 125"
+
+drop_deadline       DATE            -- The last data a student can drop
+
+end_date            DATE            -- The last date included in a date range
+
+exam_id             VARCHAR(20)     -- The unique ID of an exam
+                                    --     'version' in the old 'exam' table
+                                    --     Versions like '171RE' for old courses
+                                    --     IDs like 'C41_LT1_M' for Learning Target mastery exams
+                                    --         in new courses, where C41 indicates chapter, LT1
+                                    --         indicates Learning Target 1, M indicates mastery
+
+exam_type           CHAR(2)         -- An exam type (codes defined in EExamType)
+                                    --     'CH' for a challenge exam
+                                    --     'MA' for a standard mastery exam in a new course
+                                    --     'F' for a final exam in an old course
+                                    --     'U' for a unit exam in an old course
+                                    --     'R' for a review exam in an old course
+                                    --     'Q' for a qualifying (placement or user's) exam
+
+exam_score          SMALLINT        -- An score on an exam attempt
+
+exam_source         CHAR(2)         -- The source of an exam attempt, if known
+                                    --   "TC" if from a testing center
+                                    --   "RM" if remote
+                                    --   "HG" if hand-graded
+
+explor_1_status     CHAR(2)         -- A student's status in exploration 1 of a course
+                                    --   NULL if not yet attempted
+                                    --   "M" if mastered on time (10 points)
+                                    --   "M1" if mastered 1 day late (9 points)
+                                    --   "ML" if mastered late (8 points)
+                                    --   "A" if attempted on time (5 points)
+                                    --   "AL" if attempted late (4 points)
+
+explor_2_status     CHAR(2)         -- A student's status in exploration 2 (see explor_1_status)
+
+is_first_passed     CHAR(1)         -- A flag on an assessment attempt:
+                                    --     'Y' if this is the student's first passed attempt
+                                    --     'N' otherwise
+                                    -- This should be 'Y' on at most one record for a specific exam
+                                    -- for a student.
+
+mastery_score       SMALLINT        -- The score required to demonstrate mastery
+
+nbr_eligible        SMALLINT        -- The number of standards that are available but not mastered
+
+nbr_mastered_h1     SMALLINT        -- The number of standards mastered in the half 1 of a course
+
+nbr_mastered_h2     SMALLINT        -- The number of standards mastered in the half 2 of a course
+
+objective           SMALLINT        -- An objective number within a unit
+                                    --     Old courses have objectives 1-5 in units 1-4
+                                    --     New courses have objective 0-3 in Modules, corresponding
+                                    --         to Skills Review (0), and Learning Targets (1-3),
+                                    --         and objective 1 and 2 in an Explorations unit
+
+passed              CHAR(1)         -- The result of an exam
+                                    --     'Y' if exam was passed
+                                    --     'N' if exam was not passed
+                                    --     'G' if exam attempt is to be "iGnored", or considered to
+                                    --       have never happened (usually due to some error)
+                                    --     'P' for a "passed" exam that has been taken away for
+                                    --       some reason (cheating, taken too long ago, etc.)
+
+question_nbr        SMALLINT        -- A question number on an assessment (first question is 1)
+
+score               SMALLINT        -- An earned score or point total
+
+serial_nbr          INTEGER         -- The unique serial number of an exam session, generated from
+                                    -- the date and time the exam was realized as follows:
+                                    --   SN = (year - 2000) % 20 * 100000000 + day-of-year * 100000
+                                    --      + hour-of-day * 3600 + minute * 60 + second
+                                    -- Example: 290th day of 2023, at 10:11:12 AM --> 329036672
+                                    -- Negative numbers can be used for exams is "practice mode"
+
+sr_status           CHAR(2)         -- A student's status on a Skills Review assignment
+                                    --   NULL if not attempted
+                                    --   Digits with the number of questions finished so far
+                                    --   'P' if passed
+
+start_date          DATE            -- The first date included in a date range
+
+s1_status           CHAR(3)         -- A student's status on Standard 1 within a unit
+                                    --   NULL if not yet eligible
+                                    --   'E' if eligible but not yet attempted
+                                    --   'A##' if attempted - digits are number of times each
+                                    --     question has been answered correctly so far
+                                    --   'M' if mastered on time (5 points)
+                                    --   'ML' if mastered late (4 points)
+                                    
+s2_status           CHAR(3)         -- A student's status on Standard 2 (see s1_status)
+
+s3_status           CHAR(3)         -- A student's status on Standard 3 (see s1_status)
+
+stu_id              CHAR(9)         -- A student ID (CSU IDs are numeric, beginning with '8')
+
+term                SMALLIKNT       -- A term number such as 202390 (10-Spring, 60-Summer, 90=Fall)
+
+title               VARCHAR(60)     -- A full (long) title
+
+tree_ref            VARCHAR(250)    -- A tree location, like 'math.04-trig.01-angles.C41_SR'.
+                                    -- The trailing segment should match the ID of the object.
+
+unit                SMALLINT        -- A unit number within a course
+                                    --   Old courses have unit 0-5 (0 = Skills Review, 5 = Final)
+                                    --   New courses have unit 0-11 (0 = Introduction,
+                                    --     1-10 = Modules, 11 = Explorations)
+
+when_active         TIMESTAMP(0)    -- The date/time (to the second) when an object was activated
+
+when_finished       TIMESTAMP(0)    -- The date/time (to the second) when an activity was finished
+
+when_pulled         TIMESTAMP(0)    -- The date/time (to the second) when an object was deactivated
+
+when_started        TIMESTAMP(0)    -- The date/time (to the second) when an activity was started
+
+withdraw_deadline   DATE            -- The last data a student can withdraw

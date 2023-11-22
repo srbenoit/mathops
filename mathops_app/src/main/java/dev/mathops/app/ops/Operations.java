@@ -1,0 +1,56 @@
+package dev.mathops.app.ops;
+
+import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.cfg.ContextMap;
+
+import javax.swing.SwingUtilities;
+
+/**
+ * A launcher class that executes the operations app (by creating its login window).
+ */
+final class Operations {
+
+    /**
+     * Constructs a new {@code Operations}.
+     */
+    private Operations() {
+
+        // No action
+    }
+
+    /**
+     * Launches the application and creates the login window.
+     *
+     * <pre>
+     * --username foo --password bar
+     * </pre>
+     *
+     * @param args command-line arguments
+     */
+    public static void main(final String... args) {
+
+        FlatLightLaf.setup();
+
+        ContextMap.getDefaultInstance();
+        DbConnection.registerDrivers();
+
+        String username = null;
+        String password = null;
+
+        if (args != null) {
+            final int numArgs = args.length;
+            for (int i = 0; i < numArgs - 1; ++i) {
+                if ("--username".equals(args[i])
+                        && !args[i + 1].startsWith("--")) {
+                    username = args[i + 1];
+                } else if ("--password".equals(args[i])
+                        && !args[i + 1].startsWith("--")) {
+                    password = args[i + 1];
+                }
+            }
+        }
+
+        SwingUtilities.invokeLater(new LoginWindow(username, password));
+    }
+}

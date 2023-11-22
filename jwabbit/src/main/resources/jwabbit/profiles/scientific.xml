@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emulatorDisableKeys version="1.0">
+    <key value="APPS"/>
+    <key value="PRGM"/>
+    <key value="CALC"/>
+    <key value="SOLVE"/>
+    <key value="MATRX"/>
+    <key value="["/>
+    <key value="]"/>
+    <key value="DRAW"/>
+    <key value="FORMAT"/>
+    <key value="GRAPH"/>
+    <key value="ZOOM"/>
+    <key value="TRACE"/>
+    <key value="WINDOW"/>
+    <key value="ZOON"/>
+    <key value="DISTR"/>
+    <key value="L1"/>
+    <key value="L2"/>
+    <key value="L3"/>
+    <key value="L4"/>
+    <key value="L5"/>
+    <key value="L6"/>
+    <key value="LIST"/>
+    <key value="STAT"/>
+    <key value="STAT PLOT"/>
+    <key value="{"/>
+    <key value="}"/>
+    <key value="CATALOG"/>
+    <key value="MATH"/>
+    <key value="I"/>
+    <key value="F1"/>
+    <key value="F2"/>
+    <key value="F3"/>
+    <key value="F4"/>
+    <key value="F5"/>
+</emulatorDisableKeys>

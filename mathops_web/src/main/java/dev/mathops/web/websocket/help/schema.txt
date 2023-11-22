@@ -1,0 +1,44 @@
+Help-Related Database Objects
+
+ TABLE: h_forum
+    forum_id  CHAR(8)      - forum ID          
+    course    CHAR(6)      - course ID or NULL if none
+    unit      SMALLINT     - unit number or NULL if none
+    obj       SMALLINT     - objective number or NULL if none
+    title     VARCHAR(80)  - forum title
+    Primary key: {forum_id}
+    
+    TODO: add media ID, to attach a forum to each video?
+
+TABLE: h_forum_post
+    forum_id         CHAR(8)       - forum ID
+    post_nbr         INTEGER       - incrementing post number, starts at 1 for each forum
+    parent_post_nbr  INTEGER       - post number of parent post (NULL if top-level)
+    post_dt          DATETIME      - when posted
+    read_dt          DATETIME      - when read by a learning assistant
+    post_state       CHAR(1)       - 'D' = deleted, 'U' = unread, 'R' = read, 'S' = starred  
+    by_stu_id        CHAR(9)       - ID of user who posted message
+    by_name          VARCHAR(40)   - screen name of user who posted message
+    Primary key: {forum_id, post_nbr}
+    
+    NOTE: post content stored separately (filesystem) in MIME/Multipart format
+
+ TABLE: h_conv  (Student conversations)
+    stu_id    CHAR(9)     - student ID
+    conv_nbr  INTEGER     - incrementing conversation number, starts at 1 for each student
+    subject   VARCHAR(80) - subject
+    start_dt  DATETIME    - when conversation was started
+    Primary key: {stu_id, conv_nbr}
+    
+ TABLE: h_conv_msg (Message within a student conversation)
+    stu_id     CHAR(9)     - FK references h_conv
+    conv_nbr   INTEGER     - FK references h_conv
+    msg_nbr    INTEGER     - incrementing message number, starts at 1 for each conversation
+    post_dt    DATETIME    - when posted
+    read_dt    DATETIME    - when read by student (if posted by learning assistant) or by course
+                             assistant (of posted by student)
+    by_stu_id  CHAR(9)     - ID of user who posted message
+    by_name    VARCHAR(40) - screen name of user who posted message 
+    Primary key: {stu_id, conf_nbr, msg_nbr}
+    
+    NOTE: message content stored separately (filesystem) in MIME/Multipart format

@@ -1,0 +1,45 @@
+package jwabbit.core.alu;
+
+/*
+ * This software was derived from the Wabbitemu software, as it existed in October 2015, by Steve Benoit. This software
+ * is licensed under the GNU General Public License version 2 (GPLv2). See the disclaimers or warranty and liability
+ * included in the terms of that license.
+ */
+
+import jwabbit.core.CPU;
+import jwabbit.core.IOpcode;
+import jwabbit.core.JWCoreConstants;
+
+/**
+ * The "and_num8" opcode.
+ */
+public final class AndNum8 implements IOpcode {
+
+    /**
+     * Constructs a new {@code AndNum8}.
+     */
+    public AndNum8() {
+
+        // No action
+    }
+
+    /**
+     * Opcode and_num8.
+     *
+     * <p>
+     * WABBITEMU SOURCE: core/alu.c, "and_num8" function.
+     */
+    @Override
+    public int exec(final CPU cpu) {
+
+        final int reg = cpu.cpuMemRead(cpu.getPC());
+        cpu.addPC(1);
+        final int result = cpu.getA() & reg;
+
+        cpu.setF(CPU.signchk(result) + CPU.zerochk(result) + CPU.x5chk(result)
+                + JWCoreConstants.HC_MASK + CPU.x3chk(result) + CPU.parity(result));
+        cpu.setA(result);
+
+        return 7;
+    }
+}

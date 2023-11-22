@@ -1,0 +1,49 @@
+package dev.mathops.assessment;
+
+/**
+ * A utility class that can parse a number from a string, and that supports the {@code Irrational} numeric type.
+ *
+ * <p>
+ * Supported formats include:
+ *
+ * <pre>
+ * 12345        Integers - parsed using "Long.valueOf()"
+ * 123.456      Doubles  - parsed using "Double.valueOf()"
+ * 3PI/4        Any string with "PI" is treated as a fraction with PI in the numerator.  There can
+ *              be an integer coefficient before PI, and optionally a denominator made up of a
+ *              slash character followed by an integer.  No characters between the PI and slash are
+ *              allowed.
+ * 3E/4         Same format as above, but with the constant E rather than PI.
+ * 3R2/2        Any string with "R" is treated as a rational multiple of the square root of an
+ *              integer.  The format has an optional integer coefficient before the R, a required
+ *              integer after the R (whose square root is to be taken), and an optional denominator
+ *              consisting of a slash character then an integer.
+ * </pre>
+ */
+public enum NumberParser {
+    ;
+
+    /**
+     * Attempts to parse a number from a string.
+     *
+     * @param str the string
+     * @return the number
+     * @throws NumberFormatException if the string is not in a valid format
+     */
+    public static Number parse(final String str) throws NumberFormatException {
+
+        Number result;
+
+        try {
+            result = Long.valueOf(str);
+        } catch (final NumberFormatException ex1) {
+            try {
+                result = Double.valueOf(str);
+            } catch (final NumberFormatException ex2) {
+                result = Irrational.valueOf(str);
+            }
+        }
+
+        return result;
+    }
+}

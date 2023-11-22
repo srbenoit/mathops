@@ -1,0 +1,99 @@
+Assessment Interaction Types:
+
+    NOTE: "inputChanged" function can update visibility of any content
+
+    Integer input field
+        Has an input name - integer string is sent on form submission
+        Can present as a box or an underline
+        May be configured not to allow negatives
+        Accepts Digits, "+", "-"
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+        
+    Real Number input field
+        Has an input name - real number string is sent on form submission
+        Can present as a box or an underline
+        May be configured not to allow negatives
+        May be configured not to allow fractions
+        Accepts Digits, "+", "-", ".", "/", "pi", "e"
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+        
+    String input field
+        Has an input name - string is sent on form submission
+        Can present as a box or an underline
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+        
+    Checkbox field
+        Has an input name and value - many checkboxes can share same name, value submitted is sum
+        Can present as a box with 'x' or checkmark when ticked, or a line with checkmark
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+        
+    Radio button field
+        Has an input name and value - many radio buttons can share same name, selected value submits
+        Presents as a circle, filled in when selected  
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+
+    Slider field
+        Has an input name - integer string is sent on form submission
+        Can present vertically or horizontally
+        Configured with min/max integer values
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+
+    Dropdown Choice field
+        Has an input name - selected string value sent on submission
+        Has a list of string choices
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+
+    AnimatingDrawing
+        A drawing is configured with many frames.
+        Each frame has click regions and listeners.
+        Clicking a region can move drawing to other frame number (say, to highlight a zone)
+        Dragging mouse through regions can also update frame
+        Click or drag can update points drawn on drawing.
+
+    Likert input
+        Has an input name, min/max labels, and a range of integers - selected value is submitted
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+
+    Expression entry input
+        Has an input name, XML expression is submitted
+        Available variable names can be designated.
+        Allowed set of operations / functions can be designated
+        HTML: On change, calls form "inputChanged" JavaScript function
+        Native: On change, calls "inputChanged" function
+        "inputChanged" function can enable/disable this control
+
+   AnglePicker graphic interaction
+        Within a drawing, given the location of an origin, allows the user to click or drag a point
+        to generate the terminal ray of an angle.  On change, updates a real input variable with
+        the selected angle (in degrees or radians), which is submitted.
+
+   Line drawing interaction
+        Within a drawing, clicking two points draws a line between them.  The two points are
+        submitted in "(1,2),(3,4)" format.
+
+   Graph sketch interaction
+        Within a drawing, sketch a graph by click/drag.  Resulting list of points (one for each x)
+        is submitted.
+
+   Number line interaction
+        Allows the user to specify an interval on a number line.
+
+   Table cells interaction
+        A cell within a table configured to support integer, real, or string input. 
+   

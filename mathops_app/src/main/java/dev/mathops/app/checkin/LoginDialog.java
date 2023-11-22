@@ -1,0 +1,267 @@
+package dev.mathops.app.checkin;
+
+import dev.mathops.font.BundledFontManager;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+/**
+ * A dialog to gather the database login information to be used to connect to the configured database.
+ */
+public class LoginDialog implements ActionListener {
+
+    /** The frame. */
+    private JFrame frame;
+
+    /** The driver name. */
+    private final String driverName;
+
+    /** The default username. */
+    private final String defaultUsername;
+
+    /** Flag indicating Cancel button was pressed. */
+    private boolean cancel;
+
+    /** Flag indicating Connect button was pressed. */
+    private boolean connect;
+
+    /** Color for fields that have been properly filled out. */
+    private Color okColor;
+
+    /** Color for fields that are empty or have been improperly filled out. */
+    private Color badColor;
+
+    /** The content pane. */
+    private JPanel content;
+
+    /** The login username field. */
+    private JTextField usernameFld;
+
+    /** The password field. */
+    private JPasswordField passwordFld;
+
+    /** The Cancel button. */
+    private JButton cancelBtn;
+
+    /** The Connect button. */
+    private JButton connectBtn;
+
+    /**
+     * Constructs a new {@code LoginDialog}.
+     *
+     * @param theDriverName the driver name
+     * @param defUsername   the default username
+     */
+    public LoginDialog(final String theDriverName, final String defUsername) {
+
+        this.driverName = theDriverName;
+        this.defaultUsername = defUsername;
+
+        buildUI();
+    }
+
+    /**
+     * Constructs the user interface.
+     */
+    private void buildUI() {
+
+        // final Color col = new Color(220, 220, 220);
+
+        this.frame = new JFrame("Connect");
+
+        this.okColor = Color.WHITE;
+        this.badColor = new Color(255, 255, 200);
+
+        // Generate a content pane with a margin.
+        this.content = new JPanel(new BorderLayout(5, 5));
+        this.content.setBorder(BorderFactory.createEmptyBorder(15, 15, 3, 15));
+        this.frame.setContentPane(this.content);
+
+        final BundledFontManager bfm = BundledFontManager.getInstance();
+
+        final JLabel lbl = new JLabel("Database Connection (" + this.driverName //
+                + ")");
+        lbl.setFont(bfm.getFont(BundledFontManager.SANS, 16.0, Font.PLAIN));
+        this.content.add(lbl, BorderLayout.PAGE_START);
+
+        final JPanel fields = new JPanel(new GridLayout(2, 1, 5, 0));
+        fields.setBorder(BorderFactory.createEmptyBorder(15, 10, 5, 10));
+
+        // Generate field name labels and set to a common size
+        final JLabel[] names = {new JLabel("Login Username:"), new JLabel("Login Password:")};
+
+        int max = 0;
+
+        for (final JLabel name : names) {
+            final int width = name.getPreferredSize().width;
+
+            if (width > max) {
+                max = width;
+            }
+        }
+
+        for (final JLabel name : names) {
+            name.setPreferredSize(new Dimension(max, name.getPreferredSize().height));
+        }
+
+        JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+
+        flow.add(names[0]);
+        this.usernameFld = new JTextField(this.defaultUsername, 12);
+        this.usernameFld.setBackground(this.okColor);
+        flow.add(this.usernameFld);
+        fields.add(flow);
+
+        flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        flow.add(names[1]);
+        this.passwordFld = new JPasswordField(12);
+        this.passwordFld.setBackground(this.okColor);
+        flow.add(this.passwordFld);
+        fields.add(flow);
+
+        this.content.add(fields, BorderLayout.CENTER);
+
+        final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.TRAILING, 5, 2));
+        this.cancelBtn = new JButton("Cancel");
+        this.cancelBtn.addActionListener(this);
+        buttons.add(this.cancelBtn);
+        this.connectBtn = new JButton("Connect");
+        this.connectBtn.addActionListener(this);
+        buttons.add(this.connectBtn);
+
+        // Make "Connect" react to Return key
+        this.frame.getRootPane().setDefaultButton(this.connectBtn);
+
+        this.content.add(buttons, BorderLayout.PAGE_END);
+        this.frame.pack();
+
+        // Center on the screen
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        this.frame.setLocation((screen.width - this.frame.getWidth()) / 2,
+                (screen.height - this.frame.getHeight()) / 2);
+    }
+
+    /**
+     * Handler for action events generated by buttons.
+     *
+     * @param e the action event to be processed
+     */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+        final String cmd = e.getActionCommand();
+        boolean isConnect = true;
+
+        this.cancel = "Cancel".equals(cmd);
+        this.connect = false;
+
+        if ("Connect".equals(cmd)) {
+            this.usernameFld.setBackground(this.okColor);
+            this.passwordFld.setBackground(this.okColor);
+
+            // validate fields
+            if (this.passwordFld.getPassword().length == 0) {
+                this.passwordFld.setBackground(this.badColor);
+                this.passwordFld.requestFocus();
+                isConnect = false;
+            }
+
+            if (this.usernameFld.getText().isEmpty()) {
+                this.usernameFld.setBackground(this.badColor);
+                this.usernameFld.requestFocus();
+                isConnect = false;
+            }
+
+            this.connect = isConnect;
+        }
+    }
+
+    /**
+     * Closes the dialog.
+     */
+    public void close() {
+
+        this.frame.setVisible(false);
+        this.frame.dispose();
+    }
+
+    /**
+     * Displays the dialog and waits for the user to press either Connect or Cancel.
+     *
+     * @return {@code true} if "Connect" was pressed, {@code false} if "Cancel" was pressed
+     */
+    public boolean gatherInformation() {
+
+        // reset and show dialog
+        this.cancel = false;
+        this.connect = false;
+
+        this.frame.setVisible(true);
+        this.frame.toFront();
+        this.cancelBtn.setEnabled(true);
+        this.connectBtn.setEnabled(true);
+        this.usernameFld.setEnabled(true);
+        this.passwordFld.setEnabled(true);
+        this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        this.usernameFld.requestFocus();
+
+        if (this.usernameFld.getText().isEmpty()) {
+            this.usernameFld.requestFocus();
+        } else if (this.passwordFld.getPassword().length == 0) {
+            this.passwordFld.requestFocus();
+        }
+
+        while ((!this.cancel) && (!this.connect)) {
+            try {
+                Thread.sleep(50L);
+            } catch (final InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        if (this.connect) {
+            this.cancelBtn.setEnabled(false);
+            this.connectBtn.setEnabled(false);
+            this.usernameFld.setEnabled(false);
+            this.passwordFld.setEnabled(false);
+            this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        }
+
+        return this.connect;
+    }
+
+    /**
+     * Gets the entered login username.
+     *
+     * @return the entered login username
+     */
+    public String getUsername() {
+
+        return this.usernameFld.getText();
+    }
+
+    /**
+     * Gets the entered login password.
+     *
+     * @return the entered login password
+     */
+    public char[] getPassword() {
+
+        return this.passwordFld.getPassword();
+    }
+}

@@ -1,0 +1,192 @@
+package dev.mathops.web.site.placement.main;
+
+import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.PlacementLogic;
+import dev.mathops.db.logic.PlacementStatus;
+import dev.mathops.db.rawlogic.RawStudentLogic;
+import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.session.ImmutableSessionInfo;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+
+/**
+ * Generates the content of a page with instructions for taking the exam through ProctorU.
+ */
+enum PageToolInstructionsPu {
+    ;
+
+    /**
+     * Generates the page of information on a remote, proctored challenge attempt.
+     *
+     * @param cache   the data cache
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+                      final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
+
+        final String stuId = session.getEffectiveUserId();
+        final RawStudent stu = RawStudentLogic.query(cache, stuId, false);
+
+        final PlacementLogic logic =
+                new PlacementLogic(cache, stuId, stu == null ? null : stu.aplnTerm, session.getNow());
+        final PlacementStatus status = logic.status;
+
+        final HtmlBuilder htm = MPPage.startPage3(site, session);
+
+        htm.sDiv("inset2");
+        htm.sDiv("shaded2left");
+
+        htm.sP();
+        htm.addln("Students may complete the Math Placement Tool twice.  This tool may be ",
+                "completed online through ProctorU.");
+        htm.eP();
+
+        htm.addln("<ul>");
+        htm.addln("<li>",
+                "You should schedule your session with ProctorU at least three days in advance. ",
+                "ProctorU may charge additional fees to administer an exam on short notice. ",
+                "See the ProctorU web site for more information.", //
+                "</li>");
+        htm.div("vgap");
+
+        htm.addln("<li>",
+                "ProctorU will charge a separate fee of $6.50 for their proctoring service (fee ",
+                "subject to change). This fee will be collected by ProctorU before your session ",
+                "begins.  This fee is separate from the CSU processing fee for the Math Placement ",
+                "Tool described below.", //
+                "</li>");
+        htm.addln("</ul>");
+        htm.div("vgap");
+
+        htm.sDiv("center");
+        htm.sTable("plan-table", "style='display:inline-table;'");
+        htm.sTr();
+        htm.sTh().add("Format:").eTh();
+        htm.sTd().add("50 items, multiple-choice / multiple selection").eTd();
+        htm.eTr();
+        htm.sTr();
+        htm.sTh().add("Time limit:").eTh();
+        if (stu != null && stu.timelimitFactor != null) {
+            final float factor = stu.timelimitFactor.floatValue();
+
+            if (factor > 1.49f && factor < 1.51f) {
+                htm.sTd().add("2 hours, 20 minutes<br/>",
+                        "(Adjusted to 3 hours, 30 minutes by accommodation)").eTd();
+            } else if (factor > 1.99f && factor < 2.01f) {
+                htm.sTd().add("2 hours, 20 minutes<br/>",
+                        "(Adjusted to 4 hours, 40 minutes by accommodation)").eTd();
+            } else if (factor > 2.49f && factor < 2.51f) {
+                htm.sTd().add("2 hours, 20 minutes<br/>",
+                        "(Adjusted to 5 hours, 50 minutes by accommodation)").eTd();
+            } else if (factor > 2.99f && factor < 3.01f) {
+                htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to 7 hours by accommodation)")
+                        .eTd();
+            } else {
+                final int minutes = Math.round(140.0f * factor);
+                if (minutes <= 140) {
+                    htm.sTd().add("2 hours, 20 minutes").eTd();
+                } else {
+                    htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to ",
+                            Integer.toString(minutes), " minutes by accommodation)").eTd();
+                }
+            }
+        } else {
+            htm.sTd().add("2 hours, 20 minutes").eTd();
+        }
+        htm.eTr();
+        htm.sTr();
+        htm.sTh().add("Calculator:").eTh();
+        htm.sTd().add("Personal graphing calculator allowed").eTd();
+        htm.eTr();
+        htm.sTr();
+        htm.sTh().add("References:").eTh();
+        htm.sTd().add("Not allowed").eTd();
+        htm.eTr();
+        htm.sTr();
+        htm.sTh("highlight").add("Fee:").eTh();
+        htm.sTd("highlight").add("<a class='ulink' href='tool_fees.html'>",
+                "Tell me about the Math Placement fee</a>").eTd();
+        htm.eTr();
+        htm.eTable();
+        htm.eDiv(); // center
+        htm.div("vgap");
+
+        htm.addln("<ul>");
+
+        htm.addln("<li>",
+                "To place out of a course, you must demonstrate proficiency in all of its ",
+                "prerequisite courses during the same attempt of the Math Placement Tool.  That ",
+                "means you should not skip the algebra portion if you want to place out of ",
+                "trigonometry or logarithmic &amp; exponential functions.",
+                "</li>");
+        htm.div("vgap");
+
+        htm.addln("<li>Results are available immediately after completing the Math Placement Tool.</li>");
+        htm.div("vgap");
+
+        htm.addln("<li>Report any problems via email to ",
+                "<a class='ulink2' href='mailto:precalc_math@colostate.edu'>precalc_math@colostate.edu</a>.",
+                "</li>");
+        htm.div("vgap");
+
+        htm.addln("</ul>");
+
+        htm.div("vgap");
+
+        htm.sDiv("advice");
+        htm.sDiv("left");
+        htm.addln("<img width='90pt' height='90pt' src='/images/dialog-warning-2.png'/>");
+        htm.eDiv(); // left
+
+        htm.sDiv(null, "style='margin-left:80pt;'");
+        htm.addln("You may only complete the Math Placement Tool twice. ",
+                "You should review and study before using the tool.");
+        htm.eDiv();
+
+        htm.sDiv(null, "style='margin:8pt 20pt 0 100pt;'");
+        htm.addln("<a class='ulink' href='review.html'>",
+                "Use our interactive review materials.</a>");
+        htm.eDiv();
+
+        htm.sDiv(null, "style='margin-left:80pt;margin-top:8pt;'");
+        htm.addln("Depending on your major, your results could directly affect your ability ",
+                "to register for important classes in your degree program.");
+        htm.eDiv();
+        htm.div("clear");
+
+        htm.eDiv(); // advice
+
+        if (status.attemptsRemaining > 0) {
+            htm.div("vgap2");
+
+            htm.sDiv("center");
+            htm.addln("<a class='btn' href='tool_schedule_pu.html'>",
+                    "I want to schedule the Math Placement Tool with ProctorU.</a>");
+            htm.eDiv(); // center
+            htm.div("vgap");
+
+            // if (dates.isAvailableNow(PlacementSite.MPE_COURSE)) {
+            htm.sDiv("center");
+            htm.add("<a class='btn' href='tool_start_pu.html'>I want to complete the Math Placement Tool now.</a>");
+            htm.eDiv(); // center
+        } else {
+            htm.sP().addln("You have no attempts remaining on the Math Placement Tool.").eP();
+        }
+
+        htm.eDiv(); // shaded2left
+        htm.eDiv(); // inset2
+
+        MPPage.emitScripts(htm);
+        MPPage.endPage(htm, req, resp);
+    }
+}

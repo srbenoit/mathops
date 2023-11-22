@@ -1,0 +1,1120 @@
+package dev.mathops.session.sitelogic;
+
+import dev.mathops.core.CoreConstants;
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.PaceTrackLogic;
+import dev.mathops.db.rawlogic.RawPacingStructureLogic;
+import dev.mathops.db.rawlogic.RawStcourseLogic;
+import dev.mathops.db.rawlogic.RawStudentLogic;
+import dev.mathops.db.rawrecord.RawCourse;
+import dev.mathops.db.rawrecord.RawCsection;
+import dev.mathops.db.rawrecord.RawFfrTrns;
+import dev.mathops.db.rawrecord.RawMilestone;
+import dev.mathops.db.rawrecord.RawMpeCredit;
+import dev.mathops.db.rawrecord.RawPacingStructure;
+import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.rawrecord.RawStcourse;
+import dev.mathops.db.rawrecord.RawStexam;
+import dev.mathops.db.rawrecord.RawStmilestone;
+import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.svc.term.TermLogic;
+import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.session.sitelogic.data.SiteData;
+import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
+import dev.mathops.session.sitelogic.data.SiteDataContext;
+import dev.mathops.session.sitelogic.data.SiteDataCourse;
+import dev.mathops.session.sitelogic.data.SiteDataStudent;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+/**
+ * Logic and data access relating to the course information for courses in which the student is enrolled
+ * <p>
+ * Web page code should be performing NO logic - just layout and formatting of the information gathered here.
+ */
+public final class CourseSiteLogicCourse {
+
+    /** A course number. */
+    private static final String M160R = "M 160R";
+
+    /** A course number. */
+    private static final String M161R = "M 161R";
+
+    /** A course number. */
+    private static final String M161 = "M 161";
+
+    /** The set of guest student IDs. */
+    private static final List<String> GUEST_IDS;
+
+    /** The owning site logic object. */
+    private final CourseSiteLogic owner;
+
+    /** The course site data. */
+    private final SiteData data;
+
+    /** The login session. */
+    private final ImmutableSessionInfo session;
+
+    /** The list of courses (not open yet) that the student may now start. */
+    public final Set<CourseInfo> availableCourses;
+
+    /** The list of courses that could be started if too many weren't already open. */
+    public final Set<CourseInfo> unavailableCourses;
+
+    /** The list of courses whose prerequisites have not yet been met. */
+    public final Set<CourseInfo> noPrereqCourses;
+
+    /** The list of courses that are currently open & not completed. */
+    public final Set<CourseInfo> inProgressCourses;
+
+    /** The list of courses that are completed, but remain open. */
+    public final Set<CourseInfo> completedCourses;
+
+    /** The list of courses that are not completed but past deadline date. */
+    public final Set<CourseInfo> pastDeadlineCourses;
+
+    /** The list of courses that are forfeit. */
+    public final Set<CourseInfo> forfeitCourses;
+
+    /** The list of courses that were failed. */
+    public final Set<CourseInfo> notAvailableCourses;
+
+    /** The list of courses where placement credit has been earned. */
+    public final Set<CourseInfo> otCreditCourses;
+
+    /** The list of incompletes (not open yet) that the student may now start. */
+    public final Set<CourseInfo> availableIncCourses;
+
+    /** The list of incompletes that could be started if too many weren't already open. */
+    public final Set<CourseInfo> unavailableIncCourses;
+
+    /** The list of incompletes whose prerequisites have not yet been met. */
+    public final Set<CourseInfo> noPrereqIncCourses;
+
+    /** The list of incompletes that are currently open & not completed. */
+    public final Set<CourseInfo> inProgressIncCourses;
+
+    /** The list of incompletes that are completed, but remain open. */
+    public final Set<CourseInfo> completedIncCourses;
+
+    /** The list of incompletes that are completed and past deadline date. */
+    public final Set<CourseInfo> pastDeadlineIncCourses;
+
+    /** The list of incompletes that are forfeit. */
+    private final Set<CourseInfo> forfeitInc;
+
+    /** The list of tutorials open to the student. */
+    public final Set<CourseInfo> tutorials;
+
+    /** Indicator that student has been locked out of courses by a hold. */
+    public boolean lockedOut;
+
+    /** True if student has any course that requires an e-text. */
+    public boolean requiresEtext;
+
+    /** Indicator that student is blocked from proceeding by deadline failures. */
+    public boolean blocked;
+
+    /** Labels for each course in the menu. */
+    private final Map<String, String> courseLabels;
+
+    /** The number of courses currently open. */
+    private int numOpen;
+
+    /** Flag indicating the user has an incomplete course that has not been opened. */
+    private boolean incUnopened;
+
+    static {
+        GUEST_IDS = Arrays.asList("GUEST", "AACTUTOR");
+    }
+
+    /**
+     * Constructs a new {@code CourseSiteLogicCourse}.
+     *
+     * @param cache      the data cache
+     * @param theOwner   the owning course site logic
+     * @param theData    the course site data from which to construct profile information
+     * @param theSession the login session
+     * @throws SQLException if there is an error accessing the database
+     */
+    CourseSiteLogicCourse(final Cache cache, final CourseSiteLogic theOwner, final SiteData theData,
+                          final ImmutableSessionInfo theSession) throws SQLException {
+
+        this.owner = theOwner;
+        this.data = theData;
+        this.session = theSession;
+
+        this.availableCourses = new TreeSet<>();
+        this.unavailableCourses = new TreeSet<>();
+        this.noPrereqCourses = new TreeSet<>();
+        this.inProgressCourses = new TreeSet<>();
+        this.completedCourses = new TreeSet<>();
+        this.pastDeadlineCourses = new TreeSet<>();
+        this.forfeitCourses = new TreeSet<>();
+        this.notAvailableCourses = new TreeSet<>();
+        this.otCreditCourses = new TreeSet<>();
+
+        this.availableIncCourses = new TreeSet<>();
+        this.unavailableIncCourses = new TreeSet<>();
+        this.noPrereqIncCourses = new TreeSet<>();
+        this.inProgressIncCourses = new TreeSet<>();
+        this.completedIncCourses = new TreeSet<>();
+        this.pastDeadlineIncCourses = new TreeSet<>();
+        this.forfeitInc = new TreeSet<>();
+
+        this.tutorials = new TreeSet<>();
+        this.lockedOut = false;
+        this.numOpen = 0;
+        this.requiresEtext = false;
+        this.incUnopened = false;
+
+        this.courseLabels = new TreeMap<>();
+
+        processData(cache, ZonedDateTime.now());
+    }
+
+    /**
+     * Populates data for all current courses for a student, once the active term has been loaded.
+     *
+     * @param cache the data cache
+     * @param now   the current date/time
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void processData(final Cache cache, final ZonedDateTime now) throws SQLException {
+
+        final SiteDataStudent stuData = this.data.studentData;
+
+        this.lockedOut = stuData.hasHold("30");
+        loadCourseLabels();
+
+        if (GUEST_IDS.contains(stuData.getStudent().stuId)) {
+            loadGuestData(stuData.getStudent().stuId);
+        } else {
+            loadStudentData(cache, now);
+        }
+    }
+
+    /**
+     * Loads the map from course ID to course label.
+     */
+    private void loadCourseLabels() {
+
+        final List<RawCourse> contextCourses = this.data.contextData.getCourses();
+
+        for (final RawCourse course : contextCourses) {
+            final String courseId = course.course;
+            final String label = course.courseLabel;
+            if (label != null) {
+                this.courseLabels.put(courseId, label);
+            }
+        }
+    }
+
+    /**
+     * Loads the available course data for pre-configured guest IDs.
+     *
+     * @param studentId the student ID
+     * @return {@code true} if successful; {@code false} otherwise
+     */
+    private boolean loadGuestData(final String studentId) {
+
+        // TODO: Make this data driven, and also context-specific
+
+        if ("GUEST".equals(studentId)) {
+            if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
+                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T,
+                        this.courseLabels.get(RawRecordConstants.M100T)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
+                this.otCreditCourses.add(new CourseInfo(RawRecordConstants.M117,
+                        this.courseLabels.get(RawRecordConstants.M117)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
+                        this.courseLabels.get(RawRecordConstants.M118)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M124,
+                        this.courseLabels.get(RawRecordConstants.M124)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M125,
+                        this.courseLabels.get(RawRecordConstants.M125)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M126,
+                        this.courseLabels.get(RawRecordConstants.M126)));
+            }
+        } else if ("AACTUTOR".equals(studentId)) {
+            if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
+                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T,
+                        this.courseLabels.get(RawRecordConstants.M100T)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117,
+                        this.courseLabels.get(RawRecordConstants.M117)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
+                        this.courseLabels.get(RawRecordConstants.M118)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124,
+                        this.courseLabels.get(RawRecordConstants.M124)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125,
+                        this.courseLabels.get(RawRecordConstants.M125)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126,
+                        this.courseLabels.get(RawRecordConstants.M126)));
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Loads the available course data for a genuine student.
+     *
+     * @param cache the data cache
+     * @param now   the current date/time
+     * @return {@code true} if successful; {@code false} otherwise
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean loadStudentData(final Cache cache, final ZonedDateTime now) throws SQLException {
+
+        makeTutorialsAvailable(now);
+
+        final boolean result;
+
+        if (this.session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
+            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117,
+                        this.courseLabels.get(RawRecordConstants.M117)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
+                        this.courseLabels.get(RawRecordConstants.M118)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124,
+                        this.courseLabels.get(RawRecordConstants.M124)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125,
+                        this.courseLabels.get(RawRecordConstants.M125)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126,
+                        this.courseLabels.get(RawRecordConstants.M126)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.MATH125)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH125,
+                        this.courseLabels.get(RawRecordConstants.MATH125)));
+            }
+            if (this.courseLabels.containsKey(RawRecordConstants.MATH126)) {
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126,
+                        this.courseLabels.get(RawRecordConstants.MATH126)));
+            }
+            result = true;
+        } else {
+            addSpecialStudentCourses();
+
+            final List<RawStcourse> studentCourses = this.data.registrationData.getRegistrations();
+
+            // Filter courses to only those this website supports
+            final List<RawCsection> contextCourses = this.data.contextData.getCourseSections();
+            final Collection<RawStcourse> stCoursesInContext = new ArrayList<>(10);
+
+            for (final RawStcourse stcourse : studentCourses) {
+
+                final String regCourseId = stcourse.course;
+                final String regSect = stcourse.sect;
+
+                for (final RawCsection contextCourse : contextCourses) {
+                    if (contextCourse.course.equals(regCourseId) && contextCourse.sect.equals(regSect)) {
+                        stCoursesInContext.add(stcourse);
+                        break;
+                    }
+                }
+            }
+            result = processCourses(cache, now, stCoursesInContext);
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the student has any placement attempts on record, and if so, makes any tutorials available that
+     * require a placement attempt record. Any tutorials that have no such requirement are also made available.
+     *
+     * @param now the current date/time
+     */
+    private void makeTutorialsAvailable(final ZonedDateTime now) {
+
+        final SiteDataStudent stuData = this.data.studentData;
+
+        // See if the student has any placement/ELM exam attempts on-record (or is an admin)
+        final boolean hasPlacement = this.session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)
+                || !stuData.getStudentPlacementAttempts().isEmpty()
+                || !stuData.getStudentElmAttempts().isEmpty();
+
+        // Scan the list of courses, adding tutorials as appropriate
+        final SiteDataContext contextData = this.data.contextData;
+        final List<RawCourse> courses = this.data.contextData.getCourses();
+        for (final RawCourse contextCourse : courses) {
+            final RawCourse course = contextData.getCourse(contextCourse.course);
+
+            if ("Y".equals(course.isTutorial)) {
+
+                final boolean canSeeAll = stuData.isSpecialType(now, "AACTUTOR")
+                        || stuData.isSpecialType(now, "TUTOR")
+                        || stuData.isSpecialType(now, "ADMIN")
+                        || stuData.isSpecialType(now, "STEVE");
+
+                if (canSeeAll || !course.isPlacementRequired()) {
+                    this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                } else {
+
+                    // Allow a "Special student" record to grant access to Precalc Tutorials
+                    if ((RawRecordConstants.M1170.equals(course.course)
+                            && stuData.isSpecialType(now, "PCT117"))
+                            || (RawRecordConstants.M1180.equals(course.course)
+                            && stuData.isSpecialType(now, "PCT118"))) {
+                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                    } else if ((RawRecordConstants.M1240.equals(course.course)
+                            && stuData.isSpecialType(now, "PCT124"))
+                            || (RawRecordConstants.M1250.equals(course.course)
+                            && stuData.isSpecialType(now, "PCT125"))) {
+                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                    } else if (RawRecordConstants.M1260.equals(course.course)
+                            && stuData.isSpecialType(now, "PCT126")) {
+                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                    }
+
+                    if (hasPlacement) {
+
+                        // FIXME: Manual enforcement of availability for precalc tutorials:
+                        // these are unavailable if student already has course or placement out of
+                        // course, or if student does NOT have or placed out of prereqs for course
+
+                        if (RawRecordConstants.M1170.equals(course.course)) {
+
+                            if (!hasCourseAsPrereq(RawRecordConstants.M117)) {
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                            }
+
+                        } else if (RawRecordConstants.M1180.equals(course.course)) {
+
+                            if (!hasCourseAsPrereq(RawRecordConstants.M118)) {
+                                // Availability of M 1180 is governed by having 117 done
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
+                                        hasCourseAsPrereq(RawRecordConstants.M117)));
+                            }
+
+                        } else if (RawRecordConstants.M1240.equals(course.course)) {
+
+                            if (!hasCourseAsPrereq(RawRecordConstants.M124)) {
+                                // Availability of M 1240 is governed by having 118 done
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
+                                        hasCourseAsPrereq(RawRecordConstants.M118)));
+                            }
+
+                        } else if (RawRecordConstants.M1250.equals(course.course)) {
+
+                            // NOTE: The following line used to be "M 118", which would offer the
+                            // student both 1240 and 1250 if they had 118 finished. The change to
+                            // "M 124" below makes it offer tutorials in numeric order only.
+                            if (!hasCourseAsPrereq(RawRecordConstants.M125)) {
+                                // Availability of M 1250 is governed by having 124 done (NOTE:
+                                // We force numerical order, not just pre-requisite order)
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
+                                        hasCourseAsPrereq(RawRecordConstants.M124)));
+                            }
+
+                        } else if (RawRecordConstants.M1260.equals(course.course)) {
+
+                            if (!hasCourseAsPrereq(RawRecordConstants.M126)) {
+                                // Availability of M 1260 is governed by having 124 and 125 done
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
+                                        hasCourseAsPrereq(RawRecordConstants.M124)
+                                                && hasCourseAsPrereq(RawRecordConstants.M125)));
+                            }
+
+                        } else {
+                            // An "ordinary" tutorial that just requires the placement exam
+                            this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks for any special student configurations and adds the relevant courses to the list of courses currently in
+     * progress.
+     */
+    private void addSpecialStudentCourses() {
+
+        final SiteDataStudent stuData = this.data.studentData;
+        final ZonedDateTime now = this.owner.sessionInfo.getNow();
+        final String[] toAdd;
+
+        if (stuData.isSpecialType(now, "TUTOR", "M384", "ADMIN")) {
+            toAdd = new String[]{RawRecordConstants.M117, RawRecordConstants.M118,
+                    RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126,
+                    RawRecordConstants.MATH125, RawRecordConstants.MATH126, M160R, M161R};
+        } else {
+            toAdd = null;
+        }
+
+        if (toAdd != null) {
+            // Add only those courses from the above list that are relevant to the context
+            for (final String s : toAdd) {
+                if (this.courseLabels.containsKey(s)) {
+                    this.inProgressCourses.add(new CourseInfo(s, this.courseLabels.get(s)));
+                }
+            }
+        }
+    }
+
+    /**
+     * Processes the list of student course registrations and constructs the appropriate lists for each category.
+     *
+     * @param cache              the data cache
+     * @param now                the current date/time
+     * @param stCoursesInContext an array of {@code RawStcourse}, representing student course registrations active in
+     *                           the current context
+     * @return {@code true} if successful; {@code false} otherwise
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean processCourses(final Cache cache, final ZonedDateTime now,
+                                   final Iterable<RawStcourse> stCoursesInContext) throws SQLException {
+
+        // Determine the student's pace (assume pace order is correct - may be wrong, but it will
+        // not report a false-positive blocked result this way, since there should be no more
+        // records with a pace order set than the student's actual pace).
+        final int pace = PaceTrackLogic.determinePace(stCoursesInContext);
+
+        // TODO: This is the place to store the STTERM info for pace and pace track, but we
+        // need to calculate pace track from the pace track rules. If the track is changed from
+        // the default, we may need to re-query milestones!
+
+        final SiteDataCourse courseData = this.data.courseData;
+
+        // Count up the open courses based strictly on open status and the "counts toward max open"
+        // field in the section record
+        this.numOpen = 0;
+        for (final RawStcourse stcourse : stCoursesInContext) {
+
+            final String openStatus = stcourse.openStatus;
+
+            if ("Y".equals(openStatus) && !"Y".equals(stcourse.completed)) {
+
+                final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
+
+                if (cfg != null) {
+                    final RawCsection sect = cfg.courseSection;
+                    if ("Y".equals(sect.countInMaxCourses)) {
+                        ++this.numOpen;
+                    }
+                }
+            }
+        }
+
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+        // Load the OT credit courses that occurred this term
+        final List<RawStcourse> otCredit = this.data.studentData.getStudentOTCredit();
+        for (final RawStcourse credit : otCredit) {
+            if (credit.termKey.equals(active.term) && this.courseLabels.containsKey(credit.course)) {
+                this.otCreditCourses.add(new CourseInfo(credit.course, this.courseLabels.get(credit.course)));
+            }
+        }
+
+        this.requiresEtext = false;
+        outer:
+        for (final RawStcourse stcourse : stCoursesInContext) {
+
+            final TermRec regTerm = this.data.registrationData.getRegistrationTerm(stcourse.course, stcourse.sect);
+            final List<RawMilestone> allMilestones = this.data.milestoneData.getMilestones(regTerm.term);
+            final List<RawStmilestone> stuMilestones = this.data.milestoneData.getStudentMilestones(regTerm.term);
+
+            final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
+            if (cfg == null) {
+                Log.warning("No config found for ", stcourse.course, " section ", stcourse.sect);
+                continue;
+            }
+            if ("Y".equals(cfg.course.requireEtext)) {
+                this.requiresEtext = true;
+            }
+
+            final RawCsection sect = cfg.courseSection;
+            if (("OT".equals(sect.instrnType)) || "Y".equals(cfg.course.isTutorial)) {
+                continue;
+            }
+
+            final String courseId = stcourse.course;
+            final Integer paceOrder = stcourse.paceOrder;
+            LocalDate paceDeadlineDay = null;
+            LocalDate lastTryDeadlineDay = null;
+            int lastTryAttempts = -1;
+            final LocalDate today = this.owner.sessionInfo.getNow().toLocalDate();
+
+            if (paceOrder != null) {
+                final boolean ubonus = paceOrder.intValue() == 1 && this.data.studentData.isSpecialType(
+                        this.data.now, "UBONUS");
+
+                for (final RawMilestone msRec : allMilestones) {
+
+                    final int msNumber = msRec.msNbr.intValue();
+                    final int msPace = msNumber < 1000 ? msNumber / 100 : msNumber / 1000;
+                    final int msWhich = msNumber < 1000 ? msNumber / 10 % 10 : msNumber / 100 % 10;
+
+                    if (msPace != pace || msWhich != paceOrder.intValue()) {
+                        continue;
+                    }
+
+                    final String msType = msRec.msType;
+
+                    if ("FE".equals(msType)) {
+                        if (paceDeadlineDay == null || msRec.msDate.isAfter(paceDeadlineDay)) {
+                            paceDeadlineDay = msRec.msDate;
+                        }
+
+                        // See if date is overridden
+                        for (final RawStmilestone stuMs : stuMilestones) {
+                            if (stuMs.msNbr.equals(msRec.msNbr) && stuMs.msType.equals(msRec.msType)) {
+                                paceDeadlineDay = stuMs.msDate;
+                            }
+                        }
+                    } else if ("F1".equals(msType)) {
+                        if (lastTryDeadlineDay == null || msRec.msDate.isAfter(paceDeadlineDay)) {
+                            lastTryDeadlineDay = msRec.msDate;
+                        }
+
+                        lastTryAttempts = msRec.nbrAtmptsAllow == null ? 1 : msRec.nbrAtmptsAllow.intValue();
+                        if (ubonus) {
+                            // Testing Center exam bonus applied before student overrides
+                            ++lastTryAttempts;
+                        }
+
+                        // See if date is overridden
+                        for (final RawStmilestone stuMs : stuMilestones) {
+                            if (stuMs.msNbr.equals(msRec.msNbr) && stuMs.msType.equals(msRec.msType)) {
+                                lastTryDeadlineDay = stuMs.msDate;
+                                lastTryAttempts = stuMs.nbrAtmptsAllow == null ? 1 : stuMs.nbrAtmptsAllow.intValue();
+                            }
+                        }
+                    }
+                }
+            }
+
+            boolean hasTut = false;
+            for (final CourseInfo test : this.tutorials) {
+                if (test.course.equals(courseId)) {
+                    hasTut = true;
+                    break;
+                }
+            }
+
+            if (hasTut || checkForIncomplete(cache, paceDeadlineDay, stcourse)) {
+                continue;
+            }
+
+            // If we get here, course is NOT an incomplete
+            final String openStatus = stcourse.openStatus;
+            final String prereq = stcourse.prereqSatis;
+
+            if ("G".equals(openStatus) && this.courseLabels.containsKey(courseId)) {
+                // Forfeit courses do NOT count toward pace (this is point of forfeiting)
+                this.forfeitCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                continue;
+            }
+
+            if ("N".equals(openStatus) && this.courseLabels.containsKey(courseId)) {
+                // Unopened courses do NOT count toward pace
+                this.notAvailableCourses
+                        .add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                continue;
+            }
+
+            if ("Y".equals(stcourse.completed) && this.courseLabels.containsKey(courseId)) {
+                this.completedCourses
+                        .add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                continue;
+            }
+
+            if (paceDeadlineDay != null) {
+                // See if the student has passed the final, which leaves the course in the
+                // "in progress" mode, even if we're past the final exam deadline date
+                final Collection<RawStexam> passedFinals = new ArrayList<>(3);
+                final List<RawStexam> allExams = this.data.activityData.getStudentExams(courseId);
+                for (final RawStexam exam : allExams) {
+                    if ("F".equals(exam.examType) && "Y".equals(exam.passed)) {
+                        passedFinals.add(exam);
+                    }
+                }
+
+                if (passedFinals.isEmpty()) {
+                    // If we're beyond the last deadline date, shut off the course...
+                    if (lastTryDeadlineDay == null) {
+                        if (paceDeadlineDay.isBefore(today) && this.courseLabels.containsKey(courseId)) {
+                            this.pastDeadlineCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                            continue;
+                        }
+                    } else if (lastTryDeadlineDay.isBefore(today) && paceDeadlineDay.isBefore(today)
+                            && this.courseLabels.containsKey(courseId)) {
+                        this.pastDeadlineCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                        continue;
+                    } else if (paceDeadlineDay.isBefore(today)) {
+                        // If there are at least N failed finals after the paceDeadlineDay, STOP
+                        final Collection<RawStexam> failedFinals = new ArrayList<>(3);
+                        final Collection<RawStexam> passedUnit4 = new ArrayList<>(3);
+                        final List<RawStexam> allExams2 = this.data.activityData.getStudentExams(courseId);
+                        for (final RawStexam exam : allExams2) {
+                            if ("F".equals(exam.examType) && "N".equals(exam.passed)) {
+                                failedFinals.add(exam);
+                            }
+                            if ("U".equals(exam.examType) && exam.unit.intValue() == 4 && "Y".equals(exam.passed)) {
+                                passedUnit4.add(exam);
+                            }
+                        }
+
+                        // If student did not have a passing Unit 4 exam on the pace deadline
+                        // they cannot use the last try deadline day
+                        if (passedUnit4.isEmpty() && this.courseLabels.containsKey(courseId)) {
+                            this.pastDeadlineCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                            continue;
+                        }
+
+                        int attemptsUsed = 0;
+                        for (final RawStexam failedFinal : failedFinals) {
+                            final LocalDate failedOnDay = failedFinal.examDt;
+
+                            if (failedOnDay.isAfter(paceDeadlineDay)) {
+                                ++attemptsUsed;
+                                if (attemptsUsed >= lastTryAttempts && this.courseLabels.containsKey(courseId)) {
+                                    this.pastDeadlineCourses.add(new CourseInfo(courseId,
+                                            this.courseLabels.get(courseId)));
+                                    continue outer;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ("Y".equals(openStatus) && ("Y".equals(prereq) || "P".equals(prereq))
+                    && this.courseLabels.containsKey(courseId)) {
+                this.inProgressCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+            }
+        }
+
+        final RawPacingStructure ruleSet = getPacingStructure(cache, now, stCoursesInContext);
+        final boolean ok = ruleSet != null;
+
+        if (ok) {
+            categorizeCourses(cache, stCoursesInContext, ruleSet);
+            testForBlocked();
+        }
+
+        return ok;
+    }
+
+    /**
+     * Tests whether a particular course registration is an incomplete from a prior term, and if so, categorizes that
+     * registration appropriately.
+     *
+     * @param cache           the data cache
+     * @param paceDeadlineDay a deadline day for the incomplete if it is participating in pace
+     * @param studentCourse   a {@code RawStcourse} representing the student course registration
+     * @return {@code true} if the course was found to be an incomplete; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean checkForIncomplete(final Cache cache, final LocalDate paceDeadlineDay,
+                                       final RawStcourse studentCourse) throws SQLException {
+
+        final boolean isIncomplete = studentCourse.iDeadlineDt != null;
+
+        if (isIncomplete) {
+            final LocalDate today = this.owner.sessionInfo.getNow().toLocalDate();
+
+            final LocalDate dline;
+
+            if ("N".equals(studentCourse.iCounted)) {
+                dline = studentCourse.iDeadlineDt;
+            } else {
+                dline = paceDeadlineDay == null ? studentCourse.iDeadlineDt : paceDeadlineDay;
+            }
+
+            final String courseId = studentCourse.course;
+            if (this.courseLabels.containsKey(courseId)) {
+
+                if ("Y".equals(studentCourse.completed)) {
+                    this.completedIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                } else if (dline.isBefore(today)) {
+                    this.pastDeadlineIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                } else if ("G".equals(studentCourse.openStatus)) {
+                    this.forfeitInc.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                } else if ("Y".equals(studentCourse.openStatus)) {
+
+                    this.inProgressIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                    final SiteDataCfgCourse cfg =
+                            this.data.courseData.getCourse(studentCourse.course, studentCourse.sect);
+                    if (cfg != null) {
+                        final RawCsection courseSect = cfg.courseSection;
+                        if ("Y".equals(courseSect.countInMaxCourses)) {
+                            ++this.numOpen;
+                        }
+                    }
+                } else if ("Y".equals(studentCourse.prereqSatis)
+                        || "P".equals(studentCourse.prereqSatis)) {
+                    this.incUnopened = true;
+                } else if (checkPrerequisites(cache, studentCourse)) {
+                    this.availableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                    this.incUnopened = true;
+                } else {
+                    this.noPrereqIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                }
+            }
+        }
+
+        return isIncomplete;
+    }
+
+    /**
+     * Tests the prerequisite on a course registration which was not already flagged as having its prerequisites
+     * satisfied.
+     *
+     * @param cache         the data cache
+     * @param studentCourse a {@code RawStcourse} representing the student course registration
+     * @return {@code true} if prerequisites were satisfied; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean checkPrerequisites(final Cache cache, final RawStcourse studentCourse)
+            throws SQLException {
+
+        final List<String> prereqs = this.data.registrationData.getPrerequisites(studentCourse.course);
+        final int numPrereq = prereqs.size();
+
+        boolean prereq = numPrereq == 0;
+        for (int j = 0; !prereq && j < numPrereq; ++j) {
+            prereq = hasCourseAsPrereq(prereqs.get(j));
+        }
+
+        if (prereq && RawStcourseLogic.updatePrereqSatisfied(cache, studentCourse.stuId,
+                studentCourse.course, studentCourse.sect, studentCourse.termKey, "Y")) {
+
+            studentCourse.prereqSatis = "Y";
+        }
+
+        return prereq;
+    }
+
+    /**
+     * Checks whether the student has "credit" for a course from the perspective of testing prerequisites.
+     *
+     * @param courseId the course to test
+     * @return true if student has the course
+     */
+    private boolean hasCourseAsPrereq(final String courseId) {
+
+        boolean hasCourse = false;
+
+        // See if student has completed the course at any time in the past
+        final List<RawStcourse> complete = this.data.registrationData.getAllCompletedCourses();
+        if (complete != null) {
+            for (final RawStcourse test : complete) {
+                if (courseId.equals(test.course)) {
+                    hasCourse = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasCourse) {
+            // See if there is a placement result satisfying prerequisite
+            final List<RawMpeCredit> placeCred = this.data.studentData.getStudentPlacementCredit();
+
+            for (final RawMpeCredit test : placeCred) {
+                if (courseId.equals(test.course)) {
+                    hasCourse = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasCourse) {
+            // See if there are OT credits satisfying the prerequisite
+            final List<RawStcourse> otCredit = this.data.studentData.getStudentOTCredit();
+
+            for (final RawStcourse test : otCredit) {
+                if (courseId.equals(test.course)) {
+                    hasCourse = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasCourse) {
+            // See if there are transfer credits satisfying the prerequisite
+            final List<RawFfrTrns> trans = this.data.registrationData.getTransferCredit();
+            if (trans != null) {
+                for (final RawFfrTrns test : trans) {
+                    if (courseId.equals(test.course)) {
+                        hasCourse = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return hasCourse;
+    }
+
+    /**
+     * Determines the pacing structure under which the student is operating. Within a particular context, a student may
+     * operate under only one pacing structure in a term. In different contexts, a student may operate under different
+     * pacing structures.
+     *
+     * @param cache          the data cache
+     * @param now            the current date/time
+     * @param studentCourses an array of models of type {@code CRawStcourse} representing all student course
+     *                       registrations
+     * @return the pacing structure appropriate for the courses available in this context; {@code null} if no such
+     *         pacing structure exists
+     * @throws SQLException if there is an error accessing the database
+     */
+    private RawPacingStructure getPacingStructure(final Cache cache, final ZonedDateTime now,
+                                                  final Iterable<RawStcourse> studentCourses) throws SQLException {
+
+        final SiteDataStudent stuData = this.data.studentData;
+        final SiteDataCourse courseData = this.data.courseData;
+
+        final boolean isTutor = stuData.isSpecialType(now, "TUTOR", "M384", "ADMIN");
+
+        // Find the pacing structure ID for the student's course registrations, and verify that
+        // there is only one
+        String pacingStructure = null;
+
+        if (isTutor) {
+            pacingStructure = RawPacingStructure.DEF_PACING_STRUCTURE;
+        } else {
+            final Collection<String> pacingStructures = new HashSet<>(4);
+
+            for (final RawStcourse stcourse : studentCourses) {
+                if (stcourse == null) {
+                    continue;
+                }
+
+                final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
+                if ((cfg == null) || "Y".equals(cfg.course.isTutorial)) {
+                    continue;
+                }
+
+                final RawCsection section = cfg.courseSection;
+                if ("OT".equals(section.instrnType)) {
+                    continue;
+                }
+                pacingStructures.add(section.pacingStructure);
+            }
+
+            boolean mixed = false;
+            if (pacingStructures.size() > 1) {
+                boolean hasS = false;
+                boolean hasM = false;
+                boolean hasO = false;
+                for (final String test : pacingStructures) {
+                    if ("S".equals(test)) {
+                        hasS = true;
+                    }
+                    if ("M".equals(test)) {
+                        hasM = true;
+                    }
+                    if ("O".equals(test)) {
+                        hasO = true;
+                    }
+                }
+
+                if (hasS) {
+                    if (hasO) {
+                        mixed = true;
+                    } else if (hasM) {
+                        // FIXME: We choose M since new courses don't use online assignments yet...
+                        pacingStructure = "M";
+                    } else {
+                        pacingStructure = "S";
+                    }
+                } else {
+                    mixed = hasM && hasO;
+                }
+            }
+
+            if (mixed) {
+                Log.warning("Student ", stuData.getStudent().stuId,
+                        " registered for sections with inconsistent pacing structures.");
+            }
+
+            // If no pacing structure is stored for the student, store the one we found for
+            // reference
+            final RawStudent student = this.data.studentData.getStudent();
+            final String stuRuleSetId = student.pacingStructure;
+            if (pacingStructure == null) {
+                // No pacing structure found based on course registrations, check student record
+                pacingStructure = stuRuleSetId;
+            } else if (stuRuleSetId == null) {
+                // Student record has no pacing structure, but we found some from courses, so store it
+                Log.info("Updating student pacing structure as part of scanning available courses");
+                RawStudentLogic.updatePacingStructure(cache, student.stuId, pacingStructure);
+            }
+
+            // If no course registrations and no student pacing structure, so use most restrictive
+            // pacing structure
+            if (pacingStructure == null) {
+                pacingStructure = RawPacingStructure.DEF_PACING_STRUCTURE;
+            }
+        }
+
+        return RawPacingStructureLogic.query(cache, pacingStructure);
+    }
+
+    /**
+     * Organizes courses into categories.
+     *
+     * @param cache          the data cache
+     * @param studentCourses an array of models of type {@code CRawStcourse}, representing student course registrations
+     *                       (may have null entries for invalid configurations)
+     * @param ruleSet        a{@code RuleSet} with the pacing structure under which the student works in this context
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void categorizeCourses(final Cache cache, final Iterable<RawStcourse> studentCourses,
+                                   final RawPacingStructure ruleSet) throws SQLException {
+
+        final Integer max = ruleSet.nbrOpenAllowed;
+        final int maxOpen = max == null ? Integer.MAX_VALUE : max.intValue();
+
+        // Now, we loop through the list of unopened courses and test each one for prerequisites.
+        for (final RawStcourse stcourse : studentCourses) {
+
+            if (stcourse == null) {
+                continue;
+            }
+
+            final SiteDataCfgCourse cfg = this.data.courseData.getCourse(stcourse.course, stcourse.sect);
+            if (cfg == null) {
+                continue;
+            }
+
+            // Skip tutorials - they have already been handled
+            final RawCourse course = cfg.course;
+            if ("Y".equals(course.isTutorial)) {
+                continue;
+            }
+
+            // FIXME remove once getRegistrationData omits AP credit records
+            final RawCsection section = cfg.courseSection;
+            if ("OT".equals(section.instrnType)) {
+                continue;
+            }
+
+            final String courseId = stcourse.course;
+            final CourseInfo courseInfo = new CourseInfo(courseId, CoreConstants.EMPTY);
+
+            // Skip any courses already categorized
+            // NOTE: Equality comparison of CourseInfo is only based on course ID...
+
+            if (this.availableCourses.contains(courseInfo)
+                    || this.unavailableCourses.contains(courseInfo)
+                    || this.noPrereqCourses.contains(courseInfo)
+                    || this.inProgressCourses.contains(courseInfo)
+                    || this.pastDeadlineCourses.contains(courseInfo)
+                    || this.completedCourses.contains(courseInfo)
+                    || this.forfeitCourses.contains(courseInfo)
+                    || this.notAvailableCourses.contains(courseInfo)
+                    || this.otCreditCourses.contains(courseInfo)
+                    || this.availableIncCourses.contains(courseInfo)
+                    || this.unavailableIncCourses.contains(courseInfo)
+                    || this.noPrereqIncCourses.contains(courseInfo)
+                    || this.inProgressIncCourses.contains(courseInfo)
+                    || this.completedIncCourses.contains(courseInfo)
+                    || this.pastDeadlineIncCourses.contains(courseInfo)
+                    || this.forfeitInc.contains(courseInfo)) {
+                continue;
+            }
+
+            boolean prereq;
+
+            // If course indicates prerequisites are satisfied, believe that; if not, check
+            final String satis = stcourse.prereqSatis;
+            if ("Y".equals(satis) || "P".equals(satis)) {
+                prereq = true;
+            } else {
+                prereq = checkPrerequisites(cache, stcourse);
+            }
+
+            // FIXME:
+            if (!prereq && RawRecordConstants.M117.equals(courseId)
+                    && (!stcourse.sect.isEmpty() && stcourse.sect.charAt(0) == '8'
+                    || !stcourse.sect.isEmpty() && stcourse.sect.charAt(0) == '4')) {
+                prereq = true;
+            }
+
+            if (this.courseLabels.containsKey(courseId)) {
+                // If the course grade has been set to "F", it is NOT available.
+                if ("G".equals(stcourse.openStatus)) {
+                    this.forfeitCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                } else if ("N".equals(stcourse.openStatus)) {
+                    this.notAvailableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                } else if (prereq) {
+                    if (stcourse.iDeadlineDt == null) {
+                        if ((this.numOpen >= maxOpen) || this.incUnopened) {
+                            this.unavailableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                        } else {
+                            this.availableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                        }
+                    } else if ((this.numOpen >= maxOpen) || !this.incUnopened) {
+                        this.unavailableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                    } else {
+                        this.availableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                    }
+                } else {
+                    this.noPrereqCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests whether the student is blocked because they have courses left to do, but have no courses that are in a
+     * condition where work can be done.
+     */
+    private void testForBlocked() {
+
+        // If there exist unavailable or no-prerequisite courses, but there are no in-progress or
+        // available courses (regular or incomplete), the student is stuck.
+        final boolean hasFutureWorkToDo = (!this.unavailableCourses.isEmpty() || !this.noPrereqCourses.isEmpty()
+                || !this.unavailableIncCourses.isEmpty() || !this.noPrereqIncCourses.isEmpty());
+        final boolean blockedNow = this.inProgressCourses.isEmpty() && this.availableCourses.isEmpty()
+                && this.inProgressIncCourses.isEmpty() && this.availableIncCourses.isEmpty();
+
+        this.blocked = hasFutureWorkToDo && blockedNow;
+    }
+}

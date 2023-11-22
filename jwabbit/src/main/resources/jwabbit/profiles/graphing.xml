@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emulatorDisableKeys version="1.0">
+    <key value="APPS"/>
+    <key value="PRGM"/>
+    <key value="SOLVE"/>
+    <key value="CATALOG"/>
+    <key value="I"/>
+    <key value="F1"/>
+    <key value="F2"/>
+    <key value="F3"/>
+    <key value="F4"/>
+    <key value="F5"/>
+</emulatorDisableKeys>

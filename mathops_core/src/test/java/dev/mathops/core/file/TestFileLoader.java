@@ -87,7 +87,8 @@ final class TestFileLoader {
     private static final String SP_CR_PROP_VALUE = "loadFileAsProperties() class-relative spanish property value";
 
     /** A test string. */
-    private static final String SPQBF = "El rápido zorro marrón saltó sobre el perro perezoso";
+    private static final String SPQBF =
+            "El r\u00e1pido zorro marr\u00f3n salt\u00f3 sobre el perro perezoso";
 
     /** A test string. */
     private static final String BOGUS = "Bogus";

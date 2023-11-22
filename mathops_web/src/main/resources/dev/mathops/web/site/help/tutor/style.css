@@ -1,0 +1,60 @@
+div.videobox {
+  display:inline-block;
+  width:50%;
+  height:150px;
+  vertical-align:top;
+  border:2px #CCE solid;
+}
+video.videofeed {
+  background-color:#333;
+  width:100%;
+  height:100%;
+}
+div.controlsbox {
+  display:inline-block;
+  width:50%;
+  height:26px;
+  vertical-align:top;
+  padding:1px 0 3px 0;
+  background:#CCE;
+  text-align:center;
+  border-bottom:1px solid #333;
+}
+div.controlsbox button {
+  height:22px;
+  font-size:14px;
+}
+
+details.forum summary {
+  font-family:factoria-medium,sans-serif;
+  font-size:12px;
+  font-weight:300;
+  line-height:1.1;
+  color:black;
+  margin-top:0.8em;
+  margin-bottom:0.4em;
+}
+details.forum { 
+  font-size:12px;
+  line-height:1.1;
+  color:black;
+}
+
+div.threecolumns {
+  width:calc(100% - 8px);
+  display:block;
+  padding:4px;
+}
+div.threecolumnpane {
+  margin-bottom:8px;
+}
+@media (min-width: 700px) {
+  div.threecolumns {
+    display:grid;
+    grid-template-columns:34% 33% 33%;
+    grid-gap: 4px 4px;
+  }
+  div.threecolumnpane {
+    margin-bottom:0;
+  }
+}

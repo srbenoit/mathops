@@ -1,0 +1,149 @@
+package jwabbit.gui.options;
+
+/*
+ * This software was derived from the Wabbitemu software, as it existed in October 2015, by Steve Benoit. This software
+ * is licensed under the GNU General Public License version 2 (GPLv2). See the disclaimers or warranty and liability
+ * included in the terms of that license.
+ */
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.Serial;
+
+/**
+ * The "Screen Capture" tab.
+ */
+final class CaptureTab extends JPanel implements ActionListener {
+
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = -5955323481025719938L;
+
+    /** Auto-save path. */
+    private final JTextField savePath;
+
+    /**
+     * Constructs a new {@code CaptureTab}.
+     */
+    CaptureTab() {
+
+        super(new BorderLayout(4, 4));
+        setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        final JPanel autosave = new JPanel(new BorderLayout());
+        autosave.setBorder(BorderFactory.createTitledBorder("Autosave"));
+        add(autosave, BorderLayout.PAGE_START);
+
+        final JPanel autoNorth = new JPanel(new GridLayout(2, 0));
+        autosave.add(autoNorth, BorderLayout.PAGE_START);
+
+        final JCheckBox enable = new JCheckBox("Enable");
+        autoNorth.add(enable);
+
+        final JCheckBox increasing = new JCheckBox("Use increasing numbers");
+        autoNorth.add(increasing);
+
+        final JPanel path = new JPanel(new BorderLayout());
+        autosave.add(path, BorderLayout.PAGE_END);
+
+        final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        flow1.add(new JLabel("Autosave Path:"));
+        path.add(flow1, BorderLayout.PAGE_START);
+
+        final JPanel flow2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        this.savePath = new JTextField(20);
+        flow2.add(this.savePath, BorderLayout.CENTER);
+        final JButton browse = new JButton("Browse");
+        browse.addActionListener(this);
+        flow2.add(browse);
+        path.add(flow2, BorderLayout.PAGE_END);
+
+        final JPanel nest1 = new JPanel(new BorderLayout(4, 4));
+        add(nest1, BorderLayout.CENTER);
+
+        final JPanel animGif = new JPanel(new BorderLayout(4, 4));
+        animGif.setBorder(BorderFactory.createTitledBorder("Animated GIF options"));
+        nest1.add(animGif, BorderLayout.PAGE_START);
+
+        final JPanel north = new JPanel(new BorderLayout(4, 4));
+        animGif.add(north, BorderLayout.PAGE_START);
+
+        final JPanel colors = new JPanel(new GridLayout(2, 0));
+        colors.setBorder(BorderFactory.createTitledBorder("Colors"));
+
+        final JRadioButton screenPalette = new JRadioButton("Screen palette");
+        final JRadioButton grayscale = new JRadioButton("Grayscale");
+
+        final ButtonGroup group = new ButtonGroup();
+        group.add(screenPalette);
+        group.add(grayscale);
+        colors.add(screenPalette);
+        colors.add(grayscale);
+        north.add(colors, BorderLayout.LINE_END);
+
+        final JPanel framerate = new JPanel(new BorderLayout(4, 4));
+
+        final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        framerate.add(flow3, BorderLayout.PAGE_START);
+        final JLabel lbl = new JLabel("Output frame rate:");
+        flow3.add(lbl, BorderLayout.PAGE_START);
+
+        final JSlider slider = new JSlider(9, 33);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
+        slider.setMajorTickSpacing(6);
+        final Dimension pref = slider.getPreferredSize();
+        slider.setPreferredSize(new Dimension(lbl.getPreferredSize().width * 12 / 10, pref.height));
+
+        final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        flow.add(new JLabel("9"));
+        flow.add(slider);
+        flow.add(new JLabel("33"));
+        framerate.add(flow, BorderLayout.CENTER);
+
+        final JCheckBox doubleSize = new JCheckBox("Double size");
+        doubleSize.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        framerate.add(doubleSize, BorderLayout.PAGE_END);
+        north.add(framerate, BorderLayout.CENTER);
+
+        final JPanel south = new JPanel(new GridLayout(2, 0));
+        south.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        south.add(new JLabel("The number of shades in the GIF will match the shades"));
+        south.add(new JLabel("for the display recorded."));
+        animGif.add(south, BorderLayout.PAGE_END);
+    }
+
+    /**
+     * Handles actions generated by the "Browse" button.
+     *
+     * @param e the action event
+     */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("JWabbitemu GIF File Path");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (this.savePath.getText() != null) {
+            chooser.setCurrentDirectory(new File(this.savePath.getText()));
+        }
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            this.savePath.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
+    }
+}

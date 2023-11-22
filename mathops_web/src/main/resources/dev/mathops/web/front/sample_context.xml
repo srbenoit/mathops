@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context>
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
+
+    <!-- Parameters for the "zircon" application -->
+    <Parameter name="zircon-base-dir" value="/opt/zircon" override="false"/>
+    <Parameter name="zircon-cfg-file" value="installation.properties" override="false"/>
+
+</Context>

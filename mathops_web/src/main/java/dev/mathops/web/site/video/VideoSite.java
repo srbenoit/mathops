@@ -1,0 +1,301 @@
+package dev.mathops.web.site.video;
+
+import dev.mathops.core.CoreConstants;
+import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.session.ISessionManager;
+import dev.mathops.web.site.AbstractSite;
+import dev.mathops.web.site.ESiteType;
+import dev.mathops.web.site.Page;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * A site that serves video files without a session requirement. Used by online course web pages, Precalculus course web
+ * pages, or ad-hoc pages as needed.
+ */
+public final class VideoSite extends AbstractSite {
+
+    /** Streaming server. */
+    private static final String STREAM = "https://nibbler.math.colostate.edu/media/";
+
+    /**
+     * Constructs a new {@code VideoSite}.
+     *
+     * @param theSiteProfile the site profile under which this site is accessed
+     * @param theSessions    the singleton user session repository
+     */
+    public VideoSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+
+        super(theSiteProfile, theSessions);
+    }
+
+    /**
+     * Initializes the site - called when the servlet is initialized.
+     *
+     * @param config the servlet context in which the servlet is being in
+     */
+    @Override
+    public void init(final ServletConfig config) {
+
+        // No action
+    }
+
+    /**
+     * Indicates whether this site should do live queries to update student registration data.
+     *
+     * @return true to do live registration queries; false to skip
+     */
+    @Override
+    public boolean doLiveRegQueries() {
+
+        return false;
+    }
+
+    /**
+     * Generates the site title.
+     *
+     * @return the title
+     */
+    @Override
+    public String getTitle() {
+
+        return "Precalculus Program";
+    }
+
+    /**
+     * Processes a GET request.
+     *
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
+     * @throws IOException if there is an error writing the response
+     */
+    @Override
+    public void doGet(final Cache cache, final String subpath, final ESiteType type,
+                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+
+        if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
+            serveImage(subpath, req, resp);
+        } else if ("video.html".equals(subpath)) {
+            // Used by MATH 160 and 161 course videos
+            doVideo(req, resp);
+        } else if (subpath.startsWith("lessons/")) {
+            final String fname = subpath.substring(8);
+            serveLesson(fname, req, resp);
+        } else {
+            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    /**
+     * Processes a POST request.
+     *
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
+     * @throws IOException if there is an error writing the response
+     */
+    @Override
+    public void doPost(final Cache cache, final String subpath, final ESiteType type,
+                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+
+        Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    /**
+     * Displays the page that shows an embedded video for a course based on a media-id, course, unit, and lesson.
+     *
+     * <p>
+     * The request should have the following parameters:
+     * <ul>
+     * <li><b>dir</b>: the directory on the streaming server (below the 'media' directory, such as
+     * "M261") from which to serve content. This directory should contain 'poster', 'mp4', 'webm',
+     * 'ogv', and 'vtt' subdirectories.
+     * <li><b>id</b>: the video ID, such as "MC.13-Vectors.01-3DCoordinates.01.LE.01". The
+     * appropriate suffix will be added to this value to obtain the filename to serve from each
+     * subdirectory of <b>dir</b>
+     * <li><b>width</b> (optional): a CSS width, specified in pixels, such as "640px". If present
+     * (and if the value appears to be a valid CSS measurement), video width will be set as
+     * indicated; if omitted, width and height will be set to 100%.
+     * </ul>
+     *
+     * @param req  the request
+     * @param resp the response
+     * @throws IOException if there is an error writing the response
+     */
+    private static void doVideo(final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
+
+        final String mediaId = req.getParameter("media-id");
+        final String course = req.getParameter("course");
+        final String dir = req.getParameter("dir");
+        final String id = req.getParameter("id");
+        final String width = req.getParameter("width");
+
+        if (AbstractSite.isParamInvalid(dir) || AbstractSite.isParamInvalid(id)
+                || AbstractSite.isParamInvalid(width) || AbstractSite.isParamInvalid(course)
+                || AbstractSite.isParamInvalid(mediaId)) {
+            Log.warning(Res.get(Res.BAD_PARAMETERS));
+            Log.warning("  dir='", dir, "'");
+            Log.warning("  id='", id, "'");
+            Log.warning("  width='", width, "'");
+            Log.warning("  course='", course, "'");
+            Log.warning("  mediaId='", mediaId, "'");
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else if ((course == null || course.isEmpty()) && (mediaId == null || mediaId.isEmpty())) {
+            final HtmlBuilder htm = new HtmlBuilder(1000);
+
+            final String style;
+            if ((width == null || width.isEmpty()) || !width.endsWith("px")) {
+                style = "width:100vw;height:100vh;object-fit:contain;";
+            } else {
+                style = "width:" + width;
+            }
+
+            htm.addln("<!DOCTYPE html>")
+                    .addln("<html>")
+                    .addln("<head>")
+                    .addln(" <meta charset='utf-8'>")
+                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
+                    .addln(" <meta http-equiv='Content-Type' ",
+                            "content='text/html;charset=utf-8'/>")
+
+                    .addln("<script async src='https://www.googletagmanager.com/gtag/js?",
+                            "id=G-JTNEG80W4C'></script>")
+                    .addln("<script>")
+                    .addln("window.dataLayer = window.dataLayer || [];")
+                    .addln("function gtag(){dataLayer.push(arguments);}")
+                    .addln("gtag('js', new Date());")
+                    .addln("gtag('config', 'G-JTNEG80W4C');")
+                    .addln("</script>")
+
+                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
+                    .addln("</head>")
+                    .addln("<body style='padding:0;margin:0;'>")
+                    .addln("<div style='width:100vw;height:100vh;'>")
+                    .addln("<video style='", style,
+                            "' controls='controls' poster='", STREAM, dir,
+                            "/poster/", id, ".png'>")
+                    .addln(" <source src='", STREAM, dir, "/mp4/", id,
+                            ".mp4' type='video/mp4'/>")
+                    .addln(" <source src='", STREAM, dir, "/webm/", id,
+                            ".webm' type='video/webm'/>")
+                    .addln(" <source src='", STREAM, dir, "/ogv/", id,
+                            ".ogv' type='video/ogg'/>")
+                    .addln(" <track  src='", STREAM, dir, "/vtt/", id,
+                            ".vtt' kind='subtitles' srclang='en' label='English' default/>")
+                    .addln(Res.get(Res.VIDEO_NOT_SUPP)) //
+                    .addln("</video>")
+                    .addln("</div>")
+                    .addln("</body>")
+                    .addln("</html>");
+
+            final String reply = htm.toString();
+
+            sendReply(req, resp, Page.MIME_TEXT_HTML, reply.getBytes(StandardCharsets.UTF_8));
+        } else {
+            // For the tutorial courses, we don't want to force duplication of the video files in a
+            // new directory, so map those course numbers to the corresponding non-tutorial courses
+            final String actualCourse;
+            if (RawRecordConstants.M1170.equals(course)) {
+                actualCourse = RawRecordConstants.M117;
+            } else if (RawRecordConstants.M1180.equals(course)) {
+                actualCourse = RawRecordConstants.M118;
+            } else if (RawRecordConstants.M1240.equals(course)) {
+                actualCourse = RawRecordConstants.M124;
+            } else if (RawRecordConstants.M1250.equals(course)) {
+                actualCourse = RawRecordConstants.M125;
+            } else if (RawRecordConstants.M1260.equals(course)) {
+                actualCourse = RawRecordConstants.M126;
+            } else {
+                actualCourse = course;
+            }
+
+            final String direct = actualCourse == null ? null
+                    : actualCourse.replace(CoreConstants.SPC, CoreConstants.EMPTY);
+
+            final HtmlBuilder htm = new HtmlBuilder(2000);
+
+            htm.addln("<!DOCTYPE html>")
+                    .addln("<html>")
+                    .addln("<head>")
+                    .addln(" <meta charset='utf-8'>")
+                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
+                    .addln(" <meta http-equiv='Content-Type' ",
+                            "content='text/html;charset=utf-8'/>")
+
+                    .addln("<script async src='https://www.googletagmanager.com/gtag/js?",
+                            "id=G-JTNEG80W4C'></script>")
+                    .addln("<script>")
+                    .addln("window.dataLayer = window.dataLayer || [];")
+                    .addln("function gtag(){dataLayer.push(arguments);}")
+                    .addln("gtag('js', new Date());")
+                    .addln("gtag('config', 'G-JTNEG80W4C');")
+                    .addln("</script>")
+
+                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
+                    .addln("</head>")
+                    .addln("<body style='padding:0;margin:0;'>");
+
+            if (mediaId == null || actualCourse == null) {
+                htm.sDiv("indent11");
+                htm.addln("Invalid video request.");
+                htm.eDiv();
+            } else {
+                htm.addln("<script>");
+                htm.addln(" function showReportError() {");
+                htm.addln("  document.getElementById('error_rpt_link')",
+                        ".className='hidden';");
+                htm.addln("  document.getElementById('error_rpt')",
+                        ".className='visible';");
+                htm.addln(" }");
+                htm.addln("</script>");
+
+                htm.sDiv("indent11");
+
+                htm.addln("<video ", "M160".equals(actualCourse)
+                                ? "width='1024' height='768'"
+                                : "width='640' height='480'",
+                        " controls='controls' autoplay='autoplay'>");
+                htm.addln(" <source src='", STREAM, direct, "/mp4/",
+                        mediaId, ".mp4' type='video/mp4'/>");
+                htm.addln(" <source src='", STREAM, direct, "/ogv/",
+                        mediaId, ".ogv' type='video/ogg'/>");
+                htm.addln(" <track src='/www/math/", direct, "/vtt/",
+                        mediaId, ".vtt' kind='subtitles' srclang='en' ",
+                        "label='English' default='default'/>");
+                htm.addln(" Your browser does not support inline video.");
+                htm.addln("</video>");
+
+                htm.addln("<div><a href='/math/", direct,
+                        "/transcripts/", mediaId, ".pdf'>",
+                        "Access a plain-text transcript for screen-readers (Adobe PDF).", //
+                        "</a></div>");
+
+                htm.sDiv().add("<a href='", STREAM, direct, "/pdf/",
+                        mediaId, ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
+            }
+
+            htm.addln("</body>")
+                    .addln("</html>");
+
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
+                    htm.toString().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+}

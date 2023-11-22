@@ -1,0 +1,127 @@
+package dev.mathops.app.adm.management;
+
+import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.Skin;
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.rawlogic.RawCourseLogic;
+import dev.mathops.db.rawrecord.RawCourse;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serial;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A card with assessment-related data.
+ */
+/* default */ class AssessCard extends AdminPanelBase implements ActionListener {
+
+    /** An action command. */
+    private static final String REFRESH = "REFRESH";
+
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = -7258055062067929993L;
+
+    /** The tabbed pane. */
+    private final JTabbedPane tabs;
+
+    /** The panel that shows all configured assignments, and supports add/delete/edit. */
+    private final AssessAssignmentsPanel assignments;
+
+    /** The panel that shows all configured exams, and supports add/delete/edit. */
+    private final AssessExamsPanel exams;
+
+    /** The panel that shows all configured mastery exams, and supports add/delete/edit. */
+    private final AssessMasteryExamsPanel masteryExams;
+
+    /**
+     * Constructs a new {@code AssessCard}.
+     *
+     * @param theCache         the data cache
+     */
+    AssessCard(final Cache theCache) {
+
+        super();
+
+        final JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBackground(Skin.OFF_WHITE_YELLOW);
+        panel.setBorder(getBorder());
+
+        setBackground(Skin.LT_YELLOW);
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        add(panel, BorderLayout.CENTER);
+
+        panel.add(makeHeader("Assessments", false), BorderLayout.NORTH);
+
+        this.tabs = new JTabbedPane();
+        this.tabs.setFont(Skin.BIG_BUTTON_16_FONT);
+        this.tabs.setBackground(Skin.OFF_WHITE_YELLOW);
+        panel.add(this.tabs, BorderLayout.CENTER);
+
+        List<RawCourse> courses;
+        try {
+            courses = RawCourseLogic.INSTANCE.queryAll(theCache);
+            courses.sort(null);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            courses = new ArrayList<>(0);
+        }
+
+        this.assignments = new AssessAssignmentsPanel(theCache, courses);
+        this.tabs.addTab("Assignments", this.assignments);
+
+        this.exams = new AssessExamsPanel(theCache, courses);
+        this.tabs.addTab("Exams", this.exams);
+
+        this.masteryExams = new AssessMasteryExamsPanel(theCache, courses);
+        this.tabs.addTab("Mastery Exams", this.masteryExams);
+    }
+
+    /**
+     * Called when a button is pressed.
+     *
+     * @param e the action event
+     */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+        final String cmd = e.getActionCommand();
+
+        if (REFRESH.equals(cmd)) {
+            processRefresh();
+        }
+    }
+
+    /**
+     * Sets focus.
+     */
+    /* default */ void focus() {
+
+        // No action
+    }
+
+    /**
+     * Resets the card to accept data for a new loan.
+     */
+    /* default */ void reset() {
+
+        // TODO:
+    }
+
+    /**
+     * Called when the "Refresh" button is pressed.
+     */
+    private void processRefresh() {
+
+        reset();
+    }
+}

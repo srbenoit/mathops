@@ -1,0 +1,85 @@
+package dev.mathops.session;
+
+import dev.mathops.core.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.DbContext;
+import dev.mathops.db.cfg.ESchemaUse;
+import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.ifaces.ILiveRegFa;
+import dev.mathops.db.ifaces.ILiveRegSm;
+import dev.mathops.db.ifaces.ILiveRegSp;
+import dev.mathops.db.rawlogic.AbstractLogicModule;
+import dev.mathops.db.rec.LiveReg;
+import dev.mathops.db.svc.term.TermLogic;
+import dev.mathops.db.svc.term.TermRec;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A cache that is actually a window to live registration data.
+ */
+enum LiveRegCache {
+    ;
+
+    /**
+     * Queries for all live registration entries for a particular student, returning {@code null} if an error occurs,
+     * and an empty list if no records are returned.
+     *
+     * @param cache     the data cache
+     * @param studentId the student ID
+     * @return the list of registrations, one record per current active registration
+     * @throws SQLException if there is an error accessing the database
+     */
+    static List<LiveReg> queryLiveStudentRegs(final Cache cache, final String studentId) throws SQLException {
+
+        List<LiveReg> result = new ArrayList<>(0);
+
+        Log.info("Querying live registrations for ", studentId);
+        final long before = System.currentTimeMillis();
+
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+        final DbContext live = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
+
+        try {
+            final DbConnection liveConn = live.checkOutConnection();
+
+            try {
+                if (active.term.name == ETermName.SPRING) {
+                    final ILiveRegSp iface = liveConn.getImplementation(ILiveRegSp.class);
+
+                    if (iface != null) {
+                        result = iface.query(liveConn, studentId);
+                    }
+                } else if (active.term.name == ETermName.SUMMER) {
+                    final ILiveRegSm iface = liveConn.getImplementation(ILiveRegSm.class);
+
+                    if (iface != null) {
+                        result = iface.query(liveConn, studentId);
+                    }
+                } else if (active.term.name == ETermName.FALL) {
+                    final ILiveRegFa iface = liveConn.getImplementation(ILiveRegFa.class);
+
+                    if (iface != null) {
+                        result = iface.query(liveConn, studentId);
+                    }
+                } else {
+                    Log.warning(Res.fmt(Res.BAD_TERM_NAME, active.term.name));
+                }
+            } finally {
+                live.checkInConnection(liveConn);
+            }
+        } catch (final SQLException ex) {
+            AbstractLogicModule.indicateBannerDown();
+            Log.warning(ex);
+        }
+
+        final long after = System.currentTimeMillis();
+        Log.info(Res.fmt(Res.LIVE_REG_QUERY_TIMING, Long.toString(after - before)));
+
+        return result;
+    }
+}
