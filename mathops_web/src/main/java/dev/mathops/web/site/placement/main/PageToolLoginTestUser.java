@@ -13,9 +13,9 @@ import dev.mathops.session.login.TestStudentLoginProcessor;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;

@@ -830,8 +830,7 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
      * @param theLessonId the ID of the lesson to query
      * @return the list of records that matched the criteria, a zero-length array if none matched
      */
-    public static List<RawLessonComponent>
-    queryByLesson(final Cache cache, final String theLessonId) {
+    public static List<RawLessonComponent> queryByLesson(final Cache cache, final String theLessonId) {
 
         final List<RawLessonComponent> result;
         final Map<Integer, RawLessonComponent> inner = lessonComponents.get(theLessonId);

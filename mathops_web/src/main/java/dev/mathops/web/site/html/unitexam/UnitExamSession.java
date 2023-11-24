@@ -86,7 +86,7 @@ import dev.mathops.web.site.html.HtmlSessionBase;
 import dev.mathops.web.site.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.LocalDate;

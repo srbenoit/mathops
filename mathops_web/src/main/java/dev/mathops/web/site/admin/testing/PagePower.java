@@ -11,8 +11,8 @@ import dev.mathops.db.rawrecord.RawTestingCenter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

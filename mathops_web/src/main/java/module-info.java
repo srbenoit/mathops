@@ -9,5 +9,7 @@ module mathops_web {
     requires mathops_session;
 
     requires com.oracle.database.jdbc;
-    requires javax.servlet.api;
+    requires jdk.httpserver;
+    requires jakarta.servlet;
+    requires jakarta.websocket;
 }

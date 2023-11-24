@@ -80,7 +80,7 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.LocalDate;

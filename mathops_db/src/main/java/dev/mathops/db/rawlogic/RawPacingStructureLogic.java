@@ -265,5 +265,4 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
 
         return result;
     }
-
 }

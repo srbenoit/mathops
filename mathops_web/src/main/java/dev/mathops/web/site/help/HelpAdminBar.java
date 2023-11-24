@@ -7,7 +7,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.web.site.ISkinnedAdminBar;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * An admin bar that shows the logged-in user's name, and additional controls if the user is an administrator or tutor.

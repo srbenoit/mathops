@@ -37,7 +37,7 @@ import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

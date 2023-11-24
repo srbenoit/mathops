@@ -23,7 +23,7 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

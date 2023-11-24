@@ -10,10 +10,10 @@ import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.placement.main.MathPlacementSite;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**

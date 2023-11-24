@@ -1,5 +1,11 @@
 plugins {
-    id("java")
+    java
+}
+
+sourceSets {
+    main {
+        output.setResourcesDir(file("build/classes/java/main"))
+    }
 }
 
 group = "dev.mathops.web"
@@ -10,9 +16,9 @@ repositories {
 }
 
 dependencies {
-
-    compileOnly(files("../jars//javax.servlet-api.jar"))
-    compileOnly("javax.websocket:javax.websocket-api:1.1")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    compileOnly("jakarta.websocket:jakarta.websocket-api:2.1.1")
+    compileOnly("jakarta.websocket:jakarta.websocket-client-api:2.1.1")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")

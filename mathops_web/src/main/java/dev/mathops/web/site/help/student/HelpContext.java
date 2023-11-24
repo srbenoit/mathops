@@ -3,7 +3,7 @@ package dev.mathops.web.site.help.student;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * A student's help context, which can include a course, unit, objective, homework session, past exam session, or

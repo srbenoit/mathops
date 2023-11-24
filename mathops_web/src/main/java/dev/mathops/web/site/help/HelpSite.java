@@ -26,11 +26,11 @@ import dev.mathops.web.site.help.tutor.PageTutorLiveHelp;
 import dev.mathops.web.skin.IServletSkin;
 import dev.mathops.web.skin.colostate.CSUSkin;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 

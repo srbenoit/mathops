@@ -7,7 +7,7 @@ import dev.mathops.db.rawlogic.RawClientPcLogic;
 import dev.mathops.db.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.UserCredentials;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

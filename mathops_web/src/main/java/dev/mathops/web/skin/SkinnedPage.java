@@ -5,8 +5,8 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.ISkinnedAdminBar;
 import dev.mathops.web.site.help.HelpSite;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 

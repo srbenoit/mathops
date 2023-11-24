@@ -73,7 +73,7 @@ import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;

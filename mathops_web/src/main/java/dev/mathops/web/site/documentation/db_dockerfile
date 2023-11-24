@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17-jdk-jammy
+ENV HOME /Users/benoit/dev/IDEA/mathops
+COPY $HOME/mathops_core/build/classes/java/main/dev /tmp/dev
+COPY $HOME/mathops_web/build/classes/java/main/dev /tmp/dev
+WORKDIR /tmp
+CMD java dev.mathops.web.site.documentation.DocumentationDockerSite
+EXPOSE 8080
+
+

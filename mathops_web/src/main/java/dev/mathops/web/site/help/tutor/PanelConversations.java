@@ -3,7 +3,7 @@ package dev.mathops.web.site.help.tutor;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.session.ImmutableSessionInfo;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * Generates the content of the "Conversations" panel. This panel lists the set of all conversation contexts, along with

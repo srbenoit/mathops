@@ -13,7 +13,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.sql.SQLException;
 
 /**

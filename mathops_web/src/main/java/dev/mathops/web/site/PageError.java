@@ -4,8 +4,8 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;

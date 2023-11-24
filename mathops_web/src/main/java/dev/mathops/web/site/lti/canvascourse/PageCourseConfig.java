@@ -5,8 +5,8 @@ import dev.mathops.core.log.Log;
 import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
 import dev.mathops.web.site.lti.LtiPage;
 
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

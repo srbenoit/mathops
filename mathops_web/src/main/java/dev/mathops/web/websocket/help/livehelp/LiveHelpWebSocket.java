@@ -11,12 +11,12 @@ import dev.mathops.session.SessionResult;
 import dev.mathops.web.websocket.help.StudentKey;
 import oracle.jdbc.proxy.annotation.OnError;
 
-import javax.websocket.EndpointConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.EndpointConfig;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
 /**

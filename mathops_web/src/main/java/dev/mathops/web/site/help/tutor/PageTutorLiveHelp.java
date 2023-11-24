@@ -9,8 +9,8 @@ import dev.mathops.web.skin.SkinnedPage;
 import dev.mathops.web.websocket.help.HelpManager;
 import dev.mathops.web.websocket.help.livehelp.LiveHelpSession;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 

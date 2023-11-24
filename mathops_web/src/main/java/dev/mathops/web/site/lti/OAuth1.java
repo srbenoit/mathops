@@ -5,8 +5,8 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.Base64;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

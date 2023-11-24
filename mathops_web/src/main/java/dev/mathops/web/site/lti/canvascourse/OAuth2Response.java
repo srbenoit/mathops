@@ -4,8 +4,8 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.web.site.lti.LtiPage;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

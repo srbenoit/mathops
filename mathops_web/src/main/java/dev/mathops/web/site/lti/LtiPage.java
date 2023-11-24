@@ -2,8 +2,8 @@ package dev.mathops.web.site.lti;
 
 import dev.mathops.core.builder.HtmlBuilder;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 

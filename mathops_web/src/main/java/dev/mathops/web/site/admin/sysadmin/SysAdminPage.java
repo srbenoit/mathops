@@ -12,8 +12,8 @@ import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminPage;
 import dev.mathops.web.site.admin.AdminSite;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

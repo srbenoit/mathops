@@ -2,8 +2,8 @@ package dev.mathops.web.front;
 
 import dev.mathops.core.CoreConstants;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Utilities that help extract information from HTTP Servlet requests.

@@ -3,7 +3,7 @@ package dev.mathops.web.site.help.tutor;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.session.ImmutableSessionInfo;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * Generates the content of the "Forums" panel. This panel lists the configured course forums, along with the number of

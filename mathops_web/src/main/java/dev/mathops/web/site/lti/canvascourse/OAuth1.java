@@ -7,8 +7,8 @@ import dev.mathops.core.parser.Base64;
 import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
 import dev.mathops.web.site.lti.HmacSha1;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

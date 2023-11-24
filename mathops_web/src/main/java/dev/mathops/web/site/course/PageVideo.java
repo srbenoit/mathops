@@ -14,8 +14,8 @@ import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

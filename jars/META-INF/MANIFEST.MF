@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Bundle-Description: Java(TM) Servlet 4.0 API Design Specification
+Bundle-License: https://oss.oracle.com/licenses/CDDL+GPL-1.1
+Bundle-SymbolicName: jakarta.servlet-api
+Implementation-Version: 4.0.1
+Archiver-Version: Plexus Archiver
+Built-By: vinay
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1524208739354
+Specification-Vendor: Oracle Corporation
+Implementation-Vendor-Id: org.glassfish
+Bundle-DocURL: https://javaee.github.io
+Bundle-Vendor: GlassFish Community
+Import-Package: jakarta.servlet;version="4.0.0",jakarta.servlet.annotation
+ ;version="4.0.0",jakarta.servlet.descriptor;version="4.0.0",javax.servl
+ et.http;version="4.0.0"
+Tool: Bnd-0.0.255
+Implementation-Vendor: GlassFish Community
+Export-Package: jakarta.servlet;uses:="jakarta.servlet.annotation,javax.se
+ rvlet.descriptor";version="4.0.0",jakarta.servlet.annotation;uses:="jav
+ ax.servlet";version="4.0.0",jakarta.servlet.http;uses:="jakarta.servlet";
+ version="4.0.0",jakarta.servlet.descriptor;version="4.0.0"
+Bundle-Version: 4.0.0
+Bundle-Name: Java Servlet API
+Extension-Name: jakarta.servlet
+Created-By: 1.8.0_131 (Oracle Corporation)
+Build-Jdk: 1.8.0_131
+Specification-Version: 4.0
+
