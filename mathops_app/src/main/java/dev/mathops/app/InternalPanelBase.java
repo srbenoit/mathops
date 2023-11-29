@@ -1,7 +1,6 @@
 package dev.mathops.app;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
@@ -210,7 +209,7 @@ public class InternalPanelBase extends JInternalFrame {
         // Finally, set the background color or image.
         prop = res.getProperty("panel-background-image") == null ? null : res.getProperty("panel-background-image");
 
-        final Image img = (prop == null) ? null : FileLoader.loadFileAsImage(this.resOwner.getClass(), prop, true);
+        final Image img = (prop == null) ? null : AppFileLoader.loadFileAsImage(this.resOwner.getClass(), prop, true);
 
         if (img == null) {
             // Set a simple background color for the panel

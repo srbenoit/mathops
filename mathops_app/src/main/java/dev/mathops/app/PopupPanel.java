@@ -1,7 +1,6 @@
 package dev.mathops.app;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import javax.swing.JButton;
@@ -65,7 +64,7 @@ public class PopupPanel extends InternalPanelBase implements ActionListener {
         super(theResOwner, null);
 
         final Properties res = //
-                FileLoader.loadFileAsProperties(theResOwner.getClass(), "PopupPanelSkin",
+                AppFileLoader.loadFileAsProperties(theResOwner.getClass(), "PopupPanelSkin",
                         new DefaultPopupPanelSkin(), false);
 
         buildUI(res, theMessage1, theWarn, theMessage2, style);

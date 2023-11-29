@@ -5,7 +5,6 @@ module mathops_core {
     exports dev.mathops.core.log;
     exports dev.mathops.core.builder;
     exports dev.mathops.core.res;
-    exports dev.mathops.core.file;
     exports dev.mathops.core.parser;
     exports dev.mathops.core.parser.xml;
     exports dev.mathops.core.parser.json;

@@ -4,13 +4,13 @@ import dev.mathops.assessment.exam.ExamFactory;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
+import dev.mathops.assessment.file.AssessmentFileLoader;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemDummyTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.XmlContent;
@@ -176,7 +176,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
             if (exam == null) {
                 final File file = FactoryBase.getRefSourceFile(this.base, ref);
 
-                final String xml = FileLoader.loadFileAsString(file, true);
+                final String xml = AssessmentFileLoader.loadFileAsString(file, true);
                 if (xml != null) {
                     final String path = file.getAbsolutePath();
 
@@ -280,7 +280,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
                 if (problem == null) {
                     final File file = FactoryBase.getRefSourceFile(this.base, ref);
 
-                    final String xml = FileLoader.loadFileAsString(file, true);
+                    final String xml = AssessmentFileLoader.loadFileAsString(file, true);
                     if (xml != null) {
                         final String path = file.getAbsolutePath();
 
@@ -376,7 +376,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
 
         final File file = FactoryBase.getRefSourceFile(baseDir, ref);
 
-        final String xml = FileLoader.loadFileAsString(file, true);
+        final String xml = AssessmentFileLoader.loadFileAsString(file, true);
         if (xml != null) {
             final String path = file.getAbsolutePath();
 
@@ -550,7 +550,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
      */
     private void processExam(final File f) {
 
-        final String xml = FileLoader.loadFileAsString(f, true);
+        final String xml = AssessmentFileLoader.loadFileAsString(f, true);
         if (xml != null) {
             final String path = f.getAbsolutePath();
 
@@ -604,7 +604,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
      */
     private void processProblem(final File f) {
 
-        final String xml = FileLoader.loadFileAsString(f, true);
+        final String xml = AssessmentFileLoader.loadFileAsString(f, true);
         if (xml != null) {
             final String path = f.getAbsolutePath();
 

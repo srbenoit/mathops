@@ -1,6 +1,7 @@
 package dev.mathops.app.assessment.localtesting;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.DirectoryFilter;
 import dev.mathops.app.PleaseWait;
@@ -20,7 +21,6 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.XmlContent;
@@ -665,7 +665,7 @@ final class ExamDeliverer implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = FileLoader.loadFileAsProperties(LocalTestingApp.class, "ExamPanelSkin",
+        final Properties skin = AppFileLoader.loadFileAsProperties(LocalTestingApp.class, "ExamPanelSkin",
                 new DefaultSkin(), false);
 
         if (this.isDemo) {

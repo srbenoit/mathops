@@ -1,8 +1,8 @@
 package dev.mathops.app.deploy;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.installation.Installation;
 import dev.mathops.core.installation.Installations;
 import dev.mathops.core.log.Log;
@@ -154,7 +154,7 @@ final class ExamTesterJarBuilder {
                     addFiles(rootDir, file, jar);
                 } else {
                     jar.putNextEntry(new ZipEntry(name));
-                    final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
+                    final byte[] bytes = AppFileLoader.loadFileAsBytes(file, true);
                     if (bytes == null) {
                         throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
                     }

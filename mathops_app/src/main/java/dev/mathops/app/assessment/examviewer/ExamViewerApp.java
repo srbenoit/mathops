@@ -1,5 +1,6 @@
 package dev.mathops.app.assessment.examviewer;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.PleaseWait;
 import dev.mathops.app.exam.ExamContainerInt;
@@ -8,7 +9,6 @@ import dev.mathops.assessment.exam.EExamSessionState;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.session.txn.messages.GetPastExamReply;
@@ -444,7 +444,7 @@ final class DisplayExamPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = FileLoader.loadFileAsProperties(ExamViewerApp.class, "ExamPanelSkin",
+        final Properties skin = AppFileLoader.loadFileAsProperties(ExamViewerApp.class, "ExamPanelSkin",
                 new DefaultSkin(), false);
 
         this.panel = new ExamPanel(this.owner, skin, CoreConstants.EMPTY, this.examSession, false, false, null, null);

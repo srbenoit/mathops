@@ -2,9 +2,9 @@ package dev.mathops.web.websocket.help.conversation;
 
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.websocket.help.StudentKey;
 
 import java.io.File;
@@ -117,7 +117,7 @@ public final class ConversationDatabase {
      */
     private static void loadStudentConversationList(final File stuIdDir, final ConversationsContainer all) {
 
-        final String meta = FileLoader.loadFileAsString(new File(stuIdDir, "convlist.meta"), false);
+        final String meta = WebFileLoader.loadFileAsString(new File(stuIdDir, "convlist.meta"), false);
 
         if (meta == null) {
             Log.warning("Unable to load 'convlist.meta' from ", stuIdDir.getAbsolutePath(), " - ignoring directory");
@@ -162,7 +162,7 @@ public final class ConversationDatabase {
      */
     private static void loadConversation(final int convNumber, final File convDir, final StudentConversationList list) {
 
-        final String meta = FileLoader.loadFileAsString(new File(convDir, "conv.meta"), false);
+        final String meta = WebFileLoader.loadFileAsString(new File(convDir, "conv.meta"), false);
 
         if (meta == null) {
             Log.warning("Unable to load 'conv.meta' from ", convDir.getAbsolutePath());
@@ -197,7 +197,7 @@ public final class ConversationDatabase {
      */
     private static boolean loadStudentMessage(final File file, final Conversation conv, final int messageNumber) {
 
-        final String meta = FileLoader.loadFileAsString(file, false);
+        final String meta = WebFileLoader.loadFileAsString(file, false);
         boolean result = false;
 
         if (meta == null) {
@@ -231,7 +231,7 @@ public final class ConversationDatabase {
         if (convDir.exists()) {
             final File file = new File(convDir, message.messageNumber + ".content");
 
-            final String content = FileLoader.loadFileAsString(file, true);
+            final String content = WebFileLoader.loadFileAsString(file, true);
             if (content != null) {
                 message.loadContent(content);
             }

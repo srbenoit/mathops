@@ -1,5 +1,6 @@
 package dev.mathops.app.review;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.PleaseWait;
 import dev.mathops.app.TempFileCleaner;
@@ -11,7 +12,6 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.Contexts;
@@ -980,8 +980,7 @@ class DisplayExamPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin =
-                FileLoader.loadFileAsProperties(UnitReviewApp.class, "ExamPanelSkin",
+        final Properties skin = AppFileLoader.loadFileAsProperties(UnitReviewApp.class, "ExamPanelSkin",
                         new DefaultSkin(), false);
 
         if (this.examSession.getExam().examVersion.startsWith("30")) {

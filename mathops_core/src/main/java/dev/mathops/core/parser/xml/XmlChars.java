@@ -1,5 +1,6 @@
 package dev.mathops.core.parser.xml;
 
+import dev.mathops.core.log.Log;
 import dev.mathops.core.unicode.UnicodeCharacter;
 import dev.mathops.core.unicode.UnicodeCharacterSet;
 
@@ -54,6 +55,7 @@ enum XmlChars {
         final boolean ok;
 
         if (chr == null) {
+            Log.warning("Unable to get Unicode character description");
             ok = false;
         } else if (isInRanges(codePoint, CHAR_10_RANGES)) {
             ok = true;
@@ -189,5 +191,10 @@ enum XmlChars {
         }
 
         return isInRanges;
+    }
+
+    public static void main(final String... args) {
+
+        Log.info(isChar('x'));
     }
 }

@@ -1,5 +1,6 @@
 package dev.mathops.app.hw;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.PleaseWait;
 import dev.mathops.app.TempFileCleaner;
@@ -12,7 +13,6 @@ import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.Contexts;
@@ -1167,7 +1167,7 @@ final class DisplayHomeworkPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = FileLoader.loadFileAsProperties(HomeworkApp.class, "ExamPanelSkin",
+        final Properties skin = AppFileLoader.loadFileAsProperties(HomeworkApp.class, "ExamPanelSkin",
                 new DefaultSkin(), false);
 
         this.panel = new ExamPanel(this.owner, skin, CoreConstants.EMPTY, this.homeworkSession, false, this.practice,

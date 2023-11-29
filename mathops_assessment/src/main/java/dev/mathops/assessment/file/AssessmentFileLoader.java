@@ -1,4 +1,4 @@
-package dev.mathops.core.file;
+package dev.mathops.assessment.file;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
@@ -24,7 +24,7 @@ import java.util.Properties;
  * Utility class to load files. This class should be able to load from a local file or a file in a JAR in the class
  * path, using a given class a the base of the package in which to search for the resource.
  */
-public enum FileLoader {
+public enum AssessmentFileLoader {
     ;
 
     /** The file extension for properties files. */
@@ -482,22 +482,90 @@ public enum FileLoader {
     public static InputStream openInputStream(final Class<?> caller, final String name, final boolean logFail)
             throws IOException {
 
+        final String classname = caller.getName();
+        String path;
+        final int lastDot = classname.lastIndexOf('.');
+        if (lastDot == -1) {
+            path = name;
+        } else {
+            final String packagename = classname.substring(0, lastDot);
+            path = "/" + packagename.replace('.', '/') + "/" + name;
+        }
+
+        // Let the calling class try to locate the resource
         InputStream input = caller.getResourceAsStream(name);
+        if (input == null) {
+            Log.warning("  *** ", caller.getName(), ".getResourceAsStream(", name, ") failed");
+            final ClassLoader loader = caller.getClassLoader();
+            input = loader.getResourceAsStream(name);
+            if (input == null) {
+                Log.warning("  *** ", caller.getName(), ".getClassLoader().getResourceAsStream(", name, ") failed");
+                input = caller.getResourceAsStream(path);
+
+                if (input == null) {
+                    Log.warning("  *** ", caller.getName(), ".getResourceAsStream(", path, ") failed");
+                    input = loader.getResourceAsStream(path);
+                    if (input == null) {
+                        Log.warning("  *** ", caller.getName(), ".getClassLoader().getResourceAsStream(", path, ") failed");
+                    }
+                }
+            }
+        }
 
         if (input == null) {
+            // Could be in a foreign module - let the module classloader try
+            final Module module = caller.getModule();
+            input = module.getResourceAsStream(name);
+            if (input == null) {
+                Log.warning("  *** ", module.getName(), ".getResourceAsStream(", name, ") failed");
+                final ClassLoader loader = module.getClassLoader();
+                input = loader.getResourceAsStream(name);
+                if (input == null) {
+                    Log.warning("  *** ", module.getName(), ".getClassLoader().getResourceAsStream(", name, ") failed");
+                    input = caller.getResourceAsStream(path);
+
+                    if (input == null) {
+                        Log.warning("  *** ", module.getName(), ".getResourceAsStream(", path, ") failed");
+                        input = loader.getResourceAsStream(path);
+                        if (input == null) {
+                            Log.warning("  *** ", module.getName(), ".getClassLoader().getResourceAsStream(", path, ") failed");
+                        }
+                    }
+                }
+            }
+        }
+
+        if (input == null) {
+            // Next, let the thread context class loader try
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             input = loader.getResourceAsStream(name);
+            if (input == null) {
+                Log.warning("  *** Thread.currentThread().getContextClassLoader().getResourceAsStream(", name, ") failed");
+                input = loader.getResourceAsStream(path);
+                if (input == null) {
+                    Log.warning("  *** Thread.currentThread().getContextClassLoader().getResourceAsStream(", path, ") failed");
+                }
+            }
         }
 
         if (input == null) {
+            // Try the system class loader
             input = ClassLoader.getSystemResourceAsStream(name);
+            if (input == null) {
+                Log.warning("  *** ClassLoader.getSystemResourceAsStream(", name, ") failed");
+                input = ClassLoader.getSystemResourceAsStream(path);
+                if (input == null) {
+                    Log.warning("  *** ClassLoader.getSystemResourceAsStream(", path, ") failed");
+                }
+            }
         }
 
         if (input == null) {
+            // Last chance - look in the working directory
             final File file = new File(System.getProperty("user.dir"));
 
             try {
-                input = new FileInputStream(new File(file, name));
+                input = new FileInputStream(new File(file, path));
             } catch (final FileNotFoundException ex) {
                 if (logFail) {
                     final String callerName = caller.getName();

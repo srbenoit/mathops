@@ -4,7 +4,6 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.core.parser.ParsingException;
@@ -19,6 +18,7 @@ import dev.mathops.db.rawrecord.RawStudent;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -127,11 +127,11 @@ public final class ProctoringMediaSite extends AbstractSite {
         if ("basestyle.css".equals(subpath)
                 || "secure/basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+                    WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)
                 || "secure/style.css".equals(subpath)) {
             sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+                    WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("favicon.ico".equals(subpath)
                 || "secure/favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
@@ -206,7 +206,7 @@ public final class ProctoringMediaSite extends AbstractSite {
     private static void serveJs(final String name, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException {
 
-        final byte[] data = FileLoader.loadFileAsBytes(ProctoringMediaSite.class, name, true);
+        final byte[] data = WebFileLoader.loadFileAsBytes(ProctoringMediaSite.class, name, true);
 
         if (data == null) {
             Log.warning(name, " not found");
@@ -701,7 +701,7 @@ public final class ProctoringMediaSite extends AbstractSite {
 
         Object result = null;
 
-        final String str = FileLoader.loadFileAsString(file, false);
+        final String str = WebFileLoader.loadFileAsString(file, false);
 
         if (str == null) {
             Log.warning("Unable to load ", file.getAbsolutePath());
@@ -763,9 +763,9 @@ public final class ProctoringMediaSite extends AbstractSite {
         final byte[] data;
 
         if (ranged) {
-            data = FileLoader.loadFileAsBytes(new File(this.dataDir, filename), start, end);
+            data = WebFileLoader.loadFileAsBytes(new File(this.dataDir, filename), start, end);
         } else {
-            data = FileLoader.loadFileAsBytes(new File(this.dataDir, filename), true);
+            data = WebFileLoader.loadFileAsBytes(new File(this.dataDir, filename), true);
         }
 
         if (data == null) {

@@ -1,8 +1,8 @@
 package dev.mathops.app.teststation;
 
 import dev.mathops.app.AbstractInternalDialogBase;
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import javax.swing.JButton;
@@ -37,7 +37,7 @@ public final class AreYouFinished extends AbstractInternalDialogBase {
         final Properties res;
 
         setResOwner(this);
-        res = FileLoader.loadFileAsProperties(AreYouFinished.class, "AreYouFinishedSkin",
+        res = AppFileLoader.loadFileAsProperties(AreYouFinished.class, "AreYouFinishedSkin",
                 new DefaultAreYouFinishedSkin(), false);
         buildUI(res, numProblems, numCompleted);
         pack();

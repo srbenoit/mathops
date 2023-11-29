@@ -3,7 +3,6 @@ package dev.mathops.web.front;
 import dev.mathops.assessment.InstructionalCache;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EMimeType;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.installation.Installation;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
@@ -15,6 +14,7 @@ import dev.mathops.db.cfg.ContextMap;
 import dev.mathops.db.cfg.DbProfile;
 import dev.mathops.db.cfg.ESchemaUse;
 import dev.mathops.session.SessionManager;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.WebMidController;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
@@ -341,7 +341,7 @@ public final class FrontController extends HttpServlet {
         Log.info("Checking for '", file.getAbsolutePath(), "'");
 
         if (file.exists()) {
-            final byte[] data = FileLoader.loadFileAsBytes(file, true);
+            final byte[] data = WebFileLoader.loadFileAsBytes(file, true);
 
             if (data == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);

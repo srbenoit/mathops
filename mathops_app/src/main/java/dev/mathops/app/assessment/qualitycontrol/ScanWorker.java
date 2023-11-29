@@ -1,12 +1,12 @@
 package dev.mathops.app.assessment.qualitycontrol;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.exam.ExamFactory;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.XmlContent;
@@ -133,10 +133,9 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
 
         report.addln(problemFile.getAbsolutePath()).br();
 
-        final String xml = FileLoader.loadFileAsString(problemFile, true);
+        final String xml = AppFileLoader.loadFileAsString(problemFile, true);
         if (xml == null) {
-            report.sSpan(null, "style='color:red;'")
-                    .add("ERROR: Unable to read file.").eSpan().br().addln();
+            report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
         } else {
             try {
                 final XmlContent content = new XmlContent(xml, false, true);
@@ -196,7 +195,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
 
         report.addln(examFile.getAbsolutePath()).br();
 
-        final String xml = FileLoader.loadFileAsString(examFile, true);
+        final String xml = AppFileLoader.loadFileAsString(examFile, true);
         if (xml == null) {
             report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
         } else {
@@ -262,7 +261,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
 
         report.addln(homeworkFile.getAbsolutePath()).br();
 
-        final String xml = FileLoader.loadFileAsString(homeworkFile, true);
+        final String xml = AppFileLoader.loadFileAsString(homeworkFile, true);
         if (xml == null) {
             report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
         } else {
@@ -354,7 +353,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                         exams.add(file);
                     } else {
                         // File is not in a folder that indicates types - infer type from its contents
-                        final String xml = FileLoader.loadFileAsString(file, true);
+                        final String xml = AppFileLoader.loadFileAsString(file, true);
 
                         if (xml.contains("<problem ")) {
                             problems.add(file);

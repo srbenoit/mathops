@@ -3,7 +3,6 @@ package dev.mathops.web.site;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -17,6 +16,7 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.session.login.ShibbolethLoginProcessor;
 
+import dev.mathops.web.file.WebFileLoader;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -425,9 +425,9 @@ public abstract class AbstractSite {
         final byte[] data;
 
         if (ranged) {
-            data = FileLoader.loadFileAsBytes(new File(this.imgDir, imgName), start, end);
+            data = WebFileLoader.loadFileAsBytes(new File(this.imgDir, imgName), start, end);
         } else {
-            data = FileLoader.loadFileAsBytes(new File(this.imgDir, imgName), true);
+            data = WebFileLoader.loadFileAsBytes(new File(this.imgDir, imgName), true);
         }
 
         if (data == null) {
@@ -501,7 +501,7 @@ public abstract class AbstractSite {
                                   final HttpServletResponse resp) throws IOException {
 
         final File vttFile = new File(this.vttDir, vttName);
-        final byte[] data = FileLoader.loadFileAsBytes(vttFile, true);
+        final byte[] data = WebFileLoader.loadFileAsBytes(vttFile, true);
 
         if (data == null) {
             Log.warning(vttFile.getAbsolutePath(), " not found");
@@ -522,7 +522,7 @@ public abstract class AbstractSite {
     protected void serveMedia(final String filename, final HttpServletRequest req,
                               final HttpServletResponse resp) throws IOException {
 
-        final byte[] data = FileLoader.loadFileAsBytes(new File(this.vttDir, filename), true);
+        final byte[] data = WebFileLoader.loadFileAsBytes(new File(this.vttDir, filename), true);
 
         if (data == null) {
             Log.warning(new File(this.imgDir, filename).getAbsolutePath(), " not found");
@@ -543,7 +543,7 @@ public abstract class AbstractSite {
     protected final void serveLesson(final String file, final ServletRequest req,
                                      final HttpServletResponse resp) throws IOException {
 
-        final byte[] data = FileLoader.loadFileAsBytes(new File(this.lessonsDir, file), true);
+        final byte[] data = WebFileLoader.loadFileAsBytes(new File(this.lessonsDir, file), true);
 
         if (data == null) {
             Log.warning(new File(this.lessonsDir, file).getAbsolutePath(), " not found");

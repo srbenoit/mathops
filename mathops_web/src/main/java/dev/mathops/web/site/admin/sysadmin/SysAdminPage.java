@@ -2,10 +2,10 @@ package dev.mathops.web.site.admin.sysadmin;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.front.BuildDateTime;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -103,7 +103,7 @@ public enum SysAdminPage {
         try {
             final Process p = Runtime.getRuntime().exec("/opt/httpd/bin/httpd -v");
             try (final InputStream in = p.getInputStream()) {
-                final byte[] data = FileLoader.readStreamAsBytes(in);
+                final byte[] data = WebFileLoader.readStreamAsBytes(in);
                 final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
                 final String[] lines = s.split("\n");
 
@@ -126,7 +126,7 @@ public enum SysAdminPage {
         try {
             final Process p = Runtime.getRuntime().exec("/opt/tomcat/bin/version.sh");
             try (final InputStream in = p.getInputStream()) {
-                final byte[] data = FileLoader.readStreamAsBytes(in);
+                final byte[] data = WebFileLoader.readStreamAsBytes(in);
                 final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
                 final String[] lines = s.split("\n");
 

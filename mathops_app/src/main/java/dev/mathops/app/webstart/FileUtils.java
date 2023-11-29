@@ -1,7 +1,7 @@
 package dev.mathops.app.webstart;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import java.io.File;
@@ -52,12 +52,11 @@ enum FileUtils {
         }
 
         if (success) {
-            final byte[] f1 = FileLoader.loadFileAsBytes(source, false);
-            final byte[] f2 = FileLoader.loadFileAsBytes(dest, false);
+            final byte[] f1 = AppFileLoader.loadFileAsBytes(source, false);
+            final byte[] f2 = AppFileLoader.loadFileAsBytes(dest, false);
 
             if (!Arrays.equals(f1, f2)) {
-                Log.warning(dest.getAbsolutePath() //
-                        + ": Mismatch after copy - aborting");
+                Log.warning(dest.getAbsolutePath() + ": Mismatch after copy - aborting");
                 dest.delete();
                 success = false;
             }

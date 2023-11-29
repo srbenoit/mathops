@@ -3,7 +3,6 @@ package dev.mathops.web.site.tutorial.elm;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.Cache;
@@ -12,6 +11,7 @@ import dev.mathops.db.logic.ELMTutorialStatus;
 import dev.mathops.db.logic.HoldsStatus;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -92,10 +92,10 @@ public final class ElmTutorialSite extends AbstractPageSite {
                     ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+                    WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)) {
             sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(ElmTutorialSite.class, "style.css", true));
+                    WebFileLoader.loadFileAsBytes(ElmTutorialSite.class, "style.css", true));
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if (subpath.endsWith(".vtt")) {

@@ -1,6 +1,5 @@
 package dev.mathops.app;
 
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import javax.swing.JPanel;
@@ -29,7 +28,7 @@ public final  class PleaseWait extends InternalPanelBase {
 
         super(theResOwner, null);
 
-        final Properties res = FileLoader.loadFileAsProperties(theResOwner.getClass(), "PleaseWaitSkin",
+        final Properties res = AppFileLoader.loadFileAsProperties(theResOwner.getClass(), "PleaseWaitSkin",
                 new DefaultPleaseWaitSkin(), false);
 
         if (examVersion.startsWith("30")) {

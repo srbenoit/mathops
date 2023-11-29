@@ -3,7 +3,6 @@ package dev.mathops.web.site.ramwork;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.Cache;
@@ -17,6 +16,7 @@ import dev.mathops.db.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -128,16 +128,11 @@ public final class RamWorkSite extends AbstractSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("basestyle.css".equals(subpath)
-                || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)
-                || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("favicon.ico".equals(subpath)
-                || "secure/favicon.ico".equals(subpath)) {
+        if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+        } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {
             final ImmutableSessionInfo session = validateSession(req, resp, null);
@@ -164,8 +159,7 @@ public final class RamWorkSite extends AbstractSite {
                     PageLanding.showPage(cache, this, req, resp);
                 } else if (subpath.endsWith(".js")) {
                     serveJs(subpath, req, resp);
-                } else if (subpath.endsWith(".jpg")
-                        || subpath.endsWith(".png")) {
+                } else if (subpath.endsWith(".jpg") || subpath.endsWith(".png")) {
                     serveProctoringImage(subpath, req, resp);
                 } else if ("home.html".equals(subpath)) {
                     PageHome.showPage(cache, this, req, resp, session);
@@ -206,7 +200,7 @@ public final class RamWorkSite extends AbstractSite {
     private static void serveJs(final String name, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException {
 
-        final byte[] data = FileLoader.loadFileAsBytes(RamWorkSite.class, name, true);
+        final byte[] data = WebFileLoader.loadFileAsBytes(RamWorkSite.class, name, true);
 
         if (data == null) {
             Log.warning(name, " not found");
@@ -253,9 +247,9 @@ public final class RamWorkSite extends AbstractSite {
         final byte[] data;
 
         if (ranged) {
-            data = FileLoader.loadFileAsBytes(sourceFile, start, end);
+            data = WebFileLoader.loadFileAsBytes(sourceFile, start, end);
         } else {
-            data = FileLoader.loadFileAsBytes(sourceFile, true);
+            data = WebFileLoader.loadFileAsBytes(sourceFile, true);
         }
 
         if (data == null) {

@@ -1,7 +1,7 @@
 package dev.mathops.assessment.formula.edit;
 
+import dev.mathops.assessment.file.AssessmentFileLoader;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import java.awt.Font;
@@ -84,8 +84,7 @@ public final class Fonts {
 
         synchronized (this) {
             if (this.onePointSerif == null) {
-                final byte[] data = FileLoader.loadFileAsBytes(getClass(), //
-                        "STIX2Math.otf", true);
+                final byte[] data = AssessmentFileLoader.loadFileAsBytes(getClass(), "STIX2Math.otf", true);
                 if (data != null) {
                     final ByteArrayInputStream fontStream = new ByteArrayInputStream(data);
                     try {
@@ -111,8 +110,8 @@ public final class Fonts {
 
         synchronized (this) {
             if (this.onePointSans == null) {
-                final byte[] data = FileLoader.loadFileAsBytes(getClass(), //
-                        "RobotoCondensed-Regular.otf", true);
+                final byte[] data = AssessmentFileLoader.loadFileAsBytes(getClass(), "RobotoCondensed-Regular.otf",
+                        true);
                 if (data != null) {
                     final ByteArrayInputStream fontStream = new ByteArrayInputStream(data);
                     try {

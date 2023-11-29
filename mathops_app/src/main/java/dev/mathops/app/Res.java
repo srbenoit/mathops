@@ -17,12 +17,20 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String NOT_AWT_THREAD = key(index++);
 
+    /** A resource key. */
+    static final String FILE_LOAD_FAIL = key(index++);
+
+    /** A resource key. */
+    static final String FILE_NOT_FOUND = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = {
 
             {NOT_AWT_THREAD, "NOT THE AWT EVENT THREAD!",},
+            {FILE_LOAD_FAIL, "FileLoader failed to read file {0}"},
+            {FILE_NOT_FOUND, "File not found: {0} - {1}"},
 
     };
 
@@ -46,5 +54,18 @@ final class Res extends ResBundle {
     static String get(final String key) {
 
         return instance.getMsg(key);
+    }
+
+    /**
+     * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with
+     * a collection of arguments.
+     *
+     * @param key       the message key
+     * @param arguments the arguments, as for {@code MessageFormat}
+     * @return the formatted string (never {@code null})
+     */
+    static String fmt(final String key, final Object... arguments) {
+
+        return instance.formatMsg(key, arguments);
     }
 }

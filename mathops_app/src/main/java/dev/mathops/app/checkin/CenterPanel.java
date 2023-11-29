@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.Cache;
@@ -1070,11 +1070,11 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
      */
     private void loadImages() {
 
-        this.wheelchairIcon = FileLoader.loadFileAsImage(CenterPanel.class, "whlchr-tiny.jpg", true);
+        this.wheelchairIcon = AppFileLoader.loadFileAsImage(CenterPanel.class, "whlchr-tiny.jpg", true);
 
         // this.mWheelchairDim = FileLoader.loadFileAsImage(this, "whlchr-dim.jpg"); 
 
-        this.wheelchairLit = FileLoader.loadFileAsImage(CenterPanel.class, "whlchr-lit.jpg", true);
+        this.wheelchairLit = AppFileLoader.loadFileAsImage(CenterPanel.class, "whlchr-lit.jpg", true);
     }
 
     /**

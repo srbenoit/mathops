@@ -9,7 +9,6 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.Attribute;
@@ -23,6 +22,7 @@ import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.ContextMap;
 import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -187,7 +187,7 @@ public final class ChallengeExamSessionStore {
             Log.info("Restoring challenge exam sessions from ", target.getAbsolutePath());
 
             if (target.exists()) {
-                final String xml = FileLoader.loadFileAsString(target, true);
+                final String xml = WebFileLoader.loadFileAsString(target, true);
 
                 try {
                     final XmlContent content = new XmlContent(xml, false, false);

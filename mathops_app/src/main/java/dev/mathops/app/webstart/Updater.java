@@ -1,8 +1,8 @@
 package dev.mathops.app.webstart;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.UIUtilities;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
@@ -172,8 +172,8 @@ final class Updater implements Runnable {
         FileUtils.log(this.logFile, CoreConstants.EMPTY);
 
         Font theFont;
-        try (final InputStream in = FileLoader.openInputStream(Updater.class, //
-                "ProximaNova-Reg-webfont.ttf", false)) {
+        try (final InputStream in = AppFileLoader.openInputStream(Updater.class, "ProximaNova-Reg-webfont.ttf",
+                false)) {
             theFont = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (final IOException | FontFormatException ex) {
             FileUtils.log(this.logFile, Res.get(Res.CANT_LOAD_FONT), ex);

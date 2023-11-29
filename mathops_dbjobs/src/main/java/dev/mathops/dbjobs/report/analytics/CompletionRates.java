@@ -1,12 +1,12 @@
 package dev.mathops.dbjobs.report.analytics;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.rawrecord.RawRecordConstants;
 import dev.mathops.db.rawrecord.RawStcourse;
+import dev.mathops.dbjobs.file.DbjobsFileLoader;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -83,7 +83,7 @@ final class CompletionRates implements Runnable {
 
         boolean ok = true;
 
-        final String[] lines = FileLoader.loadFileAsLines(f, true);
+        final String[] lines = DbjobsFileLoader.loadFileAsLines(f, true);
         if (lines == null) {
             ok = false;
         } else {

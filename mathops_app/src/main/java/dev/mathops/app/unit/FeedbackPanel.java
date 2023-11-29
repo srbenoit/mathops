@@ -1,8 +1,8 @@
 package dev.mathops.app.unit;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.InternalPanelBase;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import javax.swing.JButton;
@@ -37,8 +37,8 @@ class FeedbackPanel extends InternalPanelBase implements ActionListener {
         super(null, theUsername);
 
         setResOwner(this);
-        final Properties res = FileLoader.loadFileAsProperties(FeedbackPanel.class,
-                "FeedbackPanelSkin", new DefaultFeedbackPanelSkin(), false);
+        final Properties res = AppFileLoader.loadFileAsProperties(FeedbackPanel.class, "FeedbackPanelSkin",
+                new DefaultFeedbackPanelSkin(), false);
 
         final Runnable builder =
                 new FeedbackGUIBuilder(this, res, subtestScores, examGrades);

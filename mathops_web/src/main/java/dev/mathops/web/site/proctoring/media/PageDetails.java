@@ -2,7 +2,6 @@ package dev.mathops.web.site.proctoring.media;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.json.JSONObject;
@@ -10,6 +9,7 @@ import dev.mathops.core.parser.json.JSONParser;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -585,7 +585,7 @@ enum PageDetails {
 
         Object result = null;
 
-        final String str = FileLoader.loadFileAsString(file, false);
+        final String str = WebFileLoader.loadFileAsString(file, false);
 
         if (str == null) {
             Log.warning("Unable to load ", file.getAbsolutePath());

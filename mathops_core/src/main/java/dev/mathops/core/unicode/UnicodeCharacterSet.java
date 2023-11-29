@@ -1,12 +1,9 @@
 package dev.mathops.core.unicode;
 
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.CoreFileLoader;
+import dev.mathops.core.log.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,29 +42,15 @@ public final class UnicodeCharacterSet {
      */
     private void loadCharsFile() {
 
-        final String packageName = UnicodeBlocks.class.getPackage().getName();
-        final String path = packageName.replace('.', '/') + CoreConstants.SLASH
-                + FILENAME;
-
-        try (final InputStream input =
-                     Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {
-
-            if (input == null) {
-                this.chars.clear();
-            } else {
-                try (final BufferedReader buf = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
-
-                    String line = buf.readLine();
-                    while (line != null) {
-                        if (!line.isEmpty() && line.charAt(0) != '#') {
-                            processLine(line);
-                        }
-
-                        line = buf.readLine();
-                    }
+        final String[] lines = CoreFileLoader.loadFileAsLines(getClass(), FILENAME, true);
+        try {
+            for (String line : lines) {
+                if (!line.isEmpty() && line.charAt(0) != '#') {
+                    processLine(line);
                 }
             }
-        } catch (final IOException | NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
+            Log.warning("Invalid character specification in ", FILENAME, ex);
             this.chars.clear();
         }
     }

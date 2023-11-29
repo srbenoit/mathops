@@ -2,10 +2,10 @@ package dev.mathops.web.site;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -124,7 +124,7 @@ public enum Page {
     public static void emitFile(final HtmlBuilder htm, final String filename) {
 
         final File file = new File("/opt/zircon/html/" + filename);
-        final String content = FileLoader.loadFileAsString(file, true);
+        final String content = WebFileLoader.loadFileAsString(file, true);
 
         if (content != null) {
             htm.add(content);

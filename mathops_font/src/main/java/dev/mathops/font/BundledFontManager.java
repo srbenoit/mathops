@@ -1,7 +1,7 @@
 package dev.mathops.font;
 
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
+import dev.mathops.font.file.FontFileLoader;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -114,7 +114,7 @@ public final class BundledFontManager {
      */
     private void addFonts(final String listFileName) throws IOException {
 
-        final String[] fontsList = FileLoader.loadFileAsLines(BundledFontManager.class, listFileName, false);
+        final String[] fontsList = FontFileLoader.loadFileAsLines(BundledFontManager.class, listFileName, true);
 
         if (fontsList == null) {
             logError(listFileName + " not found");
@@ -122,7 +122,7 @@ public final class BundledFontManager {
             for (final String fontName : fontsList) {
                 if (!fontName.isEmpty()) {
                     try (final InputStream input =
-                                 FileLoader.openInputStream(BundledFontManager.class, fontName, true)) {
+                                 FontFileLoader.openInputStream(BundledFontManager.class, fontName, true)) {
                         if (fontName.toLowerCase(Locale.ROOT).endsWith(".ttf")) {
                             addFontFromStream(input, Font.TRUETYPE_FONT);
                         } else if (fontName.toLowerCase(Locale.ROOT).endsWith(".pfa")

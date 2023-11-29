@@ -1,5 +1,6 @@
 package dev.mathops.assessment.variable.edit;
 
+import dev.mathops.assessment.file.AssessmentFileLoader;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
@@ -26,8 +27,6 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.IElement;
@@ -256,8 +255,7 @@ public final class VariableEditorPanel extends JPanel
         topFlow.setBackground(Color.WHITE);
 
         JButton deleteBtn;
-        final byte[] icon = FileLoader.loadFileAsBytes(getClass(), //
-                "delete_icon.png", true);
+        final byte[] icon = AssessmentFileLoader.loadFileAsBytes(getClass(), "delete_icon.png", true);
         if (icon == null) {
             deleteBtn = new JButton("Delete");
         } else {
@@ -428,7 +426,7 @@ public final class VariableEditorPanel extends JPanel
         this.choices.setPreferredSize(new Dimension(oldChoicesPref.width, 0));
         this.choices.setVisible(false);
 
-        final byte[] addicon = FileLoader.loadFileAsBytes(getClass(), "add_icon.png", true);
+        final byte[] addicon = AssessmentFileLoader.loadFileAsBytes(getClass(), "add_icon.png", true);
 
         JButton addChoiceBtn;
         if (addicon == null) {

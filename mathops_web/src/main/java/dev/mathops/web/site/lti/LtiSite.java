@@ -2,7 +2,6 @@ package dev.mathops.web.site.lti;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -12,6 +11,7 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -79,23 +79,17 @@ public final class LtiSite extends CourseSite {
 
         Log.info("GET ", subpath);
 
-        if ("basestyle.css".equals(subpath)
-                || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)
-                || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+        if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+        } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("course.css".equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
-        } else if ("favicon.ico".equals(subpath)
-                || "secure/favicon.ico".equals(subpath)) {
+        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
-        } else if (CoreConstants.EMPTY.equals(subpath) //
-                || "index.html".equals(subpath)) {
+        } else if (CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)) {
             PageIndex.showPage(req, resp);
         } else if ("onlineproctor.html".equals(subpath)) {
             PageOnlineProctor.showPage(req, resp, null, null);
@@ -122,8 +116,7 @@ public final class LtiSite extends CourseSite {
             final Enumeration<String> e1 = req.getParameterNames();
             while (e1.hasMoreElements()) {
                 final String name = e1.nextElement();
-                Log.fine("Parameter '", name, "' = '",
-                        req.getParameter(name), "'");
+                Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
             }
 
             Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
@@ -181,8 +174,7 @@ public final class LtiSite extends CourseSite {
             final Enumeration<String> e1 = req.getParameterNames();
             while (e1.hasMoreElements()) {
                 final String name = e1.nextElement();
-                Log.fine("Parameter '", name, "' = '",
-                        req.getParameter(name), "'");
+                Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
             }
 
             Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));

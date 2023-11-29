@@ -1,9 +1,9 @@
 package dev.mathops.web.site.placement;
 
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -81,11 +81,9 @@ public final class PlacementRedirector extends AbstractPageSite {
                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
         if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    FileLoader.loadFileAsBytes(MathPlacementSite.class, "style.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(MathPlacementSite.class, "style.css", true));
         } else if ("placement.css".equals(subpath)) {
             doPlacementCss(req, resp);
         } else if (subpath.startsWith("images/")) {

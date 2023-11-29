@@ -1,8 +1,8 @@
 package dev.mathops.app.adm.testing;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.rawrecord.RawClientPc;
 
 import javax.swing.ImageIcon;
@@ -465,7 +465,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         setBackground(Skin.OFF_WHITE_RED);
 
         ImageIcon icon = null;
-        final byte[] iconBytes = FileLoader.loadFileAsBytes(getClass(), "gear.png",
+        final byte[] iconBytes = AppFileLoader.loadFileAsBytes(getClass(), "gear.png",
                 true);
         if (iconBytes != null) {
             icon = new ImageIcon(iconBytes);

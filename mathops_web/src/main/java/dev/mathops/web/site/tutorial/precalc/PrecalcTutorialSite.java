@@ -3,13 +3,13 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
@@ -90,9 +90,9 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
             final String path = this.siteProfile.path;
             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(PrecalcTutorialSite.class, "style.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(PrecalcTutorialSite.class, "style.css", true));
         } else if ("course.css".equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
         } else if ("lesson.css".equals(subpath)) {

@@ -2,7 +2,6 @@ package dev.mathops.session;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.core.parser.ParsingException;
@@ -14,6 +13,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.rawlogic.RawStudentLogic;
 import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.session.file.SessionFileLoader;
 import dev.mathops.session.login.IAuthenticationMethod;
 import dev.mathops.session.login.ILoginProcessor;
 import dev.mathops.session.login.LocalLoginProcessor;
@@ -352,7 +352,7 @@ public final class SessionManager extends SessionCache implements ISessionManage
         Log.info("Restoring sessions from ", target.getAbsolutePath());
 
         if (target.exists()) {
-            final String xml = FileLoader.loadFileAsString(target, true);
+            final String xml = SessionFileLoader.loadFileAsString(target, true);
 
             try {
                 final XmlContent content = new XmlContent(xml, true, false);

@@ -1,8 +1,8 @@
 package dev.mathops.app.deploy;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.installation.Installation;
 import dev.mathops.core.installation.Installations;
 import dev.mathops.core.log.Log;
@@ -166,7 +166,7 @@ final class TestingAppBuilder {
      */
     private static void copyFile(final File source, final File targetDir) {
 
-        final byte[] bytes = FileLoader.loadFileAsBytes(source, true);
+        final byte[] bytes = AppFileLoader.loadFileAsBytes(source, true);
         if (bytes != null) {
             final File target = new File(targetDir, source.getName());
             try (final FileOutputStream out = new FileOutputStream(target)) {
@@ -219,7 +219,7 @@ final class TestingAppBuilder {
      */
     private static void appendFileDescriptor(final MessageDigest sha256, final HtmlBuilder xml, final File file) {
 
-        final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
+        final byte[] bytes = AppFileLoader.loadFileAsBytes(file, true);
         if (bytes != null) {
             final String hex = HexEncoder.encodeLowercase(sha256.digest(bytes));
             xml.addln("  <file name='", file.getName(), "' size='", Integer.toString(bytes.length), "' sha256='", hex,
@@ -494,7 +494,7 @@ final class TestingAppBuilder {
                     addFiles(rootDir, file, jar);
                 } else {
                     jar.putNextEntry(new ZipEntry(name));
-                    final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
+                    final byte[] bytes = AppFileLoader.loadFileAsBytes(file, true);
                     if (bytes == null) {
                         throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
                     }

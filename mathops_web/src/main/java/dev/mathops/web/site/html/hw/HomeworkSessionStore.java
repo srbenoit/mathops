@@ -9,7 +9,6 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.Attribute;
@@ -23,6 +22,7 @@ import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.ContextMap;
 import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -201,7 +201,7 @@ public final class HomeworkSessionStore {
             final File sourceXml = new File(dir, PERSIST_FILENAME_XML);
             if (sourceXml.exists()) {
                 Log.info("Restoring homework sessions from ", sourceXml.getAbsolutePath());
-                final String xml = FileLoader.loadFileAsString(sourceXml, true);
+                final String xml = WebFileLoader.loadFileAsString(sourceXml, true);
 
                 try {
                     final XmlContent content = new XmlContent(xml, false, false);

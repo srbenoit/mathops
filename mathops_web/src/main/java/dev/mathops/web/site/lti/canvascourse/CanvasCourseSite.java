@@ -1,11 +1,11 @@
 package dev.mathops.web.site.lti.canvascourse;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
+import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
@@ -85,9 +85,9 @@ public final class CanvasCourseSite extends CourseSite {
         Log.info("GET ", subpath);
 
         if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else if (subpath.startsWith("images/")) {

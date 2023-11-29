@@ -1,5 +1,6 @@
 package dev.mathops.app.teststation;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.FrameToFront;
 import dev.mathops.app.TempFileCleaner;
@@ -15,7 +16,6 @@ import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ChangeUI;
 import dev.mathops.core.ui.ColorNames;
@@ -1418,8 +1418,8 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         this.examError = null;
         this.grade = null;
 
-        final Properties skin =
-                FileLoader.loadFileAsProperties(TestStationApp.class, "ExamPanelSkin", new DefaultSkin(), false);
+        final Properties skin = AppFileLoader.loadFileAsProperties(TestStationApp.class, "ExamPanelSkin",
+                new DefaultSkin(), false);
 
         if (exam.examVersion.startsWith("30")) {
             skin.setProperty("bottom-bar-lbl", "I am finished.  Submit the quiz for grading.");

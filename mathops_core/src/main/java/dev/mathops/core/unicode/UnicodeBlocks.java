@@ -2,12 +2,9 @@ package dev.mathops.core.unicode;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.CoreFileLoader;
+import dev.mathops.core.log.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,27 +50,15 @@ public final class UnicodeBlocks {
      */
     private void loadBlocksFile() {
 
-        final String packageName = UnicodeBlocks.class.getPackage().getName();
-        final String path = packageName.replace('.', '/') + CoreConstants.SLASH
-                + FILENAME;
-
-        try (final InputStream input =
-                     Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {
-
-            if (input != null) {
-                try (final BufferedReader buf = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
-
-                    String line = buf.readLine();
-                    while (line != null) {
-                        if (!line.isEmpty() && line.charAt(0) != '#') {
-                            processLine(line);
-                        }
-
-                        line = buf.readLine();
-                    }
+        final String[] lines = CoreFileLoader.loadFileAsLines(getClass(), FILENAME, true);
+        try {
+            for (String line : lines) {
+                if (!line.isEmpty() && line.charAt(0) != '#') {
+                    processLine(line);
                 }
             }
-        } catch (final IOException | NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
+            Log.warning("Invalid block specification in ", FILENAME, ex);
             this.blocks.clear();
         }
     }

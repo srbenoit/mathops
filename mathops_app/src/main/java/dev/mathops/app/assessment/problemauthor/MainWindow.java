@@ -1,6 +1,6 @@
 package dev.mathops.app.assessment.problemauthor;
 
-import dev.mathops.core.file.FileLoader;
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.UIUtilities;
 
@@ -245,8 +245,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         pnlTab.add(new JLabel(title));
 
         JButton btnClose;
-        final byte[] icon = FileLoader.loadFileAsBytes(getClass(), //
-                "document-close-3.png", true);
+        final byte[] icon = AppFileLoader.loadFileAsBytes(getClass(), "document-close-3.png", true);
         if (icon == null) {
             btnClose = new JButton("x");
         } else {

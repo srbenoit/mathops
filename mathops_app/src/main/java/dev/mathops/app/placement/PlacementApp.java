@@ -1,5 +1,6 @@
 package dev.mathops.app.placement;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.exam.ExamContainerInt;
 import dev.mathops.app.exam.ExamPanel;
@@ -14,7 +15,6 @@ import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.Contexts;
@@ -1441,7 +1441,7 @@ final class ShowExamPanel implements Runnable {
     @Override
     public void run() {
 
-        final Properties skin = FileLoader.loadFileAsProperties(PlacementApp.class, "ExamPanelSkin",
+        final Properties skin = AppFileLoader.loadFileAsProperties(PlacementApp.class, "ExamPanelSkin",
                 new DefaultSkin(), false);
 
         final String stuId = this.app.getStudentId();

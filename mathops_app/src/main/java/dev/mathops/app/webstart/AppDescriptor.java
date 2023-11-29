@@ -1,8 +1,8 @@
 package dev.mathops.app.webstart;
 
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.HexEncoder;
 import dev.mathops.core.parser.ParsingException;
@@ -80,7 +80,7 @@ final class AppDescriptor {
 
         AppDescriptor result;
 
-        final String raw = FileLoader.loadFileAsString(xmlFile, false);
+        final String raw = AppFileLoader.loadFileAsString(xmlFile, false);
         if (raw == null) {
             Log.warning("Unable to load ", xmlFile.getAbsolutePath());
             result = null;
@@ -116,7 +116,7 @@ final class AppDescriptor {
         AppDescriptor result = null;
 
         try {
-            final byte[] preBytes = FileLoader.readStreamAsBytes(in);
+            final byte[] preBytes = AppFileLoader.readStreamAsBytes(in);
 
             if (preBytes == null) {
                 Log.warning("Unable to read from input stream");

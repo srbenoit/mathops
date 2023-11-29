@@ -1,6 +1,6 @@
 package dev.mathops.app.webstart;
 
-import dev.mathops.core.file.FileLoader;
+import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.HexEncoder;
 
@@ -159,7 +159,7 @@ final class FileDescriptorGen implements Runnable, ActionListener {
      */
     private void processFile(final File f) {
 
-        final byte[] bytes = FileLoader.loadFileAsBytes(f, true);
+        final byte[] bytes = AppFileLoader.loadFileAsBytes(f, true);
 
         try {
             final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
