@@ -32,6 +32,7 @@ import dev.mathops.web.site.placement.main.MathPlacementSite;
 import dev.mathops.web.site.proctoring.media.ProctoringMediaSite;
 import dev.mathops.web.site.proctoring.student.ProctoringSite;
 import dev.mathops.web.site.ramwork.RamWorkSite;
+import dev.mathops.web.site.reporting.ReportingSite;
 import dev.mathops.web.site.root.EmptyRootSite;
 import dev.mathops.web.site.root.PrecalcRootSite;
 import dev.mathops.web.site.testing.TestingCenterSite;
@@ -158,6 +159,7 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
+            add(map, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
         }

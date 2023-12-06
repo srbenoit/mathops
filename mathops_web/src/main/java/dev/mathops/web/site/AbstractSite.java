@@ -58,7 +58,7 @@ public abstract class AbstractSite {
 
     /** Characters valid in parameter strings. */
     private static final String VALID_PARAM_CHARS =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.,/~()[]!@#$%^&*:;?=+|\\ ";
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.,/~()[]!@#$%^&*:;?=+|\\ \t";
 
     /** Characters valid in file path parameter strings. */
     private static final String VALID_FILE_PARAM_CHARS =

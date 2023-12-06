@@ -35,13 +35,16 @@ import java.util.List;
 /**
  * Generates a report of placement results for incoming engineering students based on a list provided by Engineering.
  */
-final class PlacementReport {
+public final class PlacementReport {
 
     /** The name of files to generate ('.txt' and '.csv' extensions will be added). */
     private final String filename;
 
     /** The special_stus category used to select report population. */
     private final String category;
+
+    /** The list of student IDs on which to report. */
+    private final Collection<String> studentIds;
 
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
@@ -55,10 +58,28 @@ final class PlacementReport {
      * @param theFilename the name of files to generate ('.txt' and '.csv' extensions will be added)
      * @param theCategory the special_stus category used to select report population
      */
-    private PlacementReport(final String theFilename, final String theCategory) {
+    public PlacementReport(final String theFilename, final String theCategory) {
 
         this.filename = theFilename;
         this.category = theCategory;
+        this.studentIds = null;
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+    }
+
+    /**
+     * Constructs a new {@code PlacementReport}.
+     *
+     * @param theFilename the name of files to generate ('.txt' and '.csv' extensions will be added)
+     * @param theStudentIds the list of student IDs on which to report
+     */
+    public PlacementReport(final String theFilename, final Collection<String> theStudentIds) {
+
+        this.filename = theFilename;
+        this.category = null;
+        this.studentIds = theStudentIds;
 
         final ContextMap map = ContextMap.getDefaultInstance();
         this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
@@ -72,24 +93,7 @@ final class PlacementReport {
 
         final Collection<String> report = new ArrayList<>(10);
         final Collection<String> csv = new ArrayList<>(10);
-
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
-        } else {
-            try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report, csv);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                report.add("EXCEPTION: " + ex.getMessage());
-            }
-        }
+        generate(report, csv);
 
         final File file1 = new File("/opt/zircon/reports/" + this.filename + ".txt");
         try (final FileWriter fw = new FileWriter(file1, StandardCharsets.UTF_8)) {
@@ -115,45 +119,56 @@ final class PlacementReport {
     }
 
     /**
-     * Executes the query against the ODS and loads data into the primary schema.
-     *
-     * @param cache  the data cache
-     * @param report a list of strings to which to add report output lines
-     * @param csv    a list of strings to which to add tab-separated result records
-     * @throws SQLException if there is an error accessing the database
+     * Generates the report content.
+     * @param report a collection to which to add report lines
+     * @param csv a collection to which to add comma-separated values lines
      */
-    private void execute(final Cache cache, final Collection<? super String> report,
-                         final Collection<? super String> csv)
-            throws SQLException {
+    public void generate(final Collection<String> report, final Collection<String> csv) {
 
-        final LocalDate now = LocalDate.now();
+        if (this.dbProfile == null) {
+            Log.warning("Unable to create production context.");
+        } else if (this.primaryCtx == null) {
+            Log.warning("Unable to create PRIMARY database context.");
+        } else {
+            try {
+                final DbConnection conn = this.primaryCtx.checkOutConnection();
+                final Cache cache = new Cache(this.dbProfile, conn);
+                try {
+                    final LocalDate now = LocalDate.now();
 
-        report.add("                      ** C O N F I D E N T I A L **");
-        report.add("                        COLORADO STATE UNIVERSITY");
-        report.add("                        DEPARTMENT OF MATHEMATICS");
-        report.add("                      MATHEMATICS PLACEMENT RESULTS");
-        report.add("                         Report Date:   " + TemporalUtils.FMT_MDY.format(now));
-        report.add(CoreConstants.EMPTY);
-        report.add(CoreConstants.EMPTY);
-        report.add("NAME                  STUDENT ID  RESULTS");
-        report.add("---------------       ----------  ------------------------------------------");
+                    report.add("                      ** C O N F I D E N T I A L **");
+                    report.add("                        COLORADO STATE UNIVERSITY");
+                    report.add("                        DEPARTMENT OF MATHEMATICS");
+                    report.add("                      MATHEMATICS PLACEMENT RESULTS");
+                    report.add("                         Report Date:   " + TemporalUtils.FMT_MDY.format(now));
+                    report.add(CoreConstants.EMPTY);
+                    report.add(CoreConstants.EMPTY);
+                    report.add("NAME                  STUDENT ID  RESULTS");
+                    report.add("---------------       ----------  ------------------------------------------");
 
-        csv.add("NAME," //
-                + "STUDENT ID," //
-                + "ATTEMPTS," //
-                + "OK for 117/127," //
-                + "Out of 117," //
-                + "Out of 118," //
-                + "Out Of 124," //
-                + "Out Of 125," //
-                + "Out Of 126," //
-                + "Ready for 160");
+                    csv.add("Name," //
+                            + "Student ID," //
+                            + "MPT Attempts," //
+                            + "OK for 117/127," //
+                            + "Out of 117," //
+                            + "Out of 118," //
+                            + "Out Of 124," //
+                            + "Out Of 125," //
+                            + "Out Of 126," //
+                            + "Ready for 160");
 
-        // Get the list of students whose status to process (sorted by name)
-        final List<RawStudent> students = gatherStudents(cache);
+                    // Get the list of students whose status to process (sorted by name)
+                    final List<RawStudent> students = gatherStudents(cache);
 
-        for (final RawStudent stu : students) {
-            processStudent(stu, cache, report, csv);
+                    for (final RawStudent stu : students) {
+                        processStudent(stu, cache, report, csv);
+                    }
+                } finally {
+                    this.primaryCtx.checkInConnection(conn);
+                }
+            } catch (final SQLException ex) {
+                report.add("EXCEPTION: " + ex.getMessage());
+            }
         }
     }
 
@@ -320,16 +335,31 @@ final class PlacementReport {
      */
     private List<RawStudent> gatherStudents(final Cache cache) throws SQLException {
 
-        final LocalDate today = LocalDate.now();
-        final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByType(cache, this.category, today);
+        final List<RawStudent> students;
 
-        final List<RawStudent> students = new ArrayList<>(specials.size());
-        for (final RawSpecialStus spec : specials) {
-            final RawStudent stu = RawStudentLogic.query(cache, spec.stuId, false);
-            if (stu == null) {
-                Log.warning("Student ", spec.stuId, " exists in SPECIAL_STUS but not in STUDENT");
-            } else {
-                students.add(stu);
+        if (this.studentIds == null) {
+            final LocalDate today = LocalDate.now();
+            final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByType(cache, this.category, today);
+
+            students = new ArrayList<>(specials.size());
+            for (final RawSpecialStus spec : specials) {
+                final RawStudent stu = RawStudentLogic.query(cache, spec.stuId, false);
+                if (stu == null) {
+                    Log.warning("Student ", spec.stuId, " exists in SPECIAL_STUS but not in STUDENT");
+                } else {
+                    students.add(stu);
+                }
+            }
+        } else {
+            students = new ArrayList<>(this.studentIds.size());
+
+            for (final String id : this.studentIds) {
+                final RawStudent stu = RawStudentLogic.query(cache, id, false);
+                if (stu == null) {
+                    Log.warning("Student ", id, " was not found");
+                } else {
+                    students.add(stu);
+                }
             }
         }
 
