@@ -66,6 +66,9 @@ final class TestingAppBuilder {
     /** The lib directory under each project directory. */
     private static final String LIB_DIR = "lib";
 
+    /** Directory where project is stored. */
+    private final File projectDir;
+
     /** Directory where GIT projects are stored. */
     private File gitDir;
 
@@ -80,8 +83,10 @@ final class TestingAppBuilder {
      */
     private TestingAppBuilder() {
 
-        final String userHome = System.getProperty("user.home");
-        final File userDir = new File(userHome);
+        final File userDir = new File(System.getProperty("user.home"));
+        final File dev = new File(userDir, "dev");
+        final File idea = new File(dev, "IDEA");
+        this.projectDir = new File(idea, "mathops");
 
         this.gitDir = new File(new File(userDir, "dev"), "git");
         if (!this.gitDir.exists()) {
@@ -234,51 +239,60 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildBls8Jar() {
 
-        File coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        if (!coreDir.exists()) {
-            coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        }
+        final File core = new File(this.projectDir, "mathops_core");
+        final File coreRoot = new File(core, "build/classes/java/main");
+        final File coreClasses = new File(coreRoot, "dev/mathops/core");
 
-        File dbDir = new File(new File(this.gitDir, DB_DIR), DB_DIR);
-        if (!dbDir.exists()) {
-            dbDir = new File(new File(this.gitDir, DB_DIR), DB_DIR);
-        }
+        final File db = new File(this.projectDir, "mathops_db");
+        final File dbRoot = new File(db, "build/classes/java/main");
+        final File dbClasses = new File(dbRoot, "dev/mathops/db");
 
-        File mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        if (!mainDir.exists()) {
-            mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        }
+        final File font = new File(this.projectDir, "mathops_font");
+        final File fontRoot = new File(font, "build/classes/java/main");
+        final File fontClasses = new File(fontRoot, "dev/mathops/font");
 
-        File deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        if (!deployDir.exists()) {
-            deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        }
+        final File assessment = new File(this.projectDir, "mathops_assessment");
+        final File assessmentRoot = new File(assessment, "build/classes/java/main");
+        final File assessmentClasses = new File(assessmentRoot, "dev/mathops/assessment");
 
-        final File coreBin = new File(coreDir, BIN_DIR);
-        final File dbBin = new File(dbDir, BIN_DIR);
-        final File mainBin = new File(mainDir, BIN_DIR);
+        final File session = new File(this.projectDir, "mathops_session");
+        final File sessionRoot = new File(session, "build/classes/java/main");
+        final File sessionClasses = new File(sessionRoot, "dev/mathops/session");
 
-        final File deployLib = new File(deployDir, LIB_DIR);
+        final File app = new File(this.projectDir, "mathops_app");
+        final File appRoot = new File(app, "build/classes/java/main");
+        final File appClasses = new File(appRoot, "dev/mathops/app");
 
-        boolean success = checkDirectoriesExist(coreBin, dbBin, mainBin, deployLib);
+        final File jars = new File(this.projectDir, "jars");
+
+        boolean success = checkDirectoriesExist(coreClasses, dbClasses, fontClasses, assessmentClasses, sessionClasses,
+                appClasses, jars);
 
         if (success) {
 
-            try (final FileOutputStream out = new FileOutputStream(new File(deployLib, "bls8.jar"));
+            try (final FileOutputStream out = new FileOutputStream(new File(jars, "bls8.jar"));
                  final BufferedOutputStream bos = new BufferedOutputStream(out, 128 << 10);
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
 
-                // Ready to add files to the JAR...
-                Log.finest(Res.fmt(Res.ADDING_FILES, CORE_DIR), CoreConstants.CRLF);
-                addFiles(coreBin, coreBin, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
+                addFiles(coreRoot, coreClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, DB_DIR), CoreConstants.CRLF);
-                addFiles(dbBin, dbBin, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
+                addFiles(dbRoot, dbClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, MAIN_DIR), CoreConstants.CRLF);
-                addFiles(mainBin, mainBin, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
+                addFiles(fontRoot, fontClasses, jar);
+
+                Log.finest(Res.fmt(Res.ADDING_FILES, assessment), CoreConstants.CRLF);
+                addFiles(assessmentRoot, assessmentClasses, jar);
+
+                Log.finest(Res.fmt(Res.ADDING_FILES, session), CoreConstants.CRLF);
+                addFiles(sessionRoot, sessionClasses, jar);
+
+                Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
+                addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "bls8"), CoreConstants.CRLF);
@@ -299,47 +313,31 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildLaunchJar() {
 
-        File coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        if (!coreDir.exists()) {
-            coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        }
+        final File core = new File(this.projectDir, "mathops_core");
+        final File coreRoot = new File(core, "build/classes/java/main");
+        final File coreClasses = new File(coreRoot, "dev/mathops/core");
 
-        File mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        if (!mainDir.exists()) {
-            mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        }
+        final File app = new File(this.projectDir, "mathops_app");
+        final File appRoot = new File(app, "build/classes/java/main");
+        final File appClasses = new File(appRoot, "dev/mathops/app/webstart");
 
-        File deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        if (!deployDir.exists()) {
-            deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        }
+        final File jars = new File(this.projectDir, "jars");
 
-        final File coreBin = new File(coreDir, BIN_DIR);
-        final File mainBin = new File(mainDir, BIN_DIR);
-        final File mainBinEdu = new File(mainBin, "edu");
-        final File mainBinEduCol = new File(mainBinEdu, "colostate");
-        final File mainBinEduColMath = new File(mainBinEduCol, "math");
-        final File mainBinEduColMathApp = new File(mainBinEduColMath, "app");
-        final File mainBinWebstart = new File(mainBinEduColMathApp, "webstart");
-
-        final File deployLib = new File(deployDir, LIB_DIR);
-
-        boolean success = checkDirectoriesExist(coreBin, mainBin, deployLib);
+        boolean success = checkDirectoriesExist(coreClasses, appClasses, jars);
 
         if (success) {
 
-            try (final FileOutputStream out = new FileOutputStream(new File(deployLib, "launch.jar"));
+            try (final FileOutputStream out = new FileOutputStream(new File(jars, "launch.jar"));
                  final BufferedOutputStream bos = new BufferedOutputStream(out, 128 << 10);
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
 
-                // Ready to add files to the JAR...
-                Log.finest(Res.fmt(Res.ADDING_FILES, CORE_DIR), CoreConstants.CRLF);
-                addFiles(coreBin, coreBin, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
+                addFiles(coreRoot, coreClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, MAIN_DIR), CoreConstants.CRLF);
-                addFiles(mainBin, mainBinWebstart, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
+                addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "launch"), CoreConstants.CRLF);
@@ -360,48 +358,31 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildUpdaterJar() {
 
-        File coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        if (!coreDir.exists()) {
-            coreDir = new File(new File(this.gitDir, CORE_DIR), CORE_DIR);
-        }
+        final File core = new File(this.projectDir, "mathops_core");
+        final File coreRoot = new File(core, "build/classes/java/main");
+        final File coreClasses = new File(coreRoot, "dev/mathops/core");
 
-        File mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        if (!mainDir.exists()) {
-            mainDir = new File(new File(this.gitDir, MAIN_DIR), MAIN_DIR);
-        }
+        final File app = new File(this.projectDir, "mathops_app");
+        final File appRoot = new File(app, "build/classes/java/main");
+        final File appClasses = new File(appRoot, "dev/mathops/app/webstart");
 
-        File deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        if (!deployDir.exists()) {
-            deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-        }
+        final File jars = new File(this.projectDir, "jars");
 
-        final File coreBin = new File(coreDir, BIN_DIR);
-        final File mainBin = new File(mainDir, BIN_DIR);
-        final File mainBinEdu = new File(mainBin, "edu");
-        final File mainBinEduCol = new File(mainBinEdu, "colostate");
-        final File mainBinEduColMath = new File(mainBinEduCol, "math");
-        final File mainBinEduColMathApp = new File(mainBinEduColMath, "app");
-        final File mainBinWebstart = new File(mainBinEduColMathApp, "webstart");
-
-        final File deployLib = new File(deployDir, LIB_DIR);
-
-        boolean success = checkDirectoriesExist(coreBin, mainBin, deployLib);
+        boolean success = checkDirectoriesExist(coreClasses, appClasses, jars);
 
         if (success) {
 
-            try (final FileOutputStream out = new FileOutputStream(//
-                    new File(deployLib, "updater.jar"));
+            try (final FileOutputStream out = new FileOutputStream(new File(jars, "updater.jar"));
                  final BufferedOutputStream bos = new BufferedOutputStream(out, 128 << 10);
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
 
-                // Ready to add files to the JAR...
-                Log.finest(Res.fmt(Res.ADDING_FILES, CORE_DIR), CoreConstants.CRLF);
-                addFiles(coreBin, coreBin, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
+                addFiles(coreRoot, coreClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, MAIN_DIR), CoreConstants.CRLF);
-                addFiles(mainBin, mainBinWebstart, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
+                addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "updater"), CoreConstants.CRLF);
@@ -424,33 +405,28 @@ final class TestingAppBuilder {
      * @param jar     the jar output stream to which to add entries
      * @throws IOException if an exception occurs while writing
      */
-    private void addFiles(final File rootDir, final File dir, final JarOutputStream jar)
-            throws IOException {
+    private void addFiles(final File rootDir, final File dir, final JarOutputStream jar) throws IOException {
 
-        if (new File(dir, "bls_ignore.txt").exists()) {
-            Log.info("Ignoring ", dir.getAbsolutePath());
-        } else {
-            final int count = copyFiles(rootDir, dir, jar);
+        final int count = copyFiles(rootDir, dir, jar);
 
-            if (count > 0) {
-                // Build a log message with package name and number of files added
-                String pkgName = dir.getName();
+        if (count > 0) {
+            // Build a log message with package name and number of files added
+            String pkgName = dir.getName();
 
-                File temp = dir.getParentFile();
-                final StringBuilder builder = new StringBuilder(100);
+            File temp = dir.getParentFile();
+            final StringBuilder builder = new StringBuilder(100);
 
-                while (!temp.equals(rootDir)) {
-                    builder.append(temp.getName()).append('.').append(pkgName);
-                    pkgName = builder.toString();
-                    builder.setLength(0);
-                    temp = temp.getParentFile();
-                }
-
-                final HtmlBuilder msg = new HtmlBuilder(80);
-                msg.add(' ').add(pkgName).padToLength(55);
-                msg.addln(": ", Integer.toString(count), CoreConstants.SPC, Res.get(Res.FILES_COPIED));
-                Log.finest(msg.toString());
+            while (!temp.equals(rootDir)) {
+                builder.append(temp.getName()).append('.').append(pkgName);
+                pkgName = builder.toString();
+                builder.setLength(0);
+                temp = temp.getParentFile();
             }
+
+            final HtmlBuilder msg = new HtmlBuilder(80);
+            msg.add(' ').add(pkgName).padToLength(55);
+            msg.addln(": ", Integer.toString(count), CoreConstants.SPC, Res.get(Res.FILES_COPIED));
+            Log.finest(msg.toString());
         }
     }
 
@@ -472,7 +448,7 @@ final class TestingAppBuilder {
             for (final File file : files) {
 
                 String name = file.getName();
-                if ("package-info.class".equals(name) || "test".equals(name) || name.endsWith(".xlsx")) {
+                if ("package-info.class".equals(name) || name.endsWith(".xlsx")) {
                     continue;
                 }
 
@@ -547,8 +523,8 @@ final class TestingAppBuilder {
         htm.addln("Codebase: https://*.colostate.edu");
         htm.addln("Application-Library-Allowable-Codebase: *");
         htm.addln("Caller-Allowable-Codebase: *");
-        htm.addln("Created-By: AdminJarBuilder 1.0 (BLS)");
-        htm.addln("Main-Class: edu.colostate.math.db.app.adm.AdminApp");
+        htm.addln("Created-By: TestingAppBuilder 2.0");
+        htm.addln("Main-Class: dev.mathops.app.teststation.TestStationApp");
 
         jar.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
         final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);

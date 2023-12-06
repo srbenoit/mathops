@@ -2,7 +2,7 @@
 
 SET FQDN=jwabbit
 
-SET WORKING=C:\Users\benoit\dev\IDEA\mathcontainers
+SET WORKING=C:\Users\benoit\dev\IDEA\mathops
 SET BIN=%WORKING%\out\production\mathcontainers
 SET TEMP=C:\temp\jwabbittemp
 SET JAR=jar cfm

@@ -4,7 +4,14 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-jars/ROOT.*
+### Generated files ###
+/jars/ADMIN.jar
+/jars/bls8.jar
+/jars/jwabbit.jar
+/jars/launch.jar
+/jars/update.jar
+/jars/ROOT.jar
+/jars/ROOT.war
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

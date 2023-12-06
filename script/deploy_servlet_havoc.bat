@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET WORKING=C:\Users\benoit\dev\IDEA\mathcontainers
+SET WORKING=C:\Users\benoit\dev\IDEA\mathops
 SET JARS=%WORKING%\jars
 SET SCP=\bin\winscp /console
 SET HOST=online@havoc.math.colostate.edu

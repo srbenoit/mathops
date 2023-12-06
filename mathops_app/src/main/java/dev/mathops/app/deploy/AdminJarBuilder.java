@@ -107,7 +107,6 @@ final class AdminJarBuilder {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
             }
         }
-
     }
 
     /**
