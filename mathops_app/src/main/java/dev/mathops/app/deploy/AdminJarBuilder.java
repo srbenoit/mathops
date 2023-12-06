@@ -31,7 +31,7 @@ final class AdminJarBuilder {
         final File userDir = new File(System.getProperty("user.home"));
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
-        this.projectDir = new File(idea, "mathcontainers");
+        this.projectDir = new File(idea, "mathops");
     }
 
     /**
@@ -39,38 +39,37 @@ final class AdminJarBuilder {
      */
     private void build() {
 
-        final File core = new File(this.projectDir, "mathcontainers_core");
-        final File coreRoot = new File(core, "target/classes");
-        final File coreClasses = new File(coreRoot, "edu/colostate/math/containers/core");
+        final File core = new File(this.projectDir, "mathops_core");
+        final File coreRoot = new File(core, "build/classes/java/main");
+        final File coreClasses = new File(coreRoot, "dev/mathops/core");
 
-        final File db = new File(this.projectDir, "mathcontainers_db");
-        final File dbRoot = new File(db, "target/classes");
-        final File dbClasses = new File(dbRoot, "edu/colostate/math/containers/db");
+        final File db = new File(this.projectDir, "mathops_db");
+        final File dbRoot = new File(db, "build/classes/java/main");
+        final File dbClasses = new File(dbRoot, "dev/mathops/db");
 
-        final File dbapp = new File(this.projectDir, "mathcontainers_dbapp");
-        final File dbappRoot = new File(dbapp, "target/classes");
-        final File dbappClasses1 = new File(dbappRoot, "edu/colostate/math/containers/dbapp/batch");
-        final File dbappClasses2 = new File(dbappRoot, "edu/colostate/math/containers/dbapp/report");
+        final File dbjobs = new File(this.projectDir, "mathops_dbjobs");
+        final File dbjobsRoot = new File(dbjobs, "build/classes/java/main");
+        final File dbjobsClasses1 = new File(dbjobsRoot, "dev/mathops/dbjobs");
 
-        final File font = new File(this.projectDir, "mathcontainers_font");
-        final File fontRoot = new File(font, "target/classes");
-        final File fontClasses = new File(fontRoot, "edu/colostate/math/containers/font");
+        final File font = new File(this.projectDir, "mathops_font");
+        final File fontRoot = new File(font, "build/classes/java/main");
+        final File fontClasses = new File(fontRoot, "dev/mathops/font");
 
-        final File assessment = new File(this.projectDir, "mathcontainers_assessment");
-        final File assessmentRoot = new File(assessment, "target/classes");
-        final File assessmentClasses = new File(assessmentRoot, "edu/colostate/math/containers/assessment");
+        final File assessment = new File(this.projectDir, "mathops_assessment");
+        final File assessmentRoot = new File(assessment, "build/classes/java/main");
+        final File assessmentClasses = new File(assessmentRoot, "dev/mathops/assessment");
 
-        final File session = new File(this.projectDir, "mathcontainers_session");
-        final File sessionRoot = new File(session, "target/classes");
-        final File sessionClasses = new File(sessionRoot, "edu/colostate/math/containers/session");
+        final File session = new File(this.projectDir, "mathops_session");
+        final File sessionRoot = new File(session, "build/classes/java/main");
+        final File sessionClasses = new File(sessionRoot, "dev/mathops/session");
 
-        final File app = new File(this.projectDir, "mathcontainers_app");
-        final File appRoot = new File(app, "target/classes");
-        final File appClasses = new File(appRoot, "edu/colostate/math/containers/app");
+        final File app = new File(this.projectDir, "mathops_app");
+        final File appRoot = new File(app, "build/classes/java/main");
+        final File appClasses = new File(appRoot, "dev/mathops/app");
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbappClasses1, dbappClasses2, fontClasses,
+        boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbjobsClasses1, fontClasses,
                 assessmentClasses, sessionClasses, appClasses, jars);
 
         if (success) {
@@ -86,9 +85,8 @@ final class AdminJarBuilder {
                 Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, dbapp), CoreConstants.CRLF);
-                addFiles(dbappRoot, dbappClasses1, jar);
-                addFiles(dbappRoot, dbappClasses2, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, dbjobs), CoreConstants.CRLF);
+                addFiles(dbjobsRoot, dbjobsClasses1, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);
