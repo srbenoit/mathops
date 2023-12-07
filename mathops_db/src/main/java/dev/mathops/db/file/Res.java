@@ -40,16 +40,16 @@ final class Res extends ResBundle {
         super(Locale.US, EN_US);
     }
 
-    /**
-     * Gets the message with a specified key using the current locale.
-     *
-     * @param key the message key
-     * @return the best-matching message, an empty string if none is registered (never {@code null})
-     */
-    static String get(final String key) {
-
-        return instance.getMsg(key);
-    }
+//    /**
+//     * Gets the message with a specified key using the current locale.
+//     *
+//     * @param key the message key
+//     * @return the best-matching message, an empty string if none is registered (never {@code null})
+//     */
+//    static String get(final String key) {
+//
+//        return instance.getMsg(key);
+//    }
 
     /**
      * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with

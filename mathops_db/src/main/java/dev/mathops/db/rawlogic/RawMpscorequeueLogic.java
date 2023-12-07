@@ -589,7 +589,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      *
      * @param liveConn the LIVE database connection, checked out to this thread
      * @param pidm     the student's PIDM
-     * @return the list of all records; null if the query failed
+     * @return the list of all records; empty if the query failed
      * @throws SQLException if there is an error accessing the database
      */
     public static List<RawMpscorequeue> querySORTESTByStudent(final DbConnection liveConn,
