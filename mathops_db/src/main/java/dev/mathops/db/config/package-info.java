@@ -1,6 +1,4 @@
 /**
  * Classes that represent database configurations that are used by the system to connect to database servers.
- *
- * This is an older version - the current version is under the ".config" package.
  */
-package dev.mathops.db.cfg;
+package dev.mathops.db.config;

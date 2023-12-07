@@ -5,7 +5,7 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.ContextMap;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;

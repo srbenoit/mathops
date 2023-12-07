@@ -6,7 +6,7 @@ import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.file.WebFileLoader;

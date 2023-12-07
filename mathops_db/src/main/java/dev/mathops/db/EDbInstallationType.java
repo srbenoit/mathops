@@ -1,7 +1,7 @@
-package dev.mathops.db.cfg;
+package dev.mathops.db;
 
 /**
- * Enumeration of supported JDBC server types.
+ * Enumeration of supported server installation types.
  */
 public enum EDbInstallationType {
 
@@ -15,13 +15,16 @@ public enum EDbInstallationType {
     POSTGRESQL("PostgreSQL"),
 
     /** The MySQL database. */
-    MYSQL("MySQL");
+    MYSQL("MySQL"),
+
+    /** The Apache Cassandra database. */
+    CASSANDRA("Cassandra");
 
     /** The type name. */
     public final String name;
 
     /**
-     * Constructs a new {@code EServerType}.
+     * Constructs a new {@code EDbInstallationType}.
      *
      * @param theName the type name
      */
@@ -42,10 +45,10 @@ public enum EDbInstallationType {
     }
 
     /**
-     * Returns the {@code EServerType} that corresponds to a name. Name comparison is case-insensitive.
+     * Returns the {@code EDbInstallationType} that corresponds to a name. Name comparison is case-insensitive.
      *
      * @param name the name
-     * @return the matching {@code EServerType}; {@code null} if none matches
+     * @return the matching {@code EDbInstallationType}; {@code null} if none matches
      */
     public static EDbInstallationType forName(final String name) {
 

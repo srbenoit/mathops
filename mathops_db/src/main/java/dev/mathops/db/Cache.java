@@ -3,7 +3,6 @@ package dev.mathops.db;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.cfg.DbConfig;
 import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.cfg.EDbInstallationType;
 import dev.mathops.db.cfg.EDbUse;
 import dev.mathops.db.cfg.ESchemaUse;
 import dev.mathops.db.rec.RecBase;

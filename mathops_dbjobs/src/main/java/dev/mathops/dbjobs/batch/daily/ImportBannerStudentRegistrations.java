@@ -1,7 +1,6 @@
 package dev.mathops.dbjobs.batch.daily;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;

@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.xml.IElement;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 
 import java.util.Objects;
 

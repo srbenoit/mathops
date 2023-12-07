@@ -7,6 +7,7 @@ import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
+import dev.mathops.db.EDbInstallationType;
 
 import java.util.ArrayList;
 import java.util.Collections;

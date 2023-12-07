@@ -3,7 +3,7 @@ package dev.mathops.db.reclogic.iface;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.DbConfig;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.cfg.ESchemaUse;
 import dev.mathops.db.rec.RecBase;
 

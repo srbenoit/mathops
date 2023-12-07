@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;

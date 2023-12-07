@@ -3,7 +3,7 @@ package dev.mathops.db.reclogic;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.rec.StandardMilestoneRec;
 import dev.mathops.db.reclogic.iface.IInformixRecLogic;
 import dev.mathops.db.reclogic.iface.IPostgresRecLogic;

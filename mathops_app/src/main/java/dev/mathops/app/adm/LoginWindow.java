@@ -11,7 +11,7 @@ import dev.mathops.db.DbContext;
 import dev.mathops.db.cfg.ContextMap;
 import dev.mathops.db.cfg.DbConfig;
 import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.cfg.EDbInstallationType;
+import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.cfg.EDbUse;
 import dev.mathops.db.cfg.ESchemaUse;
 import dev.mathops.db.cfg.LoginConfig;

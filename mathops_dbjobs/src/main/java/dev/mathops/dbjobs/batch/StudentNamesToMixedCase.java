@@ -1,6 +1,5 @@
 package dev.mathops.dbjobs.batch;
 
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
