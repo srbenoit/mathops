@@ -6,6 +6,7 @@ import dev.mathops.core.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.rawrecord.RawSpecialStus;
+import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
 import dev.mathops.dbjobs.report.cron.PlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -129,14 +130,12 @@ enum PagePlacementByCategory {
 
                 final Collection<String> report = new ArrayList<>(10);
                 final Collection<String> csv = new ArrayList<>(10);
-                final PlacementReport job = new PlacementReport(CoreConstants.EMPTY, specialType);
+                final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(specialType);
                 job.generate(report, csv);
 
-                htm.sP().addln("<pre>");
                 for (final String rep : report) {
                     htm.addln(rep);
                 }
-                htm.addln("</pre>").eP();
             }
 
             Page.endOrdinaryPage(cache, site, htm, true);
@@ -179,7 +178,7 @@ enum PagePlacementByCategory {
             } else {
                 final Collection<String> report = new ArrayList<>(10);
                 final Collection<String> csv = new ArrayList<>(10);
-                final PlacementReport job2 = new PlacementReport(CoreConstants.EMPTY, specialType);
+                final HtmlCsvPlacementReport job2 = new HtmlCsvPlacementReport(specialType);
                 job2.generate(report, csv);
 
                 final HtmlBuilder csvData = new HtmlBuilder(2000);

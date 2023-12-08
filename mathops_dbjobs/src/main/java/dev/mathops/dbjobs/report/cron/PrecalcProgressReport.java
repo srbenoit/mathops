@@ -54,6 +54,9 @@ public final class PrecalcProgressReport {
     /** The sub-header text for the report. */
     private final String subheader;
 
+    /** The list of student IDs on which to report. */
+    private final Collection<String> studentIds;
+
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
 
@@ -73,9 +76,28 @@ public final class PrecalcProgressReport {
         this.filename = theFilename;
         this.category = theCategory;
         this.subheader = theSubheader;
+        this.studentIds = null;
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
+        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+    }
+
+    /**
+     * Constructs a new {@code PrecalcProgressReport}.
+     *
+     * @param theFilename the name of files to generate ('.txt' and '.csv' extensions will be added)
+     * @param theStudentIds the list of student IDs on which to report
+     */
+    public PrecalcProgressReport(final String theFilename, final Collection<String> theStudentIds) {
+
+        this.filename = theFilename;
+        this.category = null;;
+        this.subheader = null;
+        this.studentIds = theStudentIds;
+
+        final ContextMap map = ContextMap.getDefaultInstance();
         this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
         this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
     }

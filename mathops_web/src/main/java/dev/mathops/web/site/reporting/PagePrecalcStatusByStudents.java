@@ -3,7 +3,7 @@ package dev.mathops.web.site.reporting;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
-import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
+import dev.mathops.dbjobs.report.HtmlCsvCourseProgressReport;
 import dev.mathops.dbjobs.report.cron.PlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Generates the page to select and generate Math Placement reports by list of student IDs.
+ * Generates the page to select and generate Precalculus Course progress reports by lists of student ID.
  */
-enum PagePlacementByStudents {
+enum PagePrecalcStatusByStudents {
     ;
 
     /**
@@ -72,9 +72,9 @@ enum PagePlacementByStudents {
         htm.sDiv().add("<a href='home.html'>Home</a>").eDiv();
         htm.hr();
 
-        htm.sH(3).add("Math Placement progress for specified students").eH(3);
+        htm.sH(3).add("Precalculus Course progress for specified students").eH(3);
 
-        htm.add("<form action='placement_by_students.html' method='POST'>");
+        htm.add("<form action='precalc_by_students.html' method='POST'>");
 
         htm.sP().add("Paste a list of CSU ID numbers into the box below.  IDs can be separated by spaces, tabs, ",
                 "commas, line-feeds, or any combination of these.").eP();
@@ -96,7 +96,8 @@ enum PagePlacementByStudents {
 
             final Collection<String> report = new ArrayList<>(10);
             final Collection<String> csv = new ArrayList<>(10);
-            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds);
+            final HtmlCsvCourseProgressReport job = new HtmlCsvCourseProgressReport(studentIds, null,
+                    "Status for a provided list of student IDs");
             job.generate(report, csv);
 
             for (final String rep : report) {
@@ -125,7 +126,8 @@ enum PagePlacementByStudents {
 
             final Collection<String> report = new ArrayList<>(10);
             final Collection<String> csv = new ArrayList<>(10);
-            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds);
+            final HtmlCsvCourseProgressReport job = new HtmlCsvCourseProgressReport(studentIds, null,
+                    "Status for a provided list of student IDs");
             job.generate(report, csv);
 
             final HtmlBuilder csvData = new HtmlBuilder(2000);

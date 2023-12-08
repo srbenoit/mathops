@@ -290,7 +290,7 @@ div#maincontent {
   min-height:180px;
 }
 
-.container, .layer, .layermax, .layertabbed {
+.container, .layer, .layeru, .layermax, .layertabbed {
   margin: 0 auto;
   min-width:308px;
 } 
@@ -303,37 +303,37 @@ div#maincontent {
 @media (min-width: 320px) {
   .container { margin: 0 auto;
                max-width: 320px; }
-  .layer { max-width: 320px; }
+  .layer, .layeru { max-width: 320px; }
   .layermax { max-width: 320px; }
 }
 @media (min-width: 400px) {
   .container { max-width: 370px; }
-  .layer { max-width: 370px; }
+  .layer, .layeru { max-width: 370px; }
   .layermax { max-width: 370px; }
 }
 @media (min-width: 500px) {
   .container { max-width: 470px; }
-  .layer { max-width: 470px; }
+  .layer, .layeru { max-width: 470px; }
   .layermax { max-width: 470px; }
 }
 @media (min-width: 600px) {
   .container { max-width: 560px; }
-  .layer { max-width: 560px; }
+  .layer, .layeru { max-width: 560px; }
   .layermax { max-width: 560px; }
 }
 @media (min-width: 700px) {
   .container { max-width: 680px; }
-  .layer { max-width: 680px; }
+  .layer, .layeru { max-width: 680px; }
   .layermax { max-width: 680px; }
 }
 @media (min-width: 800px) {
   .container { max-width: 780px; }
-  .layer { max-width: 780px; }
+  .layer, .layeru { max-width: 780px; }
   .layermax { max-width: 780px; }
 }
 @media (min-width: 900px) {
   .container { max-width: 840px; }
-  .layer { max-width: 840px; }
+  .layer, .layeru { max-width: 840px; }
   .layermax { max-width: 840px; }
 }
 @media (min-width: 950px) { 
@@ -341,7 +341,7 @@ div#maincontent {
 }
 @media (min-width: 1000px) {
   .container { max-width: 920px; }
-  .layer { max-width: 920px; }
+  .layer, .layeru { max-width: 920px; }
   .layermax { max-width: 960px; }
 }
 @media (min-width: 1050px) { 
@@ -355,7 +355,7 @@ div#maincontent {
 }
 @media (min-width: 1200px) {
   .container { max-width: 1100px; }
-  .layer { max-width: 1100px; }
+  .layer, .layeru { max-width: 1100px; }
   .layermax { max-width: 1160px; }
 }
 @media (min-width: 1250px) { 
