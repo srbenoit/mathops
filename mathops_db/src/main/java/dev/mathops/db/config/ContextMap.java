@@ -82,14 +82,17 @@ public final class ContextMap {
     /** List of servers. */
     private final List<ServerConfig> servers;
 
+    /** Map from DBA profile configuration ID to the configuration object. */
+    private final Map<String, DbaProfile> dbaProfiles;
+
     /** Map from data profile configuration ID to the configuration object. */
-    private final Map<String, DataProfileConfig> profiles;
+    private final Map<String, DataProfile> dataProfiles;
 
     /** Map from hostname to a map from path to website profile for web contexts. */
     private final Map<String, Map<String, WebSiteProfile>> webContexts;
 
     /** Map from context ID to profile for code contexts. */
-    private final Map<String, DataProfileConfig> codeContexts;
+    private final Map<String, DataProfile> codeContexts;
 
     static {
         INSTANCES = new TreeMap<>();
@@ -106,7 +109,8 @@ public final class ContextMap {
 
         this.servers = new ArrayList<>(10);
         this.logins = new HashMap<>(10);
-        this.profiles = new HashMap<>(10);
+        this.dbaProfiles = new HashMap<>(10);
+        this.dataProfiles = new HashMap<>(10);
         this.webContexts = new HashMap<>(10);
         this.codeContexts = new HashMap<>(10);
     }
@@ -133,12 +137,20 @@ public final class ContextMap {
                         final ServerConfig server = new ServerConfig(this.logins, innerElem);
                         this.servers.add(server);
                     }
-                    case DataProfileConfig.ELEM_TAG -> {
-                        final DataProfileConfig dataProfile = new DataProfileConfig(this.logins, innerElem);
-                        if (this.profiles.containsKey(dataProfile.id)) {
+                    case DbaProfile.ELEM_TAG -> {
+                        final DbaProfile dbaProfile = new DbaProfile(this.logins, innerElem);
+                        if (this.dbaProfiles.containsKey(dbaProfile.id)) {
+                            Log.warning("Duplicated DBA profile ID: " + dbaProfile.id);
+                        } else {
+                            this.dbaProfiles.put(dbaProfile.id, dbaProfile);
+                        }
+                    }
+                    case DataProfile.ELEM_TAG -> {
+                        final DataProfile dataProfile = new DataProfile(this.logins, innerElem);
+                        if (this.dataProfiles.containsKey(dataProfile.id)) {
                             Log.warning("Duplicated data profile ID: " + dataProfile.id);
                         } else {
-                            this.profiles.put(dataProfile.id, dataProfile);
+                            this.dataProfiles.put(dataProfile.id, dataProfile);
                         }
                     }
                     case WEB_TAG -> processWebNode(innerElem);
@@ -201,7 +213,7 @@ public final class ContextMap {
 
             final String profile = elem.getRequiredStringAttr(PROFILE_ATTR);
 
-            final DataProfileConfig cfg = this.profiles.get(profile);
+            final DataProfile cfg = this.dataProfiles.get(profile);
             if (cfg == null) {
                 throw new ParsingException(elem.getStart(), elem.getEnd(),
                         Res.fmt(Res.CTX_MAP_BAD_SITE_PROFILE, profile));
@@ -232,7 +244,7 @@ public final class ContextMap {
 
         final String profile = elem.getRequiredStringAttr(PROFILE_ATTR);
 
-        final DataProfileConfig cfg = this.profiles.get(profile);
+        final DataProfile cfg = this.dataProfiles.get(profile);
         if (cfg == null) {
             throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.CTX_MAP_BAD_CODE_PROFILE, profile));
         }
@@ -383,14 +395,39 @@ public final class ContextMap {
     }
 
     /**
+     * Gets the list of DBA profile IDs in the context map.
+     *
+     * @return the array of data profile IDs
+     */
+    public String[] getDbaProfileIDs() {
+
+        synchronized (this.synch) {
+            return this.dbaProfiles.keySet().toArray(EMPTY_STRING_ARRAY);
+        }
+    }
+
+    /**
+     * Gets the DBA profile with a particular ID from the context map.
+     *
+     * @param id the ID of the DBA profile to retrieve
+     * @return the DBA profile, or {@code null} if there was no DBA profile with the given ID
+     */
+    private DbaProfile getDbaProfile(final String id) {
+
+        synchronized (this.synch) {
+            return this.dbaProfiles.get(id);
+        }
+    }
+
+    /**
      * Gets the list of data profile IDs in the context map.
      *
      * @return the array of data profile IDs
      */
-    public String[] getProfileIDs() {
+    public String[] getDataProfileIDs() {
 
         synchronized (this.synch) {
-            return this.profiles.keySet().toArray(EMPTY_STRING_ARRAY);
+            return this.dataProfiles.keySet().toArray(EMPTY_STRING_ARRAY);
         }
     }
 
@@ -398,12 +435,12 @@ public final class ContextMap {
      * Gets the data profile with a particular ID from the context map.
      *
      * @param id the ID of the data profile to retrieve
-     * @return the data profile, or {@code null} if there was no profile with the given ID
+     * @return the data profile, or {@code null} if there was no data profile with the given ID
      */
-    private DataProfileConfig getProfile(final String id) {
+    private DataProfile getDataProfile(final String id) {
 
         synchronized (this.synch) {
-            return this.profiles.get(id);
+            return this.dataProfiles.get(id);
         }
     }
 
@@ -465,7 +502,7 @@ public final class ContextMap {
      * @param id the code context ID
      * @return the profile configuration (null if not found)
      */
-    public DataProfileConfig getCodeProfile(final String id) {
+    public DataProfile getCodeProfile(final String id) {
 
         synchronized (this.synch) {
             return this.codeContexts.get(id);
@@ -494,8 +531,8 @@ public final class ContextMap {
         builder.addln();
 
         builder.addln("PROFILES:");
-        for (final String id : map.getProfileIDs()) {
-            builder.addln("  ", map.getProfile(id).toString());
+        for (final String id : map.getDataProfileIDs()) {
+            builder.addln("  ", map.getDataProfile(id).toString());
         }
         builder.addln();
 

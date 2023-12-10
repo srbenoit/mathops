@@ -8,7 +8,9 @@ import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
+import dev.mathops.db.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.JdbcGeneralConnection;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -187,25 +189,26 @@ public final class ServerConfig {
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    Connection openConnection(final String theUser, final String thePassword) throws SQLException {
+    AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
 
-        // FIXME: Abstract out the "Connection" and make this more general to support things like Cassandra/Redis
         try {
             final String url = buildJdbcUrl(theUser, thePassword);
 
             final Properties props = new Properties();
 
-            final Connection conn;
+            final AbstractGeneralConnection conn;
 
             if (this.type == EDbInstallationType.INFORMIX) {
                 props.setProperty("CLIENT_LOCALE", "EN_US.8859-1");
-                conn = DriverManager.getConnection(url, props);
+                conn = new JdbcGeneralConnection(DriverManager.getConnection(url, props));
             } else {
                 // Log.info("Connect URL is " + url);
-                conn = DriverManager.getConnection(url);
+                conn = new JdbcGeneralConnection(DriverManager.getConnection(url));
             }
 
-            Log.info("Connected to ", this.id, CoreConstants.SPC, conn.getMetaData().getDatabaseProductName());
+            // TODO: Add non-JDBC connections for non-JDBC database products
+
+            Log.info("Connected to ", this.id, CoreConstants.SPC, conn.getDatabaseProductName());
 
             return conn;
         } catch (final SQLException | IllegalArgumentException ex) {

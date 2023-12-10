@@ -8,13 +8,16 @@ import java.util.Arrays;
  * An immutable definition of a database table, which stores any number of records.  The table definition specifies an
  * ordered list of typed fields with possible constraints.
  */
-public final class Table {
+public class Table {
 
     /** Valid characters to start a table name. */
     private static final String VALID_NAME_START = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /** Valid characters in table names. */
     private static final String VALID_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789";
+
+    /** The schema name. */
+    private final String schema;
 
     /** The table name. */
     private final String name;
@@ -25,11 +28,15 @@ public final class Table {
     /**
      * Constructs a new {@code Table}.
      *
+     * @param theSchema the schema name
      * @param theName the table name
      * @param theFields the ordered list of fields
      */
-    public Table(final String theName, final Field... theFields) {
+    protected Table(final String theSchema, final String theName, final Field... theFields) {
 
+        if (theSchema == null || theSchema.isBlank()) {
+            throw new IllegalArgumentException("Schema name may not be null or blank");
+        }
         if (theName == null || theName.isBlank()) {
             throw new IllegalArgumentException("Table name may not be null or blank");
         }
@@ -55,8 +62,19 @@ public final class Table {
             }
         }
 
+        this.schema = theSchema;
         this.name = theName;
         this.fields = theFields.clone();
+    }
+
+    /**
+     * Gets the schema name.
+     *
+     * @return the schema name
+     */
+    public final String getSchema() {
+
+        return this.schema;
     }
 
     /**
@@ -64,7 +82,7 @@ public final class Table {
      *
      * @return the table name
      */
-    public String getName() {
+    public final String getName() {
 
         return this.name;
     }
@@ -74,7 +92,7 @@ public final class Table {
      *
      * @return the number of fields
      */
-    int getNumFields() {
+    final int getNumFields() {
 
         return this.fields.length;
     }
@@ -85,7 +103,7 @@ public final class Table {
      * @param index the zero-based index of the field
      * @return the field definition
      */
-    Field getField(final int index) {
+    final Field getField(final int index) {
 
         return this.fields[index];
     }
@@ -96,7 +114,7 @@ public final class Table {
      * @return the string representation
      */
     @Override
-    public String toString() {
+    public final String toString() {
 
         final String fieldsStr = Arrays.toString(this.fields);
 

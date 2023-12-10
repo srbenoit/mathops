@@ -3,6 +3,7 @@ package dev.mathops.db.config;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
+import dev.mathops.db.AbstractGeneralConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -92,7 +93,7 @@ public final class LoginConfig {
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    public Connection openConnection(final String theUser, final String thePassword) throws SQLException {
+    public AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
 
         return this.server.openConnection(theUser, thePassword);
     }
@@ -103,7 +104,7 @@ public final class LoginConfig {
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    public Connection openConnection() throws SQLException {
+    public AbstractGeneralConnection openConnection() throws SQLException {
 
         return this.server.openConnection(this.user, this.password);
     }

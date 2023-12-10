@@ -22,7 +22,7 @@ import java.util.Map;
  * &lt;/data-profile&gt;
  * </pre>
  */
-public final class DataProfileConfig implements Comparable<DataProfileConfig> {
+public final class DataProfile implements Comparable<DataProfile> {
 
     /** The element tag used in the XML representation of the configuration. */
     static final String ELEM_TAG = "data-profile";
@@ -46,25 +46,25 @@ public final class DataProfileConfig implements Comparable<DataProfileConfig> {
     private final EnumMap<ESchemaType, LoginConfig> schemaLogins;
 
     /**
-     * Constructs a new {@code DbProfile}.
+     * Constructs a new {@code DataProfile}.
      *
      * @param theId         the profile ID
      * @param theSchemaLogins a map from schema ID to database context
      */
-    public DataProfileConfig(final String theId, final Map<ESchemaType, LoginConfig> theSchemaLogins) {
+    public DataProfile(final String theId, final Map<ESchemaType, LoginConfig> theSchemaLogins) {
 
         this.id = theId;
         this.schemaLogins = new EnumMap<>(theSchemaLogins);
     }
 
     /**
-     * Constructs a new {@code DataProfileConfig} from its XML representation.
+     * Constructs a new {@code DataProfile} from its XML representation.
      *
      * @param theLoginMap  the login map
      * @param theElem      the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    DataProfileConfig(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem)
+    DataProfile(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem)
             throws ParsingException {
 
         if (ELEM_TAG.equals(theElem.getTagName())) {
@@ -129,7 +129,7 @@ public final class DataProfileConfig implements Comparable<DataProfileConfig> {
     }
 
     /**
-     * Tests whether this {@code ServerConfig} is equal to another object. To be equal, the other object must be a
+     * Tests whether this {@code DataProfile} is equal to another object. To be equal, the other object must be a
      * {@code ServerConfig} and must have the same type, host, port, and name.
      *
      * @param obj the object against which to compare this object for equality
@@ -140,7 +140,7 @@ public final class DataProfileConfig implements Comparable<DataProfileConfig> {
 
         final boolean equal;
 
-        if (obj instanceof final DataProfileConfig test) {
+        if (obj instanceof final DataProfile test) {
             equal = test.id.equals(this.id) && test.schemaLogins.equals(this.schemaLogins);
         } else {
             equal = false;
@@ -177,7 +177,7 @@ public final class DataProfileConfig implements Comparable<DataProfileConfig> {
      * @param o the other profile to which to compare
      */
     @Override
-    public int compareTo(final DataProfileConfig o) {
+    public int compareTo(final DataProfile o) {
 
         return this.id.compareTo(o.id);
     }

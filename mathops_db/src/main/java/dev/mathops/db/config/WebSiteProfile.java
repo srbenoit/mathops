@@ -23,7 +23,7 @@ public final class WebSiteProfile {
     public final String path;
 
     /** The data profile. */
-    public final DataProfileConfig dataProfile;
+    public final DataProfile dataProfile;
 
     /**
      * Constructs a new {@code WebSiteProfile}.
@@ -33,7 +33,7 @@ public final class WebSiteProfile {
      * @param theDataProfile the data profile
      * @throws IllegalArgumentException if any argument is null
      */
-    WebSiteProfile(final String theHost, final String thePath, final DataProfileConfig theDataProfile) {
+    WebSiteProfile(final String theHost, final String thePath, final DataProfile theDataProfile) {
 
         if (theHost == null) {
             throw new IllegalArgumentException("Host may not be null");

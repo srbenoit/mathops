@@ -9,9 +9,11 @@
  * record objects.
  *
  * <p>
- * In this context, a "table" is an immutable object defined by a unique name plus a map from a string field name to
- * field definition.  A field definition consists of the field's data type, type-specific constraints, the field's
- * nullability, and the field's role within records: primary key, sort key, or datum.
+ * In this context, a "table" is an immutable object defined within a named "schema" by a unique table name plus a list
+ * of field definitions.  A field definition consists of the field's data type, type-specific constraints, the field's
+ * nullability, and the field's role within records: primary key, sort key, or datum.  Schemas are logical partitioning
+ * of sets of tables; for databases that support schemas, they can be used directly, and for those that do not, the
+ * tuple of schema name and table name can be used as a unique name under which to store table data.
  *
  * <p>
  * A "record" is an immutable object that consists of a reference to a table plus a map from that table's field
@@ -19,13 +21,11 @@
  * text format.
  *
  * <p>
- * There will also exist "query criteria" objects with the same structure as "record" objects, but that are only
- * populated with the field values on which to match, and which may contain operators like "greater than", "less than",
- * "between", etc.
+ * A "query criteria" object specifies a list of field constraints that can be used to generate a "WHERE" clause of an
+ * SQL statement, or the equivalent for non-SQL databases.
  *
  * <p>
- * Finally, there will exist "updated values" objects, with the same structure as "record" objects to carry new values
- * for update operations.
+ * Finally, an "updated values" object carries new values for update operations.
  *
  * <p>
  * A particular implementation, specific to a database product and table structure, will have a single implementation
