@@ -1,5 +1,9 @@
 package dev.mathops.db.generalized;
 
+import dev.mathops.core.builder.SimpleBuilder;
+
+import java.util.Arrays;
+
 /**
  * An immutable definition of a database table, which stores any number of records.  The table definition specifies an
  * ordered list of typed fields with possible constraints.
@@ -32,12 +36,12 @@ public final class Table {
 
         final int len = theName.length();
         final char ch1 = theName.charAt(0);
-        if (VALID_NAME_START.indexOf(ch1) == -1) {
+        if (VALID_NAME_START.indexOf((int) ch1) == -1) {
             throw new IllegalArgumentException("Invalid character at start of table name.");
         }
         for (int i = 1; i < len; ++i) {
             final char ch2 = theName.charAt(i);
-            if (VALID_NAME_CHARS.indexOf(ch2) == -1) {
+            if (VALID_NAME_CHARS.indexOf((int) ch2) == -1) {
                 throw new IllegalArgumentException("Invalid character within table name.");
             }
         }
@@ -70,7 +74,7 @@ public final class Table {
      *
      * @return the number of fields
      */
-    public int getNumFields() {
+    int getNumFields() {
 
         return this.fields.length;
     }
@@ -81,8 +85,21 @@ public final class Table {
      * @param index the zero-based index of the field
      * @return the field definition
      */
-    public Field getField(final int index) {
+    Field getField(final int index) {
 
         return this.fields[index];
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String fieldsStr = Arrays.toString(this.fields);
+
+        return SimpleBuilder.concat("Table{name='", this.name, "', fields=", fieldsStr, "}");
     }
 }

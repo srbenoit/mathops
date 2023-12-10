@@ -1,11 +1,20 @@
 package dev.mathops.db.generalized;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.constraint.AbstractFieldConstraint;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
 
 /**
  * An immutable definition of a database table field.
  */
 public final class Field {
+
+    /** An empty constraints array. */
+    private static final AbstractFieldConstraint<?>[] ZERO_LEN_CONSTRAINTS = new AbstractFieldConstraint<?>[0];
 
     /** The field name. */
     private final String name;
@@ -22,7 +31,9 @@ public final class Field {
     /**
      * Constructs a new {@code Field}.
      *
+     * @param theName the field name
      * @param theType the field data type
+     * @param theRole the field role in the table
      * @param theConstraints any constraints attached to the field
      */
     public Field(final String theName, final EFieldType theType, final EFieldRole theRole,
@@ -43,7 +54,7 @@ public final class Field {
         this.role = theRole;
 
         if (theConstraints == null) {
-            this.constraints = new AbstractFieldConstraint[0];
+            this.constraints = ZERO_LEN_CONSTRAINTS;
         } else {
             final int len = theConstraints.length;
             this.constraints = new AbstractFieldConstraint[len];
@@ -95,7 +106,7 @@ public final class Field {
      *
      * @return the number of constraints
      */
-    public int getNumConstraints() {
+    int getNumConstraints() {
 
         return this.constraints.length;
     }
@@ -106,8 +117,50 @@ public final class Field {
      * @param index the zero-based constraint index
      * @return the constraint
      */
-    public AbstractFieldConstraint<?> gemConstraint(final int index) {
+    AbstractFieldConstraint<?> gemConstraint(final int index) {
 
         return this.constraints[index];
+    }
+
+    /**
+     * Tests whether an object is of a type that is valid for this field.  Some types that are promotable to a valid
+     * type are considered valid (an Integer is valid for a Long field, for example).
+     *
+     * @param object the object whose type to test (not {@code null})
+     * @return true if the object's type is valid for this field
+     */
+    boolean isValidType(final Object object) {
+
+        boolean valid = false;
+
+        switch (this.type) {
+            case STRING -> valid = object instanceof String;
+            case BOOLEAN -> valid = object instanceof Boolean;
+            case BYTE -> valid = object instanceof Byte;
+            case INTEGER -> valid = object instanceof Byte || object instanceof Integer;
+            case LONG -> valid = object instanceof Byte || object instanceof Integer || object instanceof Long;
+            case FLOAT -> valid = object instanceof Float;
+            case DOUBLE -> valid = object instanceof Float || object instanceof Double;
+            case BLOB -> valid = object instanceof byte[];
+            case LOCAL_DATE ->valid = object instanceof LocalDate;
+            case LOCAL_TIME -> valid = object instanceof LocalTime;
+            case LOCAL_DATE_TIME -> valid = object instanceof LocalDateTime;
+        }
+
+        return valid;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String constraintsString = Arrays.toString(this.constraints);
+
+        return SimpleBuilder.concat("Field{name='", this.name , "', type=", this.type, ", role=", this.role,
+                ", constraints=", constraintsString, "}");
     }
 }

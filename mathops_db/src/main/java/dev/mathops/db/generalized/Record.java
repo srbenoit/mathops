@@ -1,17 +1,20 @@
 package dev.mathops.db.generalized;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.constraint.AbstractFieldConstraint;
+
+import java.util.Arrays;
 
 /**
  * An immutable generalized record object, which references a "Table" object (with field definitions), and which stores
  * an array of field values.
  */
-public class Record {
+public final class Record {
 
     /** The table to which this record belongs. */
     private final Table table;
 
-    /** Field values. */
+    /** Field values, where null values indicate fields whose table record was NULL. */
     private final Object[] fieldValues;
 
     /**
@@ -19,8 +22,8 @@ public class Record {
      * the fields define din the table.
      *
      * @param theTable the table to which this record belongs
-     * @param theFieldValues the field values, where trailing null values may be omitted (if no values are permitted,
-     *                       the result is a record with all null field values)
+     * @param theFieldValues the field values, indexed as in {@code theTable}, where trailing null values may be
+     *                       omitted (if no values are permitted, the result is a record with all null field values)
      * @throws IllegalArgumentException if the table name is null, there are more field values provided than the
      * table defines, or a field value does not satisfy a field role or constraint
      */
@@ -63,5 +66,18 @@ public class Record {
                 }
             }
         }
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String fieldValuesStr = Arrays.toString(this.fieldValues);
+
+        return SimpleBuilder.concat("Record{table=", this.table, ", fieldValues=", fieldValuesStr, "}");
     }
 }
