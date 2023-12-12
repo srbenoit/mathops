@@ -1,9 +1,9 @@
 package dev.mathops.web.site.landing;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;

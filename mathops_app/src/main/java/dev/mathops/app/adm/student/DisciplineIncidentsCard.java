@@ -6,7 +6,7 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
-import dev.mathops.db.rawrecord.RawDiscipline;
+import dev.mathops.db.old.rawrecord.RawDiscipline;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

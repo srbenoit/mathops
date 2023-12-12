@@ -3,7 +3,7 @@ package dev.mathops.dbjobs.report;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;

@@ -1,17 +1,17 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.rawlogic.RawLessonComponentLogic;
-import dev.mathops.db.rawlogic.RawLessonLogic;
-import dev.mathops.db.rawrecord.RawCuobjective;
-import dev.mathops.db.rawrecord.RawLesson;
-import dev.mathops.db.rawrecord.RawLessonComponent;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
+import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
+import dev.mathops.db.old.rawlogic.RawLessonLogic;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
+import dev.mathops.db.old.rawrecord.RawLesson;
+import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

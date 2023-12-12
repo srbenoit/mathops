@@ -1,15 +1,13 @@
 package dev.mathops.web.site.reporting;
 
-import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.rawlogic.RawCsectionLogic;
-import dev.mathops.db.rawrecord.RawCsection;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.dbjobs.report.HtmlCsvCourseProgressReport;
-import dev.mathops.dbjobs.report.cron.PlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

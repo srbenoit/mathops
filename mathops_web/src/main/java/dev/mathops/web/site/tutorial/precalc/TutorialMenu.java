@@ -1,8 +1,8 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.time.LocalDate;

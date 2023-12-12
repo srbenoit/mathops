@@ -6,7 +6,7 @@ import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.json.JSONObject;
 import dev.mathops.core.parser.json.JSONParser;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.file.WebFileLoader;

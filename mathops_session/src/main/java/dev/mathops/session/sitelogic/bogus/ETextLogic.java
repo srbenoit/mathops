@@ -1,20 +1,20 @@
 package dev.mathops.session.sitelogic.bogus;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawlogic.RawEtextCourseLogic;
-import dev.mathops.db.rawlogic.RawEtextLogic;
-import dev.mathops.db.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.rawlogic.RawStetextLogic;
-import dev.mathops.db.rawrecord.RawEtext;
-import dev.mathops.db.rawrecord.RawEtextCourse;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawSpecialStus;
-import dev.mathops.db.rawrecord.RawStetext;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
+import dev.mathops.db.old.rawlogic.RawEtextLogic;
+import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawlogic.RawStetextLogic;
+import dev.mathops.db.old.rawrecord.RawEtext;
+import dev.mathops.db.old.rawrecord.RawEtextCourse;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.old.rawrecord.RawStetext;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
 package dev.mathops.app.ops;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.cfg.ContextMap;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.cfg.ContextMap;
 
 import javax.swing.SwingUtilities;
 

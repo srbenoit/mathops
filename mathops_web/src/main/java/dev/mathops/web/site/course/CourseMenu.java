@@ -1,12 +1,12 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.logic.PrecalcTutorialLogic;
-import dev.mathops.db.logic.PrecalcTutorialStatus;
-import dev.mathops.db.logic.PrerequisiteLogic;
-import dev.mathops.db.svc.term.TermLogic;
+import dev.mathops.db.old.logic.PrecalcTutorialLogic;
+import dev.mathops.db.old.logic.PrecalcTutorialStatus;
+import dev.mathops.db.old.logic.PrerequisiteLogic;
+import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;

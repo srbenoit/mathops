@@ -1,8 +1,8 @@
 package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.logic.ELMTutorialStatus;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

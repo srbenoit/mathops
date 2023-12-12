@@ -2,8 +2,8 @@ package dev.mathops.web.site.lti.canvascourse;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.ESiteType;

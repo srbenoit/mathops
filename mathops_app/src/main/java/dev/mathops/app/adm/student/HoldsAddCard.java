@@ -4,9 +4,9 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.rawrecord.RawAdminHold;
-import dev.mathops.db.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawHoldType;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

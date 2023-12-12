@@ -1,7 +1,7 @@
 package dev.mathops.web.site;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import jakarta.servlet.ServletRequest;

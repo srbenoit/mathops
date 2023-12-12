@@ -1,9 +1,9 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.db.rawrecord.RawClientPc;
-import dev.mathops.db.rawrecord.RawExam;
-import dev.mathops.db.rawrecord.RawStterm;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,8 +1,8 @@
 package dev.mathops.web.site.tutorial.precalc;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStexamLogic;
-import dev.mathops.db.rawrecord.RawStexam;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawrecord.RawStexam;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

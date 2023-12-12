@@ -1,18 +1,18 @@
 package dev.mathops.session;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.cfg.ESchemaUse;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.ifaces.ILiveRegFa;
-import dev.mathops.db.ifaces.ILiveRegSm;
-import dev.mathops.db.ifaces.ILiveRegSp;
-import dev.mathops.db.rawlogic.AbstractLogicModule;
-import dev.mathops.db.rec.LiveReg;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.ifaces.ILiveRegFa;
+import dev.mathops.db.old.ifaces.ILiveRegSm;
+import dev.mathops.db.old.ifaces.ILiveRegSp;
+import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rec.LiveReg;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

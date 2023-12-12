@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.tosend;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.app.ops.snapin.CanvasCourseIdMap;
 import dev.mathops.app.ops.snapin.messaging.CanvasMessageSend;
 

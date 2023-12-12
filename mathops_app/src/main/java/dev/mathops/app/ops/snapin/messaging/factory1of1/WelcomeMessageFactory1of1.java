@@ -1,9 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStcourse;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;

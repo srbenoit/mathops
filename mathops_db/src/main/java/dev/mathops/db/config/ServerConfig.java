@@ -8,13 +8,12 @@ import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
-import dev.mathops.db.AbstractGeneralConnection;
+import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
-import dev.mathops.db.JdbcGeneralConnection;
+import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -81,6 +80,9 @@ public final class ServerConfig {
     /** The database ID, if required by the database driver. */
     public final String id;
 
+    /** The DBA login, if one is configured. */
+    public final DbaLoginConfig dbaLogin;
+
     /** The logins. */
     private final List<LoginConfig> logins;
 
@@ -94,6 +96,9 @@ public final class ServerConfig {
     ServerConfig(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem) throws ParsingException {
 
         if (ELEM_TAG.equals(theElem.getTagName())) {
+
+            DbaLoginConfig dba = null;
+
             this.type = EDbInstallationType.forName(theElem.getRequiredStringAttr(TYPE_ATTR));
             if (this.type == null) {
                 throw new ParsingException(theElem.getStart(), theElem.getEnd(),
@@ -115,20 +120,32 @@ public final class ServerConfig {
 
             for (int i = 0; i < count; ++i) {
                 final INode child = theElem.getChild(i);
-                if (child instanceof final EmptyElement chileElem) {
-                    final LoginConfig login = new LoginConfig(this, chileElem);
+                if (child instanceof final EmptyElement childElem) {
+                    final String tag = childElem.getTagName();
 
-                    if (theLoginMap.containsKey(login.id)) {
-                        throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                                Res.fmt(Res.SRV_CFG_DUP_LOGIN_ID, login.id));
+                    if (LoginConfig.ELEM_TAG.equals(tag)) {
+                        final LoginConfig login = new LoginConfig(this, childElem);
+
+                        if (theLoginMap.containsKey(login.id)) {
+                            throw new ParsingException(theElem.getStart(), theElem.getEnd(),
+                                    Res.fmt(Res.SRV_CFG_DUP_LOGIN_ID, login.id));
+                        }
+
+                        this.logins.add(login);
+                        theLoginMap.put(login.id, login);
+                    } else if (DbaLoginConfig.ELEM_TAG.equals(tag)) {
+                        if (dba == null) {
+                            dba = new DbaLoginConfig(childElem);
+                        } else {
+                            Log.warning("Multiple 'dbalogin' elements are not allowed in one server.");
+                        }
                     }
-
-                    this.logins.add(login);
-                    theLoginMap.put(login.id, login);
                 } else {
                     Log.warning("Unexpected child element of 'server'.");
                 }
             }
+
+            this.dbaLogin = dba;
         } else {
             throw new ParsingException(theElem.getStart(), theElem.getEnd(),Res.get(Res.SRV_CFG_BAD_ELEM_TAG));
         }

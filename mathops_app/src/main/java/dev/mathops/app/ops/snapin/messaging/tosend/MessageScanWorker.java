@@ -2,12 +2,12 @@ package dev.mathops.app.ops.snapin.messaging.tosend;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawrecord.RawMilestone;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStcourse;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.ops.snapin.messaging.EPF;
 import dev.mathops.app.ops.snapin.messaging.EmailsNeeded;
 import dev.mathops.app.ops.snapin.messaging.IProgressListener;

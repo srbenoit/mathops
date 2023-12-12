@@ -2,10 +2,10 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawPrereqLogic;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStcourse;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawPrereqLogic;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;

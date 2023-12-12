@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.db.rawrecord.RawExam;
+import dev.mathops.db.old.rawrecord.RawExam;
 
 /**
  * An available exam.

@@ -1,6 +1,6 @@
 package dev.mathops.session.login;
 
-import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.old.cfg.DbProfile;
 
 /**
  * A container for the data involved in a login attempt using the local login processor. This data is stored in a

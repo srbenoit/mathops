@@ -3,7 +3,7 @@ package dev.mathops.app.ops.snapin.canvas;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.json.JSONObject;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
 import dev.mathops.app.canvas.data.Assignment;

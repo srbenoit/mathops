@@ -2,7 +2,7 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStmpe;
 
 import java.io.Serial;
 import java.time.LocalDateTime;

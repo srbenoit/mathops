@@ -3,9 +3,8 @@ package dev.mathops.db.config;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
-import dev.mathops.db.AbstractGeneralConnection;
+import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -14,7 +13,7 @@ import java.sql.SQLException;
 public final class LoginConfig {
 
     /** The element tag used in the XML representation of the configuration. */
-    private static final String ELEM_TAG = "login";
+    public static final String ELEM_TAG = "login";
 
     /** The ID attribute. */
     private static final String ID_ATTR = "id";

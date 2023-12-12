@@ -4,7 +4,7 @@ import dev.mathops.app.adm.AdminMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

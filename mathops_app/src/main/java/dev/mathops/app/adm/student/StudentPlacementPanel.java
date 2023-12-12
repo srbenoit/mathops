@@ -5,7 +5,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
-import dev.mathops.db.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStmpe;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

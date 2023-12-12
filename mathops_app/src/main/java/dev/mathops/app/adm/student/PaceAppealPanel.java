@@ -4,8 +4,8 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

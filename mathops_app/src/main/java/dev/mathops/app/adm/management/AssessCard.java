@@ -3,9 +3,9 @@ package dev.mathops.app.adm.management;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawrecord.RawCourse;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawrecord.RawCourse;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

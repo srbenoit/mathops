@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.db.rec.RecBase;
+import dev.mathops.db.old.rec.RecBase;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

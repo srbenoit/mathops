@@ -3,10 +3,10 @@ package dev.mathops.session.txn.messages;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.TermKey;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.rawrecord.RawStsurveyqa;
-import dev.mathops.db.rawrecord.RawSurveyqa;
+import dev.mathops.db.old.rawrecord.RawStsurveyqa;
+import dev.mathops.db.old.rawrecord.RawSurveyqa;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

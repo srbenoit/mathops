@@ -3,7 +3,7 @@ package dev.mathops.app.adm.resource;
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
-import dev.mathops.db.rawrecord.RawResource;
+import dev.mathops.db.old.rawrecord.RawResource;
 
 import java.io.Serial;
 import java.util.ArrayList;

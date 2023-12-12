@@ -1,11 +1,11 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.logic.PlacementLogic;
-import dev.mathops.db.logic.PlacementStatus;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.logic.PlacementLogic;
+import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;

@@ -5,10 +5,10 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.TermKey;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;

@@ -12,46 +12,46 @@ final class Res extends ResBundle {
     /** An incrementing index for resource keys. */
     private static int index = 1;
 
-    // Used by ContextMap
+    // Used by DatabaseConfig
 
     /** A resource key. */
-    static final String CTX_MAP_LOADING = key(index++);
+    static final String DB_CFG_LOADING = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_CANT_LOAD = key(index++);
+    static final String DB_CFG_CANT_LOAD = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_DIR_NONEXIST = key(index++);
+    static final String DB_CFG_DIR_NONEXIST = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_FILE_NONEXIST = key(index++);
+    static final String DB_CFG_FILE_NONEXIST = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_CANT_OPEN_SRC = key(index++);
+    static final String DB_CFG_CANT_OPEN_SRC = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_NO_TOPLEVEL = key(index++);
+    static final String DB_CFG_NO_TOPLEVEL = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_BAD_TOPLEVEL = key(index++);
+    static final String DB_CFG_BAD_TOPLEVEL = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_BAD_CODE_PROFILE = key(index++);
+    static final String DB_CFG_BAD_CODE_PROFILE = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_BAD_SITE_PROFILE = key(index++);
+    static final String DB_CFG_BAD_SITE_PROFILE = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_DUP_HOST = key(index++);
+    static final String DB_CFG_DUP_HOST = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_DUP_PATH = key(index++);
+    static final String DB_CFG_DUP_PATH = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_DUP_CODE = key(index++);
+    static final String DB_CFG_DUP_CODE = key(index++);
 
     /** A resource key. */
-    static final String CTX_MAP_BAD_SITE_TAG = key(index++);
+    static final String DB_CFG_BAD_SITE_TAG = key(index++);
 
     // Used by ServerConfig
 
@@ -75,6 +75,11 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String LOGIN_CFG_BAD_ELEM_TAG = key(index++);
 
+    // Used by DbaLoginConfig
+
+    /** A resource key. */
+    static final String DBA_LOGIN_CFG_BAD_ELEM_TAG = key(index++);
+
     // Used by ProfileConfig
 
     /** A resource key. */
@@ -94,19 +99,19 @@ final class Res extends ResBundle {
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = { //
 
-            {CTX_MAP_LOADING, "Context Map loading database mappings from {0}"},
-            {CTX_MAP_CANT_LOAD, "Unable to load context map instance"},
-            {CTX_MAP_DIR_NONEXIST, "Directory {0} does not exist"},
-            {CTX_MAP_FILE_NONEXIST, "{0} not found - installing defaults"},
-            {CTX_MAP_CANT_OPEN_SRC, "Failed to open source file {0}"},
-            {CTX_MAP_NO_TOPLEVEL, "Missing top-level 'context-map' element in XML"},
-            {CTX_MAP_BAD_TOPLEVEL, "Unable to identify top-level 'context-map' element in XML"},
-            {CTX_MAP_BAD_CODE_PROFILE, "Unrecognized profile ID ''{0}'' in code context in context map"},
-            {CTX_MAP_BAD_SITE_PROFILE, "Unrecognized profile ID ''{0}'' in site context in context map"},
-            {CTX_MAP_DUP_HOST, "Multiple 'web' tags with host ''{0}'' in context map"},
-            {CTX_MAP_DUP_PATH, "Multiple 'site' tags with path ''{0}'' in context map"},
-            {CTX_MAP_DUP_CODE, "Multiple 'code' tags with context ''{0}'' in context map"},
-            {CTX_MAP_BAD_SITE_TAG, "Child of 'web' element was ''{0}'' rather than 'site' in context map"},
+            {DB_CFG_LOADING, "DatabaseConfig loading database mappings from {0}"},
+            {DB_CFG_CANT_LOAD, "Unable to load database config instance"},
+            {DB_CFG_DIR_NONEXIST, "Directory {0} does not exist"},
+            {DB_CFG_FILE_NONEXIST, "{0} not found - installing defaults"},
+            {DB_CFG_CANT_OPEN_SRC, "Failed to open source file {0}"},
+            {DB_CFG_NO_TOPLEVEL, "Missing top-level 'database-config' element in XML"},
+            {DB_CFG_BAD_TOPLEVEL, "Unable to identify top-level 'database-config' element in XML"},
+            {DB_CFG_BAD_CODE_PROFILE, "Unrecognized profile ID ''{0}'' in code context in context map"},
+            {DB_CFG_BAD_SITE_PROFILE, "Unrecognized profile ID ''{0}'' in site context in context map"},
+            {DB_CFG_DUP_HOST, "Multiple 'web' tags with host ''{0}'' in context map"},
+            {DB_CFG_DUP_PATH, "Multiple 'site' tags with path ''{0}'' in context map"},
+            {DB_CFG_DUP_CODE, "Multiple 'code' tags with context ''{0}'' in context map"},
+            {DB_CFG_BAD_SITE_TAG, "Child of 'web' element was ''{0}'' rather than 'site' in context map"},
 
             {SRV_CFG_BAD_ELEM_TAG, "A server configuration must be in an element with tag 'server'"},
             {SRV_CFG_BAD_TYPE, "Invalid type in 'server' tag: {0}"},
@@ -115,6 +120,8 @@ final class Res extends ResBundle {
             {SRV_CFG_DUP_LOGIN_ID, "Duplicated login ID {0}"},
 
             {LOGIN_CFG_BAD_ELEM_TAG, "A login configuration must be in an element with tag 'login'"},
+
+            {DBA_LOGIN_CFG_BAD_ELEM_TAG, "A DBA login configuration must be in an element with tag 'dbalogin'"},
 
             {PROF_CFG_BAD_ELEM_TAG, "A profile configuration must be in an element with tag 'profile'"},
             {PROF_CFG_BAD_CHILD_ELEM_TAG,

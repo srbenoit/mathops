@@ -4,12 +4,12 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.rawlogic.RawSttermLogic;
-import dev.mathops.db.rawrecord.RawMilestone;
-import dev.mathops.db.rawrecord.RawStterm;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
+import dev.mathops.db.old.rawlogic.RawSttermLogic;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawStterm;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

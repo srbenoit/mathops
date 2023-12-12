@@ -8,10 +8,10 @@ import dev.mathops.app.adm.fields.DateField;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCsection;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

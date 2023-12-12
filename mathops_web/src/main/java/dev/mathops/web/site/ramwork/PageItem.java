@@ -5,7 +5,7 @@ import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

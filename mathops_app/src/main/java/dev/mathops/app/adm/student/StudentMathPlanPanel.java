@@ -7,11 +7,11 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.ui.UIUtilities;
 import dev.mathops.core.ui.layout.AlignedFlowLayout;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawStmathplan;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import javax.swing.BorderFactory;

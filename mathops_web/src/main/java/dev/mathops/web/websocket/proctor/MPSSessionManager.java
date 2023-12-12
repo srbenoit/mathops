@@ -2,7 +2,7 @@ package dev.mathops.web.websocket.proctor;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.DbConnection;
+import dev.mathops.db.old.DbConnection;
 import dev.mathops.web.cron.Cron;
 import dev.mathops.web.cron.ICronJob;
 

@@ -3,12 +3,12 @@ package dev.mathops.web.site.course;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawCsection;
-import dev.mathops.db.rawrecord.RawStcourse;
-import dev.mathops.db.rec.StudentCourseMasteryRec;
-import dev.mathops.db.reclogic.StudentCourseMasteryLogic;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rec.StudentCourseMasteryRec;
+import dev.mathops.db.old.reclogic.StudentCourseMasteryLogic;
 
 import java.sql.SQLException;
 

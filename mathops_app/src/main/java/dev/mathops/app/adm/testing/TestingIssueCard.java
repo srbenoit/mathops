@@ -4,11 +4,11 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawExamLogic;
-import dev.mathops.db.rawrecord.RawExam;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStexam;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawExamLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStexam;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;

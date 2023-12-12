@@ -4,9 +4,9 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawClientPcLogic;
-import dev.mathops.db.rawrecord.RawClientPc;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

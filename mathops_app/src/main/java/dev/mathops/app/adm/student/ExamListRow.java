@@ -1,8 +1,8 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.db.rawrecord.RawStexam;
-import dev.mathops.db.rawrecord.RawStqa;
-import dev.mathops.db.rec.RecBase;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStqa;
+import dev.mathops.db.old.rec.RecBase;
 
 import java.util.ArrayList;
 import java.util.List;

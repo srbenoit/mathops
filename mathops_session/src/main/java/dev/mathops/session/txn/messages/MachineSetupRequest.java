@@ -2,7 +2,7 @@ package dev.mathops.session.txn.messages;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.xml.XmlEscaper;
-import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.MachineSetupHandler;
 

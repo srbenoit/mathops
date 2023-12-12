@@ -1,10 +1,10 @@
 package dev.mathops.web.site.txn;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.messages.AbstractMessageBase;

@@ -2,13 +2,13 @@ package dev.mathops.app.checkout;
 
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.cfg.ESchemaUse;
-import dev.mathops.db.rawlogic.RawClientPcLogic;
-import dev.mathops.db.rawrecord.RawClientPc;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.JPanel;

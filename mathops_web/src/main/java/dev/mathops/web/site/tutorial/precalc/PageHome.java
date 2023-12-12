@@ -1,9 +1,9 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.rawrecord.RawAdminHold;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;

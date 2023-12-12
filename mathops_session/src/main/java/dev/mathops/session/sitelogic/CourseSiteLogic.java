@@ -1,12 +1,12 @@
 package dev.mathops.session.sitelogic;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.cfg.ESchemaUse;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
 

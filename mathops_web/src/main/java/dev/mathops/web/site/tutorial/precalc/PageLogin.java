@@ -1,9 +1,9 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 

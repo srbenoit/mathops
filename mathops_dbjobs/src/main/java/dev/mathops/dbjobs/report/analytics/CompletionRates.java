@@ -2,10 +2,10 @@ package dev.mathops.dbjobs.report.analytics;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.TermKey;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.dbjobs.file.DbjobsFileLoader;
 
 import javax.swing.JFileChooser;

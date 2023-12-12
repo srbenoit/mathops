@@ -1,8 +1,8 @@
 package dev.mathops.web.webservice;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.scramsha256.ScramServerStub;
 import dev.mathops.session.scramsha256.UserCredentials;

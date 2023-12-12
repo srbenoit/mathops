@@ -2,7 +2,7 @@ package dev.mathops.app.ops.snapin.canvas;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 
 import javax.swing.BorderFactory;

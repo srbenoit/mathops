@@ -16,7 +16,7 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.txn.messages.GetHomeworkReply;
 import dev.mathops.session.txn.messages.GetHomeworkRequest;
 import dev.mathops.session.txn.messages.MessageFactory;

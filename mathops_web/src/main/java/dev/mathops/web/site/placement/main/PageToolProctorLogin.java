@@ -3,9 +3,9 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 

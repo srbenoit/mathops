@@ -2,11 +2,11 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.rawlogic.RawClientPcLogic;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawClientPc;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.TestingStationStatusReply;
 import dev.mathops.session.txn.messages.TestingStationStatusRequest;

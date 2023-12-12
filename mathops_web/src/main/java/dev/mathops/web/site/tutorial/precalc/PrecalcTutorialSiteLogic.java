@@ -1,21 +1,21 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.logic.PrerequisiteLogic;
-import dev.mathops.db.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.rawlogic.RawStmpeLogic;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawAdminHold;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStmpe;
-import dev.mathops.db.rawrecord.RawStudent;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.logic.PrerequisiteLogic;
+import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawlogic.RawStmpeLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;

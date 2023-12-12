@@ -3,7 +3,7 @@ package dev.mathops.app.adm.testing;
 import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.rawrecord.RawClientPc;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;

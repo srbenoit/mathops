@@ -2,11 +2,11 @@ package dev.mathops.web.site.admin.genadmin.reports;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawExamLogic;
-import dev.mathops.db.rawlogic.RawStexamLogic;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStexam;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawExamLogic;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

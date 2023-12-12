@@ -1,0 +1,192 @@
+package dev.mathops.db.old.rawlogic;
+
+import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawChallengeFee;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A utility class to work with "challenge_fee" records.
+ *
+ * <pre>
+ * Table:  'challenge_fee'
+ *
+ * Column name          Type                      Nulls   Key
+ * -------------------  ------------------------  ------  -----
+ * stu_id               char(9)                    no      PK
+ * course               char(6)                    no      PK
+ * exam_dt              date                       no
+ * bill_dt              date                       no
+ * </pre>
+ */
+public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee> {
+
+    /** A single instance. */
+    public static final RawChallengeFeeLogic INSTANCE = new RawChallengeFeeLogic();
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     */
+    private RawChallengeFeeLogic() {
+
+        super();
+    }
+
+    /**
+     * Inserts a new record.
+     *
+     * @param cache  the data cache
+     * @param record the record to insert
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean insert(final Cache cache, final RawChallengeFee record) throws SQLException {
+
+        if (record.stuId == null || record.course == null || record.examDt == null || record.billDt == null) {
+
+            throw new SQLException("Null value in primary key or required field.");
+        }
+
+        final String sql = SimpleBuilder.concat(
+                "INSERT INTO challenge_fee (stu_id,course,exam_dt,bill_dt) VALUES (",
+                sqlStringValue(record.stuId), ",",
+                sqlStringValue(record.course), ",",
+                sqlDateValue(record.examDt), ",",
+                sqlDateValue(record.billDt), ")");
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Deletes a record.
+     *
+     * @param cache  the data cache
+     * @param record the record to delete
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean delete(final Cache cache, final RawChallengeFee record) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("DELETE FROM challenge_fee ",
+                "WHERE stu_id=", sqlStringValue(record.stuId),
+                "  AND course=", sqlStringValue(record.course));
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Gets all records.
+     *
+     * @param cache the data cache
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public List<RawChallengeFee> queryAll(final Cache cache) throws SQLException {
+
+        return executeListQuery(cache, "SELECT * FROM challenge_fee");
+    }
+
+    /**
+     * Queries every record in the database.
+     *
+     * @param cache the data cache
+     * @param stuId the student ID
+     * @return the complete set of records in the database
+     * @throws SQLException if there is an error performing the query
+     */
+    public static List<RawChallengeFee> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        return executeListQuery(cache, "SELECT * FROM challenge_fee WHERE stu_id=" + sqlStringValue(stuId));
+    }
+
+    /**
+     * Queries every record in the database.
+     *
+     * @param cache  the data cache
+     * @param stuId  the student ID
+     * @param course the course ID
+     * @return the complete set of records in the database
+     * @throws SQLException if there is an error performing the query
+     */
+    public static RawChallengeFee queryByStudentCourse(final Cache cache, final String stuId,
+                                                       final String course) throws SQLException {
+
+        return executeSingleQuery(cache, "SELECT * FROM challenge_fee WHERE stu_id="
+                + sqlStringValue(stuId) + " AND course=" + sqlStringValue(course));
+    }
+
+    /**
+     * Executes a query that returns a list of records.
+     *
+     * @param cache the data cache
+     * @param sql   the query
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static List<RawChallengeFee> executeListQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawChallengeFee> result = new ArrayList<>(50);
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.add(RawChallengeFee.fromResultSet(rs));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Executes a query that returns a single record.
+     *
+     * @param cache the data cache
+     * @param sql   the query
+     * @return the record
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static RawChallengeFee executeSingleQuery(final Cache cache, final String sql)
+            throws SQLException {
+
+        RawChallengeFee result = null;
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                result = RawChallengeFee.fromResultSet(rs);
+            }
+        }
+
+        return result;
+    }
+}

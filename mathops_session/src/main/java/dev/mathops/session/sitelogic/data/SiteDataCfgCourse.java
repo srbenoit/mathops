@@ -1,14 +1,14 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawlogic.RawCsectionLogic;
-import dev.mathops.db.rawlogic.RawPacingStructureLogic;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawCsection;
-import dev.mathops.db.rawrecord.RawPacingStructure;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawPacingStructure;
 
 import java.sql.SQLException;
 

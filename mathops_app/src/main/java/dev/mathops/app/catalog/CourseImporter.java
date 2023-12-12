@@ -3,7 +3,7 @@ package dev.mathops.app.catalog;
 import dev.mathops.core.ESuccessFailure;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.xml.XmlEscaper;
-import dev.mathops.db.rec.CatalogCourseRec;
+import dev.mathops.db.old.rec.CatalogCourseRec;
 import dev.mathops.db.type.CatalogCourseNumber;
 
 import javax.net.ssl.HttpsURLConnection;

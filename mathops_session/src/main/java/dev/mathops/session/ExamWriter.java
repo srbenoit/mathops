@@ -6,7 +6,7 @@ import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.MessageFactory;

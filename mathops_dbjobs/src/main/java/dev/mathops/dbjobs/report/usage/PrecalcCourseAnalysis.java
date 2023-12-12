@@ -3,7 +3,7 @@ package dev.mathops.dbjobs.report.usage;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 
 import java.io.BufferedReader;
 import java.io.File;

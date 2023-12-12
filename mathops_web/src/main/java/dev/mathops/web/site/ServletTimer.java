@@ -1,6 +1,6 @@
 package dev.mathops.web.site;
 
-import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.old.cfg.DbProfile;
 
 import java.util.Map;
 import java.util.TreeMap;

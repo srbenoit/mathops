@@ -4,10 +4,9 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawrecord.RawAdminHold;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

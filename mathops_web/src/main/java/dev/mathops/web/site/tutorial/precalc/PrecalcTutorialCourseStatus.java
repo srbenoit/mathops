@@ -1,18 +1,18 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawCourseLogic;
-import dev.mathops.db.rawlogic.RawCunitLogic;
-import dev.mathops.db.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.rawlogic.RawLessonLogic;
-import dev.mathops.db.rawlogic.RawStexamLogic;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawCunit;
-import dev.mathops.db.rawrecord.RawCuobjective;
-import dev.mathops.db.rawrecord.RawLesson;
-import dev.mathops.db.rawrecord.RawStexam;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawCunitLogic;
+import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
+import dev.mathops.db.old.rawlogic.RawLessonLogic;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCunit;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
+import dev.mathops.db.old.rawrecord.RawLesson;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;

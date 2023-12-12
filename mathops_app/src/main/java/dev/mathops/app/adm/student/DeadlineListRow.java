@@ -1,8 +1,8 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.db.rawrecord.RawMilestone;
-import dev.mathops.db.rawrecord.RawPaceAppeals;
-import dev.mathops.db.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawStmilestone;
 
 import java.time.LocalDate;
 

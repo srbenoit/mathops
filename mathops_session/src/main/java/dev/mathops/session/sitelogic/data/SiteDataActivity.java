@@ -1,10 +1,10 @@
 package dev.mathops.session.sitelogic.data;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStexamLogic;
-import dev.mathops.db.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.rawrecord.RawStexam;
-import dev.mathops.db.rawrecord.RawSthomework;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawSthomework;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

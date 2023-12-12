@@ -2,8 +2,8 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.rawrecord.RawMpeCredit;
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 
 import java.io.Serial;
 import java.util.ArrayList;

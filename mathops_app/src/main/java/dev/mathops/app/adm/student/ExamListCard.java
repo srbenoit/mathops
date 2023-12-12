@@ -4,10 +4,9 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.db.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.rawrecord.RawStexam;
-import dev.mathops.db.rawrecord.RawStqa;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStqa;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

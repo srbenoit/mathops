@@ -1,7 +1,7 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.cfg.DbProfile;
+import dev.mathops.db.old.cfg.DbProfile;
 
 /**
  * The base class for servlet logic modules, providing storage of the context and database connection, and standardized

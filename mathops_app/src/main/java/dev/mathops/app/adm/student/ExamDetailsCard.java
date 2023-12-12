@@ -4,28 +4,28 @@ import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.logic.CourseLogic;
-import dev.mathops.db.rawlogic.RawCsectionLogic;
-import dev.mathops.db.rawlogic.RawCusectionLogic;
-import dev.mathops.db.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.rawlogic.RawMpscorequeueLogic;
-import dev.mathops.db.rawlogic.RawStcourseLogic;
-import dev.mathops.db.rawlogic.RawStexamLogic;
-import dev.mathops.db.rawlogic.RawStqaLogic;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawCsection;
-import dev.mathops.db.rawrecord.RawCusection;
-import dev.mathops.db.rawrecord.RawMpeCredit;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rawrecord.RawStcourse;
-import dev.mathops.db.rawrecord.RawStexam;
-import dev.mathops.db.rawrecord.RawStqa;
-import dev.mathops.db.rawrecord.RawStudent;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.logic.CourseLogic;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawCusectionLogic;
+import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
+import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
+import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawlogic.RawStqaLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCusection;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStqa;
+import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -828,6 +828,7 @@ import java.util.Locale;
             if (test.course.equals(theCourse) && ("P".equals(test.examPlaced)
                     || "C".equals(test.examPlaced))) {
                 found = true;
+                break;
             }
         }
 

@@ -1,13 +1,13 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.rawlogic.RawSemesterCalendarLogic;
-import dev.mathops.db.rawrecord.RawCampusCalendar;
-import dev.mathops.db.rawrecord.RawMilestone;
-import dev.mathops.db.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.rawrecord.RawStmilestone;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
+import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.old.rawrecord.RawStmilestone;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

@@ -3,7 +3,7 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
-import dev.mathops.db.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.io.Serial;

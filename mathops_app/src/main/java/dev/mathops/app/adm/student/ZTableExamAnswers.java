@@ -3,8 +3,7 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AbstractZTable;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.db.rawrecord.RawStqa;
+import dev.mathops.db.old.rawrecord.RawStqa;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;

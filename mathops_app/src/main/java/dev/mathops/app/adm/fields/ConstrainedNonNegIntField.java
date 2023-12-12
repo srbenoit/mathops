@@ -2,7 +2,7 @@ package dev.mathops.app.adm.fields;
 
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.reclogic.query.EComparison;
+import dev.mathops.db.old.reclogic.query.EComparison;
 
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;

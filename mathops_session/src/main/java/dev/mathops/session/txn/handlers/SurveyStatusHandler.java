@@ -1,12 +1,12 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.rawlogic.RawStsurveyqaLogic;
-import dev.mathops.db.rawlogic.RawSurveyqaLogic;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
+import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
 import dev.mathops.session.txn.messages.SurveyStatusRequest;

@@ -3,9 +3,9 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawDisciplineLogic;
-import dev.mathops.db.rawrecord.RawDiscipline;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
+import dev.mathops.db.old.rawrecord.RawDiscipline;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

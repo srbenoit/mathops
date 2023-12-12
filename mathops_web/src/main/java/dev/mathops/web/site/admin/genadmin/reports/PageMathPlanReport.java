@@ -2,9 +2,9 @@ package dev.mathops.web.site.admin.genadmin.reports;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.rawrecord.RawStmathplan;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

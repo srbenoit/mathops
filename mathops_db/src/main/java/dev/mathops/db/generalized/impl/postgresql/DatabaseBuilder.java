@@ -1,12 +1,10 @@
 package dev.mathops.db.generalized.impl.postgresql;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.AbstractGeneralConnection;
+import dev.mathops.db.config.DbaLoginConfig;
+import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
-import dev.mathops.db.ESchema;
-import dev.mathops.db.JdbcGeneralConnection;
-import dev.mathops.db.config.DbaProfile;
-import dev.mathops.db.config.ESchemaType;
+import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
 import dev.mathops.db.config.LoginConfig;
 import dev.mathops.db.config.ServerConfig;
 import dev.mathops.db.generalized.impl.DatabaseValidationResult;
@@ -29,8 +27,11 @@ import java.util.List;
  */
 public class DatabaseBuilder {
 
-    /** The DBA profile. */
-    private final DbaProfile profile;
+    /** The server configuration, which should have a DBA login conmfigured. */
+    private final ServerConfig server;
+
+    /** The DBA password. */
+    private final String dbaPassword;
 
     /** The collection of all tables in the primary schema. */
     private final AllTables allTables;
@@ -38,33 +39,34 @@ public class DatabaseBuilder {
     /**
      * Constructs a new {@code DatabaseBuilder}.
      *
-     * @param theProfile the DBA profile
-     * @param theAllTables the list of all tables in the primary schema
+     * @param theServer      the server configuration
+     * @param theAllTables   the list of all tables in the primary schema
+     * @param theDbaPassword the DBA password
      */
-    public DatabaseBuilder(final DbaProfile theProfile, final AllTables theAllTables) {
+    public DatabaseBuilder(final ServerConfig theServer, final AllTables theAllTables,
+                           final String theDbaPassword) {
 
-        if (theProfile == null) {
-            throw new IllegalArgumentException("DBA profile may not be null");
+        if (theServer == null) {
+            throw new IllegalArgumentException("Server may not be null");
         }
         if (theAllTables == null) {
             throw new IllegalArgumentException("Tables list may not be null");
         }
-
-        final LoginConfig login = theProfile.getLogin(ESchemaType.PRIMARY);
-        if (login == null) {
-            throw new IllegalArgumentException("DBA profile does not provide 'primary' schema login");
+        if (theDbaPassword == null) {
+            throw new IllegalArgumentException("DBA password may not be null");
         }
 
-        final ServerConfig server = login.server;
-        if (server == null) {
-            throw new IllegalArgumentException("DBA profile's login configuration does not specify server");
+        if (theServer.dbaLogin == null) {
+            throw new IllegalArgumentException("Server has no DBA login configured.");
         }
-        if (server.type != EDbInstallationType.POSTGRESQL) {
+
+        if (theServer.type != EDbInstallationType.POSTGRESQL) {
             throw new IllegalArgumentException("Server specified by DBA profile login is not a PostgreSQL server");
         }
 
-        this.profile = theProfile;
+        this.server = theServer;
         this.allTables = theAllTables;
+        this.dbaPassword = theDbaPassword;
     }
 
     /**
@@ -83,10 +85,10 @@ public class DatabaseBuilder {
         final List<String> errors = new ArrayList<>(10);
         final List<String> actionsTaken = new ArrayList<>(10);
 
-        final LoginConfig dbaLogin = this.profile.getLogin(ESchemaType.PRIMARY);
+        final DbaLoginConfig dbaLogin = this.server.dbaLogin;
 
         try {
-            final AbstractGeneralConnection conn = dbaLogin.openConnection();
+            final AbstractGeneralConnection conn = dbaLogin.openConnection(this.server, this.dbaPassword);
             if (conn instanceof final JdbcGeneralConnection jdbcConn) {
                 validateDatabaseJdbc(jdbcConn, errors, actionsTaken);
             } else {
@@ -148,15 +150,9 @@ public class DatabaseBuilder {
 
             if (ok) {
                 // Determine all roles needed
-                final LoginConfig dbaLogin = this.profile.getLogin(ESchemaType.PRIMARY);
-                final ServerConfig server = this.profile.getLogin(ESchemaType.PRIMARY).server;
-                final List<LoginConfig> logins = server.getLogins();
+                final List<LoginConfig> logins = this.server.getLogins();
 
                 for (final LoginConfig login : logins) {
-                    if (login.id.equals(dbaLogin.id)) {
-                        continue;
-                    }
-
                     if (!allExistingRoles.contains(login.user)) {
                         final String sql2 = SimpleBuilder.concat("CREATE ROLE ", login.user,
                                 "LOGIN CREATEDB CREATEROLE PASSWORD '", login.password, "'");

@@ -4,7 +4,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.reclogic.query.EComparison;
+import dev.mathops.db.old.reclogic.query.EComparison;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;

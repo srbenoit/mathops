@@ -2,7 +2,7 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.db.rawrecord.RawStchallenge;
+import dev.mathops.db.old.rawrecord.RawStchallenge;
 
 import java.io.Serial;
 import java.time.LocalDateTime;

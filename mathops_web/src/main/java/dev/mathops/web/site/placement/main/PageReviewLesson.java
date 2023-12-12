@@ -2,14 +2,14 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.rawlogic.RawLessonComponentLogic;
-import dev.mathops.db.rawrecord.RawCuobjective;
-import dev.mathops.db.rawrecord.RawLessonComponent;
-import dev.mathops.db.rec.AssignmentRec;
-import dev.mathops.db.reclogic.AssignmentLogic;
-import dev.mathops.db.svc.term.TermLogic;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
+import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
+import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.old.reclogic.AssignmentLogic;
+import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 

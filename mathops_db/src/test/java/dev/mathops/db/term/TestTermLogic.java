@@ -1,17 +1,17 @@
 package dev.mathops.db.term;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.DbContext;
-import dev.mathops.db.TermKey;
-import dev.mathops.db.cfg.ContextMap;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.cfg.EDbUse;
-import dev.mathops.db.cfg.ESchemaUse;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.EDbUse;
+import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

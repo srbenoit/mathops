@@ -1,0 +1,172 @@
+package dev.mathops.db.old.rawlogic;
+
+import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawEtextKey;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A utility class to work with etext_key records.
+ *
+ * <pre>
+ * Table:  'etext_key'
+ *
+ * Column name          Type                      Nulls   Key
+ * -------------------  ------------------------  ------  -----
+ * etext_id             char(6)                   no
+ * etext_key            char(20)                  no      PK
+ * active_dt            datetime year to second   yes
+ * </pre>
+ */
+public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
+
+    /** A single instance. */
+    public static final RawEtextKeyLogic INSTANCE = new RawEtextKeyLogic();
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     */
+    private RawEtextKeyLogic() {
+
+        super();
+    }
+
+    /**
+     * Inserts a new record.
+     *
+     * @param cache  the data cache
+     * @param record the record to insert
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean insert(final Cache cache, final RawEtextKey record) throws SQLException {
+
+        if (record.etextKey == null) {
+            throw new SQLException("Null value in primary key field.");
+        }
+
+        final String sql = SimpleBuilder.concat("INSERT INTO etext_key ",
+                "(etext_id,etext_key,active_dt) VALUES (",
+                sqlStringValue(record.etextId), ",",
+                sqlStringValue(record.etextKey), ",",
+                sqlDateTimeValue(record.activeDt), ")");
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Deletes a record.
+     *
+     * @param cache  the data cache
+     * @param record the record to delete
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public boolean delete(final Cache cache, final RawEtextKey record) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("DELETE FROM etext_key ",
+                "WHERE etext_key=", sqlStringValue(record.etextKey));
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Gets all records.
+     *
+     * @param cache the data cache
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    @Override
+    public List<RawEtextKey> queryAll(final Cache cache) throws SQLException {
+
+        final List<RawEtextKey> result = new ArrayList<>(500);
+
+        final String sql = "SELECT * FROM etext_key";
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.add(RawEtextKey.fromResultSet(rs));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for a single etext_key.
+     *
+     * @param cache    the data cache
+     * @param etextKey the etext key for which to query
+     * @return the complete set of records in the database
+     * @throws SQLException if there is an error performing the query
+     */
+    public static RawEtextKey query(final Cache cache, final String etextKey) throws SQLException {
+
+        RawEtextKey result = null;
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM etext_key WHERE etext_key=",
+                sqlStringValue(etextKey));
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                result = RawEtextKey.fromResultSet(rs);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Updates the active_dt field in the etext_key.
+     *
+     * @param cache       the data cache
+     * @param etextKey    the e-text key
+     * @param newActiveDt the new active date/time
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error performing the query
+     */
+    public static boolean updateActiveDt(final Cache cache, final String etextKey,
+                                         final LocalDateTime newActiveDt) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("UPDATE etext_key SET active_dt=",
+                sqlDateTimeValue(newActiveDt), " WHERE etext_key=", sqlStringValue(etextKey));
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            return stmt.executeUpdate(sql) == 1;
+        }
+    }
+}

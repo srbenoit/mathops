@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin;
 
-import dev.mathops.db.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 
 import java.util.HashMap;
 import java.util.Map;

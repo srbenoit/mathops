@@ -1,6 +1,6 @@
 package dev.mathops.session.login;
 
-import dev.mathops.db.Cache;
+import dev.mathops.db.old.Cache;
 
 import java.sql.SQLException;
 import java.util.Map;

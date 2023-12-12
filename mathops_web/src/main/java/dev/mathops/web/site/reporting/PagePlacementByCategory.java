@@ -1,13 +1,11 @@
 package dev.mathops.web.site.reporting;
 
-import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.rawrecord.RawSpecialStus;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
-import dev.mathops.dbjobs.report.cron.PlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

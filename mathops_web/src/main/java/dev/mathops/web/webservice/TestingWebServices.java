@@ -2,9 +2,9 @@ package dev.mathops.web.webservice;
 
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.HexEncoder;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawClientPcLogic;
-import dev.mathops.db.rawrecord.RawClientPc;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.UserCredentials;
 
 import jakarta.servlet.ServletRequest;

@@ -1,11 +1,11 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.rawrecord.RawCourse;
-import dev.mathops.db.rawrecord.RawMpeCredit;
-import dev.mathops.db.rawrecord.RawRecordConstants;
-import dev.mathops.db.rec.LiveCsuCredit;
-import dev.mathops.db.rec.LiveTransferCredit;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rec.LiveCsuCredit;
+import dev.mathops.db.old.rec.LiveTransferCredit;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -19,9 +19,9 @@ import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 import dev.mathops.core.parser.xml.XmlContent;
 import dev.mathops.core.parser.xml.XmlEscaper;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.ContextMap;
-import dev.mathops.db.cfg.WebSiteProfile;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;

@@ -1,14 +1,14 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawHoldTypeLogic;
-import dev.mathops.db.rawlogic.RawSemesterCalendarLogic;
-import dev.mathops.db.rawlogic.RawUserClearanceLogic;
-import dev.mathops.db.rawrecord.RawHoldType;
-import dev.mathops.db.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.rawrecord.RawUserClearance;
-import dev.mathops.db.svc.term.TermLogic;
-import dev.mathops.db.svc.term.TermRec;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
+import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;
+import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.old.rawrecord.RawUserClearance;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.Collections;

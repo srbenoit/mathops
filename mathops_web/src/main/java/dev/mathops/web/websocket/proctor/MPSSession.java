@@ -1,6 +1,6 @@
 package dev.mathops.web.websocket.proctor;
 
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawStudent;
 
 /**
  * A Mathematics Proctoring Service session.

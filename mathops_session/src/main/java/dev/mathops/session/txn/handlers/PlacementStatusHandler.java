@@ -2,10 +2,10 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
-import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.DbProfile;
-import dev.mathops.db.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.rawrecord.RawMpeCredit;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.PlacementStatusReply;
 import dev.mathops.session.txn.messages.PlacementStatusRequest;

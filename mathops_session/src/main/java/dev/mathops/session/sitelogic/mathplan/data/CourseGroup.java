@@ -3,7 +3,7 @@ package dev.mathops.session.sitelogic.mathplan.data;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
-import dev.mathops.db.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.io.Serial;

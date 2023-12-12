@@ -2,9 +2,9 @@ package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.json.JSONObject;
-import dev.mathops.db.Cache;
-import dev.mathops.db.rawlogic.RawStudentLogic;
-import dev.mathops.db.rawrecord.RawStudent;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
 import dev.mathops.app.canvas.data.UserInfo;

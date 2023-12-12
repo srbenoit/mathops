@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -637,7 +638,7 @@ final class Launch implements Runnable {
 
         final File javaExe = FileUtils.findJavaExe();
 
-        final String sep = System.getProperty("file.separator");
+        final String sep = FileSystems.getDefault().getSeparator();
         final char colonChar = "\\".equals(sep) ? ';' : ':';
 
         if (javaExe == null) {
@@ -712,7 +713,7 @@ final class Launch implements Runnable {
 
         final File javaExe = FileUtils.findJavaExe();
 
-        final String sep = System.getProperty("file.separator");
+        final String sep = FileSystems.getDefault().getSeparator();
         final char colonChar = "\\".equals(sep) ? ';' : ':';
 
         if (javaExe == null) {

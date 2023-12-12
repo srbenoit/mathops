@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.db.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCourse;
 
 /**
  * Information on a single course in a course sequence.
