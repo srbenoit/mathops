@@ -110,40 +110,40 @@ public final class CronJobs implements ICronJob {
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-            new PrecalcProgressReport("athletes_summary", "ATHLETE",
-                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+//            new PrecalcProgressReport("athletes_summary", "ATHLETE",
+//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
             // *** This report runs during the semester - engineering sends an email near the start
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-            new PrecalcProgressReport("engineering_summary", "ENGRSTU",
-                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
+//            new PrecalcProgressReport("engineering_summary", "ENGRSTU",
+//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
 
             this.reportsNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ONE_AM);
         }
 
         if (now.isAfter(this.resetTestingNextRun)) {
-            new CleanPending().execute();
-            new PcCleanup().execute();
+//            new CleanPending().execute();
+//            new PcCleanup().execute();
             this.resetTestingNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_PM);
         }
 
         if (now.isAfter(this.endOfDayNextRun)) {
-            CloseIncompletes.execute();
-            DeleteTestUserData.execute();
-            SetHolds.execute();
+//            CloseIncompletes.execute();
+//            DeleteTestUserData.execute();
+//            SetHolds.execute();
             this.endOfDayNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_FIFTY_PM);
         }
 
         if (now.isAfter(this.earlyMorning)) {
-            new ImportOdsApplicants().execute();
-            new ImportOdsTransferCredit().execute();
-            new ImportOdsNewStus().execute();
-            new ImportBannerStudentRegistrations().execute();
-            new CheckStudentTerm().execute();
-            new SendQueuedBannerTestScores().execute();
-            new AuditBannerTestScores().execute();
+//            new ImportOdsApplicants().execute();
+//            new ImportOdsTransferCredit().execute();
+//            new ImportOdsNewStus().execute();
+//            new ImportBannerStudentRegistrations().execute();
+//            new CheckStudentTerm().execute();
+//            new SendQueuedBannerTestScores().execute();
+//            new AuditBannerTestScores().execute();
             this.earlyMorning = LocalDateTime.of(now.toLocalDate().plusDays(1L), THREE_AM);
         }
     }

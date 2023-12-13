@@ -16,7 +16,9 @@ ECHO.
 
 PAUSE
 
-SET WORKING=C:\Users\benoit\dev\IDEA\mathcontainers
+@ECHO OFF
+
+SET WORKING=C:\Users\benoit\dev\IDEA\mathops
 SET JARS=%WORKING%\jars
 SET SCP=\bin\winscp /console
 SET HOST=online@nibbler.math.colostate.edu

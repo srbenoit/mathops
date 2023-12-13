@@ -13,6 +13,6 @@ public final class Builder extends SchemaBuilder { // Public so reflection can f
      */
     public Builder() {
 
-        super(ClassList.scanClasses("dev.mathops.db.ifaces"));
+        super(ClassList.scanClasses("dev.mathops.db.old.ifaces"));
     }
 }
