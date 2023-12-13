@@ -43,7 +43,7 @@ public final class DataProfile implements Comparable<DataProfile> {
     public final String id;
 
     /** A map from schema ID to the login to use for that schema. */
-    private final EnumMap<ESchemaType, LoginConfig> schemaLogins;
+    private final Map<ESchemaType, LoginConfig> schemaLogins;
 
     /**
      * Constructs a new {@code DataProfile}.
@@ -52,6 +52,14 @@ public final class DataProfile implements Comparable<DataProfile> {
      * @param theSchemaLogins a map from schema ID to database context
      */
     public DataProfile(final String theId, final Map<ESchemaType, LoginConfig> theSchemaLogins) {
+
+        if (theId == null || theId.isBlank()) {
+            throw new IllegalArgumentException("Data profile ID may not be null or blank.");
+        }
+        if (theSchemaLogins == null || theSchemaLogins.size() != ESchemaType.values().length
+                || theSchemaLogins.containsKey(null)) {
+            throw new IllegalArgumentException("Schema logins map must be provided with a login for every schema");
+        }
 
         this.id = theId;
         this.schemaLogins = new EnumMap<>(theSchemaLogins);
@@ -67,7 +75,8 @@ public final class DataProfile implements Comparable<DataProfile> {
     DataProfile(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem)
             throws ParsingException {
 
-        if (ELEM_TAG.equals(theElem.getTagName())) {
+        final String tag = theElem.getTagName();
+        if (ELEM_TAG.equals(tag)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
 
             final int count = theElem.getNumChildren();
@@ -80,6 +89,10 @@ public final class DataProfile implements Comparable<DataProfile> {
                 } else {
                     Log.warning("Unexpected child of <data-profile> element.");
                 }
+            }
+
+            if (this.schemaLogins.size() != ESchemaType.values().length || this.schemaLogins.containsKey(null)) {
+                throw new IllegalArgumentException("Schema logins map must be provided with a login for every schema");
             }
         } else {
             throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.PROF_CFG_BAD_ELEM_TAG));
@@ -96,7 +109,8 @@ public final class DataProfile implements Comparable<DataProfile> {
     private void processChildElement(final Map<String, LoginConfig> theLoginMap, final EmptyElement theElem)
             throws ParsingException {
 
-        if (CHILD_TAG.equals(theElem.getTagName())) {
+        final String tag = theElem.getTagName();
+        if (CHILD_TAG.equals(tag)) {
             final String schema = theElem.getRequiredStringAttr(SCHEMA_ATTR);
             final ESchemaType schemaType = ESchemaType.forName(schema);
             if (schemaType == null) {

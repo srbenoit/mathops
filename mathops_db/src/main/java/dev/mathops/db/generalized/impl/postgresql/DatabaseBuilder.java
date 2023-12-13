@@ -1,7 +1,6 @@
 package dev.mathops.db.generalized.impl.postgresql;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.config.DbaLoginConfig;
 import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
@@ -56,10 +55,6 @@ public class DatabaseBuilder {
             throw new IllegalArgumentException("DBA password may not be null");
         }
 
-        if (theServer.dbaLogin == null) {
-            throw new IllegalArgumentException("Server has no DBA login configured.");
-        }
-
         if (theServer.type != EDbInstallationType.POSTGRESQL) {
             throw new IllegalArgumentException("Server specified by DBA profile login is not a PostgreSQL server");
         }
@@ -85,18 +80,19 @@ public class DatabaseBuilder {
         final List<String> errors = new ArrayList<>(10);
         final List<String> actionsTaken = new ArrayList<>(10);
 
-        final DbaLoginConfig dbaLogin = this.server.dbaLogin;
+        final String dbaUser = this.server.dbaUser;
 
         try {
-            final AbstractGeneralConnection conn = dbaLogin.openConnection(this.server, this.dbaPassword);
+            final AbstractGeneralConnection conn = this.server.openConnection(dbaUser, this.dbaPassword);
             if (conn instanceof final JdbcGeneralConnection jdbcConn) {
                 validateDatabaseJdbc(jdbcConn, errors, actionsTaken);
             } else {
                 errors.add("Connection to PostgreSQL server did not generate JDBC connection");
             }
         } catch (final SQLException ex) {
-            errors.add(SimpleBuilder.concat("Failed to connect to PostgreSQL server using DBA login: ",
-                    ex.getLocalizedMessage()));
+            final String exMsg = ex.getLocalizedMessage();
+            final String msg = SimpleBuilder.concat("Failed to connect to PostgreSQL server using DBA login: ", exMsg);
+            errors.add(msg);
         }
 
         final EValidationStatus status = errors.isEmpty() ? EValidationStatus.VALID : EValidationStatus.INVALID;
@@ -144,7 +140,8 @@ public class DatabaseBuilder {
                     allExistingRoles.add(name);
                 }
             } catch (final SQLException ex) {
-                errors.add(SimpleBuilder.concat("Failed to query for existing roles: ", ex.getLocalizedMessage()));
+                final String exMsg = ex.getLocalizedMessage();
+                errors.add(SimpleBuilder.concat("Failed to query for existing roles: ", exMsg));
                 ok = false;
             }
 
@@ -164,15 +161,18 @@ public class DatabaseBuilder {
                                 errors.add(SimpleBuilder.concat("Failed to create '", login.user, "' role."));
                             }
                         } catch (final SQLException ex) {
-                            errors.add(SimpleBuilder.concat("Failed to create '", login.user, "' role: ",
-                                    ex.getLocalizedMessage()));
+                            final String exMsg = ex.getLocalizedMessage();
+                            final String msg = SimpleBuilder.concat("Failed to create '", login.user, "' role: ", exMsg);
+                            errors.add(msg);
                             ok = false;
                         }
                     }
                 }
             }
         } catch (final SQLException ex) {
-            errors.add(SimpleBuilder.concat("Failed to create database statement: ", ex.getLocalizedMessage()));
+            final String exMsg = ex.getLocalizedMessage();
+            final String msg = SimpleBuilder.concat("Failed to create database statement: ", exMsg);
+            errors.add(msg);
             ok = false;
         }
 
@@ -209,7 +209,10 @@ public class DatabaseBuilder {
                 }
             }
         } catch (final SQLException ex) {
-            errors.add(SimpleBuilder.concat("Failed to retrieve database catalogs: ", ex.getLocalizedMessage()));
+            final String exMsg = ex.getLocalizedMessage();
+            final String msg = SimpleBuilder.concat("Failed to retrieve database catalogs: ",
+                    exMsg);
+            errors.add(msg);
             ok = false;
         }
 
@@ -225,11 +228,17 @@ public class DatabaseBuilder {
                         errors.add("Failed to create 'math' database.");
                     }
                 } catch (final SQLException ex) {
-                    errors.add(SimpleBuilder.concat("Failed to create 'math' database: ", ex.getLocalizedMessage()));
+                    final String exMsg = ex.getLocalizedMessage();
+                    final String msg = SimpleBuilder.concat("Failed to create 'math' database: ",
+                            exMsg);
+                    errors.add(msg);
                     ok = false;
                 }
             } catch (final SQLException ex) {
-                errors.add(SimpleBuilder.concat("Failed to create database statement: ", ex.getLocalizedMessage()));
+                final String exMsg = ex.getLocalizedMessage();
+                final String msg = SimpleBuilder.concat("Failed to create database statement: ",
+                        exMsg);
+                errors.add(msg);
                 ok = false;
             }
         }

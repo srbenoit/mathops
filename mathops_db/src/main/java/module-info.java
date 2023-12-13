@@ -15,6 +15,7 @@ module mathops_db {
     exports dev.mathops.db.old;
     exports dev.mathops.db.generalized.connection;
     exports dev.mathops.db.config;
+    exports dev.mathops.db.config.edit;
     requires transitive java.desktop;
     requires transitive java.logging;
     requires java.sql;

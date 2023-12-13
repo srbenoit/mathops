@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 /**
  * The main window.
@@ -228,16 +229,15 @@ public final class MainWindow extends JFrame implements ActionListener {
             newContent.add("<server type='", escType, "' schema='", escSchema, "' host='", escHost, "' port='");
             newContent.add(server.port);
             newContent.add("'");
-            if (server.id != null) {
-                final String escId = XmlEscaper.escape(server.id);
-                newContent.add(" id='", escId, "'");
+            if (server.dbId != null) {
+                final String escId = XmlEscaper.escape(server.dbId);
+                newContent.add(" dbid='", escId, "'");
+            }
+            if (server.dbaUser != null) {
+                final String escUser = XmlEscaper.escape(server.dbaUser);
+                newContent.add(" dba='", escUser, "'");
             }
             newContent.addln(">");
-
-            if (server.dbaLogin != null) {
-                final String escUser = XmlEscaper.escape(server.dbaLogin.user);
-                newContent.addln("  <dbalogin user='", escUser, "'/>");
-            }
 
             for (final LoginConfig login : server.getLogins()) {
                 final String escId = XmlEscaper.escape(login.id);
@@ -285,15 +285,15 @@ public final class MainWindow extends JFrame implements ActionListener {
         newContent.addln("-->");
 
         for (final String host : this.dbConfig.getWebHosts()) {
-            final String[] paths = this.dbConfig.getWebSites(host);
+            final List<String> paths = this.dbConfig.getWebSites(host);
             if (paths != null) {
                 final String escHost = XmlEscaper.escape(host);
                 newContent.addln("<web host='", escHost, "'>");
                 for (final String path : paths) {
-                    final WebSiteContext profile = this.dbConfig.getWebSiteContext(host, path);
+                    final DataProfile profile = this.dbConfig.getWebSiteProfile(host, path);
                     if (profile != null) {
                         final String escPath = XmlEscaper.escape(path);
-                        final String escProfile = XmlEscaper.escape(profile.dataProfile.id);
+                        final String escProfile = XmlEscaper.escape(profile.id);
                         newContent.addln("  <site path='", escPath, "' profile='", escProfile, "'/>");
                     }
 

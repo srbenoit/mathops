@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,10 @@ public final class ServerConfig {
     private static final String PORT_ATTR = "port";
 
     /** The ID attribute. */
-    private static final String ID_ATTR = "id";
+    private static final String DBID_ATTR = "dbid";
+
+    /** The ID attribute. */
+    private static final String DBA_ATTR = "dba";
 
     /** A character encoding. */
     private static final String ENC = "UTF-8";
@@ -78,13 +82,62 @@ public final class ServerConfig {
     public final int port;
 
     /** The database ID, if required by the database driver. */
-    public final String id;
+    public final String dbId;
 
-    /** The DBA login, if one is configured. */
-    public final DbaLoginConfig dbaLogin;
+    /** The DBA username (null if not configured). */
+    public final String dbaUser;
 
     /** The logins. */
     private final List<LoginConfig> logins;
+
+    /**
+     * Constructs a new {@code ServerConfig}.
+     *
+     * @param theType  the database installation type
+     * @param theSchema the schema type
+     * @param theHost the host name
+     * @param thePort the TCP port
+     * @param theDbId the database ID, if required by the database driver
+     * @param theDbaUser the DBA username (null if not configured)
+     * @param theLogins the configured logins
+     * @throws IllegalArgumentException if the type, schema, or host is null, or the TCP port is invalid
+     */
+    public ServerConfig(final EDbInstallationType theType, final ESchemaType theSchema, final String theHost,
+                 final int thePort, final String theDbId, final String theDbaUser,
+                 final Collection<LoginConfig> theLogins) {
+
+        if (theType == null) {
+            throw new IllegalArgumentException("Database installation type may not be null.");
+        }
+        if (theSchema == null) {
+            throw new IllegalArgumentException("Schema may not be null");
+        }
+        if (theHost == null || theHost.isBlank()) {
+            throw new IllegalArgumentException("Host name may not be null or blank.");
+        }
+        if (thePort < 1 || thePort > 65535) {
+            throw new IllegalArgumentException("Invalid TCP port number");
+        }
+
+        this.type = theType;
+        this.schema = theSchema;
+        this.host = theHost;
+        this.port = thePort;
+        this.dbId = theDbId;
+        this.dbaUser = theDbaUser;
+
+        if (theLogins == null) {
+            this.logins = new ArrayList<>(0);
+        } else {
+            final int count = theLogins.size();
+            this.logins = new ArrayList<>(count);
+            for (final LoginConfig login : theLogins) {
+                if (login != null) {
+                    this.logins.add(login);
+                }
+            }
+        }
+    }
 
     /**
      * Constructs a new {@code ServerConfig} from its XML representation.
@@ -96,8 +149,6 @@ public final class ServerConfig {
     ServerConfig(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem) throws ParsingException {
 
         if (ELEM_TAG.equals(theElem.getTagName())) {
-
-            DbaLoginConfig dba = null;
 
             this.type = EDbInstallationType.forName(theElem.getRequiredStringAttr(TYPE_ATTR));
             if (this.type == null) {
@@ -113,7 +164,8 @@ public final class ServerConfig {
 
             this.host = theElem.getRequiredStringAttr(HOST_ATTR);
             this.port = theElem.getIntegerAttr(PORT_ATTR, ZERO).intValue();
-            this.id = theElem.getStringAttr(ID_ATTR);
+            this.dbId = theElem.getStringAttr(DBID_ATTR);
+            this.dbaUser = theElem.getStringAttr(DBA_ATTR);
 
             final int count = theElem.getNumChildren();
             this.logins = new ArrayList<>(count);
@@ -124,7 +176,7 @@ public final class ServerConfig {
                     final String tag = childElem.getTagName();
 
                     if (LoginConfig.ELEM_TAG.equals(tag)) {
-                        final LoginConfig login = new LoginConfig(this, childElem);
+                        final LoginConfig login = new LoginConfig(childElem);
 
                         if (theLoginMap.containsKey(login.id)) {
                             throw new ParsingException(theElem.getStart(), theElem.getEnd(),
@@ -133,19 +185,11 @@ public final class ServerConfig {
 
                         this.logins.add(login);
                         theLoginMap.put(login.id, login);
-                    } else if (DbaLoginConfig.ELEM_TAG.equals(tag)) {
-                        if (dba == null) {
-                            dba = new DbaLoginConfig(childElem);
-                        } else {
-                            Log.warning("Multiple 'dbalogin' elements are not allowed in one server.");
-                        }
                     }
                 } else {
                     Log.warning("Unexpected child element of 'server'.");
                 }
             }
-
-            this.dbaLogin = dba;
         } else {
             throw new ParsingException(theElem.getStart(), theElem.getEnd(),Res.get(Res.SRV_CFG_BAD_ELEM_TAG));
         }
@@ -177,17 +221,17 @@ public final class ServerConfig {
         try {
             if (this.type == EDbInstallationType.INFORMIX) {
                 url.add("informix-sqli://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.id, ":INFORMIXSERVER=", this.id, ";user=", theUser, ";password=",
+                        CoreConstants.SLASH, this.dbId, ":INFORMIXSERVER=", this.dbId, ";user=", theUser, ";password=",
                         thePassword, "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
             } else if (this.type == EDbInstallationType.ORACLE) {
                 url.add("oracle:thin:", theUser, CoreConstants.SLASH, URLEncoder.encode(thePassword, ENC), "@",
-                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, this.id);
+                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, this.dbId);
             } else if (this.type == EDbInstallationType.POSTGRESQL) {
                 url.add("postgresql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.id, "?user=", theUser, "&password=", thePassword);
+                        CoreConstants.SLASH, this.dbId, "?user=", theUser, "&password=", thePassword);
             } else if (this.type == EDbInstallationType.MYSQL) {
                 url.add("mysql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.id, "?user=", theUser, "&password=", thePassword);
+                        CoreConstants.SLASH, this.dbId, "?user=", theUser, "&password=", thePassword);
             } else if (this.type == EDbInstallationType.CASSANDRA) {
                 // TODO: This is not JDBC
             }
@@ -206,7 +250,7 @@ public final class ServerConfig {
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
+    public AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
 
         try {
             final String url = buildJdbcUrl(theUser, thePassword);
@@ -225,12 +269,12 @@ public final class ServerConfig {
 
             // TODO: Add non-JDBC connections for non-JDBC database products
 
-            Log.info("Connected to ", this.id, CoreConstants.SPC, conn.getDatabaseProductName());
+            Log.info("Connected to ", this.dbId, CoreConstants.SPC, conn.getDatabaseProductName());
 
             return conn;
         } catch (final SQLException | IllegalArgumentException ex) {
             Log.warning(ex.getMessage());
-            throw new SQLException(Res.fmt(Res.SRV_CFG_CANT_CONNECT, this.id, this.host, Integer.toString(this.port)),
+            throw new SQLException(Res.fmt(Res.SRV_CFG_CANT_CONNECT, this.dbId, this.host, Integer.toString(this.port)),
                     ex);
         }
     }
@@ -249,7 +293,7 @@ public final class ServerConfig {
 
         if (obj instanceof final ServerConfig test) {
             equal = test.type == this.type &&  test.schema == this.schema && test.host.equals(this.host)
-                    && test.port == this.port && Objects.equals(test.id, this.id);
+                    && test.port == this.port && Objects.equals(test.dbId, this.dbId);
         } else {
             equal = false;
         }
@@ -266,7 +310,7 @@ public final class ServerConfig {
     public int hashCode() {
 
         return this.type.hashCode() + this.schema.hashCode() + this.host.hashCode() + this.port
-                + EqualityTests.objectHashCode(this.id);
+                + EqualityTests.objectHashCode(this.dbId);
     }
 
     /**
@@ -282,8 +326,8 @@ public final class ServerConfig {
         htm.add(this.type.name, " server implementing the ", this.schema.name, " schema at ", this.host,
                 CoreConstants.COLON, Integer.toString(this.port));
 
-        if (this.id != null) {
-            htm.add(" with id ", this.id);
+        if (this.dbId != null) {
+            htm.add(" with id ", this.dbId);
         }
 
         return htm.toString();

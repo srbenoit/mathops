@@ -27,9 +27,6 @@ public final class LoginConfig {
     /** The ID of the configuration (unique among all loaded configurations). */
     public final String id;
 
-    /** The server configuration. */
-    public final ServerConfig server;
-
     /** The login username. */
     public String user;
 
@@ -40,14 +37,19 @@ public final class LoginConfig {
      * Constructs a new {@code LoginConfig}.
      *
      * @param theId       the login configuration ID
-     * @param theServer   the server configuration
      * @param theUser     the login username
      * @param thePassword the login password
      */
-    public LoginConfig(final String theId, final ServerConfig theServer, final String theUser, final String thePassword) {
+    public LoginConfig(final String theId, final String theUser, final String thePassword) {
+
+        if (theId == null || theId.isBlank()) {
+            throw new IllegalArgumentException("Login ID may not be null or blank.");
+        }
+        if (theUser == null || theUser.isBlank()) {
+            throw new IllegalArgumentException("Login user name may not be null or blank.");
+        }
 
         this.id = theId;
-        this.server = theServer;
         this.user = theUser;
         this.password = thePassword;
     }
@@ -55,18 +57,24 @@ public final class LoginConfig {
     /**
      * Constructs a new {@code LoginConfig} from its XML representation.
      *
-     * @param theServer the server configuration
      * @param theElem   the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    LoginConfig(final ServerConfig theServer, final EmptyElement theElem) throws ParsingException {
+    LoginConfig(final EmptyElement theElem) throws ParsingException {
 
-        this.server = theServer;
-
-        if (ELEM_TAG.equals(theElem.getTagName())) {
+        final String tag = theElem.getTagName();
+        if (ELEM_TAG.equals(tag)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
-            this.user = theElem.getStringAttr(USER_ATTR);
+            this.user = theElem.getRequiredStringAttr(USER_ATTR);
             this.password = theElem.getStringAttr(PASSWORD_ATTR);
+
+            if (this.id == null || this.id.isBlank()) {
+                throw new ParsingException(theElem.getStart(), theElem.getEnd(), "Login ID may not be null or blank.");
+            }
+            if (this.user == null || this.user.isBlank()) {
+                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
+                        "Login user name may not be null or blank.");
+            }
         } else {
             throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.LOGIN_CFG_BAD_ELEM_TAG));
         }
@@ -82,30 +90,6 @@ public final class LoginConfig {
 
         this.user = theUsername;
         this.password = thePassword;
-    }
-
-    /**
-     * Creates a new JDBC connection using this configuration.
-     *
-     * @param theUser     the username for this connection
-     * @param thePassword the password for this connection
-     * @return the new connection
-     * @throws SQLException if the connection could not be opened
-     */
-    public AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
-
-        return this.server.openConnection(theUser, thePassword);
-    }
-
-    /**
-     * Creates a new JDBC connection using this configuration.
-     *
-     * @return the new connection
-     * @throws SQLException if the connection could not be opened
-     */
-    public AbstractGeneralConnection openConnection() throws SQLException {
-
-        return this.server.openConnection(this.user, this.password);
     }
 
     /**

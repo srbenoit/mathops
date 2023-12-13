@@ -161,7 +161,7 @@ final class ServerConfigPanel extends JPanel implements ActionListener {
         this.port = new JTextField(3);
         this.port.setText(Integer.toString(this.server.port));
         this.id = new JTextField(19);
-        this.id.setText(this.server.id);
+        this.id.setText(this.server.dbId);
 
         final JPanel row0 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         row0.setBackground(newBg);
@@ -206,7 +206,7 @@ final class ServerConfigPanel extends JPanel implements ActionListener {
         dbaRow.setBackground(newBg);
         dbaRow.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, accent));
 
-        if (server.dbaLogin == null) {
+        if (server.dbaUser == null) {
             final JButton addDba = new JButton("Configure the DBA login...");
             addDba.setBackground(newBtnColor);
             addDba.setActionCommand(ADD_DBA_LOGIN_CMD);
