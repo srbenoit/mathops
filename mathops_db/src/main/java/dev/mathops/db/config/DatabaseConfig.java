@@ -16,8 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A map from named web context (host and path), code context, or DBA context to the data profile that will be used to
- * connect to the database for that context. This can be used to select different profiles for various named contexts.
+ * An immutable database configuration object.  This object provides a map from named web context (host and path) or
+ * named code context to the data profile that will be used to connect to the database for that context.
+ * This can be used to select different profiles for various named contexts.
+ *
+ * <p>
+ * A data profile chooses a database server and login for each defined schema.  A database server represents an
+ * installation of a database product, such as MySQL or PostgreSQL, on a server machine, and a login represents
+ * a username/password combination to connect to that database server product.
  *
  * <p>
  * Typically, each website or logical grouping of code will use a distinct named context. That way, the entire site or
@@ -25,10 +31,7 @@ import java.util.Map;
  * testing or to provide alternate data.
  *
  * <p>
- * This context map is loaded from an XML file stored in a given directory. This class stores a static map from
- * directory to {@code DatabaseConfig}, allowing the possibility of multiple maps being loaded at the same time. The
- * advantage of this is that this class can be instantiated once, then multiple clients can request maps based on their
- * base directories, but all queries for the same directory will return the same map.
+ * This context map is loaded from an XML file stored in a given directory.
  */
 public final class DatabaseConfig {
 
@@ -79,8 +82,8 @@ public final class DatabaseConfig {
     /** Map from data profile configuration ID to the configuration object. */
     private final Map<String, DataProfile> dataProfiles;
 
-    /** Map from hostname to a map from path to website profile for web contexts. */
-    private final Map<String, Map<String, WebSiteContext>> webContexts;
+    /** Map from hostname to website context containers. */
+    private final Map<String, WebSiteContext> webContexts;
 
     /** Map from context ID to profile for code contexts. */
     private final Map<String, DataProfile> codeContexts;
@@ -161,34 +164,35 @@ public final class DatabaseConfig {
 
         final int count = elem.getNumChildren();
 
-        final Map<String, WebSiteContext> map = new HashMap<>(count);
-        this.webContexts.put(host, map);
+        final Map<String, DataProfile> pathProfiles = new HashMap<>(10);
 
         for (int i = 0; i < count; ++i) {
             final INode child = elem.getChild(i);
             if (child instanceof final EmptyElement innerElem) {
-                processWebChildNode(host, innerElem, map);
+                processWebChildNode(innerElem, pathProfiles);
             } else {
                 Log.warning("Unexpected child element of 'web'.");
             }
         }
+
+        this.webContexts.put(host, new WebSiteContext(host, pathProfiles));
     }
 
     /**
      * Processes a child element of a "web" element.
      *
-     * @param host the host name
-     * @param elem the child element
-     * @param map  the map from path to profile
+     * @param elem         the child element
+     * @param pathProfiles the map from path to profile
      * @throws ParsingException if the data could not be parsed from the XML
      */
-    private void processWebChildNode(final String host, final EmptyElement elem,
-                                     final Map<? super String, ? super WebSiteContext> map) throws ParsingException {
+    private void processWebChildNode(final EmptyElement elem,
+                                     final Map<String, DataProfile> pathProfiles) throws ParsingException {
 
         // Called only from the constructor, so no synch needed
 
-        if (SITE_TAG.equals(elem.getTagName())) {
-
+        final String tag = elem.getTagName();
+        if (SITE_TAG.equals(tag)) {
+            final String path = elem.getRequiredStringAttr(PATH_ATTR);
             final String profile = elem.getRequiredStringAttr(PROFILE_ATTR);
 
             final DataProfile cfg = this.dataProfiles.get(profile);
@@ -197,16 +201,13 @@ public final class DatabaseConfig {
                         Res.fmt(Res.DB_CFG_BAD_SITE_PROFILE, profile));
             }
 
-            final String path = elem.getRequiredStringAttr(PATH_ATTR);
-
-            if (map.containsKey(path)) {
+            if (pathProfiles.containsKey(path)) {
                 throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_DUP_PATH, path));
             }
 
-            map.put(path, new WebSiteContext(host, path, cfg));
+            pathProfiles.put(path, cfg);
         } else {
-            throw new ParsingException(elem.getStart(), elem.getEnd(),
-                    Res.fmt(Res.DB_CFG_BAD_SITE_TAG, elem.getTagName()));
+            throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_BAD_SITE_TAG, tag));
         }
     }
 
@@ -384,16 +385,16 @@ public final class DatabaseConfig {
     }
 
     /**
-     * Gets the list of sites with web contexts under a particular host name.
+     * Gets the list of paths with web contexts under a particular host name.
      *
      * @param hostname the host name
-     * @return the array of site paths (null if the host name is not found)
+     * @return the list of site paths (null if the host name is not found)
      */
-    public String[] getWebSites(final String hostname) {
+    public List<String> getWebSites(final String hostname) {
 
         synchronized (this.synch) {
-            final Map<String, WebSiteContext> map = this.webContexts.get(hostname);
-            return map == null ? null : map.keySet().toArray(EMPTY_STRING_ARRAY);
+            final WebSiteContext webContext = this.webContexts.get(hostname);
+            return webContext == null ? null : webContext.getPaths();
         }
     }
 
@@ -404,11 +405,11 @@ public final class DatabaseConfig {
      * @param path     the path
      * @return the profile configuration (null if the hostname is not found)
      */
-    public WebSiteContext getWebSiteContext(final String hostname, final String path) {
+    public DataProfile getWebSiteProfile(final String hostname, final String path) {
 
         synchronized (this.synch) {
-            final Map<String, WebSiteContext> map = this.webContexts.get(hostname);
-            return map == null ? null : map.get(path);
+            final WebSiteContext webContext = this.webContexts.get(hostname);
+            return webContext == null ? null : webContext.getProfile(path);
         }
     }
 
