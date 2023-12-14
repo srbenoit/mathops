@@ -1,4 +1,4 @@
-package dev.mathops.db.config.edit;
+package dev.mathops.app.db.config;
 
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.config.LoginConfig;
