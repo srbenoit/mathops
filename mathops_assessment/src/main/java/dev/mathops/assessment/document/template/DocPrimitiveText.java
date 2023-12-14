@@ -3,6 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.NumberParser;
+import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
 import dev.mathops.assessment.formula.Formula;
@@ -23,7 +24,11 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
 import java.io.Serial;
 import java.util.Locale;
 import java.util.Objects;
@@ -43,6 +48,9 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
     /** The y coordinate. */
     private NumberOrFormula yCoord;
+
+    /** The text anchor point. */
+    private ETextAnchor anchor;
 
     /** The color name. */
     private String colorName;
@@ -116,6 +124,26 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 //    public NumberOrFormula getYCoord() {
 //
 //        return this.yCoord;
+//    }
+
+    /**
+     * Set the anchor point.
+     *
+     * @param theAnchor the new anchor point
+     */
+    private void setAnchor(final ETextAnchor theAnchor) {
+
+        this.anchor = theAnchor;
+    }
+
+//    /**
+//     * Get the anchor point.
+//     *
+//     * @return the anchor point
+//     */
+//    public ETextAnchor getAnchor() {
+//
+//        return this.anchor;
 //    }
 
     /**
@@ -208,6 +236,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             copy.yCoord = this.yCoord.deepCopy();
         }
 
+        copy.anchor = this.anchor;
         copy.colorName = this.colorName;
         copy.color = this.color;
         copy.value = this.value;
@@ -273,7 +302,16 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                     elem.logError("Invalid 'y' value (" + theValue + ") on text primitive");
                 }
             }
-        } else if ("color".equals(name)) {
+        } else if ("anchor".equals(name)) {
+
+            final ETextAnchor anch = ETextAnchor.valueOf(theValue);
+            if (anch != null) {
+                this.anchor = anch;
+                ok = true;
+            } else {
+                elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
+            }
+        }  else if ("color".equals(name)) {
 
             if (ColorNames.isColorNameValid(theValue)) {
                 this.color = ColorNames.getColor(theValue);
@@ -417,52 +455,91 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             }
         }
 
-        if (this.color != null) {
-            grx.setColor(this.color);
-        } else {
-            grx.setColor(Color.BLACK);
-        }
-
-        Composite origComp = null;
-
-        if (this.alpha != null) {
-            origComp = grx.getComposite();
-            grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) this.alpha.doubleValue()));
-        }
-
-        final FontSpec spec = new FontSpec();
-
-        if (this.fontName != null) {
-            spec.fontName = this.fontName;
-        } else if (this.owner.getFontName() != null) {
-            spec.fontName = this.owner.getFontName();
-        } else {
-            spec.fontName = null;
-        }
-
-        if (this.fontSize != null) {
-            spec.fontSize = this.fontSize.doubleValue() * (double) this.scale;
-        } else {
-            spec.fontSize = (double) this.owner.getFontSize();
-        }
-
-        if (this.fontStyle != null) {
-            spec.fontStyle = this.fontStyle.intValue();
-        } else {
-            spec.fontStyle = this.owner.getFontStyle();
-        }
-
-        this.font = BundledFontManager.getInstance().getFont(spec);
-
-        grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));
-
         if (x != null && y != null) {
-            final String str = generateStringContents(context);
-            grx.drawString(str, Math.round(x.floatValue() * this.scale), Math.round(y.floatValue() * this.scale));
-        }
 
-        if (origComp != null) {
-            grx.setComposite(origComp);
+            if (this.color != null) {
+                grx.setColor(this.color);
+            } else {
+                grx.setColor(Color.BLACK);
+            }
+
+            Composite origComp = null;
+
+            if (this.alpha != null) {
+                origComp = grx.getComposite();
+                grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) this.alpha.doubleValue()));
+            }
+
+            final FontSpec spec = new FontSpec();
+
+            if (this.fontName != null) {
+                spec.fontName = this.fontName;
+            } else if (this.owner.getFontName() != null) {
+                spec.fontName = this.owner.getFontName();
+            } else {
+                spec.fontName = null;
+            }
+
+            if (this.fontSize != null) {
+                spec.fontSize = this.fontSize.doubleValue() * (double) this.scale;
+            } else {
+                spec.fontSize = (double) this.owner.getFontSize();
+            }
+
+            if (this.fontStyle != null) {
+                spec.fontStyle = this.fontStyle.intValue();
+            } else {
+                spec.fontStyle = this.owner.getFontStyle();
+            }
+
+            this.font = BundledFontManager.getInstance().getFont(spec);
+
+            grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));
+
+            final String str = generateStringContents(context);
+
+            float actualX = 0.0f;
+            float actualY = 0.0f;
+            if (this.anchor == null || this.anchor == ETextAnchor.SW) {
+                actualX = x.floatValue() * this.scale;
+                actualY = y.floatValue() * this.scale;
+            } else {
+                final FontRenderContext frc = grx.getFontRenderContext();
+                final GlyphVector vect = grx.getFont().createGlyphVector(frc, str);
+                final Rectangle2D bounds = vect.getVisualBounds();
+
+                if (this.anchor == ETextAnchor.NW) {
+                    actualX = x.floatValue() * this.scale;
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                } else if (this.anchor == ETextAnchor.W) {
+                    actualX = x.floatValue() * this.scale;
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                } else if (this.anchor == ETextAnchor.N) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                } else if (this.anchor == ETextAnchor.C) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                } else if (this.anchor == ETextAnchor.S) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
+                    actualY = y.floatValue() * this.scale;
+                } else if (this.anchor == ETextAnchor.NE) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                } else if (this.anchor == ETextAnchor.E) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
+                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                } else if (this.anchor == ETextAnchor.SE) {
+                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
+                    actualY = y.floatValue() * this.scale;
+                }
+            }
+
+            grx.drawString(str, Math.round(actualX), Math.round(actualY));
+
+            if (origComp != null) {
+                grx.setComposite(origComp);
+            }
         }
     }
 
@@ -503,8 +580,8 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
             final DocObjectInstStyle objStyle = new DocObjectInstStyle(this.colorName, this.fontName, fsize, fstyle);
 
-            result = new DocPrimitiveTextInst(xNbr.doubleValue(), yNbr.doubleValue(),
-                    this.value, objStyle, alphaValue);
+            result = new DocPrimitiveTextInst(xNbr.doubleValue(), yNbr.doubleValue(), this.value,this.anchor,
+                    objStyle, alphaValue);
         } else {
             result = null;
         }
@@ -532,6 +609,10 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
         if (this.yCoord != null && this.yCoord.getNumber() != null) {
             xml.add(" y=\"", this.yCoord.getNumber(), CoreConstants.QUOTE);
+        }
+
+        if (this.anchor != null && this.anchor != ETextAnchor.SW) {
+            xml.add(" anchor=\"", this.anchor.name(), CoreConstants.QUOTE);
         }
 
         if (this.colorName != null) {
@@ -671,6 +752,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
         return EqualityTests.objectHashCode(this.xCoord)
                 + EqualityTests.objectHashCode(this.yCoord)
+                + EqualityTests.objectHashCode(this.anchor)
                 + EqualityTests.objectHashCode(this.colorName)
                 + EqualityTests.objectHashCode(this.color)
                 + EqualityTests.objectHashCode(this.value)
@@ -696,6 +778,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         } else if (obj instanceof final DocPrimitiveText text) {
             equal = Objects.equals(this.xCoord, text.xCoord)
                     && Objects.equals(this.yCoord, text.yCoord)
+                    && Objects.equals(this.anchor, text.anchor)
                     && Objects.equals(this.colorName, text.colorName)
                     && Objects.equals(this.color, text.color)
                     && Objects.equals(this.value, text.value)
@@ -732,6 +815,13 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 if (this.yCoord == null || obj.yCoord == null) {
                     Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (yCoord: ", this.yCoord, CoreConstants.SLASH,
                             obj.yCoord, ")");
+                }
+            }
+
+            if (!Objects.equals(this.anchor, obj.anchor)) {
+                if (this.anchor == null || obj.anchor == null) {
+                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (anchor: ", this.anchor, CoreConstants.SLASH,
+                            obj.anchor, ")");
                 }
             }
 

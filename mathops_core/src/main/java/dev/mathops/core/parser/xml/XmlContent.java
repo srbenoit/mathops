@@ -1,5 +1,6 @@
 package dev.mathops.core.parser.xml;
 
+import dev.mathops.core.CoreConstants;
 import dev.mathops.core.parser.ICharSpan;
 import dev.mathops.core.parser.ParsingException;
 

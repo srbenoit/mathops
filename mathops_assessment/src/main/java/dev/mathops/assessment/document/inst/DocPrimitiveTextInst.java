@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.core.builder.HtmlBuilder;
 
@@ -14,6 +15,9 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
     /** The y coordinate. */
     private final double y;
 
+    /** The text anchor point. */
+    private ETextAnchor anchor;
+
     /** The text. */
     private final String text;
 
@@ -26,13 +30,14 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveTextInst}.
      *
-     * @param theX    the x coordinate
-     * @param theY    the y coordinate
-     * @param theText the text to draw
-     * @param theStyle the style
-     * @param theAlpha the alpha
+     * @param theX      the x coordinate
+     * @param theY      the y coordinate
+     * @param theAnchor the text anchor point (null treated as SW)
+     * @param theText   the text to draw
+     * @param theStyle  the style
+     * @param theAlpha  the alpha
      */
-    public DocPrimitiveTextInst(final double theX, final double theY, final String theText,
+    public DocPrimitiveTextInst(final double theX, final double theY, final String theText, final ETextAnchor theAnchor,
                                 final DocObjectInstStyle theStyle, final double theAlpha) {
 
         super();
@@ -46,6 +51,7 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
 
         this.x = theX;
         this.y = theY;
+        this.anchor = theAnchor;
         this.text = theText;
         this.style = theStyle;
         this.alpha = theAlpha;
@@ -69,6 +75,16 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
     public double getY() {
 
         return this.y;
+    }
+
+    /**
+     * Gets the text anchor point.
+     *
+     * @return the text anchor point
+     */
+    public ETextAnchor getAnchor() {
+
+        return this.anchor;
     }
 
     /**
@@ -118,6 +134,9 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
         xml.add("<text");
         xml.addAttribute("x", Double.toString(this.x), 0);
         xml.addAttribute("y", Double.toString(this.y), 0);
+        if (this.anchor != null) {
+            xml.addAttribute("anchor", this.anchor.name(), 0);
+        }
         xml.addAttribute("text", this.text, 0);
         this.style.appendXmlAttributes(xml);
         if (Math.abs(this.alpha - 1.0) > 0.01) {
@@ -143,6 +162,9 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
 
         builder.add("DocPrimitiveSpanInst{x=", Double.toString(this.x), ",y=", Double.toString(this.y), ",",
                 this.style.toString());
+        if (this.anchor != null) {
+            builder.add(",anchor=", this.anchor.name());
+        }
         if (Math.abs(this.alpha - 1.0) > 0.01) {
             builder.add(",alpha=", Double.toString(this.alpha));
         }
@@ -176,12 +198,13 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocPrimitiveTextInst text) {
-            equal = this.x == text.x
-                    && this.y == text.y
-                    && this.text.equals(text.text)
-                    && this.style.equals(text.style)
-                    && this.alpha == text.alpha;
+        } else if (obj instanceof final DocPrimitiveTextInst txt) {
+            equal = this.x == txt.x
+                    && this.y == txt.y
+                    && this.anchor == txt.anchor
+                    && this.text.equals(txt.text)
+                    && this.style.equals(txt.style)
+                    && this.alpha == txt.alpha;
         } else {
             equal = false;
         }

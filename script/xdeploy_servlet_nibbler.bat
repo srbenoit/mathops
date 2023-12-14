@@ -16,8 +16,6 @@ ECHO.
 
 PAUSE
 
-@ECHO OFF
-
 SET WORKING=C:\Users\benoit\dev\IDEA\mathops
 SET JARS=%WORKING%\jars
 SET SCP=\bin\winscp /console
@@ -30,7 +28,7 @@ ECHO =
 REM ---------------------------------------------------------------------------
 
 CD %JARS%
-DIR
+DIR ROOT.*
 
 %SCP% /command "open %HOST%" "lcd %JARS%" "cd /imp/online" "put -nopreservetime ROOT.war" "mv ROOT.war /opt/tomcat/webapps/ROOT.war" "exit"
 

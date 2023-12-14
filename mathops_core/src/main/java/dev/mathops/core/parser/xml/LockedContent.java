@@ -40,6 +40,16 @@ class LockedContent extends Locked {
     }
 
     /**
+     * Gets the content string.
+     *
+     * @return the content string
+     */
+    public String getContent() {
+
+        return new String(this.content);
+    }
+
+    /**
      * Sets the content.
      *
      * @param theContent the new content

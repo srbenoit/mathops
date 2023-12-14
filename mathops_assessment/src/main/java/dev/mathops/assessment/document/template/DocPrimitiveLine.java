@@ -255,8 +255,7 @@ final class DocPrimitiveLine extends AbstractDocPrimitive {
      * @param mode     the parser mode
      * @return true if the attribute was valid; false otherwise
      */
-    boolean setAttr(final String name, final String theValue, final INode elem,
-                          final EParserMode mode) {
+    boolean setAttr(final String name, final String theValue, final INode elem, final EParserMode mode) {
 
         boolean ok = false;
 

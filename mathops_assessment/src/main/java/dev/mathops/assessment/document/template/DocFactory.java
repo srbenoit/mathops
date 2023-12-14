@@ -1543,6 +1543,8 @@ public enum DocFactory {
                     valid = valid && extractPrimitiveRectangle(evalContext, nonempty, drawing, mode);
                 } else if ("polygon".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, nonempty, drawing, mode);
+                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                    valid = valid && extractPrimitiveProtractor(evalContext, nonempty, drawing, mode);
                 } else if ("raster".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, nonempty, drawing, mode);
                 } else if ("text".equalsIgnoreCase(childTag)) {
@@ -1580,6 +1582,8 @@ public enum DocFactory {
                     valid = valid && extractPrimitiveRectangle(evalContext, empty, drawing, mode);
                 } else if ("polygon".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, empty, drawing, mode);
+                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                    valid = valid && extractPrimitiveProtractor(evalContext, empty, drawing, mode);
                 } else if ("raster".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, empty, drawing, mode);
                 } else if ("text".equalsIgnoreCase(childTag)) {
@@ -1839,6 +1843,8 @@ public enum DocFactory {
                     valid = valid && extractPrimitiveRectangle(evalContext, nonempty, graph, mode);
                 } else if ("polygon".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, nonempty, graph, mode);
+                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                    valid = valid && extractPrimitiveProtractor(evalContext, nonempty, graph, mode);
                 } else if ("raster".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, nonempty, graph, mode);
                 } else if ("text".equalsIgnoreCase(childTag)) {
@@ -1862,6 +1868,8 @@ public enum DocFactory {
                     valid = valid && extractPrimitiveRectangle(evalContext, empty, graph, mode);
                 } else if ("polygon".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, empty, graph, mode);
+                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                    valid = valid && extractPrimitiveProtractor(evalContext, empty, graph, mode);
                 } else if ("raster".equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, empty, graph, mode);
                 } else if ("text".equalsIgnoreCase(childTag)) {
@@ -2421,6 +2429,82 @@ public enum DocFactory {
     }
 
     /**
+     * Parse a protractor primitive and add it to a container.
+     *
+     * @param evalContext the evaluation context
+     * @param e           the element
+     * @param container   the container to which to add this primitive
+     * @param mode        the parser mode
+     * @return true if loading successful; false otherwise
+     */
+    private static boolean extractPrimitiveProtractor(final EvalContext evalContext,
+                                                      final AbstractAttributedElementBase e,
+                                                      final AbstractDocPrimitiveContainer container,
+                                                      final EParserMode mode) {
+
+        final DocPrimitiveProtractor p = new DocPrimitiveProtractor(container);
+
+        boolean valid = p.setAttr("cx", e.getStringAttr("cx"), e, mode)
+                && p.setAttr("cy", e.getStringAttr("cy"), e, mode)
+                && p.setAttr("r", e.getStringAttr("r"), e, mode)
+                && p.setAttr("orientation", e.getStringAttr("orientation"), e, mode)
+                && p.setAttr("units", e.getStringAttr("units"), e, mode)
+                && p.setAttr("quadrants", e.getStringAttr("quadrants"), e, mode)
+                && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr("text-color", e.getStringAttr("text-color"), e, mode)
+                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+
+        if (valid && e instanceof final NonemptyElement nonempty) {
+
+            for (final IElement child : nonempty.getElementChildrenAsList()) {
+                if (child instanceof final NonemptyElement formula) {
+                    final String tag = child.getTagName();
+
+                    if ("center-x".equals(tag)) {
+                        final Formula theCenterX = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        if (theCenterX == null) {
+                            e.logError("Invalid 'center-x' formula in child element.");
+                            valid = false;
+                        } else {
+                            p.setCenterX(new NumberOrFormula(theCenterX));
+                        }
+                    } else if ("center-y".equals(tag)) {
+                        final Formula theCenterY = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        if (theCenterY == null) {
+                            e.logError("Invalid 'center-y' formula in child element.");
+                            valid = false;
+                        } else {
+                            p.setCenterY(new NumberOrFormula(theCenterY));
+                        }
+                    } else if ("radius".equals(tag)) {
+                        final Formula theRadius = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        if (theRadius == null) {
+                            e.logError("Invalid 'radius' formula in child element.");
+                            valid = false;
+                        } else {
+                            p.setRadius(new NumberOrFormula(theRadius));
+                        }
+                    } else if ("orientation".equals(tag)) {
+                        final Formula theOrientation = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        if (theOrientation == null) {
+                            e.logError("Invalid 'orientation' formula in child element.");
+                            valid = false;
+                        } else {
+                            p.setOrientation(new NumberOrFormula(theOrientation));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (valid) {
+            container.addPrimitive(p);
+        }
+
+        return valid;
+    }
+
+    /**
      * Parse a raster primitive and add it to a container.
      *
      * @param evalContext the evaluation context
@@ -2503,6 +2587,7 @@ public enum DocFactory {
 
         boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
                 && p.setAttr("y", e.getStringAttr("y"), e, mode)
+                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
                 && p.setAttr("color", e.getStringAttr("color"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)

@@ -71,6 +71,7 @@ public enum ProblemTemplateFactory {
             problem = new ProblemDummyTemplate();
 
             Log.warning("Failed to parse problem:");
+            Log.fine(content);
             for (final XmlContentError err : content.getAllErrors()) {
                 Log.warning("    ", err);
             }
@@ -98,7 +99,8 @@ public enum ProblemTemplateFactory {
             if (problem == null) {
                 problem = new ProblemDummyTemplate();
 
-                Log.warning("Failed to parse problem:");
+                Log.warning("Failed to parse problem.");
+                Log.fine(xml);
                 for (final XmlContentError err : source.getAllErrors()) {
                     Log.warning("    ", err);
                 }
@@ -508,7 +510,7 @@ public enum ProblemTemplateFactory {
                     question.accumulateParameterNames(varNames);
                     for (final String varName : varNames) {
                         if (ec.getVariable(varName) == null) {
-                            elem.logError("Document references nonexistent variable {" + varName + "}.");
+                            nonempty.logError("Document references nonexistent variable {" + varName + "}.");
                         }
                     }
                 }
