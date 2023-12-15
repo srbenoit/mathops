@@ -35,6 +35,7 @@ public final class DocGraphXYInst extends AbstractPrimitiveContainerInst {
      * @param theBgColorName the background color name ({@code null} if transparent)
      * @param theWidth       the width of the object
      * @param theHeight      the height of the object
+     * @param theAltText     the alternative text for accessibility of generated images
      * @param theBorder      the border specification; {@code null} if there is no border
      * @param thePrimitives  the list of primitives
      * @param theWindow      the window the graph displays
@@ -43,11 +44,11 @@ public final class DocGraphXYInst extends AbstractPrimitiveContainerInst {
      * @param theYAxis       the specification of the y-axis
      */
     public DocGraphXYInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
-                          final int theHeight, final StrokeStyle theBorder,
+                          final int theHeight, final String theAltText, final StrokeStyle theBorder,
                           final List<? extends AbstractPrimitiveInst> thePrimitives, final BoundingRect theWindow,
                           final GridSpec theGrid, final AxisSpec theXAxis, final AxisSpec theYAxis) {
 
-        super(theStyle, theBgColorName, theWidth, theHeight, theBorder, thePrimitives);
+        super(theStyle, theBgColorName, theWidth, theHeight, theAltText, theBorder, thePrimitives);
 
         if (theWindow == null) {
             throw new IllegalArgumentException("Graph window may not be null");

@@ -9,6 +9,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
+import dev.mathops.core.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -46,10 +47,11 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
      *
      * @param width  the width of the object
      * @param height the height of the object
+     * @param theAltText the alternative text for the generated image for accessibility
      */
-    DocDrawing(final int width, final int height) {
+    DocDrawing(final int width, final int height, final String theAltText) {
 
-        super(width, height);
+        super(width, height, theAltText);
 
         this.widthConstant = Long.valueOf((long) width);
         this.heightConstant = Long.valueOf((long) height);
@@ -147,7 +149,8 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     @Override
     public DocDrawing deepCopy() {
 
-        final DocDrawing copy = new DocDrawing(this.origWidth, this.origHeight);
+        final String alt = getAltText();
+        final DocDrawing copy = new DocDrawing(this.origWidth, this.origHeight, alt);
 
         copy.copyObjectFromContainer(this);
 
@@ -316,7 +319,10 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
             primitivesInstList.add(primitive.createInstance(evalContext));
         }
 
-        return new DocDrawingInst(objStyle, null, getWidth(), getHeight(), null, primitivesInstList);
+        final String alt = getAltText();
+        final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
+
+        return new DocDrawingInst(objStyle, null, getWidth(), getHeight(), actualAlt, null, primitivesInstList);
     }
 
     /**
@@ -341,6 +347,11 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
         }
 
         printFormat(xml, 1.0f);
+
+        final String alt = getAltText();
+        if (alt != null) {
+            xml.add(" alt='", XmlEscaper.escape(alt), "'");
+        }
 
         xml.add('>');
 
@@ -393,7 +404,7 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(getPrimitives());
+        return primitiveContainerHashCode() + EqualityTests.objectHashCode(getPrimitives());
     }
 
     /**
@@ -410,7 +421,7 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocDrawing drw) {
-            equal = innerEquals(drw) && Objects.equals(getPrimitives(), drw.getPrimitives());
+            equal = primitiveContainerEquals(drw) && Objects.equals(getPrimitives(), drw.getPrimitives());
         } else {
             equal = false;
         }
@@ -428,7 +439,7 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     public void whyNotEqual(final Object other, final int indent) {
 
         if (other instanceof final DocDrawing obj) {
-            innerWhyNotEqual(obj, indent);
+            primitiveContainerWhyNotEqual(obj, indent);
 
             if (!Objects.equals(getPrimitives(), obj.getPrimitives())) {
                 if (getPrimitives() == null || obj.getPrimitives() == null) {

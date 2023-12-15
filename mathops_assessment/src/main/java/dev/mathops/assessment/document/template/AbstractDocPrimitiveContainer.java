@@ -2,7 +2,10 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.core.CoreConstants;
+import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.log.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
@@ -12,6 +15,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -35,13 +39,17 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     /** The off-screen buffer to which to draw the graph. */
     private BufferedImage offscreen;
 
+    /** The alternative text for the generated image for accessibility. */
+    private String altText;
+
     /**
      * Construct a new {@code AbstractDocPrimitiveContainer}.
      *
      * @param width  the width of the object
      * @param height the height of the object
+     * @param theAltText the alternative text for the generated image for accessibility
      */
-    AbstractDocPrimitiveContainer(final int width, final int height) {
+    AbstractDocPrimitiveContainer(final int width, final int height, final String theAltText) {
 
         super();
 
@@ -50,6 +58,18 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
         setWidth(width);
         setHeight(height);
         this.primitives = new ArrayList<>(3);
+
+        this.altText = theAltText;
+    }
+
+    /**
+     * Gets the alt text.
+     *
+     * @return the alt text
+     */
+    public final String getAltText() {
+
+        return this.altText;
     }
 
     /**
@@ -65,9 +85,9 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     }
 
     /**
-     * Gets the offscreen image.
+     * Gets the off-screen image.
      *
-     * @return the offscreen image
+     * @return the off-screen image
      */
     public final BufferedImage getOffscreen() {
 
@@ -111,7 +131,7 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     }
 
     /**
-     * Ensures the offscreen image exists and matches the current size.
+     * Ensures the off-screen image exists and matches the current size.
      *
      * @param width  the new image width
      * @param height the new image height
@@ -125,7 +145,7 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     }
 
     /**
-     * Draw the graph to an offscreen image.
+     * Draw the graph to an off-screen image.
      *
      * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing and
      *                   it is filled
@@ -142,15 +162,17 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
-        setWidth((int) ((float) this.origWidth * getScale()));
-        setHeight((int) ((float) this.origHeight * getScale()));
+        final float scale = getScale();
+        setWidth((int) ((float) this.origWidth * scale));
+        setHeight((int) ((float) this.origHeight * scale));
 
-        setBaseLine(getHeight());
-        setCenterLine(getHeight() / 2);
+        final int height = getHeight();
+        setBaseLine(height);
+        setCenterLine(height / 2);
 
         // Do layout on drawing primitives (only affects spans for now)
         for (final AbstractDocPrimitive p : this.primitives) {
-            p.scale = getScale();
+            p.scale = scale;
             p.doLayout(context);
         }
 
@@ -240,6 +262,52 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
             }
         } catch (final IOException e) {
             // TODO: Tell the user we could not write the file
+        }
+    }
+
+    /**
+     * Implementation of {@code hashCode}.
+     *
+     * @return the hash code of the object
+     */
+    final int primitiveContainerHashCode() {
+
+        return innerHashCode() + this.origWidth + (this.origHeight << 8)
+                + Objects.hashCode(this.altText);
+    }
+
+    /**
+     * Implementation of {@code equals} to compare two {@code DocObject} objects for equality.
+     *
+     * @param obj the object to be compared to this object
+     * @return {@code true} if the objects are equal; {@code false} otherwise
+     */
+    final boolean primitiveContainerEquals(final AbstractDocPrimitiveContainer obj) {
+
+        return innerEquals(obj)
+                && this.origWidth == obj.origWidth
+                && this.origHeight == obj.origHeight
+                && Objects.equals(this.altText, obj.altText);
+    }
+
+    /**
+     * Logs messages to indicate why this object is not equal to another.
+     *
+     * @param obj    the other object
+     * @param indent the indent level
+     */
+    final void primitiveContainerWhyNotEqual(final AbstractDocPrimitiveContainer obj, final int indent) {
+
+        innerWhyNotEqual(obj, indent);
+
+        if (this.origWidth != obj.origWidth) {
+            Log.info(makeIndent(indent), "UNEQUAL width (", this.origWidth, "!=", obj.origWidth, ")");
+        }
+        if (this.origHeight != obj.origHeight) {
+            Log.info(makeIndent(indent), "UNEQUAL height (", this.origHeight, "!=", obj.origHeight, ")");
+        }
+        if (!Objects.equals(this.altText, obj.altText)) {
+            Log.info(makeIndent(indent), "UNEQUAL alt (", this.altText, "!=", obj.altText, ")");
         }
     }
 }

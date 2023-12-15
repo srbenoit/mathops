@@ -3,6 +3,9 @@ package dev.mathops.assessment.document.inst;
 import dev.mathops.assessment.document.EPrimaryBaseline;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.parser.xml.XmlEscaper;
+
+import java.util.Objects;
 
 /**
  * An instance of an image in a document.
@@ -21,6 +24,9 @@ public final class DocImageInst extends AbstractDocObjectInst {
     /** The baseline used for alignment of this construction. */
     private final EPrimaryBaseline baseline;
 
+    /** The alt text. */
+    private final String altText;
+
     /**
      * Constructs a new {@code DocImageInst} object.
      *
@@ -31,9 +37,11 @@ public final class DocImageInst extends AbstractDocObjectInst {
      * @param theHeight      the image height
      * @param theBaseline    the baseline to use to align the image (top of image to hanging baseline, bottom of image
      *                       to typographic baseline, or centerline of image to centerline or math-axis baseline)
+     * @param theAltText     the alt text
      */
     public DocImageInst(final DocObjectInstStyle theStyle, final String theBgColorName, final String theSource,
-                        final double theWidth, final double theHeight, final EPrimaryBaseline theBaseline) {
+                        final double theWidth, final double theHeight, final EPrimaryBaseline theBaseline,
+                        final String theAltText) {
 
         super(theStyle, theBgColorName);
 
@@ -48,6 +56,7 @@ public final class DocImageInst extends AbstractDocObjectInst {
         this.width = theWidth;
         this.height = theHeight;
         this.baseline = theBaseline;
+        this.altText = theAltText;
     }
 
     /**
@@ -92,6 +101,16 @@ public final class DocImageInst extends AbstractDocObjectInst {
     }
 
     /**
+     * Gets the alt text.
+     *
+     * @return the alt text
+     */
+    public String getAltText() {
+
+        return this.altText;
+    }
+
+    /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
      * @param xml      the {@code HtmlBuilder} to which to write the XML
@@ -107,6 +126,11 @@ public final class DocImageInst extends AbstractDocObjectInst {
         xml.addAttribute("width", Double.toString(this.width), 0);
         xml.addAttribute("height", Double.toString(this.height), 0);
         xml.addAttribute("baseline", this.baseline, 0);
+
+        final String alt = getAltText();
+        if (alt != null) {
+            xml.add(" alt='", XmlEscaper.escape(alt), "'");
+        }
         xml.add("/>");
     }
 
@@ -126,6 +150,8 @@ public final class DocImageInst extends AbstractDocObjectInst {
         builder.add(",width=", Double.toString(this.width));
         builder.add(",height=", Double.toString(this.height));
         builder.add(",baseline=", this.baseline);
+        builder.add(",alt=", this.altText);
+        builder.add('}');
 
         return builder.toString();
     }
@@ -139,7 +165,7 @@ public final class DocImageInst extends AbstractDocObjectInst {
     public int hashCode() {
 
         return docObjectInstHashCode() + this.source.hashCode() + Double.hashCode(this.width)
-                + Double.hashCode(this.height) + this.baseline.hashCode();
+                + Double.hashCode(this.height) + this.baseline.hashCode() + Objects.hashCode(this.altText);
     }
 
     /**
@@ -163,7 +189,8 @@ public final class DocImageInst extends AbstractDocObjectInst {
                     && this.source.equals(image.source)
                     && this.width == image.width
                     && this.height == image.height
-                    && this.baseline == image.baseline;
+                    && this.baseline == image.baseline
+                    && Objects.equals(this.altText, image.altText);
         } else {
             equal = false;
         }

@@ -15,6 +15,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
+import dev.mathops.core.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -141,10 +142,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
      *
      * @param width  the width of the object
      * @param height the height of the object
+     * @param theAltText the alternative text for the generated image for accessibility
      */
-    DocGraphXY(final int width, final int height) {
+    DocGraphXY(final int width, final int height, final String theAltText) {
 
-        super(width, height);
+        super(width, height, theAltText);
 
         // Set up a default window (-5 to 5 on both axes, like TI-83)
         this.windowMinX = Long.valueOf(-5L);
@@ -161,7 +163,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     @Override
     public DocGraphXY deepCopy() {
 
-        final DocGraphXY copy = new DocGraphXY(this.origWidth, this.origHeight);
+        final String alt = getAltText();
+        final DocGraphXY copy = new DocGraphXY(this.origWidth, this.origHeight, alt);
 
         copy.copyObjectFromContainer(this);
 
@@ -864,8 +867,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final AxisSpec xAxis = new AxisSpec(axisStroke, this.xAxisLabel, (float) this.axisLabelSize, "black", xTicks);
         final AxisSpec yAxis = new AxisSpec(axisStroke, this.yAxisLabel, (float) this.axisLabelSize, "black", yTicks);
 
-        return new DocGraphXYInst(objStyle, this.backgroundColorName, getWidth(), getHeight(), borderStyle,
-                primitivesInstList, bounds, grid, xAxis, yAxis);
+        final String alt = getAltText();
+        final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
+
+        return new DocGraphXYInst(objStyle, this.backgroundColorName, getWidth(), getHeight(), actualAlt,
+                borderStyle, primitivesInstList, bounds, grid, xAxis, yAxis);
     }
 
     /**
@@ -948,6 +954,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
             xml.add(" yaxislabel='", this.yAxisLabel, "'");
         }
 
+        final String alt = getAltText();
+        if (alt != null) {
+            xml.add(" alt='", XmlEscaper.escape(alt), "'");
+        }
+
         xml.add('>');
 
         appendPrimitivesXml(xml, indent + 1);
@@ -987,7 +998,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     @Override
     public int hashCode() {
 
-        return innerHashCode()
+        return primitiveContainerHashCode()
                 + EqualityTests.objectHashCode(this.windowMinX)
                 + EqualityTests.objectHashCode(this.windowMaxX)
                 + EqualityTests.objectHashCode(this.windowMinY)
@@ -1025,7 +1036,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocGraphXY graph) {
-            equal = innerEquals(graph)
+            equal = primitiveContainerEquals(graph)
                     && Objects.equals(this.windowMinX, graph.windowMinX)
                     && Objects.equals(this.windowMaxX, graph.windowMaxX)
                     && Objects.equals(this.windowMinY, graph.windowMinY)
@@ -1065,7 +1076,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     public void whyNotEqual(final Object other, final int indent) {
 
         if (other instanceof final DocGraphXY obj) {
-            innerWhyNotEqual(obj, indent);
+            primitiveContainerWhyNotEqual(obj, indent);
 
             if (!Objects.equals(this.windowMinX, obj.windowMinX)) {
                 Log.info(makeIndent(indent), "UNEQUAL DocGraphXY (windowMinX: ", this.windowMinX, "!=",

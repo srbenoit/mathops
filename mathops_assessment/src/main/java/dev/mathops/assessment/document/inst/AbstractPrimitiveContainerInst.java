@@ -2,6 +2,7 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 
@@ -21,6 +22,9 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     /** The height of the canvas. */
     private final int height;
 
+    /** The alt text for generated images. */
+    private final String altText;
+
     /** The border for the graph ({@code null} if there is no border). */
     private final StrokeStyle border;
 
@@ -30,20 +34,23 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     /**
      * Construct a new {@code AbstractPrimitiveContainerInst}.
      *
-     * @param theStyle      the style object ({@code null} to inherit the parent object's style)
-     * @param theWidth      the width of the object
-     * @param theHeight     the height of the object
+     * @param theStyle       the style object ({@code null} to inherit the parent object's style)
+     * @param theWidth       the width of the object
+     * @param theHeight      the height of the object
+     * @param theAltText     the alternative text for accessibility of generated images
      * @param theBgColorName the background color name ({@code null} if transparent)
-     * @param thePrimitives the list of primitives
+     * @param thePrimitives  the list of primitives
      */
     AbstractPrimitiveContainerInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
-                                   final int theHeight, final StrokeStyle theBorder,
+                                   final int theHeight, final String theAltText,
+                                   final StrokeStyle theBorder,
                                    final List<? extends AbstractPrimitiveInst> thePrimitives) {
 
         super(theStyle, theBgColorName);
 
         this.width = theWidth;
         this.height = theHeight;
+        this.altText = theAltText;
         this.border = theBorder;
         this.primitives = new ArrayList<>(thePrimitives);
     }
@@ -66,6 +73,16 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     public final int getHeight() {
 
         return this.height;
+    }
+
+    /**
+     * Gets the alternative text for accessible generated images.
+     *
+     * @return the alternative text (could be {@code null})
+     */
+    public final String getAltText() {
+
+        return this.altText;
     }
 
     /**
@@ -107,6 +124,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
 
         xml.addAttribute("width", Integer.toString(this.width), 0);
         xml.addAttribute("height", Integer.toString(this.height), 0);
+        xml.addAttribute("alt", this.altText, 0);
         if (this.border != null) {
             this.border.appendXmlAttributes(xml, "border");
         }
@@ -136,6 +154,9 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
 
         appendStyleString(builder);
         builder.add("{width=", Integer.toString(this.width), ",height=", Integer.toString(this.height));
+        if (this.altText != null) {
+            builder.add(",alt='", this.altText, "'");
+        }
         builder.add('}');
         if (this.border != null) {
             builder.add(this.border.toString());
@@ -151,6 +172,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     final int docPrimitiveContainerInstHashCode() {
 
         return docObjectInstHashCode() + this.width + this.height
+                + EqualityTests.objectHashCode(this.altText)
                 + EqualityTests.objectHashCode(this.border)
                 + EqualityTests.objectHashCode(this.primitives);
     }
@@ -168,6 +190,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
         return checkDocObjectInstEquals(obj)
                 && this.width == obj.width
                 && this.height == obj.height
+                && Objects.equals(this.altText, obj.altText)
                 && Objects.equals(this.border, obj.border)
                 && Objects.equals(this.primitives, obj.primitives);
     }

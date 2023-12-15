@@ -37,6 +37,9 @@ public final class HtmlImage {
     /** The cached PNG file representation of the image. */
     private byte[] png;
 
+    /** Alt text. */
+    private final String alt;
+
     /**
      * Constructs a new {@code HtmlImage}.
      *
@@ -44,13 +47,16 @@ public final class HtmlImage {
      * @param theVOffset   the vertical offset of the bottom of the image from the surrounding text baseline (negative
      *                     numbers indicate the image is set below the baseline of surrounding text)
      * @param thePointSize the point size at which the image is rendered
+     * @param theAlt       the alt text
      */
-    public HtmlImage(final BufferedImage theImg, final double theVOffset, final double thePointSize) {
+    public HtmlImage(final BufferedImage theImg, final double theVOffset, final double thePointSize,
+                     final String theAlt) {
 
         this.img = theImg;
         this.vOffset = theVOffset;
         this.pointSize = thePointSize;
         this.png = null;
+        this.alt = theAlt;
     }
 
     /**
@@ -85,11 +91,10 @@ public final class HtmlImage {
      * Generates an inline &lt;img&gt; tag for the image, including the proper vertical offset to align it with
      * surrounding text, and including the specified alternate text.
      *
-     * @param alt       the alternate text
      * @param overScale the scale by which the backing image is larger than one pixel per point
      * @return the inline image tag
      */
-    public String toImg(final String alt, final double overScale) {
+    public String toImg(final double overScale) {
 
         final HtmlBuilder xml = new HtmlBuilder(2000);
         final byte[] base64 = Base64.encode(toPng()).getBytes(StandardCharsets.UTF_8);
@@ -102,8 +107,9 @@ public final class HtmlImage {
                 Double.toString((double) this.img.getHeight() * scale), "em;' src='data:image/png;base64,",
                 new String(base64, StandardCharsets.UTF_8));
 
-        if (alt != null) {
-            xml.add("' alt='", XmlEscaper.escape(alt), "' title='", XmlEscaper.escape(alt));
+        if (this.alt != null) {
+            final String escaped = XmlEscaper.escape(this.alt);
+            xml.add("' alt='", escaped, "' title='", escaped);
         }
 
         xml.add("'/>");

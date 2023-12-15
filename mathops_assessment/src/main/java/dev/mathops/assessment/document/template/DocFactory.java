@@ -1527,7 +1527,9 @@ public enum DocFactory {
             }
         }
 
-        final DocDrawing drawing = new DocDrawing(width, height);
+        final String altStr = elem.getStringAttr("alt");
+
+        final DocDrawing drawing = new DocDrawing(width, height, altStr);
 
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final NonemptyElement nonempty) {
@@ -1626,6 +1628,7 @@ public enum DocFactory {
 
         final String widthStr = elem.getStringAttr("width");
         final String heightStr = elem.getStringAttr("height");
+        final String altStr = elem.getStringAttr("alt");
         final String minxStr = elem.getStringAttr("minx");
         final String minyStr = elem.getStringAttr("miny");
         final String maxxStr = elem.getStringAttr("maxx");
@@ -1673,7 +1676,7 @@ public enum DocFactory {
             }
         }
 
-        final DocGraphXY graph = new DocGraphXY(width, height);
+        final DocGraphXY graph = new DocGraphXY(width, height, altStr);
 
         valid = valid && extractFormattable(elem, graph);
 
@@ -2835,6 +2838,7 @@ public enum DocFactory {
         final String widthStr = elem.getStringAttr("width");
         final String heightStr = elem.getStringAttr("height");
         final String srcStr = elem.getStringAttr("src");
+        final String altStr = elem.getStringAttr("alt");
 
         NumberOrFormula width = null;
         if (widthStr != null) {
@@ -2870,7 +2874,7 @@ public enum DocFactory {
         }
 
         if (valid) {
-            final DocImage image = new DocImage();
+            final DocImage image = new DocImage(altStr);
 
             image.setScaledWidth(width);
             image.setScaledHeight(height);
@@ -2899,6 +2903,7 @@ public enum DocFactory {
         final String widthStr = elem.getStringAttr("width");
         final String heightStr = elem.getStringAttr("height");
         final String srcStr = elem.getStringAttr("src");
+        final String altStr = elem.getStringAttr("alt");
 
         NumberOrFormula width = null;
         if (widthStr != null) {
@@ -2964,7 +2969,7 @@ public enum DocFactory {
         }
 
         if (valid) {
-            final DocImage image = new DocImage();
+            final DocImage image = new DocImage(altStr);
 
             image.setScaledWidth(width);
             image.setScaledHeight(height);

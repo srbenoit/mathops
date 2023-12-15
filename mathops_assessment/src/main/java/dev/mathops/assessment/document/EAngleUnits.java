@@ -10,7 +10,4 @@ public enum EAngleUnits {
 
     /** Radians. */
     RADIANS,
-
-    /** Both degrees and radians. */
-    DEGREES_AND_RADIANS,
 }

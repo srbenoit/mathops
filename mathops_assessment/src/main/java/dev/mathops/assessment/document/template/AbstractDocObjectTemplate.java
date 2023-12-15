@@ -4,6 +4,7 @@ import dev.mathops.assessment.document.DocObjectLayoutBounds;
 import dev.mathops.assessment.document.DocObjectStyle;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
+import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EqualityTests;
@@ -1013,5 +1014,43 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
             Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (fontStyle: ", thisFontStyle, "!=",
                     objFontStyle, ")");
         }
+    }
+
+    /**
+     * Generates a string from a string that may include parameter references.
+     *
+     * @param theContext the evaluation context
+     * @return the generated string (empty if this primitive has no content)
+     */
+    public String generateStringContents(final EvalContext theContext, final String toConvert) {
+
+        String work;
+        AbstractVariable var;
+
+        if (toConvert == null) {
+            work = CoreConstants.EMPTY;
+        } else {
+            // Substitute parameter values into text.
+            work = toConvert;
+
+            boolean changed = true;
+            while (changed) {
+                final String prior = work;
+
+                for (final String name : theContext.getVariableNames()) {
+                    var = theContext.getVariable(name);
+
+                    if (var != null) {
+                        final String theValue = var.valueAsString();
+                        final String newName = "{" + name + "}";
+                        work = work.replace(newName, theValue);
+                    }
+                }
+
+                changed = !prior.equals(work);
+            }
+        }
+
+        return work;
     }
 }

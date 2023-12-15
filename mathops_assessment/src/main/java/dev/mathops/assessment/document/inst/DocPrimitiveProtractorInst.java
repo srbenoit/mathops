@@ -179,10 +179,8 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
 
         if (this.angleUnits == EAngleUnits.DEGREES) {
             xml.add(" units='deg'");
-        } else if (this.angleUnits == EAngleUnits.RADIANS) {
+        } else {
             xml.add(" units='rad'");
-        } else  {
-            xml.add(" units='both'");
         }
 
         xml.add(" quadrants='").add(this.numQuadrants).add("'/>");
@@ -202,10 +200,8 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
                 .add(" radius=").add(this.radius).add(" orientation=").add(this.orientation).add(" units=");
         if (this.angleUnits == EAngleUnits.DEGREES) {
             builder.add("deg");
-        } else if (this.angleUnits == EAngleUnits.RADIANS) {
-            builder.add("rad");
         } else  {
-            builder.add("both");
+            builder.add("rad");
         }
         builder.add(" quadrants=").add(this.numQuadrants).add("}");
 

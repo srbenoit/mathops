@@ -7,7 +7,6 @@ import dev.mathops.assessment.document.inst.DocImageInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.xml.XmlEscaper;
@@ -50,12 +49,29 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
     /** The URL from which to load the image. */
     private URL source;
 
+    /** The alt text. */
+    private final String altText;
+
     /**
      * Construct a new {@code DocImage} object.
+     *
+     * @param theAltText the alt text
      */
-    DocImage() {
+    DocImage(final String theAltText) {
 
         super();
+
+        this.altText = theAltText;
+    }
+
+    /**
+     * Gets the alt text.
+     *
+     * @return the alt text
+     */
+    public String getAltText() {
+
+        return this.altText;
     }
 
     /**
@@ -95,7 +111,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
     @Override
     public DocImage deepCopy() {
 
-        final DocImage copy = new DocImage();
+        final DocImage copy = new DocImage(this.altText);
 
         copy.copyObjectFrom(this);
 
@@ -366,8 +382,11 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
                 getFontStyle());
 
+        final String alt = getAltText();
+        final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
+
         return new DocImageInst(objStyle, null, this.source.toExternalForm(), (double) getWidth(), (double) getHeight(),
-                EPrimaryBaseline.TYPOGRAPHIC);
+                EPrimaryBaseline.TYPOGRAPHIC, actualAlt);
     }
 
     /**
@@ -391,6 +410,11 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         if (this.source != null) {
             final String src = this.source.toExternalForm();
             xml.add(" src=\"", XmlEscaper.escape(src), CoreConstants.QUOTE);
+        }
+
+        final String alt = getAltText();
+        if (alt != null) {
+            xml.add(" alt='", XmlEscaper.escape(alt), "'");
         }
 
         if ((this.scaledWidth == null || this.scaledWidth.getFormula() == null) //
@@ -465,7 +489,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
     @Override
     public int hashCode() {
 
-        return docObjectHashCode() + EqualityTests.objectHashCode(this.source);
+        return docObjectHashCode() + Objects.hashCode(this.source) + Objects.hashCode(this.altText);
     }
 
     /**
@@ -482,7 +506,8 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocImage img) {
-            equal = docObjectEquals(img) && Objects.equals(this.source, img.source);
+            equal = docObjectEquals(img) && Objects.equals(this.source, img.source)
+                    && Objects.equals(this.altText, img.altText);
         } else {
             equal = false;
         }
@@ -504,6 +529,9 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
 
             if (!Objects.equals(this.source, obj.source)) {
                 Log.info(makeIndent(indent), "UNEQUAL DocImage (source: " + this.source + "!=" + obj.source + ")");
+            }
+            if (!Objects.equals(this.altText, obj.altText)) {
+                Log.info(makeIndent(indent), "UNEQUAL DocImage (altText: " + this.altText + "!=" + obj.altText + ")");
             }
         } else {
             Log.info(makeIndent(indent), "UNEQUAL DocImage because other is ", other.getClass().getName());

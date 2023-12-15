@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -372,9 +373,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
             } else if ("radians".equalsIgnoreCase(theValue) || "rad".equalsIgnoreCase(theValue)) {
                 this.angleUnits = EAngleUnits.RADIANS;
                 ok = true;
-            } else if ("both".equalsIgnoreCase(theValue)) {
-                this.angleUnits = EAngleUnits.DEGREES_AND_RADIANS;
-                ok = true;
             } else {
                 elem.logError("Invalid 'units' value (" + theValue + ") on protractor primitive");
             }
@@ -540,9 +538,9 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
      * @param tc     the text color
      * @param a      the alpha
      */
-    private static void drawProtractor(final Graphics2D grx, final double cx, final double cy, final double r,
-                                       final double orient, final EAngleUnits units, final int numQ, final Color c,
-                                       final Color tc, final float a) {
+    private void drawProtractor(final Graphics2D grx, final double cx, final double cy, final double r,
+                                final double orient, final EAngleUnits units, final int numQ, final Color c,
+                                final Color tc, final float a) {
 
         final double orientRad = Math.toRadians(orient);
         final double cosOrient = Math.cos(orientRad);
@@ -574,77 +572,78 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
         final double southPadY = PADDING * southY;
 
         // Draw and outline the protractor shape
+        final double scl = (double)this.scale;
 
         final Path2D outline = new Path2D.Double();
         if (numQ == 1) {
-            outline.moveTo(x1 + southPadX, y1 + southPadY);
-            outline.lineTo(x1, y1);
+            outline.moveTo((x1 + southPadX) * scl, (y1 + southPadY) * scl);
+            outline.lineTo(x1 * scl, y1 * scl);
             final double cp1ax = x1 - scaledR * sinOrient;
             final double cp1ay = y1 - scaledR * cosOrient;
             final double cp1bx = x2 + scaledR * cosOrient;
             final double cp1by = y2 - scaledR * sinOrient;
-            outline.curveTo(cp1ax, cp1ay, cp1bx, cp1by, x2, y2);
-            outline.lineTo(x2 + westPadX, y2 + westPadY);
-            outline.lineTo(cx + southPadX + westPadX, cy + southPadY + westPadY);
+            outline.curveTo(cp1ax * scl, cp1ay * scl, cp1bx * scl, cp1by * scl, x2 * scl, y2 * scl);
+            outline.lineTo((x2 + westPadX) * scl, (y2 + westPadY) * scl);
+            outline.lineTo((cx + southPadX + westPadX) * scl, (cy + southPadY + westPadY) * scl);
             outline.closePath();
         } else if (numQ == 2) {
-            outline.moveTo(x1 + southPadX, y1 + southPadY);
-            outline.lineTo(x1, y1);
+            outline.moveTo((x1 + southPadX) * scl, (y1 + southPadY) * scl);
+            outline.lineTo(x1 * scl, y1 * scl);
             final double cp1ax = x1 - scaledR * sinOrient;
             final double cp1ay = y1 - scaledR * cosOrient;
             final double cp1bx = x2 + scaledR * cosOrient;
             final double cp1by = y2 - scaledR * sinOrient;
-            outline.curveTo(cp1ax, cp1ay, cp1bx, cp1by, x2, y2);
+            outline.curveTo(cp1ax * scl, cp1ay * scl, cp1bx * scl, cp1by * scl, x2 * scl, y2 * scl);
             final double cp2ax = x2 - scaledR * cosOrient;
             final double cp2ay = y2 + scaledR * sinOrient;
             final double cp2bx = x3 - scaledR * sinOrient;
             final double cp2by = y3 - scaledR * cosOrient;
-            outline.curveTo(cp2ax, cp2ay, cp2bx, cp2by, x3, y3);
-            outline.lineTo(x3 + southPadX, y3 + southPadY);
+            outline.curveTo(cp2ax * scl, cp2ay * scl, cp2bx * scl, cp2by * scl, x3 * scl, y3 * scl);
+            outline.lineTo((x3 + southPadX) * scl, (y3 + southPadY) * scl);
             outline.closePath();
         } else if (numQ == 3) {
-            outline.moveTo(x1 + southPadX, y1 + southPadY);
-            outline.lineTo(x1, y1);
+            outline.moveTo((x1 + southPadX) * scl, (y1 + southPadY) * scl);
+            outline.lineTo(x1 * scl, y1 * scl);
             final double cp1ax = x1 - scaledR * sinOrient;
             final double cp1ay = y1 - scaledR * cosOrient;
             final double cp1bx = x2 + scaledR * cosOrient;
             final double cp1by = y2 - scaledR * sinOrient;
-            outline.curveTo(cp1ax, cp1ay, cp1bx, cp1by, x2, y2);
+            outline.curveTo(cp1ax * scl, cp1ay * scl, cp1bx * scl, cp1by * scl, x2 * scl, y2 * scl);
             final double cp2ax = x2 - scaledR * cosOrient;
             final double cp2ay = y2 + scaledR * sinOrient;
             final double cp2bx = x3 - scaledR * sinOrient;
             final double cp2by = y3 - scaledR * cosOrient;
-            outline.curveTo(cp2ax, cp2ay, cp2bx, cp2by, x3, y3);
+            outline.curveTo(cp2ax * scl, cp2ay * scl, cp2bx * scl, cp2by * scl, x3 * scl, y3 * scl);
             final double cp3ax = x3 + scaledR * sinOrient;
             final double cp3ay = y3 + scaledR * cosOrient;
             final double cp3bx = x4 - scaledR * cosOrient;
             final double cp3by = y4 + scaledR * sinOrient;
-            outline.curveTo(cp3ax, cp3ay, cp3bx, cp3by, x4, y4);
-            outline.lineTo(x4 + eastPadX, y4 + eastPadY);
-            outline.lineTo(cx + southPadX + eastPadX, cy + southPadY + eastPadY);
+            outline.curveTo(cp3ax * scl, cp3ay * scl, cp3bx * scl, cp3by * scl, x4 * scl, y4 * scl);
+            outline.lineTo((x4 + eastPadX) * scl, (y4 + eastPadY) * scl);
+            outline.lineTo((cx + southPadX + eastPadX) * scl, (cy + southPadY + eastPadY) * scl);
             outline.closePath();
         } else {
-            outline.moveTo(x1, y1);
+            outline.moveTo(x1 * scl, y1 * scl);
             final double cp1ax = x1 - scaledR * sinOrient;
             final double cp1ay = y1 - scaledR * cosOrient;
             final double cp1bx = x2 + scaledR * cosOrient;
             final double cp1by = y2 - scaledR * sinOrient;
-            outline.curveTo(cp1ax, cp1ay, cp1bx, cp1by, x2, y2);
+            outline.curveTo(cp1ax * scl, cp1ay * scl, cp1bx * scl, cp1by * scl, x2 * scl, y2 * scl);
             final double cp2ax = x2 - scaledR * cosOrient;
             final double cp2ay = y2 + scaledR * sinOrient;
             final double cp2bx = x3 - scaledR * sinOrient;
             final double cp2by = y3 - scaledR * cosOrient;
-            outline.curveTo(cp2ax, cp2ay, cp2bx, cp2by, x3, y3);
+            outline.curveTo(cp2ax * scl, cp2ay * scl, cp2bx * scl, cp2by * scl, x3 * scl, y3 * scl);
             final double cp3ax = x3 + scaledR * sinOrient;
             final double cp3ay = y3 + scaledR * cosOrient;
             final double cp3bx = x4 - scaledR * cosOrient;
             final double cp3by = y4 + scaledR * sinOrient;
-            outline.curveTo(cp3ax, cp3ay, cp3bx, cp3by, x4, y4);
+            outline.curveTo(cp3ax * scl, cp3ay * scl, cp3bx * scl, cp3by * scl, x4 * scl, y4 * scl);
             final double cp4ax = x4 + scaledR * cosOrient;
             final double cp4ay = y4 - scaledR * sinOrient;
             final double cp4bx = x1 + scaledR * sinOrient;
             final double cp4by = y1 + scaledR * cosOrient;
-            outline.curveTo(cp4ax, cp4ay, cp4bx, cp4by, x1, y1);
+            outline.curveTo(cp4ax * scl, cp4ay * scl, cp4bx * scl, cp4by * scl, x1 * scl, y1 * scl);
             outline.closePath();
         }
 
@@ -664,287 +663,257 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
             grx.setComposite(origComp);
         }
 
-        // TODO: Draw the markings on the protractor
+        // Draw the markings on the protractor
         grx.setColor(tc);
-        grx.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        final FontRenderContext frc = grx.getFontRenderContext();
-
-        final double innerRadLong = r - THICKNESS * 0.5;
-        final double innerRadMed = r - THICKNESS * 0.3;
-        final double innerRadShort = r - THICKNESS * 0.15;
+        grx.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, Math.round(12.0f * this.scale)));
 
         if (numQ == 1) {
-            final Line2D hLine = new Line2D.Double(cx + westPadX, cy + westPadY, x1, y1);
+            final Line2D hLine = new Line2D.Double((cx + westPadX) * scl, (cy + westPadY) * scl, x1 * scl, y1 * scl);
             grx.draw(hLine);
-            final Line2D vLine = new Line2D.Double(cx + southPadX, cy + southPadY, x2, y2);
+            final Line2D vLine = new Line2D.Double((cx + southPadX) * scl, (cy + southPadY) * scl, x2 * scl, y2 * scl);
             grx.draw(vLine);
 
-            drawText(grx, "0", x1 + 3.0 * southX + 3.0 * westX, y1 + 3.0 * southY + 3.0 * westY, orient,
-                    ETextAnchor.NE);
+            drawText(grx, "0", (x1 + 3.0 * southX + 3.0 * westX) * scl, (y1 + 3.0 * southY + 3.0 * westY) * scl,
+                    orient, ETextAnchor.NE);
 
             if (units == EAngleUnits.DEGREES) {
-                drawText(grx, "90", x2 + 3.0 * southX + 4.0 * westX, y2 + 3.0 * southY + 4.0 * westY, orient,
-                        ETextAnchor.NE);
-
-                // Draw long lines every 10 degrees, shorter every 5, and short every degree
-                for (int angleDeg = 1; angleDeg < 90; ++angleDeg) {
-                    final double anchorRad = innerRadLong - 12.0;
-
-                    final double innerRad = (angleDeg % 10) == 0 ? innerRadLong :
-                            ((angleDeg % 5) == 0 ? innerRadMed : innerRadShort);
-
-                    final double angleRad = Math.toRadians(angleDeg) + orientRad;
-                    final double cosAngleRad = Math.cos(angleRad);
-                    final double sinAngleRad = Math.sin(angleRad);
-
-                    final Line2D tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
-                            cx + r * cosAngleRad, cy - r * sinAngleRad);
-                    grx.draw(tick);
-
-                    if ((angleDeg % 10) == 0) {
-                        final double anchorX = cx + anchorRad * cosAngleRad;
-                        final double anchorY = cy - anchorRad * sinAngleRad;
-                        drawText(grx, Integer.toString(angleDeg), anchorX, anchorY, orient, ETextAnchor.C);
-                    }
-                }
-            } else if (units == EAngleUnits.RADIANS) {
-                final double anchorRad = innerRadLong - 12.0;
-                drawText(grx, "\u03c0/2", x2 + 3.0 * southX + 4.0 * westX, y2 + 3.0 * southY + 4.0 * westY, orient,
-                        ETextAnchor.NE);
+                drawText(grx, "90", (x2 + 3.0 * southX + 4.0 * westX) * scl, (y2 + 3.0 * southY + 4.0 * westY) * scl,
+                        orient, ETextAnchor.NE);
+                drawDegreeTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 90);
+            } else {
+                drawFraction(grx, "\u03c0", "2", (x2 + 3.0 * southX + 4.0 * westX) * scl,
+                        (y2 + 3.0 * southY + 4.0 * westY) * scl, orient, ETextAnchor.NE);
+                drawRadiansTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 48);
             }
-            // TODO: RADIANS and BOTH
 
         } else if (numQ == 2) {
-            final Line2D hLine = new Line2D.Double(x3, y3, x1, y1);
+            final Line2D hLine = new Line2D.Double(x3 * scl, y3 * scl, x1 * scl, y1 * scl);
             grx.draw(hLine);
 
-            drawText(grx, "0", x1 + 3.0 * southX + 3.0 * westX, y1 + 3.0 * southY + 3.0 * westY, orient,
-                    ETextAnchor.NE);
-
+            drawText(grx, "0", (x1 + 3.0 * southX + 3.0 * westX) * scl, (y1 + 3.0 * southY + 3.0 * westY) * scl,
+                    orient, ETextAnchor.NE);
 
             if (units == EAngleUnits.DEGREES) {
-                final double anchorRad = innerRadLong - 12.0;
-                drawText(grx, "180", x3 + 3.0 * southX + 3.0 * eastX, y3 + 3.0 * southY + 3.0 * eastY, orient,
-                        ETextAnchor.NW);
-
-                // Draw long lines every 10 degrees, shorter every 5, and short every degree
-                for (int angleDeg = 1; angleDeg < 180; ++angleDeg) {
-
-                    final double innerRad = (angleDeg % 10) == 0 ? innerRadLong :
-                            ((angleDeg % 5) == 0 ? innerRadMed : innerRadShort);
-
-                    final double angleRad = Math.toRadians(angleDeg) + orientRad;
-                    final double cosAngleRad = Math.cos(angleRad);
-                    final double sinAngleRad = Math.sin(angleRad);
-
-                    final Line2D tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
-                            cx + r * cosAngleRad, cy - r * sinAngleRad);
-                    grx.draw(tick);
-
-                    if ((angleDeg % 10) == 0) {
-                        final double anchorX = cx + anchorRad * cosAngleRad;
-                        final double anchorY = cy - anchorRad * sinAngleRad;
-                        drawText(grx, Integer.toString(angleDeg), anchorX, anchorY, orient, ETextAnchor.C);
-                    }
-                }
-            } else if (units == EAngleUnits.RADIANS) {
-                final double anchorRad = innerRadLong - 12.0;
-                drawText(grx, "\u03c0", x3 + 3.0 * southX + 3.0 * eastX, y3 + 3.0 * southY + 3.0 * eastY, orient,
-                        ETextAnchor.NW);
+                drawText(grx, "180", (x3 + 3.0 * southX + 3.0 * eastX) * scl, (y3 + 3.0 * southY + 3.0 * eastY) * scl,
+                        orient, ETextAnchor.NW);
+                drawDegreeTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 180);
+            } else {
+                drawText(grx, "\u03c0", (x3 + 3.0 * southX + 3.0 * eastX) * scl,
+                        (y3 + 3.0 * southY + 3.0 * eastY) * scl, orient, ETextAnchor.NW);
+                drawRadiansTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 96);
             }
-            // TODO: RADIANS and BOTH
 
         } else if (numQ == 3) {
-            final Line2D hLine = new Line2D.Double(cx, cy, x1, y1);
+            final Line2D hLine = new Line2D.Double(cx * scl, cy * scl, x1 * scl, y1 * scl);
             grx.draw(hLine);
-            final Line2D vLine = new Line2D.Double(cx, cy, x4, y4);
+            final Line2D vLine = new Line2D.Double(cx * scl, cy * scl, x4 * scl, y4 * scl);
             grx.draw(vLine);
 
-            drawText(grx, "0", x1 + 3.0 * southX + 3.0 * westX, y1 + 3.0 * southY + 3.0 * westY, orient,
-                    ETextAnchor.NE);
+            drawText(grx, "0", (x1 + 3.0 * southX + 3.0 * westX) * scl, (y1 + 3.0 * southY + 3.0 * westY) * scl,
+                    orient, ETextAnchor.NE);
 
             if (units == EAngleUnits.DEGREES) {
-                final double anchorRad = innerRadLong - 12.0;
-                drawText(grx, "270", x4 + 3.0 * northX + 3.0 * eastX, y4 + 3.0 * northY + 3.0 * eastY, orient,
-                        ETextAnchor.SW);
-
-                // Draw long lines every 10 degrees, shorter every 5, and short every degree
-
-                for (int angleDeg = 1; angleDeg < 270; ++angleDeg) {
-
-                    final double innerRad = (angleDeg % 10) == 0 ? innerRadLong :
-                            ((angleDeg % 5) == 0 ? innerRadMed : innerRadShort);
-
-                    final double angleRad = Math.toRadians(angleDeg) + orientRad;
-                    final double cosAngleRad = Math.cos(angleRad);
-                    final double sinAngleRad = Math.sin(angleRad);
-
-                    final Line2D tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
-                            cx + r * cosAngleRad, cy - r * sinAngleRad);
-                    grx.draw(tick);
-
-                    if ((angleDeg % 10) == 0) {
-                        final double anchorX = cx + anchorRad * cosAngleRad;
-                        final double anchorY = cy - anchorRad * sinAngleRad;
-                        drawText(grx, Integer.toString(angleDeg), anchorX, anchorY, orient, ETextAnchor.C);
-                    }
-                }
-            } else if (units == EAngleUnits.RADIANS) {
-                final double anchorRad = innerRadLong - 12.0;
-                drawText(grx, "3\u03c0/2", x4 + 3.0 * northX + 3.0 * eastX, y4 + 3.0 * northY + 3.0 * eastY, orient,
-                        ETextAnchor.SW);
+                drawText(grx, "270", (x4 + 3.0 * northX + 3.0 * eastX) * scl, (y4 + 3.0 * northY + 3.0 * eastY) * scl,
+                        orient, ETextAnchor.SW);
+                drawDegreeTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 270);
+            } else {
+                drawFraction(grx, "3\u03c0", "2", (x4 + 3.0 * northX + 3.0 * eastX) * scl,
+                        (y4 + 3.0 * northY + 3.0 * eastY) * scl, orient, ETextAnchor.SW);
+                drawRadiansTicks(grx, cx * scl, cy * scl, r * scl, orient, 1, 144);
             }
-            // TODO: RADIANS and BOTH
         } else if (numQ == 4) {
             if (units == EAngleUnits.DEGREES) {
-                final double anchorRad = innerRadLong - 12.0;
+                drawDegreeTicks(grx, cx * scl, cy * scl, r * scl, orient, 0, 360);
+            } else {
+                drawRadiansTicks(grx, cx * scl, cy * scl, r * scl, orient, 0, 192);
+            }
+        }
+    }
 
-                // Draw long lines every 10 degrees, shorter every 5, and short every degree
-                for (int angleDeg = 0; angleDeg < 360; ++angleDeg) {
+    /**
+     * Draws degree tick marks.
+     *
+     * @param grx    the graphics on which to draw
+     * @param cx     the center x coordinate
+     * @param cy     the center y coordinate
+     * @param r      the radius
+     * @param orient the orientation angle, in degrees
+     * @param start  the first degree whose tick mark to draw
+     * @param end    the degree after the last tick mark to draw
+     */
+    private void drawDegreeTicks(final Graphics2D grx, final double cx, final double cy,
+                                 final double r, final double orient, final int start, final int end) {
 
-                    final double innerRad = (angleDeg % 10) == 0 ? innerRadLong :
-                            ((angleDeg % 5) == 0 ? innerRadMed : innerRadShort);
+        final double scl = (double)this.scale;
+        final double innerRadLong = r - THICKNESS * 0.5 * scl;
+        final double innerRadMed = r - THICKNESS * 0.3 * scl;
+        final double innerRadShort = r - THICKNESS * 0.15 * scl;
 
-                    final double angleRad = Math.toRadians(angleDeg) + orientRad;
-                    final double cosAngleRad = Math.cos(angleRad);
-                    final double sinAngleRad = Math.sin(angleRad);
+        for (int angleDeg = start; angleDeg < end; ++angleDeg) {
+            final double anchorRad = innerRadLong - 12.0 * scl;
 
-                    final Line2D tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
-                            cx + r * cosAngleRad, cy - r * sinAngleRad);
-                    grx.draw(tick);
+            final double innerRad = (angleDeg % 10) == 0 ? innerRadLong :
+                    ((angleDeg % 5) == 0 ? innerRadMed : innerRadShort);
 
-                    if ((angleDeg % 10) == 0) {
-                        final double anchorX = cx + anchorRad * cosAngleRad;
-                        final double anchorY = cy - anchorRad * sinAngleRad;
-                        drawText(grx, Integer.toString(angleDeg), anchorX, anchorY, orient, ETextAnchor.C);
-                    }
+            final double angleRad = Math.toRadians((double) angleDeg + orient);
+            final double cosAngleRad = Math.cos(angleRad);
+            final double sinAngleRad = Math.sin(angleRad);
+
+            final Shape tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
+                    cx + r * cosAngleRad, cy - r * sinAngleRad);
+            grx.draw(tick);
+
+            if ((angleDeg % 10) == 0) {
+                final double anchorX = cx + anchorRad * cosAngleRad;
+                final double anchorY = cy - anchorRad * sinAngleRad;
+                drawText(grx, Integer.toString(angleDeg), anchorX, anchorY, orient, ETextAnchor.C);
+            }
+        }
+    }
+
+    /**
+     * Draws radian tick marks.
+     *
+     * @param grx    the graphics on which to draw
+     * @param cx     the center x coordinate
+     * @param cy     the center y coordinate
+     * @param r      the radius
+     * @param orient the orientation angle, in degrees
+     * @param start  the first index whose tick mark to draw
+     * @param end    the index after the last tick mark to draw (48 per quarter-turn)
+     */
+    private void drawRadiansTicks(final Graphics2D grx, final double cx, final double cy,
+                                  final double r, final double orient, final int start, final int end) {
+
+        final double scl = (double)this.scale;
+        final double innerRadLong = r - THICKNESS * 0.5 * scl;
+        final double innerRadMed = r - THICKNESS * 0.3 * scl;
+        final double innerRadShort = r - THICKNESS * 0.15 * scl;
+
+        final double anchorRad = innerRadLong - 12.0 * scl;
+        final double anchorRad2 = innerRadLong - 18.0 * scl;
+        final double orientRad = Math.toRadians(orient);
+
+        // Draw long lines every pi/12, shorter every pi/24, and short every pi/96
+        for (int step = start; step < end; ++step) {
+
+            final double innerRad = (step % 8) == 0 ? innerRadLong :
+                    ((step % 4) == 0 ? innerRadMed : innerRadShort);
+
+            final double angleRad = (double) step * Math.PI / 96.0 + orientRad;
+            final double cosAngleRad = Math.cos(angleRad);
+            final double sinAngleRad = Math.sin(angleRad);
+
+            final Shape tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
+                    cx + r * cosAngleRad, cy - r * sinAngleRad);
+            grx.draw(tick);
+
+            if ((step % 8) == 0) {
+                final int twelfths = step / 8;
+
+                String num = CoreConstants.EMPTY;
+                String den = CoreConstants.EMPTY;
+
+                double rad = anchorRad;
+                if (twelfths == 0) {
+                    num = "0";
+                } else if (twelfths == 1) {
+                    rad = anchorRad2;
+                    num = "\u03c0";
+                    den = "12";
+                } else if (twelfths == 2) {
+                    rad = anchorRad2;
+                    num = "\u03c0";
+                    den = "6";
+                } else if (twelfths == 3) {
+                    rad = anchorRad2;
+                    num = "\u03c0";
+                    den = "4";
+                } else if (twelfths == 4) {
+                    rad = anchorRad2;
+                    num = "\u03c0";
+                    den = "3";
+                } else if (twelfths == 5) {
+                    rad = anchorRad2;
+                    num = "5\u03c0";
+                    den = "12";
+                } else if (twelfths == 6) {
+                    rad = anchorRad2;
+                    num = "\u03c0";
+                    den = "2";
+                } else if (twelfths == 7) {
+                    rad = anchorRad2;
+                    num = "7\u03c0";
+                    den = "12";
+                } else if (twelfths == 8) {
+                    rad = anchorRad2;
+                    num = "2\u03c0";
+                    den = "3";
+                } else if (twelfths == 9) {
+                    rad = anchorRad2;
+                    num = "3\u03c0";
+                    den = "4";
+                } else if (twelfths == 10) {
+                    rad = anchorRad2;
+                    num = "5\u03c0";
+                    den = "6";
+                } else if (twelfths == 11) {
+                    rad = anchorRad2;
+                    num = "11\u03c0";
+                    den = "12";
+                } else if (twelfths == 12) {
+                    num = "\u03c0";
+                } else if (twelfths == 13) {
+                    rad = anchorRad2;
+                    num = "13\u03c0";
+                    den = "12";
+                } else if (twelfths == 14) {
+                    rad = anchorRad2;
+                    num = "7\u03c0";
+                    den = "6";
+                } else if (twelfths == 15) {
+                    rad = anchorRad2;
+                    num = "15\u03c0";
+                    den = "12";
+                } else if (twelfths == 16) {
+                    rad = anchorRad2;
+                    num = "4\u03c0";
+                    den = "3";
+                } else if (twelfths == 17) {
+                    rad = anchorRad2;
+                    num = "17\u03c0";
+                    den = "12";
+                } else if (twelfths == 18) {
+                    rad = anchorRad2;
+                    num = "3\u03c0";
+                    den = "2";
+                } else if (twelfths == 19) {
+                    rad = anchorRad2;
+                    num = "19\u03c0";
+                    den = "12";
+                } else if (twelfths == 20) {
+                    rad = anchorRad2;
+                    num = "5\u03c0";
+                    den = "3";
+                } else if (twelfths == 21) {
+                    rad = anchorRad2;
+                    num = "21\u03c0";
+                    den = "12";
+                } else if (twelfths == 22) {
+                    rad = anchorRad2;
+                    num = "11\u03c0";
+                    den = "6";
+                } else {
+                    rad = anchorRad2;
+                    num = "23\u03c0";
+                    den = "12";
                 }
-            } else if (units == EAngleUnits.RADIANS) {
-                final double anchorRad = innerRadLong - 12.0;
-                final double anchorRad2 = innerRadLong - 18.0;
-
-                // Draw long lines every pi/12, shorter every pi/24, and short every pi/96
-                for (int step = 0; step < 192; ++step) {
-
-                    final double innerRad = (step % 8) == 0 ? innerRadLong :
-                            ((step % 4) == 0 ? innerRadMed : innerRadShort);
-
-                    final double angleRad = step * Math.PI / 96 + orientRad;
-                    final double cosAngleRad = Math.cos(angleRad);
-                    final double sinAngleRad = Math.sin(angleRad);
-
-                    final Line2D tick = new Line2D.Double(cx + innerRad * cosAngleRad, cy - innerRad * sinAngleRad,
-                            cx + r * cosAngleRad, cy - r * sinAngleRad);
-                    grx.draw(tick);
-
-                    if ((step % 8) == 0) {
-                        final int twelfths = step / 8;
-
-                        String num = CoreConstants.EMPTY;
-                        String den = CoreConstants.EMPTY;
-
-                        double rad = anchorRad;
-                        if (twelfths == 0) {
-                            num = "0";
-                        } else if (twelfths == 1) {
-                            rad = anchorRad2;
-                            num = "\u03c0";
-                            den = "12";
-                        } else if (twelfths == 2) {
-                            rad = anchorRad2;
-                            num = "\u03c0";
-                            den = "6";
-                        } else if (twelfths == 3) {
-                            rad = anchorRad2;
-                            num = "\u03c0";
-                            den = "4";
-                        } else if (twelfths == 4) {
-                            rad = anchorRad2;
-                            num = "\u03c0";
-                            den = "3";
-                        } else if (twelfths == 5) {
-                            rad = anchorRad2;
-                            num = "5\u03c0";
-                            den = "12";
-                        } else if (twelfths == 6) {
-                            rad = anchorRad2;
-                            num = "\u03c0";
-                            den = "2";
-                        } else if (twelfths == 7) {
-                            rad = anchorRad2;
-                            num = "7\u03c0";
-                            den = "12";
-                        } else if (twelfths == 8) {
-                            rad = anchorRad2;
-                            num = "2\u03c0";
-                            den = "3";
-                        } else if (twelfths == 9) {
-                            rad = anchorRad2;
-                            num = "3\u03c0";
-                            den = "4";
-                        } else if (twelfths == 10) {
-                            rad = anchorRad2;
-                            num = "5\u03c0";
-                            den = "6";
-                        } else if (twelfths == 11) {
-                            rad = anchorRad2;
-                            num = "11\u03c0";
-                            den = "12";
-                        } else if (twelfths == 12) {
-                            num = "\u03c0";
-                        } else if (twelfths == 13) {
-                            rad = anchorRad2;
-                            num = "13\u03c0";
-                            den = "12";
-                        } else if (twelfths == 14) {
-                            rad = anchorRad2;
-                            num = "7\u03c0";
-                            den = "6";
-                        } else if (twelfths == 15) {
-                            rad = anchorRad2;
-                            num = "15\u03c0";
-                            den = "12";
-                        } else if (twelfths == 16) {
-                            rad = anchorRad2;
-                            num = "4\u03c0";
-                            den = "3";
-                        } else if (twelfths == 17) {
-                            rad = anchorRad2;
-                            num = "17\u03c0";
-                            den = "12";
-                        } else if (twelfths == 18) {
-                            rad = anchorRad2;
-                            num = "3\u03c0";
-                            den = "2";
-                        } else if (twelfths == 19) {
-                            rad = anchorRad2;
-                            num = "19\u03c0";
-                            den = "12";
-                        } else if (twelfths == 20) {
-                            rad = anchorRad2;
-                            num = "5\u03c0";
-                            den = "3";
-                        } else if (twelfths == 21) {
-                            rad = anchorRad2;
-                            num = "21\u03c0";
-                            den = "12";
-                        } else if (twelfths == 22) {
-                            rad = anchorRad2;
-                            num = "11\u03c0";
-                            den = "6";
-                        } else {
-                            rad = anchorRad2;
-                            num = "23\u03c0";
-                            den = "12";
-                        }
-                        final double anchorX = cx + rad * cosAngleRad;
-                        final double anchorY = cy - rad * sinAngleRad;
-                        if (den.isEmpty()) {
-                            drawText(grx, num, anchorX, anchorY, orient, ETextAnchor.C);
-                        } else {
-                            drawFraction(grx, num, den, anchorX, anchorY, orient, ETextAnchor.C);
-                        }
-                    }
+                final double anchorX = cx + rad * cosAngleRad;
+                final double anchorY = cy - rad * sinAngleRad;
+                if (den.isEmpty()) {
+                    drawText(grx, num, anchorX, anchorY, orient, ETextAnchor.C);
+                } else {
+                    drawFraction(grx, num, den, anchorX, anchorY, orient, ETextAnchor.C);
                 }
             }
         }
@@ -1172,8 +1141,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
             xml.add(" units=\"deg\"");
         } else if (this.angleUnits == EAngleUnits.RADIANS) {
             xml.add(" units=\"rad\"");
-        } else if (this.angleUnits == EAngleUnits.DEGREES_AND_RADIANS) {
-            xml.add(" units=\"both\"");
         }
 
         if (this.numQuadrants != null) {

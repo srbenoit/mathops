@@ -88,8 +88,11 @@ public enum DocObjectConverter {
         if (obj.getOffscreen() != null) {
             final Style style = styleStack.peek();
             if (style != null) {
-                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize())
-                        .toImg("Drawing", (double) obj.getScale());
+                final String alt = obj.getAltText();
+                final String actualAlt = alt == null ? null : obj.generateStringContents(context, alt);
+
+                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize(), actualAlt)
+                        .toImg((double) obj.getScale());
             }
         }
 
@@ -256,8 +259,11 @@ public enum DocObjectConverter {
         if (obj.getOffscreen() != null) {
             final Style style = styleStack.peek();
             if (style != null) {
-                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize())
-                        .toImg("Graph", (double) obj.getScale());
+                final String alt = obj.getAltText();
+                final String actualAlt = alt == null ? null : obj.generateStringContents(context, alt);
+
+                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize(), actualAlt)
+                        .toImg((double) obj.getScale());
             }
         }
 
@@ -275,12 +281,14 @@ public enum DocObjectConverter {
 
         String result = CoreConstants.EMPTY;
 
+        obj.getAltText();
+
         if (obj.getSource() == null) {
             if (obj.getImage() != null) {
                 final Style style = styleStack.peek();
                 if (style != null) {
-                    result = new HtmlImage(obj.getImage(), 0.0, (double) style.getSize())
-                            .toImg("Image", (double) obj.getScale());
+                    result = new HtmlImage(obj.getImage(), 0.0, (double) style.getSize(), obj.getAltText())
+                            .toImg((double) obj.getScale());
                 }
             }
         } else {
