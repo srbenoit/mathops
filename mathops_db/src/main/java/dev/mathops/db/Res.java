@@ -12,29 +12,19 @@ final class Res extends ResBundle {
     /** An incrementing index for resource keys. */
     private static int index = 1;
 
-    // Used by TermKey
+    /** A resource key. */
+    static final String FILE_LOAD_FAIL = key(index++);
 
     /** A resource key. */
-    static final String BAD_SHORT_TERM = key(index++);
-
-    /** A resource key. */
-    static final String NULL_SHORT_TERM = key(index++);
-
-    /** A resource key. */
-    static final String BAD_LONG_TERM = key(index++);
-
-    /** A resource key. */
-    static final String NULL_LONG_TERM = key(index++);
+    static final String FILE_NOT_FOUND = key(index++);
 
     //
 
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = { //
 
-            {BAD_SHORT_TERM, "Invalid short term string: {0}"},
-            {NULL_SHORT_TERM, "Short term string may not be null"},
-            {BAD_LONG_TERM, "Invalid long term string: {0}"},
-            {NULL_LONG_TERM, "Long term string may not be null"},
+            {FILE_LOAD_FAIL, "FileLoader failed to read file {0}"},
+            {FILE_NOT_FOUND, "File not found: {0} - {1}"},
 
             //
     };
@@ -50,16 +40,16 @@ final class Res extends ResBundle {
         super(Locale.US, EN_US);
     }
 
-    /**
-     * Gets the message with a specified key using the current locale.
-     *
-     * @param key the message key
-     * @return the best-matching message, an empty string if none is registered (never {@code null})
-     */
-    static String get(final String key) {
-
-        return instance.getMsg(key);
-    }
+//    /**
+//     * Gets the message with a specified key using the current locale.
+//     *
+//     * @param key the message key
+//     * @return the best-matching message, an empty string if none is registered (never {@code null})
+//     */
+//    static String get(final String key) {
+//
+//        return instance.getMsg(key);
+//    }
 
     /**
      * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with

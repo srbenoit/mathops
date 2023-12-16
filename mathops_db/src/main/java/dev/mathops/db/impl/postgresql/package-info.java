@@ -5,4 +5,4 @@
  * <p>
  * This implementation will use a single "math" database that holds named schemas, each with tables.
  */
-package dev.mathops.db.generalized.impl.postgresql;
+package dev.mathops.db.impl.postgresql;

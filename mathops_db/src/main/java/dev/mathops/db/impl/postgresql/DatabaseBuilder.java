@@ -1,4 +1,4 @@
-package dev.mathops.db.generalized.impl.postgresql;
+package dev.mathops.db.impl.postgresql;
 
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
@@ -6,9 +6,9 @@ import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
 import dev.mathops.db.config.LoginConfig;
 import dev.mathops.db.config.ServerConfig;
-import dev.mathops.db.generalized.impl.DatabaseValidationResult;
-import dev.mathops.db.generalized.impl.EValidationStatus;
-import dev.mathops.db.tables.primary.AllTables;
+import dev.mathops.db.impl.DatabaseValidationResult;
+import dev.mathops.db.impl.EValidationStatus;
+import dev.mathops.db.table.primary.AllTables;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

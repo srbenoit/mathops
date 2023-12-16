@@ -1,4 +1,4 @@
-package dev.mathops.db.tables.primary;
+package dev.mathops.db.table.primary;
 
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.Table;

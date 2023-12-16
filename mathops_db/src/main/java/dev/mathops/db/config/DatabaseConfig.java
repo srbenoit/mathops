@@ -7,7 +7,7 @@ import dev.mathops.core.parser.xml.EmptyElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 import dev.mathops.core.parser.xml.XmlContent;
-import dev.mathops.db.file.DbFileLoader;
+import dev.mathops.db.DbFileLoader;
 
 import java.io.File;
 import java.util.ArrayList;

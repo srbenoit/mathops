@@ -1,8 +1,7 @@
-package dev.mathops.app.db.ui;
+package dev.mathops.app.db.ui.configuration;
 
 import dev.mathops.core.res.ResBundle;
 
-import javax.swing.JButton;
 import java.util.Locale;
 
 /**
@@ -13,34 +12,29 @@ final class Res extends ResBundle {
     /** An incrementing index for resource keys. */
     private static int index = 1;
 
-    // Resources used by MainWindow
+    // Resources used by MainConfigurationPanel
 
     /** A resource key. */
-    static final String MAIN_WINDOW_TITLE = key(index++);
+    static final String SERVERS_BTN_LABEL = key(index++);
 
     /** A resource key. */
-    static final String DATA_TAB_TITLE = key(index++);
+    static final String PROFILES_BTN_LABEL = key(index++);
 
     /** A resource key. */
-    static final String ANALYTICS_TAB_TITLE = key(index++);
+    static final String CODE_BTN_LABEL = key(index++);
 
     /** A resource key. */
-    static final String DBA_TAB_TITLE = key(index++);
-
-    /** A resource key. */
-    static final String CONFIGURATION_TAB_TITLE = key(index++);
+    static final String WEB_BTN_LABEL = key(index++);
 
     //
 
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = {
 
-            {MAIN_WINDOW_TITLE, "Database Management",},
-
-            {DATA_TAB_TITLE, "Data"},
-            {ANALYTICS_TAB_TITLE, "Analytics"},
-            {DBA_TAB_TITLE, "Administration"},
-            {CONFIGURATION_TAB_TITLE, "Configuration"},
+            {SERVERS_BTN_LABEL, "Database Servers",},
+            {PROFILES_BTN_LABEL, "Data Profiles",},
+            {CODE_BTN_LABEL, "Code Contexts",},
+            {WEB_BTN_LABEL, "Website Contexts",},
     };
 
     /** The singleton instance. */

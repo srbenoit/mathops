@@ -1,4 +1,4 @@
-package dev.mathops.db.file;
+package dev.mathops.db;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;

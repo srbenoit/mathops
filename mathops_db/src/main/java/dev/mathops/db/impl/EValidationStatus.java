@@ -1,7 +1,4 @@
-package dev.mathops.db.generalized.impl;
-
-import java.util.ArrayList;
-import java.util.List;
+package dev.mathops.db.impl;
 
 /**
  * Possible validation statuses.

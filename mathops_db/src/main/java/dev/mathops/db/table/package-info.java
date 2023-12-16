@@ -8,4 +8,4 @@
  * A table definition should include factory methods to create records, query criteria objects for all implemented
  * queries, and updated value objects for implemented updates, all with well-typed argument lists.
  */
-package dev.mathops.db.tables;
+package dev.mathops.db.table;

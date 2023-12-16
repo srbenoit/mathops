@@ -1,4 +1,4 @@
-package dev.mathops.db.tables.primary;
+package dev.mathops.db.table.primary;
 
 import dev.mathops.db.generalized.EFieldRole;
 import dev.mathops.db.generalized.EFieldType;
