@@ -1,11 +1,9 @@
 package dev.mathops.app.db.ui.configuration;
 
 import dev.mathops.app.AppFileLoader;
-import dev.mathops.app.db.config.MutableDatabaseConfig;
 import dev.mathops.app.db.ui.MainWindow;
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.config.DatabaseConfig;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -13,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -35,19 +34,16 @@ public final class MainConfigurationPanel extends JPanel {
     private static final int ICON_TEXT_GAP = 20;
 
     /** The configuration controller. */
-    private final Controller controller;
-
-    /** The active database configuration. */
-    private DatabaseConfig activeConfig;
-
-    /** The mutable database configuration based on the currently loaded configuration. */
-    private MutableDatabaseConfig mutableConfig;
+    private final Model controller;
 
     /** The button to save configuration and apply any changes. */
     private final JButton applyButton;
 
     /** The button to revert to saved config. */
     private final JButton revertButton;
+
+    /** A panel with card layout to switch between domains of a configuration file. */
+    private final CardLayout cards;
 
     /**
      * Constructs a new {@code MainConfigurationPanel}.
@@ -56,7 +52,7 @@ public final class MainConfigurationPanel extends JPanel {
 
         super(new StackedBorderLayout());
 
-        this.controller = new Controller();
+        this.controller = new Model();
 
         setPreferredSize(new Dimension(WIN_WIDTH, WIN_HEIGHT));
 
@@ -73,19 +69,19 @@ public final class MainConfigurationPanel extends JPanel {
 
         final String serversLbl = Res.get(Res.SERVERS_BTN_LABEL);
         final JButton serversButton = buildMainButton(serversLbl, "servers48.png", 10, this.controller,
-                Controller.SERVERS_CMD);
+                Model.SERVERS_CMD);
 
         final String profilesLbl = Res.get(Res.PROFILES_BTN_LABEL);
         final JButton profilesButton = buildMainButton(profilesLbl, "profiles48.png", 10, this.controller,
-                Controller.PROFILES_CMD);
+                Model.PROFILES_CMD);
 
         final String codeLbl = Res.get(Res.CODE_BTN_LABEL);
         final JButton codeContextsButton = buildMainButton(codeLbl, "codecontexts48.png", 10, this.controller,
-                Controller.CODE_CTX_CMD);
+                Model.CODE_CTX_CMD);
 
         final String webLbl = Res.get(Res.WEB_BTN_LABEL);
         final JButton webContextsButton = buildMainButton(webLbl, "webcontexts48.png", 10, this.controller,
-                Controller.WEB_CTX_CMD);
+                Model.WEB_CTX_CMD);
 
         final Dimension serversPref = serversButton.getPreferredSize();
         final Dimension profilesPref = profilesButton.getPreferredSize();
@@ -125,13 +121,28 @@ public final class MainConfigurationPanel extends JPanel {
         add(south, StackedBorderLayout.SOUTH);
 
         this.applyButton = buildMainButton("Save and Apply Changes", "save_apply32.png", 7,
-                this.controller, Controller.APPLY_CMD);
+                this.controller, Model.APPLY_CMD);
 
         this.revertButton = buildMainButton("Discard Changes and Revert to Saved", "revert32.png", 7,
-                this.controller, Controller.REVERT_CMD);
+                this.controller, Model.REVERT_CMD);
 
         south.add(this.applyButton);
         south.add(this.revertButton);
+
+        this.cards = new CardLayout();
+        final JPanel cardPanel = new JPanel(this.cards);
+
+        add(cardPanel, StackedBorderLayout.CENTER);
+
+        cardPanel.add(new JPanel(), "NOTHING");
+        final DatabaseServersPane serverPane = new DatabaseServersPane();
+        cardPanel.add(serverPane, "SERVERS");
+        final DataProfilesPane profilesPane = new DataProfilesPane();
+        cardPanel.add(profilesPane, "PROFILES");
+        final CodeContextsPane codePane = new CodeContextsPane();
+        cardPanel.add(codePane, "CODE");
+        final WebContextsPane webPane = new WebContextsPane();
+        cardPanel.add(webPane, "WEB");
     }
 
     /**
@@ -170,18 +181,6 @@ public final class MainConfigurationPanel extends JPanel {
         }
 
         return btn;
-    }
-
-    /**
-     * Updates configuration, including the active database configuration.  This reconstructs the mutable configuration
-     * object this panel administers and updates the UI to match.
-     *
-     * @param theMainWindow the owning {@code MainWindow}
-     */
-    public void updateConfig(final MainWindow theMainWindow) {
-
-        this.activeConfig = theMainWindow.getDbConfig();
-        this.mutableConfig = new MutableDatabaseConfig(this.activeConfig);
     }
 
     /**

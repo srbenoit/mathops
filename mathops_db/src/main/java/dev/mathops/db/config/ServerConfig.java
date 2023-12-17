@@ -75,6 +75,9 @@ public final class ServerConfig {
     /** The schema type. */
     public final ESchemaType schema;
 
+    /** The server ID. */
+    public final String id;
+
     /** The server host name (or IP address). */
     public final String host;
 
@@ -93,19 +96,23 @@ public final class ServerConfig {
     /**
      * Constructs a new {@code ServerConfig}.
      *
-     * @param theType  the database installation type
-     * @param theSchema the schema type
-     * @param theHost the host name
-     * @param thePort the TCP port
-     * @param theDbId the database ID, if required by the database driver
+     * @param theId      the server ID
+     * @param theType    the database installation type
+     * @param theSchema  the schema type
+     * @param theHost    the host name
+     * @param thePort    the TCP port
+     * @param theDbId    the database ID, if required by the database driver
      * @param theDbaUser the DBA username (null if not configured)
-     * @param theLogins the configured logins
+     * @param theLogins  the configured logins
      * @throws IllegalArgumentException if the type, schema, or host is null, or the TCP port is invalid
      */
-    public ServerConfig(final EDbInstallationType theType, final ESchemaType theSchema, final String theHost,
-                 final int thePort, final String theDbId, final String theDbaUser,
-                 final Collection<LoginConfig> theLogins) {
+    public ServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema,
+                        final String theHost, final int thePort, final String theDbId, final String theDbaUser,
+                        final Collection<LoginConfig> theLogins) {
 
+        if (theId == null || theId.isBlank()) {
+            throw new IllegalArgumentException("ID may not be null or blank.");
+        }
         if (theType == null) {
             throw new IllegalArgumentException("Database installation type may not be null.");
         }
@@ -119,6 +126,7 @@ public final class ServerConfig {
             throw new IllegalArgumentException("Invalid TCP port number");
         }
 
+        this.id = theId;
         this.type = theType;
         this.schema = theSchema;
         this.host = theHost;
@@ -150,6 +158,11 @@ public final class ServerConfig {
 
         if (ELEM_TAG.equals(theElem.getTagName())) {
 
+            this.id = theElem.getRequiredStringAttr(HOST_ATTR);
+            if (this.id.isBlank()) {
+                throw new IllegalArgumentException("ID may not be blank.");
+            }
+
             this.type = EDbInstallationType.forName(theElem.getRequiredStringAttr(TYPE_ATTR));
             if (this.type == null) {
                 throw new ParsingException(theElem.getStart(), theElem.getEnd(),
@@ -163,7 +176,15 @@ public final class ServerConfig {
             }
 
             this.host = theElem.getRequiredStringAttr(HOST_ATTR);
+            if (this.host.isBlank()) {
+                throw new IllegalArgumentException("Hostname may not be blank.");
+            }
+
             this.port = theElem.getIntegerAttr(PORT_ATTR, ZERO).intValue();
+            if ( this.port < 1 || this.port > 65535) {
+                throw new IllegalArgumentException("Invalid TCP port number");
+            }
+
             this.dbId = theElem.getStringAttr(DBID_ATTR);
             this.dbaUser = theElem.getStringAttr(DBA_ATTR);
 

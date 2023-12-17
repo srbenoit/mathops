@@ -1,6 +1,7 @@
 package dev.mathops.db.config;
 
 import dev.mathops.core.PathList;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
@@ -12,6 +13,7 @@ import dev.mathops.db.DbFileLoader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,8 +78,8 @@ public final class DatabaseConfig {
     /** Map from login configuration ID to the login configuration object. */
     private final Map<String, LoginConfig> logins;
 
-    /** List of servers. */
-    private final List<ServerConfig> servers;
+    /** Map from server ID to server configuration object. */
+    private final Map<String, ServerConfig> servers;
 
     /** Map from data profile configuration ID to the configuration object. */
     private final Map<String, DataProfile> dataProfiles;
@@ -89,7 +91,8 @@ public final class DatabaseConfig {
     private final Map<String, DataProfile> codeContexts;
 
     /**
-     * A private constructor that creates an empty {@code DatabaseConfig} in the event the context map could not be loaded.
+     * A private constructor that creates an empty {@code DatabaseConfig} in the event the context map could not be
+     * loaded.
      */
     private DatabaseConfig() {
 
@@ -97,11 +100,11 @@ public final class DatabaseConfig {
 
         this.synch = new Object();
 
-        this.servers = new ArrayList<>(10);
+        this.servers = new LinkedHashMap<>(10);
         this.logins = new HashMap<>(10);
-        this.dataProfiles = new HashMap<>(10);
-        this.webContexts = new HashMap<>(10);
-        this.codeContexts = new HashMap<>(10);
+        this.dataProfiles = new LinkedHashMap<>(10);
+        this.webContexts = new LinkedHashMap<>(10);
+        this.codeContexts = new LinkedHashMap<>(10);
     }
 
     /**
@@ -124,15 +127,28 @@ public final class DatabaseConfig {
                 switch (innerElem.getTagName()) {
                     case ServerConfig.ELEM_TAG -> {
                         final ServerConfig server = new ServerConfig(this.logins, innerElem);
-                        this.servers.add(server);
+                        if (this.servers.containsKey(server.id)) {
+                            final String msg = SimpleBuilder.concat("Multiple servers with the id '", server.id, "'");
+                            throw new ParsingException(elem, msg);
+                        }
+                        this.servers.put(server.id, server);
+
+                        for (final LoginConfig login : server.getLogins()) {
+                            if (this.logins.containsKey(login.id)) {
+                                final String msg = SimpleBuilder.concat("Multiple logins with the id '", login.id, "'");
+                                throw new ParsingException(elem, msg);
+                            }
+                            this.logins.put(login.id, login);
+                        }
                     }
                     case DataProfile.ELEM_TAG -> {
                         final DataProfile dataProfile = new DataProfile(this.logins, innerElem);
                         if (this.dataProfiles.containsKey(dataProfile.id)) {
-                            Log.warning("Duplicated data profile ID: " + dataProfile.id);
-                        } else {
-                            this.dataProfiles.put(dataProfile.id, dataProfile);
+                            final String msg = SimpleBuilder.concat("Multiple data profiles with the id '",
+                                    dataProfile.id, "'");
+                            throw new ParsingException(elem, msg);
                         }
+                        this.dataProfiles.put(dataProfile.id, dataProfile);
                     }
                     case WEB_TAG -> processWebNode(innerElem);
                     case null, default -> Log.warning("Unexpected tag: " + innerElem.getTagName());
@@ -343,7 +359,7 @@ public final class DatabaseConfig {
     public ServerConfig[] getServers() {
 
         synchronized (this.synch) {
-            return this.servers.toArray(EMPTY_SERVER_CFG_ARRAY);
+            return this.servers.values().toArray(EMPTY_SERVER_CFG_ARRAY);
         }
     }
 

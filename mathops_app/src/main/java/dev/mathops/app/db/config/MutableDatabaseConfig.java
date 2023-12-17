@@ -2,9 +2,7 @@ package dev.mathops.app.db.config;
 
 import dev.mathops.db.config.DatabaseConfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -14,7 +12,7 @@ import java.util.Map;
 public final class MutableDatabaseConfig {
 
     /** The list of mutable server configuration objects. */
-    private final List<MutableServerConfig> servers;
+    private final Map<String, MutableServerConfig> servers;
 
     /** A map from profile ID to the mutable data profile configuration object. */
     private Map<String, MutableDataProfile> profiles;
@@ -27,9 +25,9 @@ public final class MutableDatabaseConfig {
      */
     public MutableDatabaseConfig() {
 
-        this.servers = new ArrayList<>(10);
-        this.profiles = new HashMap<>(10);
-        this.codeContexts = new HashMap<>(10);
+        this.servers = new LinkedHashMap<>(10);
+        this.profiles = new LinkedHashMap<>(10);
+        this.codeContexts = new LinkedHashMap<>(10);
     }
 
     /**
@@ -39,9 +37,9 @@ public final class MutableDatabaseConfig {
      */
     public MutableDatabaseConfig(final DatabaseConfig source) {
 
-        this.servers = new ArrayList<>(10);
-        this.profiles = new HashMap<>(10);
-        this.codeContexts = new HashMap<>(10);
+        this.servers = new LinkedHashMap<>(10);
+        this.profiles = new LinkedHashMap<>(10);
+        this.codeContexts = new LinkedHashMap<>(10);
     }
 
     /**
