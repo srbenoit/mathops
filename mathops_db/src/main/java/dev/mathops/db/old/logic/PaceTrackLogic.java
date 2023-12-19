@@ -159,34 +159,37 @@ public enum PaceTrackLogic {
         if ("002".equals(sect)) {
             // 002 is a "late-start" section - track C (only 1 or 2 course pace)
             track = "C";
-        } else if ("003".equals(sect) || "004".equals(sect)) {
-            // 003/004 are in-person sections
+        } else if ("003".equals(sect) || "004".equals(sect) || "005".equals(sect) || "006".equals(sect)
+                || "007".equals(sect)) {
+            // In-person sections - if "MATH 125" or "MATH 126" is included, use track E, otherwise, use track D
+
             track = "D";
-        } else if (pace == 2) {
-            // Track B if student does NOT have MATH 117
-
-            track = "B";
-
-            // 2-course students who have MATH 117 (Fall) or MATH 125 (Spring) are track "A".
-            // Summer has only track A.
             for (final RawStcourse test : registrations) {
-                if (isApplicableCourse(test.course) && isCountedTowardPace(test)
-                        && RawRecordConstants.M117.equals(test.course)) {
+                if ((RawRecordConstants.MATH125.equals(test.course)
+                        || RawRecordConstants.MATH126.equals(test.course))
+                        && isCountedTowardPace(test)) {
+                    track = "E";
+                    break;
+                }
+            }
+        } else if (pace == 2) {
+            // 2-course students who have MATH 117 (Fall) or MATH 125 (Spring) are track "A".  Otherwise, track "B".
+            // Summer has only track A.
+            track = "B";
+            for (final RawStcourse test : registrations) {
+                if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
                     track = "A";
                     break;
                 }
             }
         } else if (pace == 1) {
-            // Track B if student does NOT have MATH 117 or MATH 124
-
-            track = "B";
-
             // 1-course students who have MATH 117 or {MATH 125 (Fall) or MATH 124 (Spring)} are
-            // track "A". Summer has only track A.
+            // track "A". Otherwise, track "B".  Summer has only track A.
+            track = "B";
             for (final RawStcourse test : registrations) {
-                if (isApplicableCourse(test.course) && isCountedTowardPace(test)
-                        && (RawRecordConstants.M117.equals(test.course)
-                        || RawRecordConstants.M124.equals(test.course))) {
+                if ((RawRecordConstants.M117.equals(test.course)
+                        || RawRecordConstants.M124.equals(test.course))
+                        && isCountedTowardPace(test)) {
                     track = "A";
                     break;
                 }

@@ -152,8 +152,23 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
     public static List<RawDiscipline> queryByStudent(final Cache cache, final String stuId)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM discipline WHERE stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat("SELECT * FROM discipline WHERE stu_id=", sqlStringValue(stuId));
+
+        return executeQuery(cache, sql);
+    }
+
+    /**
+     * Gets all discipline records for an action code.
+     *
+     * @param cache the data cache
+     * @param action the action code
+     * @return the list of discipline records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawDiscipline> queryByActionCode(final Cache cache, final String action)
+            throws SQLException {
+
+        final String sql = SimpleBuilder.concat("SELECT * FROM discipline WHERE action_type=", sqlStringValue(action));
 
         return executeQuery(cache, sql);
     }

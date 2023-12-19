@@ -657,6 +657,8 @@ public final class ImportOdsApplicants {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
+
         final ImportOdsApplicants job = new ImportOdsApplicants();
 
         Log.fine(job.execute());
