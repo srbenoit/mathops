@@ -53,6 +53,9 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String DB_CFG_BAD_SITE_TAG = key(index++);
 
+    /** A resource key. */
+    static final String DB_CFG_UNEXPEC_CHILD = key(index++);
+
     // Used by ServerConfig
 
     /** A resource key. */
@@ -112,6 +115,7 @@ final class Res extends ResBundle {
             {DB_CFG_DUP_PATH, "Multiple 'site' tags with path ''{0}'' in context map"},
             {DB_CFG_DUP_CODE, "Multiple 'code' tags with context ''{0}'' in context map"},
             {DB_CFG_BAD_SITE_TAG, "Child of 'web' element was ''{0}'' rather than 'site' in context map"},
+            {DB_CFG_UNEXPEC_CHILD, "Unexpected tag: {0}"},
 
             {SRV_CFG_BAD_ELEM_TAG, "A server configuration must be in an element with tag 'server'"},
             {SRV_CFG_BAD_TYPE, "Invalid type in 'server' tag: {0}"},

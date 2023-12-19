@@ -14,10 +14,10 @@ import java.util.Map;
 public final class MutableDataProfile {
 
     /** The data profile ID. */
-    private String id;
+    private final String id;
 
     /** The map from schema type to the configured login ID (must have an entry for every schema type). */
-    private final Map<ESchemaType, String> schemaLogins;
+    private final Map<ESchemaType, MutableLoginConfig> schemaLogins;
 
     /**
      * Constructs a new {@code MutableDataProfileConfig}.
@@ -25,7 +25,7 @@ public final class MutableDataProfile {
      * @param theId           the data profile ID
      * @param theSchemaLogins a map from schema type to the configured login ID (must have an entry for every type)
      */
-    public MutableDataProfile(final String theId, final Map<ESchemaType, String> theSchemaLogins) {
+    public MutableDataProfile(final String theId, final Map<ESchemaType, MutableLoginConfig> theSchemaLogins) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Data profile ID may not be null or blank.");
@@ -43,8 +43,9 @@ public final class MutableDataProfile {
      * Constructs a new {@code MutableDataProfileConfig} from a {@code DataProfile}.
      *
      * @param source the source {@code ServerConfig}
+     * @param logins the defined login objects
      */
-    public MutableDataProfile(final DataProfile source) {
+    MutableDataProfile(final DataProfile source, final Map<String, MutableLoginConfig> logins) {
 
         this.id = source.id;
         this.schemaLogins = new EnumMap<>(ESchemaType.class);
@@ -56,7 +57,8 @@ public final class MutableDataProfile {
                 throw new IllegalArgumentException("Source object must have a login for every schema");
             }
 
-            this.schemaLogins.put(schema, login.id);
+            final MutableLoginConfig mutableLogin = logins.get(login.id);
+            this.schemaLogins.put(schema, mutableLogin);
         }
     }
 
@@ -76,7 +78,7 @@ public final class MutableDataProfile {
      * @param schema the schema type
      * @return the configured login (never {@code null} or blank)
      */
-    public String getSchemaLogin(final ESchemaType schema) {
+    MutableLoginConfig getSchemaLogin(final ESchemaType schema) {
 
         if (schema == null) {
             throw new IllegalArgumentException("Schema type may not be null");
@@ -86,21 +88,21 @@ public final class MutableDataProfile {
     }
 
     /**
-     * Sets the login ID associated with a schema type.
+     * Sets the login associated with a schema type.
      *
      * @param schema the schema type
-     * @param loginId the new login ID
+     * @param login  the new login
      */
-    public void setSchemaLogin(final ESchemaType schema, final String loginId) {
+    public void setSchemaLogin(final ESchemaType schema, final MutableLoginConfig login) {
 
         if (schema == null) {
             throw new IllegalArgumentException("Schema type may not be null");
         }
-        if (loginId == null || loginId.isBlank()) {
-            throw new IllegalArgumentException("Login ID may not be null or blank");
+        if (login == null) {
+            throw new IllegalArgumentException("Login may not be null or blank");
         }
 
-        this.schemaLogins.put(schema, loginId);
+        this.schemaLogins.put(schema, login);
     }
 
     /**

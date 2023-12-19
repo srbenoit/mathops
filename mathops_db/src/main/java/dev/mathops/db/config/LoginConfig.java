@@ -1,14 +1,14 @@
 package dev.mathops.db.config;
 
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
-import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 
-import java.sql.SQLException;
+import java.util.Map;
 
 /**
- * Represents login credentials (username and password) for a database.
+ * An immutable set of login credentials (username and password) for a specified database server.
  */
 public final class LoginConfig {
 
@@ -18,6 +18,9 @@ public final class LoginConfig {
     /** The ID attribute. */
     private static final String ID_ATTR = "id";
 
+    /** The server ID attribute. */
+    private static final String SERVER_ATTR = "server";
+
     /** The user attribute. */
     private static final String USER_ATTR = "user";
 
@@ -26,6 +29,9 @@ public final class LoginConfig {
 
     /** The ID of the configuration (unique among all loaded configurations). */
     public final String id;
+
+    /** The ID of the server configuration to which this login applies. */
+    public final String server;
 
     /** The login username. */
     public String user;
@@ -37,19 +43,25 @@ public final class LoginConfig {
      * Constructs a new {@code LoginConfig}.
      *
      * @param theId       the login configuration ID
+     * @param theServer   the server configuration to which this login applies
      * @param theUser     the login username
      * @param thePassword the login password
      */
-    public LoginConfig(final String theId, final String theUser, final String thePassword) {
+    public LoginConfig(final String theId, final String theServer, final String theUser,
+                       final String thePassword) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Login ID may not be null or blank.");
+        }
+        if (theServer == null || theId.isBlank()) {
+            throw new IllegalArgumentException("Server ID may not be null or blank");
         }
         if (theUser == null || theUser.isBlank()) {
             throw new IllegalArgumentException("Login user name may not be null or blank.");
         }
 
         this.id = theId;
+        this.server = theServer;
         this.user = theUser;
         this.password = thePassword;
     }
@@ -57,39 +69,38 @@ public final class LoginConfig {
     /**
      * Constructs a new {@code LoginConfig} from its XML representation.
      *
-     * @param theElem   the XML element from which to extract configuration settings.
+     * @param theElem the XML element from which to extract configuration settings.
+     * @param servers a map from server ID to server configuration
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    LoginConfig(final EmptyElement theElem) throws ParsingException {
+    LoginConfig(final EmptyElement theElem, final Map<String, ServerConfig> servers) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
-            this.user = theElem.getRequiredStringAttr(USER_ATTR);
-            this.password = theElem.getStringAttr(PASSWORD_ATTR);
-
             if (this.id == null || this.id.isBlank()) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(), "Login ID may not be null or blank.");
+                throw new ParsingException(theElem, "Login ID may not be null or blank.");
             }
+
+            this.server = theElem.getRequiredStringAttr(SERVER_ATTR);
+            if (!servers.containsKey(this.server)) {
+                final String msg = SimpleBuilder.concat("Server '", this.server,
+                        "' referenced in login is not defined");
+                throw new ParsingException(theElem, msg);
+            }
+
+            this.user = theElem.getRequiredStringAttr(USER_ATTR);
             if (this.user == null || this.user.isBlank()) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        "Login user name may not be null or blank.");
+                throw new ParsingException(theElem, "Login user name may not be null or blank.");
             }
+
+            // NOTE: Password is allowed to be blank - applications should prompt for the password at runtime, to
+            // prevent having to store plaintext passwords in configuration files
+            this.password = theElem.getStringAttr(PASSWORD_ATTR);
         } else {
-            throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.LOGIN_CFG_BAD_ELEM_TAG));
+            final String msg = Res.get(Res.LOGIN_CFG_BAD_ELEM_TAG);
+            throw new ParsingException(theElem, msg);
         }
-    }
-
-    /**
-     * Sets the login parameters used for subsequent connections to the database.
-     *
-     * @param theUsername the username
-     * @param thePassword the password
-     */
-    public void setLogin(final String theUsername, final String thePassword) {
-
-        this.user = theUsername;
-        this.password = thePassword;
     }
 
     /**
@@ -134,7 +145,8 @@ public final class LoginConfig {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add("Login ", this.id, " as ", this.user);
+        builder.add("LoginConfig{id='", this.id, "',server='", this.server, "',user='", this.user, "',password='",
+                this.password, "'");
 
         return builder.toString();
     }

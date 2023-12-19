@@ -6,8 +6,6 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
-import dev.mathops.core.parser.xml.INode;
-import dev.mathops.core.parser.xml.NonemptyElement;
 import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
@@ -16,11 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -35,15 +28,16 @@ import java.util.Properties;
  * XML Representation:
  *
  * <pre>
- * &lt;server type='...' schema='...' host='...' port='...' id='...'&gt;
- *   ... zero or more &lt;login&gt; child elements ...
- * &lt;/server&gt;
+ * &lt;server id='...' type='...' schema='...' host='...' port='...' db='...' dba='...'/&gt;
  * </pre>
  */
 public final class ServerConfig {
 
     /** The element tag used in the XML representation of the configuration. */
     static final String ELEM_TAG = "server";
+
+    /** The server ID attribute. */
+    private static final String ID_ATTR = "id";
 
     /** The server type attribute. */
     private static final String TYPE_ATTR = "type";
@@ -58,7 +52,7 @@ public final class ServerConfig {
     private static final String PORT_ATTR = "port";
 
     /** The ID attribute. */
-    private static final String DBID_ATTR = "dbid";
+    private static final String DB_ATTR = "db";
 
     /** The ID attribute. */
     private static final String DBA_ATTR = "dba";
@@ -69,14 +63,20 @@ public final class ServerConfig {
     /** A common integer. */
     private static final Integer ZERO = Integer.valueOf(0);
 
+    /** The least valid TCP port number. */
+    private static final int MIN_TCP_PORT = 1;
+
+    /** The greatest valid TCP port number. */
+    private static final int MAX_TCP_PORT = 65535;
+
+    /** The server ID. */
+    public final String id;
+
     /** The server installation type. */
     public final EDbInstallationType type;
 
     /** The schema type. */
     public final ESchemaType schema;
-
-    /** The server ID. */
-    public final String id;
 
     /** The server host name (or IP address). */
     public final String host;
@@ -84,14 +84,11 @@ public final class ServerConfig {
     /** The TCP port on which the server accepts JDBC connections. */
     public final int port;
 
-    /** The database ID, if required by the database driver. */
-    public final String dbId;
+    /** The database, if required by the database driver. */
+    public final String db;
 
-    /** The DBA username (null if not configured). */
+    /** The DBA username ({@code null} if not configured). */
     public final String dbaUser;
-
-    /** The logins. */
-    private final List<LoginConfig> logins;
 
     /**
      * Constructs a new {@code ServerConfig}.
@@ -101,14 +98,12 @@ public final class ServerConfig {
      * @param theSchema  the schema type
      * @param theHost    the host name
      * @param thePort    the TCP port
-     * @param theDbId    the database ID, if required by the database driver
+     * @param theDb      the database, if required by the database driver
      * @param theDbaUser the DBA username (null if not configured)
-     * @param theLogins  the configured logins
      * @throws IllegalArgumentException if the type, schema, or host is null, or the TCP port is invalid
      */
     public ServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema,
-                        final String theHost, final int thePort, final String theDbId, final String theDbaUser,
-                        final Collection<LoginConfig> theLogins) {
+                        final String theHost, final int thePort, final String theDb, final String theDbaUser) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("ID may not be null or blank.");
@@ -122,7 +117,7 @@ public final class ServerConfig {
         if (theHost == null || theHost.isBlank()) {
             throw new IllegalArgumentException("Host name may not be null or blank.");
         }
-        if (thePort < 1 || thePort > 65535) {
+        if (thePort < MIN_TCP_PORT || thePort > MAX_TCP_PORT) {
             throw new IllegalArgumentException("Invalid TCP port number");
         }
 
@@ -131,48 +126,38 @@ public final class ServerConfig {
         this.schema = theSchema;
         this.host = theHost;
         this.port = thePort;
-        this.dbId = theDbId;
+        this.db = theDb;
         this.dbaUser = theDbaUser;
-
-        if (theLogins == null) {
-            this.logins = new ArrayList<>(0);
-        } else {
-            final int count = theLogins.size();
-            this.logins = new ArrayList<>(count);
-            for (final LoginConfig login : theLogins) {
-                if (login != null) {
-                    this.logins.add(login);
-                }
-            }
-        }
     }
 
     /**
      * Constructs a new {@code ServerConfig} from its XML representation.
      *
-     * @param theLoginMap  the login map
-     * @param theElem      the XML element from which to extract configuration settings.
+     * @param theElem the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    ServerConfig(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem) throws ParsingException {
+    ServerConfig(final EmptyElement theElem) throws ParsingException {
 
-        if (ELEM_TAG.equals(theElem.getTagName())) {
+        final String tag = theElem.getTagName();
+        if (ELEM_TAG.equals(tag)) {
 
-            this.id = theElem.getRequiredStringAttr(HOST_ATTR);
+            this.id = theElem.getRequiredStringAttr(ID_ATTR);
             if (this.id.isBlank()) {
                 throw new IllegalArgumentException("ID may not be blank.");
             }
 
-            this.type = EDbInstallationType.forName(theElem.getRequiredStringAttr(TYPE_ATTR));
+            final String typeStr = theElem.getRequiredStringAttr(TYPE_ATTR);
+            this.type = EDbInstallationType.forName(typeStr);
             if (this.type == null) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        Res.fmt(Res.SRV_CFG_BAD_TYPE, theElem.getRequiredStringAttr(TYPE_ATTR)));
+                final String msg = Res.fmt(Res.SRV_CFG_BAD_TYPE, typeStr);
+                throw new ParsingException(theElem, msg);
             }
 
-            this.schema = ESchemaType.forName(theElem.getRequiredStringAttr(SCHEMA_ATTR));
+            final String schemaStr = theElem.getRequiredStringAttr(SCHEMA_ATTR);
+            this.schema = ESchemaType.forName(schemaStr);
             if (this.schema == null) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        Res.fmt(Res.SRV_CFG_BAD_SCHEMA, theElem.getRequiredStringAttr(SCHEMA_ATTR)));
+                final String msg = Res.fmt(Res.SRV_CFG_BAD_SCHEMA, schemaStr);
+                throw new ParsingException(theElem, msg);
             }
 
             this.host = theElem.getRequiredStringAttr(HOST_ATTR);
@@ -181,49 +166,16 @@ public final class ServerConfig {
             }
 
             this.port = theElem.getIntegerAttr(PORT_ATTR, ZERO).intValue();
-            if ( this.port < 1 || this.port > 65535) {
+            if (this.port < MIN_TCP_PORT || this.port > MAX_TCP_PORT) {
                 throw new IllegalArgumentException("Invalid TCP port number");
             }
 
-            this.dbId = theElem.getStringAttr(DBID_ATTR);
+            this.db = theElem.getStringAttr(DB_ATTR);
             this.dbaUser = theElem.getStringAttr(DBA_ATTR);
-
-            final int count = theElem.getNumChildren();
-            this.logins = new ArrayList<>(count);
-
-            for (int i = 0; i < count; ++i) {
-                final INode child = theElem.getChild(i);
-                if (child instanceof final EmptyElement childElem) {
-                    final String tag = childElem.getTagName();
-
-                    if (LoginConfig.ELEM_TAG.equals(tag)) {
-                        final LoginConfig login = new LoginConfig(childElem);
-
-                        if (theLoginMap.containsKey(login.id)) {
-                            throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                                    Res.fmt(Res.SRV_CFG_DUP_LOGIN_ID, login.id));
-                        }
-
-                        this.logins.add(login);
-                        theLoginMap.put(login.id, login);
-                    }
-                } else {
-                    Log.warning("Unexpected child element of 'server'.");
-                }
-            }
         } else {
-            throw new ParsingException(theElem.getStart(), theElem.getEnd(),Res.get(Res.SRV_CFG_BAD_ELEM_TAG));
+            final String msg = Res.get(Res.SRV_CFG_BAD_ELEM_TAG);
+            throw new ParsingException(theElem, msg);
         }
-    }
-
-    /**
-     * Gets the list of logins.
-     *
-     * @return the list of logins
-     */
-    public List<LoginConfig> getLogins() {
-
-        return Collections.unmodifiableList(this.logins);
     }
 
     /**
@@ -242,17 +194,17 @@ public final class ServerConfig {
         try {
             if (this.type == EDbInstallationType.INFORMIX) {
                 url.add("informix-sqli://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.dbId, ":INFORMIXSERVER=", this.dbId, ";user=", theUser, ";password=",
+                        CoreConstants.SLASH, this.db, ":INFORMIXSERVER=", this.db, ";user=", theUser, ";password=",
                         thePassword, "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
             } else if (this.type == EDbInstallationType.ORACLE) {
                 url.add("oracle:thin:", theUser, CoreConstants.SLASH, URLEncoder.encode(thePassword, ENC), "@",
-                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, this.dbId);
+                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, this.db);
             } else if (this.type == EDbInstallationType.POSTGRESQL) {
                 url.add("postgresql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.dbId, "?user=", theUser, "&password=", thePassword);
+                        CoreConstants.SLASH, this.db, "?user=", theUser, "&password=", thePassword);
             } else if (this.type == EDbInstallationType.MYSQL) {
                 url.add("mysql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.dbId, "?user=", theUser, "&password=", thePassword);
+                        CoreConstants.SLASH, this.db, "?user=", theUser, "&password=", thePassword);
             } else if (this.type == EDbInstallationType.CASSANDRA) {
                 // TODO: This is not JDBC
             }
@@ -290,13 +242,16 @@ public final class ServerConfig {
 
             // TODO: Add non-JDBC connections for non-JDBC database products
 
-            Log.info("Connected to ", this.dbId, CoreConstants.SPC, conn.getDatabaseProductName());
+            final String productName = conn.getDatabaseProductName();
+            Log.info("Connected to ", this.db, CoreConstants.SPC, productName);
 
             return conn;
         } catch (final SQLException | IllegalArgumentException ex) {
-            Log.warning(ex.getMessage());
-            throw new SQLException(Res.fmt(Res.SRV_CFG_CANT_CONNECT, this.dbId, this.host, Integer.toString(this.port)),
-                    ex);
+            final String exMsg = ex.getMessage();
+            Log.warning(exMsg);
+            final String portStr = Integer.toString(this.port);
+            final String msg = Res.fmt(Res.SRV_CFG_CANT_CONNECT, this.db, this.host, portStr);
+            throw new SQLException(msg, ex);
         }
     }
 
@@ -314,7 +269,7 @@ public final class ServerConfig {
 
         if (obj instanceof final ServerConfig test) {
             equal = test.type == this.type &&  test.schema == this.schema && test.host.equals(this.host)
-                    && test.port == this.port && Objects.equals(test.dbId, this.dbId);
+                    && test.port == this.port && Objects.equals(test.db, this.db);
         } else {
             equal = false;
         }
@@ -331,7 +286,7 @@ public final class ServerConfig {
     public int hashCode() {
 
         return this.type.hashCode() + this.schema.hashCode() + this.host.hashCode() + this.port
-                + EqualityTests.objectHashCode(this.dbId);
+                + EqualityTests.objectHashCode(this.db);
     }
 
     /**
@@ -344,11 +299,12 @@ public final class ServerConfig {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
+        final String portStr = Integer.toString(this.port);
         htm.add(this.type.name, " server implementing the ", this.schema.name, " schema at ", this.host,
-                CoreConstants.COLON, Integer.toString(this.port));
+                CoreConstants.COLON, portStr);
 
-        if (this.dbId != null) {
-            htm.add(" with id ", this.dbId);
+        if (this.db != null) {
+            htm.add(" with id ", this.db);
         }
 
         return htm.toString();

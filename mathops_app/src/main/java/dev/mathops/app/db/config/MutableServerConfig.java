@@ -1,12 +1,8 @@
 package dev.mathops.app.db.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.EDbInstallationType;
 import dev.mathops.db.config.ESchemaType;
-import dev.mathops.db.config.LoginConfig;
 import dev.mathops.db.config.ServerConfig;
 
 /**
@@ -30,13 +26,10 @@ public final class MutableServerConfig {
     private int port;
 
     /** The database ID (could be null if the database type does not require it). */
-    private String dbId;
+    private String db;
 
     /** The DBA username (null if not configured). */
     private String dbaUser;
-
-    /** The list of mutable data login configuration objects. */
-    private final List<MutableLoginConfig> logins;
 
     /**
      * Constructs a new {@code MutableServerConfig}.
@@ -49,10 +42,8 @@ public final class MutableServerConfig {
      * @param theDbId    the database ID, if the database type requires this
      * @param theDbaUser the DBA username, if configured
      */
-    public MutableServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema, final String theHost,
-                               final int thePort, final String theDbId, final String theDbaUser) {
-
-        this.logins = new ArrayList<>(5);
+    public MutableServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema,
+                               final String theHost, final int thePort, final String theDbId, final String theDbaUser) {
 
         update(theId, theType, theSchema, theHost, thePort, theDbId, theDbaUser);
     }
@@ -62,20 +53,15 @@ public final class MutableServerConfig {
      *
      * @param source the source {@code ServerConfig}
      */
-    public MutableServerConfig(final ServerConfig source) {
+    MutableServerConfig(final ServerConfig source) {
 
         this.id = source.id;
         this.type = source.type;
         this.schema = source.schema;
         this.host = source.host;
         this.port = source.port;
-        this.dbId = source.dbId;
+        this.db = source.db;
         this.dbaUser = source.dbaUser;
-
-        this.logins = new ArrayList<>(5);
-        for (final LoginConfig login : source.getLogins()) {
-            this.logins.add(new MutableLoginConfig(login));
-        }
     }
 
     /**
@@ -135,7 +121,7 @@ public final class MutableServerConfig {
      */
     public String getDbId() {
 
-        return this.dbId;
+        return this.db;
     }
 
     /**
@@ -148,15 +134,6 @@ public final class MutableServerConfig {
         return this.dbaUser;
     }
 
-    /**
-     * Gets the list of login objects.  The returned list can be edited - results are reflected in this object.
-     *
-     * @return the list of logins
-     */
-    public List<MutableLoginConfig>  getLogins() {
-
-        return this.logins;
-    }
 
     /**
      * Updates the field values.
@@ -193,7 +170,7 @@ public final class MutableServerConfig {
         this.schema = theSchema;
         this.host = theHost;
         this.port = thePort;
-        this.dbId = theDbId;
+        this.db = theDbId;
         this.dbaUser = theDbaUser;
     }
 
@@ -204,16 +181,7 @@ public final class MutableServerConfig {
      */
     public ServerConfig toServerConfig() {
 
-        final int count = this.logins.size();
-        final List<LoginConfig> loginConfigs = new ArrayList<>(count);
-
-        for (final MutableLoginConfig login : this.logins) {
-            final LoginConfig loginCfg = login.toLoginConfig();
-            loginConfigs.add(loginCfg);
-        }
-
-        return new ServerConfig(this.id, this.type, this.schema, this.host, this.port, this.dbId, this.dbaUser,
-                loginConfigs);
+        return new ServerConfig(this.id, this.type, this.schema, this.host, this.port, this.db, this.dbaUser);
     }
 
     /**
@@ -231,14 +199,11 @@ public final class MutableServerConfig {
         builder.add("MutableServerConfig{id='", this.id, "',type='", this.type, "',schema='", this.schema, "',host='",
                 this.host, "',port='", portStr, "'");
 
-        if (this.dbId != null) {
-            builder.add(",dbId='", this.dbId, "'");
+        if (this.db != null) {
+            builder.add(",dbId='", this.db, "'");
         }
         if (this.dbaUser != null) {
             builder.add(",dbaUser='", this.dbaUser, "'");
-        }
-        if (!this.logins.isEmpty()) {
-            builder.add(",logins={", this.logins, "}");
         }
         builder.add("}");
 

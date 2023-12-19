@@ -1,3 +1,6 @@
+/**
+ * Applications module.
+ */
 module mathops_app {
     requires java.desktop;
     requires java.sql;
@@ -11,6 +14,9 @@ module mathops_app {
     requires mathops_session;
     requires jwabbit;
 
+    requires javafx.controls;
     requires com.formdev.flatlaf;
     requires com.oracle.database.jdbc;
+
+    exports dev.mathops.app.db.fx;
 }

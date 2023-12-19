@@ -11,7 +11,6 @@ import dev.mathops.core.parser.xml.XmlContent;
 import dev.mathops.db.DbFileLoader;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,25 +66,31 @@ public final class DatabaseConfig {
     /** An empty array used when converting strings to arrays. */
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-    /** An empty array used when converting strings to arrays. */
+    /** An empty array used when converting collections of server configurations to arrays. */
     private static final ServerConfig[] EMPTY_SERVER_CFG_ARRAY = new ServerConfig[0];
 
-    /** Object on which to synchronize member access. */
-    private final Object synch;
+    /** An empty array used when converting collections of login configurations to arrays. */
+    private static final LoginConfig[] EMPTY_LOGIN_CFG_ARRAY = new LoginConfig[0];
+
+    /** An empty array used when converting collections of data profiles to arrays. */
+    private static final DataProfile[] EMPTY_DATA_PROFILE_ARRAY = new DataProfile[0];
+
+    /** An empty array used when converting collections of web contexts to arrays. */
+    private static final WebContext[] EMPTY_WEB_CONTEXT_ARRAY = new WebContext[0];
 
     //
 
-    /** Map from login configuration ID to the login configuration object. */
-    private final Map<String, LoginConfig> logins;
-
     /** Map from server ID to server configuration object. */
     private final Map<String, ServerConfig> servers;
+
+    /** Map from login configuration ID to the login configuration object. */
+    private final Map<String, LoginConfig> logins;
 
     /** Map from data profile configuration ID to the configuration object. */
     private final Map<String, DataProfile> dataProfiles;
 
     /** Map from hostname to website context containers. */
-    private final Map<String, WebSiteContext> webContexts;
+    private final Map<String, WebContext> webContexts;
 
     /** Map from context ID to profile for code contexts. */
     private final Map<String, DataProfile> codeContexts;
@@ -95,10 +100,6 @@ public final class DatabaseConfig {
      * loaded.
      */
     private DatabaseConfig() {
-
-        super();
-
-        this.synch = new Object();
 
         this.servers = new LinkedHashMap<>(10);
         this.logins = new HashMap<>(10);
@@ -124,43 +125,83 @@ public final class DatabaseConfig {
             final INode child = elem.getChild(i);
 
             if (child instanceof final NonemptyElement innerElem) {
-                switch (innerElem.getTagName()) {
-                    case ServerConfig.ELEM_TAG -> {
-                        final ServerConfig server = new ServerConfig(this.logins, innerElem);
-                        if (this.servers.containsKey(server.id)) {
-                            final String msg = SimpleBuilder.concat("Multiple servers with the id '", server.id, "'");
-                            throw new ParsingException(elem, msg);
-                        }
-                        this.servers.put(server.id, server);
-
-                        for (final LoginConfig login : server.getLogins()) {
-                            if (this.logins.containsKey(login.id)) {
-                                final String msg = SimpleBuilder.concat("Multiple logins with the id '", login.id, "'");
-                                throw new ParsingException(elem, msg);
-                            }
-                            this.logins.put(login.id, login);
-                        }
-                    }
-                    case DataProfile.ELEM_TAG -> {
-                        final DataProfile dataProfile = new DataProfile(this.logins, innerElem);
-                        if (this.dataProfiles.containsKey(dataProfile.id)) {
-                            final String msg = SimpleBuilder.concat("Multiple data profiles with the id '",
-                                    dataProfile.id, "'");
-                            throw new ParsingException(elem, msg);
-                        }
-                        this.dataProfiles.put(dataProfile.id, dataProfile);
-                    }
+                final String innerTag = innerElem.getTagName();
+                switch (innerTag) {
+                    case DataProfile.ELEM_TAG -> processDataProfileNode(innerElem);
                     case WEB_TAG -> processWebNode(innerElem);
-                    case null, default -> Log.warning("Unexpected tag: " + innerElem.getTagName());
+                    case null, default -> {
+                        final String msg = Res.fmt(Res.DB_CFG_UNEXPEC_CHILD, innerTag);
+                        Log.warning(msg);
+                    }
                 }
             } else if (child instanceof final EmptyElement innerElem) {
-                if (CODE_TAG.equals(innerElem.getTagName())) {
-                    processCodeNode(innerElem);
-                } else {
-                    Log.warning("Unexpected tag: " + innerElem.getTagName());
+                final String innerTag = innerElem.getTagName();
+                switch (innerTag) {
+                    case ServerConfig.ELEM_TAG -> processServerNode(innerElem);
+                    case LoginConfig.ELEM_TAG -> processLoginNode(innerElem);
+                    case CODE_TAG -> processCodeNode(innerElem);
+                    case null, default -> {
+                        final String msg = Res.fmt(Res.DB_CFG_UNEXPEC_CHILD, innerTag);
+                        Log.warning(msg);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Processes a "server" child element.
+     *
+     * @param elem the child element
+     * @throws ParsingException if the data could not be parsed from the XML
+     */
+    private void processServerNode(final EmptyElement elem) throws ParsingException {
+
+        final ServerConfig server = new ServerConfig(elem);
+
+        if (this.servers.containsKey(server.id)) {
+            final String msg = SimpleBuilder.concat("Multiple servers with the id '", server.id, "'");
+            throw new ParsingException(elem, msg);
+        }
+
+        this.servers.put(server.id, server);
+    }
+
+    /**
+     * Processes a "login" child element.
+     *
+     * @param elem the child element
+     * @throws ParsingException if the data could not be parsed from the XML
+     */
+    private void processLoginNode(final EmptyElement elem) throws ParsingException {
+
+        final LoginConfig login = new LoginConfig(elem, this.servers);
+
+        if (this.logins.containsKey(login.id)) {
+            final String msg = SimpleBuilder.concat("Multiple logins with the id '", login.id, "'");
+            throw new ParsingException(elem, msg);
+        }
+
+        this.logins.put(login.id, login);
+    }
+
+    /**
+     * Processes a "data-profile" child element.
+     *
+     * @param elem the child element
+     * @throws ParsingException if the data could not be parsed from the XML
+     */
+    private void processDataProfileNode(final NonemptyElement elem) throws ParsingException {
+
+        final DataProfile dataProfile = new DataProfile(this.logins, elem);
+
+        if (this.dataProfiles.containsKey(dataProfile.id)) {
+            final String msg = SimpleBuilder.concat("Multiple data profiles with the id '",
+                    dataProfile.id, "'");
+            throw new ParsingException(elem, msg);
+        }
+
+        this.dataProfiles.put(dataProfile.id, dataProfile);
     }
 
     /**
@@ -171,11 +212,10 @@ public final class DatabaseConfig {
      */
     private void processWebNode(final NonemptyElement elem) throws ParsingException {
 
-        // Called only from the constructor, so no synch needed
-
         final String host = elem.getRequiredStringAttr(HOST_ATTR);
         if (this.webContexts.containsKey(host)) {
-            throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_DUP_HOST, host));
+            final String msg = Res.fmt(Res.DB_CFG_DUP_HOST, host);
+            throw new ParsingException(elem, msg);
         }
 
         final int count = elem.getNumChildren();
@@ -191,7 +231,7 @@ public final class DatabaseConfig {
             }
         }
 
-        this.webContexts.put(host, new WebSiteContext(host, pathProfiles));
+        this.webContexts.put(host, new WebContext(host, pathProfiles));
     }
 
     /**
@@ -202,9 +242,8 @@ public final class DatabaseConfig {
      * @throws ParsingException if the data could not be parsed from the XML
      */
     private void processWebChildNode(final EmptyElement elem,
-                                     final Map<String, DataProfile> pathProfiles) throws ParsingException {
-
-        // Called only from the constructor, so no synch needed
+                                     final Map<? super String, ? super DataProfile> pathProfiles)
+            throws ParsingException {
 
         final String tag = elem.getTagName();
         if (SITE_TAG.equals(tag)) {
@@ -213,17 +252,19 @@ public final class DatabaseConfig {
 
             final DataProfile cfg = this.dataProfiles.get(profile);
             if (cfg == null) {
-                throw new ParsingException(elem.getStart(), elem.getEnd(),
-                        Res.fmt(Res.DB_CFG_BAD_SITE_PROFILE, profile));
+                final String msg = Res.fmt(Res.DB_CFG_BAD_SITE_PROFILE, profile);
+                throw new ParsingException(elem, msg);
             }
 
             if (pathProfiles.containsKey(path)) {
-                throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_DUP_PATH, path));
+                final String msg = Res.fmt(Res.DB_CFG_DUP_PATH, path);
+                throw new ParsingException(elem, msg);
             }
 
             pathProfiles.put(path, cfg);
         } else {
-            throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_BAD_SITE_TAG, tag));
+            final String msg = Res.fmt(Res.DB_CFG_BAD_SITE_TAG, tag);
+            throw new ParsingException(elem, msg);
         }
     }
 
@@ -235,19 +276,19 @@ public final class DatabaseConfig {
      */
     private void processCodeNode(final EmptyElement elem) throws ParsingException {
 
-        // Called only from the constructor, so no synch needed
-
         final String profile = elem.getRequiredStringAttr(PROFILE_ATTR);
 
         final DataProfile cfg = this.dataProfiles.get(profile);
         if (cfg == null) {
-            throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_BAD_CODE_PROFILE, profile));
+            final String msg = Res.fmt(Res.DB_CFG_BAD_CODE_PROFILE, profile);
+            throw new ParsingException(elem, msg);
         }
 
         final String context = elem.getRequiredStringAttr(CONTEXT_ATTR);
 
         if (this.codeContexts.containsKey(context)) {
-            throw new ParsingException(elem.getStart(), elem.getEnd(), Res.fmt(Res.DB_CFG_DUP_CODE, context));
+            final String msg = Res.fmt(Res.DB_CFG_DUP_CODE, context);
+            throw new ParsingException(elem, msg);
         }
 
         this.codeContexts.put(context, cfg);
@@ -274,13 +315,13 @@ public final class DatabaseConfig {
             try {
                 theMap = load(dbDir);
             } catch (final ParsingException ex) {
-                final String cantLoadMsg = Res.get(Res.DB_CFG_CANT_LOAD);
-                Log.warning(cantLoadMsg, ex);
+                final String msg = Res.get(Res.DB_CFG_CANT_LOAD);
+                Log.warning(msg, ex);
                 theMap = new DatabaseConfig();
             }
         } else {
-            final String dirNonexistMsg = Res.fmt(Res.DB_CFG_DIR_NONEXIST, absPath);
-            Log.warning(dirNonexistMsg);
+            final String msg = Res.fmt(Res.DB_CFG_DIR_NONEXIST, absPath);
+            Log.warning(msg);
             theMap = new DatabaseConfig();
         }
 
@@ -301,41 +342,68 @@ public final class DatabaseConfig {
         final File xmlFile = new File(dir, FILENAME);
 
         if (!xmlFile.exists()) {
-            throw new ParsingException(-1, -1, Res.fmt(Res.DB_CFG_FILE_NONEXIST, xmlFile.getAbsolutePath()));
+            final String xmlPath = xmlFile.getAbsolutePath();
+            final String msg = Res.fmt(Res.DB_CFG_FILE_NONEXIST, xmlPath);
+            throw new ParsingException(-1, -1, msg);
         }
 
         final String xml = DbFileLoader.loadFileAsString(xmlFile, true);
 
         if (xml == null) {
-            throw new ParsingException(-1, -1, Res.fmt(Res.DB_CFG_CANT_OPEN_SRC, xmlFile.getAbsolutePath()));
+            final String xmlPath = xmlFile.getAbsolutePath();
+            final String msg = Res.fmt(Res.DB_CFG_CANT_OPEN_SRC, xmlPath);
+            throw new ParsingException(-1, -1, msg);
         }
 
         final XmlContent content = new XmlContent(xml, true, false);
         final List<INode> nodes = content.getNodes();
 
-        if (nodes != null) {
-            if (nodes.size() == 1 && nodes.get(0) instanceof final NonemptyElement elem) {
-                if (XML_TAG.equals(elem.getTagName())) {
+        if (nodes != null && nodes.size() == 1) {
+            final INode firstNode = nodes.getFirst();
+            if (firstNode instanceof final NonemptyElement elem) {
+                final String tagName = elem.getTagName();
+                if (XML_TAG.equals(tagName)) {
                     return new DatabaseConfig(elem);
                 }
 
-                throw new ParsingException(0, 0, Res.get(Res.DB_CFG_NO_TOPLEVEL));
+                final String msg = Res.get(Res.DB_CFG_NO_TOPLEVEL);
+                throw new ParsingException(0, 0, msg);
             }
         }
 
-        throw new ParsingException(-1, -1, Res.get(Res.DB_CFG_BAD_TOPLEVEL));
+        final String msg = Res.get(Res.DB_CFG_BAD_TOPLEVEL);
+        throw new ParsingException(-1, -1, msg);
     }
 
     /**
-     * Gets the list of login configuration IDS in the context map.
+     * Gets the list of servers in the context map.
      *
-     * @return the array of driver configuration names
+     * @return a copy of the list of servers
      */
-    public String[] getLoginIDs() {
+    public ServerConfig[] getServers() {
 
-        synchronized (this.synch) {
-            return this.logins.keySet().toArray(EMPTY_STRING_ARRAY);
-        }
+        return this.servers.values().toArray(EMPTY_SERVER_CFG_ARRAY);
+    }
+
+    /**
+     * Gets the server configuration with a particular ID from the server map.
+     *
+     * @param id the ID of the server configuration to retrieve
+     * @return the server configuration, or {@code null} if there was no server configuration with the given ID
+     */
+    public ServerConfig getServer(final String id) {
+
+        return this.servers.get(id);
+    }
+
+    /**
+     * Gets the list of login configurations in the context map.
+     *
+     * @return the array of login configuration names
+     */
+    public LoginConfig[] getLogins() {
+
+        return this.logins.values().toArray(EMPTY_LOGIN_CFG_ARRAY);
     }
 
     /**
@@ -346,21 +414,17 @@ public final class DatabaseConfig {
      */
     public LoginConfig getLogin(final String id) {
 
-        synchronized (this.synch) {
-            return this.logins.get(id);
-        }
+        return this.logins.get(id);
     }
 
     /**
-     * Gets the list of servers in the context map.
+     * Gets the list of data profiles in the context map.
      *
-     * @return a copy of the list of servers
+     * @return a copy of the list of data profiles
      */
-    public ServerConfig[] getServers() {
+    public DataProfile[] getDataProfiles() {
 
-        synchronized (this.synch) {
-            return this.servers.values().toArray(EMPTY_SERVER_CFG_ARRAY);
-        }
+        return this.dataProfiles.values().toArray(EMPTY_DATA_PROFILE_ARRAY);
     }
 
     /**
@@ -370,9 +434,7 @@ public final class DatabaseConfig {
      */
     public String[] getDataProfileIDs() {
 
-        synchronized (this.synch) {
-            return this.dataProfiles.keySet().toArray(EMPTY_STRING_ARRAY);
-        }
+        return this.dataProfiles.keySet().toArray(EMPTY_STRING_ARRAY);
     }
 
     /**
@@ -383,9 +445,17 @@ public final class DatabaseConfig {
      */
     public DataProfile getDataProfile(final String id) {
 
-        synchronized (this.synch) {
-            return this.dataProfiles.get(id);
-        }
+        return this.dataProfiles.get(id);
+    }
+
+    /**
+     * Gets the list of web contexts in the context map.
+     *
+     * @return a copy of the list of web contexts
+     */
+    public WebContext[] getWebContexts() {
+
+        return this.webContexts.values().toArray(EMPTY_WEB_CONTEXT_ARRAY);
     }
 
     /**
@@ -395,9 +465,7 @@ public final class DatabaseConfig {
      */
     public String[] getWebHosts() {
 
-        synchronized (this.synch) {
-            return this.webContexts.keySet().toArray(EMPTY_STRING_ARRAY);
-        }
+        return this.webContexts.keySet().toArray(EMPTY_STRING_ARRAY);
     }
 
     /**
@@ -406,12 +474,10 @@ public final class DatabaseConfig {
      * @param hostname the host name
      * @return the list of site paths (null if the host name is not found)
      */
-    public List<String> getWebSites(final String hostname) {
+    public List<String> getWebPaths(final String hostname) {
 
-        synchronized (this.synch) {
-            final WebSiteContext webContext = this.webContexts.get(hostname);
-            return webContext == null ? null : webContext.getPaths();
-        }
+        final WebContext webContext = this.webContexts.get(hostname);
+        return webContext == null ? null : webContext.getPaths();
     }
 
     /**
@@ -421,12 +487,10 @@ public final class DatabaseConfig {
      * @param path     the path
      * @return the profile configuration (null if the hostname is not found)
      */
-    public DataProfile getWebSiteProfile(final String hostname, final String path) {
+    public DataProfile getWebPathDataProfile(final String hostname, final String path) {
 
-        synchronized (this.synch) {
-            final WebSiteContext webContext = this.webContexts.get(hostname);
-            return webContext == null ? null : webContext.getProfile(path);
-        }
+        final WebContext webContext = this.webContexts.get(hostname);
+        return webContext == null ? null : webContext.getProfile(path);
     }
 
     /**
@@ -434,10 +498,9 @@ public final class DatabaseConfig {
      *
      * @return the array of code context names
      */
-    public String[] getCodeContexts() {
-        synchronized (this.synch) {
+    public String[] getCodeContextIds() {
+
             return this.codeContexts.keySet().toArray(EMPTY_STRING_ARRAY);
-        }
     }
 
     /**
@@ -446,62 +509,8 @@ public final class DatabaseConfig {
      * @param id the code context ID
      * @return the profile configuration (null if not found)
      */
-    public DataProfile getCodeContext(final String id) {
+    public DataProfile getCodeDataProfile(final String id) {
 
-        synchronized (this.synch) {
-            return this.codeContexts.get(id);
-        }
+        return this.codeContexts.get(id);
     }
-
-//    /**
-//     * Prints the default context map.
-//     *
-//     * @param args command-line arguments
-//     */
-//    public static void main(final String... args) {
-//
-//        final HtmlBuilder builder = new HtmlBuilder(1000);
-//
-//        final DatabaseConfig map = DatabaseConfig.getDefaultInstance();
-//
-//        builder.addln("SERVERS:");
-//        for (final ServerConfig server : map.getServers()) {
-//            builder.addln("  ", server.toString());
-//            builder.addln("      LOGINS:");
-//            for (final LoginConfig login : server.getLogins()) {
-//                builder.addln("        ", login.toString());
-//            }
-//        }
-//        builder.addln();
-//
-//        builder.addln("PROFILES:");
-//        for (final String id : map.getDataProfileIDs()) {
-//            builder.addln("  ", map.getDataProfile(id).toString());
-//        }
-//        builder.addln();
-//
-//        builder.addln("WEB HOSTS:");
-//        for (final String host : map.getWebHosts()) {
-//            builder.addln("  ", host);
-//            builder.addln("    PATHS:");
-//            final String[] paths = map.getWebSites(host);
-//            if (paths != null) {
-//                for (final String path : paths) {
-//                    final WebSiteProfile profile = map.getWebSiteProfile(host, path);
-//                    if (profile != null) {
-//                        builder.addln("      ", path, " using profile ", profile.dataProfile.id);
-//                    }
-//                }
-//            }
-//        }
-//        builder.addln();
-//
-//        builder.addln("CODE CONTEXTS:");
-//        for (final String id : map.getCodeContexts()) {
-//            builder.addln("  ", id, " using context ", map.getCodeProfile(id).id);
-//        }
-//        builder.addln();
-//
-//        Log.fine(builder.toString());
-//    }
 }
