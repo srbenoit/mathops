@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -582,5 +583,49 @@ public enum AppFileLoader {
         }
 
         return input;
+    }
+
+
+    /**
+     * Obtains an input stream for a particular resource. Several methods are attempted to locate and open the stream
+     *
+     * @param caller  the class of the object making the call, so that relative resource paths are based on the caller's
+     *                position in the source tree
+     * @param name    the name of the resource to read
+     * @return the located resources
+     */
+    public static URL getResource(final Class<?> caller, final String name){
+
+        final String classname = caller.getName();
+        final String path;
+        final int lastDot = classname.lastIndexOf('.');
+        if (lastDot == -1) {
+            path = name;
+        } else {
+            final String packagename = classname.substring(0, lastDot);
+            path = "/" + packagename.replace('.', '/') + "/" + name;
+        }
+
+        // Let the calling class try to locate the resource
+        URL result = caller.getResource(name);
+        if (result == null) {
+            Log.warning("  *** ", caller.getName(), ".getResource(", name, ") failed");
+            final ClassLoader loader = caller.getClassLoader();
+            result = loader.getResource(name);
+            if (result == null) {
+                Log.warning("  *** ", caller.getName(), ".getClassLoader().getResourceAsStream(", name, ") failed");
+                result = caller.getResource(path);
+
+                if (result == null) {
+                    Log.warning("  *** ", caller.getName(), ".getResourceAsStream(", path, ") failed");
+                    result = loader.getResource(path);
+                    if (result == null) {
+                        Log.warning("  *** ", caller.getName(), ".getClassLoader().getResourceAsStream(", path, ") failed");
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }
