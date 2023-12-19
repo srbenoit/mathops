@@ -37,6 +37,12 @@ import java.util.Map;
  */
 final class StillNeeds54Points {
 
+    /** The date after the drop date for section 1. */
+    private static final LocalDate DAY_AFTER_DROP_SECT_1 = LocalDate.of(2023, 1, 23);
+
+    /** The date after the drop date for section 2. */
+    private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2023, 3, 28);
+
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
 
@@ -90,8 +96,6 @@ final class StillNeeds54Points {
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, true);
 
-        final LocalDate dayAfterDropSect1 = LocalDate.of(2023, 1, 23);
-        final LocalDate dayAfterDropSect2 = LocalDate.of(2023, 3, 28);
 
         final Iterator<RawStcourse> iter = allRegs.iterator();
         while (iter.hasNext()) {
@@ -100,13 +104,13 @@ final class StillNeeds54Points {
             // If dropped before drop deadline disregard
             // Remove incompletes from this list
             if ("002".equals(reg.sect)) {
-                if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(dayAfterDropSect2))
+                if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(DAY_AFTER_DROP_SECT_2))
                         || "Y".equals(reg.iInProgress)) {
                     iter.remove();
                     continue;
                 }
             } else {
-                if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(dayAfterDropSect1))
+                if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(DAY_AFTER_DROP_SECT_1))
                         || "Y".equals(reg.iInProgress)) {
                     iter.remove();
                     continue;

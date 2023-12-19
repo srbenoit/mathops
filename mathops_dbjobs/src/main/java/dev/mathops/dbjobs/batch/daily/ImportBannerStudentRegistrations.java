@@ -215,8 +215,7 @@ public final class ImportBannerStudentRegistrations {
                     "SELECT * FROM CSUS_MATH_REGISTRATION_" + suffix
                             + " WHERE TERM = '" + term + "' "
                             + "  AND SUBJECT_CODE='MATH'"
-                            + "  AND (COURSE_NUMBER='116' OR "
-                            + "       COURSE_NUMBER='117' OR "
+                            + "  AND (COURSE_NUMBER='117' OR "
                             + "       COURSE_NUMBER='118' OR "
                             + "       COURSE_NUMBER='124' OR "
                             + "       COURSE_NUMBER='125' OR "
