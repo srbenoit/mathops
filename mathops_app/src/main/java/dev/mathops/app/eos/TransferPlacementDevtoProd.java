@@ -79,6 +79,9 @@ import java.util.TreeMap;
  */
 final class TransferPlacementDevtoProd {
 
+    // FA23: Switch to DEV happened on December 13 at 7:18 AM
+    private static final LocalDateTime CUTOVER_DATETIME = LocalDateTime.of(2023, 12, 13, 7, 18);
+
     /** Debug flag - true to print but do no actual transfer of data; false to transfer data. */
     private static final boolean DEBUG = true;
 
@@ -2013,10 +2016,7 @@ final class TransferPlacementDevtoProd {
      */
     public static void main(final String... args) {
 
-        // SM23: Cutover to DEV happened on August 7 at 6:45 AM
-        final LocalDateTime since = LocalDateTime.of(2023, 8, 7, 6, 45);
-
-        final TransferPlacementDevtoProd job = new TransferPlacementDevtoProd(since);
+        final TransferPlacementDevtoProd job = new TransferPlacementDevtoProd(CUTOVER_DATETIME);
 
         Log.fine(job.execute());
     }

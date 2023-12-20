@@ -489,7 +489,6 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
         return result;
     }
 
-
     /**
      * Compute the arc-cosine of an argument (in radians).
      *

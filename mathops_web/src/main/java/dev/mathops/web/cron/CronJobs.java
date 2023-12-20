@@ -97,53 +97,51 @@ public final class CronJobs implements ICronJob {
             // *** This report is used during Summer to tell Engineering how many of their students
             // are completing placement
 
-            // new PlacementReport("engr_plc_results",
-            // "ENGRPLC").execute();
+            // new PlacementReport("engr_plc_results", "ENGRPLC").execute();
 
             // *** This report gets used during orientation - each day there is a list of students
             // to load into 'special_stus', then this report goes out to the advising group list
 
-            // new PlacementReport("orient_plc_results",
-            // "ORIENTN").execute();
+            // new PlacementReport("orient_plc_results", "ORIENTN").execute();
 
             // *** This report runs during the semester - athletics sends an email near the start
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-//            new PrecalcProgressReport("athletes_summary", "ATHLETE",
-//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+            new PrecalcProgressReport("athletes_summary", "ATHLETE",
+                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
             // *** This report runs during the semester - engineering sends an email near the start
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-//            new PrecalcProgressReport("engineering_summary", "ENGRSTU",
-//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
+            new PrecalcProgressReport("engineering_summary", "ENGRSTU",
+                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
 
             this.reportsNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ONE_AM);
         }
 
         if (now.isAfter(this.resetTestingNextRun)) {
-//            new CleanPending().execute();
-//            new PcCleanup().execute();
+            new CleanPending().execute();
+            new PcCleanup().execute();
             this.resetTestingNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_PM);
         }
 
         if (now.isAfter(this.endOfDayNextRun)) {
-//            CloseIncompletes.execute();
-//            DeleteTestUserData.execute();
-//            SetHolds.execute();
+            CloseIncompletes.execute();
+            DeleteTestUserData.execute();
+            SetHolds.execute();
             this.endOfDayNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_FIFTY_PM);
         }
 
         if (now.isAfter(this.earlyMorning)) {
-//            new ImportOdsApplicants().execute();
-//            new ImportOdsTransferCredit().execute();
-//            new ImportOdsNewStus().execute();
-//            new ImportBannerStudentRegistrations().execute();
-//            new CheckStudentTerm().execute();
-//            new SendQueuedBannerTestScores().execute();
-//            new AuditBannerTestScores().execute();
+            new ImportOdsApplicants().execute();
+            new ImportOdsTransferCredit().execute();
+            new ImportOdsNewStus().execute();
+            new ImportBannerStudentRegistrations().execute();
+            new CheckStudentTerm().execute();
+            new SendQueuedBannerTestScores().execute();
+            new AuditBannerTestScores().execute();
             this.earlyMorning = LocalDateTime.of(now.toLocalDate().plusDays(1L), THREE_AM);
         }
     }
