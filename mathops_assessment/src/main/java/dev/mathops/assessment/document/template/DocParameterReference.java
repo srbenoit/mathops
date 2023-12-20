@@ -189,8 +189,8 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
                         }
                         docInputs.add(inp);
                     }
-                } else {
-                    Log.warning("Top object in document tree is ", parent);
+//                } else {
+//                    Log.warning("Top object in document tree is ", parent);
                 }
 
             } else {

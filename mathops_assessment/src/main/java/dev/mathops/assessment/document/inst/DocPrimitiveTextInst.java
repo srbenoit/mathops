@@ -4,6 +4,8 @@ import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.core.builder.HtmlBuilder;
 
+import java.util.Objects;
+
 /**
  * A text primitive.
  */
@@ -16,7 +18,7 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
     private final double y;
 
     /** The text anchor point. */
-    private ETextAnchor anchor;
+    private final ETextAnchor anchor;
 
     /** The text. */
     private final String text;
@@ -181,8 +183,8 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return Double.hashCode(this.x) + Double.hashCode(this.y) + this.text.hashCode() + this.style.hashCode()
-                + Double.hashCode(this.alpha);
+        return Double.hashCode(this.x) + Double.hashCode(this.y) + Objects.hashCode(this.anchor) + this.text.hashCode()
+                + this.style.hashCode() + Double.hashCode(this.alpha);
     }
 
     /**
@@ -201,7 +203,7 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
         } else if (obj instanceof final DocPrimitiveTextInst txt) {
             equal = this.x == txt.x
                     && this.y == txt.y
-                    && this.anchor == txt.anchor
+                    && Objects.equals(this.anchor, txt.anchor)
                     && this.text.equals(txt.text)
                     && this.style.equals(txt.style)
                     && this.alpha == txt.alpha;

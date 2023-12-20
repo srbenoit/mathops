@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
@@ -17,6 +18,9 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
     /** The y coordinate. */
     private final double y;
 
+    /** The text anchor point. */
+    private final ETextAnchor anchor;
+
     /** The span. */
     private final DocNonwrappingSpanInst span;
 
@@ -32,11 +36,12 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
      * @param theX the x coordinate
      * @param theY the y coordinate
      * @param theSpan the span to draw
+     * @param theAnchor the text anchor point (null treated as SW)
      * @param theBgColorName the background color name
      * @param theAlpha the alpha
      */
     public DocPrimitiveSpanInst(final double theX, final double theY, final DocNonwrappingSpanInst theSpan,
-                                final String theBgColorName, final double theAlpha) {
+                                final ETextAnchor theAnchor, final String theBgColorName, final double theAlpha) {
 
         super();
 
@@ -46,6 +51,7 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
 
         this.x = theX;
         this.y = theY;
+        this.anchor = theAnchor;
         this.span = theSpan;
         this.bgColorName = theBgColorName;
         this.alpha = theAlpha;
@@ -69,6 +75,16 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
     public double getY() {
 
         return this.y;
+    }
+
+    /**
+     * Gets the text anchor point.
+     *
+     * @return the text anchor point
+     */
+    public ETextAnchor getAnchor() {
+
+        return this.anchor;
     }
 
     /**
@@ -117,6 +133,9 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
         xml.add("<span");
         xml.addAttribute("x", Double.toString(this.x), 0);
         xml.addAttribute("y", Double.toString(this.y), 0);
+        if (this.anchor != null) {
+            xml.addAttribute("anchor", this.anchor.name(), 0);
+        }
         xml.addAttribute("bgcolor", this.bgColorName, 0);
         if (Math.abs(this.alpha - 1.0) > 0.01) {
             xml.addAttribute("alpha", Double.toString(this.alpha), 0);
@@ -151,6 +170,9 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
         final HtmlBuilder builder = new HtmlBuilder(200);
 
         builder.add("DocPrimitiveSpanInst{x=", Double.toString(this.x), ",y=", Double.toString(this.y));
+        if (this.anchor != null) {
+            builder.add(",anchor=", this.anchor.name());
+        }
         if (this.bgColorName != null) {
             builder.add(",bgColor=", this.bgColorName);
         }
@@ -172,8 +194,8 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return Double.hashCode(this.x) + Double.hashCode(this.y) + EqualityTests.objectHashCode(this.bgColorName)
-                + this.span.hashCode() + Double.hashCode(this.alpha);
+        return Double.hashCode(this.x) + Double.hashCode(this.y) + Objects.hashCode(this.anchor)
+                + Objects.hashCode(this.bgColorName) + this.span.hashCode() + Double.hashCode(this.alpha);
     }
 
     /**
@@ -192,6 +214,7 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
         } else if (obj instanceof final DocPrimitiveSpanInst span) {
             equal = this.x == span.x
                     && this.y == span.y
+                    && Objects.equals(this.anchor, span.anchor)
                     && Objects.equals(this.bgColorName, span.bgColorName)
                     && this.span.equals(span.span)
                     && this.alpha == span.alpha;

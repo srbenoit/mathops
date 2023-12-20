@@ -4,6 +4,7 @@ import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveSpanInst;
 import dev.mathops.assessment.formula.Formula;
@@ -43,6 +44,9 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 
     /** The y coordinate. */
     private NumberOrFormula yCoord;
+
+    /** The text anchor point. */
+    private ETextAnchor anchor;
 
     /** The filled flag. */
     private Boolean filled;
@@ -122,6 +126,26 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 //    public NumberOrFormula getYCoord() {
 //
 //        return this.yCoord;
+//    }
+
+    /**
+     * Set the anchor point.
+     *
+     * @param theAnchor the new anchor point
+     */
+    private void setAnchor(final ETextAnchor theAnchor) {
+
+        this.anchor = theAnchor;
+    }
+
+//    /**
+//     * Get the anchor point.
+//     *
+//     * @return the anchor point
+//     */
+//    public ETextAnchor getAnchor() {
+//
+//        return this.anchor;
 //    }
 
     /**
@@ -224,6 +248,7 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
             copy.yCoord = this.yCoord.deepCopy();
         }
 
+        copy.anchor = this.anchor;
         copy.filled = this.filled;
         copy.colorName = this.colorName;
         copy.color = this.color;
@@ -304,6 +329,15 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
                     } catch (final IllegalArgumentException e) {
                         elem.logError("Invalid 'y' value (" + theValue + ") on span primitive");
                     }
+                }
+            } else if ("anchor".equals(name)) {
+
+                final ETextAnchor anch = ETextAnchor.valueOf(theValue);
+                if (anch != null) {
+                    this.anchor = anch;
+                    ok = true;
+                } else {
+                    elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
                 }
             } else if ("filled".equals(name)) {
 
@@ -463,9 +497,42 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 
         if (this.span != null) {
             if (x != null && y != null) {
-                this.span.setX((int) (x.floatValue() * this.scale));
-                this.span.setY((int) (y.floatValue() * this.scale));
                 this.span.doLayout(context, ELayoutMode.TEXT);
+
+                float actualX = 0.0f;
+                float actualY = 0.0f;
+                if (this.anchor == null || this.anchor == ETextAnchor.NW) {
+                    actualX = x.floatValue() * this.scale;
+                    actualY = y.floatValue() * this.scale;
+                } else {if (this.anchor == ETextAnchor.W) {
+                        actualX = x.floatValue() * this.scale;
+                        actualY = y.floatValue() * this.scale - (float) this.span.getHeight() * 0.5f;
+                    } else if (this.anchor == ETextAnchor.SW) {
+                        actualX = x.floatValue() * this.scale;
+                        actualY = y.floatValue() * this.scale - (float) this.span.getHeight();
+                    } else if (this.anchor == ETextAnchor.N) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth() * 0.5f;
+                        actualY = y.floatValue() * this.scale;
+                    } else if (this.anchor == ETextAnchor.C) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth() * 0.5f;
+                        actualY = y.floatValue() * this.scale - (float) this.span.getHeight() * 0.5f;
+                    } else if (this.anchor == ETextAnchor.S) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth() * 0.5f;
+                        actualY = y.floatValue() * this.scale - (float) this.span.getHeight();
+                    } else if (this.anchor == ETextAnchor.NE) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth();
+                        actualY = y.floatValue() * this.scale;
+                    } else if (this.anchor == ETextAnchor.E) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth();
+                        actualY = y.floatValue() * this.scale + (float) this.span.getHeight() * 0.5f;
+                    } else if (this.anchor == ETextAnchor.SE) {
+                        actualX = x.floatValue() * this.scale - (float) this.span.getWidth();
+                        actualY = y.floatValue() * this.scale - (float) this.span.getHeight();
+                    }
+                }
+
+                this.span.setX((int) Math.round(actualX));
+                this.span.setY((int) Math.round(actualY));
                 this.span.paintComponent(grx, ELayoutMode.TEXT);
             }
 
@@ -516,8 +583,8 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 
             final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
-            result = new DocPrimitiveSpanInst(xNbr.doubleValue(), yNbr.doubleValue(),
-                    spanInst, null, alphaValue);
+            result = new DocPrimitiveSpanInst(xNbr.doubleValue(), yNbr.doubleValue(), spanInst, this.anchor, null,
+                    alphaValue);
         } else {
             result = null;
         }
@@ -545,6 +612,10 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 
         if (this.yCoord != null && this.yCoord.getNumber() != null) {
             xml.add(" y=\"", this.yCoord.getNumber(), CoreConstants.QUOTE);
+        }
+
+        if (this.anchor != null && this.anchor != ETextAnchor.SW) {
+            xml.add(" anchor=\"", this.anchor.name(), CoreConstants.QUOTE);
         }
 
         if (this.filled != null) {
@@ -677,6 +748,7 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
 
         return EqualityTests.objectHashCode(this.xCoord)
                 + EqualityTests.objectHashCode(this.yCoord)
+                + EqualityTests.objectHashCode(this.anchor)
                 + EqualityTests.objectHashCode(this.filled)
                 + EqualityTests.objectHashCode(this.colorName)
                 + EqualityTests.objectHashCode(this.color)
@@ -703,6 +775,7 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
         } else if (obj instanceof final DocPrimitiveSpan spn) {
             equal = Objects.equals(this.xCoord, spn.xCoord)
                     && Objects.equals(this.yCoord, spn.yCoord)
+                    && Objects.equals(this.anchor, spn.anchor)
                     && Objects.equals(this.filled, spn.filled)
                     && Objects.equals(this.colorName, spn.colorName)
                     && Objects.equals(this.color, spn.color)
@@ -740,6 +813,13 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
                 if (this.yCoord == null || obj.yCoord == null) {
                     Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (yCoord: ", this.yCoord, CoreConstants.SLASH,
                             obj.yCoord, ")");
+                }
+            }
+
+            if (!Objects.equals(this.anchor, obj.anchor)) {
+                if (this.anchor == null || obj.anchor == null) {
+                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (anchor: ", this.anchor, CoreConstants.SLASH,
+                            obj.anchor, ")");
                 }
             }
 

@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
-import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocTextInst;
 import dev.mathops.assessment.variable.EvalContext;

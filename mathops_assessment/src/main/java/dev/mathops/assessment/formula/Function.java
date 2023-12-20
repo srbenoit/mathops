@@ -123,6 +123,7 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
             case FLOOR:
             case ROUND:
             case GCD:
+            case LCM:
             case SRAD2:
             case SRAD3:
             case RAD_NUM:
@@ -192,6 +193,7 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
                 case EXP -> exp(arg);
                 case FLOOR -> floor(arg);
                 case GCD -> gcd(arg);
+                case LCM -> lcm(arg);
                 case LOG -> log(arg);
                 case NOT -> not(arg);
                 case ROUND -> round(arg);
@@ -452,6 +454,41 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
 
         return result;
     }
+
+    /**
+     * Compute the LCM of a vector argument.
+     *
+     * @param arg the argument of the function
+     * @return the LCM of the elements of the vector, which must have elements that all evaluate to integers; otherwise,
+     *         an {@code ErrorValue} with an error message
+     */
+    private static Object lcm(final Object arg) {
+
+        final Object result;
+
+        if (arg instanceof final IntegerVectorValue vec) {
+            // Get the first object from the vector, make sure it's an integer
+            long lcm = vec.getElement(0);
+
+            // Now loop through each subsequent element, accumulating it into the GCD calculation
+            final int count = vec.getNumElements();
+
+            for (int i = 1; i < count; ++i) {
+                final long elem = vec.getElement(i);
+
+                final BigInteger newgcd = new BigInteger(Long.toString(lcm))
+                        .gcd(new BigInteger(Long.toString(Math.round((double)elem))));
+                lcm = lcm * elem / Long.parseLong(newgcd.toString());
+            }
+
+            result = Long.valueOf(lcm);
+        } else {
+            result = new ErrorValue("Argument to 'lcm' was not integer vector.");
+        }
+
+        return result;
+    }
+
 
     /**
      * Compute the arc-cosine of an argument (in radians).

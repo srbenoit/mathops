@@ -84,7 +84,10 @@ public enum EFunction {
     RAD_NUM("radNum", '\u2736'),
 
     /** Degrees to denominator of fraction in radian representation (Maps Integer to Integer). */
-    RAD_DEN("radDen", '\u2737');
+    RAD_DEN("radDen", '\u2737'),
+
+    /** Least common multiple (Maps Integer Vector to Integer). */
+    LCM("lcm", '\u2738');
 
     /** The function name. */
     public final String name;

@@ -2690,6 +2690,7 @@ public enum DocFactory {
 
         final boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
                 && p.setAttr("y", e.getStringAttr("y"), e, mode)
+                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
                 && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
                 && p.setAttr("color", e.getStringAttr("color"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
@@ -2747,6 +2748,7 @@ public enum DocFactory {
 
         boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
                 && p.setAttr("y", e.getStringAttr("y"), e, mode)
+                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
                 && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
                 && p.setAttr("color", e.getStringAttr("color"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
