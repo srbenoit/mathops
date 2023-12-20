@@ -11,13 +11,17 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -41,6 +45,8 @@ public final class HtmlCsvPlacementReport {
     /** The list of student IDs on which to report. */
     private final Collection<String> studentIds;
 
+    private final ESortOrder sort;
+
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
 
@@ -51,11 +57,13 @@ public final class HtmlCsvPlacementReport {
      * Constructs a new {@code PlacementReport}.
      *
      * @param theCategory the special_stus category used to select report population
+     * @param theSort the sort order
      */
-    public HtmlCsvPlacementReport(final String theCategory) {
+    public HtmlCsvPlacementReport(final String theCategory, final ESortOrder theSort) {
 
         this.category = theCategory;
         this.studentIds = null;
+        this.sort = theSort;
 
         final ContextMap map = ContextMap.getDefaultInstance();
         this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
@@ -66,11 +74,13 @@ public final class HtmlCsvPlacementReport {
      * Constructs a new {@code PlacementReport}.
      *
      * @param theStudentIds the list of student IDs on which to report
+     * @param theSort the sort order
      */
-    public HtmlCsvPlacementReport( final Collection<String> theStudentIds) {
+    public HtmlCsvPlacementReport( final Collection<String> theStudentIds, final ESortOrder theSort) {
 
         this.category = null;
         this.studentIds = theStudentIds;
+        this.sort = theSort;
 
         final ContextMap map = ContextMap.getDefaultInstance();
         this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
@@ -126,7 +136,7 @@ public final class HtmlCsvPlacementReport {
                             + "Out Of 124," //
                             + "Out Of 125," //
                             + "Out Of 126," //
-                            + "Ready for 160");
+                            + "Eligible for 160");
 
                     // Get the list of students whose status to process (sorted by name)
                     final List<RawStudent> students = gatherStudents(cache);
@@ -158,153 +168,252 @@ public final class HtmlCsvPlacementReport {
                                        final Collection<? super String> html,
                                        final Collection<? super String> csv) throws SQLException {
 
-        final HtmlBuilder reportLine = new HtmlBuilder(200);
-        final HtmlBuilder csvLine = new HtmlBuilder(200);
+        final List<RawStcourse> regs = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, false);
+        final List<RawFfrTrns> transfer = RawFfrTrnsLogic.queryByStudent(cache, stu.stuId);
+        final List<RawMpeCredit> mpeCred = RawMpeCreditLogic.queryByStudent(cache, stu.stuId);
+        Collections.sort(mpeCred);
 
-        csvLine.add("\"", stu.lastName, ", ", stu.firstName, "\",", stu.stuId, ",");
+        String howPlacedInto117 = null;
+        String how117Satisfied = null;
+        String how118Satisfied = null;
+        String how124Satisfied = null;
+        String grade124 = null;
+        String how125Satisfied = null;
+        String how126Satisfied = null;
+        String grade126 = null;
 
-        reportLine.add("<tr><td>", stu.lastName, ", ", stu.firstName, "</td><td>", stu.stuId, "</td>");
+        for (final RawStcourse reg : regs) {
+            if (!"Y".equals(reg.completed)) {
+                continue;
+            }
+            final String grade = reg.courseGrade;
+            if ("A".equals(grade) || "B".equals(grade) || "C".equals(grade) || "D".equals(grade) || "S".equals(grade)) {
+                final String course = reg.course;
 
-        final StringBuilder results = new StringBuilder(100);
+                if (RawRecordConstants.M117.equals(course)) {
+                    how117Satisfied = "By Course";
+                } else if (RawRecordConstants.M118.equals(course)) {
+                    how118Satisfied = "By Course";
+                } else if (RawRecordConstants.M124.equals(course)) {
+                    how124Satisfied = "By Course";
+                    grade124 = grade;
+                } else if (RawRecordConstants.M125.equals(course) || RawRecordConstants.MATH125.equals(course)) {
+                    how125Satisfied = "By Course";
+                } else if (RawRecordConstants.M126.equals(course) || RawRecordConstants.MATH126.equals(course)) {
+                    how126Satisfied = "By Course";
+                    grade126 = grade;
+                }
+            }
+        }
+
+        for (final RawFfrTrns trns : transfer) {
+            final String course = trns.course;
+
+            if (RawRecordConstants.M002.equals(course) || "M 055".equals(course) || "M 099".equals(course)
+                    || RawRecordConstants.M100C.equals(course)) {
+                howPlacedInto117 = "By Xfer";
+            } else if (RawRecordConstants.M117.equals(course)) {
+                if (how117Satisfied == null) {
+                    how117Satisfied = "By Xfer";
+                }
+            } else if (RawRecordConstants.M118.equals(course)) {
+                if (how118Satisfied == null) {
+                    how118Satisfied = "By Xfer";
+                }
+            } else if (RawRecordConstants.M124.equals(course)) {
+                if (how124Satisfied == null) {
+                    how124Satisfied = "By Xfer";
+                    grade124 = "?";
+                }
+            } else if (RawRecordConstants.M125.equals(course)) {
+                if (how125Satisfied == null) {
+                    how125Satisfied = "By Xfer";
+                }
+            } else if (RawRecordConstants.M126.equals(course)) {
+                if (how126Satisfied == null) {
+                    how126Satisfied = "By Xfer";
+                    grade126 = "?";
+                }
+            }
+        }
+
+        boolean placedInto117 = false;
+        boolean placedOut117 = false;
+        boolean placedOut118 = false;
+        boolean placedOut124 = false;
+        boolean placedOut125 = false;
+        boolean placedOut126 = false;
+
+        for (final RawMpeCredit creditrow : mpeCred) {
+            final String crs = creditrow.course;
+
+            if ("M 100C".equals(crs)) {
+                placedInto117 = true;
+                if (howPlacedInto117 == null) {
+                    howPlacedInto117 = "By MPT";
+                }
+            } else if (RawRecordConstants.M117.equals(crs)) {
+                placedOut117 = true;
+                if (how117Satisfied == null) {
+                    how117Satisfied = "By MPT";
+                }
+            } else if (RawRecordConstants.M118.equals(crs)) {
+                placedOut118 = true;
+                if (how118Satisfied == null) {
+                    how118Satisfied = "By MPT";
+                }
+            } else if (RawRecordConstants.M124.equals(crs)) {
+                placedOut124 = true;
+                if (how124Satisfied == null) {
+                    how124Satisfied = "By MPT";
+                    grade124 = "P";
+                } else if ("C".equals(grade124) || "D".equals(grade124) || "S".equals(grade124)) {
+                    grade124 = "P";
+                }
+            } else if (RawRecordConstants.M125.equals(crs)) {
+                placedOut125 = true;
+                if (how125Satisfied == null) {
+                    how125Satisfied = "By MPT";
+                }
+            } else if (RawRecordConstants.M126.equals(crs)) {
+                placedOut126 = true;
+                if (how126Satisfied == null) {
+                    how126Satisfied = "By MPT";
+                    grade126 = "P";
+                } else if ("C".equals(grade126) || "D".equals(grade126) || "S".equals(grade126)) {
+                    grade126 = "P";
+                }
+            }
+        }
 
         // Count attempts, track earliest and most recent attempt
         final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, stu.stuId);
         final int numAttempts = attempts.size();
-        LocalDate firstAttempt = null;
-        LocalDate lastAttempt = null;
+        LocalDate firstTry = null;
+        LocalDate lastTry = null;
         for (final RawStmpe attempt : attempts) {
-            if (firstAttempt == null || firstAttempt.isAfter(attempt.examDt)) {
-                firstAttempt = attempt.examDt;
+            if (firstTry == null || firstTry.isAfter(attempt.examDt)) {
+                firstTry = attempt.examDt;
             }
-            if (lastAttempt == null || lastAttempt.isBefore(attempt.examDt)) {
-                lastAttempt = attempt.examDt;
+            if (lastTry == null || lastTry.isBefore(attempt.examDt)) {
+                lastTry = attempt.examDt;
             }
         }
 
-        final String firstAttemptDate = firstAttempt == null ? "N/A"
-                : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(firstAttempt);
+        final String firstTryDate = firstTry == null ? "N/A" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(firstTry);
+        final String lastTryDate = lastTry == null ? "N/A" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(lastTry);
 
-        final String lastAttemptDate = lastAttempt == null ? "N/A"
-                : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(lastAttempt);
+        //
+        // Generate report record
+        //
+        final HtmlBuilder reportLine = new HtmlBuilder(200);
+
+        final String numAttemptsStr = Integer.toString(numAttempts);
+        reportLine.add("<tr><td>", stu.lastName, ", ", stu.firstName, "</td><td>", stu.stuId, "</td><td>",
+                numAttemptsStr, "</td><td>", firstTryDate, "</td><td>", lastTryDate, "</td><td>");
+
+        if (numAttempts == 0) {
+            reportLine.add("*** No MPT Attempt ***");
+        } else if (placedInto117) {
+            if (placedOut117) {
+                if (placedOut118) {
+                    if (placedOut124) {
+                        if (placedOut125) {
+                            if (placedOut126) {
+                                reportLine.add("Placed out of MATH 117,118,124,125,126");
+                            } else {
+                                reportLine.add("Placed out of MATH 117,118,124,125");
+                            }
+                        } else {
+                            reportLine.add("Placed out of MATH 117,118,124");
+                        }
+                    } else if (placedOut125) {
+                        if (placedOut126) {
+                            reportLine.add("Placed out of MATH 117,118,125,126");
+                        } else {
+                            reportLine.add("Placed out of MATH 117,118,125");
+                        }
+                    } else {
+                        reportLine.add("Placed out of MATH 117,118");
+                    }
+                } else {
+                    reportLine.add("Placed out of MATH 117");
+                }
+            } else {
+                reportLine.add("OK for MATH 101/105, STAT 100, and MATH 117/120/127");
+            }
+        } else {
+            reportLine.add("OK for MATH 101/105 and STAT 100 only");
+        }
+        reportLine.add("</td></tr>");
+
+        final String reportLineStr = reportLine.toString();
+        html.add(reportLineStr);
+
+        //
+        // Generate CSV file record
+        //
+
+        final HtmlBuilder csvLine = new HtmlBuilder(200);
+
+        csvLine.add("\"", stu.lastName, ", ", stu.firstName, "\",", stu.stuId, CoreConstants.COMMA);
 
         csvLine.add(numAttempts);
         csvLine.add(CoreConstants.COMMA_CHAR);
-        csvLine.add(firstAttemptDate);
+        csvLine.add(firstTryDate);
         csvLine.add(CoreConstants.COMMA_CHAR);
-        csvLine.add(lastAttemptDate);
+        csvLine.add(lastTryDate);
         csvLine.add(CoreConstants.COMMA_CHAR);
 
-        reportLine.add("<td>", Integer.toString(numAttempts), "</td><td>", firstAttemptDate, "</td><td>",
-                lastAttemptDate, "</td>");
-
-        if (numAttempts == 0) {
-            results.append("*** No Placement Tool Attempt ***");
-            csvLine.add("no,no,no,no,no,no,no");
+        if (howPlacedInto117 == null) {
+            csvLine.add("no,");
         } else {
-            final List<RawMpeCredit> mpecredlist =
-                    RawMpeCreditLogic.queryByStudent(cache, stu.stuId);
-            final Iterator<RawMpeCredit> iter = mpecredlist.iterator();
-            while (iter.hasNext()) {
-                final RawMpeCredit test = iter.next();
-                final String placed = test.examPlaced;
-                if ((!"P".equals(placed) && !"C".equals(placed))) {
-                    iter.remove();
-                }
-            }
+            csvLine.add(howPlacedInto117, CoreConstants.COMMA);
+        }
+        if (how117Satisfied == null) {
+            csvLine.add("no,");
+        } else {
+            csvLine.add(how117Satisfied, CoreConstants.COMMA);
+        }
+        if (how118Satisfied == null) {
+            csvLine.add("no,");
+        } else {
+            csvLine.add(how118Satisfied, CoreConstants.COMMA);
+        }
+        if (how124Satisfied == null) {
+            csvLine.add("no,");
+        } else {
+            csvLine.add(how124Satisfied, CoreConstants.COMMA);
+        }
+        if (how125Satisfied == null) {
+            csvLine.add("no,");
+        } else {
+            csvLine.add(how125Satisfied, CoreConstants.COMMA);
+        }
+        if (how126Satisfied == null) {
+            csvLine.add("no,");
+        } else {
+            csvLine.add(how126Satisfied, CoreConstants.COMMA);
+        }
 
-            if (mpecredlist.isEmpty()) {
-                if (numAttempts == 1) {
-                    results.append("*** 1 MPT attempt, no placement earned");
-                } else {
-                    results.append("*** ").append(numAttempts).append(" MPT attempts, no placement earned");
-                }
-                csvLine.add("no,no,no,no,no,no,no");
+        // Ready for 160?
+        if (how124Satisfied == null || how126Satisfied == null) {
+            csvLine.add("no");
+        } else {
+            final boolean b124 = "A".equals(grade124) || "B".equals(grade124) || "P".equals(grade124);
+            final boolean b126 = "A".equals(grade126) || "B".equals(grade126) || "P".equals(grade126);
+
+            if (b124 && b126) {
+                csvLine.add("YES");
+            } else if (b124) {
+                csvLine.add("no (126 grade)");
+            } else if (b126) {
+                csvLine.add("no (124 grade)");
             } else {
-                results.append("Placed out of MATH ");
-                Collections.sort(mpecredlist);
-
-                boolean comma = false;
-                boolean has100C = false;
-                boolean has117 = false;
-                boolean has118 = false;
-                boolean has124 = false;
-                boolean has125 = false;
-                boolean has126 = false;
-                boolean hasOthers = false;
-                for (final RawMpeCredit creditrow : mpecredlist) {
-                    final String crs = creditrow.course;
-
-                    if ("M 100C".equals(crs)) {
-                        has100C = true;
-                    } else {
-                        if (RawRecordConstants.M117.equals(crs)) {
-                            has117 = true;
-                        } else if (RawRecordConstants.M118.equals(crs)) {
-                            has118 = true;
-                        } else if (RawRecordConstants.M124.equals(crs)) {
-                            has124 = true;
-                        } else if (RawRecordConstants.M125.equals(crs)) {
-                            has125 = true;
-                        } else if (RawRecordConstants.M126.equals(crs)) {
-                            has126 = true;
-                        }
-                        hasOthers = true;
-                        if (comma) {
-                            results.append(", ");
-                        }
-                        results.append(crs.substring(2));
-                        comma = true;
-                    }
-                }
-
-                if (hasOthers) {
-                    csvLine.add("n/a,");
-                    if (has117) {
-                        csvLine.add("YES,");
-                    } else {
-                        csvLine.add("no,");
-                    }
-                    if (has118) {
-                        csvLine.add("YES,");
-                    } else {
-                        csvLine.add("no,");
-                    }
-                    if (has124) {
-                        csvLine.add("YES,");
-                    } else {
-                        csvLine.add("no,");
-                    }
-                    if (has125) {
-                        csvLine.add("YES,");
-                    } else {
-                        csvLine.add("no,");
-                    }
-                    if (has126) {
-                        csvLine.add("YES,");
-                    } else {
-                        csvLine.add("no,");
-                    }
-                    if (has124 && has126) {
-                        csvLine.add("YES");
-                    } else {
-                        csvLine.add("no");
-                    }
-                } else {
-                    results.setLength(0);
-
-                    if (has100C) {
-                        results.append("OK for MATH 101, 105, 117, and 127");
-                        csvLine.add("YES,no,no,no,no,no,no");
-                    } else {
-                        results.append("OK for MATH 101 & 105 *only*");
-                        csvLine.add("no,no,no,no,no,no,no");
-                    }
-                }
+                csvLine.add("no (124 and 126 grades)");
             }
         }
-        reportLine.add("<td>", results, "</td></tr>");
 
-        html.add(reportLine.toString());
         csv.add(csvLine.toString());
     }
 
@@ -334,19 +443,33 @@ public final class HtmlCsvPlacementReport {
                 }
             }
         } else {
-            students = new ArrayList<>(this.studentIds.size());
+            final int size = this.studentIds.size();
+            students = new ArrayList<>(size);
 
             for (final String id : this.studentIds) {
                 final RawStudent stu = RawStudentLogic.query(cache, id, false);
                 if (stu == null) {
                     Log.warning("Student ", id, " was not found");
+                    if (this.sort == ESortOrder.PRESERVE_ORDER) {
+                        final RawStudent fakeStudent = new RawStudent();
+                        fakeStudent.stuId = id;
+                        fakeStudent.lastName = "*** INVALID ***";
+                        fakeStudent.firstName = CoreConstants.EMPTY;
+                        students.add(fakeStudent);
+                    }
                 } else {
                     students.add(stu);
                 }
             }
         }
 
-        Collections.sort(students);
+        if (this.sort == ESortOrder.LAST_NAME) {
+            // Last name is the default sort for the "RawStudent" class
+            students.sort(null);
+        } else if (this.sort == ESortOrder.CSUID) {
+            // Last name is the default sort for the "RawStudent" class
+            students.sort(RawStudent.CSUID_COMPARATOR);
+        }
 
         return students;
     }

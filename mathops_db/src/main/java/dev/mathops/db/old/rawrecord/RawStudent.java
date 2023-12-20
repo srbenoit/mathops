@@ -9,6 +9,7 @@ import dev.mathops.db.old.rec.RecBase;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -16,6 +17,9 @@ import java.util.Objects;
  * A raw "student" record.
  */
 public final class RawStudent extends RecBase implements Comparable<RawStudent> {
+
+    /** A comparator to allow student records to be sorted by CSI UD. */
+    public static final CSUIDComparator CSUID_COMPARATOR = new CSUIDComparator();
 
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
@@ -796,5 +800,35 @@ public final class RawStudent extends RecBase implements Comparable<RawStudent> 
         }
 
         return equal;
+    }
+
+    /**
+     * A comparator to allow students to be sorted by CSU ID.
+     */
+    public static final class CSUIDComparator implements Comparator<RawStudent> {
+
+        /**
+         * Compares its two arguments for order. Returns a negative integer, zero, or a positive integer as the first
+         * argument is less than, equal to, or greater than the second.
+         *
+         * @param o1 the first object
+         * @param o2 the second object
+         * @return a negative integer, zero, or a positive integer as the first argument is less than, equal to, or
+         * greater than the second
+         */
+        public int compare(final RawStudent o1, final RawStudent o2) {
+
+            final int result;
+
+            if (o1.stuId == null) {
+                result = o2.stuId == null ? 0 : -1;
+            } else if (o2.stuId == null) {
+                result = 1;
+            } else {
+                result = o1.stuId.compareTo(o2.stuId);
+            }
+
+            return result;
+        }
     }
 }

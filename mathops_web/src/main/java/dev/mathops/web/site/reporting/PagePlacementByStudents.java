@@ -2,6 +2,7 @@ package dev.mathops.web.site.reporting;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.dbjobs.report.ESortOrder;
 import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -62,6 +63,7 @@ enum PagePlacementByStudents {
             throws IOException, SQLException {
 
         final String idlist = req.getParameter("idlist");
+        final String sortorder = req.getParameter("sortorder");
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.NO_BARS, null, false, true);
@@ -83,6 +85,27 @@ enum PagePlacementByStudents {
         }
         htm.add("</textarea>").eP();
 
+        htm.addln("<label for='sortorder'>Sort Order:</label>");
+        htm.addln("<select name='sortorder' id='sortorder'>");
+        htm.add("  <option value='lastname'");
+        if ("lastname".equals(sortorder)) {
+            htm.add(" selected");
+        }
+        htm.addln(">Alphabetical, by last name</option>");
+
+        htm.add("  <option value='csiud'");
+        if ("csiud".equals(sortorder)) {
+            htm.add(" selected");
+        }
+        htm.addln(">By CSU ID number</option>");
+
+        htm.add("  <option value='preserve'");
+        if ("preserve".equals(sortorder)) {
+            htm.add(" selected");
+        }
+        htm.addln(">Preserve order of provided list</option>");
+        htm.addln("</select>");
+
         htm.sP().addln("<input type='submit' name='generate' value='View Report'/> ",
                 "<input type='submit' name='csv' value='Download Report Data (CSV)'/>").eP();
         htm.addln("</form>");
@@ -90,11 +113,13 @@ enum PagePlacementByStudents {
 
         // Run the report if student IDs were provided
         if (idlist != null && !idlist.isBlank()) {
+            final ESortOrder sort = ESortOrder.forId(sortorder);
+            final ESortOrder actualSort = sort == null ? ESortOrder.LAST_NAME : sort;
             final List<String> studentIds = ReportingSite.extractIds(idlist);
 
             final Collection<String> report = new ArrayList<>(10);
             final Collection<String> csv = new ArrayList<>(10);
-            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds);
+            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds, actualSort);
             job.generate(report, csv);
 
             for (final String rep : report) {
@@ -119,11 +144,14 @@ enum PagePlacementByStudents {
 
         // Run the report if student IDs were provided
         if (idlist != null && !idlist.isBlank()) {
+            final String sortorder = req.getParameter("sortorder");
+            final ESortOrder sort = ESortOrder.forId(sortorder);
+            final ESortOrder actualSort = sort == null ? ESortOrder.LAST_NAME : sort;
             final List<String> studentIds = ReportingSite.extractIds(idlist);
 
             final Collection<String> report = new ArrayList<>(10);
             final Collection<String> csv = new ArrayList<>(10);
-            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds);
+            final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(studentIds, actualSort);
             job.generate(report, csv);
 
             final HtmlBuilder csvData = new HtmlBuilder(2000);

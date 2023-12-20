@@ -5,6 +5,7 @@ import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.dbjobs.report.ESortOrder;
 import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -68,6 +69,8 @@ enum PagePlacementByCategory {
             throws IOException, SQLException {
 
         final String category = req.getParameter("category");
+        final String sortorder = req.getParameter("sortorder");
+
         if (AbstractSite.isParamInvalid(category)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  category='", category, "'");
@@ -97,6 +100,22 @@ enum PagePlacementByCategory {
                 htm.sP().add("There are currently no special student categories defined.").eP();
             } else {
                 htm.add("<form action='placement_by_category.html' method='POST'>");
+
+                htm.addln("<label for='sortorder'>Sort Order:</label>");
+                htm.addln("<select name='sortorder' id='sortorder'>");
+                htm.add("  <option value='lastname'");
+                if ("lastname".equals(sortorder)) {
+                    htm.add(" selected");
+                }
+                htm.addln(">Alphabetical, by last name</option>");
+
+                htm.add("  <option value='csiud'");
+                if ("csiud".equals(sortorder)) {
+                    htm.add(" selected");
+                }
+                htm.addln(">By CSU ID number</option>");
+                htm.addln("</select>");
+
                 htm.sP().add("Select the student category: ");
                 htm.addln("<select name='category' id='category'>");
                 for (final String type : availableTypes) {
@@ -124,11 +143,13 @@ enum PagePlacementByCategory {
             htm.hr();
 
             if (specialType != null) {
+                final ESortOrder sort = ESortOrder.forId(sortorder);
+                final ESortOrder actualSort = sort == null ? ESortOrder.LAST_NAME : sort;
                 htm.sP().addln("Math Placement Status for students in [", specialType, "] category");
 
                 final Collection<String> report = new ArrayList<>(10);
                 final Collection<String> csv = new ArrayList<>(10);
-                final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(specialType);
+                final HtmlCsvPlacementReport job = new HtmlCsvPlacementReport(specialType, actualSort);
                 job.generate(report, csv);
 
                 for (final String rep : report) {
@@ -174,9 +195,13 @@ enum PagePlacementByCategory {
             if (specialType == null) {
                 emitHtmlPage(cache, site, req, resp, session);
             } else {
+                final String sortorder = req.getParameter("sortorder");
+                final ESortOrder sort = ESortOrder.forId(sortorder);
+                final ESortOrder actualSort = sort == null ? ESortOrder.LAST_NAME : sort;
+
                 final Collection<String> report = new ArrayList<>(10);
                 final Collection<String> csv = new ArrayList<>(10);
-                final HtmlCsvPlacementReport job2 = new HtmlCsvPlacementReport(specialType);
+                final HtmlCsvPlacementReport job2 = new HtmlCsvPlacementReport(specialType, actualSort);
                 job2.generate(report, csv);
 
                 final HtmlBuilder csvData = new HtmlBuilder(2000);

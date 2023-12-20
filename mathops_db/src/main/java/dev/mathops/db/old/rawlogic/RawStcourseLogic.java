@@ -356,7 +356,8 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
      * @throws SQLException if there is an error performing the query
      */
     public static List<RawStcourse> queryByStudent(final Cache cache, final String studentId,
-                                                   final boolean includeOT, final boolean includeDropped) throws SQLException {
+                                                   final boolean includeOT, final boolean includeDropped)
+            throws SQLException {
 
         final List<RawStcourse> result;
 

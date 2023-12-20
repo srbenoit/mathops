@@ -177,8 +177,7 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
                     }
                 }
             } else {
-                result = new ErrorValue(//
-                        "Binary operator cannot be evaluated without children");
+                result = new ErrorValue("Binary operator cannot be evaluated without 2 children");
             }
         }
 
