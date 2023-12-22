@@ -69,6 +69,17 @@ public final class Record {
     }
 
     /**
+     * Gets a particular field value.
+     *
+     * @param index the field index
+     * @return the value
+     */
+    public Object getFieldValue(final int index) {
+
+        return this.fieldValues[index];
+    }
+
+    /**
      * Generates a diagnostic string representation of the object.
      *
      * @return the string representation
