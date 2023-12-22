@@ -63,7 +63,7 @@ public final class Field {
                 if (theConstraints[i] == null) {
                     throw new IllegalArgumentException("Field constraints array may not include null values");
                 }
-                if (theConstraints[i].getFieldType() != theType) {
+                if (theConstraints[i].getField().getType() != theType) {
                     throw new IllegalArgumentException("Field constraints type does not match field type");
                 }
                 this.constraints[i] = theConstraints[i];

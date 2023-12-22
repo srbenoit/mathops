@@ -10,7 +10,7 @@ import dev.mathops.db.generalized.criteria.ENumericMatchType;
 import dev.mathops.db.generalized.criteria.IntegerFieldCriterion;
 
 /**
- * The "Term" table within the "Term and Course" domain.
+ * The "Term" table specification within the "Term and Course" domain.
  */
 public final class TermTable extends Table {
 
@@ -21,7 +21,7 @@ public final class TermTable extends Table {
      * Term IDs, which are six-digit integers of the form "202330" (Spring 2023), "202360" (Summer 2023), or
      * "202390" (Fall, 2023).
      */
-    private static final Field F_TERM_ID = new Field("term_id", EFieldType.INTEGER, EFieldRole.PARTITION_KEY,
+    private static final Field F_TERM = new Field("term", EFieldType.INTEGER, EFieldRole.PARTITION_KEY,
             new IntegerRangeConstraint(100000, 999999));
 
     /**
@@ -48,10 +48,10 @@ public final class TermTable extends Table {
     private static final Field F_ACTIVE_INDEX = new Field("active_index", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
 
     /** The last day students may drop the course. */
-    private static final Field F_DROP_DEADLINE = new Field("d_deadline", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
+    private static final Field F_DROP_DEADLINE = new Field("drop_deadline", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
 
     /** The last day students can withdraw from the course. */
-    private static final Field F_WITHDRAW_DEADLINE = new Field("w_deadline", EFieldType.LOCAL_DATE,
+    private static final Field F_WITHDRAW_DEADLINE = new Field("withdraw_deadline", EFieldType.LOCAL_DATE,
             EFieldRole.NOT_NULL);
 
     /**
@@ -59,7 +59,7 @@ public final class TermTable extends Table {
      */
     private TermTable() {
 
-        super("main", "term", F_TERM_ID, F_START_DATE, F_END_DATE, F_ACADEMIC_YEAR, F_ACTIVE_INDEX,
+        super("main", "term", F_TERM, F_START_DATE, F_END_DATE, F_ACADEMIC_YEAR, F_ACTIVE_INDEX,
                 F_DROP_DEADLINE, F_WITHDRAW_DEADLINE);
     }
 
@@ -73,7 +73,7 @@ public final class TermTable extends Table {
 
         final Integer activeIndexObj = Integer.valueOf(theTermId);
 
-        return new QueryCriteria(this, new IntegerFieldCriterion(F_TERM_ID, ENumericMatchType.EXACT_IN,
+        return new QueryCriteria(this, new IntegerFieldCriterion(F_TERM, ENumericMatchType.EXACT_IN,
                 activeIndexObj));
     }
 

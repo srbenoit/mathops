@@ -1,6 +1,8 @@
 package dev.mathops.db.generalized.constraint;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.EFieldType;
+import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for Long fields that specifies a minimum and maximum value.
@@ -16,13 +18,17 @@ public final class LongRangeConstraint extends AbstractFieldConstraint<Long> {
     /**
      * Constructs a new {@code LongRangeConstraint}.
      *
+     * @param theField the field to which the constraint is applied
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public LongRangeConstraint(final long theMinValue, final long theMaxValue) {
+    public LongRangeConstraint(final Field theField, final long theMinValue, final long theMaxValue) {
 
-        super(EFieldType.LONG);
+        super(theField);
 
+        if (theField.getType() != EFieldType.LONG) {
+            throw new IllegalArgumentException("LongRangeConstraint can only be applied to Long fields");
+        }
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");
         }
@@ -73,5 +79,23 @@ public final class LongRangeConstraint extends AbstractFieldConstraint<Long> {
         final long l = value.longValue();
 
         return l >= this.minValue && l <= this.maxValue;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the constraint.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final Field field = getField();
+        final String fieldName = field.getName();
+
+        final String minValueStr = Long.toString(this.minValue);
+        final String maxValueStr = Long.toString(this.maxValue);
+
+        return SimpleBuilder.concat("LongRangeConstraint{field=", fieldName, ",minValue=", minValueStr,
+                ",maxValue=", maxValueStr, "}");
     }
 }

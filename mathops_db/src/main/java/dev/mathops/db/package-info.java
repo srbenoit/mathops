@@ -7,7 +7,5 @@
  * <p>
  * {@code DbContext} objects can then be used as keys in maps that want to track data by database connection. All
  * contexts that use the same {@code DbContext} will see the same data, and can cache and share that data.
- *
- *
  */
 package dev.mathops.db;

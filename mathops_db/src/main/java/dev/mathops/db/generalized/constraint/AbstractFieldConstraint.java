@@ -1,6 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
-import dev.mathops.db.generalized.EFieldType;
+import dev.mathops.db.generalized.Field;
 
 /**
  * The base class for constraints that can be applied to a field.
@@ -9,26 +9,31 @@ import dev.mathops.db.generalized.EFieldType;
  */
 public abstract class AbstractFieldConstraint<T> {
 
-    /** The field type. */
-    private final EFieldType fieldType;
+    /** The field to which the constraint applies. */
+    private final Field field;
 
     /**
      * Constructs a new {@code AbstractFieldConstraint}.
      *
-     * @param theFieldType the field type
+     * @param theField the field to which the constraint applies
      */
-    protected AbstractFieldConstraint(final EFieldType theFieldType) {
+    protected AbstractFieldConstraint(final Field theField) {
 
-        this.fieldType = theFieldType;
+        if (theField == null) {
+            throw new IllegalArgumentException("Field may not be null");
+        }
+
+        this.field = theField;
     }
 
     /**
-     * Gets the field type to which this constraint applies.
-     * @return the field type
+     * Gets the field to which this constraint applies.
+     *
+     * @return the field
      */
-    public final EFieldType getFieldType() {
+    public final Field getField() {
 
-        return this.fieldType;
+        return this.field;
     }
 
     /**
@@ -46,4 +51,12 @@ public abstract class AbstractFieldConstraint<T> {
      * @return {@code true} if valid; {@code false} if not
      */
     public abstract boolean isValid(T value);
+
+    /**
+     * Generates a diagnostic string representation of the constraint.
+     *
+     * @return the string representation
+     */
+    @Override
+    public abstract String toString();
 }

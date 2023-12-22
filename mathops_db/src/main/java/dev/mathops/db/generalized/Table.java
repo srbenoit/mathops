@@ -92,7 +92,7 @@ public class Table {
      *
      * @return the number of fields
      */
-    final int getNumFields() {
+    public final int getNumFields() {
 
         return this.fields.length;
     }
@@ -103,7 +103,7 @@ public class Table {
      * @param index the zero-based index of the field
      * @return the field definition
      */
-    final Field getField(final int index) {
+    public final Field getField(final int index) {
 
         return this.fields[index];
     }

@@ -43,42 +43,29 @@
 -- ------------------------------------------------------------------------------------------------
 -- Creates the 'math' role and database and the tablespaces that will hold database objects
 
-CREATE ROLE math LOGIN CREATEDB CREATEROLE PASSWORD '**41**!';
+CREATE ROLE math WITH LOGIN CREATEDB CREATEROLE INHERIT PASSWORD '**41**!';
 
-CREATE DATABASE math OWNER math;
+CREATE DATABASE math WITH OWNER = math ENCODING = 'UTF8';
 
-CREATE TABLESPACE main_tbl LOCATION '/opt/pgschemas/pgdata-main-tblspc';
-CREATE TABLESPACE main_idx LOCATION '/opt/pgschemas/pgdata-main-index';
-GRANT CREATE ON TABLESPACE main_tbl TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE main_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE main_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-main-tblspc';
+CREATE TABLESPACE main_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-main-index';
 
-CREATE TABLESPACE dev_tbl LOCATION '/opt/pgschemas/pgdata-dev-tblspc';
-CREATE TABLESPACE dev_idx LOCATION '/opt/pgschemas/pgdata-dev-index';
-GRANT CREATE ON TABLESPACE dev_tbl TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE dev_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE dev_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-dev-tblspc';
+CREATE TABLESPACE dev_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-dev-index';
 
-CREATE TABLESPACE anlyt_tbl LOCATION '/opt/pgschemas/pgdata-anlyt-tblspc';
-CREATE TABLESPACE anlyt_idx LOCATION '/opt/pgschemas/pgdata-anlyt-index';
-GRANT CREATE ON TABLESPACE anlyt_tbl TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE anlyt_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE anlyt_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-anlyt-tblspc';
+CREATE TABLESPACE anlyt_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-anlyt-index';
 
-CREATE TABLESPACE test LOCATION '/opt/pgschemas/pgdata-test-tblspc';
-GRANT CREATE ON TABLESPACE test TO math WITH GRANT OPTION;
+CREATE TABLESPACE test OWNER math LOCATION '/opt/pg_tblspc/pgdata-test-tblspc';
 
-CREATE TABLESPACE sp23_tbl LOCATION '/opt/pgschemas/pgdata-sp23-tblspc';
-CREATE TABLESPACE sp23_idx LOCATION '/opt/pgschemas/pgdata-sp23-index';
-GRANT CREATE ON TABLESPACE sp23_tbl  TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE sp23_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE sp24_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp24-tblspc';
+CREATE TABLESPACE sp24_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp24-index';
 
-CREATE TABLESPACE sm23_tbl LOCATION '/opt/pgschemas/pgdata-sm23-tblspc';
-CREATE TABLESPACE sm23_idx LOCATION '/opt/pgschemas/pgdata-sm23-index';
-GRANT CREATE ON TABLESPACE sm23_tbl TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE sm23_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE fa23_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-fa23-tblspc';
+CREATE TABLESPACE fa23_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-fa23-index';
 
-CREATE TABLESPACE fa23_tbl LOCATION '/opt/pgschemas/pgdata-fa23-tblspc';
-CREATE TABLESPACE fa23_idx LOCATION '/opt/pgschemas/pgdata-fa23-index';
-GRANT CREATE ON TABLESPACE fa23_tbl TO math WITH GRANT OPTION;
-GRANT CREATE ON TABLESPACE fa23_idx TO math WITH GRANT OPTION;
+CREATE TABLESPACE sp23_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp23-tblspc';
+CREATE TABLESPACE sp23_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp23-index';
 
 
 -- To connect as 'math':

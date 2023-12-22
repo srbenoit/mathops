@@ -2,6 +2,7 @@ package dev.mathops.db.generalized;
 
 import dev.mathops.core.builder.SimpleBuilder;
 
+import java.sql.Blob;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,7 +34,7 @@ public enum EFieldType {
     DOUBLE(Double.class),
 
     /** Java byte array. */
-    BLOB(byte[].class),
+    BLOB(Blob.class),
 
     /** Java LocalDate. */
     LOCAL_DATE(LocalDate.class),

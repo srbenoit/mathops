@@ -1,6 +1,8 @@
 package dev.mathops.db.generalized.constraint;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.generalized.EFieldType;
+import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for Integer fields that specifies a minimum and maximum value.
@@ -16,13 +18,17 @@ public final class IntegerRangeConstraint extends AbstractFieldConstraint<Intege
     /**
      * Constructs a new {@code IntegerRangeConstraint}.
      *
+     * @param theField the field to which the constraint is applied
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public IntegerRangeConstraint(final int theMinValue, final int theMaxValue) {
+    public IntegerRangeConstraint(final Field theField, final int theMinValue, final int theMaxValue) {
 
-        super(EFieldType.INTEGER);
+        super(theField);
 
+        if (theField.getType() != EFieldType.INTEGER) {
+            throw new IllegalArgumentException("IntegerRangeConstraint can only be applied to Integer fields");
+        }
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");
         }
@@ -73,5 +79,23 @@ public final class IntegerRangeConstraint extends AbstractFieldConstraint<Intege
         final int i = value.intValue();
 
         return i >= this.minValue && i <= this.maxValue;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the constraint.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final Field field = getField();
+        final String fieldName = field.getName();
+
+        final String minValueStr = Integer.toString(this.minValue);
+        final String maxValueStr = Integer.toString(this.maxValue);
+
+        return SimpleBuilder.concat("IntegerRangeConstraint{field=", fieldName, ",minValue=", minValueStr,
+                ",maxValue=", maxValueStr, "}");
     }
 }

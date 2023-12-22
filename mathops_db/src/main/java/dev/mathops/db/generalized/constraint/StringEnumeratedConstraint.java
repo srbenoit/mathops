@@ -1,6 +1,9 @@
 package dev.mathops.db.generalized.constraint;
 
+import dev.mathops.core.CoreConstants;
+import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.generalized.EFieldType;
+import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for String fields that specifies an enumeration of allowed values.  If a string field has no
@@ -15,12 +18,16 @@ public final class StringEnumeratedConstraint extends AbstractFieldConstraint<St
     /**
      * Constructs a new {@code StringEnumeratedConstraint}.
      *
+     * @param theField the field to which the constraint is applied
      * @param theAllowedValues the allowed values
      */
-    public StringEnumeratedConstraint(final String... theAllowedValues) {
+    public StringEnumeratedConstraint(final Field theField, final String... theAllowedValues) {
 
-        super(EFieldType.STRING);
+        super(theField);
 
+        if (theField.getType() != EFieldType.STRING) {
+            throw new IllegalArgumentException("StringEnumeratedConstraint can only be applied to String fields");
+        }
         if (theAllowedValues == null || theAllowedValues.length == 0) {
             throw new IllegalArgumentException("Allowed values array may not be null or empty");
         }
@@ -84,5 +91,29 @@ public final class StringEnumeratedConstraint extends AbstractFieldConstraint<St
         }
 
         return valid;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the constraint.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final Field field = getField();
+        final String fieldName = field.getName();
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+
+        builder.add("StringEnumeratedConstraint{field=", fieldName, ",allowedValues=[", this.allowedValues[0]);
+        final int count = this.allowedValues.length;
+        for (int i = 1; i < count; ++i) {
+            builder.add(CoreConstants.COMMA_CHAR);
+            builder.add(this.allowedValues[i]);
+        }
+        builder.add('}');
+
+        return builder.toString();
     }
 }

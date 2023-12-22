@@ -16,11 +16,12 @@ public final class JdbcGeneralConnection extends AbstractGeneralConnection {
     /**
      * Constructs a new {@code JdbcGeneralConnection}.
      *
+     * @param theContext the connection's context
      * @param theConnection the underlying JDBC connection
      */
-    public JdbcGeneralConnection(final Connection theConnection) {
+    public JdbcGeneralConnection(final EConnectionContext theContext, final Connection theConnection) {
 
-        super();
+        super(theContext);
 
         if (theConnection == null) {
             throw new IllegalArgumentException("JDBC connection may not be null");

@@ -9,16 +9,18 @@
 
 -- Create the schemas in the "math" database.
 
-CREATE SCHEMA IF NOT EXISTS main;    -- Production main
-CREATE SCHEMA IF NOT EXISTS main_d;  -- Development main
-CREATE SCHEMA IF NOT EXISTS main_t;  -- Test main
-CREATE SCHEMA IF NOT EXISTS term_d;  -- Development term
-CREATE SCHEMA IF NOT EXISTS term_t;  -- Test term
-CREATE SCHEMA IF NOT EXISTS anlyt;   -- Production analytics
-CREATE SCHEMA IF NOT EXISTS anlyt_t; -- Test analytics
-CREATE SCHEMA IF NOT EXISTS sp23;    -- SP23 term
-CREATE SCHEMA IF NOT EXISTS sm23;    -- SM23 term
-CREATE SCHEMA IF NOT EXISTS fa23;    -- FA23 term
+CREATE SCHEMA IF NOT EXISTS main AUTHORIZATION math;      -- Production main
+CREATE SCHEMA IF NOT EXISTS main_d AUTHORIZATION math;    -- Development main
+CREATE SCHEMA IF NOT EXISTS main_t AUTHORIZATION math;    -- Test main
+CREATE SCHEMA IF NOT EXISTS term_d AUTHORIZATION math;    -- Development term
+CREATE SCHEMA IF NOT EXISTS term_t AUTHORIZATION math;    -- Test term
+CREATE SCHEMA IF NOT EXISTS anlyt AUTHORIZATION math;     -- Production analytics
+CREATE SCHEMA IF NOT EXISTS anlyt_t AUTHORIZATION math;   -- Test analytics
+CREATE SCHEMA IF NOT EXISTS term_sm24 AUTHORIZATION math; -- SP24 term
+CREATE SCHEMA IF NOT EXISTS term_sp24 AUTHORIZATION math; -- SP24 term
+CREATE SCHEMA IF NOT EXISTS term_fa23 AUTHORIZATION math; -- FA23 term
+CREATE SCHEMA IF NOT EXISTS term_sm23 AUTHORIZATION math; -- SM23 term
+CREATE SCHEMA IF NOT EXISTS sterm_p23 AUTHORIZATION math; -- SP23 term
 
 
 
@@ -47,10 +49,11 @@ CREATE TABLE IF NOT EXISTS main.term (
     academic_year       char(4)        NOT NULL,  -- The academic year, like "2324"
     active_index        smallint       NOT NULL,  -- The index within the sequence of terms, the
                                                   --   active term is 0, prior is -1, next is 1
-    drop_deadline       date,                     -- The last date to drop
-    withdraw_deadline   date,                     -- The last date to withdraw
+    drop_deadline       date           NOT NULL,  -- The last date to drop
+    withdraw_deadline   date           NOT NULL,  -- The last date to withdraw
     PRIMARY KEY (term)
 ) TABLESPACE main_tbl;
+ALTER TABLE IF EXISTS main.term OWNER to math;
 
 -- DROP TABLE IF EXISTS main_d.term;
 CREATE TABLE IF NOT EXISTS main_d.term (
@@ -59,10 +62,11 @@ CREATE TABLE IF NOT EXISTS main_d.term (
     end_date            date           NOT NULL,
     academic_year       char(4)        NOT NULL,
     active_index        smallint       NOT NULL,
-    drop_deadline       date,
-    withdraw_deadline   date,
+    drop_deadline       date           NOT NULL,
+    withdraw_deadline   date           NOT NULL,
     PRIMARY KEY (term)
 ) TABLESPACE dev_tbl;
+ALTER TABLE IF EXISTS main_d.term OWNER to math;
 
 -- DROP TABLE IF EXISTS main_t.term;
 CREATE TABLE IF NOT EXISTS main_t.term (
@@ -71,10 +75,11 @@ CREATE TABLE IF NOT EXISTS main_t.term (
     end_date            date           NOT NULL,
     academic_year       char(4)        NOT NULL,
     active_index        smallint       NOT NULL,
-    drop_deadline       date,
-    withdraw_deadline   date,
+    drop_deadline       date           NOT NULL,
+    withdraw_deadline   date           NOT NULL,
     PRIMARY KEY (term)
 ) TABLESPACE test;
+ALTER TABLE IF EXISTS main_t.term OWNER to math;
 
 
 
@@ -239,7 +244,7 @@ CREATE TABLE IF NOT EXISTS main_t.mastery_exam (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.mastery_attempt;
-CREATE TABLE IF NOT EXISTS sm23.mastery_attempt (
+CREATE TABLE IF NOT EXISTS term_sm23.mastery_attempt (
     serial_nbr          integer        NOT NULL,  -- The serial number of the exam session
     exam_id             varchar(20)    NOT NULL,  -- The exam ID (references mastery_exam record)
     stu_id              char(9)        NOT NULL,  -- The ID of the student
@@ -313,7 +318,7 @@ CREATE TABLE IF NOT EXISTS term_t.mastery_attempt (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.mastery_attempt_qa;
-CREATE TABLE IF NOT EXISTS sm23.mastery_attempt_qa (
+CREATE TABLE IF NOT EXISTS term_sm23.mastery_attempt_qa (
     serial_nbr          integer        NOT NULL,  -- The serial number of the exam session
     exam_id             varchar(20)    NOT NULL,  -- The exam ID (references mastery_exam record)
     question_nbr        smallint       NOT NULL,  -- The question number
@@ -354,7 +359,7 @@ CREATE TABLE IF NOT EXISTS term_t.mastery_attempt_qa (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.stu_course_mastery;
-CREATE TABLE IF NOT EXISTS sm23.stu_course_mastery (
+CREATE TABLE IF NOT EXISTS term_sm23.stu_course_mastery (
     stu_id              char(9)        NOT NULL,  -- The student ID
     course_id           char(10)       NOT NULL,  -- The course ID
     score               smallint       NOT NULL,  -- The current score
@@ -407,7 +412,7 @@ CREATE TABLE IF NOT EXISTS term_t.stu_course_mastery (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.stu_unit_mastery;
-CREATE TABLE IF NOT EXISTS sm23.stu_unit_mastery (
+CREATE TABLE IF NOT EXISTS term_sm23.stu_unit_mastery (
     stu_id              char(9)        NOT NULL,  -- The student ID
     course_id           char(10)       NOT NULL,  -- The course ID
     unit                smallint       NOT NULL,  -- The unit
@@ -461,7 +466,7 @@ CREATE TABLE IF NOT EXISTS term_t.stu_unit_mastery (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.std_milestone;
-CREATE TABLE IF NOT EXISTS sm23.std_milestone (
+CREATE TABLE IF NOT EXISTS term_sm23.std_milestone (
     pace_track          char(1)        NOT NULL,  -- The pace track
     pace                smallint       NOT NULL,  -- The pace
     pace_index          smallint       NOT NULL,  -- The pace index
@@ -512,7 +517,7 @@ CREATE TABLE IF NOT EXISTS term_t.std_milestone (
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS sm23.stu_std_milestone;
-CREATE TABLE IF NOT EXISTS sm23.stu_std_milestone (
+CREATE TABLE IF NOT EXISTS term_sm23.stu_std_milestone (
     stu_id              char(9)        NOT NULL,  -- The student ID
     pace_track          char(1)        NOT NULL,  -- The pace track
     pace                smallint       NOT NULL,  -- The pace

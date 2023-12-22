@@ -5,12 +5,31 @@ package dev.mathops.db.generalized.connection;
  */
 public abstract class AbstractGeneralConnection {
 
+    /** The connection's context. */
+    private final EConnectionContext context;
+
     /**
      * Constructs a new {@code AbstractConnection}.
+     *
+     * @param theContext the connection's context
      */
-    protected AbstractGeneralConnection() {
+    protected AbstractGeneralConnection(final EConnectionContext theContext) {
 
-        // No action
+        if (theContext == null) {
+            throw new IllegalArgumentException("Connection context may not be null");
+        }
+
+        this.context = theContext;
+    }
+
+    /**
+     * Gets the connection's context.
+     *
+     * @return the context
+     */
+    public final EConnectionContext getContext() {
+
+        return this.context;
     }
 
     /**
