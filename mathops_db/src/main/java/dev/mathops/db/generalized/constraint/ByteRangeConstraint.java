@@ -1,8 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.generalized.EFieldType;
-import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for Byte fields that specifies a minimum and maximum value.
@@ -18,17 +16,13 @@ public final class ByteRangeConstraint extends AbstractFieldConstraint<Byte> {
     /**
      * Constructs a new {@code ByteRangeConstraint}.
      *
-     * @param theField the field to which the constraint is applied
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public ByteRangeConstraint(final Field theField, final byte theMinValue, final byte theMaxValue) {
+    public ByteRangeConstraint(final byte theMinValue, final byte theMaxValue) {
 
-        super(theField);
+        super();
 
-        if (theField.getType() != EFieldType.BYTE) {
-            throw new IllegalArgumentException("ByteRangeConstraint can only be applied to Byte fields");
-        }
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");
         }
@@ -89,13 +83,9 @@ public final class ByteRangeConstraint extends AbstractFieldConstraint<Byte> {
     @Override
     public String toString() {
 
-        final Field field = getField();
-        final String fieldName = field.getName();
-
         final String minValueStr = Byte.toString(this.minValue);
         final String maxValueStr = Byte.toString(this.maxValue);
 
-        return SimpleBuilder.concat("ByteRangeConstraint{field=", fieldName, ",minValue=", minValueStr,
-                ",maxValue=", maxValueStr, "}");
+        return SimpleBuilder.concat("ByteRangeConstraint{minValue=", minValueStr, ",maxValue=", maxValueStr, "}");
     }
 }

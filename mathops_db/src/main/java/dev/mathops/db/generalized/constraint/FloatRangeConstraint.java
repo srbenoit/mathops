@@ -1,8 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.generalized.EFieldType;
-import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for Float fields that specifies a minimum and maximum value.
@@ -21,19 +19,15 @@ public final class FloatRangeConstraint extends AbstractFieldConstraint<Float> {
     /**
      * Constructs a new {@code FloatRangeConstraint}.
      *
-     * @param theField the field to which the constraint is applied
      * @param theAllowed  the types of values allowed
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public FloatRangeConstraint(final Field theField, final EFloatingPointAllow theAllowed, final float theMinValue,
+    public FloatRangeConstraint(final EFloatingPointAllow theAllowed, final float theMinValue,
                                 final float theMaxValue) {
 
-        super(theField);
+        super();
 
-        if (theField.getType() != EFieldType.FLOAT) {
-            throw new IllegalArgumentException("FloatRangeConstraint can only be applied to Float fields");
-        }
         if (theAllowed == null) {
             throw new IllegalArgumentException("Allowed values specification may not be null");
         }
@@ -116,13 +110,9 @@ public final class FloatRangeConstraint extends AbstractFieldConstraint<Float> {
     @Override
     public String toString() {
 
-        final Field field = getField();
-        final String fieldName = field.getName();
-
         final String minValueStr = Float.toString(this.minValue);
         final String maxValueStr = Float.toString(this.maxValue);
 
-        return SimpleBuilder.concat("FloatRangeConstraint{field=", fieldName, ",minValue=", minValueStr,
-                ",maxValue=", maxValueStr, "}");
+        return SimpleBuilder.concat("FloatRangeConstraint{minValue=", minValueStr, ",maxValue=", maxValueStr, "}");
     }
 }

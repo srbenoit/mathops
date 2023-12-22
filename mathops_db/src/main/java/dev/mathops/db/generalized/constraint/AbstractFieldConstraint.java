@@ -1,7 +1,5 @@
 package dev.mathops.db.generalized.constraint;
 
-import dev.mathops.db.generalized.Field;
-
 /**
  * The base class for constraints that can be applied to a field.
  *
@@ -9,31 +7,12 @@ import dev.mathops.db.generalized.Field;
  */
 public abstract class AbstractFieldConstraint<T> {
 
-    /** The field to which the constraint applies. */
-    private final Field field;
-
     /**
      * Constructs a new {@code AbstractFieldConstraint}.
-     *
-     * @param theField the field to which the constraint applies
      */
-    protected AbstractFieldConstraint(final Field theField) {
+    protected AbstractFieldConstraint() {
 
-        if (theField == null) {
-            throw new IllegalArgumentException("Field may not be null");
-        }
-
-        this.field = theField;
-    }
-
-    /**
-     * Gets the field to which this constraint applies.
-     *
-     * @return the field
-     */
-    public final Field getField() {
-
-        return this.field;
+        // No action
     }
 
     /**

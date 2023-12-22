@@ -1,6 +1,7 @@
 package dev.mathops.db.generalized.connection;
 
 import dev.mathops.core.log.Log;
+import dev.mathops.db.config.EDbUse;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ public final class JdbcGeneralConnection extends AbstractGeneralConnection {
      * @param theContext the connection's context
      * @param theConnection the underlying JDBC connection
      */
-    public JdbcGeneralConnection(final EConnectionContext theContext, final Connection theConnection) {
+    public JdbcGeneralConnection(final EDbUse theContext, final Connection theConnection) {
 
         super(theContext);
 

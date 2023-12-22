@@ -12,6 +12,7 @@ import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -218,12 +219,14 @@ public final class ServerConfig {
     /**
      * Creates a new JDBC connection using this configuration.
      *
+     * @param theDbUse    the database use
      * @param theUser     the username for this connection
      * @param thePassword the password for this connection
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    public AbstractGeneralConnection openConnection(final String theUser, final String thePassword) throws SQLException {
+    public AbstractGeneralConnection openConnection(final EDbUse theDbUse, final String theUser,
+                                                    final String thePassword) throws SQLException {
 
         try {
             final String url = buildJdbcUrl(theUser, thePassword);
@@ -232,13 +235,16 @@ public final class ServerConfig {
 
             final AbstractGeneralConnection conn;
 
+            final Connection jdbcConn;
             if (this.type == EDbInstallationType.INFORMIX) {
                 props.setProperty("CLIENT_LOCALE", "EN_US.8859-1");
-                conn = new JdbcGeneralConnection(DriverManager.getConnection(url, props));
+                jdbcConn = DriverManager.getConnection(url, props);
             } else {
                 // Log.info("Connect URL is " + url);
-                conn = new JdbcGeneralConnection(DriverManager.getConnection(url));
+                jdbcConn = DriverManager.getConnection(url);
             }
+
+            conn = new JdbcGeneralConnection(theDbUse, jdbcConn);
 
             // TODO: Add non-JDBC connections for non-JDBC database products
 

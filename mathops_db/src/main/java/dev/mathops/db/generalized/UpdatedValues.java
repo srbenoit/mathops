@@ -68,7 +68,7 @@ public final class UpdatedValues {
                 // Check that the target value satisfies all constraints
                 final int numConstraints = field.getNumConstraints();
                 for (int j = 0; j < numConstraints; ++j) {
-                    final AbstractFieldConstraint<?> constraint = field.gemConstraint(j);
+                    final AbstractFieldConstraint<?> constraint = field.getConstraint(j);
                     if (!constraint.isValidValue(value)) {
                         throw new IllegalArgumentException("Value of '" + field.getName()
                                 + "' field does not satisfy field constraints");

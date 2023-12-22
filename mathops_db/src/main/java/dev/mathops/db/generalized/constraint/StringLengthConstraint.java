@@ -1,8 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.generalized.EFieldType;
-import dev.mathops.db.generalized.Field;
 
 /**
  * A field constraint for String fields that specifies a minimum and maximum length, in characters.
@@ -18,17 +16,13 @@ public final class StringLengthConstraint extends AbstractFieldConstraint<String
     /**
      * Constructs a new {@code StringLengthConstraint}.
      *
-     * @param theField the field to which the constraint is applied
      * @param theMinLength the minimum length allowed
      * @param theMaxLength the maximum length allowed
      */
-    public StringLengthConstraint(final Field theField, final int theMinLength, final int theMaxLength) {
+    public StringLengthConstraint(final int theMinLength, final int theMaxLength) {
 
-        super(theField);
+        super();
 
-        if (theField.getType() != EFieldType.STRING) {
-            throw new IllegalArgumentException("StringLengthConstraint can only be applied to String fields");
-        }
         if (theMinLength < 0) {
             throw new IllegalArgumentException("Minimum length may not be negative");
         }
@@ -92,13 +86,10 @@ public final class StringLengthConstraint extends AbstractFieldConstraint<String
     @Override
     public String toString() {
 
-        final Field field = getField();
-        final String fieldName = field.getName();
-
         final String minLengthStr = Integer.toString(this.minLength);
         final String maxLengthStr = Integer.toString(this.maxLength);
 
-        return SimpleBuilder.concat("StringLengthConstraint{field=", fieldName, ",minLength=", minLengthStr,
+        return SimpleBuilder.concat("StringLengthConstraint{minLength=", minLengthStr,
                 ",maxLength=", maxLengthStr, "}");
     }
 }

@@ -63,9 +63,6 @@ public final class Field {
                 if (theConstraints[i] == null) {
                     throw new IllegalArgumentException("Field constraints array may not include null values");
                 }
-                if (theConstraints[i].getField().getType() != theType) {
-                    throw new IllegalArgumentException("Field constraints type does not match field type");
-                }
                 this.constraints[i] = theConstraints[i];
             }
         }
@@ -106,7 +103,7 @@ public final class Field {
      *
      * @return the number of constraints
      */
-    int getNumConstraints() {
+    public int getNumConstraints() {
 
         return this.constraints.length;
     }
@@ -117,7 +114,7 @@ public final class Field {
      * @param index the zero-based constraint index
      * @return the constraint
      */
-    AbstractFieldConstraint<?> gemConstraint(final int index) {
+    public AbstractFieldConstraint<?> getConstraint(final int index) {
 
         return this.constraints[index];
     }

@@ -17,6 +17,8 @@ import dev.mathops.db.generalized.constraint.FloatRangeConstraint;
 import dev.mathops.db.generalized.constraint.IntegerRangeConstraint;
 import dev.mathops.db.generalized.constraint.LongRangeConstraint;
 import dev.mathops.db.generalized.constraint.StringLengthConstraint;
+import dev.mathops.db.generalized.criteria.AbstractFieldCriterion;
+import dev.mathops.db.generalized.criteria.BooleanFieldCriterion;
 
 import java.sql.Blob;
 import java.sql.Connection;
@@ -72,11 +74,11 @@ public final class PostgreSQLImpl {
      *
      * @param connection  the connection on which to perform the query
      * @param table       the table to query
-     * @param constraints zero or more constraints to apply
-     * @return the number of records that be returned by a query with the same constraints
+     * @param criteria    zero or more criteria to apply
+     * @return the number of records that be returned by a query with the same criteria
      */
     public int count(final AbstractGeneralConnection connection, final Table table,
-                     final AbstractFieldConstraint<?>... constraints) {
+                     final AbstractFieldCriterion... criteria) {
 
         int count = 0;
 
@@ -86,7 +88,7 @@ public final class PostgreSQLImpl {
 
             final HtmlBuilder sql = new HtmlBuilder(100);
             sql.add("SELECT COUNT(*) FROM ", actualSchema, ".", tableName);
-            appendWhere(sql, constraints);
+            appendWhere(sql, criteria);
             final String sqlStr = sql.toString();
 
             final Connection jdbcConn = jdbc.getConnection();
@@ -108,11 +110,11 @@ public final class PostgreSQLImpl {
      *
      * @param connection  the connection on which to perform the query
      * @param table       the table to query
-     * @param constraints zero or more constraints to apply
+     * @param criteria    zero or more criteria to apply
      * @return the list of records; can be empty but never {@code null}
      */
     public List<Record> query(final AbstractGeneralConnection connection, final Table table,
-                              final AbstractFieldConstraint<?>... constraints) {
+                              final AbstractFieldCriterion... criteria) {
 
         final List<Record> result = new ArrayList<>(10);
 
@@ -122,7 +124,7 @@ public final class PostgreSQLImpl {
 
             final HtmlBuilder sql = new HtmlBuilder(100);
             sql.add("SELECT * FROM ", actualSchema, ".", tableName);
-            appendWhere(sql, constraints);
+            appendWhere(sql, criteria);
             final String sqlStr = sql.toString();
 
             final Connection jdbcConn = jdbc.getConnection();
@@ -146,11 +148,11 @@ public final class PostgreSQLImpl {
      *
      * @param connection  the connection on which to perform the deletion
      * @param table       the table from which to delete
-     * @param constraints zero or more constraints to apply
+     * @param criteria    zero or more criteria to apply
      * @return the number of records deleted
      */
     public int delete(final AbstractGeneralConnection connection, final Table table,
-                      final AbstractFieldConstraint<?>... constraints) {
+                      final AbstractFieldCriterion... criteria) {
 
         int numDeleted = 0;
 
@@ -160,7 +162,7 @@ public final class PostgreSQLImpl {
 
             final HtmlBuilder sql = new HtmlBuilder(100);
             sql.add("DELETE FROM ", actualSchema, ".", tableName);
-            appendWhere(sql, constraints);
+            appendWhere(sql, criteria);
             final String sqlStr = sql.toString();
 
             final Connection jdbcConn = jdbc.getConnection();
@@ -291,98 +293,32 @@ public final class PostgreSQLImpl {
      * Constructs the "Where" portion of a query, update, or delete statement.
      *
      * @param sql         the {@code HtmlBuilder} to which to append
-     * @param constraints the constraints
+     * @param criteria    zero or more criteria to apply
      */
-    private static void appendWhere(final HtmlBuilder sql, final AbstractFieldConstraint<?>... constraints) {
+    private static void appendWhere(final HtmlBuilder sql, final AbstractFieldCriterion... criteria) {
 
-        if (constraints != null && constraints.length > 0) {
+        if (criteria != null && criteria.length > 0) {
             boolean first = true;
-            for (final AbstractFieldConstraint<?> constraint : constraints) {
+            for (final AbstractFieldCriterion criterion : criteria) {
                 sql.add(first ? " WHERE " : " AND ");
-                appendWhereClause(sql, constraint);
                 first = false;
+                appendWhereClause(sql, criterion);
             }
         }
     }
 
     /**
-     * Appends a where clause like "index = 4" or "name is not null" from a constraint.
+     * Appends a where clause like "index = 4" or "name is not null" from a criterion.
      *
-     * @param sql        the {@code HtmlBuilder} to which to append
-     * @param constraint the constraint
+     * @param sql       the {@code HtmlBuilder} to which to append
+     * @param criterion the criterion
      */
-    private static void appendWhereClause(final HtmlBuilder sql, final AbstractFieldConstraint<?> constraint) {
+    private static void appendWhereClause(final HtmlBuilder sql, final AbstractFieldCriterion criterion) {
 
-        final Field targetField = constraint.getField();
-        final String fieldName = targetField.getName();
+        final Field field = criterion.getField();
+        final String fieldName = field.getName();
 
-        if (constraint instanceof final ByteRangeConstraint byteRange) {
-
-            final byte minValue = byteRange.getMinValue();
-            final String minValueStr = Byte.toString(minValue);
-            final byte maxValue = byteRange.getMaxValue();
-            final String maxValueStr = Byte.toString(maxValue);
-            sql.add(fieldName, ">=", minValueStr, " AND ", fieldName, "<=", maxValueStr);
-
-        } else if (constraint instanceof final IntegerRangeConstraint integerRange) {
-
-            final int minValue = integerRange.getMinValue();
-            final String minValueStr = Integer.toString(minValue);
-            final int maxValue = integerRange.getMaxValue();
-            final String maxValueStr = Integer.toString(maxValue);
-            sql.add(fieldName, ">=", minValueStr, " AND ", fieldName, "<=", maxValueStr);
-
-        } else if (constraint instanceof final LongRangeConstraint longRange) {
-
-            final long minValue = longRange.getMinValue();
-            final String minValueStr = Long.toString(minValue);
-            final long maxValue = longRange.getMaxValue();
-            final String maxValueStr = Long.toString(maxValue);
-            sql.add(fieldName, ">=", minValueStr, " AND ", fieldName, "<=", maxValueStr);
-
-        } else if (constraint instanceof final FloatRangeConstraint floatRange) {
-
-            final float minValue = floatRange.getMinValue();
-            final String minValueStr = Float.toString(minValue);
-            final float maxValue = floatRange.getMaxValue();
-            final String maxValueStr = Float.toString(maxValue);
-            sql.add(fieldName, ">=", minValueStr, " AND ", fieldName, "<=", maxValueStr);
-
-            final EFloatingPointAllow allowed = floatRange.getAllowed();
-            if (allowed == EFloatingPointAllow.FINITE_ONLY) {
-                sql.add(" AND ISFINITE(", fieldName, ")");
-            } else if (allowed == EFloatingPointAllow.ALL_BUT_INFINITIES) {
-                sql.add(" AND (ISFINITE(", fieldName, ") OR ", fieldName, "='NaN')");
-            } else if (allowed == EFloatingPointAllow.ALL_BUT_NAN) {
-                sql.add(" AND ", fieldName, "!='NaN'");
-            }
-
-        } else if (constraint instanceof final DoubleRangeConstraint doubleRange) {
-
-            final double minValue = doubleRange.getMinValue();
-            final String minValueStr = Double.toString(minValue);
-            final double maxValue = doubleRange.getMaxValue();
-            final String maxValueStr = Double.toString(maxValue);
-            sql.add(fieldName, ">=", minValueStr, " AND ", fieldName, "<=", maxValueStr);
-
-            final EFloatingPointAllow allowed = doubleRange.getAllowed();
-            if (allowed == EFloatingPointAllow.FINITE_ONLY) {
-                sql.add(" AND ISFINITE(", fieldName, ")");
-            } else if (allowed == EFloatingPointAllow.ALL_BUT_INFINITIES) {
-                sql.add(" AND (ISFINITE(", fieldName, ") OR ", fieldName, "='NaN')");
-            } else if (allowed == EFloatingPointAllow.ALL_BUT_NAN) {
-                sql.add(" AND ", fieldName, "!='NaN'");
-            }
-
-        } else if (constraint instanceof final StringLengthConstraint stringLength) {
-
-            final double minLength = stringLength.getMinLength();
-            final String minLengthStr = Double.toString(minLength);
-            final double maxLength = stringLength.getMaxLength();
-            final String maxLengthStr = Double.toString(maxLength);
-            sql.add("LENGTH(", fieldName, ")>=", minLengthStr, " AND LENGTH(", fieldName, ")<=", maxLengthStr);
-
-        }
+        // TODO:
     }
 
     /**

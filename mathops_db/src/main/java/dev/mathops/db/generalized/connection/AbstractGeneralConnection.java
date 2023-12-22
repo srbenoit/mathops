@@ -1,19 +1,21 @@
 package dev.mathops.db.generalized.connection;
 
+import dev.mathops.db.config.EDbUse;
+
 /**
  * A base class for generalized connections to the database.
  */
 public abstract class AbstractGeneralConnection {
 
     /** The connection's context. */
-    private final EConnectionContext context;
+    private final EDbUse context;
 
     /**
      * Constructs a new {@code AbstractConnection}.
      *
      * @param theContext the connection's context
      */
-    protected AbstractGeneralConnection(final EConnectionContext theContext) {
+    protected AbstractGeneralConnection(final EDbUse theContext) {
 
         if (theContext == null) {
             throw new IllegalArgumentException("Connection context may not be null");
@@ -27,7 +29,7 @@ public abstract class AbstractGeneralConnection {
      *
      * @return the context
      */
-    public final EConnectionContext getContext() {
+    public final EDbUse getContext() {
 
         return this.context;
     }
