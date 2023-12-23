@@ -3,6 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.NumberParser;
+import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
@@ -59,6 +60,12 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
     /** The value. */
     private String value;
+
+    /** Flag indicating glyph should come from STIX Text. */
+    private boolean isStixText;
+
+    /** Flag indicating glyph should come from STIX Math. */
+    private boolean isStixMath;
 
     /** The font name. */
     private String fontName;
@@ -239,6 +246,8 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         copy.colorName = this.colorName;
         copy.color = this.color;
         copy.value = this.value;
+        copy.isStixText = this.isStixText;
+        copy.isStixMath = this.isStixMath;
 
         copy.fontName = this.fontName;
         copy.fontSize = this.fontSize;
@@ -321,6 +330,39 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             }
         } else if ("value".equals(name)) {
             this.value = unescape(theValue);
+
+            if (this.value != null &&  this.value.length() == 1) {
+                final char ch = this.value.charAt(0);
+
+                this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6'
+                        || ch == '\u03F0' || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034'
+                        || ch == '\u2057';
+
+                this.isStixMath = ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
+                        || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266'
+                        || ch == '\u2267' || ch == '\u2268' || ch == '\u2269' || ch == '\u226A'
+                        || ch == '\u226B' || ch == '\u226C' || ch == '\u226E' || ch == '\u226F'
+                        || ch == '\u2270' || ch == '\u2271' || ch == '\u2272' || ch == '\u2273'
+                        || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
+                        || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F'
+                        || ch == '\u2280' || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7'
+                        || ch == '\u22DA' || ch == '\u22DB' || ch == '\u22DE' || ch == '\u22DF'
+                        || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6' || ch == '\u22E7'
+                        || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
+                        || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3'
+                        || ch == '\u2713' || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8'
+                        || ch == '\u27F9' || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85'
+                        || ch == '\u2A86' || ch == '\u2A87' || ch == '\u2A88' || ch == '\u2A89'
+                        || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C' || ch == '\u2A95'
+                        || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
+                        || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7'
+                        || ch == '\u2AB8' || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
+
+            } else {
+                this.isStixText = false;
+                this.isStixMath = false;
+            }
+
             ok = this.value != null;
         } else if ("fontname".equals(name)) {
 
@@ -491,7 +533,14 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 spec.fontStyle = this.owner.getFontStyle();
             }
 
-            this.font = BundledFontManager.getInstance().getFont(spec);
+            final BundledFontManager bfm = BundledFontManager.getInstance();
+            this.font = bfm.getFont(spec);
+
+            if (this.isStixText) {
+                this.font = bfm.getFont("STIX Two Text Regular", (double) this.font.getSize(), this.font.getStyle());
+            } else if (this.isStixMath) {
+                this.font = bfm.getFont("STIX Two Math Regular", (double) this.font.getSize(), this.font.getStyle());
+            }
 
             grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));
 
