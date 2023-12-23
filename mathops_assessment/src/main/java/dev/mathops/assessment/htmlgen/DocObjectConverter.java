@@ -639,8 +639,6 @@ public enum DocObjectConverter {
         }
         if (obj.backgroundColorName != null) {
             htm.add("background-color:", obj.backgroundColorName, ";");
-        } else {
-            htm.add("background-color:white;");
         }
         htm.addln("'>");
 
