@@ -931,14 +931,6 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     public abstract boolean equals(Object obj);
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    public abstract void whyNotEqual(Object other, int indent);
-
-    /**
      * Implementation of {@code hashCode}.
      *
      * @return the hash code of the object
@@ -977,43 +969,6 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
         return Objects.equals(thisColor, objColor)
                 && Objects.equals(thisFontName, objFontName) && thisFontSize == objFontSize
                 && Objects.equals(thisFontStyle, objFontStyle);
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void docObjectWhyNotEqual(final AbstractDocObjectTemplate obj, final int indent) {
-
-        final String thisColor = this.style == null ? null : this.style.colorName;
-        final String objColor = obj.style == null ? null : obj.style.colorName;
-        if (!Objects.equals(thisColor, objColor)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (colorName: ", thisColor, "!=",
-                    objColor, ")");
-        }
-
-        final String thisFontName = this.style == null ? null : this.style.fontName;
-        final String objFontName = obj.style == null ? null : obj.style.fontName;
-        if (!Objects.equals(thisFontName, objFontName)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (fontName: ", thisFontName, "!=",
-                    objFontName, ")");
-        }
-
-        final float thisFontSize = this.style == null ? 0.0f : this.style.fontSize;
-        final float objFontSize = obj.style == null ? 0.0f : obj.style.fontSize;
-        if (thisFontSize != objFontSize) {
-            Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (fontSize: " + thisFontSize + "!="
-                    + objFontSize + ")");
-        }
-
-        final Integer thisFontStyle = this.style == null ? null : this.style.fontStyle;
-        final Integer objFontStyle = obj.style == null ? null : obj.style.fontStyle;
-        if (!Objects.equals(thisFontStyle, objFontStyle)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (fontStyle: ", thisFontStyle, "!=",
-                    objFontStyle, ")");
-        }
     }
 
     /**

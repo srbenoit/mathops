@@ -312,44 +312,6 @@ public abstract class AbstractVariable extends AbstractXmlObject {
      */
     boolean innerEquals(final AbstractVariable obj) {
 
-        return this.name.equals(obj.name) && this.type == obj.type
-                && Objects.equals(this.value, obj.value);
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    public abstract void whyNotEqual(AbstractVariable obj, int indent);
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void innerWhyNotEqual(final AbstractVariable obj, final int indent) {
-
-        if (!Objects.equals(getClass(), obj.getClass())) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (class: ", getClass().getName(),
-                    "!=", obj.getClass().getName(), ")");
-        }
-
-        if (!Objects.equals(this.name, obj.name)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (name: ", this.name, "!=", obj.name,
-                    ")");
-        }
-
-        if (!Objects.equals(this.value, obj.value)) {
-            if ((this.value == null || obj.value == null) || !(this.value instanceof AbstractDocObjectTemplate)) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (constantValue: ", this.value,
-                        "!=", obj.value, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (constantValue)");
-                ((AbstractDocObjectTemplate) this.value).whyNotEqual(obj.value, indent + 1);
-            }
-        }
+        return this.name.equals(obj.name) && this.type == obj.type && Objects.equals(this.value, obj.value);
     }
 }

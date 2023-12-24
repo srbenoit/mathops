@@ -440,40 +440,6 @@ public final class DocSymbolPalette extends AbstractDocContainer {
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocSymbolPalette obj) {
-
-            final HtmlBuilder builder = new HtmlBuilder(30);
-            for (final Key key : this.keys) {
-                builder.add(' ');
-                builder.add(key.symbol.label);
-            }
-            final String mySymbols = builder.toString();
-
-            builder.reset();
-            for (final Key key : obj.keys) {
-                builder.add(' ');
-                builder.add(key.symbol.label);
-            }
-            final String objSymbols = builder.toString();
-
-            Log.info(makeIndent(indent), //
-                    "UNEQUAL DocSymbolEntryPalette (symbols {", mySymbols,
-                    " } != {", objSymbols, " })");
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocSymbolEntryPalette because other is ",
-                    other.getClass().getName());
-        }
-    }
-
-    /**
      * A "key" used to enter a symbol.
      */
     public static final class Key {

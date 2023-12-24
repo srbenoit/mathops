@@ -253,29 +253,6 @@ public class VariableRef extends AbstractFormulaObject implements IEditableFormu
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final VariableRef obj) {
-
-            if (!Objects.equals(this.index, obj.index)) {
-                Log.info(makeIndent(indent), "UNEQUAL VariableRef (index: ", this.index, "!=", obj.index, ")");
-            }
-
-            if (!Objects.equals(this.name, obj.name)) {
-                Log.info(makeIndent(indent), "UNEQUAL VariableRef (name: ", this.name, "!=", obj.name, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL VariableRef because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

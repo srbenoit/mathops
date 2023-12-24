@@ -428,49 +428,4 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocDrawing obj) {
-            primitiveContainerWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(getPrimitives(), obj.getPrimitives())) {
-                if (getPrimitives() == null || obj.getPrimitives() == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocDrawing (primitives: ", getPrimitives(), "!=",
-                            obj.getPrimitives(), ")");
-                } else {
-                    final int numPriv = getPrimitives().size();
-                    if (numPriv == obj.getPrimitives().size()) {
-                        for (int i = 0; i < numPriv; ++i) {
-                            final AbstractDocPrimitive o1 = getPrimitives().get(i);
-                            final AbstractDocPrimitive o2 = obj.getPrimitives().get(i);
-
-                            if (!Objects.equals(o1, o2)) {
-                                if (o1 == null || o2 == null) {
-                                    Log.info(makeIndent(indent), "UNEQUAL DocDrawing (primitive " + i + ": ", o1, "!=",
-                                            o2, ")");
-                                } else {
-                                    Log.info(makeIndent(indent), "UNEQUAL DocDrawing (primitive " + i + "...) ",
-                                            o1.getClass().getName());
-                                    o1.whyNotEqual(o2, indent + 1);
-                                }
-                            }
-                        }
-                    } else {
-                        Log.info(makeIndent(indent), "UNEQUAL DocDrawing (primitives size: "
-                                + getPrimitives().size() + "!=" + obj.getPrimitives().size() + ")");
-                    }
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocDrawing because other is ", other.getClass().getName());
-        }
-    }
 }

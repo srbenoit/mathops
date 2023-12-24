@@ -886,26 +886,6 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final BinaryOper obj) {
-            innerWhyNotEqual(obj, indent);
-
-            if (this.op != obj.op) {
-                Log.info(makeIndent(indent), "UNEQUAL BinaryOper (op: " + this.op + "!=" + obj.op + ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL BinaryOper because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

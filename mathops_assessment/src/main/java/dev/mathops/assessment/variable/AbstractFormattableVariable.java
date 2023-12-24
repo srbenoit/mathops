@@ -185,20 +185,4 @@ public abstract class AbstractFormattableVariable extends AbstractVariable {
 
         return innerEquals(obj) && Objects.equals(this.formatPattern, obj.formatPattern);
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void innerWhyNotEqualVariable(final AbstractFormattableVariable obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-
-        if (!Objects.equals(this.formatPattern, obj.formatPattern)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(),
-                    " (formatPattern: " + this.formatPattern + "!=" + obj.formatPattern + ")");
-        }
-    }
 }

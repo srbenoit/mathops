@@ -514,27 +514,4 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocImage obj) {
-            docObjectWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.source, obj.source)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocImage (source: " + this.source + "!=" + obj.source + ")");
-            }
-            if (!Objects.equals(this.altText, obj.altText)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocImage (altText: " + this.altText + "!=" + obj.altText + ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocImage because other is ", other.getClass().getName());
-        }
-    }
 }

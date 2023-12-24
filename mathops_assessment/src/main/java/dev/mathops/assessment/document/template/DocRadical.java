@@ -410,40 +410,4 @@ public final class DocRadical extends AbstractDocContainer {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocRadical obj) {
-            innerWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.base, obj.base)) {
-                if (this.base == null || obj.base == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocRadical (base: ", this.base, CoreConstants.SLASH,
-                            obj.base, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocRadical (base...)");
-                    this.base.whyNotEqual(obj.base, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.root, obj.root)) {
-                if (this.root == null || obj.root == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocRadical (root: ", this.root, CoreConstants.SLASH,
-                            obj.root, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocRadical (root...)");
-                    this.root.whyNotEqual(obj.root, indent + 1);
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocRadical because other is ", other.getClass().getName());
-        }
-    }
 }

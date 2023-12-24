@@ -1124,41 +1124,6 @@ public final class EvalContext extends AbstractXmlObject {
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    public void whyNotEqual(final EvalContext obj, final int indent) {
-
-        if (!Objects.equals(this.vars, obj.vars)) {
-            if (this.vars.size() != obj.vars.size()) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (vars.size: ",
-                        Integer.toString(this.vars.size()), "!=", Integer.toString(obj.vars.size()), ")");
-            } else if (!this.vars.keySet().equals(obj.vars.keySet())) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (vars.keyset: ",
-                        this.vars.keySet(), "!=", obj.vars.keySet(), ")");
-            } else {
-                for (final Map.Entry<String, AbstractVariable> entry : this.vars.entrySet()) {
-                    final String key = entry.getKey();
-                    final AbstractVariable var1 = entry.getValue();
-                    final AbstractVariable var2 = obj.vars.get(key);
-
-                    if (!Objects.equals(var1, var2)) {
-                        if (var1 == null || var2 == null) {
-                            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (vars[", key, "]: ",
-                                    var1, "!=", var2, ")");
-                        } else {
-                            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (vars[", key, "])");
-                            var1.whyNotEqual(var2, indent + 1);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Gather all the DocInput objects contained in any span-valued variable in this context.
      *
      * @param inputs the list to which to add found inputs

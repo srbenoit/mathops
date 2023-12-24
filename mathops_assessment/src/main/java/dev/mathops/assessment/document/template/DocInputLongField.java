@@ -573,38 +573,4 @@ public final class DocInputLongField extends AbstractDocInputField {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocInputLongField obj) {
-            fieldInnerWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.value, obj.value)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputLongField (value: ", this.value, "!=", obj.value, ")");
-            }
-
-            if (!Objects.equals(this.width, obj.width)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputLongField (width: ", this.width, "!=", obj.width, ")");
-            }
-
-            if (!Objects.equals(this.defaultValue, obj.defaultValue)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputLongField (defaultValue: ", this.defaultValue, "!=",
-                        obj.defaultValue, ")");
-            }
-
-            if (!Objects.equals(this.defaultValue, obj.defaultValue)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputLongField (defaultValue: ", this.defaultValue, "!=",
-                        obj.defaultValue, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocInputLongField because other is ", other.getClass().getName());
-        }
-    }
 }

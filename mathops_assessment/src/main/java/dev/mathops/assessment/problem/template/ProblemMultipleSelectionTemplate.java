@@ -912,44 +912,4 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractProblemTemplate obj, final int indent) {
-
-        mcWhyNotEqual(obj, indent);
-
-        if (obj instanceof final ProblemMultipleSelectionTemplate prob) {
-
-            if (!Objects.equals(this.selectedChoiceList, prob.selectedChoiceList)) {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleSelection (selectedChoiceList: ",
-                        this.selectedChoiceList, "!=", prob.selectedChoiceList, ")");
-            }
-
-            if (!Objects.equals(this.minCorrect, prob.minCorrect)) {
-                if (this.minCorrect == null || prob.minCorrect == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleSelection (minCorrect: ",
-                            this.minCorrect, "!=", prob.minCorrect, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleSelection (minCorrect)");
-                    this.minCorrect.whyNotEqual(prob.minCorrect, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.maxCorrect, prob.maxCorrect)) {
-                if (this.maxCorrect == null || prob.maxCorrect == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleSelection (maxCorrect: ",
-                            this.maxCorrect, "!=", prob.maxCorrect, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleSelection (maxCorrect)");
-                    this.maxCorrect.whyNotEqual(prob.maxCorrect, indent + 1);
-                }
-            }
-        }
-    }
 }

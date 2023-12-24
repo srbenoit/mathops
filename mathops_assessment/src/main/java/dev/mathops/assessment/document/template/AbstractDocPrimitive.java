@@ -1,8 +1,14 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.EParserMode;
+import dev.mathops.assessment.NumberOrFormula;
+import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
+import dev.mathops.assessment.formula.Formula;
+import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.parser.xml.INode;
 
 import java.awt.Graphics2D;
 import java.io.Serial;
@@ -32,6 +38,61 @@ abstract class AbstractDocPrimitive implements Serializable {
     AbstractDocPrimitive(final AbstractDocPrimitiveContainer theOwner) {
 
         this.owner = theOwner;
+    }
+
+    /**
+     * Attempts to parse either a number or a formula (deprecated) from a string attribute value.
+     *
+     * @param theValue the attribute value
+     * @param elem the element
+     * @param mode the parsing mode
+     * @param attrName the attribute name
+     * @param context the context, for logging
+     * @return the parsed {@code NumberOrFormula}; {@code null} if the value could not be parsed
+     */
+    static NumberOrFormula parseNumberOrFormula(final String theValue, final INode elem, final EParserMode mode,
+                                                final String attrName, final String context) {
+
+        NumberOrFormula result = null;
+
+        try {
+            final Number num = NumberParser.parse(theValue);
+            result = new NumberOrFormula(num);
+        } catch (final NumberFormatException ex) {
+            if (mode.reportDeprecated) {
+                elem.logError("Deprecated use of formula in '" + attrName + "' attribute on " + context);
+            }
+            try {
+                final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
+                result = new NumberOrFormula(form);
+            } catch (final IllegalArgumentException e) {
+                elem.logError("Invalid '" + attrName + "' value (" + theValue + ") on " + context);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Attempts to parse a Double from a string attribute value.
+     *
+     * @param theValue the attribute value
+     * @param elem the element
+     * @param attrName the attribute name
+     * @param context the context, for logging
+     * @return the parsed {@code Double}; {@code null} if the value could not be parsed
+     */
+    static Double parseDouble(final String theValue, final INode elem, final String attrName, final String context) {
+
+        Double result = null;
+
+        try {
+            result = Double.valueOf(theValue);
+        } catch (final NumberFormatException ex) {
+            elem.logError("Invalid '" + attrName + "' value (" + theValue + ") on " + context);
+        }
+
+        return result;
     }
 
     /**
@@ -116,11 +177,8 @@ abstract class AbstractDocPrimitive implements Serializable {
             }
 
             try {
-                final char ch =
-                        (char) Integer.parseInt(converted.substring(escape + 2, escape + 6), 16);
-
-                converted = converted.substring(0, escape) + Character.valueOf(ch)
-                        + converted.substring(escape + 6);
+                final char ch = (char) Integer.parseInt(converted.substring(escape + 2, escape + 6), 16);
+                converted = converted.substring(0, escape) + Character.valueOf(ch) + converted.substring(escape + 6);
 
                 escape = converted.indexOf("\\u");
             } catch (final NumberFormatException e) {
@@ -172,12 +230,4 @@ abstract class AbstractDocPrimitive implements Serializable {
      */
     @Override
     public abstract boolean equals(Object obj);
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    public abstract void whyNotEqual(Object other, int indent);
 }

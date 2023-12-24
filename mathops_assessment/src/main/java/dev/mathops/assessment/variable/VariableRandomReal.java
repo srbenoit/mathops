@@ -160,41 +160,6 @@ public final class VariableRandomReal extends AbstractFormattableVariable
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractVariable obj, final int indent) {
-
-        if (obj instanceof AbstractFormattableVariable) {
-            innerWhyNotEqualVariable((AbstractFormattableVariable) obj, indent);
-        } else {
-            innerWhyNotEqual(obj, indent);
-        }
-
-        if (obj instanceof final VariableRandomReal var) {
-
-            if (!Objects.equals(this.min, var.min)) {
-                if (this.min == null || var.min == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomReal (min: " + this.min + "!=" + var.min + ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomReal (min)");
-                }
-            }
-
-            if (!Objects.equals(this.max, var.max)) {
-                if (this.max == null || var.max == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomReal (max: " + this.max + "!=" + var.max + ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomReal (max)");
-                }
-            }
-        }
-    }
-
-    /**
      * Clears the cached derived value.
      */
     @Override

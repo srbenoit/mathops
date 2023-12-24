@@ -472,39 +472,4 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
                 && Objects.equals(this.enabledVarValue, obj.enabledVarValue)
                 && this.name.equals(obj.name);
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void inputInnerWhyNotEqual(final AbstractDocInput obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-
-        if (!Objects.equals(this.enabledFormula, obj.enabledFormula)) {
-            if (this.enabledFormula == null || obj.enabledFormula == null) {
-                Log.info(makeIndent(indent), "UNEQUAL AbstractDocInput (enabledFormula: ",
-                        this.enabledFormula, CoreConstants.SLASH, obj.enabledFormula, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL AbstractDocInput (enabledFormula...)");
-                this.enabledFormula.whyNotEqual(obj.enabledFormula, indent + 1);
-            }
-        }
-
-        if (!Objects.equals(this.enabledVarName, obj.enabledVarName)) {
-            Log.info(makeIndent(indent), "UNEQUAL AbstractDocInput (enabledVarName: ", this.enabledVarName, "!=",
-                    obj.enabledVarName, ")");
-        }
-
-        if (!Objects.equals(this.enabledVarValue, obj.enabledVarValue)) {
-            Log.info(makeIndent(indent), "UNEQUAL AbstractDocInput (enabledVarValue: ", this.enabledVarValue, "!=",
-                    obj.enabledVarValue, ")");
-        }
-
-        if (!Objects.equals(this.name, obj.name)) {
-            Log.info(makeIndent(indent), "UNEQUAL AbstractDocInput (name: ", this.name, "!=", obj.name, ")");
-        }
-    }
 }

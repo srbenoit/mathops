@@ -7,7 +7,6 @@ import dev.mathops.assessment.formula.edit.FEConstantSpan;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
 
 /**
  * A document span value in a formula.
@@ -149,25 +148,6 @@ public final class ConstSpanValue extends AbstractFormulaObject implements IEdit
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final ConstSpanValue obj) {
-            if (!this.value.equals(obj.value)) {
-                Log.info(makeIndent(indent), "UNEQUAL ConstSpanValue (value)");
-                this.value.whyNotEqual(obj.value, indent + 1);
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL ConstSpanValue because other is ", other.getClass().getName());
-        }
     }
 
     /**

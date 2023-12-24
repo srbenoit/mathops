@@ -259,20 +259,4 @@ public final class DocWhitespace extends AbstractDocObjectTemplate {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocWhitespace obj) {
-            docObjectWhyNotEqual(obj, indent);
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocWhitespace because other is ", other.getClass().getName());
-        }
-    }
 }

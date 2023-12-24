@@ -255,22 +255,6 @@ public final class IsExactOper extends AbstractFormulaContainer implements IEdit
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final IsExactOper obj) {
-            innerWhyNotEqual(obj, indent);
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL IsExactOper because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

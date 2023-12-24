@@ -793,19 +793,4 @@ abstract class AbstractDocInputField extends AbstractDocInput {
 
         return inputInnerEquals(obj) && Objects.equals(this.text, obj.text);
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void fieldInnerWhyNotEqual(final AbstractDocInputField obj, final int indent) {
-
-        inputInnerWhyNotEqual(obj, indent);
-
-        if (!Objects.equals(this.text, obj.text)) {
-            Log.info(makeIndent(indent), "UNEQUAL AbstractDocInputField (text: ", this.text, "!=", obj.text, ")");
-        }
-    }
 }

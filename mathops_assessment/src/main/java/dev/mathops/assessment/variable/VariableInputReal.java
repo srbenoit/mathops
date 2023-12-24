@@ -96,22 +96,6 @@ public final class VariableInputReal extends AbstractFormattableVariable {
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractVariable obj, final int indent) {
-
-        if (obj instanceof AbstractFormattableVariable) {
-            innerWhyNotEqualVariable((AbstractFormattableVariable) obj, indent);
-        } else {
-            innerWhyNotEqual(obj, indent);
-        }
-    }
-
-    /**
      * Clears the cached derived value.
      */
     @Override

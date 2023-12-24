@@ -228,22 +228,6 @@ public final class GroupingOper extends AbstractFormulaContainer implements IEdi
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final GroupingOper obj) {
-            innerWhyNotEqual(obj, indent);
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL GroupingOper because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

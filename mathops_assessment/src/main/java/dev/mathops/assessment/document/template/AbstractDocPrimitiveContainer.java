@@ -289,25 +289,4 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
                 && this.origHeight == obj.origHeight
                 && Objects.equals(this.altText, obj.altText);
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void primitiveContainerWhyNotEqual(final AbstractDocPrimitiveContainer obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-
-        if (this.origWidth != obj.origWidth) {
-            Log.info(makeIndent(indent), "UNEQUAL width (", this.origWidth, "!=", obj.origWidth, ")");
-        }
-        if (this.origHeight != obj.origHeight) {
-            Log.info(makeIndent(indent), "UNEQUAL height (", this.origHeight, "!=", obj.origHeight, ")");
-        }
-        if (!Objects.equals(this.altText, obj.altText)) {
-            Log.info(makeIndent(indent), "UNEQUAL alt (", this.altText, "!=", obj.altText, ")");
-        }
-    }
 }

@@ -1,9 +1,7 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,55 +99,6 @@ abstract class AbstractFormulaContainer extends AbstractFormulaObject {
 
         return Objects.equals(this.children, other.children);
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void innerWhyNotEqual(final AbstractFormulaContainer obj, final int indent) {
-
-        if (!Objects.equals(this.children, obj.children)) {
-            if (this.children == null || obj.children == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ",
-                        obj.getClass().getName(), " (children: ", this.children,
-                        "!=", obj.children, ")");
-            } else {
-                final int numChildren = this.children.size();
-
-                if (numChildren == obj.children.size()) {
-                    for (int i = 0; i < numChildren; ++i) {
-                        final AbstractFormulaObject o1 = this.children.get(i);
-                        final AbstractFormulaObject o2 = obj.children.get(i);
-                        if (!Objects.equals(o1, o2)) {
-
-                            if (o1 == null || o2 == null) {
-                                Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(),
-                                        " (children " + i + ": ", o1, "!=", o2, ")");
-                            } else {
-                                Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(),
-                                        " (children " + i + "...)");
-                                o1.whyNotEqual(o2, indent + 1);
-                            }
-                        }
-                    }
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (children size: "
-                            + numChildren + "!=" + obj.children.size() + ")");
-                }
-            }
-        }
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public abstract void whyNotEqual(Object other, int indent);
 
     /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.

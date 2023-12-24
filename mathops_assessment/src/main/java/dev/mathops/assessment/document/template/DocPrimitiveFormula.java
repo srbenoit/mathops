@@ -10,7 +10,6 @@ import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 
@@ -474,64 +473,5 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveFormula obj) {
-
-            if (!Objects.equals(this.formula, obj.formula)) {
-                if (this.formula == null || obj.formula == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formula: ", this.formula,
-                            CoreConstants.SLASH, obj.formula, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formula)");
-                    this.formula.whyNotEqual(obj.formula, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.formulaColorName, obj.formulaColorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaColorName: ", this.formulaColorName
-                        , CoreConstants.SLASH, obj.formulaColorName, ")");
-            }
-
-            if (!Objects.equals(this.formulaColor, obj.formulaColor)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaColor: ", this.formulaColorName,
-                        CoreConstants.SLASH, obj.formulaColor, ")");
-            }
-
-            if (this.formulaStyle != obj.formulaStyle) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaColorName: ",
-                        Integer.toString(this.formulaStyle), CoreConstants.SLASH, Integer.toString(obj.formulaStyle),
-                        ")");
-            }
-
-            if (!Objects.equals(this.formulaMinX, obj.formulaMinX)) {
-                if (this.formula == null || obj.formulaMinX == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaMinX: ", this.formulaMinX,
-                            CoreConstants.SLASH, obj.formulaMinX, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaMinX)");
-                }
-            }
-
-            if (!Objects.equals(this.formulaMaxX, obj.formulaMaxX)) {
-                if (this.formula == null || obj.formulaMaxX == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaMaxX: ", this.formulaMaxX,
-                            CoreConstants.SLASH, obj.formulaMaxX, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula (formulaMaxX)");
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveFormula because other is ", other.getClass().getName());
-        }
     }
 }

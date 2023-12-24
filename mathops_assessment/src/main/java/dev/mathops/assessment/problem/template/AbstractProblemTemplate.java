@@ -480,14 +480,6 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject
     public abstract String insertAnswers(String origHtml);
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    public abstract void whyNotEqual(AbstractProblemTemplate obj, int indent);
-
-    /**
      * Generates a hash code based on the non-transient member variables.
      *
      * @return {@code true} if all fields in this base class are equal in the two objects
@@ -512,55 +504,6 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject
                 && Objects.equals(this.evalContext, other.evalContext)
                 && Objects.equals(this.question, other.question)
                 && Objects.equals(this.solution, other.solution);
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    final void innerWhyNotEqual(final AbstractProblemTemplate obj, final int indent) {
-
-        if (!Objects.equals(getClass(), obj.getClass())) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (class: ", getClass().getName(),
-                    "!=", obj.getClass().getName(), ")");
-        }
-
-        if (!Objects.equals(this.ref, obj.ref)) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (ref: ", this.ref, "!=", obj.ref,
-                    ")");
-        }
-
-        if (!Objects.equals(this.evalContext, obj.evalContext)) {
-            if (this.evalContext == null || obj.evalContext == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (evalContext: ",
-                        this.evalContext, "!=", obj.evalContext, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (evalContext)");
-                this.evalContext.whyNotEqual(obj.evalContext, indent + 1);
-            }
-        }
-
-        if (!Objects.equals(this.question, obj.question)) {
-            if (this.question == null || obj.question == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (question: ", this.question,
-                        "!=", obj.question, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (question)");
-                this.question.whyNotEqual(obj.question, indent + 1);
-            }
-        }
-
-        if (!Objects.equals(this.solution, obj.solution)) {
-            if (this.solution == null || obj.solution == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (solution: ", this.solution,
-                        "!=", obj.solution, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (solution)");
-                this.solution.whyNotEqual(obj.solution, indent + 1);
-            }
-        }
     }
 
     /**

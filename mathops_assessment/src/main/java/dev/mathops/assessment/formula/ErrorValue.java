@@ -153,24 +153,6 @@ public final class ErrorValue extends AbstractFormulaObject implements IEditable
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final ErrorValue obj) {
-            if (!this.error.equals(obj.error)) {
-                Log.info(makeIndent(indent), "UNEQUAL ErrorValue (value: ", this.error, "!=", obj.error, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL ErrorValue because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

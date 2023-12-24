@@ -1219,24 +1219,4 @@ public final class DocText extends AbstractDocObjectTemplate {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocText obj) {
-            docObjectWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.text, obj.text)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocText (text: ", this.text, "!=", obj.text, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocText because other is ", other.getClass().getName());
-        }
-    }
 }

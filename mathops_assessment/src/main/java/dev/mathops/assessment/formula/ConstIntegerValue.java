@@ -146,24 +146,6 @@ public final class ConstIntegerValue extends AbstractFormulaObject implements IE
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final ConstIntegerValue obj) {
-            if (!this.value.equals(obj.value)) {
-                Log.info(makeIndent(indent), "UNEQUAL ConstIntegerValue (value: ", this.value, "!=", obj.value, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL ConstIntegerValue because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

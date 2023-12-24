@@ -115,14 +115,6 @@ public abstract class AbstractFormulaObject {
     public abstract boolean equals(Object obj);
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    protected abstract void whyNotEqual(Object other, int indent);
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

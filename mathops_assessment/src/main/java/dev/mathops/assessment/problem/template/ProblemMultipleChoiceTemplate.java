@@ -765,24 +765,4 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractProblemTemplate obj, final int indent) {
-
-        mcWhyNotEqual(obj, indent);
-
-        if (obj instanceof final ProblemMultipleChoiceTemplate prob) {
-
-            if (!Objects.equals(this.selectedChoice, prob.selectedChoice)) {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemMultipleChoice (selectedChoice: ",
-                        this.selectedChoice, "!=", prob.selectedChoice, ")");
-            }
-        }
-    }
 }

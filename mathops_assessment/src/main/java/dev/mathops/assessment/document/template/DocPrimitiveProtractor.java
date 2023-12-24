@@ -299,73 +299,17 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else if ("cx".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.centerX = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'cx' attribute on protractor primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.centerX = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'cx' value (" + theValue + ") on protractor primitive");
-                }
-            }
+            this.centerX = parseNumberOrFormula(theValue, elem, mode, "cx", "protractor primitive");
+            ok = this.centerX != null;
         } else if ("cy".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.centerY = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'cy' attribute on protractor primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.centerY = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'cy' value (" + theValue + ") on protractor primitive");
-                }
-            }
+            this.centerY = parseNumberOrFormula(theValue, elem, mode, "cy", "protractor primitive");
+            ok = this.centerY != null;
         } else if ("r".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.radius = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'r' attribute on protractor primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.radius = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'r' value (" + theValue + ") on protractor primitive");
-                }
-            }
+            this.radius = parseNumberOrFormula(theValue, elem, mode, "r", "protractor primitive");
+            ok = this.radius != null;
         } else if ("orientation".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.orientation = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'orientation' attribute on protractor primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.orientation = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'orientation' value (" + theValue + ") on protractor primitive");
-                }
-            }
+            this.orientation = parseNumberOrFormula(theValue, elem, mode, "orientation", "protractor primitive");
+            ok = this.orientation != null;
         } else if ("units".equals(name)) {
             if ("degrees".equalsIgnoreCase(theValue) || "deg".equalsIgnoreCase(theValue)) {
                 this.angleUnits = EAngleUnits.DEGREES;
@@ -407,14 +351,10 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
                 elem.logError("Invalid 'text-color' value (" + theValue + ") on protractor primitive");
             }
         } else if ("alpha".equals(name)) {
-            try {
-                this.alpha = Double.valueOf(theValue);
-                ok = true;
-            } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'alpha' value (" + theValue + ") on line primitive");
-            }
+            this.alpha = parseDouble(theValue, elem, name, "protractor primitive");
+            ok = this.alpha != null;
         } else {
-            elem.logError("Unsupported attribute '" + name + "' on line primitive");
+            elem.logError("Unsupported attribute '" + name + "' on protractor primitive");
         }
 
         return ok;
@@ -1282,86 +1222,5 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveProtractor obj) {
-
-            if (!Objects.equals(this.centerX, obj.centerX)) {
-                if (this.centerX == null || obj.centerX == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (centerX: ", this.centerX,
-                            CoreConstants.SLASH, obj.centerX, ")");
-                }
-            }
-
-            if (!Objects.equals(this.centerY, obj.centerY)) {
-                if (this.centerY == null || obj.centerY == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (centerY: ", this.centerY,
-                            CoreConstants.SLASH, obj.centerY, ")");
-                }
-            }
-
-            if (!Objects.equals(this.radius, obj.radius)) {
-                if (this.radius == null || obj.radius == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (radius: ", this.radius,
-                            CoreConstants.SLASH , obj.radius, ")");
-                }
-            }
-
-            if (!Objects.equals(this.orientation, obj.orientation)) {
-                if (this.orientation == null || obj.orientation == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (orientation: ", this.orientation,
-                            CoreConstants.SLASH, obj.orientation, ")");
-                }
-            }
-
-            if (!Objects.equals(this.angleUnits, obj.angleUnits)) {
-                if (this.angleUnits == null || obj.angleUnits == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (angleUnits: ", this.angleUnits,
-                            CoreConstants.SLASH, obj.angleUnits, ")");
-                }
-            }
-
-            if (!Objects.equals(this.numQuadrants, obj.numQuadrants)) {
-                if (this.numQuadrants == null || obj.numQuadrants == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (numQuadrants: ", this.numQuadrants,
-                            CoreConstants.SLASH, obj.numQuadrants, ")");
-                }
-            }
-
-            if (!Objects.equals(this.colorName, obj.colorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (colorName: ", this.colorName, "!=",
-                        obj.colorName, ")");
-            }
-
-            if (!Objects.equals(this.color, obj.color)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (color: ", this.color, "!=", obj.color,
-                        ")");
-            }
-
-            if (!Objects.equals(this.textColorName, obj.textColorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (textColorName: ", this.textColorName,
-                        "!=", obj.textColorName, ")");
-            }
-
-            if (!Objects.equals(this.textColor, obj.textColor)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (textColor: ", this.textColor, "!=",
-                        obj.textColor, ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor (alpha: ", this.alpha, "!=", obj.alpha, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveProtractor because other is ", other.getClass().getName());
-        }
     }
 }

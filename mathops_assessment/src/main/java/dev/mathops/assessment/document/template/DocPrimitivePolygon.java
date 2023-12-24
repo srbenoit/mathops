@@ -377,13 +377,8 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
                     elem.logError("Invalid 'y-list' value (" + theValue + ") on polygon primitive");
                 }
             } else if ("stroke-width".equals(name)) {
-
-                try {
-                    this.strokeWidth = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'stroke-width' value (" + theValue + ") on polygon primitive");
-                }
+                this.strokeWidth = parseDouble(theValue, elem, name, "polygon primitive");
+                ok = this.strokeWidth != null;
             } else if ("dash".equals(name)) {
                 final String[] split = theValue.split(CoreConstants.COMMA);
                 final int count = split.length;
@@ -401,12 +396,8 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
                     elem.logError("Invalid 'dash' value (" + theValue + ") on polygon primitive");
                 }
             } else if ("alpha".equals(name)) {
-                try {
-                    this.alpha = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'alpha' value (" + theValue + ") on polygon primitive");
-                }
+                this.alpha = parseDouble(theValue, elem, name, "polygon primitive");
+                ok = this.alpha != null;
             } else {
                 elem.logError("Unsupported attribute '" + name + "' on polygon primitive");
             }
@@ -753,173 +744,5 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitivePolygon obj) {
-
-            if (!Objects.equals(this.xCoordConstants, obj.xCoordConstants)) {
-
-                if (this.xCoordConstants == null || obj.xCoordConstants == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordConstants: ",
-                            this.xCoordConstants, CoreConstants.SLASH, obj.xCoordConstants, ")");
-                } else if (this.xCoordConstants.size() != obj.xCoordConstants.size()) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordConstants size: ",
-                            Integer.toString(this.xCoordConstants.size()), CoreConstants.SLASH,
-                            Integer.toString(obj.xCoordConstants.size()), ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordConstants...)");
-                    final int count = this.xCoordConstants.size();
-                    for (int i = 0; i < count; ++i) {
-                        final Double o1 = this.xCoordConstants.get(i);
-                        final Double o2 = obj.xCoordConstants.get(i);
-
-                        if (!Objects.equals(o1, o2)) {
-                            Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordConstants ",
-                                    Integer.toString(i), ": ", o1, CoreConstants.SLASH, o2, ")");
-                        }
-                    }
-                }
-            }
-
-            if (!Objects.equals(this.xCoordFormulas, obj.xCoordFormulas)) {
-                if (this.xCoordFormulas == null || obj.xCoordFormulas == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordFormulas: ",
-                            this.xCoordFormulas, CoreConstants.SLASH, obj.xCoordFormulas, ")");
-                } else if (this.xCoordFormulas.size() != obj.xCoordFormulas.size()) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordFormulas size: ",
-                            Integer.toString(this.xCoordFormulas.size()), CoreConstants.SLASH,
-                            Integer.toString(obj.xCoordFormulas.size()), ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordFormulas...)");
-                    final int count = this.xCoordFormulas.size();
-                    for (int i = 0; i < count; ++i) {
-                        final Formula o1 = this.xCoordFormulas.get(i);
-                        final Formula o2 = obj.xCoordFormulas.get(i);
-
-                        if (!Objects.equals(o1, o2)) {
-                            if (o1 == null || o2 == null) {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordFormulas ",
-                                        Integer.toString(i), ": ", o1, CoreConstants.SLASH, o2, ")");
-                            } else {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (xCoordFormulas ",
-                                        Integer.toString(i), "...)");
-                                o1.whyNotEqual(o2, indent + 1);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!Objects.equals(this.yCoordConstants, obj.yCoordConstants)) {
-
-                if (this.yCoordConstants == null || obj.yCoordConstants == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordConstants: ",
-                            this.yCoordConstants, CoreConstants.SLASH, obj.yCoordConstants, ")");
-                } else if (this.yCoordConstants.size() != obj.yCoordConstants.size()) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordConstants size: ",
-                            Integer.toString(this.yCoordConstants.size()), CoreConstants.SLASH,
-                            Integer.toString(obj.yCoordConstants.size()), ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordConstants...)");
-                    final int count = this.yCoordConstants.size();
-                    for (int i = 0; i < count; ++i) {
-                        final Double o1 = this.yCoordConstants.get(i);
-                        final Double o2 = obj.yCoordConstants.get(i);
-
-                        if (!Objects.equals(o1, o2)) {
-                            Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordConstants ",
-                                    Integer.toString(i), ": ", o1, CoreConstants.SLASH, o2, ")");
-                        }
-                    }
-                }
-            }
-
-            if (!Objects.equals(this.yCoordFormulas, obj.yCoordFormulas)) {
-                if (this.yCoordFormulas == null || obj.yCoordFormulas == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordFormulas: ",
-                            this.yCoordFormulas, CoreConstants.SLASH, obj.yCoordFormulas, ")");
-                } else if (this.yCoordFormulas.size() != obj.yCoordFormulas.size()) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordFormulas size: ",
-                            Integer.toString(this.yCoordFormulas.size()), CoreConstants.SLASH,
-                            Integer.toString(obj.yCoordFormulas.size()), ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordFormulas...)");
-                    final int count = this.yCoordFormulas.size();
-                    for (int i = 0; i < count; ++i) {
-                        final Formula o1 = this.yCoordFormulas.get(i);
-                        final Formula o2 = obj.yCoordFormulas.get(i);
-
-                        if (!Objects.equals(o1, o2)) {
-                            if (o1 == null || o2 == null) {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordFormulas ",
-                                        Integer.toString(i), ": ", o1, CoreConstants.SLASH, o2, ")");
-                            } else {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (yCoordFormulas ",
-                                        Integer.toString(i), "...)");
-                                o1.whyNotEqual(o2, indent + 1);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!Objects.equals(this.filled, obj.filled)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (filled: ", this.filled, "!=", obj.filled,
-                        ")");
-            }
-
-            if (!Objects.equals(this.colorName, obj.colorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (colorName: ", this.colorName, "!=",
-                        obj.colorName, ")");
-            }
-
-            if (!Objects.equals(this.color, obj.color)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (color: ", this.color, "!=", obj.color, ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (alpha: ", this.alpha, "!=", obj.alpha, ")");
-            }
-
-            if (!Objects.equals(this.strokeWidth, obj.strokeWidth)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (strokeWidth: ", this.strokeWidth, "!=",
-                        obj.strokeWidth, ")");
-            }
-
-            if (!Objects.equals(this.dash, obj.dash)) {
-                if (this.dash == null || obj.dash == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (dash: ", this.dash, CoreConstants.SLASH,
-                            obj.dash, ")");
-                } else {
-                    final int dashLen = this.dash.length;
-                    if (dashLen != obj.dash.length) {
-                        Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (dash size: " + dashLen
-                                + CoreConstants.SLASH + obj.dash.length + ")");
-                    } else {
-                        Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (dash...)");
-                        for (int i = 0; i < dashLen; ++i) {
-                            final float o1 = this.dash[i];
-                            final float o2 = obj.dash[i];
-
-                            if (o1 != o2) {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon (dash " + i + ": " + o1
-                                        + CoreConstants.SLASH + o2 + ")");
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitivePolygon because other is ", other.getClass().getName());
-        }
     }
 }

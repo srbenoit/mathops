@@ -2156,61 +2156,154 @@ public enum DocFactory {
                 && p.setAttr("y", e.getStringAttr("y"), e, mode)
                 && p.setAttr("width", e.getStringAttr("width"), e, mode)
                 && p.setAttr("height", e.getStringAttr("height"), e, mode)
+                && p.setAttr("cx", e.getStringAttr("cx"), e, mode)
+                && p.setAttr("cy", e.getStringAttr("cy"), e, mode)
+                && p.setAttr("r", e.getStringAttr("r"), e, mode)
+                && p.setAttr("rx", e.getStringAttr("rx"), e, mode)
+                && p.setAttr("ry", e.getStringAttr("ry"), e, mode)
                 && p.setAttr("start-angle", e.getStringAttr("start-angle"), e, mode)
                 && p.setAttr("arc-angle", e.getStringAttr("arc-angle"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
                 && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr("stroke-color", e.getStringAttr("stroke-color"), e, mode)
+                && p.setAttr("stroke-dash", e.getStringAttr("stroke-dash"), e, mode)
+                && p.setAttr("stroke-alpha", e.getStringAttr("stroke-alpha"), e, mode)
+                && p.setAttr("color", e.getStringAttr("color"), e, mode) // *** Deprecated
+                && p.setAttr("dash", e.getStringAttr("dash"), e, mode) // *** Deprecated
+                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode) // *** Deprecated
+                && p.setAttr("fill-style", e.getStringAttr("fill-style"), e, mode)
+                && p.setAttr("fill-color", e.getStringAttr("fill-color"), e, mode)
+                && p.setAttr("fill-alpha", e.getStringAttr("fill-alpha"), e, mode)
+                && p.setAttr("filled", e.getStringAttr("filled"), e, mode) // *** Deprecated
+                && p.setAttr("rays-shown", e.getStringAttr("rays-shown"), e, mode)
+                && p.setAttr("ray-width", e.getStringAttr("ray-width"), e, mode)
+                && p.setAttr("ray-length", e.getStringAttr("ray-length"), e, mode)
+                && p.setAttr("ray-color", e.getStringAttr("ray-color"), e, mode)
+                && p.setAttr("ray-dash", e.getStringAttr("ray-dash"), e, mode)
+                && p.setAttr("ray-alpha", e.getStringAttr("ray-alpha"), e, mode)
+                && p.setAttr("label-color", e.getStringAttr("label-color"), e, mode)
+                && p.setAttr("label-alpha", e.getStringAttr("label-alpha"), e, mode)
+                && p.setAttr("label-offset", e.getStringAttr("label-offset"), e, mode)
+                && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
+                && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
+                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
+        ;
+
+        String labelStr = e.getStringAttr("label");
+        if (labelStr != null) {
+            // Identify and replace {\tag} tags for special characters
+            int index = labelStr.indexOf("{\\");
+            while (index != -1) {
+                final int endIndex = labelStr.indexOf('}', index + 2);
+                if (endIndex != -1) {
+                    final String cp = parseNamedEntity(labelStr.substring(index + 1, endIndex));
+
+                    if (!cp.isEmpty()) {
+                        labelStr = labelStr.substring(0, index) + cp + labelStr.substring(endIndex + 1);
+                    }
+                }
+                index = labelStr.indexOf("{\\", index + 1);
+            }
+
+            valid = p.setAttr("label", labelStr, e, mode);
+            if (!valid) {
+                e.logError("Invalid value for 'label' attribute for arc primitive (" + labelStr + ").");
+            }
+        }
+
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement formula) {
+                if (child instanceof final NonemptyElement inner) {
                     final String tag = child.getTagName();
 
                     if ("x".equals(tag)) {
-                        final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theXCoord == null) {
+                        final Formula theX = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theX == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
+                        p.setXCoord(new NumberOrFormula(theX));
                     } else if ("y".equals(tag)) {
-                        final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theYCoord == null) {
+                        final Formula theY = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theY == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
+                        p.setYCoord(new NumberOrFormula(theY));
                     } else if ("width".equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
                         }
                         p.setWidth(new NumberOrFormula(theWidth));
                     } else if ("height".equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
                         }
                         p.setHeight(new NumberOrFormula(theHeight));
+                    } else if ("cx".equals(tag)) {
+                        final Formula theCx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theCx == null) {
+                            e.logError("Invalid 'cx' formula.");
+                            valid = false;
+                        }
+                        p.setCenterX(new NumberOrFormula(theCx));
+                    } else if ("cy".equals(tag)) {
+                        final Formula theCy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theCy == null) {
+                            e.logError("Invalid 'cy' formula.");
+                            valid = false;
+                        }
+                        p.setCenterY(new NumberOrFormula(theCy));
+                    } else if ("r".equals(tag)) {
+                        final Formula theR = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theR == null) {
+                            e.logError("Invalid 'r' formula.");
+                            valid = false;
+                        }
+                        p.setRadius(new NumberOrFormula(theR));
+                    } else if ("rx".equals(tag)) {
+                        final Formula theRx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theRx == null) {
+                            e.logError("Invalid 'rx' formula.");
+                            valid = false;
+                        }
+                        p.setCenterX(new NumberOrFormula(theRx));
+                    } else if ("ry".equals(tag)) {
+                        final Formula theRy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
+                        if (theRy == null) {
+                            e.logError("Invalid 'ry' formula.");
+                            valid = false;
+                        }
+                        p.setCenterY(new NumberOrFormula(theRy));
                     } else if ("start-angle".equals(tag)) {
-                        final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theStartAngle == null) {
                             e.logError("Invalid 'start-angle' formula.");
                             valid = false;
                         }
                         p.setStartAngle(new NumberOrFormula(theStartAngle));
                     } else if ("arc-angle".equals(tag)) {
-                        final Formula theArcAngle = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
+                        final Formula theArcAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theArcAngle == null) {
                             e.logError("Invalid 'arc-angle' formula.");
                             valid = false;
                         }
                         p.setArcAngle(new NumberOrFormula(theArcAngle));
+                    } else if ("label".equals(tag)) {
+                        final DocSimpleSpan innerSpan = parseSpan(evalContext, inner, mode);
+                        if (innerSpan == null) {
+                            e.logError("Failed to parse <label> in span primitive.");
+                        } else {
+                            final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
+                            for (final AbstractDocObjectTemplate obj : innerSpan.getChildren()) {
+                                nonwrap.add(obj);
+                            }
+                            p.setLabelSpan(nonwrap);
+                        }
                     }
                 }
             }
@@ -2618,30 +2711,6 @@ public enum DocFactory {
                 e.logError("Invalid value for 'value' attribute for drawing primitive (" + valueStr + ").");
             }
         }
-
-        // String realizedStr = e.getStringAttr("realized");
-        // if (realizedStr != null) {
-        // // Identify and replace {\tag} tags for special characters
-        // int index = realizedStr.indexOf("{\\");
-        // while (index != -1) {
-        // int endIndex = realizedStr.indexOf('}', index + 2);
-        // if (endIndex != -1) {
-        // final String ch = parseNamedEntity(realizedStr.substring(index + 1, endIndex));
-        //
-        // if (!ch.isEmpty()) {
-        // realizedStr = realizedStr.substring(0, index) + ch
-        // + realizedStr.substring(endIndex + 1);
-        // }
-        // }
-        // index = realizedStr.indexOf("{\\", index + 1);
-        // }
-        //
-        // valid = p.setAttr("realized", realizedStr, e, mode);
-        // if (!valid) {
-        // e.logError("Invalid value for 'realized' attribute for drawing primitive ("
-        // + realizedStr + ").");
-        // }
-        // }
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {

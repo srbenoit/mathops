@@ -456,24 +456,4 @@ public final class DocInputStringField extends AbstractDocInputField {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocInputStringField obj) {
-            fieldInnerWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.width, obj.width)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputStringField (width: ", this.width, "!=", obj.width, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocInputStringField because other is ", other.getClass().getName());
-        }
-    }
 }

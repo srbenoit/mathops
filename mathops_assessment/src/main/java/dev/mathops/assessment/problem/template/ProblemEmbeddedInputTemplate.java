@@ -30,7 +30,6 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.xml.XmlEscaper;
@@ -692,40 +691,5 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractProblemTemplate obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-
-        if (obj instanceof final ProblemEmbeddedInputTemplate prob) {
-
-            if (!Objects.equals(this.correctness, prob.correctness)) {
-                if (this.correctness == null || prob.correctness == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemEmbeddedInput (correctness: ",
-                            this.correctness, "!=", prob.correctness, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemEmbeddedInput (correctness)");
-                    this.correctAnswer.whyNotEqual(prob.correctness, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.correctAnswer, prob.correctAnswer)) {
-                if (this.correctAnswer == null || prob.correctAnswer == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemEmbeddedInput (correctAnswer: ",
-                            this.correctAnswer, "!=", prob.correctAnswer, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL ProblemEmbeddedInput (correctAnswer)");
-                    this.correctAnswer.whyNotEqual(prob.correctAnswer, indent + 1);
-                }
-            }
-        }
     }
 }

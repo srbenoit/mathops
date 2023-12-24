@@ -256,22 +256,6 @@ public class TestOper extends AbstractFormulaContainer implements IEditableFormu
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final TestOper obj) {
-            innerWhyNotEqual(obj, indent);
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL TestOper because other is ", other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

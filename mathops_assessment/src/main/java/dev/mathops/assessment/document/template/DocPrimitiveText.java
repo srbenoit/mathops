@@ -271,45 +271,16 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
      */
     boolean setAttr(final String name, final String theValue, final INode elem, final EParserMode mode) {
 
-        final BundledFontManager fonts;
         boolean ok = false;
 
         if (theValue == null) {
             ok = true;
         } else if ("x".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.xCoord = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'x' attribute on text primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.xCoord = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'x' value (" + theValue + ") on text primitive");
-                }
-            }
+            this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "text primitive");
+            ok = this.xCoord != null;
         } else if ("y".equals(name)) {
-            try {
-                final Number num = NumberParser.parse(theValue);
-                this.yCoord = new NumberOrFormula(num);
-                ok = true;
-            } catch (final NumberFormatException ex) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of formula in 'y' attribute on text primitive");
-                }
-                try {
-                    final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                    this.yCoord = new NumberOrFormula(form);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'y' value (" + theValue + ") on text primitive");
-                }
-            }
+            this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "text primitive");
+            ok = this.yCoord != null;
         } else if ("anchor".equals(name)) {
 
             final ETextAnchor anch = ETextAnchor.valueOf(theValue);
@@ -366,7 +337,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             ok = this.value != null;
         } else if ("fontname".equals(name)) {
 
-            fonts = BundledFontManager.getInstance();
+            final BundledFontManager fonts = BundledFontManager.getInstance();
 
             if (fonts.isFontNameValid(theValue)) {
                 this.fontName = theValue;
@@ -410,13 +381,8 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 elem.logError("Invalid 'fontstyle' value (" + theValue + ") on text primitive");
             }
         } else if ("alpha".equals(name)) {
-
-            try {
-                this.alpha = Double.valueOf(theValue);
-                ok = true;
-            } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'alpha' value (" + theValue + ") on text primitive");
-            }
+            this.alpha = parseDouble(theValue, elem, name, "text primitive");
+            ok = this.alpha != null;
         } else {
             elem.logError("Unsupported attribute '" + name + "' on text primitive");
         }
@@ -839,73 +805,5 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveText obj) {
-
-            if (!Objects.equals(this.xCoord, obj.xCoord)) {
-                if (this.xCoord == null || obj.xCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (xCoord: ", this.xCoord, CoreConstants.SLASH,
-                            obj.xCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.yCoord, obj.yCoord)) {
-                if (this.yCoord == null || obj.yCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (yCoord: ", this.yCoord, CoreConstants.SLASH,
-                            obj.yCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.anchor, obj.anchor)) {
-                if (this.anchor == null || obj.anchor == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (anchor: ", this.anchor, CoreConstants.SLASH,
-                            obj.anchor, ")");
-                }
-            }
-
-            if (!Objects.equals(this.colorName, obj.colorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (colorName: ", this.colorName, "!=",
-                        obj.colorName, ")");
-            }
-
-            if (!Objects.equals(this.color, obj.color)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (color: ", this.color, "!=", obj.color, ")");
-            }
-
-            if (!Objects.equals(this.value, obj.value)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (value: ", this.value, "!=", obj.value, ")");
-            }
-
-            if (!Objects.equals(this.fontName, obj.fontName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (fontName: ", this.fontName, "!=",
-                        obj.fontName, ")");
-            }
-
-            if (!Objects.equals(this.fontSize, obj.fontSize)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimit iveText (fontSize: ", this.fontSize, "!=",
-                        obj.fontSize, ")");
-            }
-
-            if (!Objects.equals(this.fontStyle, obj.fontStyle)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (fontStyle: ", this.fontStyle, "!=",
-                        obj.fontStyle, ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (alpha: ", this.alpha, "!=", obj.alpha, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText because other is ", other.getClass().getName());
-        }
     }
 }

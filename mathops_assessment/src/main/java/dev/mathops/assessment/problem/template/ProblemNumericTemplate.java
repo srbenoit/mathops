@@ -675,34 +675,4 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractProblemTemplate obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-
-        if (obj instanceof final ProblemNumericTemplate prob) {
-
-            if (!Objects.equals(this.stringAnswer, prob.stringAnswer)) {
-                Log.info(AbstractXmlObject.makeIndent(indent), "UNEQUAL ProblemNumeric (stringAnswer: ",
-                        this.stringAnswer, "!=", prob.stringAnswer, ")");
-            }
-
-            if (!Objects.equals(this.acceptNumber, prob.acceptNumber)) {
-                if (this.acceptNumber == null || prob.acceptNumber == null) {
-                    Log.info(AbstractXmlObject.makeIndent(indent), "UNEQUAL ProblemNumeric (accept: ",
-                            this.acceptNumber, "!=", prob.acceptNumber, ")");
-                } else {
-                    Log.info(AbstractXmlObject.makeIndent(indent), "UNEQUAL ProblemNumeric (accept)");
-                    this.acceptNumber.whyNotEqual(prob.acceptNumber, indent + 1);
-                }
-            }
-        }
-    }
 }

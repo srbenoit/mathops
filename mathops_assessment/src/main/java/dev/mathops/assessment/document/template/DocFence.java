@@ -868,29 +868,4 @@ public final class DocFence extends AbstractDocSpanBase {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocFence obj) {
-            innerWhyNotEqual(obj, indent);
-
-            if (this.leftAlign != obj.leftAlign) {
-                Log.info(makeIndent(indent), "UNEQUAL ", obj.getClass().getName(), " (leftAlign: " + this.leftAlign
-                        + "!=" + obj.leftAlign + ")");
-            }
-
-            if (this.type != obj.type) {
-                Log.info(makeIndent(indent), "UNEQUAL DocFence (type: " + this.type + "!=" + obj.type + ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocFence because other is ", other.getClass().getName());
-        }
-    }
 }

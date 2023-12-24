@@ -298,20 +298,4 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocHSpace obj) {
-            docObjectWhyNotEqual(obj, indent);
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocHSpace because other is ", other.getClass().getName());
-        }
-    }
 }

@@ -244,45 +244,4 @@ public final class ProblemAcceptNumberTemplate extends AbstractXmlObject impleme
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    void whyNotEqual(final ProblemAcceptNumberTemplate obj, final int indent) {
-
-        if (this.forceInteger != obj.forceInteger) {
-            Log.info(makeIndent(indent), //
-                    "UNEQUAL ProblemAcceptNumber (forceInteger: ",
-                    Boolean.toString(this.forceInteger), "!=",
-                    Boolean.toString(obj.forceInteger), ")");
-        }
-
-        if (!Objects.equals(this.varianceConstant, obj.varianceConstant)) {
-            Log.info(makeIndent(indent), "UNEQUAL ProblemAcceptNumber (variance: ",
-                    this.varianceConstant, "!=", obj.varianceConstant, ")");
-        }
-
-        if (!Objects.equals(this.varianceFormula, obj.varianceFormula)) {
-            if (this.varianceFormula == null || obj.varianceFormula == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemAcceptNumber (variance: ",
-                        this.varianceFormula, "!=", obj.varianceFormula, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemAcceptNumber (variance)");
-                this.varianceFormula.whyNotEqual(obj.varianceFormula, indent + 1);
-            }
-        }
-
-        if (!Objects.equals(this.correctAnswer, obj.correctAnswer)) {
-            if (this.correctAnswer == null || obj.correctAnswer == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemAcceptNumber (correctAnswer: ",
-                        this.correctAnswer, "!=", obj.correctAnswer, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ProblemAcceptNumber (correctAnswer)");
-                this.correctAnswer.whyNotEqual(obj.correctAnswer, indent + 1);
-            }
-        }
-    }
 }

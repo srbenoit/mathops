@@ -288,46 +288,6 @@ public class SwitchOper extends AbstractFormulaObject implements IEditableFormul
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final SwitchOper obj) {
-            if (!Objects.equals(this.condition, obj.condition)) {
-                Log.info(makeIndent(indent), //
-                        "UNEQUAL SwitchOper because conditions are unequal");
-            } else if (!Objects.equals(this.defaultValue, obj.defaultValue)) {
-                Log.info(makeIndent(indent), //
-                        "UNEQUAL SwitchOper because default values are unequal");
-            } else {
-                final int numCases1 = this.cases.size();
-                final int numCases2 = obj.cases.size();
-                if (numCases1 == numCases2) {
-                    for (int i = 0; i < numCases1; ++i) {
-                        if (!Objects.equals(this.cases.get(i),
-                                obj.cases.get(i))) {
-                            Log.info(makeIndent(indent), //
-                                    "UNEQUAL SwitchOper because case[",
-                                    Integer.toString(i), "] differs");
-                            break;
-                        }
-                    }
-                } else {
-                    Log.info(makeIndent(indent), //
-                            "UNEQUAL SwitchOper because number of cases differ");
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL SwitchOper because other is ",
-                    other.getClass().getName());
-        }
-    }
-
-    /**
      * Appends an XML representation of the formula to an {@code HtmlBuilder}.
      *
      * @param xml the {@code HtmlBuilder} to which to append

@@ -404,23 +404,4 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocParameterReference obj) {
-            if (!Objects.equals(this.parameterName, obj.parameterName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocParameterReference (parameterName: ", this.parameterName,
-                        "!=", obj.parameterName, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocParameterReference because other is ", other.getClass().getName());
-        }
-    }
 }

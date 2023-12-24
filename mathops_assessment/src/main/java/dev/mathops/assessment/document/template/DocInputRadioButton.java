@@ -492,25 +492,4 @@ public final class DocInputRadioButton extends AbstractDocInput {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocInputRadioButton obj) {
-            inputInnerWhyNotEqual(obj, indent);
-
-            if (this.value != obj.value) {
-                Log.info(makeIndent(indent), "UNEQUAL DocInputRadioButton (value: " + this.value + "!="
-                        + obj.value + ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocInputRadioButton because other is ", other.getClass().getName());
-        }
-    }
 }

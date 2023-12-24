@@ -382,40 +382,4 @@ public final class DocFraction extends AbstractDocContainer {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocFraction obj) {
-            innerWhyNotEqual(obj, indent);
-
-            if (!Objects.equals(this.numerator, obj.numerator)) {
-                if (this.numerator == null || obj.numerator == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocFraction (numerator: ", this.numerator,
-                            CoreConstants.SLASH, obj.numerator, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocFraction (numerator...)");
-                    this.numerator.whyNotEqual(obj.numerator, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.denominator, obj.denominator)) {
-                if (this.denominator == null || obj.denominator == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocFraction (denominator: ", this.denominator,
-                            CoreConstants.SLASH, obj.denominator, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocFraction (denominator...)");
-                    this.denominator.whyNotEqual(obj.denominator, indent + 1);
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocFraction because other is ", other.getClass().getName());
-        }
-    }
 }

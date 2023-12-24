@@ -160,38 +160,6 @@ public final class VariableRandomPermutation extends AbstractVariable implements
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractVariable obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-        if (obj instanceof final VariableRandomPermutation var) {
-
-            if (!Objects.equals(this.min, var.min)) {
-                if (this.min == null || var.min == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomPermutation (min: " + this.min + "!="
-                            + var.min + ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomPermutation (min)");
-                }
-            }
-
-            if (!Objects.equals(this.max, var.max)) {
-                if (this.max == null || var.max == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomPermutation (max: " + this.max + "!="
-                            + var.max + ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL VariableRandomPermutation (max)");
-                }
-            }
-        }
-    }
-
-    /**
      * Clears the cached derived value.
      */
     @Override

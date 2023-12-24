@@ -576,25 +576,4 @@ public final class DocParagraph extends AbstractDocSpanBase {
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocParagraph obj) {
-            innerWhyNotEqual(obj, indent);
-
-            if (this.justification != obj.justification) {
-                Log.info(makeIndent(indent), "UNEQUAL DocParagraph (justification: " + this.justification + "!="
-                        + obj.justification + ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocParagraph because other is ", other.getClass().getName());
-        }
-    }
 }

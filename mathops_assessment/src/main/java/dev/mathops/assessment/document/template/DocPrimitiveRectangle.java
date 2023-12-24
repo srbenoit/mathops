@@ -280,73 +280,17 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
             ok = true;
         } else {
             if ("x".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.xCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'x' attribute on rectangle primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.xCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'x' value (" + theValue + ") on rectangle primitive");
-                    }
-                }
+                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "rectangle primitive");
+                ok = this.xCoord != null;
             } else if ("y".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.yCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'y' attribute on rectangle primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.yCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'y' value (" + theValue + ") on rectangle primitive");
-                    }
-                }
+                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "rectangle primitive");
+                ok = this.yCoord != null;
             } else if ("width".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.width = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'width' attribute on rectangle primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.width = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'width' value (" + theValue + ") on rectangle primitive");
-                    }
-                }
+                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "rectangle primitive");
+                ok = this.width != null;
             } else if ("height".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.height = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'height' attribute on rectangle primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.height = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'height' value (" + theValue + ") on rectangle primitive");
-                    }
-                }
+                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "rectangle primitive");
+                ok = this.height != null;
             } else if ("filled".equals(name)) {
 
                 try {
@@ -365,13 +309,8 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
                     elem.logError("Invalid 'color' value (" + theValue + ") on rectangle primitive");
                 }
             } else if ("stroke-width".equals(name)) {
-
-                try {
-                    this.strokeWidth = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'stroke-width' value (" + theValue + ") on rectangle primitive");
-                }
+                this.strokeWidth = parseDouble(theValue, elem, name, "raster primitive");
+                ok = this.strokeWidth != null;
             } else if ("dash".equals(name)) {
 
                 final String[] split = theValue.split(CoreConstants.COMMA);
@@ -391,13 +330,8 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
                     elem.logError("Invalid 'dash' value (" + theValue + ") on rectangle primitive");
                 }
             } else if ("alpha".equals(name)) {
-
-                try {
-                    this.alpha = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'alpha' value (" + theValue + ") on rectangle primitive");
-                }
+                this.alpha = parseDouble(theValue, elem, name, "raster primitive");
+                ok = this.alpha != null;
             } else {
                 elem.logError("Unsupported attribute '" + name + "' on rectangle primitive");
             }
@@ -743,98 +677,5 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveRectangle obj) {
-
-            if (!Objects.equals(this.xCoord, obj.xCoord)) {
-                if (this.xCoord == null || obj.xCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (xCoord: ", this.xCoord,
-                            CoreConstants.SLASH, obj.xCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.yCoord, obj.yCoord)) {
-                if (this.yCoord == null || obj.yCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (yCoord: ", this.yCoord,
-                            CoreConstants.SLASH, obj.yCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.width, obj.width)) {
-                if (this.width == null || obj.width == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (width: ", this.width,
-                            CoreConstants.SLASH, obj.width, ")");
-                }
-            }
-
-            if (!Objects.equals(this.height, obj.height)) {
-                if (this.height == null || obj.height == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (height: ", this.height,
-                            CoreConstants.SLASH, obj.height, ")");
-                }
-            }
-
-            if (!Objects.equals(this.filled, obj.filled)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (filled: ", this.filled, "!=", obj.filled,
-                        ")");
-            }
-
-            if (!Objects.equals(this.colorName, obj.colorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (colorName: ", this.colorName, "!=",
-                        obj.colorName, ")");
-            }
-
-            if (!Objects.equals(this.color, obj.color)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (color: ", this.color, "!=", obj.color,
-                        ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (alpha: ", this.alpha, "!=", obj.alpha,
-                        ")");
-            }
-
-            if (!Objects.equals(this.strokeWidth, obj.strokeWidth)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (strokeWidth: ", this.strokeWidth, "!=",
-                        obj.strokeWidth, ")");
-            }
-
-            if (!Objects.equals(this.dash, obj.dash)) {
-                if (this.dash == null || obj.dash == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (dash: ", this.dash,
-                            CoreConstants.SLASH, obj.dash, ")");
-                } else {
-                    final int dashLen = this.dash.length;
-
-                    if (dashLen != obj.dash.length) {
-                        Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (dash size: " + dashLen
-                                + CoreConstants.SLASH + obj.dash.length + ")");
-                    } else {
-                        Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (dash...)");
-                        for (int i = 0; i < dashLen; ++i) {
-                            final float o1 = this.dash[i];
-                            final float o2 = obj.dash[i];
-
-                            if (Math.abs(o1 - o2) > 0.0001f) {
-                                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle (dash " + i + ": " + o1
-                                        + CoreConstants.SLASH + o2 + ")");
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRectangle because other is ", other.getClass().getName());
-        }
     }
 }

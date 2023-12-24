@@ -97,18 +97,6 @@ public final class VariableBoolean extends AbstractVariable {
     }
 
     /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final AbstractVariable obj, final int indent) {
-
-        innerWhyNotEqual(obj, indent);
-    }
-
-    /**
      * Clears the cached derived value.
      */
     @Override

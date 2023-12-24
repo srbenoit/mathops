@@ -297,39 +297,11 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
             ok = true;
         } else {
             if ("x".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.xCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'x' attribute on span primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.xCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'x' value (" + theValue + ") on span primitive");
-                    }
-                }
+                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "span primitive");
+                ok = this.xCoord != null;
             } else if ("y".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.yCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'y' attribute on span primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.yCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'y' value (" + theValue + ") on span primitive");
-                    }
-                }
+                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "span primitive");
+                ok = this.yCoord != null;
             } else if ("anchor".equals(name)) {
 
                 final ETextAnchor anch = ETextAnchor.valueOf(theValue);
@@ -402,13 +374,8 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
                     elem.logError("Invalid 'fontstyle' value (" + theValue + ") on span primitive");
                 }
             } else if ("alpha".equals(name)) {
-
-                try {
-                    this.alpha = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'alpha' value (" + theValue + ") on span primitive");
-                }
+                this.alpha = parseDouble(theValue, elem, name, "span primitive");
+                ok = this.alpha != null;
             } else {
                 elem.logError("Unsupported attribute '" + name + "' on span primitive");
             }
@@ -789,83 +756,5 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveSpan obj) {
-
-            if (!Objects.equals(this.xCoord, obj.xCoord)) {
-                if (this.xCoord == null || obj.xCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (xCoord: ", this.xCoord, CoreConstants.SLASH,
-                            obj.xCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.yCoord, obj.yCoord)) {
-                if (this.yCoord == null || obj.yCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (yCoord: ", this.yCoord, CoreConstants.SLASH,
-                            obj.yCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.anchor, obj.anchor)) {
-                if (this.anchor == null || obj.anchor == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveText (anchor: ", this.anchor, CoreConstants.SLASH,
-                            obj.anchor, ")");
-                }
-            }
-
-            if (!Objects.equals(this.filled, obj.filled)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (filled: ", this.filled, "!=", obj.filled, ")");
-            }
-
-            if (!Objects.equals(this.colorName, obj.colorName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (colorName: ", this.colorName, "!=",
-                        obj.colorName, ")");
-            }
-
-            if (!Objects.equals(this.color, obj.color)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (color: ", this.color, "!=", obj.color, ")");
-            }
-
-            if (!Objects.equals(this.span, obj.span)) {
-                if (this.span == null || obj.span == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (span: ", this.span, CoreConstants.SLASH,
-                            obj.span, ")");
-                } else {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (span...)");
-                    this.span.whyNotEqual(obj.span, indent + 1);
-                }
-            }
-
-            if (!Objects.equals(this.fontName, obj.fontName)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (fontName: ", this.fontName, "!=", obj.fontName,
-                        ")");
-            }
-
-            if (!Objects.equals(this.fontSize, obj.fontSize)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (fontSize: ", this.fontSize, "!=", obj.fontSize,
-                        ")");
-            }
-
-            if (!Objects.equals(this.fontStyle, obj.fontStyle)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (fontStyle: ", this.fontStyle, "!=",
-                        obj.fontStyle, ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan (alpha: ", this.alpha, "!=", obj.alpha, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveSpan because other is ", other.getClass().getName());
-        }
     }
 }

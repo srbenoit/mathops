@@ -217,43 +217,4 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
 
         return equal;
     }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param obj    the other object
-     * @param indent the indent level
-     */
-    void whyNotEqual(final ProblemChoiceTemplate obj, final int indent) {
-
-        if (!Objects.equals(this.doc, obj.doc)) {
-            if (this.doc == null || obj.doc == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (doc: ", this.doc, "!=",
-                        obj.doc, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (doc)");
-                this.doc.whyNotEqual(obj.doc, indent + 1);
-            }
-        }
-
-        if (this.choiceId != obj.choiceId) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (choiceId: ",
-                    Integer.toString(this.choiceId), "!=", Integer.toString(obj.choiceId), ")");
-        }
-
-        if (!Objects.equals(this.correct, obj.correct)) {
-            if (this.correct == null || obj.correct == null) {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (correct: ", this.correct, "!=",
-                        obj.correct, ")");
-            } else {
-                Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (correct)");
-                this.correct.whyNotEqual(obj.correct, indent + 1);
-            }
-        }
-
-        if (this.pos != obj.pos) {
-            Log.info(makeIndent(indent), "UNEQUAL ", getClass().getSimpleName(), " (pos: ", Integer.toString(this.pos),
-                    "!=", Integer.toString(obj.pos), ")");
-        }
-    }
 }

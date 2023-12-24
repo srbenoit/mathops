@@ -261,73 +261,17 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
             ok = true;
         } else {
             if ("x".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.xCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'x' attribute on raster primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.xCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'x' value (" + theValue + ") on raster primitive");
-                    }
-                }
+                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "raster primitive");
+                ok = this.xCoord != null;
             } else if ("y".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.yCoord = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'y' attribute on raster primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.yCoord = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'y' value (" + theValue + ") on raster primitive");
-                    }
-                }
+                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "raster primitive");
+                ok = this.yCoord != null;
             } else if ("width".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.width = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'width' attribute on raster primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.width = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'width' value (" + theValue + ") on raster primitive");
-                    }
-                }
+                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "raster primitive");
+                ok = this.width != null;
             } else if ("height".equals(name)) {
-                try {
-                    final Number num = NumberParser.parse(theValue);
-                    this.height = new NumberOrFormula(num);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'height' attribute on raster primitive");
-                    }
-                    try {
-                        final Formula form = FormulaFactory.parseFormulaString(new EvalContext(), theValue, mode);
-                        this.height = new NumberOrFormula(form);
-                        ok = true;
-                    } catch (final IllegalArgumentException e) {
-                        elem.logError("Invalid 'height' value (" + theValue + ") on raster primitive");
-                    }
-                }
+                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "raster primitive");
+                ok = this.height != null;
             } else if ("src".equals(name)) {
                 try {
                     this.source = new URL(theValue);
@@ -341,12 +285,8 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
                     elem.logError("Invalid source URL '" + name + "' on raster primitive");
                 }
             } else if ("alpha".equals(name)) {
-                try {
-                    this.alpha = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'alpha' value (" + theValue + ") on raster primitive");
-                }
+                this.alpha = parseDouble(theValue, elem, name, "raster primitive");
+                ok = this.alpha != null;
             } else {
                 elem.logError("Unsupported attribute '" + name + "' on raster primitive");
             }
@@ -633,56 +573,5 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
         }
 
         return equal;
-    }
-
-    /**
-     * Logs messages to indicate why this object is not equal to another.
-     *
-     * @param other  the other object
-     * @param indent the indent level
-     */
-    @Override
-    public void whyNotEqual(final Object other, final int indent) {
-
-        if (other instanceof final DocPrimitiveRaster obj) {
-
-            if (!Objects.equals(this.xCoord, obj.xCoord)) {
-                if (this.xCoord == null || obj.xCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (xCoord: ", this.xCoord,
-                            CoreConstants.SLASH, obj.xCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.yCoord, obj.yCoord)) {
-                if (this.yCoord == null || obj.yCoord == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (yCoord: ", this.yCoord,
-                            CoreConstants.SLASH, obj.yCoord, ")");
-                }
-            }
-
-            if (!Objects.equals(this.width, obj.width)) {
-                if (this.width == null || obj.width == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (width: ", this.width,
-                            CoreConstants.SLASH, obj.width, ")");
-                }
-            }
-
-            if (!Objects.equals(this.height, obj.height)) {
-                if (this.height == null || obj.height == null) {
-                    Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (height: ", this.height,
-                            CoreConstants.SLASH, obj.height, ")");
-                }
-            }
-
-            if (!Objects.equals(this.source, obj.source)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (src: ", this.source, "!=", obj.source, ")");
-            }
-
-            if (!Objects.equals(this.alpha, obj.alpha)) {
-                Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster (alpha: ", this.alpha, "!=", obj.alpha, ")");
-            }
-        } else {
-            Log.info(makeIndent(indent), "UNEQUAL DocPrimitiveRaster because other is ", other.getClass().getName());
-        }
     }
 }
