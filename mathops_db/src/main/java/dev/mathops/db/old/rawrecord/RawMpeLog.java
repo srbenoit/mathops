@@ -268,16 +268,16 @@ public final class RawMpeLog extends RecBase implements Comparable<RawMpeLog> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.academicYr)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.startDt)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.recoverDt)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.calcNbr);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.academicYr)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.startDt)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.recoverDt)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.calcNbr);
     }
 
     /**

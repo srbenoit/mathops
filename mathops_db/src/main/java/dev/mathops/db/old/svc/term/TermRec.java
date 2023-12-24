@@ -192,13 +192,13 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.term)
-                + EqualityTests.objectHashCode(this.startDate)
-                + EqualityTests.objectHashCode(this.endDate)
-                + EqualityTests.objectHashCode(this.academicYear)
-                + EqualityTests.objectHashCode(this.activeIndex)
-                + EqualityTests.objectHashCode(this.dropDeadline)
-                + EqualityTests.objectHashCode(this.withdrawDeadline);
+        return Objects.hashCode(this.term)
+                + Objects.hashCode(this.startDate)
+                + Objects.hashCode(this.endDate)
+                + Objects.hashCode(this.academicYear)
+                + Objects.hashCode(this.activeIndex)
+                + Objects.hashCode(this.dropDeadline)
+                + Objects.hashCode(this.withdrawDeadline);
     }
 
     /**

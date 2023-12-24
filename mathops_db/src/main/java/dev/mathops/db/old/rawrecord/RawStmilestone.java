@@ -257,13 +257,13 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.paceTrack)
-                + EqualityTests.objectHashCode(this.msNbr)
-                + EqualityTests.objectHashCode(this.msType)
-                + EqualityTests.objectHashCode(this.msDate)
-                + EqualityTests.objectHashCode(this.nbrAtmptsAllow);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.paceTrack)
+                + Objects.hashCode(this.msNbr)
+                + Objects.hashCode(this.msType)
+                + Objects.hashCode(this.msDate)
+                + Objects.hashCode(this.nbrAtmptsAllow);
     }
 
     /**

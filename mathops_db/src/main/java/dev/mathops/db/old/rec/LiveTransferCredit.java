@@ -113,8 +113,8 @@ public final class LiveTransferCredit implements Serializable, Comparable<LiveTr
     public int hashCode() {
 
         return this.studentId.hashCode() + this.term.hashCode() + this.transferred.hashCode()
-                + this.courseId.hashCode() + EqualityTests.objectHashCode(this.credits)
-                + EqualityTests.objectHashCode(this.grade);
+                + this.courseId.hashCode() + Objects.hashCode(this.credits)
+                + Objects.hashCode(this.grade);
     }
 
     /**

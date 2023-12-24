@@ -215,9 +215,9 @@ public final class ProblemAcceptNumberTemplate extends AbstractXmlObject impleme
     public int hashCode() {
 
         return (this.forceInteger ? 0x00100000 : 0)
-                + EqualityTests.objectHashCode(this.varianceConstant)
-                + EqualityTests.objectHashCode(this.varianceFormula)
-                + EqualityTests.objectHashCode(this.correctAnswer);
+                + Objects.hashCode(this.varianceConstant)
+                + Objects.hashCode(this.varianceFormula)
+                + Objects.hashCode(this.correctAnswer);
     }
 
     /**

@@ -258,16 +258,16 @@ public final class RawDiscipline extends RecBase implements Comparable<RawDiscip
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.dtIncident)
-                + EqualityTests.objectHashCode(this.incidentType)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.cheatDesc)
-                + EqualityTests.objectHashCode(this.actionType)
-                + EqualityTests.objectHashCode(this.actionComment)
-                + EqualityTests.objectHashCode(this.interviewer)
-                + EqualityTests.objectHashCode(this.proctor);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.dtIncident)
+                + Objects.hashCode(this.incidentType)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.cheatDesc)
+                + Objects.hashCode(this.actionType)
+                + Objects.hashCode(this.actionComment)
+                + Objects.hashCode(this.interviewer)
+                + Objects.hashCode(this.proctor);
     }
 
     /**

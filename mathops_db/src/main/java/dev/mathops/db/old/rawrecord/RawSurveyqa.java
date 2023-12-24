@@ -258,16 +258,16 @@ public final class RawSurveyqa extends RawTermRecordBase implements Comparable<R
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.surveyNbr)
-                + EqualityTests.objectHashCode(this.questionDesc)
-                + EqualityTests.objectHashCode(this.typeQuestion)
-                + EqualityTests.objectHashCode(this.answer)
-                + EqualityTests.objectHashCode(this.answerDesc)
-                + EqualityTests.objectHashCode(this.answerMeaning)
-                + EqualityTests.objectHashCode(this.mustAnswer)
-                + EqualityTests.objectHashCode(this.treeRef);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.surveyNbr)
+                + Objects.hashCode(this.questionDesc)
+                + Objects.hashCode(this.typeQuestion)
+                + Objects.hashCode(this.answer)
+                + Objects.hashCode(this.answerDesc)
+                + Objects.hashCode(this.answerMeaning)
+                + Objects.hashCode(this.mustAnswer)
+                + Objects.hashCode(this.treeRef);
     }
 
     /**

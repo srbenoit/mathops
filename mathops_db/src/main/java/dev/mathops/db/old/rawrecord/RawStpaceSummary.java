@@ -322,20 +322,20 @@ public final class RawStpaceSummary extends RawTermRecordBase implements Compara
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.sect)
-                + EqualityTests.objectHashCode(this.iInProgress)
-                + EqualityTests.objectHashCode(this.pace)
-                + EqualityTests.objectHashCode(this.paceTrack)
-                + EqualityTests.objectHashCode(this.paceOrder)
-                + EqualityTests.objectHashCode(this.msNbr)
-                + EqualityTests.objectHashCode(this.msUnit)
-                + EqualityTests.objectHashCode(this.msDate)
-                + EqualityTests.objectHashCode(this.newMsDate)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.rePoints);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.sect)
+                + Objects.hashCode(this.iInProgress)
+                + Objects.hashCode(this.pace)
+                + Objects.hashCode(this.paceTrack)
+                + Objects.hashCode(this.paceOrder)
+                + Objects.hashCode(this.msNbr)
+                + Objects.hashCode(this.msUnit)
+                + Objects.hashCode(this.msDate)
+                + Objects.hashCode(this.newMsDate)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.rePoints);
     }
 
     /**

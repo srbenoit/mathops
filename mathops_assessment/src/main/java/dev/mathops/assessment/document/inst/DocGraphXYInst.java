@@ -197,9 +197,9 @@ public final class DocGraphXYInst extends AbstractPrimitiveContainerInst {
     public int hashCode() {
 
         return docPrimitiveContainerInstHashCode() + this.window.hashCode()
-                + EqualityTests.objectHashCode(this.grid)
-                + EqualityTests.objectHashCode(this.xAxis)
-                + EqualityTests.objectHashCode(this.yAxis);
+                + Objects.hashCode(this.grid)
+                + Objects.hashCode(this.xAxis)
+                + Objects.hashCode(this.yAxis);
     }
 
     /**

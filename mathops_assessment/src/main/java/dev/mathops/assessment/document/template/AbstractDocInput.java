@@ -452,10 +452,10 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
      */
     final int inputInnerHashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.enabledFormula)
-                + EqualityTests.objectHashCode(this.enabledVarName)
-                + EqualityTests.objectHashCode(this.enabledVarValue)
-                + EqualityTests.objectHashCode(this.name);
+        return innerHashCode() + Objects.hashCode(this.enabledFormula)
+                + Objects.hashCode(this.enabledVarName)
+                + Objects.hashCode(this.enabledVarValue)
+                + Objects.hashCode(this.name);
     }
 
     /**

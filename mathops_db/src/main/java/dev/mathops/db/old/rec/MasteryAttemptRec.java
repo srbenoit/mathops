@@ -233,16 +233,16 @@ public final class MasteryAttemptRec extends RecBase implements Comparable<Maste
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr) //
-                + EqualityTests.objectHashCode(this.examId) //
-                + EqualityTests.objectHashCode(this.stuId) //
-                + EqualityTests.objectHashCode(this.whenStarted) //
-                + EqualityTests.objectHashCode(this.whenFinished) //
-                + EqualityTests.objectHashCode(this.examScore) //
-                + EqualityTests.objectHashCode(this.masteryScore) //
-                + EqualityTests.objectHashCode(this.passed) //
-                + EqualityTests.objectHashCode(this.isFirstPassed) //
-                + EqualityTests.objectHashCode(this.examSource);
+        return Objects.hashCode(this.serialNbr) //
+                + Objects.hashCode(this.examId) //
+                + Objects.hashCode(this.stuId) //
+                + Objects.hashCode(this.whenStarted) //
+                + Objects.hashCode(this.whenFinished) //
+                + Objects.hashCode(this.examScore) //
+                + Objects.hashCode(this.masteryScore) //
+                + Objects.hashCode(this.passed) //
+                + Objects.hashCode(this.isFirstPassed) //
+                + Objects.hashCode(this.examSource);
     }
 
     /**

@@ -780,7 +780,7 @@ abstract class AbstractDocInputField extends AbstractDocInput {
      */
     final int fieldInnerHashCode() {
 
-        return inputInnerHashCode() + EqualityTests.objectHashCode(this.text);
+        return inputInnerHashCode() + Objects.hashCode(this.text);
     }
 
     /**

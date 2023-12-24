@@ -897,8 +897,8 @@ public final class DocTable extends AbstractDocContainer {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.objectData) + this.spacing << 5
-                + this.justification + EqualityTests.objectHashCode(this.backgroundColorName);
+        return innerHashCode() + Objects.hashCode(this.objectData) + this.spacing << 5
+                + this.justification + Objects.hashCode(this.backgroundColorName);
     }
 
     /**

@@ -201,9 +201,9 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     @Override
     public int hashCode() {
 
-        return this.groupCode.hashCode() + EqualityTests.objectHashCode(this.nbrCredits)
-                + EqualityTests.objectHashCode(this.lowestLastCourse)
-                + EqualityTests.objectHashCode(this.courseNumbers);
+        return this.groupCode.hashCode() + Objects.hashCode(this.nbrCredits)
+                + Objects.hashCode(this.lowestLastCourse)
+                + Objects.hashCode(this.courseNumbers);
     }
 
     /**

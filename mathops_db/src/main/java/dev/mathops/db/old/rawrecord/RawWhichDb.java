@@ -131,7 +131,7 @@ public final class RawWhichDb extends RecBase implements Comparable<RawWhichDb> 
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.descr);
+        return Objects.hashCode(this.descr);
     }
 
     /**

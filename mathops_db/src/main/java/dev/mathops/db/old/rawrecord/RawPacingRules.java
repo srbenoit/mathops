@@ -176,10 +176,10 @@ public final class RawPacingRules extends RawTermRecordBase implements Comparabl
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.pacingStructure)
-                + EqualityTests.objectHashCode(this.activityType)
-                + EqualityTests.objectHashCode(this.requirement);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.pacingStructure)
+                + Objects.hashCode(this.activityType)
+                + Objects.hashCode(this.requirement);
     }
 
     /**

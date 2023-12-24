@@ -273,7 +273,7 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public int hashCode() {
 
-        return docObjectHashCode() + EqualityTests.objectHashCode(this.spaceWidth);
+        return docObjectHashCode() + Objects.hashCode(this.spaceWidth);
     }
 
     /**

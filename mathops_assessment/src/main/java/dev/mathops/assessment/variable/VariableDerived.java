@@ -227,9 +227,9 @@ public final class VariableDerived extends AbstractFormattableVariable
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.min)
-                + EqualityTests.objectHashCode(this.max) + EqualityTests.objectHashCode(this.exclude)
-                + EqualityTests.objectHashCode(this.formula);
+        return innerHashCode() + Objects.hashCode(this.min)
+                + Objects.hashCode(this.max) + Objects.hashCode(this.exclude)
+                + Objects.hashCode(this.formula);
     }
 
     /**

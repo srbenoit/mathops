@@ -418,24 +418,24 @@ public final class RawClientPc extends RecBase implements Comparable<RawClientPc
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.computerId)
-                + EqualityTests.objectHashCode(this.testingCenterId)
-                + EqualityTests.objectHashCode(this.stationNbr)
-                + EqualityTests.objectHashCode(this.computerDesc)
-                + EqualityTests.objectHashCode(this.iconX)
-                + EqualityTests.objectHashCode(this.iconY)
-                + EqualityTests.objectHashCode(this.pcUsage)
-                + EqualityTests.objectHashCode(this.currentStatus)
-                + EqualityTests.objectHashCode(this.dtimeCreated)
-                + EqualityTests.objectHashCode(this.dtimeApproved)
-                + EqualityTests.objectHashCode(this.macAddress)
-                + EqualityTests.objectHashCode(this.powerStatus)
-                + EqualityTests.objectHashCode(this.powerOnDue)
-                + EqualityTests.objectHashCode(this.lastPing)
-                + EqualityTests.objectHashCode(this.currentStuId)
-                + EqualityTests.objectHashCode(this.currentCourse)
-                + EqualityTests.objectHashCode(this.currentUnit)
-                + EqualityTests.objectHashCode(this.currentVersion);
+        return Objects.hashCode(this.computerId)
+                + Objects.hashCode(this.testingCenterId)
+                + Objects.hashCode(this.stationNbr)
+                + Objects.hashCode(this.computerDesc)
+                + Objects.hashCode(this.iconX)
+                + Objects.hashCode(this.iconY)
+                + Objects.hashCode(this.pcUsage)
+                + Objects.hashCode(this.currentStatus)
+                + Objects.hashCode(this.dtimeCreated)
+                + Objects.hashCode(this.dtimeApproved)
+                + Objects.hashCode(this.macAddress)
+                + Objects.hashCode(this.powerStatus)
+                + Objects.hashCode(this.powerOnDue)
+                + Objects.hashCode(this.lastPing)
+                + Objects.hashCode(this.currentStuId)
+                + Objects.hashCode(this.currentCourse)
+                + Objects.hashCode(this.currentUnit)
+                + Objects.hashCode(this.currentVersion);
     }
 
     /**

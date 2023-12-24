@@ -190,34 +190,34 @@ public final class LiveStudent implements Serializable, Comparable<LiveStudent> 
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.studentId) //
-                + EqualityTests.objectHashCode(this.internalId) //
-                + EqualityTests.objectHashCode(this.lastName) //
-                + EqualityTests.objectHashCode(this.firstName) //
-                + EqualityTests.objectHashCode(this.prefFirstName) //
-                + EqualityTests.objectHashCode(this.middleInitial) //
-                + EqualityTests.objectHashCode(this.collegeCode) //
-                + EqualityTests.objectHashCode(this.departmentCode) //
-                + EqualityTests.objectHashCode(this.programCode) //
-                + EqualityTests.objectHashCode(this.majorCode) //
-                + EqualityTests.objectHashCode(this.minorCode) //
-                + EqualityTests.objectHashCode(this.highSchoolCode) //
-                + EqualityTests.objectHashCode(this.highSchoolGpa) //
-                + EqualityTests.objectHashCode(this.highSchoolClassRank) //
-                + EqualityTests.objectHashCode(this.highSchoolClassSize) //
-                + EqualityTests.objectHashCode(this.actScore) //
-                + EqualityTests.objectHashCode(this.satScore) //
-                + EqualityTests.objectHashCode(this.satrScore) //
-                + EqualityTests.objectHashCode(this.residency) //
-                + EqualityTests.objectHashCode(this.admitTerm) //
-                + EqualityTests.objectHashCode(this.admitType) //
-                + EqualityTests.objectHashCode(this.estGradDate) //
-                + EqualityTests.objectHashCode(this.birthDate) //
-                + EqualityTests.objectHashCode(this.gender) //
-                + EqualityTests.objectHashCode(this.email) //
-                + EqualityTests.objectHashCode(this.adviserEmail) //
-                + EqualityTests.objectHashCode(this.state) //
-                + EqualityTests.objectHashCode(this.campus);
+        return Objects.hashCode(this.studentId) //
+                + Objects.hashCode(this.internalId) //
+                + Objects.hashCode(this.lastName) //
+                + Objects.hashCode(this.firstName) //
+                + Objects.hashCode(this.prefFirstName) //
+                + Objects.hashCode(this.middleInitial) //
+                + Objects.hashCode(this.collegeCode) //
+                + Objects.hashCode(this.departmentCode) //
+                + Objects.hashCode(this.programCode) //
+                + Objects.hashCode(this.majorCode) //
+                + Objects.hashCode(this.minorCode) //
+                + Objects.hashCode(this.highSchoolCode) //
+                + Objects.hashCode(this.highSchoolGpa) //
+                + Objects.hashCode(this.highSchoolClassRank) //
+                + Objects.hashCode(this.highSchoolClassSize) //
+                + Objects.hashCode(this.actScore) //
+                + Objects.hashCode(this.satScore) //
+                + Objects.hashCode(this.satrScore) //
+                + Objects.hashCode(this.residency) //
+                + Objects.hashCode(this.admitTerm) //
+                + Objects.hashCode(this.admitType) //
+                + Objects.hashCode(this.estGradDate) //
+                + Objects.hashCode(this.birthDate) //
+                + Objects.hashCode(this.gender) //
+                + Objects.hashCode(this.email) //
+                + Objects.hashCode(this.adviserEmail) //
+                + Objects.hashCode(this.state) //
+                + Objects.hashCode(this.campus);
     }
 
     /**

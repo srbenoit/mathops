@@ -180,7 +180,7 @@ public final class AxisTicksSpec {
 
         return this.tickWidth + this.tickPosLength << 12 + this.tickNegLength << 24 + this.tickColor.hashCode()
                 + this.tickInterval.hashCode() + Float.hashCode(this.tickLabelSize)
-                + EqualityTests.objectHashCode(this.tickLabelColor);
+                + Objects.hashCode(this.tickLabelColor);
     }
 
     /**

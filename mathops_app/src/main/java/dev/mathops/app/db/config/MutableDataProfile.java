@@ -4,6 +4,7 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.config.DataProfile;
 import dev.mathops.db.config.ESchemaType;
 import dev.mathops.db.config.LoginConfig;
+import dev.mathops.db.config.SchemaLogin;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -51,12 +52,13 @@ public final class MutableDataProfile {
         this.schemaLogins = new EnumMap<>(ESchemaType.class);
 
         for (final ESchemaType schema : ESchemaType.values()) {
-            final LoginConfig login = source.getLogin(schema);
+            final SchemaLogin schemaLogin = source.getSchemaLogin(schema);
 
-            if (login == null) {
-                throw new IllegalArgumentException("Source object must have a login for every schema");
+            if (schemaLogin == null) {
+                throw new IllegalArgumentException("Source object must have a schema login for every schema");
             }
 
+            final LoginConfig login = schemaLogin.getLogin();
             final MutableLoginConfig mutableLogin = logins.get(login.id);
             this.schemaLogins.put(schema, mutableLogin);
         }

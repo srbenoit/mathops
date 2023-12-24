@@ -397,26 +397,26 @@ public final class RawApplicant extends RecBase implements Comparable<RawApplica
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.firstName)
-                + EqualityTests.objectHashCode(this.lastName)
-                + EqualityTests.objectHashCode(this.birthdate)
-                + EqualityTests.objectHashCode(this.ethnicity)
-                + EqualityTests.objectHashCode(this.gender)
-                + EqualityTests.objectHashCode(this.college)
-                + EqualityTests.objectHashCode(this.progStudy)
-                + EqualityTests.objectHashCode(this.hsCode)
-                + EqualityTests.objectHashCode(this.trCredits)
-                + EqualityTests.objectHashCode(this.resident)
-                + EqualityTests.objectHashCode(this.residentState)
-                + EqualityTests.objectHashCode(this.residentCounty)
-                + EqualityTests.objectHashCode(this.hsGpa)
-                + EqualityTests.objectHashCode(this.hsClassRank)
-                + EqualityTests.objectHashCode(this.hsSizeClass)
-                + EqualityTests.objectHashCode(this.actScore)
-                + EqualityTests.objectHashCode(this.satScore)
-                + EqualityTests.objectHashCode(this.pidm)
-                + EqualityTests.objectHashCode(this.aplnTerm);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.firstName)
+                + Objects.hashCode(this.lastName)
+                + Objects.hashCode(this.birthdate)
+                + Objects.hashCode(this.ethnicity)
+                + Objects.hashCode(this.gender)
+                + Objects.hashCode(this.college)
+                + Objects.hashCode(this.progStudy)
+                + Objects.hashCode(this.hsCode)
+                + Objects.hashCode(this.trCredits)
+                + Objects.hashCode(this.resident)
+                + Objects.hashCode(this.residentState)
+                + Objects.hashCode(this.residentCounty)
+                + Objects.hashCode(this.hsGpa)
+                + Objects.hashCode(this.hsClassRank)
+                + Objects.hashCode(this.hsSizeClass)
+                + Objects.hashCode(this.actScore)
+                + Objects.hashCode(this.satScore)
+                + Objects.hashCode(this.pidm)
+                + Objects.hashCode(this.aplnTerm);
     }
 
     /**

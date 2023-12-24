@@ -146,8 +146,8 @@ public final class AxisSpec {
     @Override
     public int hashCode() {
 
-        return this.axisStyle.hashCode() + EqualityTests.objectHashCode(this.label) + Float.hashCode(this.labelSize)
-                + EqualityTests.objectHashCode(this.labelColor) + EqualityTests.objectHashCode(this.ticks);
+        return this.axisStyle.hashCode() + Objects.hashCode(this.label) + Float.hashCode(this.labelSize)
+                + Objects.hashCode(this.labelColor) + Objects.hashCode(this.ticks);
     }
 
     /**

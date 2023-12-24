@@ -189,8 +189,8 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.doc) + this.choiceId << 16
-                + EqualityTests.objectHashCode(this.correct) + this.pos;
+        return Objects.hashCode(this.doc) + this.choiceId << 16
+                + Objects.hashCode(this.correct) + this.pos;
     }
 
     /**

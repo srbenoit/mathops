@@ -273,16 +273,16 @@ public final class RawStlessonAssign extends RecBase implements Comparable<RawSt
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.lessonId)
-                + EqualityTests.objectHashCode(this.whenShown)
-                + EqualityTests.objectHashCode(this.whenOpen)
-                + EqualityTests.objectHashCode(this.whenClosed)
-                + EqualityTests.objectHashCode(this.whenHidden)
-                + EqualityTests.objectHashCode(this.whenStarted)
-                + EqualityTests.objectHashCode(this.whenFinished)
-                + EqualityTests.objectHashCode(this.scoreTenths);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.lessonId)
+                + Objects.hashCode(this.whenShown)
+                + Objects.hashCode(this.whenOpen)
+                + Objects.hashCode(this.whenClosed)
+                + Objects.hashCode(this.whenHidden)
+                + Objects.hashCode(this.whenStarted)
+                + Objects.hashCode(this.whenFinished)
+                + Objects.hashCode(this.scoreTenths);
     }
 
     /**

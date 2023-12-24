@@ -171,7 +171,7 @@ public abstract class AbstractFormattableVariable extends AbstractVariable {
     @Override
     protected final int innerHashCode() {
 
-        return super.innerHashCode() + EqualityTests.objectHashCode(this.formatPattern);
+        return super.innerHashCode() + Objects.hashCode(this.formatPattern);
     }
 
     /**

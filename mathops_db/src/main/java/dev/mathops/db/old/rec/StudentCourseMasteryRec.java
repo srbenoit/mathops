@@ -208,14 +208,14 @@ public final class StudentCourseMasteryRec extends RecBase
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId) //
-                + EqualityTests.objectHashCode(this.courseId) //
-                + EqualityTests.objectHashCode(this.score) //
-                + EqualityTests.objectHashCode(this.nbrMasteredH1) //
-                + EqualityTests.objectHashCode(this.nbrMasteredH2) //
-                + EqualityTests.objectHashCode(this.nbrEligible) //
-                + EqualityTests.objectHashCode(this.explor1Status) //
-                + EqualityTests.objectHashCode(this.explor2Status);
+        return Objects.hashCode(this.stuId) //
+                + Objects.hashCode(this.courseId) //
+                + Objects.hashCode(this.score) //
+                + Objects.hashCode(this.nbrMasteredH1) //
+                + Objects.hashCode(this.nbrMasteredH2) //
+                + Objects.hashCode(this.nbrEligible) //
+                + Objects.hashCode(this.explor1Status) //
+                + Objects.hashCode(this.explor2Status);
     }
 
     /**

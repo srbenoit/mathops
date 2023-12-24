@@ -214,13 +214,13 @@ public final class RawEtext extends RecBase implements Comparable<RawEtext> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.etextId)
-                + EqualityTests.objectHashCode(this.retention)
-                + EqualityTests.objectHashCode(this.purchaseUrl)
-                + EqualityTests.objectHashCode(this.refundPeriod)
-                + EqualityTests.objectHashCode(this.keyEntry)
-                + EqualityTests.objectHashCode(this.active)
-                + EqualityTests.objectHashCode(this.buttonLabel);
+        return Objects.hashCode(this.etextId)
+                + Objects.hashCode(this.retention)
+                + Objects.hashCode(this.purchaseUrl)
+                + Objects.hashCode(this.refundPeriod)
+                + Objects.hashCode(this.keyEntry)
+                + Objects.hashCode(this.active)
+                + Objects.hashCode(this.buttonLabel);
     }
 
     /**

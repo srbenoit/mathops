@@ -226,13 +226,13 @@ public final class RawStcuobjective extends RecBase implements Comparable<RawStc
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.objective)
-                + EqualityTests.objectHashCode(this.lectureViewedDt)
-                + EqualityTests.objectHashCode(this.seed)
-                + EqualityTests.objectHashCode(this.lastComponentFinished);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.objective)
+                + Objects.hashCode(this.lectureViewedDt)
+                + Objects.hashCode(this.seed)
+                + Objects.hashCode(this.lastComponentFinished);
     }
 
     /**

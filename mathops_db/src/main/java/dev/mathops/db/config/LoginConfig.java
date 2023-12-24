@@ -1,7 +1,6 @@
 package dev.mathops.db.config;
 
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 
@@ -18,9 +17,6 @@ public final class LoginConfig {
     /** The ID attribute. */
     private static final String ID_ATTR = "id";
 
-    /** The server ID attribute. */
-    private static final String SERVER_ATTR = "server";
-
     /** The user attribute. */
     private static final String USER_ATTR = "user";
 
@@ -30,38 +26,30 @@ public final class LoginConfig {
     /** The ID of the configuration (unique among all loaded configurations). */
     public final String id;
 
-    /** The ID of the server configuration to which this login applies. */
-    public final String server;
-
     /** The login username. */
-    public String user;
+    public final String user;
 
     /** The login password. */
-    public String password;
+    public final String password;
 
     /**
      * Constructs a new {@code LoginConfig}.
      *
      * @param theId       the login configuration ID
-     * @param theServer   the server configuration to which this login applies
      * @param theUser     the login username
      * @param thePassword the login password
      */
-    public LoginConfig(final String theId, final String theServer, final String theUser,
+    public LoginConfig(final String theId, final String theUser,
                        final String thePassword) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Login ID may not be null or blank.");
-        }
-        if (theServer == null || theId.isBlank()) {
-            throw new IllegalArgumentException("Server ID may not be null or blank");
         }
         if (theUser == null || theUser.isBlank()) {
             throw new IllegalArgumentException("Login user name may not be null or blank.");
         }
 
         this.id = theId;
-        this.server = theServer;
         this.user = theUser;
         this.password = thePassword;
     }
@@ -82,13 +70,6 @@ public final class LoginConfig {
                 throw new ParsingException(theElem, "Login ID may not be null or blank.");
             }
 
-            this.server = theElem.getRequiredStringAttr(SERVER_ATTR);
-            if (!servers.containsKey(this.server)) {
-                final String msg = SimpleBuilder.concat("Server '", this.server,
-                        "' referenced in login is not defined");
-                throw new ParsingException(theElem, msg);
-            }
-
             this.user = theElem.getRequiredStringAttr(USER_ATTR);
             if (this.user == null || this.user.isBlank()) {
                 throw new ParsingException(theElem, "Login user name may not be null or blank.");
@@ -105,7 +86,7 @@ public final class LoginConfig {
 
     /**
      * Tests whether this {@code LoginConfig} is equal to another object. To be equal, the other object must be a
-     * {@code LoginConfig} with the same ID as this object.
+     * {@code LoginConfig} with the same ID and username as this object.
      *
      * @param obj the object against which to compare this object for equality
      * @return {@code true} if the objects are equal; {@code false} if not
@@ -116,7 +97,7 @@ public final class LoginConfig {
         final boolean equal;
 
         if (obj instanceof final LoginConfig test) {
-            equal = test.id.equals(this.id);
+            equal = test.id.equals(this.id) && test.user.equals(this.user);
         } else {
             equal = false;
         }
@@ -132,7 +113,7 @@ public final class LoginConfig {
     @Override
     public int hashCode() {
 
-        return this.id.hashCode();
+        return this.id.hashCode() + this.user.hashCode();
     }
 
     /**
@@ -145,8 +126,7 @@ public final class LoginConfig {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add("LoginConfig{id='", this.id, "',server='", this.server, "',user='", this.user, "',password='",
-                this.password, "'");
+        builder.add("LoginConfig{id='", this.id, "',user='", this.user, "',password='", this.password, "'");
 
         return builder.toString();
     }

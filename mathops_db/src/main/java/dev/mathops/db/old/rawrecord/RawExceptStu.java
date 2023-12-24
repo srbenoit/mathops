@@ -226,14 +226,14 @@ public final class RawExceptStu extends RawTermRecordBase implements Comparable<
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.courseEnroll)
-                + EqualityTests.objectHashCode(this.hworkStatus)
-                + EqualityTests.objectHashCode(this.sect)
-                + EqualityTests.objectHashCode(this.sectEnroll);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.courseEnroll)
+                + Objects.hashCode(this.hworkStatus)
+                + Objects.hashCode(this.sect)
+                + Objects.hashCode(this.sectEnroll);
     }
 
     /**

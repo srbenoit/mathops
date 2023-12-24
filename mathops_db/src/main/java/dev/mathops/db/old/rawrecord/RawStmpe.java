@@ -446,25 +446,25 @@ public final class RawStmpe extends RecBase implements Comparable<RawStmpe> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.academicYr)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.lastName)
-                + EqualityTests.objectHashCode(this.firstName)
-                + EqualityTests.objectHashCode(this.middleInitial)
-                + EqualityTests.objectHashCode(this.seqNbr)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.stsA)
-                + EqualityTests.objectHashCode(this.sts117)
-                + EqualityTests.objectHashCode(this.sts118)
-                + EqualityTests.objectHashCode(this.sts124)
-                + EqualityTests.objectHashCode(this.sts125)
-                + EqualityTests.objectHashCode(this.sts126)
-                + EqualityTests.objectHashCode(this.placed)
-                + EqualityTests.objectHashCode(this.howValidated);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.academicYr)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.lastName)
+                + Objects.hashCode(this.firstName)
+                + Objects.hashCode(this.middleInitial)
+                + Objects.hashCode(this.seqNbr)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.stsA)
+                + Objects.hashCode(this.sts117)
+                + Objects.hashCode(this.sts118)
+                + Objects.hashCode(this.sts124)
+                + Objects.hashCode(this.sts125)
+                + Objects.hashCode(this.sts126)
+                + Objects.hashCode(this.placed)
+                + Objects.hashCode(this.howValidated);
     }
 
     /**

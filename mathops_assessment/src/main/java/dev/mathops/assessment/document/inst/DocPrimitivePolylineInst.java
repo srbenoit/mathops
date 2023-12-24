@@ -159,7 +159,7 @@ public final class DocPrimitivePolylineInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return Arrays.hashCode(this.x) + Arrays.hashCode(this.y) + EqualityTests.objectHashCode(this.strokeStyle);
+        return Arrays.hashCode(this.x) + Arrays.hashCode(this.y) + Objects.hashCode(this.strokeStyle);
     }
 
     /**

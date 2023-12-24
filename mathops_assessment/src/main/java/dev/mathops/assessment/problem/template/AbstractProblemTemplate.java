@@ -494,10 +494,10 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject
      */
     final int innerHashCode() {
 
-        return EqualityTests.objectHashCode(this.ref)
-                + EqualityTests.objectHashCode(this.evalContext)
-                + EqualityTests.objectHashCode(this.question)
-                + EqualityTests.objectHashCode(this.solution);
+        return Objects.hashCode(this.ref)
+                + Objects.hashCode(this.evalContext)
+                + Objects.hashCode(this.question)
+                + Objects.hashCode(this.solution);
     }
 
     /**

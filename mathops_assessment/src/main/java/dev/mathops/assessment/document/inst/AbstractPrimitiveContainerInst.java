@@ -172,9 +172,9 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     final int docPrimitiveContainerInstHashCode() {
 
         return docObjectInstHashCode() + this.width + this.height
-                + EqualityTests.objectHashCode(this.altText)
-                + EqualityTests.objectHashCode(this.border)
-                + EqualityTests.objectHashCode(this.primitives);
+                + Objects.hashCode(this.altText)
+                + Objects.hashCode(this.border)
+                + Objects.hashCode(this.primitives);
     }
 
     /**

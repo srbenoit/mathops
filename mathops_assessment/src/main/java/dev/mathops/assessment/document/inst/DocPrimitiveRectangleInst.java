@@ -134,8 +134,8 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return this.bounds.hashCode() + EqualityTests.objectHashCode(this.strokeStyle)
-                + EqualityTests.objectHashCode(this.fillStyle);
+        return this.bounds.hashCode() + Objects.hashCode(this.strokeStyle)
+                + Objects.hashCode(this.fillStyle);
     }
 
     /**

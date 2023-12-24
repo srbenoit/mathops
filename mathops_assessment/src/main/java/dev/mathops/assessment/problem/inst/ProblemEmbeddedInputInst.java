@@ -57,8 +57,8 @@ public final class ProblemEmbeddedInputInst extends AbstractProblemInst {
     @Override
     public int hashCode() {
 
-        return problemInstHashCode() + EqualityTests.objectHashCode(this.correctness)
-                + EqualityTests.objectHashCode(this.correctAnswer);
+        return problemInstHashCode() + Objects.hashCode(this.correctness)
+                + Objects.hashCode(this.correctAnswer);
     }
 
     /**

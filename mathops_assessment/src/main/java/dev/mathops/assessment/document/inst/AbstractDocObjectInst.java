@@ -162,7 +162,7 @@ public abstract class AbstractDocObjectInst {
 
         // NOTE: "parent" does not participate in equality comparisons, so it is not included in hash calculation
 
-        return EqualityTests.objectHashCode(this.style) + EqualityTests.objectHashCode(this.bgColorName);
+        return Objects.hashCode(this.style) + Objects.hashCode(this.bgColorName);
     }
 
     /**

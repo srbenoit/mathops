@@ -234,11 +234,11 @@ public final class RuleSetRec extends RecBase implements Comparable<RuleSetRec> 
     @Override
     public int hashCode() {
 
-        return this.ruleSetId.hashCode() + EqualityTests.objectHashCode(this.ruleSetName)
-                + EqualityTests.objectHashCode(this.scheduleSource)
+        return this.ruleSetId.hashCode() + Objects.hashCode(this.ruleSetName)
+                + Objects.hashCode(this.scheduleSource)
                 + this.maxCourses.hashCode() + this.nbrOpenAllowed.hashCode()
                 + this.requireLicensed.hashCode() + this.allowInc.hashCode()
-                + EqualityTests.objectHashCode(this.incMinCompleted);
+                + Objects.hashCode(this.incMinCompleted);
     }
 
     /**

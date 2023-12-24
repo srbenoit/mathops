@@ -311,18 +311,18 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.courseNumber)
-                + EqualityTests.objectHashCode(this.title)
-                + EqualityTests.objectHashCode(this.description)
-                + EqualityTests.objectHashCode(this.registrationInfo)
-                + EqualityTests.objectHashCode(this.restriction)
-                + EqualityTests.objectHashCode(this.termsOffered)
-                + EqualityTests.objectHashCode(this.gradeMode)
-                + EqualityTests.objectHashCode(this.specialCourseFee)
-                + EqualityTests.objectHashCode(this.additionalInfo)
-                + EqualityTests.objectHashCode(this.gtCode)
-                + EqualityTests.objectHashCode(this.minCredits)
-                + EqualityTests.objectHashCode(this.maxCredits);
+        return Objects.hashCode(this.courseNumber)
+                + Objects.hashCode(this.title)
+                + Objects.hashCode(this.description)
+                + Objects.hashCode(this.registrationInfo)
+                + Objects.hashCode(this.restriction)
+                + Objects.hashCode(this.termsOffered)
+                + Objects.hashCode(this.gradeMode)
+                + Objects.hashCode(this.specialCourseFee)
+                + Objects.hashCode(this.additionalInfo)
+                + Objects.hashCode(this.gtCode)
+                + Objects.hashCode(this.minCredits)
+                + Objects.hashCode(this.maxCredits);
     }
 
     /**

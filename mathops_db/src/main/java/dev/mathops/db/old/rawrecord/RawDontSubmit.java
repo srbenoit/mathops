@@ -156,9 +156,9 @@ public final class RawDontSubmit extends RawTermRecordBase implements Comparable
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.sect);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.sect);
     }
 
     /**

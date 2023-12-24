@@ -73,9 +73,9 @@ public final class RequiredPrereq implements Serializable, Comparable<RequiredPr
     @Override
     public int hashCode() {
 
-        return this.courseId.hashCode() + EqualityTests.objectHashCode(this.mayBeConcurrent)
-                + EqualityTests.objectHashCode(this.prereqCourses)
-                + EqualityTests.objectHashCode(this.prereqGrades);
+        return this.courseId.hashCode() + Objects.hashCode(this.mayBeConcurrent)
+                + Objects.hashCode(this.prereqCourses)
+                + Objects.hashCode(this.prereqGrades);
     }
 
     /**

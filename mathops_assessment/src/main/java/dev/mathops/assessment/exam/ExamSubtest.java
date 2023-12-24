@@ -142,8 +142,8 @@ public final class ExamSubtest extends AbstractXmlObject {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.subtestName)
-                + EqualityTests.objectHashCode(this.examSubtestProblems);
+        return Objects.hashCode(this.subtestName)
+                + Objects.hashCode(this.examSubtestProblems);
     }
 
     /**

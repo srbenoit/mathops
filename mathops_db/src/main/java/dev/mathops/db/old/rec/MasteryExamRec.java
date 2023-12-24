@@ -239,16 +239,16 @@ public final class MasteryExamRec extends RecBase implements Comparable<MasteryE
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.examId) //
-                + EqualityTests.objectHashCode(this.examType) //
-                + EqualityTests.objectHashCode(this.courseId) //
-                + EqualityTests.objectHashCode(this.unit) //
-                + EqualityTests.objectHashCode(this.objective) //
-                + EqualityTests.objectHashCode(this.treeRef) //
-                + EqualityTests.objectHashCode(this.title) //
-                + EqualityTests.objectHashCode(this.buttonLabel) //
-                + EqualityTests.objectHashCode(this.whenActive) //
-                + EqualityTests.objectHashCode(this.whenPulled);
+        return Objects.hashCode(this.examId) //
+                + Objects.hashCode(this.examType) //
+                + Objects.hashCode(this.courseId) //
+                + Objects.hashCode(this.unit) //
+                + Objects.hashCode(this.objective) //
+                + Objects.hashCode(this.treeRef) //
+                + Objects.hashCode(this.title) //
+                + Objects.hashCode(this.buttonLabel) //
+                + Objects.hashCode(this.whenActive) //
+                + Objects.hashCode(this.whenPulled);
     }
 
     /**

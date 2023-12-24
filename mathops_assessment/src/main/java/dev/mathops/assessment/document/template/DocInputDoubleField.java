@@ -654,9 +654,9 @@ public final class DocInputDoubleField extends AbstractDocInputField {
     public int hashCode() {
 
         return fieldInnerHashCode()
-                + EqualityTests.objectHashCode(this.value)
-                + EqualityTests.objectHashCode(this.defaultValue)
-                + EqualityTests.objectHashCode(this.minusAs);
+                + Objects.hashCode(this.value)
+                + Objects.hashCode(this.defaultValue)
+                + Objects.hashCode(this.minusAs);
     }
 
     /**

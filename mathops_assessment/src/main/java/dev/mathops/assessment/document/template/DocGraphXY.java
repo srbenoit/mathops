@@ -999,27 +999,27 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     public int hashCode() {
 
         return primitiveContainerHashCode()
-                + EqualityTests.objectHashCode(this.windowMinX)
-                + EqualityTests.objectHashCode(this.windowMaxX)
-                + EqualityTests.objectHashCode(this.windowMinY)
-                + EqualityTests.objectHashCode(this.windowMaxY)
-                + EqualityTests.objectHashCode(this.xTickInterval)
-                + EqualityTests.objectHashCode(this.yTickInterval)
-                + EqualityTests.objectHashCode(this.backgroundColorName)
+                + Objects.hashCode(this.windowMinX)
+                + Objects.hashCode(this.windowMaxX)
+                + Objects.hashCode(this.windowMinY)
+                + Objects.hashCode(this.windowMaxY)
+                + Objects.hashCode(this.xTickInterval)
+                + Objects.hashCode(this.yTickInterval)
+                + Objects.hashCode(this.backgroundColorName)
                 + this.borderWidth
-                + EqualityTests.objectHashCode(this.borderColorName)
+                + Objects.hashCode(this.borderColorName)
                 + this.gridWidth
-                + EqualityTests.objectHashCode(this.gridColorName)
+                + Objects.hashCode(this.gridColorName)
                 + this.tickWidth
-                + EqualityTests.objectHashCode(this.tickColorName)
+                + Objects.hashCode(this.tickColorName)
                 + this.tickSize
                 + this.axisWidth
-                + EqualityTests.objectHashCode(this.axisColorName)
+                + Objects.hashCode(this.axisColorName)
                 + this.axisLabelSize
                 + this.tickLabelSize
-                + EqualityTests.objectHashCode(this.xAxisLabel)
-                + EqualityTests.objectHashCode(this.yAxisLabel)
-                + EqualityTests.objectHashCode(getPrimitives());
+                + Objects.hashCode(this.xAxisLabel)
+                + Objects.hashCode(this.yAxisLabel)
+                + Objects.hashCode(getPrimitives());
     }
 
     /**

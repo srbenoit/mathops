@@ -65,13 +65,22 @@ final class Res extends ResBundle {
     static final String SRV_CFG_BAD_TYPE = key(index++);
 
     /** A resource key. */
-    static final String SRV_CFG_BAD_SCHEMA = key(index++);
-
-    /** A resource key. */
     static final String SRV_CFG_CANT_CONNECT = key(index++);
 
     /** A resource key. */
     static final String SRV_CFG_DUP_LOGIN_ID = key(index++);
+
+    // Used by DbConfig
+
+    /** A resource key. */
+    static final String DB_CFG_BAD_ELEM_TAG = key(index++);
+
+    /** A resource key. */
+    static final String DB_CFG_BAD_SCHEMA = key(index++);
+
+    /** A resource key. */
+    static final String DB_CFG_BAD_USE = key(index++);
+
 
     // Used by LoginConfig
 
@@ -97,6 +106,20 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String PROF_CFG_BAD_CHILD_LOGIN = key(index++);
 
+    // Used by SchemaLogin
+
+    /** A resource key. */
+    static final String SCH_LOGIN_BAD_ELEM_TAG = key(index++);
+
+    /** A resource key. */
+    static final String SCH_LOGIN_BAD_SCHEMA = key(index++);
+
+    /** A resource key. */
+    static final String SCH_LOGIN_BAD_DB = key(index++);
+
+    /** A resource key. */
+    static final String SCH_LOGIN_BAD_LOGIN = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -119,9 +142,12 @@ final class Res extends ResBundle {
 
             {SRV_CFG_BAD_ELEM_TAG, "A server configuration must be in an element with tag 'server'"},
             {SRV_CFG_BAD_TYPE, "Invalid type in 'server' tag: {0}"},
-            {SRV_CFG_BAD_SCHEMA, "Invalid schema in 'server' tag: {0}"},
             {SRV_CFG_CANT_CONNECT, "Failed to connect to server {0} ({1}:{2})"},
             {SRV_CFG_DUP_LOGIN_ID, "Duplicated login ID {0}"},
+
+            {DB_CFG_BAD_ELEM_TAG, "A DB configuration must be in an element with tag 'db'"},
+            {DB_CFG_BAD_SCHEMA, "Invalid schema in 'db' tag: {0}"},
+            {DB_CFG_BAD_USE, "Invalid use in 'db' tag: {0}"},
 
             {LOGIN_CFG_BAD_ELEM_TAG, "A login configuration must be in an element with tag 'login'"},
 
@@ -130,8 +156,11 @@ final class Res extends ResBundle {
             {PROF_CFG_BAD_ELEM_TAG, "A profile configuration must be in an element with tag 'profile'"},
             {PROF_CFG_BAD_CHILD_ELEM_TAG,
                     "A child of a profile configuration must be an element with tag 'schema-login'"},
-            {PROF_CFG_BAD_CHILD_SCHEMA, "Unrecognized schema in schema-login: {0}"},
-            {PROF_CFG_BAD_CHILD_LOGIN, "Unrecognized login in schema-login: {0}"},
+
+            {SCH_LOGIN_BAD_ELEM_TAG, "A schema login must be in an element with tag 'schema-login'"},
+            {SCH_LOGIN_BAD_SCHEMA, "Unrecognized schema in schema-login: {0}"},
+            {SCH_LOGIN_BAD_DB, "Unrecognized DB in schema-login: {0}"},
+            {SCH_LOGIN_BAD_LOGIN, "Unrecognized login in schema-login: {0}"},
 
             //
     };

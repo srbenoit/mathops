@@ -245,14 +245,14 @@ public final class RawMpecrDenied extends RecBase implements Comparable<RawMpecr
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.examPlaced)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.whyDenied)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examSource);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.examPlaced)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.whyDenied)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examSource);
     }
 
     /**

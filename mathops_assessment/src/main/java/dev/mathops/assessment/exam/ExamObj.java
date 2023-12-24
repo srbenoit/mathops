@@ -968,22 +968,22 @@ public final class ExamObj extends AbstractXmlObject {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.evalContext)
-                + EqualityTests.objectHashCode(this.ref)
-                + EqualityTests.objectHashCode(this.refRoot)
-                + EqualityTests.objectHashCode(this.examName)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.courseUnit)
-                + EqualityTests.objectHashCode(this.examVersion)
-                + EqualityTests.objectHashCode(this.instructions)
-                + EqualityTests.objectHashCode(this.allowedSeconds)
-                + EqualityTests.objectHashCode(this.examSections)
-                + EqualityTests.objectHashCode(this.examSubtests)
-                + EqualityTests.objectHashCode(this.examGradingRules)
-                + EqualityTests.objectHashCode(this.examOutcomes)
-                + EqualityTests.objectHashCode(this.backgroundColorName)
-                + EqualityTests.objectHashCode(this.backgroundColor)
-                + EqualityTests.objectHashCode(this.serialNumber);
+        return Objects.hashCode(this.evalContext)
+                + Objects.hashCode(this.ref)
+                + Objects.hashCode(this.refRoot)
+                + Objects.hashCode(this.examName)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.courseUnit)
+                + Objects.hashCode(this.examVersion)
+                + Objects.hashCode(this.instructions)
+                + Objects.hashCode(this.allowedSeconds)
+                + Objects.hashCode(this.examSections)
+                + Objects.hashCode(this.examSubtests)
+                + Objects.hashCode(this.examGradingRules)
+                + Objects.hashCode(this.examOutcomes)
+                + Objects.hashCode(this.backgroundColorName)
+                + Objects.hashCode(this.backgroundColor)
+                + Objects.hashCode(this.serialNumber);
     }
 
     /**

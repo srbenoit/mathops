@@ -3,6 +3,8 @@ package dev.mathops.assessment.problem.inst;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.core.EqualityTests;
 
+import java.util.Objects;
+
 /**
  * A single choice for an iteration of a multiple choice or multiple selection problem.
  */
@@ -44,7 +46,7 @@ public final class ProblemChoiceInst {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.doc) + this.choiceId + Boolean.hashCode(this.correct);
+        return Objects.hashCode(this.doc) + this.choiceId + Boolean.hashCode(this.correct);
     }
 
     /**

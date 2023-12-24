@@ -883,9 +883,9 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
     @Override
     public int hashCode() {
 
-        return mcInnerHashCode() + EqualityTests.objectHashCode(this.selectedChoiceList)
-                + EqualityTests.objectHashCode(this.minCorrect)
-                + EqualityTests.objectHashCode(this.maxCorrect);
+        return mcInnerHashCode() + Objects.hashCode(this.selectedChoiceList)
+                + Objects.hashCode(this.minCorrect)
+                + Objects.hashCode(this.maxCorrect);
     }
 
     /**

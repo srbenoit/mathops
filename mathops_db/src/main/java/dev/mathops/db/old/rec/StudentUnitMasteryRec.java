@@ -209,14 +209,14 @@ public final class StudentUnitMasteryRec extends RecBase implements Comparable<S
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId) //
-                + EqualityTests.objectHashCode(this.courseId) //
-                + EqualityTests.objectHashCode(this.unit) //
-                + EqualityTests.objectHashCode(this.score) //
-                + EqualityTests.objectHashCode(this.srStatus) //
-                + EqualityTests.objectHashCode(this.s1Status) //
-                + EqualityTests.objectHashCode(this.s2Status) //
-                + EqualityTests.objectHashCode(this.s3Status);
+        return Objects.hashCode(this.stuId) //
+                + Objects.hashCode(this.courseId) //
+                + Objects.hashCode(this.unit) //
+                + Objects.hashCode(this.score) //
+                + Objects.hashCode(this.srStatus) //
+                + Objects.hashCode(this.s1Status) //
+                + Objects.hashCode(this.s2Status) //
+                + Objects.hashCode(this.s3Status);
     }
 
     /**

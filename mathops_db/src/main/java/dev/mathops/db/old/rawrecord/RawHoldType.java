@@ -184,11 +184,11 @@ public final class RawHoldType extends RecBase implements Comparable<RawHoldType
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.holdId)
-                + EqualityTests.objectHashCode(this.sevAdminHold)
-                + EqualityTests.objectHashCode(this.holdType)
-                + EqualityTests.objectHashCode(this.addHold)
-                + EqualityTests.objectHashCode(this.deleteHold);
+        return Objects.hashCode(this.holdId)
+                + Objects.hashCode(this.sevAdminHold)
+                + Objects.hashCode(this.holdType)
+                + Objects.hashCode(this.addHold)
+                + Objects.hashCode(this.deleteHold);
     }
 
     /**

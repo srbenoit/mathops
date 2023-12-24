@@ -132,7 +132,7 @@ final class SimplePrerequisiteNode extends AbstractPrerequisiteNode {
     @Override
     public int hashCode() {
 
-        return this.courseNumber.hashCode() + EqualityTests.objectHashCode(this.minGrade)
+        return this.courseNumber.hashCode() + Objects.hashCode(this.minGrade)
                 + Boolean.hashCode(this.concurrentAllowed);
     }
 

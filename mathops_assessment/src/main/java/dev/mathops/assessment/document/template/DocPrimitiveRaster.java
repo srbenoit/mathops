@@ -600,12 +600,12 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.xCoord)
-                + EqualityTests.objectHashCode(this.yCoord)
-                + EqualityTests.objectHashCode(this.width)
-                + EqualityTests.objectHashCode(this.height)
-                + EqualityTests.objectHashCode(this.source)
-                + EqualityTests.objectHashCode(this.alpha);
+        return Objects.hashCode(this.xCoord)
+                + Objects.hashCode(this.yCoord)
+                + Objects.hashCode(this.width)
+                + Objects.hashCode(this.height)
+                + Objects.hashCode(this.source)
+                + Objects.hashCode(this.alpha);
     }
 
     /**

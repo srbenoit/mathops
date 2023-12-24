@@ -159,10 +159,10 @@ public final class MasteryAttemptQaRec extends RecBase implements Comparable<Mas
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr) //
-                + EqualityTests.objectHashCode(this.examId) //
-                + EqualityTests.objectHashCode(this.questionNbr) //
-                + EqualityTests.objectHashCode(this.correct); //
+        return Objects.hashCode(this.serialNbr) //
+                + Objects.hashCode(this.examId) //
+                + Objects.hashCode(this.questionNbr) //
+                + Objects.hashCode(this.correct); //
     }
 
     /**

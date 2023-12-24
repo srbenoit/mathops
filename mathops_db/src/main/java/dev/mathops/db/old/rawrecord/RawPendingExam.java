@@ -334,21 +334,21 @@ public final class RawPendingExam extends RecBase implements Comparable<RawPendi
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.examScore)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.timeOk)
-                + EqualityTests.objectHashCode(this.passed)
-                + EqualityTests.objectHashCode(this.seqNbr)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.examType)
-                + EqualityTests.objectHashCode(this.timelimitFactor)
-                + EqualityTests.objectHashCode(this.stuType);
+        return Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.examScore)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.timeOk)
+                + Objects.hashCode(this.passed)
+                + Objects.hashCode(this.seqNbr)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.examType)
+                + Objects.hashCode(this.timelimitFactor)
+                + Objects.hashCode(this.stuType);
     }
 
     /**

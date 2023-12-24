@@ -182,10 +182,10 @@ public final class RawPlcFee extends RecBase implements Comparable<RawPlcFee> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.billDt);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.billDt);
     }
 
     /**

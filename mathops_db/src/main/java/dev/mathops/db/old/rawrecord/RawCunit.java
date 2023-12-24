@@ -239,15 +239,15 @@ public final class RawCunit extends RawTermRecordBase implements Comparable<RawC
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.unitExamWgt)
-                + EqualityTests.objectHashCode(this.unitDesc)
-                + EqualityTests.objectHashCode(this.unitTimelimit)
-                + EqualityTests.objectHashCode(this.possibleScore)
-                + EqualityTests.objectHashCode(this.nbrQuestions)
-                + EqualityTests.objectHashCode(this.unitType);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.unitExamWgt)
+                + Objects.hashCode(this.unitDesc)
+                + Objects.hashCode(this.unitTimelimit)
+                + Objects.hashCode(this.possibleScore)
+                + Objects.hashCode(this.nbrQuestions)
+                + Objects.hashCode(this.unitType);
     }
 
     /**

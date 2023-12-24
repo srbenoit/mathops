@@ -113,7 +113,7 @@ public final class RawItem extends RecBase implements Comparable<RawItem> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.itemId);
+        return Objects.hashCode(this.itemId);
     }
 
     /**

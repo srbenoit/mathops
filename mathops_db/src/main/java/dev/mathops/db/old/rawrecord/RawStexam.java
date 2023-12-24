@@ -479,23 +479,23 @@ public final class RawStexam extends RecBase implements Comparable<RawStexam> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.examScore)
-                + EqualityTests.objectHashCode(this.masteryScore)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.timeOk)
-                + EqualityTests.objectHashCode(this.passed)
-                + EqualityTests.objectHashCode(this.seqNbr)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.examType)
-                + EqualityTests.objectHashCode(this.isFirstPassed)
-                + EqualityTests.objectHashCode(this.examSource)
-                + EqualityTests.objectHashCode(this.calcNbr);
+        return Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.examScore)
+                + Objects.hashCode(this.masteryScore)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.timeOk)
+                + Objects.hashCode(this.passed)
+                + Objects.hashCode(this.seqNbr)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.examType)
+                + Objects.hashCode(this.isFirstPassed)
+                + Objects.hashCode(this.examSource)
+                + Objects.hashCode(this.calcNbr);
     }
 
     /**

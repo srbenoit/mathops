@@ -392,26 +392,26 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.sect)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.timeout)
-                + EqualityTests.objectHashCode(this.reMasteryScore)
-                + EqualityTests.objectHashCode(this.ueMasteryScore)
-                + EqualityTests.objectHashCode(this.hwMasteryScore)
-                + EqualityTests.objectHashCode(this.hwMoveonScore)
-                + EqualityTests.objectHashCode(this.nbrAtmptsAllow)
-                + EqualityTests.objectHashCode(this.atmptsPerReview)
-                + EqualityTests.objectHashCode(this.firstTestDt)
-                + EqualityTests.objectHashCode(this.lastTestDt)
-                + EqualityTests.objectHashCode(this.beginTestPeriod)
-                + EqualityTests.objectHashCode(this.endTestPeriod)
-                + EqualityTests.objectHashCode(this.couponCost)
-                + EqualityTests.objectHashCode(this.lastCouponDt)
-                + EqualityTests.objectHashCode(this.showTestWindow)
-                + EqualityTests.objectHashCode(this.unproctoredExam)
-                + EqualityTests.objectHashCode(this.rePointsOntime);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.sect)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.timeout)
+                + Objects.hashCode(this.reMasteryScore)
+                + Objects.hashCode(this.ueMasteryScore)
+                + Objects.hashCode(this.hwMasteryScore)
+                + Objects.hashCode(this.hwMoveonScore)
+                + Objects.hashCode(this.nbrAtmptsAllow)
+                + Objects.hashCode(this.atmptsPerReview)
+                + Objects.hashCode(this.firstTestDt)
+                + Objects.hashCode(this.lastTestDt)
+                + Objects.hashCode(this.beginTestPeriod)
+                + Objects.hashCode(this.endTestPeriod)
+                + Objects.hashCode(this.couponCost)
+                + Objects.hashCode(this.lastCouponDt)
+                + Objects.hashCode(this.showTestWindow)
+                + Objects.hashCode(this.unproctoredExam)
+                + Objects.hashCode(this.rePointsOntime);
     }
 
     /**

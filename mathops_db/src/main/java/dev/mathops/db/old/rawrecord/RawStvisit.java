@@ -191,11 +191,11 @@ public final class RawStvisit extends RecBase implements Comparable<RawStvisit> 
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.whenStarted)
-                + EqualityTests.objectHashCode(this.whenEnded)
-                + EqualityTests.objectHashCode(this.location)
-                + EqualityTests.objectHashCode(this.seat);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.whenStarted)
+                + Objects.hashCode(this.whenEnded)
+                + Objects.hashCode(this.location)
+                + Objects.hashCode(this.seat);
     }
 
     /**

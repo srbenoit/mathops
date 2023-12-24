@@ -1239,17 +1239,17 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.centerX)
-                + EqualityTests.objectHashCode(this.centerY)
-                + EqualityTests.objectHashCode(this.radius)
-                + EqualityTests.objectHashCode(this.orientation)
-                + EqualityTests.objectHashCode(this.angleUnits)
-                + EqualityTests.objectHashCode(this.numQuadrants)
-                + EqualityTests.objectHashCode(this.colorName)
-                + EqualityTests.objectHashCode(this.color)
-                + EqualityTests.objectHashCode(this.textColorName)
-                + EqualityTests.objectHashCode(this.textColor)
-                + EqualityTests.objectHashCode(this.alpha);
+        return Objects.hashCode(this.centerX)
+                + Objects.hashCode(this.centerY)
+                + Objects.hashCode(this.radius)
+                + Objects.hashCode(this.orientation)
+                + Objects.hashCode(this.angleUnits)
+                + Objects.hashCode(this.numQuadrants)
+                + Objects.hashCode(this.colorName)
+                + Objects.hashCode(this.color)
+                + Objects.hashCode(this.textColorName)
+                + Objects.hashCode(this.textColor)
+                + Objects.hashCode(this.alpha);
     }
 
     /**

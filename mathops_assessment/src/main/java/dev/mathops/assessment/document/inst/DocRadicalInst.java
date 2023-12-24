@@ -114,7 +114,7 @@ public final class DocRadicalInst extends AbstractDocObjectInst {
     @Override
     public int hashCode() {
 
-        return docObjectInstHashCode() + this.base.hashCode() + EqualityTests.objectHashCode(this.root);
+        return docObjectInstHashCode() + this.base.hashCode() + Objects.hashCode(this.root);
     }
 
     /**

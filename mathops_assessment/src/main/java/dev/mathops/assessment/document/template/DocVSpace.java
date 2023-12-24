@@ -270,7 +270,7 @@ public final class DocVSpace extends AbstractDocObjectTemplate {
     @Override
     public int hashCode() {
 
-        return docObjectHashCode() + EqualityTests.objectHashCode(this.spaceHeight);
+        return docObjectHashCode() + Objects.hashCode(this.spaceHeight);
     }
 
     /**

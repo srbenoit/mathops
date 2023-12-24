@@ -712,16 +712,16 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.xCoordConstants)
-                + EqualityTests.objectHashCode(this.xCoordFormulas)
-                + EqualityTests.objectHashCode(this.yCoordConstants)
-                + EqualityTests.objectHashCode(this.yCoordFormulas)
-                + EqualityTests.objectHashCode(this.filled)
-                + EqualityTests.objectHashCode(this.colorName)
-                + EqualityTests.objectHashCode(this.color)
-                + EqualityTests.objectHashCode(this.alpha)
-                + EqualityTests.objectHashCode(this.strokeWidth)
-                + EqualityTests.objectHashCode(this.dash);
+        return Objects.hashCode(this.xCoordConstants)
+                + Objects.hashCode(this.xCoordFormulas)
+                + Objects.hashCode(this.yCoordConstants)
+                + Objects.hashCode(this.yCoordFormulas)
+                + Objects.hashCode(this.filled)
+                + Objects.hashCode(this.colorName)
+                + Objects.hashCode(this.color)
+                + Objects.hashCode(this.alpha)
+                + Objects.hashCode(this.strokeWidth)
+                + Objects.hashCode(this.dash);
     }
 
     /**

@@ -194,12 +194,12 @@ public final class RawStstd extends RecBase implements Comparable<RawStstd> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.stdId)
-                + EqualityTests.objectHashCode(this.whenPlacedOut)
-                + EqualityTests.objectHashCode(this.whenMastered)
-                + EqualityTests.objectHashCode(this.masteredGroups)
-                + EqualityTests.objectHashCode(this.completedSteps);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.stdId)
+                + Objects.hashCode(this.whenPlacedOut)
+                + Objects.hashCode(this.whenMastered)
+                + Objects.hashCode(this.masteredGroups)
+                + Objects.hashCode(this.completedSteps);
     }
 
     /**

@@ -149,9 +149,9 @@ public final class RawLesson extends RecBase implements Comparable<RawLesson> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.lessonId)
-                + EqualityTests.objectHashCode(this.lessonType)
-                + EqualityTests.objectHashCode(this.descr);
+        return Objects.hashCode(this.lessonId)
+                + Objects.hashCode(this.lessonType)
+                + Objects.hashCode(this.descr);
     }
 
     /**

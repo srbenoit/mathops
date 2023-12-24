@@ -203,12 +203,12 @@ public final class RawHighSchools extends RecBase implements Comparable<RawHighS
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.hsCode)
-                + EqualityTests.objectHashCode(this.hsName)
-                + EqualityTests.objectHashCode(this.addres1)
-                + EqualityTests.objectHashCode(this.city)
-                + EqualityTests.objectHashCode(this.state)
-                + EqualityTests.objectHashCode(this.zipCode);
+        return Objects.hashCode(this.hsCode)
+                + Objects.hashCode(this.hsName)
+                + Objects.hashCode(this.addres1)
+                + Objects.hashCode(this.city)
+                + Objects.hashCode(this.state)
+                + Objects.hashCode(this.zipCode);
     }
 
     /**

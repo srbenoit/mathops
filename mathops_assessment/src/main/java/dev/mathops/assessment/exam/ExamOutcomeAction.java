@@ -92,7 +92,7 @@ public final class ExamOutcomeAction extends AbstractXmlObject implements Realiz
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.type) + EqualityTests.objectHashCode(this.course);
+        return Objects.hashCode(this.type) + Objects.hashCode(this.course);
     }
 
     /**

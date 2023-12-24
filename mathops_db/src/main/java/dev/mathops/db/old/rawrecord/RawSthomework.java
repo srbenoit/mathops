@@ -432,23 +432,23 @@ public final class RawSthomework extends RecBase implements Comparable<RawSthome
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.hwDt)
-                + EqualityTests.objectHashCode(this.hwScore)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.timeOk)
-                + EqualityTests.objectHashCode(this.passed)
-                + EqualityTests.objectHashCode(this.hwType)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.sect)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.objective)
-                + EqualityTests.objectHashCode(this.hwCoupon)
-                + EqualityTests.objectHashCode(this.usedDt)
-                + EqualityTests.objectHashCode(this.usedSerialNbr);
+        return Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.hwDt)
+                + Objects.hashCode(this.hwScore)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.timeOk)
+                + Objects.hashCode(this.passed)
+                + Objects.hashCode(this.hwType)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.sect)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.objective)
+                + Objects.hashCode(this.hwCoupon)
+                + Objects.hashCode(this.usedDt)
+                + Objects.hashCode(this.usedSerialNbr);
     }
 
     /**

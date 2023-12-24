@@ -283,17 +283,17 @@ public final class RawStqa extends RecBase implements Comparable<RawStqa> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.questionNbr)
-                + EqualityTests.objectHashCode(this.answerNbr)
-                + EqualityTests.objectHashCode(this.objective)
-                + EqualityTests.objectHashCode(this.stuAnswer)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.ansCorrect)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.subtest)
-                + EqualityTests.objectHashCode(this.finishTime);
+        return Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.questionNbr)
+                + Objects.hashCode(this.answerNbr)
+                + Objects.hashCode(this.objective)
+                + Objects.hashCode(this.stuAnswer)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.ansCorrect)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.subtest)
+                + Objects.hashCode(this.finishTime);
     }
 
     /**

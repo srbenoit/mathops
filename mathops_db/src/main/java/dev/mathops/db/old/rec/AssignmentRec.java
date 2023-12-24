@@ -228,15 +228,15 @@ public final class AssignmentRec extends RecBase implements Comparable<Assignmen
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.assignmentId)
-                + EqualityTests.objectHashCode(this.assignmentType)
-                + EqualityTests.objectHashCode(this.courseId)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.objective)
-                + EqualityTests.objectHashCode(this.treeRef)
-                + EqualityTests.objectHashCode(this.title)
-                + EqualityTests.objectHashCode(this.whenActive)
-                + EqualityTests.objectHashCode(this.whenPulled);
+        return Objects.hashCode(this.assignmentId)
+                + Objects.hashCode(this.assignmentType)
+                + Objects.hashCode(this.courseId)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.objective)
+                + Objects.hashCode(this.treeRef)
+                + Objects.hashCode(this.title)
+                + Objects.hashCode(this.whenActive)
+                + Objects.hashCode(this.whenPulled);
     }
 
     /**

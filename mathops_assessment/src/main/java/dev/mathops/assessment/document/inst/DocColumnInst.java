@@ -100,7 +100,7 @@ public final class DocColumnInst extends AbstractDocContainerInst {
     @Override
     public int hashCode() {
 
-        return docContainerInstHashCode() + EqualityTests.objectHashCode(this.tag);
+        return docContainerInstHashCode() + Objects.hashCode(this.tag);
     }
 
     /**

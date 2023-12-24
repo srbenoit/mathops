@@ -189,11 +189,11 @@ public final class RawPaceTrackRule extends RawTermRecordBase implements Compara
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.subterm)
-                + EqualityTests.objectHashCode(this.pace)
-                + EqualityTests.objectHashCode(this.paceTrack)
-                + EqualityTests.objectHashCode(this.criteria);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.subterm)
+                + Objects.hashCode(this.pace)
+                + Objects.hashCode(this.paceTrack)
+                + Objects.hashCode(this.criteria);
     }
 
     /**

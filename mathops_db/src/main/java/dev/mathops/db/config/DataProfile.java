@@ -18,7 +18,7 @@ import java.util.Map;
  * <pre>
  * &lt;data-profile id='...'&gt;
  *   ... zero or more &lt;schema-login&gt; child elements ...
- *   &lt;schema-login schema='...' login='...'/&gt;
+ *   &lt;schema-login db='...' login='...'/&gt;
  * &lt;/data-profile&gt;
  * </pre>
  */
@@ -30,20 +30,11 @@ public final class DataProfile implements Comparable<DataProfile> {
     /** The ID attribute. */
     private static final String ID_ATTR = "id";
 
-    /** The element tag for schema login child elements. */
-    private static final String CHILD_TAG = "schema-login";
-
-    /** The schema attribute. */
-    private static final String SCHEMA_ATTR = "schema";
-
-    /** The login attribute. */
-    private static final String LOGIN_ATTR = "login";
-
     /** The ID. */
     public final String id;
 
-    /** A map from schema ID to the login to use for that schema. */
-    private final Map<ESchemaType, LoginConfig> schemaLogins;
+    /** A map from schema type to the schema login configuration for that schema. */
+    private final Map<ESchemaType, SchemaLogin> schemaLogins;
 
     /**
      * Constructs a new {@code DataProfile}.
@@ -51,7 +42,7 @@ public final class DataProfile implements Comparable<DataProfile> {
      * @param theId         the profile ID
      * @param theSchemaLogins a map from schema ID to database context
      */
-    public DataProfile(final String theId, final Map<ESchemaType, LoginConfig> theSchemaLogins) {
+    public DataProfile(final String theId, final Map<ESchemaType, SchemaLogin> theSchemaLogins) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Data profile ID may not be null or blank.");
@@ -68,12 +59,13 @@ public final class DataProfile implements Comparable<DataProfile> {
     /**
      * Constructs a new {@code DataProfile} from its XML representation.
      *
-     * @param theLoginMap  the login map
-     * @param theElem      the XML element from which to extract configuration settings.
+     * @param theDbMap    the DB map
+     * @param theLoginMap the login map
+     * @param theElem     the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    DataProfile(final Map<String, LoginConfig> theLoginMap, final NonemptyElement theElem)
-            throws ParsingException {
+    DataProfile(final Map<String, DbConfig> theDbMap, final Map<String, LoginConfig> theLoginMap,
+                final NonemptyElement theElem) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
@@ -85,59 +77,36 @@ public final class DataProfile implements Comparable<DataProfile> {
             for (int i = 0; i < count; ++i) {
                 final INode child = theElem.getChild(i);
                 if (child instanceof final EmptyElement childElem) {
-                    processChildElement(theLoginMap, childElem);
+                    final String childTag = theElem.getTagName();
+
+                    if (SchemaLogin.ELEM_TAG.equals(childTag)) {
+                        final SchemaLogin login = new SchemaLogin(theDbMap, theLoginMap, theElem);
+                        final ESchemaType loginSchema = login.getSchema();
+                        this.schemaLogins.put(loginSchema, login);
+                    } else {
+                        Log.warning("Unexpected child of <data-profile> element.");
+                    }
                 } else {
                     Log.warning("Unexpected child of <data-profile> element.");
                 }
             }
 
             if (this.schemaLogins.size() != ESchemaType.values().length || this.schemaLogins.containsKey(null)) {
-                throw new IllegalArgumentException("Schema logins map must be provided with a login for every schema");
+                throw new IllegalArgumentException("Schema login configuration must be provided for every schema");
             }
         } else {
-            throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.PROF_CFG_BAD_ELEM_TAG));
+            final String msg = Res.get(Res.PROF_CFG_BAD_ELEM_TAG);
+            throw new ParsingException(theElem, msg);
         }
     }
 
     /**
-     * Processes a child 'schema-login' element.
-     *
-     * @param theLoginMap  the login map
-     * @param theElem      the child element
-     * @throws ParsingException if required data is missing from the element or the data that is present is invalid
-     */
-    private void processChildElement(final Map<String, LoginConfig> theLoginMap, final EmptyElement theElem)
-            throws ParsingException {
-
-        final String tag = theElem.getTagName();
-        if (CHILD_TAG.equals(tag)) {
-            final String schema = theElem.getRequiredStringAttr(SCHEMA_ATTR);
-            final ESchemaType schemaType = ESchemaType.forName(schema);
-            if (schemaType == null) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        Res.fmt(Res.PROF_CFG_BAD_CHILD_SCHEMA, schema));
-            }
-
-            final String login = theElem.getRequiredStringAttr(LOGIN_ATTR);
-
-            if (theLoginMap.containsKey(login)) {
-                this.schemaLogins.put(schemaType, theLoginMap.get(login));
-            } else {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        Res.fmt(Res.PROF_CFG_BAD_CHILD_LOGIN, login));
-            }
-        } else {
-            throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.PROF_CFG_BAD_CHILD_ELEM_TAG));
-        }
-    }
-
-    /**
-     * Gets the login to use for a particular schema type.
+     * Gets the schema login to use for a particular schema type.
      *
      * @param schemaType the schema type
-     * @return the login configuration
+     * @return the schema login configuration
      */
-    public LoginConfig getLogin(final ESchemaType schemaType) {
+    public SchemaLogin getSchemaLogin(final ESchemaType schemaType) {
 
         return this.schemaLogins.get(schemaType);
     }

@@ -240,14 +240,14 @@ public final class RawStchallengeqa extends RecBase implements Comparable<RawStc
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.questionNbr)
-                + EqualityTests.objectHashCode(this.stuAnswer)
-                + EqualityTests.objectHashCode(this.ansCorrect);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.questionNbr)
+                + Objects.hashCode(this.stuAnswer)
+                + Objects.hashCode(this.ansCorrect);
     }
 
     /**

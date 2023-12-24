@@ -255,15 +255,15 @@ public final class RawStmathplan extends RecBase implements Comparable<RawStmath
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.pidm)
-                + EqualityTests.objectHashCode(this.aplnTerm)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.surveyNbr)
-                + EqualityTests.objectHashCode(this.stuAnswer)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.session);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.pidm)
+                + Objects.hashCode(this.aplnTerm)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.surveyNbr)
+                + Objects.hashCode(this.stuAnswer)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.session);
     }
 
     /**

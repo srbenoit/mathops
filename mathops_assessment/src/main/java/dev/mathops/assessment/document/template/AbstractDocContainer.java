@@ -500,8 +500,8 @@ public abstract class AbstractDocContainer extends AbstractDocObjectTemplate {
      */
     final int innerHashCode() {
 
-        return docObjectHashCode() + EqualityTests.objectHashCode(this.tag)
-                + EqualityTests.objectHashCode(this.children);
+        return docObjectHashCode() + Objects.hashCode(this.tag)
+                + Objects.hashCode(this.children);
     }
 
     /**

@@ -212,14 +212,14 @@ public final class RawStetext extends RecBase {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.etextId)
-                + EqualityTests.objectHashCode(this.activeDt)
-                + EqualityTests.objectHashCode(this.etextKey)
-                + EqualityTests.objectHashCode(this.expirationDt)
-                + EqualityTests.objectHashCode(this.refundDeadlineDt)
-                + EqualityTests.objectHashCode(this.refundDt)
-                + EqualityTests.objectHashCode(this.refundReason);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.etextId)
+                + Objects.hashCode(this.activeDt)
+                + Objects.hashCode(this.etextKey)
+                + Objects.hashCode(this.expirationDt)
+                + Objects.hashCode(this.refundDeadlineDt)
+                + Objects.hashCode(this.refundDt)
+                + Objects.hashCode(this.refundReason);
     }
 
     /**

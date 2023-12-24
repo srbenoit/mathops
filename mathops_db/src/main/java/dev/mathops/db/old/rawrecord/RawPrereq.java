@@ -161,9 +161,9 @@ public final class RawPrereq extends RawTermRecordBase implements Comparable<Raw
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.prerequisite);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.prerequisite);
     }
 
     /**

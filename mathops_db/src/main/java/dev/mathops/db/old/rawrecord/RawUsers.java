@@ -239,14 +239,14 @@ public final class RawUsers extends RawTermRecordBase implements Comparable<RawU
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.examScore)
-                + EqualityTests.objectHashCode(this.calcCourse)
-                + EqualityTests.objectHashCode(this.passed);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.examScore)
+                + Objects.hashCode(this.calcCourse)
+                + Objects.hashCode(this.passed);
     }
 
     /**

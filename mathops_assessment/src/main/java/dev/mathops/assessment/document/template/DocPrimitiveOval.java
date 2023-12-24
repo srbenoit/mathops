@@ -699,16 +699,16 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.xCoord)
-                + EqualityTests.objectHashCode(this.yCoord)
-                + EqualityTests.objectHashCode(this.width)
-                + EqualityTests.objectHashCode(this.height)
-                + EqualityTests.objectHashCode(this.filled)
-                + EqualityTests.objectHashCode(this.colorName)
-                + EqualityTests.objectHashCode(this.color)
-                + EqualityTests.objectHashCode(this.alpha)
-                + EqualityTests.objectHashCode(this.strokeWidth)
-                + EqualityTests.objectHashCode(this.dash);
+        return Objects.hashCode(this.xCoord)
+                + Objects.hashCode(this.yCoord)
+                + Objects.hashCode(this.width)
+                + Objects.hashCode(this.height)
+                + Objects.hashCode(this.filled)
+                + Objects.hashCode(this.colorName)
+                + Objects.hashCode(this.color)
+                + Objects.hashCode(this.alpha)
+                + Objects.hashCode(this.strokeWidth)
+                + Objects.hashCode(this.dash);
     }
 
     /**

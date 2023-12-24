@@ -159,10 +159,10 @@ public final class RawMpscorequeue extends RecBase {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.pidm)
-                + EqualityTests.objectHashCode(this.testCode)
-                + EqualityTests.objectHashCode(this.testDate)
-                + EqualityTests.objectHashCode(this.testScore);
+        return Objects.hashCode(this.pidm)
+                + Objects.hashCode(this.testCode)
+                + Objects.hashCode(this.testDate)
+                + Objects.hashCode(this.testScore);
     }
 
     /**

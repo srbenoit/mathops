@@ -279,18 +279,18 @@ public final class RawLogins extends RecBase implements Comparable<RawLogins> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.userId)
-                + EqualityTests.objectHashCode(this.userType)
-                + EqualityTests.objectHashCode(this.userName)
-                + EqualityTests.objectHashCode(this.storedKey)
-                + EqualityTests.objectHashCode(this.serverKey)
-                + EqualityTests.objectHashCode(this.dtimeCreated)
-                + EqualityTests.objectHashCode(this.dtimeExpires)
-                + EqualityTests.objectHashCode(this.dtimeLastLogin)
-                + EqualityTests.objectHashCode(this.forcePwChange)
-                + EqualityTests.objectHashCode(this.email)
-                + EqualityTests.objectHashCode(this.salt)
-                + EqualityTests.objectHashCode(this.nbrInvalidAtmpts);
+        return Objects.hashCode(this.userId)
+                + Objects.hashCode(this.userType)
+                + Objects.hashCode(this.userName)
+                + Objects.hashCode(this.storedKey)
+                + Objects.hashCode(this.serverKey)
+                + Objects.hashCode(this.dtimeCreated)
+                + Objects.hashCode(this.dtimeExpires)
+                + Objects.hashCode(this.dtimeLastLogin)
+                + Objects.hashCode(this.forcePwChange)
+                + Objects.hashCode(this.email)
+                + Objects.hashCode(this.salt)
+                + Objects.hashCode(this.nbrInvalidAtmpts);
     }
 
     /**

@@ -195,10 +195,10 @@ public abstract class AbstractProblemMultipleChoiceTemplate extends AbstractProb
      */
     final int mcInnerHashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.choices)
-                + EqualityTests.objectHashCode(this.numChoices)
-                + EqualityTests.objectHashCode(this.randomOrderChoices)
-                + EqualityTests.objectHashCode(this.choiceOrder);
+        return innerHashCode() + Objects.hashCode(this.choices)
+                + Objects.hashCode(this.numChoices)
+                + Objects.hashCode(this.randomOrderChoices)
+                + Objects.hashCode(this.choiceOrder);
     }
 
     /**

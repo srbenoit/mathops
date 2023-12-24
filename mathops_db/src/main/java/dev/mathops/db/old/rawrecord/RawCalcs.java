@@ -193,11 +193,11 @@ public final class RawCalcs extends RecBase implements Comparable<RawCalcs> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.issuedNbr)
-                + EqualityTests.objectHashCode(this.returnNbr)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.examDt);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.issuedNbr)
+                + Objects.hashCode(this.returnNbr)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.examDt);
     }
 
     /**

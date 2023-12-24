@@ -355,8 +355,8 @@ public final class DocFraction extends AbstractDocContainer {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.numerator)
-                + EqualityTests.objectHashCode(this.denominator);
+        return innerHashCode() + Objects.hashCode(this.numerator)
+                + Objects.hashCode(this.denominator);
     }
 
     /**

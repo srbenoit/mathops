@@ -250,11 +250,11 @@ public final class RawTreePath extends RecBase implements Comparable<RawTreePath
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.ident)
-                + EqualityTests.objectHashCode(this.parentIdent)
-                + EqualityTests.objectHashCode(this.depth)
-                + EqualityTests.objectHashCode(this.sortOrder)
-                + EqualityTests.objectHashCode(this.label);
+        return Objects.hashCode(this.ident)
+                + Objects.hashCode(this.parentIdent)
+                + Objects.hashCode(this.depth)
+                + Objects.hashCode(this.sortOrder)
+                + Objects.hashCode(this.label);
     }
 
     /**

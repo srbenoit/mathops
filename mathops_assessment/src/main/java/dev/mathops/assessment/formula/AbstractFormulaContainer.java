@@ -88,7 +88,7 @@ abstract class AbstractFormulaContainer extends AbstractFormulaObject {
      */
     final int innerHashCode() {
 
-        return EqualityTests.objectHashCode(this.children);
+        return Objects.hashCode(this.children);
     }
 
     /**

@@ -157,9 +157,9 @@ public final class RawZipCode extends RecBase implements Comparable<RawZipCode> 
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.zipCode)
-                + EqualityTests.objectHashCode(this.city)
-                + EqualityTests.objectHashCode(this.state);
+        return Objects.hashCode(this.zipCode)
+                + Objects.hashCode(this.city)
+                + Objects.hashCode(this.state);
     }
 
     /**

@@ -421,16 +421,16 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.sectionName)
-                + EqualityTests.objectHashCode(this.shortName)
+        return Objects.hashCode(this.sectionName)
+                + Objects.hashCode(this.shortName)
                 + Boolean.hashCode(this.randomOrder)
                 + Boolean.hashCode(this.canComeBack)
                 + Boolean.hashCode(this.canRegenerate)
-                + EqualityTests.objectHashCode(this.minMoveonScore)
-                + EqualityTests.objectHashCode(this.minMasteryScore)
-                + EqualityTests.objectHashCode(this.resources)
-                + EqualityTests.objectHashCode(this.examProblems)
-                + EqualityTests.objectHashCode(this.problemOrder);
+                + Objects.hashCode(this.minMoveonScore)
+                + Objects.hashCode(this.minMasteryScore)
+                + Objects.hashCode(this.resources)
+                + Objects.hashCode(this.examProblems)
+                + Objects.hashCode(this.problemOrder);
     }
 
     /**

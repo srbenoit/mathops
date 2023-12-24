@@ -95,7 +95,7 @@ public final class ExamOutcomeValidation extends AbstractXmlObject implements Re
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.validationFormula);
+        return Objects.hashCode(this.validationFormula);
     }
 
     /**

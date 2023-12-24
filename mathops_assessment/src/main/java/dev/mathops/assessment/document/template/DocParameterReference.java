@@ -378,9 +378,9 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
     @Override
     public int hashCode() {
 
-        // return innerHashCode() + EqualityTests.objectHashCode(this.parameterName);
+        // return innerHashCode() + Objects.hashCode(this.parameterName);
 
-        return EqualityTests.objectHashCode(this.parameterName);
+        return Objects.hashCode(this.parameterName);
     }
 
     /**

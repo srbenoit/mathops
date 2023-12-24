@@ -300,7 +300,7 @@ public abstract class AbstractVariable extends AbstractXmlObject {
      */
     int innerHashCode() {
 
-        return this.name.hashCode() + this.type.hashCode() + EqualityTests.objectHashCode(this.value);
+        return this.name.hashCode() + this.type.hashCode() + Objects.hashCode(this.value);
     }
 
     /**

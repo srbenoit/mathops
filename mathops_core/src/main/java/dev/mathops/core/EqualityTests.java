@@ -2,9 +2,11 @@ package dev.mathops.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Equality tests that supplement those provided by Java.
@@ -15,23 +17,12 @@ public enum EqualityTests {
     /**
      * Tests whether a string is either {@code null} or empty.
      *
-     * @param str the string to test
+     * @param sequence the string to test
      * @return {@code true} if {@code str} is either {@code null} or empty
      */
-    public static boolean isNullOrEmpty(final CharSequence str) {
+    public static boolean isNullOrEmpty(final CharSequence sequence) {
 
-        return str == null || str.isEmpty();
-    }
-
-    /**
-     * Computes a hash code for an object that could be {@code null}.
-     *
-     * @param obj the object
-     * @return the hash code of the object, or 0 if the object is {@code null}
-     */
-    public static int objectHashCode(final Object obj) {
-
-        return obj == null ? 0 : obj.hashCode();
+        return sequence == null || sequence.isEmpty();
     }
 
     /**
@@ -45,15 +36,22 @@ public enum EqualityTests {
      */
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(final Map<K, V> map,
                                                                              final boolean descending) {
-        final List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
-        list.sort(Map.Entry.comparingByValue());
+        final Set<Map.Entry<K, V>> entries = map.entrySet();
+        final List<Map.Entry<K, V>> list = new ArrayList<>(entries);
+
+        final Comparator<Map.Entry<K, V>> comparator = Map.Entry.comparingByValue();
+        list.sort(comparator);
+
         if (descending) {
             Collections.reverse(list);
         }
 
-        final Map<K, V> result = new LinkedHashMap<>(list.size());
+        final int count = list.size();
+        final Map<K, V> result = new LinkedHashMap<>(count);
         for (final Map.Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
+            final K key = entry.getKey();
+            final V value = entry.getValue();
+            result.put(key, value);
         }
 
         return result;

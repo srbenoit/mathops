@@ -195,11 +195,11 @@ public final class RawAdminHold extends RecBase implements Comparable<RawAdminHo
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.holdId)
-                + EqualityTests.objectHashCode(this.sevAdminHold)
-                + EqualityTests.objectHashCode(this.timesDisplay)
-                + EqualityTests.objectHashCode(this.createDt);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.holdId)
+                + Objects.hashCode(this.sevAdminHold)
+                + Objects.hashCode(this.timesDisplay)
+                + Objects.hashCode(this.createDt);
     }
 
     /**

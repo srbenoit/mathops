@@ -83,6 +83,9 @@ public final class DatabaseConfig {
     /** Map from server ID to server configuration object. */
     private final Map<String, ServerConfig> servers;
 
+    /** Map from DB configuration ID to the DB configuration object. */
+    private final Map<String, DbConfig> dbs;
+
     /** Map from login configuration ID to the login configuration object. */
     private final Map<String, LoginConfig> logins;
 
@@ -102,6 +105,7 @@ public final class DatabaseConfig {
     private DatabaseConfig() {
 
         this.servers = new LinkedHashMap<>(10);
+        this.dbs = new HashMap<>(10);
         this.logins = new HashMap<>(10);
         this.dataProfiles = new LinkedHashMap<>(10);
         this.webContexts = new LinkedHashMap<>(10);
@@ -193,7 +197,7 @@ public final class DatabaseConfig {
      */
     private void processDataProfileNode(final NonemptyElement elem) throws ParsingException {
 
-        final DataProfile dataProfile = new DataProfile(this.logins, elem);
+        final DataProfile dataProfile = new DataProfile(this.dbs, this.logins, elem);
 
         if (this.dataProfiles.containsKey(dataProfile.id)) {
             final String msg = SimpleBuilder.concat("Multiple data profiles with the id '",

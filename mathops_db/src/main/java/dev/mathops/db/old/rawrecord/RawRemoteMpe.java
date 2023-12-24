@@ -198,11 +198,11 @@ public final class RawRemoteMpe extends RawTermRecordBase implements Comparable<
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.aplnTerm)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.startDt)
-                + EqualityTests.objectHashCode(this.endDt);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.aplnTerm)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.startDt)
+                + Objects.hashCode(this.endDt);
     }
 
     /**

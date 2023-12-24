@@ -314,14 +314,14 @@ public final class RawCampusCalendar extends RecBase implements Comparable<RawCa
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.campusDt)
-                + EqualityTests.objectHashCode(this.dtDesc)
-                + EqualityTests.objectHashCode(this.openTime1)
-                + EqualityTests.objectHashCode(this.openTime2)
-                + EqualityTests.objectHashCode(this.closeTime1)
-                + EqualityTests.objectHashCode(this.closeTime2)
-                + EqualityTests.objectHashCode(this.weekdays1)
-                + EqualityTests.objectHashCode(this.weekdays2);
+        return Objects.hashCode(this.campusDt)
+                + Objects.hashCode(this.dtDesc)
+                + Objects.hashCode(this.openTime1)
+                + Objects.hashCode(this.openTime2)
+                + Objects.hashCode(this.closeTime1)
+                + Objects.hashCode(this.closeTime2)
+                + Objects.hashCode(this.weekdays1)
+                + Objects.hashCode(this.weekdays2);
     }
 
     /**

@@ -221,13 +221,13 @@ public final class RawStmsg extends RecBase implements Comparable<RawStmsg> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.msgDt)
-                + EqualityTests.objectHashCode(this.pace)
-                + EqualityTests.objectHashCode(this.courseIndex)
-                + EqualityTests.objectHashCode(this.touchPoint)
-                + EqualityTests.objectHashCode(this.msgCode)
-                + EqualityTests.objectHashCode(this.sender);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.msgDt)
+                + Objects.hashCode(this.pace)
+                + Objects.hashCode(this.courseIndex)
+                + Objects.hashCode(this.touchPoint)
+                + Objects.hashCode(this.msgCode)
+                + Objects.hashCode(this.sender);
     }
 
     /**

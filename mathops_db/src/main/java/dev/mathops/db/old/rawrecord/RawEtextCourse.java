@@ -150,8 +150,8 @@ public final class RawEtextCourse extends RecBase implements Comparable<RawEtext
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.etextId)
-                + EqualityTests.objectHashCode(this.course);
+        return Objects.hashCode(this.etextId)
+                + Objects.hashCode(this.course);
     }
 
     /**

@@ -157,9 +157,9 @@ public final class RawCohort extends RecBase implements Comparable<RawCohort> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.cohort)
-                + EqualityTests.objectHashCode(this.size)
-                + EqualityTests.objectHashCode(this.instructor);
+        return Objects.hashCode(this.cohort)
+                + Objects.hashCode(this.size)
+                + Objects.hashCode(this.instructor);
     }
 
     /**

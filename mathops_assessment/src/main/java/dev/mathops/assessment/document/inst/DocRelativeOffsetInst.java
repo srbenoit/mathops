@@ -186,9 +186,9 @@ public final class DocRelativeOffsetInst extends AbstractDocObjectInst {
     @Override
     public int hashCode() {
 
-        return docObjectInstHashCode() + this.base.hashCode() + EqualityTests.objectHashCode(this.superscript)
-                + EqualityTests.objectHashCode(this.subscript) + EqualityTests.objectHashCode(this.over)
-                + EqualityTests.objectHashCode(this.under);
+        return docObjectInstHashCode() + this.base.hashCode() + Objects.hashCode(this.superscript)
+                + Objects.hashCode(this.subscript) + Objects.hashCode(this.over)
+                + Objects.hashCode(this.under);
     }
 
     /**

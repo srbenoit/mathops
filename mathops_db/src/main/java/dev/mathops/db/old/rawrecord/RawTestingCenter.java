@@ -326,21 +326,21 @@ public final class RawTestingCenter extends RecBase implements Comparable<RawTes
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.testingCenterId)
-                + EqualityTests.objectHashCode(this.tcName)
-                + EqualityTests.objectHashCode(this.addres1)
-                + EqualityTests.objectHashCode(this.addres2)
-                + EqualityTests.objectHashCode(this.addres2)
-                + EqualityTests.objectHashCode(this.city)
-                + EqualityTests.objectHashCode(this.state)
-                + EqualityTests.objectHashCode(this.zipCode)
-                + EqualityTests.objectHashCode(this.active)
-                + EqualityTests.objectHashCode(this.dtimeCreated)
-                + EqualityTests.objectHashCode(this.dtimeApproved)
-                + EqualityTests.objectHashCode(this.dtimeDenied)
-                + EqualityTests.objectHashCode(this.dtimeRevoked)
-                + EqualityTests.objectHashCode(this.isRemote)
-                + EqualityTests.objectHashCode(this.isProctored);
+        return Objects.hashCode(this.testingCenterId)
+                + Objects.hashCode(this.tcName)
+                + Objects.hashCode(this.addres1)
+                + Objects.hashCode(this.addres2)
+                + Objects.hashCode(this.addres2)
+                + Objects.hashCode(this.city)
+                + Objects.hashCode(this.state)
+                + Objects.hashCode(this.zipCode)
+                + Objects.hashCode(this.active)
+                + Objects.hashCode(this.dtimeCreated)
+                + Objects.hashCode(this.dtimeApproved)
+                + Objects.hashCode(this.dtimeDenied)
+                + Objects.hashCode(this.dtimeRevoked)
+                + Objects.hashCode(this.isRemote)
+                + Objects.hashCode(this.isProctored);
     }
 
     /**

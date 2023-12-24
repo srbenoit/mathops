@@ -441,12 +441,12 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.formula)
-                + EqualityTests.objectHashCode(this.formulaColorName)
-                + EqualityTests.objectHashCode(this.formulaColor)
+        return Objects.hashCode(this.formula)
+                + Objects.hashCode(this.formulaColorName)
+                + Objects.hashCode(this.formulaColor)
                 + this.formulaStyle
-                + EqualityTests.objectHashCode(this.formulaMinX)
-                + EqualityTests.objectHashCode(this.formulaMaxX);
+                + Objects.hashCode(this.formulaMinX)
+                + Objects.hashCode(this.formulaMaxX);
     }
 
     /**

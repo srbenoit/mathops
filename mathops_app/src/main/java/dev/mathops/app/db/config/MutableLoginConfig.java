@@ -11,9 +11,6 @@ public final class MutableLoginConfig {
     /** The login ID. */
     private String id;
 
-    /** The server ID. */
-    private String server;
-
     /** The username. */
     private String user;
 
@@ -24,13 +21,12 @@ public final class MutableLoginConfig {
      * Constructs a new {@code MutableLoginConfig}.
      *
      * @param theId the login ID (must not be null or blank)
-     * @param theServer the server ID (must not be null or blank)
      * @param theUser the login ID (must not be null or blank)
      * @param thePassword the login ID (can be null or blank)
      */
-    public MutableLoginConfig(final String theId, final String theServer, final String theUser, final String thePassword) {
+    public MutableLoginConfig(final String theId, final String theUser, final String thePassword) {
 
-        update(theId, theServer, theUser, thePassword);
+        update(theId, theUser, thePassword);
     }
 
     /**
@@ -41,7 +37,6 @@ public final class MutableLoginConfig {
     public MutableLoginConfig(final LoginConfig source) {
 
         this.id = source.id;
-        this.server = source.server;
         this.user = source.user;
         this.password = source.password;
     }
@@ -54,16 +49,6 @@ public final class MutableLoginConfig {
     public String getId() {
 
         return this.id;
-    }
-
-    /**
-     * Gets the server ID.
-     s
-     * @return the server ID
-     */
-    public String getServer() {
-
-        return this.server;
     }
 
     /**
@@ -90,24 +75,19 @@ public final class MutableLoginConfig {
      * Updates the field values.
      *
      * @param theId the login ID (must not be null or blank)
-     * @param theServer the server ID (must not be null or blank)
      * @param theUser the login ID (must not be null or blank)
      * @param thePassword the login ID (can be null or blank)
      */
-    public void update(final String theId, final String theServer, final String theUser, final String thePassword) {
+    public void update(final String theId, final String theUser, final String thePassword) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Login ID may not be null or blank.");
-        }
-        if (theServer == null || theServer.isBlank()) {
-            throw new IllegalArgumentException("Server ID may not be null or blank.");
         }
         if (theUser == null || theUser.isBlank()) {
             throw new IllegalArgumentException("Login user name may not be null or blank.");
         }
 
         this.id = theId;
-        this.server = theServer;
         this.user = theUser;
         this.password = thePassword;
     }
@@ -119,7 +99,7 @@ public final class MutableLoginConfig {
      */
     LoginConfig toLoginConfig() {
 
-        return new LoginConfig(this.id, this.server, this.user, this.password);
+        return new LoginConfig(this.id, this.user, this.password);
     }
 
     /**
@@ -130,7 +110,7 @@ public final class MutableLoginConfig {
     @Override
     public String toString() {
 
-        return SimpleBuilder.concat("MutableLoginConfig{id='", this.id, "',server='", this.server, "',user='",
-                this.user, "', password='", this.password, "'}");
+        return SimpleBuilder.concat("MutableLoginConfig{id='", this.id, "',user='", this.user, "',password='",
+                this.password, "'}");
     }
 }

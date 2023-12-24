@@ -1,7 +1,6 @@
 package dev.mathops.app.webstart;
 
 import dev.mathops.app.AppFileLoader;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.HexEncoder;
@@ -20,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A data class that can be populated from an XML file, with information on a version of an installed application.
@@ -237,10 +237,8 @@ final class AppDescriptor {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.name) + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.releaseDate)
-                + EqualityTests.objectHashCode(this.mainClass)
-                + EqualityTests.objectHashCode(this.files);
+        return Objects.hashCode(this.name) + Objects.hashCode(this.version) + Objects.hashCode(this.releaseDate)
+                + Objects.hashCode(this.mainClass) + Objects.hashCode(this.files);
     }
 
     /**

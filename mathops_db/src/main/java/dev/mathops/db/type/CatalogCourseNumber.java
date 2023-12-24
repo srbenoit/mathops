@@ -137,7 +137,7 @@ public final class CatalogCourseNumber implements Comparable<CatalogCourseNumber
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.prefix) + EqualityTests.objectHashCode(this.number);
+        return Objects.hashCode(this.prefix) + Objects.hashCode(this.number);
     }
 
     /**

@@ -356,21 +356,21 @@ public final class RawStchallenge extends RecBase implements Comparable<RawStcha
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.academicYr)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.lastName)
-                + EqualityTests.objectHashCode(this.firstName)
-                + EqualityTests.objectHashCode(this.middleInitial)
-                + EqualityTests.objectHashCode(this.seqNbr)
-                + EqualityTests.objectHashCode(this.serialNbr)
-                + EqualityTests.objectHashCode(this.score)
-                + EqualityTests.objectHashCode(this.passed)
-                + EqualityTests.objectHashCode(this.howValidated);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.academicYr)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.lastName)
+                + Objects.hashCode(this.firstName)
+                + Objects.hashCode(this.middleInitial)
+                + Objects.hashCode(this.seqNbr)
+                + Objects.hashCode(this.serialNbr)
+                + Objects.hashCode(this.score)
+                + Objects.hashCode(this.passed)
+                + Objects.hashCode(this.howValidated);
     }
 
     /**

@@ -740,7 +740,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
     @Override
     public int hashCode() {
 
-        return mcInnerHashCode() + EqualityTests.objectHashCode(this.selectedChoice);
+        return mcInnerHashCode() + Objects.hashCode(this.selectedChoice);
     }
 
     /**

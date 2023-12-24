@@ -268,16 +268,16 @@ public final class RawExam extends RecBase implements Comparable<RawExam> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.vsnExplt)
-                + EqualityTests.objectHashCode(this.title)
-                + EqualityTests.objectHashCode(this.treeRef)
-                + EqualityTests.objectHashCode(this.examType)
-                + EqualityTests.objectHashCode(this.activeDt)
-                + EqualityTests.objectHashCode(this.pullDt)
-                + EqualityTests.objectHashCode(this.buttonLabel);
+        return Objects.hashCode(this.version)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.vsnExplt)
+                + Objects.hashCode(this.title)
+                + Objects.hashCode(this.treeRef)
+                + Objects.hashCode(this.examType)
+                + Objects.hashCode(this.activeDt)
+                + Objects.hashCode(this.pullDt)
+                + Objects.hashCode(this.buttonLabel);
     }
 
     /**

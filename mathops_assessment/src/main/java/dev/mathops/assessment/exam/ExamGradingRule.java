@@ -172,9 +172,9 @@ public final class ExamGradingRule extends AbstractXmlObject implements Realizab
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.gradingRuleName)
-                + EqualityTests.objectHashCode(this.gradingRuleType)
-                + EqualityTests.objectHashCode(this.conditions);
+        return Objects.hashCode(this.gradingRuleName)
+                + Objects.hashCode(this.gradingRuleType)
+                + Objects.hashCode(this.conditions);
     }
 
     /**

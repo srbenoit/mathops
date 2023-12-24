@@ -146,7 +146,7 @@ public final class ServerConfig {
     @Override
     public int hashCode() {
 
-        return this.type.hashCode() + this.host.hashCode() + this.port + EqualityTests.objectHashCode(this.name);
+        return this.type.hashCode() + this.host.hashCode() + this.port + Objects.hashCode(this.name);
     }
 
     /**

@@ -68,7 +68,7 @@ public final class ExamOutcomePrereq extends AbstractXmlObject {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.prerequisiteFormula);
+        return Objects.hashCode(this.prerequisiteFormula);
     }
 
     /**

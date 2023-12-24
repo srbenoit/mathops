@@ -147,12 +147,12 @@ public final class CatalogCoursePrereqRec extends RecBase {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.prereqId)
-                + EqualityTests.objectHashCode(this.parentPrereqId)
-                + EqualityTests.objectHashCode(this.prereqType)
-                + EqualityTests.objectHashCode(this.courseId)
-                + EqualityTests.objectHashCode(this.minGrade)
-                + EqualityTests.objectHashCode(this.concurrent);
+        return Objects.hashCode(this.prereqId)
+                + Objects.hashCode(this.parentPrereqId)
+                + Objects.hashCode(this.prereqType)
+                + Objects.hashCode(this.courseId)
+                + Objects.hashCode(this.minGrade)
+                + Objects.hashCode(this.concurrent);
     }
 
     /**

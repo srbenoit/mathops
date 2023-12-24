@@ -73,7 +73,7 @@ public abstract class AbstractDocContainerInst extends AbstractDocObjectInst {
      */
     final int docContainerInstHashCode() {
 
-        return docObjectInstHashCode() + EqualityTests.objectHashCode(this.children);
+        return docObjectInstHashCode() + Objects.hashCode(this.children);
     }
 
     /**

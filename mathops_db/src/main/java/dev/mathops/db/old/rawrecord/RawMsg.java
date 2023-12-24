@@ -183,11 +183,11 @@ public final class RawMsg extends RawTermRecordBase implements Comparable<RawMsg
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.touchPoint)
-                + EqualityTests.objectHashCode(this.msgCode)
-                + EqualityTests.objectHashCode(this.subject)
-                + EqualityTests.objectHashCode(this.template);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.touchPoint)
+                + Objects.hashCode(this.msgCode)
+                + Objects.hashCode(this.subject)
+                + Objects.hashCode(this.template);
     }
 
     /**

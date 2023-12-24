@@ -964,7 +964,7 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.function);
+        return innerHashCode() + Objects.hashCode(this.function);
     }
 
     /**

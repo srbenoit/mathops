@@ -142,9 +142,9 @@ public final class ReportPermsRec extends RecBase implements Comparable<ReportPe
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId) //
-                + EqualityTests.objectHashCode(this.rptId) //
-                + EqualityTests.objectHashCode(this.permLevel);
+        return Objects.hashCode(this.stuId) //
+                + Objects.hashCode(this.rptId) //
+                + Objects.hashCode(this.permLevel);
     }
 
     /**

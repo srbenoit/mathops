@@ -224,9 +224,9 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.min)
-                + EqualityTests.objectHashCode(this.max) + EqualityTests.objectHashCode(this.maxDenom)
-                + EqualityTests.objectHashCode(this.exclude);
+        return innerHashCode() + Objects.hashCode(this.min)
+                + Objects.hashCode(this.max) + Objects.hashCode(this.maxDenom)
+                + Objects.hashCode(this.exclude);
     }
 
     /**

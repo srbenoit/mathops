@@ -193,11 +193,11 @@ public final class RawFfrTrns extends RecBase implements Comparable<RawFfrTrns> 
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.examPlaced)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.dtCrRefused);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.examPlaced)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.dtCrRefused);
     }
 
     /**

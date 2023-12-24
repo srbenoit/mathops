@@ -1195,7 +1195,7 @@ public final class DocText extends AbstractDocObjectTemplate {
     @Override
     public int hashCode() {
 
-        return docObjectHashCode() + EqualityTests.objectHashCode(this.text);
+        return docObjectHashCode() + Objects.hashCode(this.text);
     }
 
     /**

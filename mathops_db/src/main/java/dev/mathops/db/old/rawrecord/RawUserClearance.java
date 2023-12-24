@@ -177,10 +177,10 @@ public final class RawUserClearance extends RecBase implements Comparable<RawUse
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.login)
-                + EqualityTests.objectHashCode(this.clearFunction)
-                + EqualityTests.objectHashCode(this.clearType)
-                + EqualityTests.objectHashCode(this.clearPasswd);
+        return Objects.hashCode(this.login)
+                + Objects.hashCode(this.clearFunction)
+                + Objects.hashCode(this.clearType)
+                + Objects.hashCode(this.clearPasswd);
     }
 
     /**

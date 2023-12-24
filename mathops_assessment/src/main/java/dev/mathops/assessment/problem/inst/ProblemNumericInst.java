@@ -58,7 +58,7 @@ public final class ProblemNumericInst extends AbstractProblemInst {
     @Override
     public int hashCode() {
 
-        return problemInstHashCode() + EqualityTests.objectHashCode(this.acceptNumber);
+        return problemInstHashCode() + Objects.hashCode(this.acceptNumber);
     }
 
     /**

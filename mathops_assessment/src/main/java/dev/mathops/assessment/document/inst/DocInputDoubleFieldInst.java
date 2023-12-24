@@ -131,8 +131,8 @@ public final class DocInputDoubleFieldInst extends AbstractDocInputFieldInst {
 
         return docInputFieldInstHashCode()
                 + this.width
-                + EqualityTests.objectHashCode(this.defaultValue)
-                + EqualityTests.objectHashCode(this.minusAs);
+                + Objects.hashCode(this.defaultValue)
+                + Objects.hashCode(this.minusAs);
     }
 
     /**

@@ -78,7 +78,7 @@ public final class DateRange implements Comparable<DateRange> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.start) + EqualityTests.objectHashCode(this.end);
+        return Objects.hashCode(this.start) + Objects.hashCode(this.end);
     }
 
     /**

@@ -217,13 +217,13 @@ public final class RawCuobjective extends RawTermRecordBase implements Comparabl
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.objective)
-                + EqualityTests.objectHashCode(this.lessonId)
-                + EqualityTests.objectHashCode(this.lessonNbr)
-                + EqualityTests.objectHashCode(this.startDt);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.objective)
+                + Objects.hashCode(this.lessonId)
+                + Objects.hashCode(this.lessonNbr)
+                + Objects.hashCode(this.startDt);
     }
 
     /**

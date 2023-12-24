@@ -243,10 +243,10 @@ public final class RawSpecialStus extends RecBase implements Comparable<RawSpeci
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.stuType)
-                + EqualityTests.objectHashCode(this.startDt)
-                + EqualityTests.objectHashCode(this.endDt);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.stuType)
+                + Objects.hashCode(this.startDt)
+                + Objects.hashCode(this.endDt);
     }
 
     /**

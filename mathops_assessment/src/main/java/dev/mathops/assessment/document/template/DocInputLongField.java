@@ -543,9 +543,9 @@ public final class DocInputLongField extends AbstractDocInputField {
     @Override
     public int hashCode() {
 
-        return fieldInnerHashCode() + EqualityTests.objectHashCode(this.value)
-                + EqualityTests.objectHashCode(this.defaultValue)
-                + EqualityTests.objectHashCode(this.minusAs);
+        return fieldInnerHashCode() + Objects.hashCode(this.value)
+                + Objects.hashCode(this.defaultValue)
+                + Objects.hashCode(this.minusAs);
     }
 
     /**

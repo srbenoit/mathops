@@ -227,7 +227,7 @@ public class VariableRef extends AbstractFormulaObject implements IEditableFormu
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.name) + EqualityTests.objectHashCode(this.index);
+        return Objects.hashCode(this.name) + Objects.hashCode(this.index);
     }
 
     /**

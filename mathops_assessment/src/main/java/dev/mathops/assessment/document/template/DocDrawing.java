@@ -404,7 +404,7 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     @Override
     public int hashCode() {
 
-        return primitiveContainerHashCode() + EqualityTests.objectHashCode(getPrimitives());
+        return primitiveContainerHashCode() + Objects.hashCode(getPrimitives());
     }
 
     /**

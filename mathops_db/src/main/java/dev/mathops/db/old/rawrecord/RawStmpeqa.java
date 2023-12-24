@@ -225,15 +225,15 @@ public final class RawStmpeqa extends RecBase {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.questionNbr)
-                + EqualityTests.objectHashCode(this.stuAnswer)
-                + EqualityTests.objectHashCode(this.ansCorrect)
-                + EqualityTests.objectHashCode(this.subtest)
-                + EqualityTests.objectHashCode(this.treeRef);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.questionNbr)
+                + Objects.hashCode(this.stuAnswer)
+                + Objects.hashCode(this.ansCorrect)
+                + Objects.hashCode(this.subtest)
+                + Objects.hashCode(this.treeRef);
     }
 
     /**

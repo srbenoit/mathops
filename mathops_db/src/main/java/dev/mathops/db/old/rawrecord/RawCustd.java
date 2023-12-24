@@ -159,10 +159,10 @@ public final class RawCustd extends RecBase implements Comparable<RawCustd> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.unit)
-                + EqualityTests.objectHashCode(this.index)
-                + EqualityTests.objectHashCode(this.stdId);
+        return Objects.hashCode(this.course)
+                + Objects.hashCode(this.unit)
+                + Objects.hashCode(this.index)
+                + Objects.hashCode(this.stdId);
     }
 
     /**

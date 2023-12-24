@@ -2,7 +2,6 @@ package dev.mathops.app.db.config;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.EDbInstallationType;
-import dev.mathops.db.config.ESchemaType;
 import dev.mathops.db.config.ServerConfig;
 
 /**
@@ -16,17 +15,11 @@ public final class MutableServerConfig {
     /** The database installation type. */
     private EDbInstallationType type;
 
-    /** The schema type. */
-    private ESchemaType schema;
-
     /** The host. */
     private String host;
 
     /** The port. */
     private int port;
-
-    /** The database ID (could be null if the database type does not require it). */
-    private String db;
 
     /** The DBA username (null if not configured). */
     private String dbaUser;
@@ -36,16 +29,14 @@ public final class MutableServerConfig {
      *
      * @param theId      the server ID
      * @param theType    the database installation type (must not be null)
-     * @param theSchema  the schema (must not be null)
      * @param theHost    the host name (must not be null or blank)
      * @param thePort    the TCP port (must be positive, less than 65536)
-     * @param theDbId    the database ID, if the database type requires this
      * @param theDbaUser the DBA username, if configured
      */
-    public MutableServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema,
-                               final String theHost, final int thePort, final String theDbId, final String theDbaUser) {
+    public MutableServerConfig(final String theId, final EDbInstallationType theType, final String theHost,
+                               final int thePort, final String theDbaUser) {
 
-        update(theId, theType, theSchema, theHost, thePort, theDbId, theDbaUser);
+        update(theId, theType, theHost, thePort, theDbaUser);
     }
 
     /**
@@ -57,10 +48,8 @@ public final class MutableServerConfig {
 
         this.id = source.id;
         this.type = source.type;
-        this.schema = source.schema;
         this.host = source.host;
         this.port = source.port;
-        this.db = source.db;
         this.dbaUser = source.dbaUser;
     }
 
@@ -85,16 +74,6 @@ public final class MutableServerConfig {
     }
 
     /**
-     * Gets the schema type.
-     *
-     * @return the schema type
-     */
-    public ESchemaType getSchema() {
-
-        return this.schema;
-    }
-
-    /**
      * Gets the hostname.
      *
      * @return the hostname
@@ -115,16 +94,6 @@ public final class MutableServerConfig {
     }
 
     /**
-     * Gets the database ID.
-     *
-     * @return the database ID (could be null or blank)
-     */
-    public String getDbId() {
-
-        return this.db;
-    }
-
-    /**
      * Gets the DBA username.
      *
      * @return the DBA username (could be null or blank)
@@ -140,23 +109,18 @@ public final class MutableServerConfig {
      *
      * @param theId      the server ID
      * @param theType    the database installation type (must not be null)
-     * @param theSchema  the schema (must not be null)
      * @param theHost    the host name (must not be null or blank)
      * @param thePort    the TCP port (must be positive, less than 65536)
-     * @param theDbId    the database ID, if the database type requires this
      * @param theDbaUser the DBA username, if configured
      */
-    public void update(final String theId, final EDbInstallationType theType, final ESchemaType theSchema, final String theHost,
-                       final int thePort, final String theDbId, final String theDbaUser) {
+    public void update(final String theId, final EDbInstallationType theType, final String theHost,
+                       final int thePort, final String theDbaUser) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Server ID may not be null or blank.");
         }
         if (theType == null) {
             throw new IllegalArgumentException("Database installation type may not be null.");
-        }
-        if (theSchema == null) {
-            throw new IllegalArgumentException("Schema may not be null");
         }
         if (theHost == null || theHost.isBlank()) {
             throw new IllegalArgumentException("Host name may not be null or blank.");
@@ -167,10 +131,8 @@ public final class MutableServerConfig {
 
         this.id = theId;
         this.type = theType;
-        this.schema = theSchema;
         this.host = theHost;
         this.port = thePort;
-        this.db = theDbId;
         this.dbaUser = theDbaUser;
     }
 
@@ -181,7 +143,7 @@ public final class MutableServerConfig {
      */
     public ServerConfig toServerConfig() {
 
-        return new ServerConfig(this.id, this.type, this.schema, this.host, this.port, this.db, this.dbaUser);
+        return new ServerConfig(this.id, this.type, this.host, this.port, this.dbaUser);
     }
 
     /**
@@ -196,12 +158,9 @@ public final class MutableServerConfig {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add("MutableServerConfig{id='", this.id, "',type='", this.type, "',schema='", this.schema, "',host='",
+        builder.add("MutableServerConfig{id='", this.id, "',type='", this.type, "',host='",
                 this.host, "',port='", portStr, "'");
 
-        if (this.db != null) {
-            builder.add(",dbId='", this.db, "'");
-        }
         if (this.dbaUser != null) {
             builder.add(",dbaUser='", this.dbaUser, "'");
         }

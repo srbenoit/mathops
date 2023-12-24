@@ -213,12 +213,12 @@ public final class RawStsurveyqa extends RecBase implements Comparable<RawStsurv
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.examDt)
-                + EqualityTests.objectHashCode(this.surveyNbr)
-                + EqualityTests.objectHashCode(this.stuAnswer)
-                + EqualityTests.objectHashCode(this.finishTime);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.version)
+                + Objects.hashCode(this.examDt)
+                + Objects.hashCode(this.surveyNbr)
+                + Objects.hashCode(this.stuAnswer)
+                + Objects.hashCode(this.finishTime);
     }
 
     /**

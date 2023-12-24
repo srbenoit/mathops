@@ -139,9 +139,9 @@ public final class ExamGradingCondition extends AbstractXmlObject implements Rea
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.type)
-                + EqualityTests.objectHashCode(this.gradingConditionValue)
-                + EqualityTests.objectHashCode(this.gradingConditionFormula);
+        return Objects.hashCode(this.type)
+                + Objects.hashCode(this.gradingConditionValue)
+                + Objects.hashCode(this.gradingConditionFormula);
     }
 
     /**

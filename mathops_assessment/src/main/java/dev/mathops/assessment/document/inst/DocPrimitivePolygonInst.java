@@ -182,8 +182,8 @@ public final class DocPrimitivePolygonInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return Arrays.hashCode(this.x) + Arrays.hashCode(this.y) + EqualityTests.objectHashCode(this.strokeStyle)
-                + EqualityTests.objectHashCode(this.fillStyle);
+        return Arrays.hashCode(this.x) + Arrays.hashCode(this.y) + Objects.hashCode(this.strokeStyle)
+                + Objects.hashCode(this.fillStyle);
     }
 
     /**

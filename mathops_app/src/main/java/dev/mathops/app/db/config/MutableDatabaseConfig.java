@@ -120,13 +120,7 @@ public final class MutableDatabaseConfig {
      */
     public MutableServerConfig deleteServerConfig(final String serverConfigId) {
 
-        if (this.serverConfigs.containsKey(serverConfigId)) {
-            for (final MutableLoginConfig login : this.loginConfigs.values()) {
-                if (login.getServer().equals(serverConfigId)) {
-                    throw new IllegalArgumentException("Server is referenced by a login");
-                }
-            }
-        }
+        // TODO: Check if any of this server's logins or DBs are referenced in a data profile
 
         return this.serverConfigs.remove(serverConfigId);
     }

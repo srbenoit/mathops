@@ -648,8 +648,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.stringAnswer)
-                + EqualityTests.objectHashCode(this.acceptNumber);
+        return innerHashCode() + Objects.hashCode(this.stringAnswer)
+                + Objects.hashCode(this.acceptNumber);
     }
 
     /**

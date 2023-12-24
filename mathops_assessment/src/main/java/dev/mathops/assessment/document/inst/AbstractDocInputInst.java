@@ -114,8 +114,8 @@ public abstract class AbstractDocInputInst extends AbstractDocObjectInst {
      */
     final int docInputInstHashCode() {
 
-        return docObjectInstHashCode() + this.name.hashCode() + EqualityTests.objectHashCode(this.enabledVarName)
-                + EqualityTests.objectHashCode(this.enabledVarValue);
+        return docObjectInstHashCode() + this.name.hashCode() + Objects.hashCode(this.enabledVarName)
+                + Objects.hashCode(this.enabledVarValue);
     }
 
     /**

@@ -265,17 +265,17 @@ public final class RawParameters extends RecBase implements Comparable<RawParame
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.pgmName)
-                + EqualityTests.objectHashCode(this.parm1)
-                + EqualityTests.objectHashCode(this.parm2)
-                + EqualityTests.objectHashCode(this.parm3)
-                + EqualityTests.objectHashCode(this.parm4)
-                + EqualityTests.objectHashCode(this.parm5)
-                + EqualityTests.objectHashCode(this.parm6)
-                + EqualityTests.objectHashCode(this.parm7)
-                + EqualityTests.objectHashCode(this.parm8)
-                + EqualityTests.objectHashCode(this.parm9)
-                + EqualityTests.objectHashCode(this.parm10);
+        return Objects.hashCode(this.pgmName)
+                + Objects.hashCode(this.parm1)
+                + Objects.hashCode(this.parm2)
+                + Objects.hashCode(this.parm3)
+                + Objects.hashCode(this.parm4)
+                + Objects.hashCode(this.parm5)
+                + Objects.hashCode(this.parm6)
+                + Objects.hashCode(this.parm7)
+                + Objects.hashCode(this.parm8)
+                + Objects.hashCode(this.parm9)
+                + Objects.hashCode(this.parm10);
     }
 
     /**

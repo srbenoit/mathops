@@ -147,7 +147,7 @@ public abstract class AbstractProblemInst {
 
         return this.type.hashCode() + this.ref.hashCode() + this.instanceId.hashCode()
                 + this.calculator.hashCode() + this.question.hashCode()
-                + EqualityTests.objectHashCode(this.solution);
+                + Objects.hashCode(this.solution);
     }
 
     /**

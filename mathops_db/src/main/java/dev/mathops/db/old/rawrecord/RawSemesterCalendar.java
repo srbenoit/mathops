@@ -174,10 +174,10 @@ public final class RawSemesterCalendar extends RawTermRecordBase implements Comp
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.weekNbr)
-                + EqualityTests.objectHashCode(this.startDt)
-                + EqualityTests.objectHashCode(this.endDt);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.weekNbr)
+                + Objects.hashCode(this.startDt)
+                + Objects.hashCode(this.endDt);
     }
 
     /**

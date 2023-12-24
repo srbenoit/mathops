@@ -323,8 +323,8 @@ public final class DocTableInst extends AbstractDocObjectInst {
 
         return docObjectInstHashCode() + Arrays.deepHashCode(this.cells) + this.columnSizing.hashCode()
                 + this.rowSizing.hashCode() + this.justification.hashCode()
-                + EqualityTests.objectHashCode(this.cellPadding) + EqualityTests.objectHashCode(this.border)
-                + EqualityTests.objectHashCode(this.hLines) + EqualityTests.objectHashCode(this.vLines);
+                + Objects.hashCode(this.cellPadding) + Objects.hashCode(this.border)
+                + Objects.hashCode(this.hLines) + Objects.hashCode(this.vLines);
     }
 
     /**

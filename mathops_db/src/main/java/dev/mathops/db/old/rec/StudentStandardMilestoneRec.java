@@ -222,14 +222,14 @@ public final class StudentStandardMilestoneRec extends RecBase
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId) //
-                + EqualityTests.objectHashCode(this.paceTrack) //
-                + EqualityTests.objectHashCode(this.pace) //
-                + EqualityTests.objectHashCode(this.paceIndex) //
-                + EqualityTests.objectHashCode(this.unit) //
-                + EqualityTests.objectHashCode(this.objective) //
-                + EqualityTests.objectHashCode(this.msType) //
-                + EqualityTests.objectHashCode(this.msDate);
+        return Objects.hashCode(this.stuId) //
+                + Objects.hashCode(this.paceTrack) //
+                + Objects.hashCode(this.pace) //
+                + Objects.hashCode(this.paceIndex) //
+                + Objects.hashCode(this.unit) //
+                + Objects.hashCode(this.objective) //
+                + Objects.hashCode(this.msType) //
+                + Objects.hashCode(this.msDate);
     }
 
     /**

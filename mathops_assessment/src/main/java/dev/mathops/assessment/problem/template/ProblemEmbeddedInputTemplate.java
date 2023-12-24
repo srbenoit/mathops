@@ -666,8 +666,8 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.correctness)
-                + EqualityTests.objectHashCode(this.correctAnswer);
+        return innerHashCode() + Objects.hashCode(this.correctness)
+                + Objects.hashCode(this.correctAnswer);
     }
 
     /**

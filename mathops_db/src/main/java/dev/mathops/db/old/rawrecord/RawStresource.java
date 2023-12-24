@@ -248,15 +248,15 @@ public final class RawStresource extends RecBase implements Comparable<RawStreso
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.resourceId)
-                + EqualityTests.objectHashCode(this.loanDt)
-                + EqualityTests.objectHashCode(this.startTime)
-                + EqualityTests.objectHashCode(this.dueDt)
-                + EqualityTests.objectHashCode(this.returnDt)
-                + EqualityTests.objectHashCode(this.finishTime)
-                + EqualityTests.objectHashCode(this.timesDisplay)
-                + EqualityTests.objectHashCode(this.createDt);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.resourceId)
+                + Objects.hashCode(this.loanDt)
+                + Objects.hashCode(this.startTime)
+                + Objects.hashCode(this.dueDt)
+                + Objects.hashCode(this.returnDt)
+                + Objects.hashCode(this.finishTime)
+                + Objects.hashCode(this.timesDisplay)
+                + Objects.hashCode(this.createDt);
     }
 
     /**

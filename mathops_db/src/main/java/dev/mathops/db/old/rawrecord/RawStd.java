@@ -128,8 +128,8 @@ public final class RawStd extends RecBase implements Comparable<RawStd> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stdId)
-                + EqualityTests.objectHashCode(this.masteryGroups);
+        return Objects.hashCode(this.stdId)
+                + Objects.hashCode(this.masteryGroups);
     }
 
     /**

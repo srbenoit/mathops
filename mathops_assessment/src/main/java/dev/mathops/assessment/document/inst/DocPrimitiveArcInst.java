@@ -189,8 +189,8 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     public int hashCode() {
 
         return this.bounds.hashCode() + Double.hashCode(this.startAngle) + Double.hashCode(this.arcAngle)
-                + EqualityTests.objectHashCode(this.strokeStyle) + this.arcFill.hashCode()
-                + EqualityTests.objectHashCode(this.fillStyle);
+                + Objects.hashCode(this.strokeStyle) + this.arcFill.hashCode()
+                + Objects.hashCode(this.fillStyle);
     }
 
     /**

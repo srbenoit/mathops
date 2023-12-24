@@ -168,10 +168,10 @@ public final class RawLessonComponent extends RecBase implements Comparable<RawL
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.lessonId)
-                + EqualityTests.objectHashCode(this.seqNbr)
-                + EqualityTests.objectHashCode(this.type)
-                + EqualityTests.objectHashCode(this.xmlData);
+        return Objects.hashCode(this.lessonId)
+                + Objects.hashCode(this.seqNbr)
+                + Objects.hashCode(this.type)
+                + Objects.hashCode(this.xmlData);
     }
 
     /**

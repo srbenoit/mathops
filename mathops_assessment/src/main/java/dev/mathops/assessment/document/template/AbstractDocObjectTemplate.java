@@ -950,8 +950,8 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
         final float thisFontSize = this.style == null ? 0.0f : this.style.fontSize;
         final Integer thisFontStyle = this.style == null ? null : this.style.fontStyle;
 
-        return EqualityTests.objectHashCode(thisColor) + EqualityTests.objectHashCode(thisFontName)
-                + Float.hashCode(thisFontSize) + EqualityTests.objectHashCode(thisFontStyle);
+        return Objects.hashCode(thisColor) + Objects.hashCode(thisFontName)
+                + Float.hashCode(thisFontSize) + Objects.hashCode(thisFontStyle);
     }
 
     /**

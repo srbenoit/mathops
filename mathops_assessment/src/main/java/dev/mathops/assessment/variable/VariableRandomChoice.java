@@ -195,7 +195,7 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
     @Override
     public int hashCode() {
 
-        return innerHashCode() + EqualityTests.objectHashCode(this.exclude);
+        return innerHashCode() + Objects.hashCode(this.exclude);
     }
 
     /**

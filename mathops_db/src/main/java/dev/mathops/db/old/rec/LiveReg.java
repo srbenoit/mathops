@@ -215,36 +215,36 @@ public final class LiveReg implements Serializable, Comparable<LiveReg> {
     public int hashCode() {
 
         return this.term.hashCode() //
-                + EqualityTests.objectHashCode(this.anticGradTerm) //
+                + Objects.hashCode(this.anticGradTerm) //
                 + this.studentId.hashCode() //
                 + this.internalId.hashCode() //
-                + EqualityTests.objectHashCode(this.lastName) //
-                + EqualityTests.objectHashCode(this.firstName) //
-                + EqualityTests.objectHashCode(this.classLevel) //
-                + EqualityTests.objectHashCode(this.college) //
-                + EqualityTests.objectHashCode(this.department) //
-                + EqualityTests.objectHashCode(this.major1) //
-                + EqualityTests.objectHashCode(this.numTransferCredits) //
-                + EqualityTests.objectHashCode(this.highSchoolCode) //
-                + EqualityTests.objectHashCode(this.highSchoolGpa) //
-                + EqualityTests.objectHashCode(this.highSchoolClassRank) //
-                + EqualityTests.objectHashCode(this.highSchoolClassSize) //
-                + EqualityTests.objectHashCode(this.actScore) //
-                + EqualityTests.objectHashCode(this.satScore) //
-                + EqualityTests.objectHashCode(this.satrScore) //
-                + EqualityTests.objectHashCode(this.apScore) //
-                + EqualityTests.objectHashCode(this.residency) //
-                + EqualityTests.objectHashCode(this.birthDate) //
-                + EqualityTests.objectHashCode(this.gender) //
-                + EqualityTests.objectHashCode(this.email) //
-                + EqualityTests.objectHashCode(this.adviserEmail) //
-                + EqualityTests.objectHashCode(this.campus) //
-                + EqualityTests.objectHashCode(this.admitType) //
+                + Objects.hashCode(this.lastName) //
+                + Objects.hashCode(this.firstName) //
+                + Objects.hashCode(this.classLevel) //
+                + Objects.hashCode(this.college) //
+                + Objects.hashCode(this.department) //
+                + Objects.hashCode(this.major1) //
+                + Objects.hashCode(this.numTransferCredits) //
+                + Objects.hashCode(this.highSchoolCode) //
+                + Objects.hashCode(this.highSchoolGpa) //
+                + Objects.hashCode(this.highSchoolClassRank) //
+                + Objects.hashCode(this.highSchoolClassSize) //
+                + Objects.hashCode(this.actScore) //
+                + Objects.hashCode(this.satScore) //
+                + Objects.hashCode(this.satrScore) //
+                + Objects.hashCode(this.apScore) //
+                + Objects.hashCode(this.residency) //
+                + Objects.hashCode(this.birthDate) //
+                + Objects.hashCode(this.gender) //
+                + Objects.hashCode(this.email) //
+                + Objects.hashCode(this.adviserEmail) //
+                + Objects.hashCode(this.campus) //
+                + Objects.hashCode(this.admitType) //
                 + this.courseId.hashCode() //
                 + this.sectionNum.hashCode() //
-                + EqualityTests.objectHashCode(this.gradingOption) //
-                + EqualityTests.objectHashCode(this.registrationStatus) //
-                + EqualityTests.objectHashCode(this.instructionType);
+                + Objects.hashCode(this.gradingOption) //
+                + Objects.hashCode(this.registrationStatus) //
+                + Objects.hashCode(this.instructionType);
     }
 
     /**

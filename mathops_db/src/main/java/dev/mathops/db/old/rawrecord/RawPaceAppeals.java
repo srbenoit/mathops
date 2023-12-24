@@ -311,20 +311,20 @@ public final class RawPaceAppeals extends RawTermRecordBase implements Comparabl
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.appealDt)
-                + EqualityTests.objectHashCode(this.reliefGiven)
-                + EqualityTests.objectHashCode(this.pace)
-                + EqualityTests.objectHashCode(this.paceTrack)
-                + EqualityTests.objectHashCode(this.msNbr)
-                + EqualityTests.objectHashCode(this.msType)
-                + EqualityTests.objectHashCode(this.msDate)
-                + EqualityTests.objectHashCode(this.newDeadlineDt)
-                + EqualityTests.objectHashCode(this.nbrAtmptsAllow)
-                + EqualityTests.objectHashCode(this.circumstances)
-                + EqualityTests.objectHashCode(this.comment)
-                + EqualityTests.objectHashCode(this.interviewer);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.appealDt)
+                + Objects.hashCode(this.reliefGiven)
+                + Objects.hashCode(this.pace)
+                + Objects.hashCode(this.paceTrack)
+                + Objects.hashCode(this.msNbr)
+                + Objects.hashCode(this.msType)
+                + Objects.hashCode(this.msDate)
+                + Objects.hashCode(this.newDeadlineDt)
+                + Objects.hashCode(this.nbrAtmptsAllow)
+                + Objects.hashCode(this.circumstances)
+                + Objects.hashCode(this.comment)
+                + Objects.hashCode(this.interviewer);
     }
 
     /**

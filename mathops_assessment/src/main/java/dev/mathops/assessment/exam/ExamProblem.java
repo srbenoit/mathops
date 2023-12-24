@@ -306,12 +306,12 @@ public final class ExamProblem extends AbstractXmlObject {
     @Override
     public int hashCode() {
 
-        return this.problemId + EqualityTests.objectHashCode(this.problemName) //
+        return this.problemId + Objects.hashCode(this.problemName) //
                 + Boolean.hashCode(this.mandatory) //
-                + EqualityTests.objectHashCode(this.numPoints)
-                + EqualityTests.objectHashCode(this.problems)
-                + EqualityTests.objectHashCode(this.selectedRef)
-                + EqualityTests.objectHashCode(this.selectedProblem);
+                + Objects.hashCode(this.numPoints)
+                + Objects.hashCode(this.problems)
+                + Objects.hashCode(this.selectedRef)
+                + Objects.hashCode(this.selectedProblem);
     }
 
     /**

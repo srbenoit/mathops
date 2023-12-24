@@ -104,8 +104,8 @@ public final class LiveCsuCredit implements Serializable, Comparable<LiveCsuCred
     public int hashCode() {
 
         return this.term.hashCode() + this.studentId.hashCode() + this.courseId.hashCode()
-                + EqualityTests.objectHashCode(this.credits) //
-                + EqualityTests.objectHashCode(this.grade);
+                + Objects.hashCode(this.credits) //
+                + Objects.hashCode(this.grade);
     }
 
     /**

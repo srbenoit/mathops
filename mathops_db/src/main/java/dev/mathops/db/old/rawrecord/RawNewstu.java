@@ -171,10 +171,10 @@ public final class RawNewstu extends RecBase implements Comparable<RawNewstu> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.acadLevel)
-                + EqualityTests.objectHashCode(this.regType)
-                + EqualityTests.objectHashCode(this.term);
+        return Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.acadLevel)
+                + Objects.hashCode(this.regType)
+                + Objects.hashCode(this.term);
     }
 
     /**

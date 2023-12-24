@@ -204,12 +204,12 @@ public final class RawGradeRoll extends RawTermRecordBase implements Comparable<
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.termKey)
-                + EqualityTests.objectHashCode(this.stuId)
-                + EqualityTests.objectHashCode(this.course)
-                + EqualityTests.objectHashCode(this.sect)
-                + EqualityTests.objectHashCode(this.fullname)
-                + EqualityTests.objectHashCode(this.gradeOpt);
+        return Objects.hashCode(this.termKey)
+                + Objects.hashCode(this.stuId)
+                + Objects.hashCode(this.course)
+                + Objects.hashCode(this.sect)
+                + Objects.hashCode(this.fullname)
+                + Objects.hashCode(this.gradeOpt);
     }
 
     /**

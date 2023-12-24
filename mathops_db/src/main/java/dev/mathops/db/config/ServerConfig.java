@@ -1,13 +1,12 @@
 package dev.mathops.db.config;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
-import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
 
 import java.io.UnsupportedEncodingException;
@@ -29,7 +28,7 @@ import java.util.Properties;
  * XML Representation:
  *
  * <pre>
- * &lt;server id='...' type='...' schema='...' host='...' port='...' db='...' dba='...'/&gt;
+ * &lt;server id='...' type='...' host='...' port='...' dba='...'/&gt;
  * </pre>
  */
 public final class ServerConfig {
@@ -43,17 +42,11 @@ public final class ServerConfig {
     /** The server type attribute. */
     private static final String TYPE_ATTR = "type";
 
-    /** The schema attribute. */
-    private static final String SCHEMA_ATTR = "schema";
-
     /** The host attribute. */
     private static final String HOST_ATTR = "host";
 
     /** The port attribute. */
     private static final String PORT_ATTR = "port";
-
-    /** The ID attribute. */
-    private static final String DB_ATTR = "db";
 
     /** The ID attribute. */
     private static final String DBA_ATTR = "dba";
@@ -76,17 +69,11 @@ public final class ServerConfig {
     /** The server installation type. */
     public final EDbInstallationType type;
 
-    /** The schema type. */
-    public final ESchemaType schema;
-
     /** The server host name (or IP address). */
     public final String host;
 
     /** The TCP port on which the server accepts JDBC connections. */
     public final int port;
-
-    /** The database, if required by the database driver. */
-    public final String db;
 
     /** The DBA username ({@code null} if not configured). */
     public final String dbaUser;
@@ -96,24 +83,19 @@ public final class ServerConfig {
      *
      * @param theId      the server ID
      * @param theType    the database installation type
-     * @param theSchema  the schema type
      * @param theHost    the host name
      * @param thePort    the TCP port
-     * @param theDb      the database, if required by the database driver
      * @param theDbaUser the DBA username (null if not configured)
-     * @throws IllegalArgumentException if the type, schema, or host is null, or the TCP port is invalid
+     * @throws IllegalArgumentException if the id, type, or host is null, or the TCP port is invalid
      */
-    public ServerConfig(final String theId, final EDbInstallationType theType, final ESchemaType theSchema,
-                        final String theHost, final int thePort, final String theDb, final String theDbaUser) {
+    public ServerConfig(final String theId, final EDbInstallationType theType, final String theHost, final int thePort,
+                        final String theDbaUser) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("ID may not be null or blank.");
         }
         if (theType == null) {
             throw new IllegalArgumentException("Database installation type may not be null.");
-        }
-        if (theSchema == null) {
-            throw new IllegalArgumentException("Schema may not be null");
         }
         if (theHost == null || theHost.isBlank()) {
             throw new IllegalArgumentException("Host name may not be null or blank.");
@@ -124,10 +106,8 @@ public final class ServerConfig {
 
         this.id = theId;
         this.type = theType;
-        this.schema = theSchema;
         this.host = theHost;
         this.port = thePort;
-        this.db = theDb;
         this.dbaUser = theDbaUser;
     }
 
@@ -154,13 +134,6 @@ public final class ServerConfig {
                 throw new ParsingException(theElem, msg);
             }
 
-            final String schemaStr = theElem.getRequiredStringAttr(SCHEMA_ATTR);
-            this.schema = ESchemaType.forName(schemaStr);
-            if (this.schema == null) {
-                final String msg = Res.fmt(Res.SRV_CFG_BAD_SCHEMA, schemaStr);
-                throw new ParsingException(theElem, msg);
-            }
-
             this.host = theElem.getRequiredStringAttr(HOST_ATTR);
             if (this.host.isBlank()) {
                 throw new IllegalArgumentException("Hostname may not be blank.");
@@ -171,7 +144,6 @@ public final class ServerConfig {
                 throw new IllegalArgumentException("Invalid TCP port number");
             }
 
-            this.db = theElem.getStringAttr(DB_ATTR);
             this.dbaUser = theElem.getStringAttr(DBA_ATTR);
         } else {
             final String msg = Res.get(Res.SRV_CFG_BAD_ELEM_TAG);
@@ -180,56 +152,21 @@ public final class ServerConfig {
     }
 
     /**
-     * Builds the JDBC URL used to create the JDBC connection to the server.
-     *
-     * @param theUser     the username for this connection
-     * @param thePassword the password for this connection
-     * @return the URL
-     */
-    private String buildJdbcUrl(final String theUser, final String thePassword) {
-
-        final HtmlBuilder url = new HtmlBuilder(80);
-
-        url.add("jdbc:");
-
-        try {
-            if (this.type == EDbInstallationType.INFORMIX) {
-                url.add("informix-sqli://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.db, ":INFORMIXSERVER=", this.db, ";user=", theUser, ";password=",
-                        thePassword, "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
-            } else if (this.type == EDbInstallationType.ORACLE) {
-                url.add("oracle:thin:", theUser, CoreConstants.SLASH, URLEncoder.encode(thePassword, ENC), "@",
-                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, this.db);
-            } else if (this.type == EDbInstallationType.POSTGRESQL) {
-                url.add("postgresql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.db, "?user=", theUser, "&password=", thePassword);
-            } else if (this.type == EDbInstallationType.MYSQL) {
-                url.add("mysql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
-                        CoreConstants.SLASH, this.db, "?user=", theUser, "&password=", thePassword);
-            } else if (this.type == EDbInstallationType.CASSANDRA) {
-                // TODO: This is not JDBC
-            }
-        } catch (final UnsupportedEncodingException ex) {
-            Log.warning(ex);
-        }
-
-        return url.toString();
-    }
-
-    /**
      * Creates a new JDBC connection using this configuration.
      *
-     * @param theDbUse    the database use
+     * @param theDb       the database configuration
      * @param theUser     the username for this connection
      * @param thePassword the password for this connection
      * @return the new connection
      * @throws SQLException if the connection could not be opened
      */
-    public AbstractGeneralConnection openConnection(final EDbUse theDbUse, final String theUser,
+    public AbstractGeneralConnection openConnection(final DbConfig theDb, final String theUser,
                                                     final String thePassword) throws SQLException {
 
+        final String db = theDb.db;
+
         try {
-            final String url = buildJdbcUrl(theUser, thePassword);
+            final String url = buildJdbcUrl(theDb, theUser, thePassword);
 
             final Properties props = new Properties();
 
@@ -244,21 +181,60 @@ public final class ServerConfig {
                 jdbcConn = DriverManager.getConnection(url);
             }
 
-            conn = new JdbcGeneralConnection(theDbUse, jdbcConn);
+            conn = new JdbcGeneralConnection(theDb.use, jdbcConn);
 
             // TODO: Add non-JDBC connections for non-JDBC database products
 
             final String productName = conn.getDatabaseProductName();
-            Log.info("Connected to ", this.db, CoreConstants.SPC, productName);
+            Log.info("Connected to ", db, CoreConstants.SPC, productName);
 
             return conn;
         } catch (final SQLException | IllegalArgumentException ex) {
             final String exMsg = ex.getMessage();
             Log.warning(exMsg);
             final String portStr = Integer.toString(this.port);
-            final String msg = Res.fmt(Res.SRV_CFG_CANT_CONNECT, this.db, this.host, portStr);
+            final String msg = Res.fmt(Res.SRV_CFG_CANT_CONNECT, db, this.host, portStr);
             throw new SQLException(msg, ex);
         }
+    }
+
+    /**
+     * Builds the JDBC URL used to create the JDBC connection to the server.
+     *
+     * @param theDb       the database configuration
+     * @param theUser     the username for this connection
+     * @param thePassword the password for this connection
+     * @return the URL
+     */
+    private String buildJdbcUrl(final DbConfig theDb, final String theUser, final String thePassword) {
+
+        final HtmlBuilder url = new HtmlBuilder(80);
+
+        url.add("jdbc:");
+
+        final String db = theDb.db;
+        try {
+            if (this.type == EDbInstallationType.INFORMIX) {
+                url.add("informix-sqli://", this.host, CoreConstants.COLON, Integer.toString(this.port),
+                        CoreConstants.SLASH, db, ":INFORMIXSERVER=", db, ";user=", theUser, ";password=",
+                        thePassword, "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
+            } else if (this.type == EDbInstallationType.ORACLE) {
+                url.add("oracle:thin:", theUser, CoreConstants.SLASH, URLEncoder.encode(thePassword, ENC), "@",
+                        this.host, CoreConstants.COLON, Integer.toString(this.port), CoreConstants.SLASH, db);
+            } else if (this.type == EDbInstallationType.POSTGRESQL) {
+                url.add("postgresql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
+                        CoreConstants.SLASH, db, "?user=", theUser, "&password=", thePassword);
+            } else if (this.type == EDbInstallationType.MYSQL) {
+                url.add("mysql://", this.host, CoreConstants.COLON, Integer.toString(this.port),
+                        CoreConstants.SLASH, db, "?user=", theUser, "&password=", thePassword);
+            } else if (this.type == EDbInstallationType.CASSANDRA) {
+                // TODO: This is not JDBC
+            }
+        } catch (final UnsupportedEncodingException ex) {
+            Log.warning(ex);
+        }
+
+        return url.toString();
     }
 
     /**
@@ -274,8 +250,10 @@ public final class ServerConfig {
         final boolean equal;
 
         if (obj instanceof final ServerConfig test) {
-            equal = test.type == this.type &&  test.schema == this.schema && test.host.equals(this.host)
-                    && test.port == this.port && Objects.equals(test.db, this.db);
+            equal = test.id.equals(this.id) && test.type == this.type
+                    && test.host.equals(this.host) && test.port == this.port
+                    && Objects.equals(test.dbaUser, this.dbaUser);
+
         } else {
             equal = false;
         }
@@ -291,8 +269,8 @@ public final class ServerConfig {
     @Override
     public int hashCode() {
 
-        return this.type.hashCode() + this.schema.hashCode() + this.host.hashCode() + this.port
-                + EqualityTests.objectHashCode(this.db);
+        return this.id.hashCode() + this.type.hashCode() + this.host.hashCode() + this.port
+                + Objects.hashCode(this.dbaUser);
     }
 
     /**
@@ -306,11 +284,10 @@ public final class ServerConfig {
         final HtmlBuilder htm = new HtmlBuilder(100);
 
         final String portStr = Integer.toString(this.port);
-        htm.add(this.type.name, " server implementing the ", this.schema.name, " schema at ", this.host,
-                CoreConstants.COLON, portStr);
+        htm.add(this.type.name, " server ID '", this.id, "' at ", this.host, CoreConstants.COLON, portStr);
 
-        if (this.db != null) {
-            htm.add(" with id ", this.db);
+        if (this.dbaUser != null) {
+            htm.add(" with DBA ", this.dbaUser);
         }
 
         return htm.toString();

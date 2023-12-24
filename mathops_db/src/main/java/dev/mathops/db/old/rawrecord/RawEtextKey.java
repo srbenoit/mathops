@@ -167,9 +167,9 @@ public final class RawEtextKey extends RecBase implements Comparable<RawEtextKey
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.etextId)
-                + EqualityTests.objectHashCode(this.etextKey)
-                + EqualityTests.objectHashCode(this.activeDt);
+        return Objects.hashCode(this.etextId)
+                + Objects.hashCode(this.etextKey)
+                + Objects.hashCode(this.activeDt);
     }
 
     /**

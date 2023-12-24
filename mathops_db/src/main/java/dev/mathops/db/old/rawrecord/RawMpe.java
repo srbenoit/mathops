@@ -157,9 +157,9 @@ public final class RawMpe extends RecBase implements Comparable<RawMpe> {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.version)
-                + EqualityTests.objectHashCode(this.maxOnlineAtmpts)
-                + EqualityTests.objectHashCode(this.maxProctoredAtmpts);
+        return Objects.hashCode(this.version)
+                + Objects.hashCode(this.maxOnlineAtmpts)
+                + Objects.hashCode(this.maxProctoredAtmpts);
     }
 
     /**

@@ -209,10 +209,10 @@ public final class ExamOutcome extends AbstractXmlObject implements Realizable {
     @Override
     public int hashCode() {
 
-        return EqualityTests.objectHashCode(this.condition)
-                + EqualityTests.objectHashCode(this.actions)
-                + EqualityTests.objectHashCode(this.prereqs)
-                + EqualityTests.objectHashCode(this.validations)
+        return Objects.hashCode(this.condition)
+                + Objects.hashCode(this.actions)
+                + Objects.hashCode(this.prereqs)
+                + Objects.hashCode(this.validations)
                 + Boolean.hashCode(this.logDenial);
     }
 
