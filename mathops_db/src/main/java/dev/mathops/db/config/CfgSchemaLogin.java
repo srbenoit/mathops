@@ -7,20 +7,17 @@ import dev.mathops.core.parser.xml.NonemptyElement;
 import java.util.Map;
 
 /**
- * Represents a choice of DB and login to use for a particular schemadatabase profile, which provides a mapping from
- * schema to login that covers all defined schemata.
+ * An immutable representation of a schema login configuration, which defines database and login configurations
+ * for a particular schema.
  *
  * <p>
  * XML Representation:
  *
  * <pre>
- * &lt;data-profile id='...'&gt;
- *   ... zero or more &lt;schema-login&gt; child elements ...
- *   &lt;schema-login db='...' login='...'/&gt;
- * &lt;/data-profile&gt;
+ * &lt;schema-login db='...' login='...'/&gt;
  * </pre>
  */
-public final class SchemaLogin implements Comparable<SchemaLogin> {
+public final class CfgSchemaLogin implements Comparable<CfgSchemaLogin> {
 
     /** The element tag used in the XML representation of the configuration. */
     static final String ELEM_TAG = "schema-login";
@@ -38,45 +35,45 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
     public final ESchemaType schema;
 
     /** The selected DB config. */
-    private final DbConfig db;
+    public final CfgDatabase database;
 
     /** The selected login config. */
-    private final LoginConfig login;
+    public final CfgLogin login;
 
     /**
      * Constructs a new {@code SchemaLogin}.
      *
-     * @param theSchema the schema type
-     * @param theDb     the selected DB config
-     * @param theLogin  the selected login config
+     * @param theSchema   the schema type
+     * @param theDatabase the selected database config
+     * @param theLogin    the selected login config
      */
-    public SchemaLogin(final ESchemaType theSchema, final DbConfig theDb, final LoginConfig theLogin) {
+    public CfgSchemaLogin(final ESchemaType theSchema, final CfgDatabase theDatabase, final CfgLogin theLogin) {
 
         if (theSchema == null) {
             throw new IllegalArgumentException("Schema type may not be null.");
         }
-        if (theDb == null) {
-            throw new IllegalArgumentException("DB config may not be null");
+        if (theDatabase == null) {
+            throw new IllegalArgumentException("Database config may not be null");
         }
         if (theLogin == null) {
             throw new IllegalArgumentException("Login config may not be null");
         }
 
         this.schema = theSchema;
-        this.db = theDb;
+        this.database = theDatabase;
         this.login = theLogin;
     }
 
     /**
      * Constructs a new {@code SchemaLogin} from its XML representation.
      *
-     * @param theDbMap    the DB map
-     * @param theLoginMap the login map
-     * @param theElem     the XML element from which to extract configuration settings.
+     * @param theDatabaseMap the database map
+     * @param theLoginMap    the login map
+     * @param theElem        the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    SchemaLogin(final Map<String, DbConfig> theDbMap, final Map<String, LoginConfig> theLoginMap,
-                final NonemptyElement theElem) throws ParsingException {
+    CfgSchemaLogin(final Map<String, CfgDatabase> theDatabaseMap, final Map<String, CfgLogin> theLoginMap,
+                   final NonemptyElement theElem) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
@@ -89,8 +86,8 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
             }
 
             final String dbStr = theElem.getRequiredStringAttr(DB_ATTR);
-            this.db = theDbMap.get(dbStr);
-            if (this.db == null) {
+            this.database = theDatabaseMap.get(dbStr);
+            if (this.database == null) {
                 final String msg = Res.fmt(Res.SCH_LOGIN_BAD_DB, schemaStr);
                 throw new ParsingException(theElem, msg);
             }
@@ -108,36 +105,6 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
     }
 
     /**
-     * Gets the schema.
-     *
-     * @return the schema
-     */
-    public ESchemaType getSchema() {
-
-        return this.schema;
-    }
-
-    /**
-     * Gets the selected DB configuration.
-     *
-     * @return the DB configuration
-     */
-    public DbConfig getDb() {
-
-        return this.db;
-    }
-
-    /**
-     * Gets the selected login configuration.
-     *
-     * @return the login configuration
-     */
-    public LoginConfig getLogin() {
-
-        return this.login;
-    }
-
-    /**
      * Tests whether this {@code DataProfile} is equal to another object. To be equal, the other object must be a
      * {@code ServerConfig} and must have the same type, host, port, and name.
      *
@@ -149,9 +116,8 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
 
         final boolean equal;
 
-        if (obj instanceof final SchemaLogin test) {
-            equal = test.schema == this.schema && test.getDb().id.equals(this.db.id)
-                    && test.getLogin().id.equals(this.login.id);
+        if (obj instanceof final CfgSchemaLogin test) {
+            equal = test.schema == this.schema && test.database.equals(this.database) && test.login.equals(this.login);
         } else {
             equal = false;
         }
@@ -167,7 +133,7 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
     @Override
     public int hashCode() {
 
-        return this.schema.hashCode() + this.db.hashCode() + this.login.hashCode();
+        return this.schema.hashCode() + this.database.hashCode() + this.login.hashCode();
     }
 
     /**
@@ -178,17 +144,17 @@ public final class SchemaLogin implements Comparable<SchemaLogin> {
     @Override
     public String toString() {
 
-        return SimpleBuilder.concat("SchemaLogin{schema='", this.schema, "',db='", this.db.id, "',login='",
-                this.login.id, "'");
+        return SimpleBuilder.concat("SchemaLogin{schema=", this.schema, ",database=", this.database.id, ",login=",
+                this.login.id);
     }
 
     /**
-     * Compares this profile to another for order. Order is based on schema.
+     * Compares this schema login to another for order. Order is based on schema.
      *
-     * @param o the other profile to which to compare
+     * @param o the other schema login to which to compare
      */
     @Override
-    public int compareTo(final SchemaLogin o) {
+    public int compareTo(final CfgSchemaLogin o) {
 
         return this.schema.compareTo(o.schema);
     }

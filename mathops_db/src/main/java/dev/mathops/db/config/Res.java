@@ -59,10 +59,10 @@ final class Res extends ResBundle {
     // Used by ServerConfig
 
     /** A resource key. */
-    static final String SRV_CFG_BAD_ELEM_TAG = key(index++);
+    static final String INSTANCE_BAD_ELEM_TAG = key(index++);
 
     /** A resource key. */
-    static final String SRV_CFG_BAD_TYPE = key(index++);
+    static final String INSTANCE_BAD_TYPE = key(index++);
 
     /** A resource key. */
     static final String SRV_CFG_CANT_CONNECT = key(index++);
@@ -120,6 +120,22 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String SCH_LOGIN_BAD_LOGIN = key(index++);
 
+    // Used by Site
+
+    /** A resource key. */
+    static final String SITE_BAD_ELEM_TAG = key(index++);
+
+    /** A resource key. */
+    static final String SITE_BAD_PROFILE = key(index++);
+
+    // Used by CodeContext
+
+    /** A resource key. */
+    static final String CODE_CTX_BAD_ELEM_TAG = key(index++);
+
+    /** A resource key. */
+    static final String CODE_CTX_BAD_PROFILE = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -140,8 +156,8 @@ final class Res extends ResBundle {
             {DB_CFG_BAD_SITE_TAG, "Child of 'web' element was ''{0}'' rather than 'site' in context map"},
             {DB_CFG_UNEXPEC_CHILD, "Unexpected tag: {0}"},
 
-            {SRV_CFG_BAD_ELEM_TAG, "A server configuration must be in an element with tag 'server'"},
-            {SRV_CFG_BAD_TYPE, "Invalid type in 'server' tag: {0}"},
+            {INSTANCE_BAD_ELEM_TAG, "A server configuration must be in an element with tag 'server'"},
+            {INSTANCE_BAD_TYPE, "Invalid type in 'server' tag: {0}"},
             {SRV_CFG_CANT_CONNECT, "Failed to connect to server {0} ({1}:{2})"},
             {SRV_CFG_DUP_LOGIN_ID, "Duplicated login ID {0}"},
 
@@ -159,9 +175,14 @@ final class Res extends ResBundle {
 
             {SCH_LOGIN_BAD_ELEM_TAG, "A schema login must be in an element with tag 'schema-login'"},
             {SCH_LOGIN_BAD_SCHEMA, "Unrecognized schema in schema-login: {0}"},
-            {SCH_LOGIN_BAD_DB, "Unrecognized DB in schema-login: {0}"},
+            {SCH_LOGIN_BAD_DB, "Unrecognized database in schema-login: {0}"},
             {SCH_LOGIN_BAD_LOGIN, "Unrecognized login in schema-login: {0}"},
 
+            {SITE_BAD_ELEM_TAG, "A site configuration must be in an element with tag 'site'"},
+            {SITE_BAD_PROFILE, "Invalid data profile ID ({0}) in web context site context with path ''{1}''"},
+
+            {CODE_CTX_BAD_ELEM_TAG, "A code context configuration must be in an element with tag 'code-context'"},
+            {CODE_CTX_BAD_PROFILE, "Invalid data profile ID ({0}) in code context with id ''{1}''"},
             //
     };
 

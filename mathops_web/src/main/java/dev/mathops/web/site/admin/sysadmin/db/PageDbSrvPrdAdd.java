@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;
@@ -81,8 +81,8 @@ public enum PageDbSrvPrdAdd {
 
                 htm.sH(3).add("Add Database Product").eH(3);
 
-                final EDbInstallationType product =
-                        EDbInstallationType.forName(req.getParameter("product"));
+                final EDbProduct product =
+                        EDbProduct.forName(req.getParameter("product"));
                 final String version = req.getParameter("version");
 
                 htm.addln("<form class='form' action='db_servers_add_product.html' method='post'>");
@@ -91,7 +91,7 @@ public enum PageDbSrvPrdAdd {
 
                 htm.sDiv();
                 htm.sDiv("formfield").add("<select name='product'>");
-                for (final EDbInstallationType item : EDbInstallationType.values()) {
+                for (final EDbProduct item : EDbProduct.values()) {
                     htm.add("<option value='", item.name, "'");
                     if (product == item) {
                         htm.add(" selected");
@@ -170,8 +170,8 @@ public enum PageDbSrvPrdAdd {
             }
 
             if (server != null) {
-                final EDbInstallationType product =
-                        EDbInstallationType.forName(req.getParameter("product"));
+                final EDbProduct product =
+                        EDbProduct.forName(req.getParameter("product"));
                 final String version = req.getParameter("version");
 
                 if (product == null) {

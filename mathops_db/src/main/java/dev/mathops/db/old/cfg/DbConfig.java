@@ -7,7 +7,7 @@ import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -162,14 +162,14 @@ public final class DbConfig implements Comparable<DbConfig> {
         url.add("jdbc:");
 
         try {
-            if (this.server.type == EDbInstallationType.INFORMIX) {
+            if (this.server.type == EDbProduct.INFORMIX) {
                 url.add("informix-sqli://", this.server.host, COLON, Integer.toString(this.server.port), SLASH,
                         this.id, ":INFORMIXSERVER=", this.server.name, ";user=", theUser, ";password=", thePassword,
                         "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
-            } else if (this.server.type == EDbInstallationType.ORACLE) {
+            } else if (this.server.type == EDbProduct.ORACLE) {
                 url.add("oracle:thin:", theUser, SLASH, URLEncoder.encode(thePassword, ENC), "@", this.server.host,
                         COLON, Integer.toString(this.server.port), SLASH, this.id);
-            } else if (this.server.type == EDbInstallationType.POSTGRESQL) {
+            } else if (this.server.type == EDbProduct.POSTGRESQL) {
                 url.add("postgresql://", this.server.host, COLON, Integer.toString(this.server.port), SLASH, this.id,
                         "?user=", theUser, "&password=", thePassword);
             }
@@ -197,7 +197,7 @@ public final class DbConfig implements Comparable<DbConfig> {
 
             final Connection conn;
 
-            if (this.server.type == EDbInstallationType.INFORMIX) {
+            if (this.server.type == EDbProduct.INFORMIX) {
                 props.setProperty("CLIENT_LOCALE", "EN_US.8859-1");
                 conn = DriverManager.getConnection(url, props);
             } else {

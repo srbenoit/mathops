@@ -3,7 +3,7 @@ package dev.mathops.db.old.reclogic;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.iface.IInformixRecLogic;
 import dev.mathops.db.old.reclogic.iface.IPostgresRecLogic;
@@ -47,12 +47,12 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
      */
     public static AssignmentLogic get(final Cache cache) {
 
-        final EDbInstallationType type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache);
 
         AssignmentLogic result = null;
-        if (type == EDbInstallationType.INFORMIX) {
+        if (type == EDbProduct.INFORMIX) {
             result = INFORMIX;
-        } else if (type == EDbInstallationType.POSTGRESQL) {
+        } else if (type == EDbProduct.POSTGRESQL) {
             result = POSTGRES;
         }
 

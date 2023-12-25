@@ -3,7 +3,7 @@ package dev.mathops.db.old.reclogic.iface;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rec.RecBase;
 
@@ -36,7 +36,7 @@ public interface IRecLogic<T extends RecBase> {
      * @param cache the cache
      * @return the database installation type
      */
-    static EDbInstallationType getDbType(final Cache cache) {
+    static EDbProduct getDbType(final Cache cache) {
 
         final DbConfig db = cache.getDbProfile().getDbContext(ESchemaUse.PRIMARY).loginConfig.db;
 

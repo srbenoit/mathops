@@ -1,8 +1,7 @@
 package dev.mathops.db.old;
 
 import dev.mathops.core.log.Log;
-import dev.mathops.db.EDbInstallationType;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.EDbUse;
@@ -88,12 +87,12 @@ public final class Cache {
 
         final DbConfig db = theDbProfile.getDbContext(ESchemaUse.PRIMARY).loginConfig.db;
 
-        final EDbInstallationType type = db.server.type;
-        if (type == EDbInstallationType.INFORMIX) {
+        final EDbProduct type = db.server.type;
+        if (type == EDbProduct.INFORMIX) {
             this.mainSchemaName = "math";
             this.termSchemaName = "math";
 //            this.anlytSchemaName = "math";
-        } else if (type == EDbInstallationType.POSTGRESQL) {
+        } else if (type == EDbProduct.POSTGRESQL) {
             if (db.use == EDbUse.PROD) {
                 this.mainSchemaName = "main";
 //                this.anlytSchemaName = "anlyt";

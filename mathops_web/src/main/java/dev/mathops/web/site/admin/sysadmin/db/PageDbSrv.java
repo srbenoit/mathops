@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;
@@ -85,7 +85,7 @@ public enum PageDbSrv {
                 final List<DataDbInstalledProduct> products = server.products;
 
                 for (final DataDbInstalledProduct product : products) {
-                    final EDbInstallationType type = product.product;
+                    final EDbProduct type = product.product;
 
                     htm.add("<button class='nav6'");
                     htm.add(" onclick='pick(\"db_srv_prd.html?hostname=", hostname, "&product=", type.name,

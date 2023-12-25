@@ -1,13 +1,12 @@
 package dev.mathops.db.old.cfg;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +52,7 @@ public final class ServerConfig {
     private static final Integer ZERO = Integer.valueOf(0);
 
     /** The server type. */
-    public final EDbInstallationType type;
+    public final EDbProduct type;
 
     /** The server host name (or IP address). */
     public final String host;
@@ -80,7 +79,7 @@ public final class ServerConfig {
             throws ParsingException {
 
         if (ELEM_TAG.equals(theElem.getTagName())) {
-            this.type = EDbInstallationType.forName(theElem.getRequiredStringAttr(SERVER_TYPE_ATTR));
+            this.type = EDbProduct.forName(theElem.getRequiredStringAttr(SERVER_TYPE_ATTR));
             if (this.type == null) {
                 throw new ParsingException(theElem.getStart(), theElem.getEnd(),
                         Res.fmt(Res.SRV_CFG_BAD_TYPE, theElem.getRequiredStringAttr(SERVER_TYPE_ATTR)));

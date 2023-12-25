@@ -1,28 +1,30 @@
 package dev.mathops.db.config;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Represents a database profile, which provides a mapping from schema to login that covers all defined schemata.
+ * An immutable representation of a database profile, which provides a mapping from every defined schema types to a
+ * schema login configuration.
  *
  * <p>
  * XML Representation:
  *
  * <pre>
  * &lt;data-profile id='...'&gt;
- *   ... zero or more &lt;schema-login&gt; child elements ...
- *   &lt;schema-login db='...' login='...'/&gt;
+ *   ... one &lt;schema-login&gt; child elements for every schema type ...
  * &lt;/data-profile&gt;
  * </pre>
  */
-public final class DataProfile implements Comparable<DataProfile> {
+public final class CfgDataProfile implements Comparable<CfgDataProfile> {
 
     /** The element tag used in the XML representation of the configuration. */
     static final String ELEM_TAG = "data-profile";
@@ -30,30 +32,44 @@ public final class DataProfile implements Comparable<DataProfile> {
     /** The ID attribute. */
     private static final String ID_ATTR = "id";
 
+    /** An empty array used when converting collections of web contexts to arrays. */
+    private static final CfgSchemaLogin[] EMPTY_SCHEMA_LOGIN_ARRAY = new CfgSchemaLogin[0];
+
     /** The ID. */
     public final String id;
 
     /** A map from schema type to the schema login configuration for that schema. */
-    private final Map<ESchemaType, SchemaLogin> schemaLogins;
+    private final Map<ESchemaType, CfgSchemaLogin> schemaLogins;
 
     /**
      * Constructs a new {@code DataProfile}.
      *
-     * @param theId         the profile ID
-     * @param theSchemaLogins a map from schema ID to database context
+     * @param theId           the profile ID
+     * @param theSchemaLogins the child schema logins
      */
-    public DataProfile(final String theId, final Map<ESchemaType, SchemaLogin> theSchemaLogins) {
+    public CfgDataProfile(final String theId, final Collection<CfgSchemaLogin> theSchemaLogins) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Data profile ID may not be null or blank.");
         }
-        if (theSchemaLogins == null || theSchemaLogins.size() != ESchemaType.values().length
-                || theSchemaLogins.containsKey(null)) {
-            throw new IllegalArgumentException("Schema logins map must be provided with a login for every schema");
+        if (theSchemaLogins == null) {
+            throw new IllegalArgumentException("Schema logins map may not be null");
         }
 
         this.id = theId;
-        this.schemaLogins = new EnumMap<>(theSchemaLogins);
+        this.schemaLogins = new EnumMap<>(ESchemaType.class);
+        for (final CfgSchemaLogin schemaLogin : theSchemaLogins) {
+            if (schemaLogin != null) {
+                if (this.schemaLogins.containsKey(schemaLogin.schema)) {
+                    throw new IllegalArgumentException("Duplicate schema in child schema login collection");
+                }
+                this.schemaLogins.put(schemaLogin.schema, schemaLogin);
+            }
+        }
+
+        if (this.schemaLogins.size() != ESchemaType.values().length) {
+            throw new IllegalArgumentException("Schema logins map must be provided with a login for every schema");
+        }
     }
 
     /**
@@ -64,12 +80,15 @@ public final class DataProfile implements Comparable<DataProfile> {
      * @param theElem     the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    DataProfile(final Map<String, DbConfig> theDbMap, final Map<String, LoginConfig> theLoginMap,
-                final NonemptyElement theElem) throws ParsingException {
+    CfgDataProfile(final Map<String, CfgDatabase> theDbMap, final Map<String, CfgLogin> theLoginMap,
+                   final NonemptyElement theElem) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
+            if (this.id.isBlank()) {
+                throw new IllegalArgumentException("Data profile ID may not be blank.");
+            }
 
             final int count = theElem.getNumChildren();
             this.schemaLogins = new EnumMap<>(ESchemaType.class);
@@ -79,15 +98,14 @@ public final class DataProfile implements Comparable<DataProfile> {
                 if (child instanceof final EmptyElement childElem) {
                     final String childTag = theElem.getTagName();
 
-                    if (SchemaLogin.ELEM_TAG.equals(childTag)) {
-                        final SchemaLogin login = new SchemaLogin(theDbMap, theLoginMap, theElem);
-                        final ESchemaType loginSchema = login.getSchema();
-                        this.schemaLogins.put(loginSchema, login);
+                    if (CfgSchemaLogin.ELEM_TAG.equals(childTag)) {
+                        final CfgSchemaLogin login = new CfgSchemaLogin(theDbMap, theLoginMap, theElem);
+                        this.schemaLogins.put(login.schema, login);
                     } else {
                         Log.warning("Unexpected child of <data-profile> element.");
                     }
                 } else {
-                    Log.warning("Unexpected child of <data-profile> element.");
+                    Log.warning("Unexpected non-empty child of <data-profile> element.");
                 }
             }
 
@@ -101,12 +119,22 @@ public final class DataProfile implements Comparable<DataProfile> {
     }
 
     /**
+     * Gets of schema logins in the schema login map.
+     *
+     * @return the array of schema login configurations
+     */
+    public CfgSchemaLogin[] getSchemaLogins() {
+
+        return this.schemaLogins.values().toArray(EMPTY_SCHEMA_LOGIN_ARRAY);
+    }
+
+    /**
      * Gets the schema login to use for a particular schema type.
      *
      * @param schemaType the schema type
      * @return the schema login configuration
      */
-    public SchemaLogin getSchemaLogin(final ESchemaType schemaType) {
+    public CfgSchemaLogin getSchemaLogin(final ESchemaType schemaType) {
 
         return this.schemaLogins.get(schemaType);
     }
@@ -123,7 +151,7 @@ public final class DataProfile implements Comparable<DataProfile> {
 
         final boolean equal;
 
-        if (obj instanceof final DataProfile test) {
+        if (obj instanceof final CfgDataProfile test) {
             equal = test.id.equals(this.id) && test.schemaLogins.equals(this.schemaLogins);
         } else {
             equal = false;
@@ -151,7 +179,7 @@ public final class DataProfile implements Comparable<DataProfile> {
     @Override
     public String toString() {
 
-        return this.id;
+        return SimpleBuilder.concat("CfgDatProfile{schemaLogins=", this.schemaLogins, "}");
     }
 
     /**
@@ -160,7 +188,7 @@ public final class DataProfile implements Comparable<DataProfile> {
      * @param o the other profile to which to compare
      */
     @Override
-    public int compareTo(final DataProfile o) {
+    public int compareTo(final CfgDataProfile o) {
 
         return this.id.compareTo(o.id);
     }

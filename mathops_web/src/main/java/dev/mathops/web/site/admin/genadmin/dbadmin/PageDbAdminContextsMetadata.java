@@ -5,7 +5,7 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -208,11 +208,11 @@ public enum PageDbAdminContextsMetadata {
                 do {
                     final String sch = tables.getString("TABLE_SCHEM");
 
-                    if (cfg.db.server.type == EDbInstallationType.INFORMIX) {
+                    if (cfg.db.server.type == EDbProduct.INFORMIX) {
                         if ("informix".equals(sch) || "9.55C1".equals(sch) || CoreConstants.EMPTY.equals(sch)) {
                             continue;
                         }
-                    } else if (cfg.db.server.type == EDbInstallationType.ORACLE) {
+                    } else if (cfg.db.server.type == EDbProduct.ORACLE) {
                         if ("SYS".equals(sch) || "SYSTEM".equals(sch)
                                 || "WMSYS".equals(sch) || "MDSYS".equals(sch)
                                 || "MODSMGR".equals(sch) || "OLAPSYS".equals(sch)
@@ -221,7 +221,7 @@ public enum PageDbAdminContextsMetadata {
                                 || "GSMADMIN_INTERNAL".equals(sch)) {
                             continue;
                         }
-                    } else if ((cfg.db.server.type == EDbInstallationType.POSTGRESQL)
+                    } else if ((cfg.db.server.type == EDbProduct.POSTGRESQL)
                             && ("pg_catalog".equals(sch) || "pg_toast".equals(sch)
                             || "information_schema".equals(sch))) {
                         continue;

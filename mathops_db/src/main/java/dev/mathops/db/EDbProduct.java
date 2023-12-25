@@ -1,9 +1,9 @@
 package dev.mathops.db;
 
 /**
- * Enumeration of supported server installation types.
+ * Enumeration of supported database products.
  */
-public enum EDbInstallationType {
+public enum EDbProduct {
 
     /** The Informix database. */
     INFORMIX("Informix"),
@@ -24,11 +24,11 @@ public enum EDbInstallationType {
     public final String name;
 
     /**
-     * Constructs a new {@code EDbInstallationType}.
+     * Constructs a new {@code EDbProduct}.
      *
      * @param theName the type name
      */
-    EDbInstallationType(final String theName) {
+    EDbProduct(final String theName) {
 
         this.name = theName;
     }
@@ -45,16 +45,16 @@ public enum EDbInstallationType {
     }
 
     /**
-     * Returns the {@code EDbInstallationType} that corresponds to a name. Name comparison is case-insensitive.
+     * Returns the {@code EDbProduct} that corresponds to a name. Name comparison is case-insensitive.
      *
      * @param name the name
-     * @return the matching {@code EDbInstallationType}; {@code null} if none matches
+     * @return the matching {@code EDbProduct}; {@code null} if none matches
      */
-    public static EDbInstallationType forName(final String name) {
+    public static EDbProduct forName(final String name) {
 
-        EDbInstallationType result = null;
+        EDbProduct result = null;
 
-        for (final EDbInstallationType value : values()) {
+        for (final EDbProduct value : values()) {
             if (value.name.equalsIgnoreCase(name)) {
                 result = value;
                 break;

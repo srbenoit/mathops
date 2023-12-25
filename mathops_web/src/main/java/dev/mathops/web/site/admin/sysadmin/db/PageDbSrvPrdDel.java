@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;
@@ -62,7 +62,7 @@ public enum PageDbSrvPrdDel {
         htm.sH(2).add("Database Servers").eH(2);
 
         final String hostname = req.getParameter("hostname");
-        final EDbInstallationType product = EDbInstallationType.forName(req.getParameter("product"));
+        final EDbProduct product = EDbProduct.forName(req.getParameter("product"));
         final String version = DataDbInstalledProduct.sanitize(req.getParameter("version"));
 
         if (hostname == null || hostname.isEmpty()) {
@@ -92,7 +92,7 @@ public enum PageDbSrvPrdDel {
                 DataDbInstalledProduct selected = null;
 
                 for (final DataDbInstalledProduct prod : products) {
-                    final EDbInstallationType type = prod.product;
+                    final EDbProduct type = prod.product;
 
                     if (prod.product == product && prod.version.equals(version)) {
                         htm.add("<button class='nav6 selected'");
@@ -170,7 +170,7 @@ public enum PageDbSrvPrdDel {
                 final String path = site.siteProfile.path;
                 resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "db.html" : "/db.html"));
             } else {
-                final EDbInstallationType product = EDbInstallationType.forName(req.getParameter("product"));
+                final EDbProduct product = EDbProduct.forName(req.getParameter("product"));
                 final String version = DataDbInstalledProduct.sanitize(req.getParameter("version"));
                 PageDb.deleteProduct(server, product, version);
 

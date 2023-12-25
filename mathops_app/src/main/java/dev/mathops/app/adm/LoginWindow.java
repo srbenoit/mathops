@@ -11,7 +11,7 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
@@ -481,9 +481,9 @@ import java.util.prefs.Preferences;
                             continue;
                         }
                         if (db.use == dbUse) {
-                            if (db.server.type == EDbInstallationType.INFORMIX) {
+                            if (db.server.type == EDbProduct.INFORMIX) {
                                 ifxDb = db;
-                            } else if (db.server.type == EDbInstallationType.POSTGRESQL) {
+                            } else if (db.server.type == EDbProduct.POSTGRESQL) {
                                 pgDb = db;
                             }
                         }

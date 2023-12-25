@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AdminSite;
@@ -61,8 +61,8 @@ public enum PageDbSrvPrd {
         htm.sH(2).add("Database Servers").eH(2);
 
         final String hostname = req.getParameter("hostname");
-        final EDbInstallationType product =
-                EDbInstallationType.forName(req.getParameter("product"));
+        final EDbProduct product =
+                EDbProduct.forName(req.getParameter("product"));
         final String version = DataDbInstalledProduct.sanitize(req.getParameter("version"));
 
         if (hostname == null || hostname.isEmpty()) {
@@ -92,7 +92,7 @@ public enum PageDbSrvPrd {
                 DataDbInstalledProduct selected = null;
 
                 for (final DataDbInstalledProduct prod : products) {
-                    final EDbInstallationType type = prod.product;
+                    final EDbProduct type = prod.product;
 
                     if (prod.product == product && prod.version.equals(version)) {
                         htm.add("<button class='nav6 selected'");

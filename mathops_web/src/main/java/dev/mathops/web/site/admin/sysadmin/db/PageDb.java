@@ -6,7 +6,7 @@ import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.file.WebFileLoader;
@@ -237,7 +237,7 @@ public enum PageDb {
      * @param product the product to delete
      * @param version the version to delete
      */
-    static void deleteProduct(final DataDbServer server, final EDbInstallationType product,
+    static void deleteProduct(final DataDbServer server, final EDbProduct product,
                               final String version) {
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {

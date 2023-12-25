@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.sysadmin.db;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.parser.xml.IElement;
-import dev.mathops.db.EDbInstallationType;
+import dev.mathops.db.EDbProduct;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 final class DataDbInstalledProduct {
 
     /** The product. */
-    public final EDbInstallationType product;
+    public final EDbProduct product;
 
     /** The version. */
     final String version;
@@ -30,9 +30,9 @@ final class DataDbInstalledProduct {
      * @param theProduct the product
      * @param theVersion the version
      */
-    DataDbInstalledProduct(final EDbInstallationType theProduct, final CharSequence theVersion) {
+    DataDbInstalledProduct(final EDbProduct theProduct, final CharSequence theVersion) {
 
-        this.product = Objects.requireNonNullElse(theProduct, EDbInstallationType.INFORMIX);
+        this.product = Objects.requireNonNullElse(theProduct, EDbProduct.INFORMIX);
 
         if (theVersion == null) {
             this.version = CoreConstants.EMPTY;
@@ -51,7 +51,7 @@ final class DataDbInstalledProduct {
 
         DataDbInstalledProduct info = null;
 
-        final EDbInstallationType product = EDbInstallationType.forName(elem.getStringAttr("product"));
+        final EDbProduct product = EDbProduct.forName(elem.getStringAttr("product"));
         final String version = elem.getStringAttr("version");
 
         if (product != null && version != null) {

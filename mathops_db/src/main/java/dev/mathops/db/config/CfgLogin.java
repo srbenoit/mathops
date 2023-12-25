@@ -1,15 +1,13 @@
 package dev.mathops.db.config;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
 
-import java.util.Map;
-
 /**
- * An immutable set of login credentials (username and password) for a specified database server.
+ * An immutable representation of a set of login credentials (username and password) for a specified database server.
  */
-public final class LoginConfig {
+public final class CfgLogin implements Comparable<CfgLogin> {
 
     /** The element tag used in the XML representation of the configuration. */
     public static final String ELEM_TAG = "login";
@@ -18,7 +16,7 @@ public final class LoginConfig {
     private static final String ID_ATTR = "id";
 
     /** The user attribute. */
-    private static final String USER_ATTR = "user";
+    private static final String USERNAME_ATTR = "username";
 
     /** The password attribute. */
     private static final String PASSWORD_ATTR = "password";
@@ -27,30 +25,29 @@ public final class LoginConfig {
     public final String id;
 
     /** The login username. */
-    public final String user;
+    public final String username;
 
     /** The login password. */
     public final String password;
 
     /**
-     * Constructs a new {@code LoginConfig}.
+     * Constructs a new {@code Login}.
      *
      * @param theId       the login configuration ID
-     * @param theUser     the login username
+     * @param theUsername the login username
      * @param thePassword the login password
      */
-    public LoginConfig(final String theId, final String theUser,
-                       final String thePassword) {
+    public CfgLogin(final String theId, final String theUsername, final String thePassword) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Login ID may not be null or blank.");
         }
-        if (theUser == null || theUser.isBlank()) {
+        if (theUsername == null || theUsername.isBlank()) {
             throw new IllegalArgumentException("Login user name may not be null or blank.");
         }
 
         this.id = theId;
-        this.user = theUser;
+        this.username = theUsername;
         this.password = thePassword;
     }
 
@@ -58,25 +55,24 @@ public final class LoginConfig {
      * Constructs a new {@code LoginConfig} from its XML representation.
      *
      * @param theElem the XML element from which to extract configuration settings.
-     * @param servers a map from server ID to server configuration
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    LoginConfig(final EmptyElement theElem, final Map<String, ServerConfig> servers) throws ParsingException {
+    CfgLogin(final EmptyElement theElem) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
-            if (this.id == null || this.id.isBlank()) {
-                throw new ParsingException(theElem, "Login ID may not be null or blank.");
+            if (this.id.isBlank()) {
+                throw new ParsingException(theElem, "Login ID may not be blank.");
             }
 
-            this.user = theElem.getRequiredStringAttr(USER_ATTR);
-            if (this.user == null || this.user.isBlank()) {
-                throw new ParsingException(theElem, "Login user name may not be null or blank.");
+            this.username = theElem.getRequiredStringAttr(USERNAME_ATTR);
+            if (this.username.isBlank()) {
+                throw new ParsingException(theElem, "Login user name may not be blank.");
             }
 
-            // NOTE: Password is allowed to be blank - applications should prompt for the password at runtime, to
-            // prevent having to store plaintext passwords in configuration files
+            // NOTE: Password is allowed to be blank, in which case applications should prompt for the password at
+            // runtime, to prevent having to store plaintext passwords in configuration files
             this.password = theElem.getStringAttr(PASSWORD_ATTR);
         } else {
             final String msg = Res.get(Res.LOGIN_CFG_BAD_ELEM_TAG);
@@ -96,8 +92,8 @@ public final class LoginConfig {
 
         final boolean equal;
 
-        if (obj instanceof final LoginConfig test) {
-            equal = test.id.equals(this.id) && test.user.equals(this.user);
+        if (obj instanceof final CfgLogin test) {
+            equal = test.id.equals(this.id) && test.username.equals(this.username);
         } else {
             equal = false;
         }
@@ -113,7 +109,7 @@ public final class LoginConfig {
     @Override
     public int hashCode() {
 
-        return this.id.hashCode() + this.user.hashCode();
+        return this.id.hashCode() + this.username.hashCode();
     }
 
     /**
@@ -124,10 +120,23 @@ public final class LoginConfig {
     @Override
     public String toString() {
 
-        final HtmlBuilder builder = new HtmlBuilder(100);
+        return SimpleBuilder.concat("LoginConfig{id=", this.id, ",username=", this.username, "}");
+    }
 
-        builder.add("LoginConfig{id='", this.id, "',user='", this.user, "',password='", this.password, "'");
+    /**
+     * Compares this login to another for order. Order is based on username, then by ID.
+     *
+     * @param o the other login to which to compare
+     */
+    @Override
+    public int compareTo(final CfgLogin o) {
 
-        return builder.toString();
+        int result = this.username.compareTo(o.username);
+
+        if (result == 0) {
+            result = this.id.compareTo(o.id);
+        }
+
+        return result;
     }
 }
