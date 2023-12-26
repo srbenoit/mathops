@@ -193,10 +193,10 @@ enum PageStdsTextModule {
                 .addln("Passing this course requires that you do two things:").eP();
 
         htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
-        htm.addln("<li>Master at least 12 learning targets (out of 15) in the first half of ",
-                "the course.</li>");
-        htm.addln("<li>Master at least 12 learning targets (out of 15) in the second half of ",
-                "the course.</li>");
+        htm.addln("<li>Master at least 9 learning targets (out of 12) in the <strong>first half</strong> of ",
+                "the course (Modules 1 through 4).</li>");
+        htm.addln("<li>Master at least 9 learning targets (out of 12) in the <strong>second half</strong> of ",
+                "the course (modules 5 through 8).</li>");
         htm.addln("</ul>");
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-top:0;'")
@@ -205,18 +205,17 @@ enum PageStdsTextModule {
                 .eP();
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-bottom:0;'")
-                .add("There are 170 points possible (150 from learning targets, ",
-                        "20 from explorations).");
+                .add("There are 120 points possible.");
 
         htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
-        htm.addln("<li>153 (90%) points or higher earns an <strong>A</strong></li>");
-        htm.addln("<li>136 (80%) to 152 points earns a <strong>B</strong></li>");
+        htm.addln("<li>108 (90%) points or higher earns an <strong>A</strong></li>");
+        htm.addln("<li>96 (80%) to 107 points earns a <strong>B</strong></li>");
         htm.addln("</ul>");
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-top:0;'")
-                .add("Any number of points less than 136, as long as you have mastered 12 learning ",
+                .add("Any number of points less than 96, as long as you have mastered 9 learning ",
                         "targets in each half of the course, earns a <strong>C</strong>.  If you do not ",
-                        "master 12 learning targets in each half of the course, a <strong>U</strong> ",
+                        "master 9 learning targets in each half of the course, a <strong>U</strong> ",
                         "grade will be recorded (a U grade does not affect GPA).")
                 .eP();
 
@@ -225,8 +224,8 @@ enum PageStdsTextModule {
         htm.sH(3).add("Assignments and Earning Points").eH(3);
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                .add("The course is divided into ten Units, and two Explorations. ",
-                        "Units have three learning targets each, for a total of 30 learning targets.")
+                .add("The course is divided into eight modules. ",
+                        "Each module has three learning targets, for a total of 24 learning targets.")
                 .eP();
 
         htm.sH(4).add("Skills Review").eH(4);
@@ -234,10 +233,10 @@ enum PageStdsTextModule {
         htm.sDiv("indent");
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                .add("Each unit begins with a <b>Skills Review</b>.  This is a (hopefully) easy ",
-                        "assignment to remind you of some skills you will need in the unit.  You have to ",
+                .add("Each module begins with a <b>Skills Review</b>.  This is a (hopefully) easy ",
+                        "assignment to remind you of some skills you will need in the module.  You have to ",
                         "complete this assignment before you can move on to the learning targets in the ",
-                        "unit. Skills Review assignments do not earn points.")
+                        "module. Skills Review assignments do not earn points.")
                 .eP();
 
         htm.eDiv();
@@ -254,10 +253,17 @@ enum PageStdsTextModule {
                         "dates and do not earn points.")
                 .eP();
 
+        htm.eDiv();
+
+        htm.sH(4).add("Mastering Learning Targets").eH(4);
+
+        htm.sDiv("indent");
+
         htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-bottom:0'")
-                .add("Once you have unlocked a learning target for mastery, you can go to the ",
-                        "Precalculus Center and take a <b>Mastery Exam</b> to demonstrate mastery of that ",
-                        "learning target.")
+                .add("Once you have unlocked a learning target for mastery, you can go to the Precalculus Center and ",
+                        "take a <b>Mastery Exam</b> to demonstrate mastery of that learning target.  The Mastery Exam ",
+                        "will have two questions for each learning target - you must answer both correctly to master ",
+                        "that learning target.  You have unlimited attempts on Mastery Exams.")
                 .eP();
 
         htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
@@ -270,35 +276,10 @@ enum PageStdsTextModule {
                         "target - you can complete several Learning Target assignments, then go to the ",
                         "Precalculus Center and your Mastery Exam will include all learning targets you are ",
                         "eligible for.  However, if you have 7 or more learning targets that have not yet ",
-                        "been mastered, you will not be able to move on to the next Unit until you master ",
+                        "been mastered, you will not be able to move on to the next Module until you master ",
                         "some learning targets to get the number open below 7.  This is to prevent ",
-                        "someone from leaving all the mastery exams until the end.")
+                        "someone from leaving all the mastery exams until the end of the semester.")
                 .eP();
-
-        htm.eDiv();
-
-        htm.sH(4).add("Explorations").eH(4);
-
-        htm.sDiv("indent");
-
-        htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                .add("Finally, the course has two Explorations (one after Unit 5, one after Unit 10).")
-                .eP();
-
-        htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-bottom:0'").addln(
-                "Explorations have an assignment to complete with a due date. ",
-                "An exploration can either be scored as 'mastered' or 'attempted'.");
-
-        htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
-        htm.addln("<li>Mastery of an exploration by its due date earns <b>10 points</b>.");
-        htm.addln("<li>Mastery of an exploration after its due date earns <b>8 points</b> ",
-                "(<b>9</b> if it's less than 24 hours late).");
-        htm.addln("<li>Attempting, but not mastering, an exploration by its due date earns ",
-                "<b>5 points</b>.");
-        htm.addln("<li>Attempting, but not mastering, an exploration after its due date earns ",
-                "<b>4 points</b>.");
-        htm.addln("</ul>");
-        htm.eP();
 
         htm.eDiv();
 
@@ -310,19 +291,17 @@ enum PageStdsTextModule {
                 .add("To succeed in this course, we recommend these core strategies:").eP();
 
         htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
-        htm.addln(
-                "<li>Work ahead - never wait until a deadline to do work that's due that day.</li>");
-        htm.addln("<li>Do a little work each day or every couple of days, rather than trying ",
-                "to pack a lot of work into one day each week.  Schedule a regular time to work on ",
-                "this course.</li>");
-        htm.addln("<li>Give yourself time and space.  Time, so you don't feel rushed or panicked, ",
+        htm.addln("<li><strong>Work ahead</strong> - never wait until a deadline to do work that's due that day.</li>");
+        htm.addln("<li><strong>Do a little work each day</strong> or every couple of days, rather than trying to pack",
+                "a lot of work into one day each week.  Schedule a regular time to work on this course.</li>");
+        htm.addln("<li><strong>Give yourself time and space</strong>.  Time, so you don't feel rushed or panicked, ",
                 "and a quiet study space where you can focus.</li>");
-        htm.addln("<li>Use the resources provided.  Take advantage of in-person and online help ",
-                "from the Precalculus Center.  Watch course videos and read the  solutions. ",
-                "Use textbooks or Internet resources when something does not make sense.</li>");
-        htm.addln("<li>If you start to get behind, reach out quickly and get back on track. ",
-                "The Precalculus Center team wants to help you succeed!  Help us to help you by ",
-                "bringing us in when you need it.</li>");
+        htm.addln("<li><strong>Use the resources provided</strong>.  Take advantage of in-person and online help from ",
+                "the Precalculus Center.  Watch course videos and read the  solutions. Use textbooks or Internet ",
+                "resources when something does not make sense.</li>");
+        htm.addln("<li>If you start to get behind, <strong>reach out quickly</strong> and get back on track.  The ",
+                "Precalculus Center team wants to help you succeed!  Help us to help you by bringing us in when you ",
+                "need it.</li>");
         htm.addln("</ul>");
     }
 

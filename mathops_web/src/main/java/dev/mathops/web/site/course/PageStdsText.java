@@ -115,8 +115,9 @@ enum PageStdsText {
 
             Page.endOrdinaryPage(cache, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final String htmStr = htm.toString();
+            final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -182,7 +183,7 @@ enum PageStdsText {
             emitModuleTitle(htm, null, "How to Successfully Navigate this Course", CSU_ORANGE);
             htm.div(CLEAR);
 
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < 8; ++i) {
                 final ModuleData moduleData = courseData.modules.get(i);
                 final String heading = "Module " + moduleData.moduleNumber;
                 final String howToOpenM1 = emitThumb(htm, session, moduleData, masteryStatus, mode, "Open " + heading);
@@ -191,26 +192,6 @@ enum PageStdsText {
                 emitModuleStatus(htm, masteryStatus, 1, howToOpenM1);
                 htm.div(CLEAR);
             }
-
-            final String howToOpenEx1 = emitExplorationThumb(htm, masteryStatus, 1, courseData.courseId, mode, OPEN);
-            emitModuleTitle(htm, null, EPLOR_1, CSU_ORANGE);
-            emitExplorationStatus(htm, masteryStatus, 1, howToOpenEx1);
-            htm.div(CLEAR);
-
-            for (int i = 5; i < 10; ++i) {
-                final ModuleData moduleData = courseData.modules.get(i);
-                final String heading = "Module " + moduleData.moduleNumber;
-                final String howToOpenM1 = emitThumb(htm, session, moduleData, masteryStatus, mode, "Open " + heading);
-
-                emitModuleTitle(htm, heading, moduleData.moduleTitle, CSU_GREEN);
-                emitModuleStatus(htm, masteryStatus, 1, howToOpenM1);
-                htm.div(CLEAR);
-            }
-
-            final String howToOpenEx2 = emitExplorationThumb(htm, masteryStatus, 2, courseData.courseId, mode, OPEN);
-            emitModuleTitle(htm, null, EPLOR_2, CSU_ORANGE);
-            emitExplorationStatus(htm, masteryStatus, 2, howToOpenEx2);
-            htm.div(CLEAR).hr();
         }
     }
 
@@ -269,36 +250,6 @@ enum PageStdsText {
                     // }
                 }
             }
-        }
-
-        return result;
-    }
-
-    /**
-     * Determines whether an exploration is "open", meaning the student can access the exploration and open its
-     * assignment.
-     *
-     * @param status            the student's mastery status in the course
-     * @param explorationNumber the exploration number (from 1 to 2)
-     * @return {@code null} if the exploration is open, and if not, a message to the student explaining what needs to be
-     *         done to open the exploration
-     */
-    private static String isExplorationOpen(final MasteryStatus status, final int explorationNumber) {
-
-        String result = null;
-
-        // Explorations open when the prior unit's assignments have been passed
-
-        final int priorUnitIndex = explorationNumber == 1 ? 12 : 27;
-
-        final boolean priorModAssignPend = status.assignmentStatus[priorUnitIndex + 1] <= 1
-                || status.assignmentStatus[priorUnitIndex + 2] <= 1
-                || status.assignmentStatus[priorUnitIndex + 3] <= 1;
-
-        if (priorModAssignPend) {
-            final String priorModules = explorationNumber == 1 ? "1 through 5" : "6 through 10";
-            result = SimpleBuilder.concat("This exploration will become available when the assignments in Modules ",
-                    priorModules, " have been completed.");
         }
 
         return result;
@@ -371,44 +322,6 @@ enum PageStdsText {
             htm.add("<a class='smallbtndim' ",
                     "style='width:152px;margin-right:16px;text-align:center;' >",
                     buttonLabel, "</a>");
-        }
-        htm.eDiv();
-
-        return howToOpen;
-    }
-
-    /**
-     * Emits a thumbnail image and button to go into an exploration.
-     *
-     * @param htm               the {@code HtmlBuilder} to which to append the HTML
-     * @param masteryStatus     the mastery status
-     * @param explorationNumber the exploration number (from 1 to 2)
-     * @param course            the course number, such as "M 125"
-     * @param mode              the page mode
-     * @param buttonLabel       the button label
-     * @return {@code null} if the exploration is open, and if not, a message to the student explaining what needs to be
-     *         done to open the exploration
-     */
-    private static String emitExplorationThumb(final HtmlBuilder htm, final MasteryStatus masteryStatus,
-                                               final int explorationNumber, final String course, final String mode,
-                                               final String buttonLabel) {
-
-        final String course2 = course.replaceAll(CoreConstants.SPC, "%20");
-        final String href = SimpleBuilder.concat("course_text_exploration.html?course=", course2,
-                "&course_text_exploration=", Integer.toString(explorationNumber), "&mode=", mode);
-
-        final String howToOpen = isExplorationOpen(masteryStatus, explorationNumber);
-        htm.hr();
-        htm.sDiv("left");
-        if (howToOpen == null) {
-            htm.addln("<a href='", href, "'><img style='margin-right:16px; border:1px gray solid;' ",
-                    "src='/www/images/etext/explorations-thumb.png'/></a>").br();
-            htm.add("<a class='smallbtn' style='width:152px;text-align:center;' href='", href, "'>", buttonLabel,
-                    "</a>");
-        } else {
-            htm.addln("<img style='margin-right:16px; border:1px gray solid;' ",
-                    "src='/www/images/etext/explorations-thumb.png'/>").br();
-            htm.add("<a class='smallbtndim' style='width:152px;text-align:center;'>", buttonLabel, "</a>");
         }
         htm.eDiv();
 
@@ -542,47 +455,6 @@ enum PageStdsText {
             htm.addln(howToOpen);
             htm.eDiv();
         }
-    }
-
-    /**
-     * Emits the student's status in an exploration.
-     *
-     * @param htm               the {@code HtmlBuilder} to which to append the HTML
-     * @param masteryStatus     the mastery status
-     * @param explorationNumber the exploration number
-     * @param howToOpen         {@code null} if the exploration is open; a phrase describing to the student how to open
-     *                          the exploration if not
-     */
-    private static void emitExplorationStatus(final HtmlBuilder htm, final MasteryStatus masteryStatus,
-                                              final int explorationNumber, final String howToOpen) {
-
-        final String color = howToOpen == null ? "fffff0" : "f0f0f0";
-
-        htm.sDiv(null, SimpleBuilder.concat("style='background:#", color,
-                ";border:1px solid gray;margin-left:170px;padding:2px 6px;'"));
-
-        if (howToOpen == null) {
-            final int index = explorationNumber - 1;
-            final int status = masteryStatus.explorationStatus[index];
-
-            if (status == 1) {
-                htm.addln("Attempted, 5 points earned");
-            } else if (status == 2) {
-                htm.addln("Attempted (late), 4 points earned");
-            } else if (status == 3) {
-                htm.addln("Passed, 10 points earned");
-            } else if (status == 4) {
-                htm.addln("Passed (nearly on time), 9 points earned");
-            } else if (status == 5) {
-                htm.addln("Passed (late), 8 points earned");
-            } else {
-                htm.addln("Not yet attempted");
-            }
-        } else {
-            htm.addln(howToOpen);
-        }
-
-        htm.eDiv();
     }
 
     /**

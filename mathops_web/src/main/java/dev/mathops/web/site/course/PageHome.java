@@ -75,14 +75,15 @@ enum PageHome {
     private static void emitContent(final Cache cache, final HtmlBuilder htm, final ImmutableSessionInfo session,
                                     final CourseSiteLogic logic) throws SQLException {
 
-        final RawStudent student = RawStudentLogic.query(cache, session.getEffectiveUserId(), true);
+        final String effectiveUserId = session.getEffectiveUserId();
+        final RawStudent student = RawStudentLogic.query(cache, effectiveUserId, true);
 
         // If there are fatal holds, go to the home page, which will show those
         if (student == null || "F".equals(student.sevAdminHold)) {
             emitBodyText(cache, session, htm, logic);
         } else {
             // If the pace order values are not valid, force the schedule page
-            final List<RawStcourse> pacedReg = RawStcourseLogic.getPaced(cache, session.getEffectiveUserId());
+            final List<RawStcourse> pacedReg = RawStcourseLogic.getPaced(cache, effectiveUserId);
 
             // Filter courses to only those this website supports
             final List<RawStcourse> filtered;
@@ -167,7 +168,18 @@ enum PageHome {
         }
 
         if (logic.data.studentData.getNumLockouts() == 0) {
-            Page.emitFile(htm, "precalc_instr_home_pre_hours.txt");
+            if (logic.course == null) {
+                Page.emitFile(htm, "precalc_instr_home_pre_hours.txt");
+            } else {
+                final int useOfStandardsBased = logic.course.getUseOfStandardsBased();
+                if (useOfStandardsBased == 0) {
+                    Page.emitFile(htm, "precalc_instr_home_pre_hours.txt");
+                } else if (useOfStandardsBased == 1) {
+                    Page.emitFile(htm, "precalc_instr_home_pre_hours_some_stds.txt");
+                } else {
+                    Page.emitFile(htm, "precalc_instr_home_pre_hours_all_stds.txt");
+                }
+            }
             AbstractPageSite.hours(cache, htm, true, true);
             Page.emitFile(htm, "precalc_instr_home_post_hours.txt");
             Page.emitFile(htm, "precalc_instr_maintenance_window.txt");

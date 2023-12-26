@@ -950,8 +950,6 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
             // Draw the label
             if (this.labelString != null || this.labelSpan != null) {
-                Log.info("Arc label color is ", this.labelColor);
-                Log.info("Arc label alpha is ", this.labelAlpha);
 
                 grx.setColor(this.labelColor == null ? Color.BLACK : this.labelColor);
 
@@ -992,38 +990,40 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 final double cx = bounds.getX() + halfWidth;
                 final double cy = bounds.getY() + halfHeight;
 
+                final double midAngleDeg = (s + a * 0.5);
+                final double midAngleRad = Math.toRadians(midAngleDeg);
+                final double cosMidAngle = Math.cos(midAngleRad);
+                final double sinMidAngle = Math.sin(midAngleRad);
+
                 if (this.labelSpan == null) {
+                    final int style = this.font.getStyle();
+                    final int size = this.font.getSize();
                     if (this.isStixText) {
-                        this.font = bfm.getFont("STIX Two Text Regular", (double) this.font.getSize(),
-                                this.font.getStyle());
+                        this.font = bfm.getFont("STIX Two Text Regular", (double) size, style);
                     } else if (this.isStixMath) {
-                        this.font = bfm.getFont("STIX Two Math Regular", (double) this.font.getSize(),
-                                this.font.getStyle());
+                        this.font = bfm.getFont("STIX Two Math Regular", (double) size, style);
                     }
 
                     grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));
 
                     final String str = generateStringContents(context);
-
                     final FontRenderContext frc = grx.getFontRenderContext();
-                    final GlyphVector vect = grx.getFont().createGlyphVector(frc, str);
-                    final Rectangle2D visBounds = vect.getVisualBounds();
-                    final double halfVisW = visBounds.getWidth() * 0.5;
-                    final double halfVisH = visBounds.getHeight() * 0.5;
-                    double labelRadius = Math.sqrt(halfVisW * halfVisW + halfVisH * halfVisH);
+                    final GlyphVector vector = grx.getFont().createGlyphVector(frc, str);
+                    final Rectangle2D visBounds = vector.getVisualBounds();
+                    final double visW = visBounds.getWidth();
+                    final double visH = visBounds.getHeight();
+
+                    double xRad = halfWidth + visW;
+                    double yRad = halfHeight + visH;
                     if (this.labelOffset != null) {
-                        labelRadius += this.labelOffset.doubleValue();
+                        xRad += this.labelOffset.doubleValue();
+                        yRad += this.labelOffset.doubleValue();
                     }
+                    final double dx = xRad * cosMidAngle;
+                    final double dy = yRad * sinMidAngle;
 
-                    final double xRad = halfWidth + labelRadius * 1.4;
-                    final double yRad = halfHeight + labelRadius * 1.4;
-                    final double midAngleDeg = (s + a * 0.5);
-                    final double midAngleRad = Math.toRadians(midAngleDeg);
-                    final double dx = xRad * Math.cos(midAngleRad);
-                    final double dy = yRad * Math.sin(midAngleRad);
-
-                    final int actualX = (int) Math.round(cx + dx - halfVisW);
-                    final int actualY = (int) Math.round(cy - dy + halfVisH);
+                    final int actualX = (int) Math.round(cx + dx - visW * 0.5);
+                    final int actualY = (int) Math.round(cy - dy + visH * 0.5);
 
                     grx.drawString(str, actualX, actualY);
                 } else {
@@ -1038,11 +1038,8 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                         xRad += this.labelOffset.doubleValue();
                         yRad += this.labelOffset.doubleValue();
                     }
-
-                    final double midAngleDeg = (s + a * 0.5);
-                    final double midAngleRad = Math.toRadians(midAngleDeg);
-                    final double dx = xRad * Math.cos(midAngleRad);
-                    final double dy = yRad * Math.sin(midAngleRad);
+                    final double dx = xRad * cosMidAngle;
+                    final double dy = yRad * sinMidAngle;
 
                     final int actualX = (int) Math.round(cx + dx - halfVisW);
                     final int actualY = (int) Math.round(cy - dy - halfVisH);
@@ -1515,6 +1512,13 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
         if (this.arcAngle != null && this.arcAngle.getFormula() != null) {
             set.addAll(this.arcAngle.getFormula().params.keySet());
+        }
+
+        if (this.labelString != null) {
+            AbstractDocObjectTemplate.scanStringForParameterReferences(this.labelString, set);
+        }
+        if (this.labelSpan != null) {
+            this.labelSpan.accumulateParameterNames(set);
         }
     }
 

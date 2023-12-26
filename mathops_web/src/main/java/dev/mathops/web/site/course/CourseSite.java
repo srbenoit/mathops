@@ -151,8 +151,6 @@ public class CourseSite extends AbstractPageSite {
                         case "course_text.html" -> PageStdsText.doGet(cache, this, req, resp, session, logic);
                         case "course_text_module.html" ->
                                 PageStdsTextModule.doGet(cache, this, req, resp, session, logic);
-                        case "course_text_exploration.html" ->
-                                PageStdsTextExploration.doGet(cache, type, this, req, resp, session, logic);
 
                         case "skills_review.html" ->
                                 PageSkillsReview.doGet(cache, type, this, req, resp, session, logic);

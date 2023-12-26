@@ -4,7 +4,9 @@ import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
+import dev.mathops.assessment.document.template.AbstractDocPrimitiveContainer;
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
+import dev.mathops.assessment.document.template.DocDrawing;
 import dev.mathops.assessment.document.template.DocRadical;
 import dev.mathops.assessment.document.template.DocRelativeOffset;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
@@ -65,6 +67,9 @@ enum QualityControlChecks {
         problemTest8(report, problem);
         problemTest9(report, problem);
         problemTest10(report, problem);
+
+        // TODO: Test that all branches in "test" or "switch" formulas result in compatible value types.
+        //  In particular, if any return SPAN values, all should.
 
         // TODO: Test for SPAN variables that do not depend on any parameters - candidates
         // for direct substitution in source files
@@ -718,34 +723,75 @@ enum QualityControlChecks {
     }
 
     /**
-     * Check 10 for Problems: Test that all branches in "test" or "switch" formulas result in compatible value
-     * types.  In particular, if any return SPAN values, all should.
+     * Check 10 for Problems: Look for drawings or graphs that do not have 'alt' text.
      *
      * @param report  the report being constructed
      * @param problem the problem to check
      */
     private static void problemTest10(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
+        scan10(report, problem.question);
+
+        if (problem.solution != null) {
+            scan10(report, problem.solution);
+        }
+
+        if (problem instanceof final AbstractProblemMultipleChoiceTemplate mc) {
+            for (final ProblemChoiceTemplate choice : mc.getChoices()) {
+                scan10(report, choice.doc);
+            }
+        } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
+            scan10(report, embedded.correctAnswer);
+        }
+
+        final List<AbstractDocSpanBase> spans = new ArrayList<>(10);
         for (final AbstractVariable var : problem.evalContext.getVariables()) {
 
-            if (var instanceof final VariableDerived der) {
-                scan10(report, der.getFormula());
+            final Object value = var.getValue();
+            if (value instanceof final DocSimpleSpan spanVal) {
+                scan10(report, spanVal);
             }
 
-            // TODO: Gather formulas more broadly
+            if (var instanceof final VariableRandomChoice rc) {
+                if (rc.getChooseFromList() != null) {
+                    for (final Formula formula : rc.getChooseFromList()) {
+                        formula.accumulateSpans(spans);
+                    }
+                }
+            }
+
+            if (var instanceof final VariableDerived der) {
+                final Formula formula = der.getFormula();
+                formula.accumulateSpans(spans);
+            }
+        }
+
+        for (final AbstractDocSpanBase span : spans) {
+            scan10(report, span);
         }
     }
 
     /**
-     * Scans a formula for test/switch constructions where different branches evaluate to different (and not
-     * compatible) types.
+     * Scans a document object container recursively for drawing or graph objects, and reports any that do not have
+     * an 'alt' value.
      *
      * @param report  the report being constructed
-     * @param formula the formula to check
+     * @param container the container to check
      */
-    private static void scan10(final HtmlBuilder report, final Formula formula) {
+    private static void scan10(final HtmlBuilder report, final AbstractDocContainer container) {
 
+        for (final AbstractDocObjectTemplate obj : container.getChildren()) {
 
+            if (obj instanceof final AbstractDocPrimitiveContainer drawing) {
+                if (drawing.getAltText() == null) {
+                    final String typeName = obj.getClass().getSimpleName();
+                    report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
+                            .br().addln();
+                }
+            } else if (obj instanceof final AbstractDocContainer inner) {
+                scan10(report, inner);
+            }
+        }
     }
 
     /**

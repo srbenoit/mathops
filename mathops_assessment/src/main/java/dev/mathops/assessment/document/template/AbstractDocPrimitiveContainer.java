@@ -2,10 +2,7 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
@@ -186,6 +183,10 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
      */
     @Override
     public void accumulateParameterNames(final Set<String> set) {
+
+        if (this.altText != null) {
+            scanStringForParameterReferences(this.altText, set);
+        }
 
         for (final AbstractDocPrimitive prim : this.primitives) {
             prim.accumulateParameterNames(set);

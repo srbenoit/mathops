@@ -727,32 +727,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         }
 
         if (this.value != null) {
-            // Value in "text" objects may contain parameter or symbol references
-            final int len = this.value.length();
-            int pos = 0;
-            while (pos < len) {
-                final int open = this.value.indexOf('{', pos);
-                if (open == -1) {
-                    break;
-                }
-
-                final int close = this.value.indexOf('}', open + 1);
-                if (close == -1) {
-                    break;
-                }
-
-                final String name = this.value.substring(open + 1, close);
-
-                if (!(!name.isEmpty() && name.charAt(0) == '\\')) {
-                    final int bracket = name.indexOf('[');
-                    if (bracket == -1) {
-                        set.add(name);
-                    } else {
-                        set.add(name.substring(0, bracket));
-                    }
-                }
-                pos = close + 1;
-            }
+            AbstractDocObjectTemplate.scanStringForParameterReferences(this.value, set);
         }
     }
 

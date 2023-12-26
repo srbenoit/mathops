@@ -1004,90 +1004,97 @@ public enum MathCourses {
         // Module 1
 
         final ModuleData m125m1 = m125.addModule(1, "Angle Measure and Right Triangles",
-                "SR41_HW", "c41-thumb.png");
+                "TR01_SR_HW", "c41-thumb.png");
         m125m1.skillsReview.addExampleBlock("Unit Conversions")
-                .addEx("SR41_01_01", "Multi-step Unit Conversion");
+                .addEx("TR01_SR1_01", "Multi-step Unit Conversion");
         m125m1.skillsReview.addExampleBlock("Addition and Subtraction with Fractions")
-                .addEx("SR41_02_01", "Addition of fractions")
-                .addEx("SR41_02_02", "Addition of fractions including variables")
-                .addEx("SR41_02_03", "Subtraction of fractions including variables");
+                .addEx("TR01_SR2_01", "Addition of fractions")
+                .addEx("TR01_SR2_02", "Addition of fractions including variables")
+                .addEx("TR01_SR2_03", "Subtraction of fractions including variables");
         m125m1.skillsReview.addExampleBlock("Multiplication and Division with Fractions")
-                .addEx("SR41_03_01", "Multiplication of fractions")
-                .addEx("SR41_03_02", "Division of fractions");
+                .addEx("TR01_SR3_01", "Multiplication of fractions")
+                .addEx("TR01_SR3_02", "Division of fractions");
         m125m1.skillsReview.addExampleBlock("Evaluating and Manipulating Square Roots")
-                .addEx("SR41_04_01", "Simplifying a rational expression")
-                .addEx("SR41_04_02", "Evaluating a rational expression with variable");
+                .addEx("TR01_SR4_01", "Simplifying a rational expression")
+                .addEx("TR01_SR4_02", "Evaluating a rational expression with variable");
         m125m1.skillsReview.addExampleBlock("Exponents and Distribution")
-                .addEx("SR41_05_01", "Properties of arithmetic with expressions")
-                .addEx("SR41_05_02", "Cubing a binomial");
+                .addEx("TR01_SR5_01", "Properties of arithmetic with expressions")
+                .addEx("TR01_SR5_02", "Cubing a binomial");
 
         final LearningTargetData m125m1t1 = m125m1.addLearningTarget(1, 1, "1.1",
-                "ST41_1_HW",
-                "I can identify and work with angles, including:",
-                "recognize congruent, complementary and supplementary angles",
-                "compute the complement or supplement of an angle",
-                "interpret degree or radian measure",
-                "estimate the measure of a given angle in either unit",
+                "TR01_ST1_HW",
+                "I can classify and work with angles.  Specifically, I can:",
+                "interpret degree or radian measure as a quantity of rotation",
                 "convert between degree and radian units of measure",
-                "sketch an angle knowing its measure in either unit");
-        m125m1t1.addExBlock("Recognizing congruent, complementary, and supplementary angles")
-                .addEx("ST41_1_F01_01", "Identify congruent complementary and supplementary angles in a diagram");
-        m125m1t1.addExBlock("Computing complement or supplement of angles")
-                .addEx("ST41_1_F02_01", "Calculate complement and supplement in both degrees and radians");
-        m125m1t1.addExBlock("Interpreting degree and radian measure")
-                .addEx("ST41_1_F03_01", "Interpret degree or radian measure in terms of complete rotations");
-        m125m1t1.addExBlock("Unit conversion: degrees to radians")
-                .addEx("ST41_1_F04_01", "Convert from degree to radian measure");
-        m125m1t1.addExBlock("Unit conversion: radians to degrees")
-                .addEx("ST41_1_F05_01", "Convert from radian to degree measure");
-        m125m1t1.addExBlock("Estimating angle measure")
-                .addEx("ST41_1_F06_01", "Estimating an angle measure in both degrees and radians");
+                "recognize congruent angles",
+                "recognize pairs of complementary and supplementary angles",
+                "compute the complement or supplement of an angle in either unit of measure",
+                "recognize sets of angles that sum to a straight angle, and that their measures sum to half a turn");
 
-        final LearningTargetData m125m1t2 = m125m1.addLearningTarget(1, 2, "1.2", "ST41_2_HW",
-                "I can work with angles in standard position in the plane, including:",
+        m125m1t1.addExBlock("Interpret degree measure as rotation")
+                .addEx("TR01_ST1A_01", "Determine how many degrees one line must rotate to fall on another");
+        m125m1t1.addExBlock("Interpret radian measure as rotation")
+                .addEx("TR01_ST1A_02", "Determine how many radians one line must rotate to fall on another");
+        m125m1t1.addExBlock("Interpret angles in terms of portions of full turns")
+                .addEx("TR01_ST1A_03", "Determine how many copies of an angle make up one full turn");
+        m125m1t1.addExBlock("Unit conversion: degrees to radians")
+                .addEx("TR01_ST1C_01", "Convert from degree to radian measure");
+        m125m1t1.addExBlock("Unit conversion: radians to degrees")
+                .addEx("TR01_ST1C_02", "Convert from radian to degree measure");
+        m125m1t1.addExBlock("Recognizing congruent angles")
+                .addEx("TR01_ST1D_01", "Identify congruent angles in a diagram");
+        m125m1t1.addExBlock("Recognizing complementary and supplementary angles")
+                .addEx("TR01_ST1E_01", "Identify pairs of  complementary and supplementary angles in a diagram");
+        m125m1t1.addExBlock("Computing complement or supplement of angles")
+                .addEx("TR01_ST1F_01", "Calculate complement and supplement in both degrees and radians");
+
+        final LearningTargetData m125m1t2 = m125m1.addLearningTarget(1, 2, "1.2", "TR01_ST2_HW",
+                "I can classify and work with triangles.  Specifically, I can:",
+                "calculate the measure of any angle in a general triangle given the measure of the other two angles",
+                "recognize congruent and similar triangles",
+                "use proportion to calculate side lengths in similar triangles",
+                "use the Pythagorean theorem to calculate the length of an edge of a right triangle");
+        m125m1t2.addExBlock("Calculate a missing angle in a triangle in degrees")
+                .addEx("TR01_ST2A_01", "Given two interior degree angles in a triangle, find the third");
+        m125m1t2.addExBlock("Calculate a missing angle in a triangle in radians")
+                .addEx("TR01_ST2A_02", "Given two interior radian angles in a triangle, find the third");
+        m125m1t2.addExBlock("Recognize similar triangles")
+                .addEx("TR01_ST2B_01", "Given a drawing containing several triangles, find all that are similar");
+        m125m1t2.addExBlock("Use proportion in similar triangles to calculate side lengths")
+                .addEx("TR01_ST2C_01",
+                        "Given two similar triangles, and a few side lengths, find remaining side lengths");
+//        m125m1t2.addExBlock("Divide shapes into right triangles")
+//                .addEx("TR01_ST2E_01", "Given several shapes, add lines to divide each into right triangles.");
+        m125m1t2.addExBlock("Calculate side lengths in right triangles using the Pythagorean theorem")
+                .addEx("TR01_ST2F_01a", "Find a missing side length in a right triangle");
+        m125m1t2.addExBlock("Find the length of the diagonal of a rectangle")
+                .addEx("TR01_ST2G_01",
+                        "Given a rectangle whose side lengths are given, find the length of its diagonal");
+
+        final LearningTargetData m125m1t3 = m125m1.addLearningTarget(1, 3, "1.3", "TR01_ST3_HW",
+                "I can work with angles in standard position in the plane.  Specifically, I can:",
                 "locate the terminal ray of an angle with positive or negative angle in standard position",
                 "identify the quadrant in which an angle's terminal ray lies",
-                "identify equivalent/co-terminal angles",
-                "find an angle equivalent to a given angle that lies in a specified range",
-                "find the reference angle for a given angle");
-        m125m1t2.addExBlock("Locate/sketch angles in standard position and identify quadrants")
-                .addEx("ST41_2_F01_01", "Locate terminal rays of angles in any quadrant");
-        m125m1t2.addExBlock("Identify co-terminal angles in degrees")
-                .addEx("ST41_2_F02_01", "Identify pairs of co-terminal angles");
-        m125m1t2.addExBlock("Identify co-terminal angles in radians")
-                .addEx("ST41_2_F03_01", "Identify pairs of co-terminal angles");
-        m125m1t2.addExBlock("Find a co-terminal angle in a specified degree range")
-                .addEx("ST41_2_F04_01", "Find angles co-terminal to a given angle in range 0&deg; - 360&deg;");
-        m125m1t2.addExBlock("Find a co-terminal angle in a specified radian range")
-                .addEx("ST41_2_F05_01", "Find angles co-terminal to a given angle in range 0 - 2&pi;");
-        m125m1t2.addExBlock("Finding reference angles in degrees")
-                .addEx("ST41_2_F06_01", "Find the reference angle of an angle in in degrees each quadrant");
-        m125m1t2.addExBlock("Finding reference angles in radians")
-                .addEx("ST41_2_F07_01", "Find the reference angle of an angle in radians in each quadrant");
+                "identify equivalent/co-terminal angles in either degrees or radians",
+                "find an angle equivalent/co-terminal to a given angle that lies in a specified range",
+                "find the reference angle for a given angle in either degrees or radians");
 
-        final LearningTargetData m125m1t3 = m125m1.addLearningTarget(1, 3, "1.3", "ST41_3_HW",
-                "I can apply the Pythagorean theorem, similarity, and the fact that internal angles in a triangle sum "
-                        + "to 180 degrees to work with triangles, including:",
-                "calculate the length of any edge of a right triangle given the lengths of the other two sides",
-                "calculate the length of the diagonal of a rectangle",
-                "calculate the measure of any angle in a general triangle given the measure of the other two angles",
-                "recognize similar triangles in drawings and real-world situations",
-                "use proportion to find unknown side lengths in triangles similar to a triangle with known side "
-                        + "lengths");
-        m125m1t3.addExBlock("Calculate side lengths in right triangles using the Pythagorean theorem")
-                .addEx("ST41_3_F01_01", "Find a missing side length in a right triangle");
-        m125m1t3.addExBlock("Find the length of the diagonal of a rectangle")
-                .addEx("ST41_3_F02_01",
-                        "Given a rectangle whose side lengths are given, find the length of its diagonal");
-        m125m1t3.addExBlock("Calculate a missing angle in a triangle in degrees")
-                .addEx("ST41_3_F03_01", "Given two interior degree angles in a triangle, find the third");
-        m125m1t3.addExBlock("Calculate a missing angle in a triangle in radians")
-                .addEx("ST41_3_F04_01", "Given two interior radian angles in a triangle, find the third");
-        m125m1t3.addExBlock("Recognize similar triangles")
-                .addEx("ST41_3_F05_01", "Given a drawing containing several triangles, find all that are similar");
-        m125m1t3.addExBlock("Use proportion in similar triangles to calculate side lengths")
-                .addEx("ST41_3_F06_01",
-                        "Given two similar triangles, and a few side lengths, find remaining side lengths");
+        m125m1t3.addExBlock("Locate/sketch angles in standard position and identify quadrants")
+                .addEx("TR01_ST3A_01", "Locate terminal rays of angles in any quadrant");
+        m125m1t3.addExBlock("Identify co-terminal angles in degrees")
+                .addEx("TR01_ST3C_01", "Identify pairs of co-terminal angles");
+        m125m1t3.addExBlock("Identify co-terminal angles in radians")
+                .addEx("TR01_ST3C_02", "Identify pairs of co-terminal angles");
+        m125m1t3.addExBlock("Find a co-terminal angle in a specified degree range")
+                .addEx("TR01_ST3D_01", "Find angles co-terminal to a given angle in range 0&deg; - 360&deg;");
+        m125m1t3.addExBlock("Find a co-terminal angle in a specified radian range")
+                .addEx("TR01_ST3D_02", "Find angles co-terminal to a given angle in range 0 - 2&pi;");
+        m125m1t3.addExBlock("Finding reference angles in degrees")
+                .addEx("TR01_ST3E_01", "Find the reference angle of an angle in in degrees each quadrant");
+        m125m1t3.addExBlock("Finding reference angles in radians")
+                .addEx("TR01_ST3E_02", "Find the reference angle of an angle in radians in each quadrant");
+//        m125m1t3.addExBlock("Estimating angles")
+//                .addEx("TR01_ST3F_01", "Estimate the measure of an angle");
 
         // Module 2
 

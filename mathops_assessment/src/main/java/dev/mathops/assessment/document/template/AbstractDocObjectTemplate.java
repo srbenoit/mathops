@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -682,9 +683,41 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     /**
      * Add any parameter names referenced by the object or its children to a set of names.
      *
-     * @param set the set of parameter names
+     * @param set the set to which to add parameter names
      */
     public abstract void accumulateParameterNames(Set<String> set);
+
+    /**
+     * Scans a text string for parameter references of the form {name}, and adds those to a set of referenced parameter
+     * names.
+     *
+     * @param toScan the string to scan
+     * @param set the set to which to add parameter names
+     */
+    static void scanStringForParameterReferences(final String toScan, final Collection<? super String> set) {
+
+        final int len = toScan.length();
+
+        int pos = toScan.indexOf('{');
+        while (pos >= 0 && pos < len) {
+            final int end = toScan.indexOf('}', pos + 1);
+            if (end == -1) {
+                break;
+            }
+            if ((int) toScan.charAt(pos + 1) != '\\') {
+                if (end > pos + 1) {
+                    final String varName = toScan.substring(pos + 1, end);
+                    final int bracket = varName.indexOf('[');
+                    if (bracket == -1) {
+                        set.add(varName);
+                    } else {
+                        set.add(varName.substring(0, bracket));
+                    }
+                }
+            }
+            pos = toScan.indexOf('{', end + 1);
+        }
+    }
 
     /**
      * Generates an instance of this document object based on a realized evaluation context.

@@ -44,7 +44,7 @@ enum PageStdsCourse {
         }
         htm.eH(2).hr();
 
-        emitMasteryCourseStatus(cache, reg, csection, htm);
+        emitCourseStatus(cache, reg, csection, htm);
 
         htm.addln("<a href='course_text.html?course=", course.course,
                 "&mode=course'><img style='width:210px;margin-left:10px;' ",
@@ -65,8 +65,8 @@ enum PageStdsCourse {
      * @param csection the course section record
      * @param htm      the {@code HtmlBuilder} to which to append
      */
-    private static void emitMasteryCourseStatus(final Cache cache, final RawStcourse reg, final RawCsection csection,
-                                                final HtmlBuilder htm) {
+    private static void emitCourseStatus(final Cache cache, final RawStcourse reg, final RawCsection csection,
+                                         final HtmlBuilder htm) {
 
         Log.info("Status reg: " + reg.course, CoreConstants.SPC, reg.sect, CoreConstants.SPC, reg.paceOrder);
 
@@ -103,15 +103,15 @@ enum PageStdsCourse {
                 }
 
                 htm.sDiv("hours");
-                htm.addln("To pass this course, you must reach at least <b>24</b> learning targets ",
+                htm.addln("To pass this course, you must master at least <b>24</b> learning targets ",
                         "(at least <b>12</b> from the first half of the course, and at least ",
                         "<b>12</b> from the second half).  Your grade will then be based on total ",
                         "points earned.");
                 htm.eDiv();
 
                 htm.sP();
-                htm.addln("Learning Targets Reached: <b>" + targetsReachedTotal
-                        + "</b> (out of 30 total)").br();
+                htm.addln("Learning Targets Mastered: <b>" + targetsReachedTotal
+                        + "</b> (out of 24 total)").br();
 
                 // Bar chart showing number of standards mastered in each half of the course
 
@@ -124,41 +124,41 @@ enum PageStdsCourse {
                 htm.addln(" </linearGradient>");
                 htm.addln("</defs>");
 
-                htm.addln("  <rect x='0.5' y='0.5' width='214' height='17' ",
+                htm.addln("  <rect x='0.5' y='0.5' width='208' height='17' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
-                htm.addln("  <rect x='1.5' y='1.5' width='213' height='16' ",
+                htm.addln("  <rect x='1.5' y='1.5' width='207' height='16' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-                htm.addln("  <rect x='2.5' y='2.5' width='211' height='14' ",
+                htm.addln("  <rect x='2.5' y='2.5' width='205' height='14' ",
                         "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
 
-                htm.addln("  <rect x='228.5' y='0.5' width='214' height='17' ",
+                htm.addln("  <rect x='235.5' y='0.5' width='208' height='17' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
-                htm.addln("  <rect x='229.5' y='1.5' width='213' height='16' ",
+                htm.addln("  <rect x='236.5' y='1.5' width='207' height='16' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-                htm.addln("  <rect x='230.5' y='2.5' width='211' height='14' ",
+                htm.addln("  <rect x='237.5' y='2.5' width='205' height='14' ",
                         "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
 
-                htm.addln("  <rect x='171' y='3' width='42' height='13' ",
+                htm.addln("  <rect x='156' y='3' width='51' height='13' ",
                         "style='fill:rgb(120,255,120);stroke-width:0px;'/>");
-                htm.addln("  <rect x='399' y='3' width='42' height='13' ",
+                htm.addln("  <rect x='391' y='3' width='51' height='13' ",
                         "style='fill:rgb(120,255,120);stroke-width:0px;'/>");
 
                 if (targetsFirstHalf > 0) {
-                    final int w = 14 * targetsFirstHalf;
+                    final int w = 17 * targetsFirstHalf;
                     final String wStr = Integer.toString(w);
                     htm.addln("  <rect x='3' y='3' width='", wStr, "' height='13' ",
                             "style='fill:url(#grad1);stroke-width:0px;'/>");
                 }
 
                 if (targetsSecondHalf > 0) {
-                    final int w = 14 * targetsSecondHalf;
+                    final int w = 17 * targetsSecondHalf;
                     final String wStr = Integer.toString(w);
-                    htm.addln("  <rect x='231' y='3' width='", wStr, "' height='13' ",
+                    htm.addln("  <rect x='238' y='3' width='", wStr, "' height='13' ",
                             "style='fill:url(#grad1);stroke-width:0px;'/>");
                 }
 
-                for (int i = 1; i < 15; ++i) {
-                    final String x1 = Float.toString((float) (2 + 14 * i) - 0.5f);
+                for (int i = 1; i < 12; ++i) {
+                    final String x1 = Float.toString((float) (2.5 + 17 * i));
                     if (i < targetsFirstHalf) {
                         htm.addln("  <line x1='", x1, "' y1='2.5' x2='", x1,
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(80,80,80);'/>");
@@ -167,7 +167,7 @@ enum PageStdsCourse {
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(180,180,180);'/>");
                     }
 
-                    final String x2 = Float.toString((float) (230 + 14 * i) - 0.5f);
+                    final String x2 = Float.toString((float) (241.5 + 17 * i));
                     if (i < targetsSecondHalf) {
                         htm.addln("  <line x1='", x2, "' y1='2.5' x2='", x2,
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(80,80,80);'/>");
@@ -180,7 +180,7 @@ enum PageStdsCourse {
                 htm.addln("  <text x='12' y='34' style='font-size:16px;'>"
                         + targetsFirstHalf + " in first half</text>");
 
-                htm.addln("  <text x='241' y='34' style='font-size:16px;'>"
+                htm.addln("  <text x='247' y='34' style='font-size:16px;'>"
                         + targetsSecondHalf + " in second half</text>");
 
                 htm.addln("</svg>");
@@ -190,21 +190,21 @@ enum PageStdsCourse {
 
                 htm.sP();
                 htm.addln("Current point total in course: <strong>" + totalPoints
-                        + "</strong> (out of 170 possible)").br();
+                        + "</strong> (out of 120 possible)").br();
 
-                final int aRangeBottom = 2 + 440 * 153 / 170;
+                final int aRangeBottom = 2 + 440 * 108 / 120;
                 final int aRangeWidth = 441 - aRangeBottom;
                 final int aRangeText = aRangeBottom + aRangeWidth / 2 - 4;
 
-                final int bRangeBottom = 2 + 440 * 136 / 170;
+                final int bRangeBottom = 2 + 440 * 96 / 120;
                 final int bRangeWidth = aRangeBottom - bRangeBottom;
                 final int bRangeText = bRangeBottom + bRangeWidth / 2 - 4;
 
-                final int cRangeBottom = 2 + 440 * minPassingPoints / 170;
+                final int cRangeBottom = 2 + 440 * 72 / 120;
                 final int cRangeWidth = bRangeBottom - cRangeBottom;
                 final int cRangeText = cRangeBottom + cRangeWidth / 2 - 4;
 
-                final int progressWidth = 440 * totalPoints / 170;
+                final int progressWidth = 440 * totalPoints / 120;
                 htm.addln("<svg width='444' height='24'>");
                 htm.addln("<defs>");
                 htm.addln(" <linearGradient id='grad1' x1='0%' y1='0%' x2='0%' y2='100%'>");

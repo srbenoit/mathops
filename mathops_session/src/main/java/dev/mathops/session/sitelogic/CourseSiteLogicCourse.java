@@ -1117,4 +1117,34 @@ public final class CourseSiteLogicCourse {
 
         this.blocked = hasFutureWorkToDo && blockedNow;
     }
+
+    /**
+     * Tests whether the student is using the new "standards-based" courses.
+     *
+     * @return 0 if the student is not taking any standards-based courses; 1 if they have a mixture, and 2 if they
+     * are using exclusively standards-based courses
+     */
+    public int getUseOfStandardsBased() {
+
+        int numOld = 0;
+        int numNew = 0;
+
+        final Set<CourseInfo> allCourses = new HashSet<>(10);
+        allCourses.addAll(this.availableCourses);
+        allCourses.addAll(this.unavailableCourses);
+        allCourses.addAll(this.noPrereqCourses);
+        allCourses.addAll(this.inProgressCourses);
+        allCourses.addAll(this.completedCourses);
+        allCourses.addAll(this.pastDeadlineCourses);
+
+        for (final CourseInfo info : allCourses) {
+            if (info.course.startsWith("MATH ")) {
+                ++numNew;
+            } else if (info.course.startsWith("M 1")) {
+                ++numOld;
+            }
+        }
+
+        return numNew == 0 ? 0 : (numOld == 0 ? 2 : 1);
+    }
 }
