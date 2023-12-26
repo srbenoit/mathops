@@ -18,5 +18,5 @@ module mathops_app {
     requires com.formdev.flatlaf;
     requires com.oracle.database.jdbc;
 
-    exports dev.mathops.app.db.fx;
+    exports dev.mathops.app.db;
 }
