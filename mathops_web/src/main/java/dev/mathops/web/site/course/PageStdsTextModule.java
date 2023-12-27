@@ -520,7 +520,7 @@ enum PageStdsTextModule {
      *
      * @param htm        the {@code HtmlBuilder} to which to append the HTML
      * @param course     the course
-     * @param unit       the unit
+     * @param module       the unit
      * @param title      the title for the block
      * @param assignment the assignment ID
      * @param mode       the mode
@@ -528,7 +528,7 @@ enum PageStdsTextModule {
      * @param attempted  true if the assessment has been attempted
      * @param mastered   true if the assessment has been mastered
      */
-    private static void emitStandardAssignment(final HtmlBuilder htm, final String course, final int unit,
+    private static void emitStandardAssignment(final HtmlBuilder htm, final String course, final int module,
                                                final String title, final String assignment, final String mode,
                                                final boolean ineligible, final boolean attempted,
                                                final boolean mastered) {
@@ -538,7 +538,7 @@ enum PageStdsTextModule {
 
         htm.addln("<form style='display:inline' method='get' action='run_homework.html'>");
         htm.addln("  <input type='hidden' name='course' value='", course, "'/>");
-        htm.addln("  <input type='hidden' name='unit' value='", Integer.toString(unit), "'/>");
+        htm.addln("  <input type='hidden' name='unit' value='", Integer.toString(module), "'/>");
         htm.addln("  <input type='hidden' name='lesson' value='0'/>");
         htm.addln("  <input type='hidden' name='coursemode' value='", mode, "'/>");
         htm.addln("  <input type='hidden' name='mode' value='", mode, "'/>");
@@ -554,13 +554,15 @@ enum PageStdsTextModule {
             htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
                     "margin-left:16px;'>Skills Review not yet completed</span>");
         } else if (attempted) {
+            final String masteredString = title.startsWith("Skills Review") ? "Passed" : "Mastered";
+
             if (mastered) {
                 htm.addln(" <span style='background-color:#EBF9EB;color:#105456;",
                         "border:1px #105456 solid;border-radius:6px;padding:3px 19px;",
-                        "margin-left:16px;'>Mastered</span>");
+                        "margin-left:16px;'>", masteredString, "</span>");
             } else {
                 htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
-                        "margin-left:16px;'>Not Yet Mastered</span>");
+                        "margin-left:16px;'>Not Yet ", masteredString, "</span>");
             }
         } else {
             htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",

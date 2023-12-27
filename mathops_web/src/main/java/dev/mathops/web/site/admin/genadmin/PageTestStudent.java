@@ -62,6 +62,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -722,16 +723,16 @@ enum PageTestStudent {
             htm.addln("</tr>");
             htm.addln("<tr>");
 
-            htm.addln("<td><input type='checkbox' id='", crs, "reg' name='", crs, "reg' onClick='regClick(\"",
-                    crs, "\");'></td>");
+            htm.addln("<td><input type='checkbox' id='", crs, "reg' name='", crs, "reg' onClick='regClick(\"", crs,
+                    "\");'></td>");
             htm.addln("<td class='br'><strong><label for='", crs, "reg'>", courseIdArray[i], "</label></strong></td>");
 
             for (int j = 0; j < max; ++j) {
                 htm.add("<td>");
                 if (sectArray[i].length > j) {
                     final String id = crs + sectArray[i][j];
-                    htm.add("<input type='radio' id='", id, "' name='", crs, "' value='",
-                            sectArray[i][j], "'/><label for='", id, "'>", sectArray[i][j], "</label>");
+                    htm.add("<input type='radio' id='", id, "' name='", crs, "' value='", sectArray[i][j],
+                            "'/><label for='", id, "'>", sectArray[i][j], "</label>");
                 }
                 htm.addln("</td>");
             }
@@ -960,8 +961,8 @@ enum PageTestStudent {
      * @param numColumns the number of columns in the table
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseWorkNew(final Cache cache, final HtmlBuilder htm,
-                                          final RawStcourse reg, final int numColumns) throws SQLException {
+    private static void emitCourseWorkNew(final Cache cache, final HtmlBuilder htm, final RawStcourse reg,
+                                          final int numColumns) throws SQLException {
 
         final List<AssignmentRec> allAssignments = AssignmentLogic.get(cache).queryActiveByCourse(cache, reg.course,
                 "ST");
@@ -978,17 +979,9 @@ enum PageTestStudent {
         htm.addln("    <td colspan='", Integer.valueOf(numColumns), "' style='background:#007400;height:1px;'></td>");
         htm.addln("  </tr>");
 
-        for (int unit = 1; unit <= 5; ++unit) {
+        for (int unit = 1; unit <= 8; ++unit) {
             emitUnitNew(htm, reg.course, unit, allAssignments, allExams, allHw, allAttempts, numColumns);
         }
-
-        // TODO: Emit exploration 1
-
-        for (int unit = 6; unit <= 10; ++unit) {
-            emitUnitNew(htm, reg.course, unit, allAssignments, allExams, allHw, allAttempts, numColumns);
-        }
-
-        // TODO: Emit exploration 1
     }
 
     /**
@@ -1005,50 +998,54 @@ enum PageTestStudent {
      */
     private static void emitUnitNew(final HtmlBuilder htm, final String courseId, final int unit,
                                     final Iterable<AssignmentRec> allAssignments,
-                                    final Iterable<MasteryExamRec> allExams,
-                                    final Iterable<RawSthomework> allHw,
+                                    final Iterable<MasteryExamRec> allExams, final Collection<RawSthomework> allHw,
                                     final Iterable<MasteryAttemptRec> allAttempts, final int numColumns) {
 
-        // Find the assignment IDs for the three standard assignments
+        // Find the assignment IDs for the Skills Review and the 3 Learning Target assignments
 
-        String obj1AssignId = null;
-        String obj2AssignId = null;
-        String obj3AssignId = null;
+        String srAssignId = null;
+        String lt1AssignId = null;
+        String lt2AssignId = null;
+        String lt3AssignId = null;
         for (final AssignmentRec hw : allAssignments) {
             if (hw.unit.intValue() == unit && "ST".equals(hw.assignmentType)) {
                 final int obj = hw.objective.intValue();
 
-                if (obj == 1) {
-                    obj1AssignId = hw.assignmentId;
+                if (obj == 0) {
+                    srAssignId = hw.assignmentId;
+                } else if (obj == 1) {
+                    lt1AssignId = hw.assignmentId;
                 } else if (obj == 2) {
-                    obj2AssignId = hw.assignmentId;
+                    lt2AssignId = hw.assignmentId;
                 } else if (obj == 3) {
-                    obj3AssignId = hw.assignmentId;
+                    lt3AssignId = hw.assignmentId;
                 }
             }
         }
 
         // Find the exam IDs for the three standard exams
 
-        String obj1ExamId = null;
-        String obj2ExamId = null;
-        String obj3ExamId = null;
+        String lt1ExamId = null;
+        String lt2ExamId = null;
+        String lt3ExamId = null;
         for (final MasteryExamRec exam : allExams) {
             if (exam.unit.intValue() == unit && "ST".equals(exam.examType)) {
                 final int obj = exam.objective.intValue();
 
                 if (obj == 1) {
-                    obj1ExamId = exam.examId;
+                    lt1ExamId = exam.examId;
                 } else if (obj == 2) {
-                    obj2ExamId = exam.examId;
+                    lt2ExamId = exam.examId;
                 } else if (obj == 3) {
-                    obj3ExamId = exam.examId;
+                    lt3ExamId = exam.examId;
                 }
             }
         }
 
         // Determine whether the assignments have been attempted/mastered
 
+        boolean triedSR = false;
+        boolean passedSR = false;
         boolean triedHW1 = false;
         boolean passedHW1 = false;
         boolean triedHW2 = false;
@@ -1056,17 +1053,22 @@ enum PageTestStudent {
         boolean triedHW3 = false;
         boolean passedHW3 = false;
         for (final RawSthomework attempt : allHw) {
-            if (attempt.version.equals(obj1AssignId)) {
+            if (attempt.version.equals(srAssignId)) {
+                if ("Y".equals(attempt.passed)) {
+                    passedSR = true;
+                }
+                triedSR = true;
+            } else if (attempt.version.equals(lt1AssignId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedHW1 = true;
                 }
                 triedHW1 = true;
-            } else if (attempt.version.equals(obj2AssignId)) {
+            } else if (attempt.version.equals(lt2AssignId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedHW2 = true;
                 }
                 triedHW2 = true;
-            } else if (attempt.version.equals(obj3AssignId)) {
+            } else if (attempt.version.equals(lt3AssignId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedHW3 = true;
                 }
@@ -1083,17 +1085,17 @@ enum PageTestStudent {
         boolean triedU3 = false;
         boolean passedU3 = false;
         for (final MasteryAttemptRec attempt : allAttempts) {
-            if (attempt.examId.equals(obj1ExamId)) {
+            if (attempt.examId.equals(lt1ExamId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedU1 = true;
                 }
                 triedU1 = true;
-            } else if (attempt.examId.equals(obj2ExamId)) {
+            } else if (attempt.examId.equals(lt2ExamId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedU2 = true;
                 }
                 triedU2 = true;
-            } else if (attempt.examId.equals(obj3ExamId)) {
+            } else if (attempt.examId.equals(lt3ExamId)) {
                 if ("Y".equals(attempt.passed)) {
                     passedU3 = true;
                 }
@@ -1113,92 +1115,53 @@ enum PageTestStudent {
 
         htm.addln("  <tr><td></td>");
 
-        htm.addln("    <td style='background:", color1, ";'>Unit&nbsp;",
-                unitStr, ":&nbsp;</td>");
+        htm.addln("    <td style='background:", color1, ";'>Unit&nbsp;", unitStr, ":&nbsp;</td>");
+        htm.add("    <td colspan='", Integer.toString(numColumns - 1), "' style='background:", color2, ";'>");
 
-        htm.add("    <td colspan='", Integer.toString(numColumns - 1),
-                "' style='background:", color2, ";'>");
+        // Assignment inputs have IDs like 'M_125st6_a1"
 
-        // Assignment inputs have IDs like 'M_125_st6_a1"
-
-        htm.add("<label for='", id, "_a1'>HW1</label> <select id='", key,
-                "_a1' name='", key, "_a1'>");
-        htm.add("  <option value='Y'",
-                (passedHW1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedHW1 && !passedHW1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedHW1 && !passedHW1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_sr'>SR</label> <select id='", id, "_sr' name='", id, "_sr'>");
+        htm.add("  <option value='Y'", (passedSR ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedSR && !passedSR ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedSR && !passedSR ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> ");
 
-        htm.add("<label for='", id, "_a2'>HW2</label> <select id='", key,
-                "_a2' name='", key, "_a2'>");
-        htm.add("  <option value='Y'",
-                (passedHW2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedHW2 && !passedHW2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedHW2 && !passedHW2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_a1'>HW 1</label> <select id='", id, "_a1' name='", id, "_a1'>");
+        htm.add("  <option value='Y'", (passedHW1 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedHW1 && !passedHW1 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedHW1 && !passedHW1 ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> ");
 
-        htm.add("<label for='", id, "_a3'>HW3</label> <select id='", key,
-                "_a3' name='", key, "_a3'>");
-        htm.add("  <option value='Y'",
-                (passedHW3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedHW3 && !passedHW3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedHW3 && !passedHW3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_a2'>HW 2</label> <select id='", id, "_a2' name='", id, "_a2'>");
+        htm.add("  <option value='Y'", (passedHW2 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedHW2 && !passedHW2 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedHW2 && !passedHW2 ? " selected" : CoreConstants.EMPTY), ">-</option>");
+        htm.addln("</select> ");
+
+        htm.add("<label for='", id, "_a3'>HW 3</label> <select id='", id, "_a3' name='", id, "_a3'>");
+        htm.add("  <option value='Y'", (passedHW3 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedHW3 && !passedHW3 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedHW3 && !passedHW3 ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> &nbsp; ");
 
-        // Mastery exam inputs have IDs like 'M_125_st6_m1"
+        // Mastery exam inputs have IDs like 'M_125st6_m1"
 
-        htm.add("<label for='", id, "_m1'>Exam1</label> <select id='", key,
-                "_m1' name='", key, "_m1'>");
-        htm.add("  <option value='Y'",
-                (passedU1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedU1 && !passedU1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedU1 && !passedU1 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_m1'>Master 1</label> <select id='", id, "_m1' name='", id, "_m1'>");
+        htm.add("  <option value='Y'", (passedU1 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedU1 && !passedU1 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedU1 && !passedU1 ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> ");
 
-        htm.add("<label for='", id, "_m2'>Exam2</label> <select id='", key,
-                "_m2' name='", key, "_m2'>");
-        htm.add("  <option value='Y'",
-                (passedU2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedU2 && !passedU2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedU2 && !passedU2 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_m2'>Master 2</label> <select id='", id, "_m2' name='", id, "_m2'>");
+        htm.add("  <option value='Y'", (passedU2 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedU2 && !passedU2 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedU2 && !passedU2 ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> ");
 
-        htm.add("<label for='", id, "_m3'>Exam3</label> <select id='", key,
-                "_m3' name='", key, "_m3'>");
-        htm.add("  <option value='Y'",
-                (passedU3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">Y</option>");
-        htm.add("  <option value='N'",
-                (triedU3 && !passedU3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">N</option>");
-        htm.add("  <option value='X'",
-                (!triedU3 && !passedU3 ? " selected='selected'" : CoreConstants.EMPTY),
-                ">-</option>");
+        htm.add("<label for='", id, "_m3'>Master 3</label> <select id='", id, "_m3' name='", id, "_m3'>");
+        htm.add("  <option value='Y'", (passedU3 ? " selected" : CoreConstants.EMPTY), ">Y</option>");
+        htm.add("  <option value='N'", (triedU3 && !passedU3 ? " selected" : CoreConstants.EMPTY), ">N</option>");
+        htm.add("  <option value='X'", (!triedU3 && !passedU3 ? " selected" : CoreConstants.EMPTY), ">-</option>");
         htm.addln("</select> ");
 
         htm.addln("  </td></tr>");
@@ -1212,8 +1175,8 @@ enum PageTestStudent {
      * @param reg   the registration
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseWorkOld(final Cache cache, final HtmlBuilder htm,
-                                          final RawStcourse reg) throws SQLException {
+    private static void emitCourseWorkOld(final Cache cache, final HtmlBuilder htm, final RawStcourse reg)
+            throws SQLException {
 
         final String key = reg.course.replace(' ', '_');
         final String prefix = key.substring(key.length() - 2);
@@ -1242,17 +1205,17 @@ enum PageTestStudent {
         htm.addln("<select id='", key, "exams0' name='", key, "exams0'>");
         htm.add("  <option value='N'");
         if (!tried) {
-            htm.add(" selected='selected'");
+            htm.add(" selected");
         }
         htm.addln(">Skills review exam not attempted</option>");
         htm.add("  <option value='F'");
         if (tried && !passed) {
-            htm.add(" selected='selected'");
+            htm.add(" selected");
         }
         htm.addln(">Skills review exam not passed</option>");
         htm.add("  <option value='P'");
         if (tried && passed) {
-            htm.add(" selected='selected'");
+            htm.add(" selected");
         }
         htm.addln(">Skills review exam passed</option>");
         htm.addln("</select>");
@@ -1286,12 +1249,12 @@ enum PageTestStudent {
         htm.addln(">Final exam not attempted</option>");
         htm.add("  <option value='F'");
         if (triedFe && !passedFe) {
-            htm.add(" selected='selected'");
+            htm.add(" selected");
         }
         htm.addln(">Final exam not passed</option>");
         htm.add("  <option value='P'");
         if (tried && passedFe) {
-            htm.add(" selected='selected'");
+            htm.add(" selected");
         }
         htm.addln(">Final exam passed</option>");
         htm.addln("</select>");
@@ -2507,173 +2470,220 @@ enum PageTestStudent {
 
         final String key = courseId.replace(' ', '_');
 
-        // Old course homeworks and exams
+        if (key.startsWith("MATH_")) {
 
-        final String prefix = key.substring(key.length() - 2);
-        final String srExamId = prefix + "GAT";
+            // Standards-based course assignments and exams
+            // Assignment inputs have IDs like 'M_125st6_a1", with values "Y", "N", or "X"
+            // Mastery exam inputs have IDs like 'M_125st6_m1", with values "Y", "N", or "X"
 
-        final String srExam = req.getParameter(key + "exams0");
-        if ("F".equals(srExam)) {
-            insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", false, false);
-        } else if ("P".equals(srExam)) {
-            insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", true, true);
-        }
+            for (int u = 1; u <= 10; ++u) {
 
-        for (int u = 1; u < 5; ++u) {
-            final Integer unit = Integer.valueOf(u);
+//                for (final Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {
+//                    final String pk = param.getKey();
+//                    final String[] pv = param.getValue();
+//                    final String pvStr = Arrays.toString(pv);
+//                    Log.info("  PARAM {", pk, "}=", pvStr);
+//                }
 
-            if ("on".equals(req.getParameter(key + "hw" + u + "1"))) {
-                insertHW(cache, u, 1, courseId, sect, prefix + u + "1H", "Y");
-            }
-            if ("on".equals(req.getParameter(key + "hw" + u + "2"))) {
-                insertHW(cache, u, 2, courseId, sect, prefix + u + "2H", "Y");
-            }
-            if ("on".equals(req.getParameter(key + "hw" + u + "3"))) {
-                insertHW(cache, u, 3, courseId, sect, prefix + u + "3H", "Y");
-            }
-            if ("on".equals(req.getParameter(key + "hw" + u + "4"))) {
-                insertHW(cache, u, 4, courseId, sect, prefix + u + "4H", "Y");
-            }
-            if ("on".equals(req.getParameter(key + "hw" + u + "5"))) {
-                insertHW(cache, u, 5, courseId, sect, prefix + u + "5H", "Y");
-            }
+                final String stprefix = key + "st" + u;
 
-            final String reExamId = prefix + u + "RE";
-            final String ueExamId = prefix + u + "UE";
+                final String sr = req.getParameter(stprefix + "_sr");
+                final String a1 = req.getParameter(stprefix + "_a1");
+                final String a2 = req.getParameter(stprefix + "_a2");
+                final String a3 = req.getParameter(stprefix + "_a3");
 
-            final String proctoredType = "U";
-            final String reviewType1 = "R";
-            final String reviewType2 = "R";
+                final String m1 = req.getParameter(stprefix + "_m1");
+                final String m2 = req.getParameter(stprefix + "_m2");
+                final String m3 = req.getParameter(stprefix + "_m3");
 
-            final String unitExam = req.getParameter(key + "exams" + u);
-            if ("F".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, false, false);
-            } else if ("P".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-            } else if ("PF".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-            } else if ("PFF".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-            } else if ("PP".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, true, true);
-            } else if ("PFFF".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 4, courseId, reExamId, reviewType2, false, false);
-            } else if ("PFFP".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, true);
-            } else if ("PFFPP".equals(unitExam)) {
-                insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, false);
-                insertExam(cache, unit, 5, courseId, ueExamId, proctoredType, true, true);
-            }
-        }
+                if ("Y".equals(sr) || "N".equals(sr)) {
+                    String assignId = null;
+                    for (final AssignmentRec rec : assignments) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 0
+                                && "ST".equals(rec.assignmentType)) {
+                            assignId = rec.assignmentId;
+                        }
+                    }
 
-        final Integer finUnit = Integer.valueOf(5);
-        final String finExam = req.getParameter(key + "exams5");
-        final String feExamId = prefix + "FIN";
-
-        if ("F".equals(finExam)) {
-            insertExam(cache, finUnit, 1, courseId, feExamId, "F", false, false);
-        } else if ("P".equals(finExam)) {
-            insertExam(cache, finUnit, 1, courseId, feExamId, "F", true, true);
-        }
-
-        // Standards-based course assignments and exams
-        // Assignment inputs have IDs like 'M_125_st6_a1", with values "Y", "N", or "-"
-        // Mastery exam inputs have IDs like 'M_125_st6_m1", with values "Y", "N", or "-"
-
-        for (int u = 1; u <= 10; ++u) {
-            final String stprefix = key + "_st" + u;
-
-            final String a1 = req.getParameter(stprefix + "_a1");
-            final String a2 = req.getParameter(stprefix + "_a2");
-            final String a3 = req.getParameter(stprefix + "_a3");
-
-            final String m1 = req.getParameter(stprefix + "_m1");
-            final String m2 = req.getParameter(stprefix + "_m2");
-            final String m3 = req.getParameter(stprefix + "_m3");
-
-            if ("Y".equals(a1) || "N".equals(a1)) {
-                String assignId = null;
-                for (final AssignmentRec rec : assignments) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.assignmentType)) {
-                        assignId = rec.assignmentId;
+                    if (assignId == null) {
+                        Log.warning("Unable to determine unit " + u + " Skills Review assignment ID");
+                    } else{
+                        insertHW(cache, u, 0, courseId, sect, assignId, "ST", sr);
                     }
                 }
 
-                if (assignId != null) {
-                    insertHW(cache, u, 1, courseId, sect, assignId, a1);
-                }
-            }
+                if ("Y".equals(a1) || "N".equals(a1)) {
+                    String assignId = null;
+                    for (final AssignmentRec rec : assignments) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.assignmentType)) {
+                            assignId = rec.assignmentId;
+                        }
+                    }
 
-            if ("Y".equals(a2) || "N".equals(a2)) {
-                String assignId = null;
-                for (final AssignmentRec rec : assignments) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.assignmentType)) {
-                        assignId = rec.assignmentId;
+                    if (assignId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 1 assignment ID");
+                    } else{
+                        insertHW(cache, u, 1, courseId, sect, assignId, "ST", a1);
                     }
                 }
 
-                if (assignId != null) {
-                    insertHW(cache, u, 2, courseId, sect, assignId, a2);
-                }
-            }
+                if ("Y".equals(a2) || "N".equals(a2)) {
+                    String assignId = null;
+                    for (final AssignmentRec rec : assignments) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.assignmentType)) {
+                            assignId = rec.assignmentId;
+                        }
+                    }
 
-            if ("Y".equals(a3) || "N".equals(a3)) {
-                String assignId = null;
-                for (final AssignmentRec rec : assignments) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.assignmentType)) {
-                        assignId = rec.assignmentId;
+                    if (assignId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 2 assignment ID");
+                    } else{
+                        insertHW(cache, u, 2, courseId, sect, assignId, "ST", a2);
                     }
                 }
 
-                if (assignId != null) {
-                    insertHW(cache, u, 3, courseId, sect, assignId, a3);
-                }
-            }
+                if ("Y".equals(a3) || "N".equals(a3)) {
+                    String assignId = null;
+                    for (final AssignmentRec rec : assignments) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.assignmentType)) {
+                            assignId = rec.assignmentId;
+                        }
+                    }
 
-            if ("Y".equals(m1) || "N".equals(m1)) {
-                String examId = null;
-                for (final MasteryExamRec rec : masteryExams) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.examType)) {
-                        examId = rec.examId;
+                    if (assignId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 3 assignment ID");
+                    } else{
+                        insertHW(cache, u, 3, courseId, sect, assignId, "ST", a3);
                     }
                 }
 
-                insertMastery(cache, u, 1, examId, m1);
-            }
+                if ("Y".equals(m1) || "N".equals(m1)) {
+                    String examId = null;
+                    for (final MasteryExamRec rec : masteryExams) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.examType)) {
+                            examId = rec.examId;
+                        }
+                    }
 
-            if ("Y".equals(m2) || "N".equals(m2)) {
-                String examId = null;
-                for (final MasteryExamRec rec : masteryExams) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.examType)) {
-                        examId = rec.examId;
+                    if (examId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 1 mastery ID");
+                    } else {
+                        insertMastery(cache, u, 1, examId, m1);
                     }
                 }
 
-                insertMastery(cache, u, 2, examId, m2);
-            }
+                if ("Y".equals(m2) || "N".equals(m2)) {
+                    String examId = null;
+                    for (final MasteryExamRec rec : masteryExams) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.examType)) {
+                            examId = rec.examId;
+                        }
+                    }
 
-            if ("Y".equals(m3) || "N".equals(m3)) {
-                String examId = null;
-                for (final MasteryExamRec rec : masteryExams) {
-                    if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.examType)) {
-                        examId = rec.examId;
+                    if (examId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 2 mastery ID");
+                    } else {
+                        insertMastery(cache, u, 2, examId, m2);
                     }
                 }
 
-                insertMastery(cache, u, 3, examId, m3);
+                if ("Y".equals(m3) || "N".equals(m3)) {
+                    String examId = null;
+                    for (final MasteryExamRec rec : masteryExams) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.examType)) {
+                            examId = rec.examId;
+                        }
+                    }
+
+                    if (examId == null) {
+                        Log.warning("Unable to determine unit " + u + " Learning Target 3 mastery ID");
+                    } else {
+                        insertMastery(cache, u, 3, examId, m3);
+                    }
+                }
+            }
+        } else {
+
+            // Old course homeworks and exams
+
+            final String prefix = key.substring(key.length() - 2);
+            final String srExamId = prefix + "GAT";
+
+            final String srExam = req.getParameter(key + "exams0");
+            if ("F".equals(srExam)) {
+                insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", false, false);
+            } else if ("P".equals(srExam)) {
+                insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", true, true);
+            }
+
+            for (int u = 1; u < 5; ++u) {
+                final Integer unit = Integer.valueOf(u);
+
+                if ("on".equals(req.getParameter(key + "hw" + u + "1"))) {
+                    insertHW(cache, u, 1, courseId, sect, prefix + u + "1H", "HW", "Y");
+                }
+                if ("on".equals(req.getParameter(key + "hw" + u + "2"))) {
+                    insertHW(cache, u, 2, courseId, sect, prefix + u + "2H", "HW", "Y");
+                }
+                if ("on".equals(req.getParameter(key + "hw" + u + "3"))) {
+                    insertHW(cache, u, 3, courseId, sect, prefix + u + "3H", "HW", "Y");
+                }
+                if ("on".equals(req.getParameter(key + "hw" + u + "4"))) {
+                    insertHW(cache, u, 4, courseId, sect, prefix + u + "4H", "HW", "Y");
+                }
+                if ("on".equals(req.getParameter(key + "hw" + u + "5"))) {
+                    insertHW(cache, u, 5, courseId, sect, prefix + u + "5H", "HW", "Y");
+                }
+
+                final String reExamId = prefix + u + "RE";
+                final String ueExamId = prefix + u + "UE";
+
+                final String proctoredType = "U";
+                final String reviewType1 = "R";
+                final String reviewType2 = "R";
+
+                final String unitExam = req.getParameter(key + "exams" + u);
+                if ("F".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, false, false);
+                } else if ("P".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                } else if ("PF".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                } else if ("PFF".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                } else if ("PP".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, true, true);
+                } else if ("PFFF".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, false, false);
+                } else if ("PFFP".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, true);
+                } else if ("PFFPP".equals(unitExam)) {
+                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, false);
+                    insertExam(cache, unit, 5, courseId, ueExamId, proctoredType, true, true);
+                }
+            }
+
+            final Integer finUnit = Integer.valueOf(5);
+            final String finExam = req.getParameter(key + "exams5");
+            final String feExamId = prefix + "FIN";
+
+            if ("F".equals(finExam)) {
+                insertExam(cache, finUnit, 1, courseId, feExamId, "F", false, false);
+            } else if ("P".equals(finExam)) {
+                insertExam(cache, finUnit, 1, courseId, feExamId, "F", true, true);
             }
         }
     }
@@ -2749,7 +2759,8 @@ enum PageTestStudent {
      * @throws SQLException if there is an error accessing the database
      */
     private static void insertHW(final Cache cache, final int unit, final int objective, final String courseId,
-                                 final String sect, final String hwId, final String passed) throws SQLException {
+                                 final String sect, final String hwId, final String type, final String passed)
+            throws SQLException {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
 
@@ -2762,8 +2773,9 @@ enum PageTestStudent {
         final Integer time = Integer.valueOf(TemporalUtils.minuteOfDay(LocalDateTime.now()));
         final long sn = AbstractHandlerBase.generateSerialNumber(false);
 
-        final RawSthomework sthw = new RawSthomework(Long.valueOf(sn), hwId, RawStudent.TEST_STUDENT_ID, day,
-                Integer.valueOf(3), time, time, "Y", passed, "HW", courseId, sect, Integer.valueOf(unit),
+        final Long serialNbrStr = Long.valueOf(sn);
+        final RawSthomework sthw = new RawSthomework(serialNbrStr, hwId, RawStudent.TEST_STUDENT_ID, day,
+                Integer.valueOf(3), time, time, "Y", passed, type, courseId, sect, Integer.valueOf(unit),
                 Integer.valueOf(objective), "N", null, null);
 
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);

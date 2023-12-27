@@ -237,11 +237,13 @@ div.sidebtngap {
   border-radius: 5px;
   padding-left:8px;
   padding-right:8px;
-  padding-top:2px;
+  padding-top:4px;
   line-height:1.1em;
   font-family:prox-regular,sans-serif;
-  font-size:16px;
+  font-size:15px;
   margin-bottom:8px;
+  margin-left:10px;
+  margin-right:10px;
 }
 .learning_target ul {
   line-height:1.1em;
@@ -827,6 +829,7 @@ div.coursestatus {
   }
   div.menupanelu {
     display:table;
+    width:100%;
     border-collapse:collapse;
     padding:0;
     margin:0;

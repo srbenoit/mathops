@@ -376,7 +376,7 @@ enum PageStdsText {
             final int s3Status = masteryStatus.standardStatus[index * 3 + 2];
 
             htm.sTable(null, "border=1", "frame=hsides", "rules=rows",
-                    "style='font-size:15px;font-family:prox-regular,sans-serif;'");
+                    "style='font-size:15px;font-family:prox-regular,sans-serif;min-width:320px;'");
 
             htm.sTr().sTh("status").add("Skills&nbsp;Review:").eTh().sTd();
             if (srStatus == 2) {
@@ -390,61 +390,73 @@ enum PageStdsText {
 
             htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;1:  ").eTh().sTd();
             if (srStatus == 2) {
-                if (s1Status == 3) {
-                    htm.add("Reached! (after deadline, 4 points awarded)");
-                } else if (s1Status == 2) {
-                    htm.add("Reached! (5 points awarded)");
-                } else if (s1Status == 1) {
-                    htm.add("In progress...");
-                } else if (a1Status == 2) {
-                    htm.add("Ready to attempt mastery");
-                } else if (a1Status == 1) {
-                    htm.add("Working on practice problems");
+                if (srStatus == 2) {
+                    if (s1Status == 3) {
+                        htm.add("Mastered! (after due date, 4 points earned)");
+                    } else if (s1Status == 2) {
+                        htm.add("Mastered! (5 points earned)");
+                    } else if (s1Status == 1) {
+                        htm.add("In progress...");
+                    } else if (a1Status == 2) {
+                        htm.add("Ready to attempt mastery");
+                    } else if (a1Status == 1) {
+                        htm.add("Working on practice problems");
+                    } else {
+                        htm.add("Available to start");
+                    }
                 } else {
-                    htm.add("Available to start");
+                    htm.add("Will be available after Skills Review completed");
                 }
             } else {
-                htm.add("Will be available after Skills Review completed");
+                htm.add("Opens when Skills Review completed");
             }
             htm.eTd().eTr();
 
             htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;2:  ").eTh().sTd();
-            if (a1Status == 2) {
-                if (s2Status == 3) {
-                    htm.add("Reached! (after deadline, 4 points awarded)");
-                } else if (s2Status == 2) {
-                    htm.add("Reached! (5 points awarded)");
-                } else if (s2Status == 1) {
-                    htm.add("In progress...");
-                } else if (a2Status == 2) {
-                    htm.add("Ready to attempt mastery");
-                } else if (a2Status == 1) {
-                    htm.add("Working on practice problems");
+            if (srStatus == 2) {
+                if (a1Status == 2) {
+                    if (s2Status == 3) {
+                        htm.add("Mastered! (after due date, 4 points earned)");
+                    } else if (s2Status == 2) {
+                        htm.add("Mastered! (5 points earned)");
+                    } else if (s2Status == 1) {
+                        htm.add("In progress...");
+                    } else if (a2Status == 2) {
+                        htm.add("Ready to attempt mastery");
+                    } else if (a2Status == 1) {
+                        htm.add("Working on practice problems");
+                    } else {
+                        htm.add("Available to start");
+                    }
                 } else {
                     htm.add("Available to start");
                 }
             } else {
-                htm.add("Will be available after Learning Target 1 practice set completed");
+                htm.add("Opens when Skills Review completed");
             }
             htm.eTd().eTr();
 
             htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;3:  ").eTh().sTd();
-            if (a2Status == 2) {
-                if (s3Status == 3) {
-                    htm.add("Reached! (after deadline, 4 points awarded)");
-                } else if (s3Status == 2) {
-                    htm.add("Reached! (5 points awarded)");
-                } else if (s3Status == 1) {
-                    htm.add("In progress...");
-                } else if (a3Status == 2) {
-                    htm.add("Ready to attempt mastery");
-                } else if (a3Status == 1) {
-                    htm.add("Working on practice problems");
+            if (srStatus == 2) {
+                if (a2Status == 2) {
+                    if (s3Status == 3) {
+                        htm.add("Mastered! (after due date, 4 points earned)");
+                    } else if (s3Status == 2) {
+                        htm.add("Mastered! (5 points earned)");
+                    } else if (s3Status == 1) {
+                        htm.add("In progress...");
+                    } else if (a3Status == 2) {
+                        htm.add("Ready to attempt mastery");
+                    } else if (a3Status == 1) {
+                        htm.add("Working on practice problems");
+                    } else {
+                        htm.add("Available to start");
+                    }
                 } else {
                     htm.add("Available to start");
                 }
             } else {
-                htm.add("Will be available after Learning Target 2 practice set completed");
+                htm.add("Opens when Skills Review completed");
             }
             htm.eTd().eTr();
 

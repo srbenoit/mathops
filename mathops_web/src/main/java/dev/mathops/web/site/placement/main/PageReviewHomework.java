@@ -59,7 +59,7 @@ enum PageReviewHomework {
                 final String redirect = "review-lesson.html?courseM%20100R&unit=" + unit + "&lesson=" + lesson;
 
                 hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId,
-                        session.getEffectiveUserId(), assign, true, false, redirect);
+                        session.getEffectiveUserId(), assign, true, redirect);
                 store.setHomeworkSession(hs);
             }
 

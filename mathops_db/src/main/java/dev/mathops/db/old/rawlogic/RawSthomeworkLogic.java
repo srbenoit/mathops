@@ -169,8 +169,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean deleteAttemptAndAnswers(final Cache cache, final RawSthomework record)
-            throws SQLException {
+    public boolean deleteAttemptAndAnswers(final Cache cache, final RawSthomework record) throws SQLException {
 
         RawSthwqaLogic.deleteAllForAttempt(cache, record);
 
@@ -203,8 +202,8 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
     public static List<RawSthomework> queryByStudent(final Cache cache, final String stuId,
                                                      final boolean all) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM sthomework ",
-                "WHERE stu_id=", sqlStringValue(stuId), (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
+        final String sql = SimpleBuilder.concat("SELECT * FROM sthomework WHERE stu_id=",
+                sqlStringValue(stuId), (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
         return executeQuery(cache.conn, sql);
@@ -278,7 +277,8 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
 
         final List<RawSthomework> homeworks = queryByStudentCourse(cache, stuId, course, passedOnly);
 
-        final List<RawSthomework> result = new ArrayList<>(homeworks.size());
+        final int count = homeworks.size();
+        final List<RawSthomework> result = new ArrayList<>(count);
 
         accumulateHomeworks(result, homeworks, passedOnly, homeworkTypes);
 
@@ -293,7 +293,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @param course        the course for which to query homeworks
      * @param unit          the unit for which to query homeworks
      * @param passedOnly    {@code true} to return only homeworks with passed = 'Y'
-     * @param homeworkTypes the types of homeworks for which to query
+     * @param homeworkTypes the types of homeworks for which to query (if null or empty, all will be queried)
      * @return the list of matching homeworks
      * @throws SQLException if there is an error accessing the database
      */
@@ -303,7 +303,8 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
 
         final List<RawSthomework> homeworks = queryByStudentCourseUnit(cache, stuId, course, unit, passedOnly);
 
-        final List<RawSthomework> result = new ArrayList<>(homeworks.size());
+        final int count = homeworks.size();
+        final List<RawSthomework> result = new ArrayList<>(count);
 
         accumulateHomeworks(result, homeworks, passedOnly, homeworkTypes);
 
@@ -316,7 +317,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @param result        the list to which to add matching homeworks
      * @param homeworks     the list of homeworks to scan for matches
      * @param passedOnly    {@code true} to return only homeworks with passed = 'Y'
-     * @param homeworkTypes the types of homeworks for which to query
+     * @param homeworkTypes the types of homeworks for which to query (if null or empty, all will be queried)
      */
     private static void accumulateHomeworks(final Collection<? super RawSthomework> result,
                                             final Iterable<RawSthomework> homeworks, final boolean passedOnly,
@@ -327,11 +328,15 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                 continue;
             }
 
-            final String type = test.hwType;
-            for (final String homeworkType : homeworkTypes) {
-                if (homeworkType.equals(type)) {
-                    result.add(test);
-                    break;
+            if (homeworkTypes == null || homeworkTypes.length == 0) {
+                result.add(test);
+            } else {
+                final String type = test.hwType;
+                for (final String homeworkType : homeworkTypes) {
+                    if (homeworkType.equals(type)) {
+                        result.add(test);
+                        break;
+                    }
                 }
             }
         }

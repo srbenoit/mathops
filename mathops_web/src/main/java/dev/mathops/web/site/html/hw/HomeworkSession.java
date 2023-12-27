@@ -7,6 +7,7 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
+import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
@@ -38,6 +39,7 @@ import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -72,9 +74,6 @@ public final class HomeworkSession extends HtmlSessionBase {
     /** Flag indicating assignment is practice. */
     public final boolean practice;
 
-    /** Flag indicating assignment is part of a new course. */
-    public final boolean newCourse;
-
     /** Timestamp when exam will time out. */
     private long timeout;
 
@@ -91,18 +90,16 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the assignment is practice (homework otherwise)
-     * @param isNewCourse      {@code true} if the assignment is part of a new course, which may change the look
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
     public HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
                            final String theStudentId, final String theExamId, final boolean isPractice,
-                           final boolean isNewCourse, final String theRedirectOnEnd) throws SQLException {
+                           final String theRedirectOnEnd) throws SQLException {
 
         super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
-        this.newCourse = isNewCourse;
         this.state = EHomeworkState.INITIAL;
         this.timeout = System.currentTimeMillis() + TIMEOUT;
         this.incorrect = 0;
@@ -118,7 +115,6 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the assignment is practice (homework otherwise)
-     * @param isNewCourse      {@code true} if the assignment is part of a new course, which may change the look
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @param theState         the session state
      * @param theSect          the current section
@@ -131,7 +127,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      */
     HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile,
                     final String theSessionId, final String theStudentId, final String theExamId,
-                    final boolean isPractice, final boolean isNewCourse, final String theRedirectOnEnd, final EHomeworkState theState,
+                    final boolean isPractice, final String theRedirectOnEnd, final EHomeworkState theState,
                     final int theSect, final Integer theMinMoveOn, final Integer theMinMastery,
                     final long theTimeout, final int theIncorrect, final ExamObj theHomework)
             throws SQLException {
@@ -139,7 +135,6 @@ public final class HomeworkSession extends HtmlSessionBase {
         super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
-        this.newCourse = isNewCourse;
         this.state = theState;
         this.currentSection = theSect;
         this.minMoveOn = theMinMoveOn;
@@ -282,8 +277,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             error = "Homework " + this.version + " not found.";
         } else if (hwtest.isHomeworkEligible(cache, now, avail, reasons, holds, this.practice)) {
 
-            final Long serial =
-                    Long.valueOf(AbstractHandlerBase.generateSerialNumber(this.practice));
+            final Long serial = Long.valueOf(AbstractHandlerBase.generateSerialNumber(this.practice));
 
             this.minMoveOn = hwtest.getMinMoveOnScore();
             this.minMastery = hwtest.getMinMasteryScore();
@@ -309,10 +303,11 @@ public final class HomeworkSession extends HtmlSessionBase {
                 final int count = theHomework.getNumSections();
                 if (count > 0) {
                     theHomework.getSection(0).enabled = true;
+                    final EvalContext evalContext = theHomework.getEvalContext();
 
                     final ExamSection sect = theHomework.getSection(0);
                     for (int attempt = 1; attempt <= 5; attempt++) {
-                        if (sect.realize(theHomework.getEvalContext())) {
+                        if (sect.realize(evalContext)) {
                             sect.passed = false;
                             sect.mastered = false;
                             sect.score = Long.valueOf(0L);
@@ -330,8 +325,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             if (error == null) {
                 String sect = "001";
 
-                final List<RawCsection> csections =
-                        RawCsectionLogic.queryByTerm(cache, this.active.term);
+                final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.active.term);
                 csections.sort(null);
                 for (final RawCsection test : csections) {
                     if (test.course.equals(avail.courseId)) {
@@ -341,8 +335,8 @@ public final class HomeworkSession extends HtmlSessionBase {
                 }
 
                 if (!this.practice) {
-                    final RawStcourse stcourse =
-                            RawStcourseLogic.getRegistration(cache, this.studentId, avail.courseId);
+                    final RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, this.studentId,
+                            avail.courseId);
 
                     if (stcourse == null) {
                         boolean isSpecial = false;
@@ -387,11 +381,10 @@ public final class HomeworkSession extends HtmlSessionBase {
                     final LocalDateTime localNow = LocalDateTime.now();
                     final int startTime = TemporalUtils.minuteOfDay(localNow);
 
-                    final RawSthomework sthw = new RawSthomework(serial, getExam().examVersion,
-                            this.studentId, LocalDate.now(), Integer.valueOf(0),
-                            Integer.valueOf(startTime), Integer.valueOf(startTime), //
-                            "Y", "N", avail.assignmentType, avail.courseId,
-                            sect, avail.unit, avail.objective, "N", null, null);
+                    final RawSthomework sthw = new RawSthomework(serial, getExam().examVersion, this.studentId,
+                            LocalDate.now(), Integer.valueOf(0), Integer.valueOf(startTime), Integer.valueOf(startTime),
+                            "Y", "N", avail.assignmentType, avail.courseId, sect, avail.unit, avail.objective, "N",
+                            null, null);
 
                     if (!RawSthomeworkLogic.INSTANCE.insert(cache, sthw)) {
                         error = "Failed to record start of assignment";
@@ -619,8 +612,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param command the submit button name (command)
      * @param label   the button label
      */
-    private static void appendFooter(final HtmlBuilder htm, final String command,
-                                     final String label) {
+    private static void appendFooter(final HtmlBuilder htm, final String command, final String label) {
 
         htm.eDiv();
         htm.addln("</main>");
@@ -687,8 +679,7 @@ public final class HomeworkSession extends HtmlSessionBase {
         // synchronized on a session since doing so risks a race/deadlock.
 
         if (redirect != null) {
-            HomeworkSessionStore.getInstance().removeHomeworkSession(session.loginSessionId,
-                    this.version);
+            HomeworkSessionStore.getInstance().removeHomeworkSession(session.loginSessionId, this.version);
         }
 
         return redirect;
@@ -703,8 +694,8 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInteracting(final Cache cache, final ImmutableSessionInfo session,
-                                        final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInteracting(final Cache cache, final ImmutableSessionInfo session, final ServletRequest req,
+                                        final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("grade") != null) {
 
@@ -783,8 +774,9 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             final ExamSection sect = getExam().getSection(this.currentSection);
+            final EvalContext evalContext = getExam().getEvalContext();
             for (int attempt = 0; attempt < 5; ++attempt) {
-                if (sect.realize(getExam().getEvalContext())) {
+                if (sect.realize(evalContext)) {
                     sect.passed = false;
                     sect.mastered = false;
                     sect.score = Long.valueOf(0L);
@@ -827,17 +819,17 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostIncorrectShowAnsShowSol(final Cache cache,
-                                                    final ImmutableSessionInfo session, final ServletRequest req,
-                                                    final HtmlBuilder htm)
+    private void processPostIncorrectShowAnsShowSol(final Cache cache, final ImmutableSessionInfo session,
+                                                    final ServletRequest req, final HtmlBuilder htm)
             throws SQLException {
 
         if (req.getParameter("try-again") != null) {
 
             // Re-generate the current section
             final ExamSection sect = getExam().getSection(this.currentSection);
+            final EvalContext evalContext = getExam().getEvalContext();
             for (int attempt = 0; attempt < 5; ++attempt) {
-                if (sect.realize(getExam().getEvalContext())) {
+                if (sect.realize(evalContext)) {
                     sect.passed = false;
                     sect.mastered = false;
                     sect.score = Long.valueOf(0L);
@@ -1180,8 +1172,8 @@ public final class HomeworkSession extends HtmlSessionBase {
         // We must first find any existing PASSED homework for this course, unit and objective, and
         // determine what to set this new record's PASSED field to.
 
-        final List<RawSthomework> exist = RawSthomeworkLogic.getHomeworks(cache, this.studentId,
-                hw.courseId, hw.unit, true, hw.assignmentType);
+        final List<RawSthomework> exist = RawSthomeworkLogic.getHomeworks(cache, this.studentId, hw.courseId, hw.unit,
+                true, hw.assignmentType);
 
         int max = 0;
         boolean searching = true;
@@ -1223,13 +1215,14 @@ public final class HomeworkSession extends HtmlSessionBase {
             passed = Integer.toString(max + 1);
         }
 
-        final LocalDateTime end = TemporalUtils.toLocalDateTime(getExam().completionTime);
+        final ExamObj exam = getExam();
+        final LocalDateTime end = TemporalUtils.toLocalDateTime(exam.completionTime);
         final int endTime = TemporalUtils.minuteOfDay(end);
 
         final String error;
-        if (RawSthomeworkLogic.updateFinishTimeScore(cache, getExam().serialNumber,
-                getExam().examVersion, this.studentId, endTime, score, passed)) {
-            error = recordQuestionAnswers(cache, hw, getExam().serialNumber);
+        if (RawSthomeworkLogic.updateFinishTimeScore(cache, exam.serialNumber, exam.examVersion, this.studentId,
+                endTime, score, passed)) {
+            error = recordQuestionAnswers(cache, hw, exam.serialNumber);
         } else {
             error = "Failed to record assignment credit";
         }
@@ -1251,18 +1244,17 @@ public final class HomeworkSession extends HtmlSessionBase {
     private String recordNonMasteredHomework(final Cache cache, final AssignmentRec hw,
                                              final RawStcourse stcourse, final int score) throws SQLException {
 
-        final LocalDateTime start = TemporalUtils.toLocalDateTime(getExam().presentationTime);
-        final LocalDateTime end = TemporalUtils.toLocalDateTime(getExam().completionTime);
+        final ExamObj exam = getExam();
+        final LocalDateTime start = TemporalUtils.toLocalDateTime(exam.presentationTime);
+        final LocalDateTime end = TemporalUtils.toLocalDateTime(exam.completionTime);
 
         final int startTime = TemporalUtils.minuteOfDay(start);
         final int endTime = TemporalUtils.minuteOfDay(end);
 
-        final RawSthomework sthw =
-                new RawSthomework(Long.valueOf(AbstractHandlerBase.generateSerialNumber(false)),
-                        getExam().examVersion, this.studentId, end.toLocalDate(), Integer.valueOf(score),
-                        Integer.valueOf(startTime), Integer.valueOf(endTime), //
-                        "Y", "N", hw.assignmentType, hw.courseId, stcourse.sect,
-                        hw.unit, hw.objective, "N", null, null);
+        final RawSthomework sthw = new RawSthomework(Long.valueOf(AbstractHandlerBase.generateSerialNumber(false)),
+                exam.examVersion, this.studentId, end.toLocalDate(), Integer.valueOf(score), Integer.valueOf(startTime),
+                Integer.valueOf(endTime), "Y", "N", hw.assignmentType, hw.courseId, stcourse.sect, hw.unit,
+                hw.objective, "N", null, null);
 
         final String error;
         if (RawSthomeworkLogic.INSTANCE.insert(cache, sthw)) {
@@ -1325,9 +1317,8 @@ public final class HomeworkSession extends HtmlSessionBase {
             final LocalDateTime fin = TemporalUtils.toLocalDateTime(getExam().completionTime);
             final int finTime = TemporalUtils.minuteOfDay(fin);
 
-            final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i),
-                    Integer.valueOf(1), obj, new String(ans), this.studentId, hw.assignmentId,
-                    selected.isCorrect(answers[i]) ? "Y" : "N",
+            final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i), Integer.valueOf(1), obj,
+                    new String(ans), this.studentId, hw.assignmentId, selected.isCorrect(answers[i]) ? "Y" : "N",
                     fin.toLocalDate(), Integer.valueOf(finTime));
 
             if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {
@@ -1366,15 +1357,9 @@ public final class HomeworkSession extends HtmlSessionBase {
             if (this.practice) {
                 xml.addln(" <practice/>");
             }
-            if (this.newCourse) {
-                xml.addln(" <new-course/>");
-            }
-            xml.addln(" <redirect>", XmlEscaper.escape(this.redirectOnEnd),
-                    "</redirect>");
-            xml.addln(" <timeout>", Long.toString(this.timeout),
-                    "</timeout>");
-            xml.addln(" <incorrect>", Integer.toString(this.incorrect),
-                    "</incorrect>");
+            xml.addln(" <redirect>", XmlEscaper.escape(this.redirectOnEnd), "</redirect>");
+            xml.addln(" <timeout>", Long.toString(this.timeout), "</timeout>");
+            xml.addln(" <incorrect>", Integer.toString(this.incorrect), "</incorrect>");
             getExam().appendXml(xml, 1);
 
             // Homeworks can be re-generated, so include ALL problems
@@ -1385,11 +1370,9 @@ public final class HomeworkSession extends HtmlSessionBase {
                 for (int j = 0; j < numProb; ++j) {
                     final ExamProblem prob = sect.getProblem(j);
                     if (prob == null) {
-                        Log.warning("NO possible ExamProblem for section " + i
-                                + " problem " + j);
+                        Log.warning("NO possible ExamProblem for section " + i + " problem " + j);
                     } else {
-                        xml.addln(" <problems sect='", Integer.toString(i),
-                                "' prob='", Integer.toString(j), "'>");
+                        xml.addln(" <problems sect='", Integer.toString(i), "' prob='", Integer.toString(j), "'>");
                         final int numP = prob.getNumProblems();
 
                         for (int k = 0; k < numP; ++k) {
@@ -1406,22 +1389,22 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             for (int i = 0; i < numSect; ++i) {
+                final String iStr = Integer.toString(i);
                 final ExamSection sect = getExam().getSection(i);
                 final int numProb = sect.getNumProblems();
+
                 for (int j = 0; j < numProb; ++j) {
+                    final String jStr = Integer.toString(j);
                     final ExamProblem prob = sect.getProblem(j);
+
                     if (prob == null) {
-                        Log.warning("No selected ExamProblem for section " + i
-                                + " problem " + j);
+                        Log.warning("No selected ExamProblem for section ", iStr, " problem ", jStr);
                     } else {
                         final AbstractProblemTemplate selected = prob.getSelectedProblem();
                         if (selected == null) {
-                            Log.warning("No selected AbstractProblem for section "
-                                    + i + " problem " + j);
+                            Log.warning("No selected AbstractProblem for section ", iStr, " problem ", jStr);
                         } else {
-                            xml.addln(" <selected-problem sect='",
-                                    Integer.toString(i), "' prob='",
-                                    Integer.toString(j), "'>");
+                            xml.addln(" <selected-problem sect='", iStr, "' prob='", jStr, "'>");
                             selected.appendXml(xml, 2);
                             xml.addln(" </selected-problem>");
                         }
@@ -1449,8 +1432,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             final HomeworkSessionStore store = HomeworkSessionStore.getInstance();
             store.removeHomeworkSession(this.sessionId, this.version);
         } else {
-            appendExamLog(//
-                    "Forced abort requested, but requester is not ADMINISTRATOR");
+            appendExamLog("Forced abort requested, but requester is not ADMINISTRATOR");
         }
     }
 }

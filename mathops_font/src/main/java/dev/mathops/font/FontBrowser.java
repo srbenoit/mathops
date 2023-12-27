@@ -117,8 +117,7 @@ final class FontBrowser implements ActionListener {
 
                 try (final FileInputStream fis = new FileInputStream(file)) {
 
-                    if ((name.endsWith(".ttf"))
-                            || (name.endsWith(".otf"))) {
+                    if (name.endsWith(".ttf") || name.endsWith(".otf")) {
                         this.font = Font.createFont(Font.TRUETYPE_FONT, fis);
                     } else {
                         this.font = Font.createFont(Font.TYPE1_FONT, fis);
