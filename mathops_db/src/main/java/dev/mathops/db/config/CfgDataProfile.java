@@ -4,11 +4,13 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
+import dev.mathops.core.parser.xml.IElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,22 +92,21 @@ public final class CfgDataProfile implements Comparable<CfgDataProfile> {
                 throw new IllegalArgumentException("Data profile ID may not be blank.");
             }
 
-            final int count = theElem.getNumChildren();
+            final List<IElement> elementChildren = theElem.getElementChildrenAsList();
             this.schemaLogins = new EnumMap<>(ESchemaType.class);
 
-            for (int i = 0; i < count; ++i) {
-                final INode child = theElem.getChild(i);
-                if (child instanceof final EmptyElement childElem) {
-                    final String childTag = theElem.getTagName();
+            for (final IElement child : elementChildren) {
+                final String childTag = child.getTagName();
 
+                if (child instanceof final EmptyElement childElem) {
                     if (CfgSchemaLogin.ELEM_TAG.equals(childTag)) {
-                        final CfgSchemaLogin login = new CfgSchemaLogin(theDbMap, theLoginMap, theElem);
+                        final CfgSchemaLogin login = new CfgSchemaLogin(theDbMap, theLoginMap, childElem);
                         this.schemaLogins.put(login.schema, login);
                     } else {
-                        Log.warning("Unexpected child of <data-profile> element.");
+                        Log.warning("Unexpected <", childTag, "> child of <data-profile> element.");
                     }
                 } else {
-                    Log.warning("Unexpected non-empty child of <data-profile> element.");
+                    Log.warning("Unexpected non-empty <", childTag, "> child of <data-profile> element.");
                 }
             }
 

@@ -4,11 +4,13 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
+import dev.mathops.core.parser.xml.IElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,7 +81,8 @@ public final class CfgWebContext implements Comparable<CfgWebContext> {
      * @param theElem       the XML element from which to extract configuration settings.
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
-    CfgWebContext(final Map<String, CfgDataProfile> theProfileMap, final NonemptyElement theElem) throws ParsingException {
+    CfgWebContext(final Map<String, CfgDataProfile> theProfileMap, final NonemptyElement theElem)
+            throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {
@@ -88,14 +91,14 @@ public final class CfgWebContext implements Comparable<CfgWebContext> {
                 throw new IllegalArgumentException("Host may not be blank");
             }
 
-            final int count = theElem.getNumChildren();
+            final List<IElement> childElements = theElem.getElementChildrenAsList();
+            final int count = childElements.size();
             this.sites = new HashMap<>(count);
 
-            for (int i = 0; i < count; ++i) {
-                final INode child = theElem.getChild(i);
-                if (child instanceof final EmptyElement childElem) {
-                    final String childTag = theElem.getTagName();
+            for (final IElement child : childElements) {
+                final String childTag = child.getTagName();
 
+                if (child instanceof final EmptyElement childElem) {
                     if (CfgSite.ELEM_TAG.equals(childTag)) {
                         final CfgSite site = new CfgSite(theProfileMap, childElem);
                         if (this.sites.containsKey(site.path)) {
@@ -103,10 +106,10 @@ public final class CfgWebContext implements Comparable<CfgWebContext> {
                         }
                         this.sites.put(site.path, site);
                     } else {
-                        Log.warning("Unexpected child of <web-context> element.");
+                        Log.warning("Unexpected <", childTag, "> child of <web-context> element.");
                     }
                 } else {
-                    Log.warning("Unexpected child of <web-context> element.");
+                    Log.warning("Unexpected <", childTag, "> child of <web-context> element.");
                 }
             }
         } else {

@@ -2,7 +2,7 @@ package dev.mathops.db.config;
 
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.xml.NonemptyElement;
+import dev.mathops.core.parser.xml.EmptyElement;
 
 import java.util.Map;
 
@@ -73,7 +73,7 @@ public final class CfgSchemaLogin implements Comparable<CfgSchemaLogin> {
      * @throws ParsingException if required data is missing from the element or the data that is present is invalid
      */
     CfgSchemaLogin(final Map<String, CfgDatabase> theDatabaseMap, final Map<String, CfgLogin> theLoginMap,
-                   final NonemptyElement theElem) throws ParsingException {
+                   final EmptyElement theElem) throws ParsingException {
 
         final String tag = theElem.getTagName();
         if (ELEM_TAG.equals(tag)) {

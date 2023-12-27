@@ -515,4 +515,9 @@ public final class CfgDatabaseLayer {
                 ",logins=", this.logins, ",dataProfiles=", this.dataProfiles, ",webContexts=", this.webContexts,
                 ",codeContexts=", this.codeContexts);
     }
+
+//    public static void main(final String... args) {
+//
+//        Log.fine(getDefaultInstance());
+//    }
 }

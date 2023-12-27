@@ -5,10 +5,9 @@ import dev.mathops.app.db.config.MutableCfgDatabaseLayer;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.config.CfgDatabaseLayer;
 import javafx.application.Application;
-import javafx.beans.Observable;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,15 +15,17 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -50,6 +51,9 @@ import java.io.InputStream;
  */
 public class DbManager extends Application {
 
+    /** The gap between icon and text on buttons. */
+    private static final double BUTTON_GAP = 16.0;
+
     /** The currently loaded database configuration. */
     private CfgDatabaseLayer config;
 
@@ -63,7 +67,7 @@ public class DbManager extends Application {
 
         super();
 
-//        this.config = CfgDatabaseLayer.getDefaultInstance();
+        this.config = CfgDatabaseLayer.getDefaultInstance();
 //        this.mutableConfig = new MutableCfgDatabaseLayer(this.config);
     }
 
@@ -92,7 +96,7 @@ public class DbManager extends Application {
     private Parent createContent() {
 
         final TabPane tabPane = new TabPane();
-        tabPane.setPrefSize(1000, 700);
+        tabPane.setPrefSize(1100, 800);
 
         final Parent configurationTabContent = createConfigurationTabContent();
         final Tab configurationTab = new Tab();
@@ -128,81 +132,138 @@ public class DbManager extends Application {
 
         final BorderPane content = new BorderPane();
 
-        final VBox left = new VBox(20.0);
+        final StackPane center = new StackPane();
+        final BorderWidths centerPadding = new BorderWidths(20.0, 20.0, 20.0, 0.0);
+        center.setBorder(new Border(new BorderStroke(Color.TRANSPARENT, null, null, centerPadding)));
+
+        final Font buttonFont = new Font(14.0);
+        final Font headerFont = new Font(22.0);
+
+        final BorderPane instancesDetail = new BorderPane();
+        final Text instancesHeader =new Text("Instances");
+        instancesHeader.setFont(headerFont);
+        instancesDetail.setTop(instancesHeader);
+        instancesDetail.setVisible(false);
+
+        final BorderPane profilesDetail = new BorderPane();
+        final Text profilesHeader =new Text("Data Profiles");
+        profilesHeader.setFont(headerFont);
+        profilesDetail.setTop(profilesHeader);
+        profilesDetail.setVisible(false);
+
+        final BorderPane webDetail = new BorderPane();
+        final Text webHeader =new Text("Web Contexts");
+        webHeader.setFont(headerFont);
+        webDetail.setTop(webHeader);
+        webDetail.setVisible(false);
+
+        final BorderPane codeDetail = new BorderPane();
+        final Text codeHeader =new Text("Code Contexts");
+        codeHeader.setFont(headerFont);
+        codeDetail.setTop(codeHeader);
+        codeDetail.setVisible(false);
+
+        final ObservableList<Node> centerChildren = center.getChildren();
+        centerChildren.addAll(instancesDetail, profilesDetail, webDetail, codeDetail);
+
+        content.setCenter(center);
+
+        final VBox left = new VBox(14.0);
         left.setBorder(new Border(new BorderStroke(Color.TRANSPARENT, null, null, new BorderWidths(20.0))));
         content.setLeft(left);
 
-        final Button btn1 = new Button("Instances");
-        btn1.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "servers48.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn1.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'instances' icon", ex);
-        }
+        final Button btn1 = makeSideButton("Instances", buttonFont, "servers48.png");
+        btn1.setOnAction(e -> {showNodeHideNodes(centerChildren, instancesDetail);});
 
-        final Button btn2 = new Button("Data Profiles");
-        btn2.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "profiles48.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn2.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'data profiles' icon", ex);
-        }
+        final Button btn2 = makeSideButton("Data Profiles", buttonFont, "profiles48.png");
+        btn2.setOnAction(e -> {showNodeHideNodes(centerChildren, profilesDetail);});
 
-        final Button btn3 = new Button("Web Contexts");
-        btn3.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "webcontexts48.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn3.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'web contexts' icon", ex);
-        }
+        final Button btn3 = makeSideButton("Web Contexts", buttonFont, "webcontexts48.png");
+        btn3.setOnAction(e -> {showNodeHideNodes(centerChildren, webDetail);});
 
-        final Button btn4 = new Button("Code Contexts");
-        btn4.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "codecontexts48.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn4.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'code contexts' icon", ex);
-        }
+        final Button btn4 = makeSideButton("Code Contexts", buttonFont, "codecontexts48.png");
+        btn4.setOnAction(e -> {showNodeHideNodes(centerChildren, codeDetail);});
 
         left.getChildren().addAll(btn1, btn2, btn3, btn4);
 
-        final HBox bottom = new HBox(20.0);
+        final HBox bottom = new HBox(14.0);
         final BorderWidths bottomPadding = new BorderWidths(10.0, 20.0, 10.0, 20.0);
         bottom.setBorder(new Border(new BorderStroke(Color.TRANSPARENT, null, null, bottomPadding),
                 new BorderStroke(Color.SILVER, BorderStrokeStyle.SOLID, null, new BorderWidths(1.0, 0.0, 0.0, 0.0))));
         content.setBottom(bottom);
 
-        final Button btn5 = new Button("Apply Changes and Save to XML");
-        btn5.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "save_apply32.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn5.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'apply' icon", ex);
-        }
-
-        final Button btn6 = new Button("Discard Changes and Revert to Saved XML");
-        btn6.setMaxWidth(Double.MAX_VALUE);
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, "revert32.png", true)) {
-            final Image instancesImg = new Image(in);
-            final ImageView instancesIcon = new ImageView(instancesImg);
-            btn6.setGraphic(instancesIcon);
-        } catch (final IOException ex) {
-            Log.warning("Failed to load 'revert' icon", ex);
-        }
-
+        final Button btn5 = makeBottomButton("Apply Changes and Save to XML", buttonFont, "save_apply32.png");
+        final Button btn6 = makeBottomButton("Discard Changes and Revert to Saved XML", buttonFont, "revert32.png");
         bottom.getChildren().addAll(btn5, btn6);
 
         return content;
+    }
+
+    /**
+     * Generates a side button with label and icon.
+     *
+     * @param label the button label
+     * @param font the button font
+     * @param iconFilename the filename of the icon
+     */
+    private static Button makeSideButton(final String label, final Font font, final String iconFilename) {
+
+        final Button btn = new Button(label);
+
+        btn.setFont(font);
+        btn.setAlignment(Pos.CENTER_LEFT);
+        btn.setGraphicTextGap(BUTTON_GAP);
+        btn.setMaxWidth(Double.MAX_VALUE);
+
+        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, iconFilename, true)) {
+            final Image instancesImg = new Image(in);
+            final ImageView instancesIcon = new ImageView(instancesImg);
+            btn.setGraphic(instancesIcon);
+        } catch (final IOException ex) {
+            Log.warning("Failed to load ", label, "' icon from '", iconFilename, "'", ex);
+        }
+
+        return btn;
+    }
+
+    /**
+     * Generates a bottom button with label and icon.
+     *
+     * @param label the button label
+     * @param font the button font
+     * @param iconFilename the filename of the icon
+     */
+    private static Button makeBottomButton(final String label, final Font font, final String iconFilename) {
+
+        final Button btn = new Button(label);
+
+        btn.setFont(font);
+        btn.setGraphicTextGap(BUTTON_GAP);
+        btn.setMaxWidth(Double.MAX_VALUE);
+
+        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, iconFilename, true)) {
+            final Image instancesImg = new Image(in);
+            final ImageView instancesIcon = new ImageView(instancesImg);
+            btn.setGraphic(instancesIcon);
+        } catch (final IOException ex) {
+            Log.warning("Failed to load '", label, "' icon from '", iconFilename, "'",  ex);
+        }
+
+        return btn;
+    }
+
+    /**
+     * Makes a single node in a list of nodes visible.
+     *
+     * @param nodes the list of nodes
+     * @param nodeToShow the single node to make visible
+     */
+    private static void showNodeHideNodes(final Iterable<? extends Node> nodes, final Node nodeToShow) {
+
+        for (final Node node : nodes) {
+            final boolean equal = node.equals(nodeToShow);
+            node.setVisible(equal);
+        }
     }
 
     /**
