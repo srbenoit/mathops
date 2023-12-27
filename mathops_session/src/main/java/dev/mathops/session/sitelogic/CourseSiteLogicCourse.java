@@ -55,10 +55,14 @@ public final class CourseSiteLogicCourse {
     private static final String M161R = "M 161R";
 
     /** A course number. */
-    private static final String M161 = "M 161";
+    private static final String GUEST = "GUEST";
+
+    /** A course number. */
+    private static final String AACTUTOR = "AACTUTOR";
 
     /** The set of guest student IDs. */
-    private static final List<String> GUEST_IDS;
+    private static final List<String> GUEST_IDS = Arrays.asList(GUEST, AACTUTOR);
+    ;
 
     /** The owning site logic object. */
     private final CourseSiteLogic owner;
@@ -120,14 +124,14 @@ public final class CourseSiteLogicCourse {
     /** The list of tutorials open to the student. */
     public final Set<CourseInfo> tutorials;
 
-    /** Indicator that student has been locked out of courses by a hold. */
+    /** Indicator that student has been locked out of courses by a fatal hold. */
     public boolean lockedOut;
 
     /** True if student has any course that requires an e-text. */
-    public boolean requiresEtext;
+    public boolean requiresEText;
 
     /** Indicator that student is blocked from proceeding by deadline failures. */
-    public boolean blocked;
+    public boolean blocked = false;
 
     /** Labels for each course in the menu. */
     private final Map<String, String> courseLabels;
@@ -137,10 +141,6 @@ public final class CourseSiteLogicCourse {
 
     /** Flag indicating the user has an incomplete course that has not been opened. */
     private boolean incUnopened;
-
-    static {
-        GUEST_IDS = Arrays.asList("GUEST", "AACTUTOR");
-    }
 
     /**
      * Constructs a new {@code CourseSiteLogicCourse}.
@@ -179,12 +179,13 @@ public final class CourseSiteLogicCourse {
         this.tutorials = new TreeSet<>();
         this.lockedOut = false;
         this.numOpen = 0;
-        this.requiresEtext = false;
+        this.requiresEText = false;
         this.incUnopened = false;
 
         this.courseLabels = new TreeMap<>();
 
-        processData(cache, ZonedDateTime.now());
+        final ZonedDateTime now = ZonedDateTime.now();
+        processData(cache, now);
     }
 
     /**
@@ -201,8 +202,10 @@ public final class CourseSiteLogicCourse {
         this.lockedOut = stuData.hasHold("30");
         loadCourseLabels();
 
-        if (GUEST_IDS.contains(stuData.getStudent().stuId)) {
-            loadGuestData(stuData.getStudent().stuId);
+        final RawStudent student = stuData.getStudent();
+
+        if (GUEST_IDS.contains(student.stuId)) {
+            loadGuestData(student.stuId);
         } else {
             loadStudentData(cache, now);
         }
@@ -228,65 +231,62 @@ public final class CourseSiteLogicCourse {
      * Loads the available course data for pre-configured guest IDs.
      *
      * @param studentId the student ID
-     * @return {@code true} if successful; {@code false} otherwise
      */
-    private boolean loadGuestData(final String studentId) {
+    private void loadGuestData(final String studentId) {
 
         // TODO: Make this data driven, and also context-specific
 
-        if ("GUEST".equals(studentId)) {
+        if (GUEST.equals(studentId)) {
             if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
-                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T,
-                        this.courseLabels.get(RawRecordConstants.M100T)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M100T);
+                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                this.otCreditCourses.add(new CourseInfo(RawRecordConstants.M117,
-                        this.courseLabels.get(RawRecordConstants.M117)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
+                this.otCreditCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
-                        this.courseLabels.get(RawRecordConstants.M118)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M124,
-                        this.courseLabels.get(RawRecordConstants.M124)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M125,
-                        this.courseLabels.get(RawRecordConstants.M125)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M126,
-                        this.courseLabels.get(RawRecordConstants.M126)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
+                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
             }
-        } else if ("AACTUTOR".equals(studentId)) {
+        } else if (AACTUTOR.equals(studentId)) {
             if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
-                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T,
-                        this.courseLabels.get(RawRecordConstants.M100T)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M100T);
+                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117,
-                        this.courseLabels.get(RawRecordConstants.M117)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
-                        this.courseLabels.get(RawRecordConstants.M118)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124,
-                        this.courseLabels.get(RawRecordConstants.M124)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125,
-                        this.courseLabels.get(RawRecordConstants.M125)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126,
-                        this.courseLabels.get(RawRecordConstants.M126)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
             }
         }
-
-        return true;
     }
 
     /**
@@ -294,45 +294,53 @@ public final class CourseSiteLogicCourse {
      *
      * @param cache the data cache
      * @param now   the current date/time
-     * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadStudentData(final Cache cache, final ZonedDateTime now) throws SQLException {
+    private void loadStudentData(final Cache cache, final ZonedDateTime now) throws SQLException {
 
         makeTutorialsAvailable(now);
 
-        final boolean result;
-
         if (this.session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117,
-                        this.courseLabels.get(RawRecordConstants.M117)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118,
-                        this.courseLabels.get(RawRecordConstants.M118)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124,
-                        this.courseLabels.get(RawRecordConstants.M124)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125,
-                        this.courseLabels.get(RawRecordConstants.M125)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126,
-                        this.courseLabels.get(RawRecordConstants.M126)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
             }
+//            if (this.courseLabels.containsKey(RawRecordConstants.MATH117)) {
+//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH117);
+//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH117, lbl));
+//            }
+//            if (this.courseLabels.containsKey(RawRecordConstants.MATH118)) {
+//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH118);
+//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH118, lbl));
+//            }
+//            if (this.courseLabels.containsKey(RawRecordConstants.MATH124)) {
+//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH124);
+//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH124, lbl));
+//            }
             if (this.courseLabels.containsKey(RawRecordConstants.MATH125)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH125,
-                        this.courseLabels.get(RawRecordConstants.MATH125)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.MATH125);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH125, lbl));
             }
             if (this.courseLabels.containsKey(RawRecordConstants.MATH126)) {
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126,
-                        this.courseLabels.get(RawRecordConstants.MATH126)));
+                final String lbl = this.courseLabels.get(RawRecordConstants.MATH126);
+                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126, lbl));
             }
-            result = true;
         } else {
             addSpecialStudentCourses();
 
@@ -354,10 +362,9 @@ public final class CourseSiteLogicCourse {
                     }
                 }
             }
-            result = processCourses(cache, now, stCoursesInContext);
-        }
 
-        return result;
+            processCourses(cache, now, stCoursesInContext);
+        }
     }
 
     /**
@@ -383,7 +390,7 @@ public final class CourseSiteLogicCourse {
 
             if ("Y".equals(course.isTutorial)) {
 
-                final boolean canSeeAll = stuData.isSpecialType(now, "AACTUTOR")
+                final boolean canSeeAll = stuData.isSpecialType(now, AACTUTOR)
                         || stuData.isSpecialType(now, "TUTOR")
                         || stuData.isSpecialType(now, "ADMIN")
                         || stuData.isSpecialType(now, "STEVE");
@@ -424,16 +431,16 @@ public final class CourseSiteLogicCourse {
 
                             if (!hasCourseAsPrereq(RawRecordConstants.M118)) {
                                 // Availability of M 1180 is governed by having 117 done
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
-                                        hasCourseAsPrereq(RawRecordConstants.M117)));
+                                final boolean has117 = hasCourseAsPrereq(RawRecordConstants.M117);
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has117));
                             }
 
                         } else if (RawRecordConstants.M1240.equals(course.course)) {
 
                             if (!hasCourseAsPrereq(RawRecordConstants.M124)) {
                                 // Availability of M 1240 is governed by having 118 done
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
-                                        hasCourseAsPrereq(RawRecordConstants.M118)));
+                                final boolean has118 = hasCourseAsPrereq(RawRecordConstants.M118);
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has118));
                             }
 
                         } else if (RawRecordConstants.M1250.equals(course.course)) {
@@ -444,17 +451,17 @@ public final class CourseSiteLogicCourse {
                             if (!hasCourseAsPrereq(RawRecordConstants.M125)) {
                                 // Availability of M 1250 is governed by having 124 done (NOTE:
                                 // We force numerical order, not just pre-requisite order)
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
-                                        hasCourseAsPrereq(RawRecordConstants.M124)));
+                                final boolean has124 = hasCourseAsPrereq(RawRecordConstants.M124);
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has124));
                             }
 
                         } else if (RawRecordConstants.M1260.equals(course.course)) {
 
                             if (!hasCourseAsPrereq(RawRecordConstants.M126)) {
                                 // Availability of M 1260 is governed by having 124 and 125 done
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel,
-                                        hasCourseAsPrereq(RawRecordConstants.M124)
-                                                && hasCourseAsPrereq(RawRecordConstants.M125)));
+                                final boolean has124 = hasCourseAsPrereq(RawRecordConstants.M124);
+                                final boolean has125 = hasCourseAsPrereq(RawRecordConstants.M125);
+                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has124 && has125));
                             }
 
                         } else {
@@ -475,18 +482,13 @@ public final class CourseSiteLogicCourse {
 
         final SiteDataStudent stuData = this.data.studentData;
         final ZonedDateTime now = this.owner.sessionInfo.getNow();
-        final String[] toAdd;
 
         if (stuData.isSpecialType(now, "TUTOR", "M384", "ADMIN")) {
-            toAdd = new String[]{RawRecordConstants.M117, RawRecordConstants.M118,
-                    RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126,
-                    RawRecordConstants.MATH125, RawRecordConstants.MATH126, M160R, M161R};
-        } else {
-            toAdd = null;
-        }
 
-        if (toAdd != null) {
-            // Add only those courses from the above list that are relevant to the context
+            final String[] toAdd = {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
+                    RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
+                    RawRecordConstants.MATH126, M160R, M161R};
+
             for (final String s : toAdd) {
                 if (this.courseLabels.containsKey(s)) {
                     this.inProgressCourses.add(new CourseInfo(s, this.courseLabels.get(s)));
@@ -508,14 +510,13 @@ public final class CourseSiteLogicCourse {
     private boolean processCourses(final Cache cache, final ZonedDateTime now,
                                    final Iterable<RawStcourse> stCoursesInContext) throws SQLException {
 
-        // Determine the student's pace (assume pace order is correct - may be wrong, but it will
-        // not report a false-positive blocked result this way, since there should be no more
-        // records with a pace order set than the student's actual pace).
+        // Determine the student's pace (assume pace order is correct - may be wrong, but it will not report a
+        // false-positive blocked result this way, since there should be no more records with a pace order set than the
+        // student's actual pace).
         final int pace = PaceTrackLogic.determinePace(stCoursesInContext);
 
-        // TODO: This is the place to store the STTERM info for pace and pace track, but we
-        // need to calculate pace track from the pace track rules. If the track is changed from
-        // the default, we may need to re-query milestones!
+        // TODO: This is the place to store the STTERM info for pace and pace track, but we need to calculate pace track
+        // from the pace track rules. If the track is changed from the default, we may need to re-query milestones!
 
         final SiteDataCourse courseData = this.data.courseData;
 
@@ -549,7 +550,7 @@ public final class CourseSiteLogicCourse {
             }
         }
 
-        this.requiresEtext = false;
+        this.requiresEText = false;
         outer:
         for (final RawStcourse stcourse : stCoursesInContext) {
 
@@ -563,7 +564,7 @@ public final class CourseSiteLogicCourse {
                 continue;
             }
             if ("Y".equals(cfg.course.requireEtext)) {
-                this.requiresEtext = true;
+                this.requiresEText = true;
             }
 
             final RawCsection sect = cfg.courseSection;
@@ -579,9 +580,6 @@ public final class CourseSiteLogicCourse {
             final LocalDate today = this.owner.sessionInfo.getNow().toLocalDate();
 
             if (paceOrder != null) {
-                final boolean ubonus = paceOrder.intValue() == 1 && this.data.studentData.isSpecialType(
-                        this.data.now, "UBONUS");
-
                 for (final RawMilestone msRec : allMilestones) {
 
                     final int msNumber = msRec.msNbr.intValue();
@@ -594,8 +592,10 @@ public final class CourseSiteLogicCourse {
 
                     final String msType = msRec.msType;
 
-                    if ("FE".equals(msType)) {
-                        if (paceDeadlineDay == null || msRec.msDate.isAfter(paceDeadlineDay)) {
+                    if (paceDeadlineDay == null) {
+                        paceDeadlineDay = msRec.msDate;
+                    } else if ("FE".equals(msType)) {
+                        if (msRec.msDate.isAfter(paceDeadlineDay)) {
                             paceDeadlineDay = msRec.msDate;
                         }
 
@@ -611,10 +611,6 @@ public final class CourseSiteLogicCourse {
                         }
 
                         lastTryAttempts = msRec.nbrAtmptsAllow == null ? 1 : msRec.nbrAtmptsAllow.intValue();
-                        if (ubonus) {
-                            // Testing Center exam bonus applied before student overrides
-                            ++lastTryAttempts;
-                        }
 
                         // See if date is overridden
                         for (final RawStmilestone stuMs : stuMilestones) {
@@ -969,12 +965,11 @@ public final class CourseSiteLogicCourse {
             }
 
             if (mixed) {
-                Log.warning("Student ", stuData.getStudent().stuId,
-                        " registered for sections with inconsistent pacing structures.");
+                final RawStudent student = stuData.getStudent();
+                Log.warning("Student ", student.stuId, " registered for sections with inconsistent pacing structures.");
             }
 
-            // If no pacing structure is stored for the student, store the one we found for
-            // reference
+            // If no pacing structure is stored for the student, store the one we found for reference
             final RawStudent student = this.data.studentData.getStudent();
             final String stuRuleSetId = student.pacingStructure;
             if (pacingStructure == null) {
@@ -999,16 +994,16 @@ public final class CourseSiteLogicCourse {
     /**
      * Organizes courses into categories.
      *
-     * @param cache          the data cache
-     * @param studentCourses an array of models of type {@code CRawStcourse}, representing student course registrations
-     *                       (may have null entries for invalid configurations)
-     * @param ruleSet        a{@code RuleSet} with the pacing structure under which the student works in this context
+     * @param cache           the data cache
+     * @param studentCourses  an array of models of type {@code CRawStcourse}, representing student course registrations
+     *                        (may have null entries for invalid configurations)
+     * @param pacingStructure a{@code RuleSet} with the pacing structure under which the student works in this context
      * @throws SQLException if there is an error accessing the database
      */
     private void categorizeCourses(final Cache cache, final Iterable<RawStcourse> studentCourses,
-                                   final RawPacingStructure ruleSet) throws SQLException {
+                                   final RawPacingStructure pacingStructure) throws SQLException {
 
-        final Integer max = ruleSet.nbrOpenAllowed;
+        final Integer max = pacingStructure.nbrOpenAllowed;
         final int maxOpen = max == null ? Integer.MAX_VALUE : max.intValue();
 
         // Now, we loop through the list of unopened courses and test each one for prerequisites.
@@ -1029,7 +1024,6 @@ public final class CourseSiteLogicCourse {
                 continue;
             }
 
-            // FIXME remove once getRegistrationData omits AP credit records
             final RawCsection section = cfg.courseSection;
             if ("OT".equals(section.instrnType)) {
                 continue;
@@ -1070,33 +1064,58 @@ public final class CourseSiteLogicCourse {
                 prereq = checkPrerequisites(cache, stcourse);
             }
 
-            // FIXME:
+            // CSU Online students can take MATH 117 without prereq, but get ELM as unit 0 if prereq is not satisfied
             if (!prereq && RawRecordConstants.M117.equals(courseId)
-                    && (!stcourse.sect.isEmpty() && stcourse.sect.charAt(0) == '8'
-                    || !stcourse.sect.isEmpty() && stcourse.sect.charAt(0) == '4')) {
+                    && (!stcourse.sect.isEmpty() && (int) stcourse.sect.charAt(0) == (int) '8')) {
                 prereq = true;
             }
 
-            if (this.courseLabels.containsKey(courseId)) {
-                // If the course grade has been set to "F", it is NOT available.
-                if ("G".equals(stcourse.openStatus)) {
-                    this.forfeitCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
-                } else if ("N".equals(stcourse.openStatus)) {
-                    this.notAvailableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
-                } else if (prereq) {
-                    if (stcourse.iDeadlineDt == null) {
-                        if ((this.numOpen >= maxOpen) || this.incUnopened) {
-                            this.unavailableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+            final String theLabel = this.courseLabels.get(courseId);
+            if (theLabel == null) {
+                Log.warning("No course label configured for ", courseId);
+            } else {
+                final CourseInfo infoWithLabel = new CourseInfo(courseId, theLabel);
+
+                if ("Y".equals(stcourse.iInProgress)) {
+                    if ("G".equals(stcourse.openStatus)) {
+                        this.forfeitInc.add(infoWithLabel);
+                    } else if ("Y".equals(stcourse.completed)) {
+                        this.completedIncCourses.add(infoWithLabel);
+                    } else if ("N".equals(stcourse.openStatus)) {
+                        // Incomplete was not completed, but has been closed, so deadline must have expired - this
+                        // should not happen, but warn if it does
+                        Log.warning("Incomplete in ", courseId, " for ", stcourse.stuId,
+                                " has open_status='N' but is not completed - investigate...");
+                        this.pastDeadlineIncCourses.add(infoWithLabel);
+                    } else if ("Y".equals(stcourse.openStatus)) {
+                        this.inProgressIncCourses.add(infoWithLabel);
+                    } else if (prereq) {
+                        if (this.numOpen >= maxOpen) {
+                            this.unavailableIncCourses.add(infoWithLabel);
                         } else {
-                            this.availableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                            this.availableIncCourses.add(infoWithLabel);
                         }
-                    } else if ((this.numOpen >= maxOpen) || !this.incUnopened) {
-                        this.unavailableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                     } else {
-                        this.availableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                        this.noPrereqIncCourses.add(infoWithLabel);
                     }
                 } else {
-                    this.noPrereqCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                    if ("G".equals(stcourse.openStatus)) {
+                        this.forfeitCourses.add(infoWithLabel);
+                    } else if ("Y".equals(stcourse.completed)) {
+                        this.completedCourses.add(infoWithLabel);
+                    } else if ("N".equals(stcourse.openStatus)) {
+                        this.notAvailableCourses.add(infoWithLabel);
+                    } else if ("Y".equals(stcourse.openStatus)) {
+                        this.inProgressCourses.add(infoWithLabel);
+                    } else if (prereq) {
+                        if (this.numOpen >= maxOpen || this.incUnopened) {
+                            this.unavailableCourses.add(infoWithLabel);
+                        } else {
+                            this.availableCourses.add(infoWithLabel);
+                        }
+                    } else {
+                        this.noPrereqCourses.add(infoWithLabel);
+                    }
                 }
             }
         }
@@ -1110,26 +1129,25 @@ public final class CourseSiteLogicCourse {
 
         // If there exist unavailable or no-prerequisite courses, but there are no in-progress or
         // available courses (regular or incomplete), the student is stuck.
-        final boolean hasFutureWorkToDo = (!this.unavailableCourses.isEmpty() || !this.noPrereqCourses.isEmpty()
-                || !this.unavailableIncCourses.isEmpty() || !this.noPrereqIncCourses.isEmpty());
-        final boolean blockedNow = this.inProgressCourses.isEmpty() && this.availableCourses.isEmpty()
-                && this.inProgressIncCourses.isEmpty() && this.availableIncCourses.isEmpty();
 
-        this.blocked = hasFutureWorkToDo && blockedNow;
+        this.blocked = this.inProgressCourses.isEmpty() && this.availableCourses.isEmpty()
+                && this.inProgressIncCourses.isEmpty() && this.availableIncCourses.isEmpty() &&
+                !(this.unavailableCourses.isEmpty() && this.noPrereqCourses.isEmpty()
+                        && this.unavailableIncCourses.isEmpty() && this.noPrereqIncCourses.isEmpty());
     }
 
     /**
      * Tests whether the student is using the new "standards-based" courses.
      *
-     * @return 0 if the student is not taking any standards-based courses; 1 if they have a mixture, and 2 if they
-     * are using exclusively standards-based courses
+     * @return 0 if the student is not taking any standards-based courses; 1 if they have a mixture, and 2 if they are
+     *         using exclusively standards-based courses
      */
     public int getUseOfStandardsBased() {
 
         int numOld = 0;
         int numNew = 0;
 
-        final Set<CourseInfo> allCourses = new HashSet<>(10);
+        final Collection<CourseInfo> allCourses = new HashSet<>(10);
         allCourses.addAll(this.availableCourses);
         allCourses.addAll(this.unavailableCourses);
         allCourses.addAll(this.noPrereqCourses);

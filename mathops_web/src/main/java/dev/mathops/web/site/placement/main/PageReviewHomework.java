@@ -3,6 +3,7 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -58,7 +59,7 @@ enum PageReviewHomework {
                 final String redirect = "review-lesson.html?courseM%20100R&unit=" + unit + "&lesson=" + lesson;
 
                 hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId,
-                        session.getEffectiveUserId(), assign, true, redirect);
+                        session.getEffectiveUserId(), assign, true, false, redirect);
                 store.setHomeworkSession(hs);
             }
 

@@ -120,7 +120,7 @@ enum PageETexts {
             htm.div("vgap");
 
             final CourseSiteLogicCourse courseLogic = logic.course;
-            if (courseLogic.requiresEtext) {
+            if (courseLogic.requiresEText) {
                 showActivateLink(htm);
             }
         } else {

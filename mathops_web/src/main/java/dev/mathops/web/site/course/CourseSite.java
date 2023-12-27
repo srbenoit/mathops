@@ -130,6 +130,9 @@ public class CourseSite extends AbstractPageSite {
                     final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session, false,
                             RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                             RawRecordConstants.M125, RawRecordConstants.M126,
+                            // RawRecordConstants.MATH117,
+                            // RawRecordConstants.MATH118
+                            // RawRecordConstants.MATH124,
                             RawRecordConstants.MATH125, RawRecordConstants.MATH126);
                     logic.gatherData();
 
@@ -224,8 +227,9 @@ public class CourseSite extends AbstractPageSite {
                 final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session, false,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         RawRecordConstants.M125, RawRecordConstants.M126,
-                        // RawRecordConstants.MATH116, RawRecordConstants.MATH117,
-                        // RawRecordConstants.MATH118, RawRecordConstants.MATH124,
+                        // RawRecordConstants.MATH117,
+                        // RawRecordConstants.MATH118,
+                        // RawRecordConstants.MATH124,
                         RawRecordConstants.MATH125, RawRecordConstants.MATH126);
                 logic.gatherData();
 

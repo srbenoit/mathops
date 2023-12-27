@@ -72,6 +72,9 @@ public final class HomeworkSession extends HtmlSessionBase {
     /** Flag indicating assignment is practice. */
     public final boolean practice;
 
+    /** Flag indicating assignment is part of a new course. */
+    public final boolean newCourse;
+
     /** Timestamp when exam will time out. */
     private long timeout;
 
@@ -88,16 +91,18 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the assignment is practice (homework otherwise)
+     * @param isNewCourse      {@code true} if the assignment is part of a new course, which may change the look
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
-    public HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                           final String theSessionId, final String theStudentId, final String theExamId,
-                           final boolean isPractice, final String theRedirectOnEnd) throws SQLException {
+    public HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+                           final String theStudentId, final String theExamId, final boolean isPractice,
+                           final boolean isNewCourse, final String theRedirectOnEnd) throws SQLException {
 
         super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
+        this.newCourse = isNewCourse;
         this.state = EHomeworkState.INITIAL;
         this.timeout = System.currentTimeMillis() + TIMEOUT;
         this.incorrect = 0;
@@ -113,6 +118,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the assignment is practice (homework otherwise)
+     * @param isNewCourse      {@code true} if the assignment is part of a new course, which may change the look
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @param theState         the session state
      * @param theSect          the current section
@@ -125,7 +131,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      */
     HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile,
                     final String theSessionId, final String theStudentId, final String theExamId,
-                    final boolean isPractice, final String theRedirectOnEnd, final EHomeworkState theState,
+                    final boolean isPractice, final boolean isNewCourse, final String theRedirectOnEnd, final EHomeworkState theState,
                     final int theSect, final Integer theMinMoveOn, final Integer theMinMastery,
                     final long theTimeout, final int theIncorrect, final ExamObj theHomework)
             throws SQLException {
@@ -133,6 +139,7 @@ public final class HomeworkSession extends HtmlSessionBase {
         super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
+        this.newCourse = isNewCourse;
         this.state = theState;
         this.currentSection = theSect;
         this.minMoveOn = theMinMoveOn;
@@ -1358,6 +1365,9 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
             if (this.practice) {
                 xml.addln(" <practice/>");
+            }
+            if (this.newCourse) {
+                xml.addln(" <new-course/>");
             }
             xml.addln(" <redirect>", XmlEscaper.escape(this.redirectOnEnd),
                     "</redirect>");

@@ -11,6 +11,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 /**
  * A container for all logic that supports generation of a web page within a course website. The input is a session
@@ -41,10 +42,10 @@ public final class CourseSiteLogic {
     private final String[] courses;
 
     /** The course site data. */
-    public SiteData data;
+    public SiteData data = null;
 
     /** Course-related logic. */
-    public CourseSiteLogicCourse course;
+    public CourseSiteLogicCourse course = null;
 
     /**
      * Constructs a new {@code CourseSiteLogic}.
@@ -62,9 +63,6 @@ public final class CourseSiteLogic {
 
         this.ignoreOT = isIgnoreOT;
         this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
-
-        this.data = null;
-        this.course = null;
     }
 
     /**
@@ -127,7 +125,8 @@ public final class CourseSiteLogic {
 
         final DbProfile profile = getSiteProfile().dbProfile;
 
-        final SiteData theData = new SiteData(profile, this.sessionInfo.getNow(), this.ignoreOT, this.courses);
+        final ZonedDateTime now = this.sessionInfo.getNow();
+        final SiteData theData = new SiteData(profile, now, this.ignoreOT, this.courses);
 
         // First, do all database queries we'll need, so we get as close to a consistent image of
         // the data as we can.
@@ -150,7 +149,8 @@ public final class CourseSiteLogic {
                 Log.warning(ex);
             }
         } else {
-            setError(theData.getError());
+            final String err = theData.getError();
+            setError(err);
         }
 
         return success;

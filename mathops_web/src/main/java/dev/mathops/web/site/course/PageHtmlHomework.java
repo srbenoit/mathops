@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 /**
  * Presents a homework assignment.
@@ -58,30 +59,34 @@ enum PageHtmlHomework {
             Log.warning("  lesson='", lesson, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
+            final boolean isNewCourse = RawRecordConstants.MATH117.equals(course)
+                    || RawRecordConstants.MATH118.equals(course)
+                    || RawRecordConstants.MATH124.equals(course)
+                    || RawRecordConstants.MATH125.equals(course)
+                    || RawRecordConstants.MATH126.equals(course);
+
             final HomeworkSessionStore store = HomeworkSessionStore.getInstance();
             HomeworkSession hs = store.getHomeworkSession(session.loginSessionId, assignmentId);
 
             if (hs == null) {
                 final String redirect;
-
-                if (RawRecordConstants.MATH117.equals(course)
-                        || RawRecordConstants.MATH118.equals(course)
-                        || RawRecordConstants.MATH124.equals(course)
-                        || RawRecordConstants.MATH125.equals(course)
-                        || RawRecordConstants.MATH126.equals(course)) {
+                if (isNewCourse) {
                     redirect = "course_text_module.html?course=" + course + "&module=" + unit + "&mode=" + coursemode;
                 } else {
                     redirect = "course.html?course=" + course + "&mode=" + coursemode;
                 }
 
+                final String effectiveUserId = session.getEffectiveUserId();
+                final boolean isPractice = "practice".equals(mode);
                 hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId,
-                        session.getEffectiveUserId(), assignmentId, "practice".equals(mode), redirect);
+                        effectiveUserId, assignmentId, isPractice, isNewCourse, redirect);
                 store.setHomeworkSession(hs);
             }
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false,
-                    Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+            final String siteTitle = site.getTitle();
+            Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
+                    true);
 
             htm.sDiv("menupanelu");
             CourseMenu.buildMenu(cache, site, session, logic, htm);
@@ -91,20 +96,12 @@ enum PageHtmlHomework {
             htm.sDiv("aslines");
 
             htm.add(" <a class='linkbtn' ");
-            if (RawRecordConstants.MATH116.equals(course)
-                    || RawRecordConstants.MATH117.equals(course)
-                    || RawRecordConstants.MATH118.equals(course)
-                    || RawRecordConstants.MATH124.equals(course)
-                    || RawRecordConstants.MATH125.equals(course)
-                    || RawRecordConstants.MATH126.equals(course)) {
-
-                htm.add("href='course_text_module.html?course=", course,
-                        "&module=", unit, "&mode=", coursemode,
+            if (isNewCourse) {
+                htm.add("href='course_text_module.html?course=", course, "&module=", unit, "&mode=", coursemode,
                         "'><em>");
                 htm.add("Return to Module ", unit);
             } else {
-                htm.add("href='lesson.html?course=", course, "&unit=",
-                        unit, "&lesson=", lesson, "&mode=", coursemode,
+                htm.add("href='lesson.html?course=", course, "&unit=", unit, "&lesson=", lesson, "&mode=", coursemode,
                         "'><em>");
                 htm.add("Return to the Objective");
             }
@@ -126,7 +123,8 @@ enum PageHtmlHomework {
 
             // Prevent POST from other thread from accessing session at the same time
             synchronized (hs) {
-                hs.generateHtml(cache, session.getNow(), htm);
+                final ZonedDateTime now = session.getNow();
+                hs.generateHtml(cache, now, htm);
             }
 
             htm.addln("</form>");
@@ -136,7 +134,9 @@ enum PageHtmlHomework {
 
             Page.endOrdinaryPage(cache, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final String htmString = htm.toString();
+            final byte[] bytes = htmString.getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 

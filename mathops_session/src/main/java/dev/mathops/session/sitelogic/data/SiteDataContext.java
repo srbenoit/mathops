@@ -23,30 +23,23 @@ import java.util.Map;
  */
 public final class SiteDataContext {
 
-    /** The data object that owns this object. */
-    private final SiteData owner;
-
     /** In-context Course records. */
-    private List<RawCourse> courses;
+    private final List<RawCourse> courses;
 
     /** In-context Course section records. */
-    private List<RawCsection> courseSections;
+    private final List<RawCsection> courseSections;
 
     /** Map from course section to pacing structure record. */
-    private Map<RawCsection, RawPacingStructure> coursePacingStructures;
+    private final Map<RawCsection, RawPacingStructure> coursePacingStructures;
 
     /**
      * Constructs a new {@code SiteDataContext}.
-     *
-     * @param theOwner the data object that owns this object
      */
-    SiteDataContext(final SiteData theOwner) {
+    SiteDataContext() {
 
-        this.owner = theOwner;
-
-        this.courses = null;
-        this.courseSections = null;
-        this.coursePacingStructures = null;
+        this.courses = new ArrayList<>(10);
+        this.courseSections = new ArrayList<>(10);
+        this.coursePacingStructures = new HashMap<>(10);
     }
 
     /**
@@ -70,14 +63,11 @@ public final class SiteDataContext {
 
         RawCourse result = null;
 
-        if (this.courses != null) {
-            for (final RawCourse crs : this.courses) {
-                if (courseId.equals(crs.course)) {
-                    result = crs;
-                    break;
-                }
-            }
-        }
+        for (final RawCourse crs : this.courses) {
+            if (courseId.equals(crs.course)) {
+                result = crs;
+                break;
+            }        }
 
         return result;
     }
@@ -102,15 +92,13 @@ public final class SiteDataContext {
      * @param cache      the data cache
      * @param ignoreOT   true to skip "OT" section of indicated courses
      * @param theCourses a list of courses to include
-     * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    boolean loadData(final Cache cache, final boolean ignoreOT, final String... theCourses)
-            throws SQLException {
+    void loadData(final Cache cache, final boolean ignoreOT, final String... theCourses) throws SQLException {
 
-        return loadCoursesInContext(cache, theCourses) //
-                && loadRawCsectionsInContext(cache, ignoreOT, theCourses) //
-                && loadCourseRuleSetsInContext(cache);
+         loadCoursesInContext(cache, theCourses);
+         loadRawCsectionsInContext(cache, ignoreOT, theCourses);
+         loadCourseRuleSetsInContext(cache);
     }
 
     /**
@@ -118,28 +106,21 @@ public final class SiteDataContext {
      *
      * @param cache      the data cache
      * @param theCourses the list of courses to include
-     * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadCoursesInContext(final Cache cache, final String... theCourses)
-            throws SQLException {
+    private void loadCoursesInContext(final Cache cache, final String... theCourses) throws SQLException {
 
-        this.courses = new ArrayList<>(theCourses.length);
+        this.courses.clear();
 
-        boolean success = true;
         for (final String courseId : theCourses) {
             final RawCourse course = RawCourseLogic.query(cache, courseId);
 
-            if (course == null) {
-                this.owner.setError("Course " + courseId + " not found");
-                success = false;
-                break;
+            if (course != null) {
+                this.courses.add(course);
+            } else {
+                Log.warning("Course ", courseId, " not found");
             }
-
-            this.courses.add(course);
         }
-
-        return success;
     }
 
     /**
@@ -148,19 +129,15 @@ public final class SiteDataContext {
      * @param cache      the data cache
      * @param ignoreOT   true to ignore OT sections of courses
      * @param theCourses the list of courses to include
-     * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there was an error accessing the database
      */
-    private boolean loadRawCsectionsInContext(final Cache cache, final boolean ignoreOT,
-                                              final String... theCourses) throws SQLException {
+    private void loadRawCsectionsInContext(final Cache cache, final boolean ignoreOT,
+                                           final String... theCourses) throws SQLException {
 
-        this.courseSections = new ArrayList<>(theCourses.length << 2);
+        this.courseSections.clear();
 
         final TermKey key = TermLogic.get(cache).queryActive(cache).term;
-
         final List<RawCsection> all = RawCsectionLogic.queryByTerm(cache, key);
-
-        final boolean success = true;
 
         for (final String course : theCourses) {
             for (final RawCsection test : all) {
@@ -173,20 +150,17 @@ public final class SiteDataContext {
                 }
             }
         }
-
-        return success;
     }
 
     /**
      * Populates course pacing structure records for all courses included in the context.
      *
      * @param cache the data cache
-     * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadCourseRuleSetsInContext(final Cache cache) throws SQLException {
+    private void loadCourseRuleSetsInContext(final Cache cache) throws SQLException {
 
-        this.coursePacingStructures = new HashMap<>(this.courseSections.size());
+        this.coursePacingStructures.clear();
 
         final Iterator<RawCsection> iter = this.courseSections.iterator();
         while (iter.hasNext()) {
@@ -198,8 +172,7 @@ public final class SiteDataContext {
             final String ruleSetId = csect.pacingStructure;
 
             if (ruleSetId == null) {
-                Log.warning("No pacing structure configured for course ", csect.course,
-                        " section ", csect.sect);
+                Log.warning("No pacing structure configured for course ", csect.course, " section ", csect.sect);
                 iter.remove();
             } else {
                 final RawPacingStructure record = RawPacingStructureLogic.query(cache, ruleSetId);
@@ -213,7 +186,5 @@ public final class SiteDataContext {
                 }
             }
         }
-
-        return true;
     }
 }

@@ -93,8 +93,9 @@ enum PageStdsTextModule {
                 final int modNumber = Integer.parseInt(module);
 
                 final HtmlBuilder htm = new HtmlBuilder(2000);
-                Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
-                        false, true);
+                final String siteTitle = site.getTitle();
+                Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
+                        true);
 
                 htm.sDiv("menupanelu");
                 CourseMenu.buildMenu(cache, site, session, logic, htm);
@@ -107,8 +108,9 @@ enum PageStdsTextModule {
 
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final String htmString = htm.toString();
+                final byte[] bytes = htmString.getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
             } catch (final NumberFormatException ex) {
                 PageError.doGet(cache, site, req, resp, session,
                         "Invalid module number provided for course module page");
@@ -146,7 +148,7 @@ enum PageStdsTextModule {
     }
 
     /**
-     * Generates a course outline.
+     * Generates module content.
      *
      * @param courseData   the course data
      * @param logic        the course site logic
@@ -155,9 +157,8 @@ enum PageStdsTextModule {
      * @param mode         the mode ("course", "practice", or "locked")
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final CourseData courseData, final int moduleNumber,
-                                 final CourseSiteLogic logic, final SiteDataCfgCourse courseCfg, final String mode,
-                                 final HtmlBuilder htm) {
+    private static void doModule(final CourseData courseData, final int moduleNumber, final CourseSiteLogic logic,
+                                 final SiteDataCfgCourse courseCfg, final String mode, final HtmlBuilder htm) {
 
         final SiteDataActivity activity = logic.data.activityData;
         final List<RawStexam> examList = activity.getStudentExams(courseData.courseId);
@@ -165,7 +166,7 @@ enum PageStdsTextModule {
 
         if (moduleNumber == 0) {
             doHowToNavigate(courseCfg, mode, htm);
-        } else if (moduleNumber >= 1 && moduleNumber <= 10) {
+        } else if (moduleNumber >= 1 && moduleNumber <= 8) {
             final ModuleData moduleData = courseData.modules.get(moduleNumber - 1);
 
             doModule(moduleData, courseCfg, examList, hwList, mode, htm);
@@ -193,9 +194,9 @@ enum PageStdsTextModule {
                 .addln("Passing this course requires that you do two things:").eP();
 
         htm.addln("<ul style='font-family:prox-regular,sans-serif;padding-top:0;'>");
-        htm.addln("<li>Master at least 9 learning targets (out of 12) in the <strong>first half</strong> of ",
+        htm.addln("<li>Master at least 10 learning targets (out of 12) in the <strong>first half</strong> of ",
                 "the course (Modules 1 through 4).</li>");
-        htm.addln("<li>Master at least 9 learning targets (out of 12) in the <strong>second half</strong> of ",
+        htm.addln("<li>Master at least 10 learning targets (out of 12) in the <strong>second half</strong> of ",
                 "the course (modules 5 through 8).</li>");
         htm.addln("</ul>");
 
@@ -213,9 +214,9 @@ enum PageStdsTextModule {
         htm.addln("</ul>");
 
         htm.sP(null, "style='font-family:prox-regular,sans-serif;margin-top:0;'")
-                .add("Any number of points less than 96, as long as you have mastered 9 learning ",
+                .add("Any number of points less than 96, as long as you have mastered 10 learning ",
                         "targets in each half of the course, earns a <strong>C</strong>.  If you do not ",
-                        "master 9 learning targets in each half of the course, a <strong>U</strong> ",
+                        "master 10 learning targets in each half of the course, a <strong>U</strong> ",
                         "grade will be recorded (a U grade does not affect GPA).")
                 .eP();
 
@@ -275,9 +276,9 @@ enum PageStdsTextModule {
                 .add("You do not need to go to the Precalculus Center once for every learning ",
                         "target - you can complete several Learning Target assignments, then go to the ",
                         "Precalculus Center and your Mastery Exam will include all learning targets you are ",
-                        "eligible for.  However, if you have 7 or more learning targets that have not yet ",
+                        "eligible for.  However, if you have six or more learning targets that have not yet ",
                         "been mastered, you will not be able to move on to the next Module until you master ",
-                        "some learning targets to get the number open below 7.  This is to prevent ",
+                        "some learning targets to get the number open below six.  This is to prevent ",
                         "someone from leaving all the mastery exams until the end of the semester.")
                 .eP();
 
@@ -323,18 +324,30 @@ enum PageStdsTextModule {
         emitModuleTitle(htm, courseCfg, moduleData.moduleNumber, moduleData.moduleTitle,
                 moduleData.thumbnailImage, moduleData.course.courseId, mode);
 
-        startSkillsReview(htm, moduleData, hwList, mode);
-        for (final ExampleBlock block : moduleData.skillsReview.exampleBlocks) {
-            emitExampleBlock(htm, block, REVIEW_TOPIC);
+        boolean ineligible = startSkillsReview(htm, moduleData, hwList, mode);
+        if (!moduleData.skillsReview.exampleBlocks.isEmpty()) {
+            htm.addln("<ul>");
+            boolean first = true;
+            for (final ExampleBlock block : moduleData.skillsReview.exampleBlocks) {
+                emitExampleBlock(htm, block, REVIEW_TOPIC, first);
+                first = false;
+            }
+            htm.addln("</ul>");
         }
         endSkillsReview(htm);
 
         for (final LearningTargetData learningTarget : moduleData.learningTargets) {
             startLearningTarget(htm, learningTarget);
-            for (final ExampleBlock block : learningTarget.exampleBlocks) {
-                emitExampleBlock(htm, block, CoreConstants.EMPTY);
+            if (!learningTarget.exampleBlocks.isEmpty()) {
+                htm.addln("<ul>");
+                boolean first = true;
+                for (final ExampleBlock block : learningTarget.exampleBlocks) {
+                    emitExampleBlock(htm, block, CoreConstants.EMPTY, first);
+                    first = false;
+                }
+                htm.addln("</ul>");
             }
-            endLearningTarget(htm, learningTarget, mode, examList, hwList);
+            endLearningTarget(htm, learningTarget, mode, ineligible, examList, hwList);
         }
     }
 
@@ -393,36 +406,46 @@ enum PageStdsTextModule {
      * @param moduleData the module data
      * @param homeworks  the list of student homeworks
      * @param mode       the page mode
+     * @return true if the student has not passed the Skills Review, and is not yet eligible for standard assignments
      */
-    private static void startSkillsReview(final HtmlBuilder htm, final ModuleData moduleData,
+    private static boolean startSkillsReview(final HtmlBuilder htm, final ModuleData moduleData,
                                           final Iterable<RawSthomework> homeworks, final String mode) {
 
         final SkillsReviewData data = moduleData.skillsReview;
-
-        htm.sH(3).add("Skills Review").eH(3);
-
         final boolean tried = hasAttemptedHw(homeworks, data.assignmentId);
         final boolean passed = tried && hasPassedHw(homeworks, data.assignmentId);
+
+        htm.sH(3).add("Skills Review").eH(3);
 
         if (tried) {
             if (passed) {
                 htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                        .add("You have already passed this assignment - you may access ",
-                                "the three learning targets in this unit.")
+                        .add("You have passed this assignment - you may access the three module learning targets.")
                         .eP();
             }
         } else {
             htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                    .add("We recommend that you try the Skills Review assignment first, and only ",
-                            "work through the review materials you need after that attempt.")
+                    .add("We recommend that you try the Skills Review assignment first, and only work through any ",
+                            "review materials you need after that attempt.")
                     .eP();
         }
 
-        emitStandardAssignment(htm, moduleData.course.courseId, data.moduleNumber,
-                "Skills Review Assignment",
-                data.assignmentId, mode, tried, passed);
+        emitStandardAssignment(htm, moduleData.course.courseId, data.moduleNumber, "Skills Review Assignment",
+                data.assignmentId, mode, false, tried, passed);
 
         startDetailsBlock(htm, REVIEW_MATERIALS);
+
+        return !passed;
+    }
+
+    /**
+     * Emits the end of a Skills Review block.
+     *
+     * @param htm the {@code HtmlBuilder} to which to append the HTML
+     */
+    private static void endSkillsReview(final HtmlBuilder htm) {
+
+        endDetailsBlock(htm);
     }
 
     /**
@@ -431,9 +454,9 @@ enum PageStdsTextModule {
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
      * @param learningTarget the learning target data
      */
-    private static void startLearningTarget(final HtmlBuilder htm,
-                                            final LearningTargetData learningTarget) {
+    private static void startLearningTarget(final HtmlBuilder htm, final LearningTargetData learningTarget) {
 
+        htm.hr();
         htm.sH(3).add("Learning Target ", learningTarget.targetNumber).eH(3);
 
         htm.sDiv("learning_target").addln(learningTarget.mainOutcome);
@@ -456,20 +479,19 @@ enum PageStdsTextModule {
      * @param htm     the {@code HtmlBuilder} to which to append the HTML
      * @param block   the example block data
      * @param heading the heading for the example block, such as "Review Topic" or a blank string
+     * @param first   true if this is the first example in the block
      */
-    private static void emitExampleBlock(final HtmlBuilder htm, final ExampleBlock block, final String heading) {
+    private static void emitExampleBlock(final HtmlBuilder htm, final ExampleBlock block, final String heading,
+                                         final boolean first) {
 
-        htm.sDiv()
-                .add("<img style='padding-right:8px;position:relative;top:-3px;margin-bottom:-3px;' ",
-                        "src='/www/images/etext/orange_bullet.png'/><strong style='color:#777;'>",
-                        heading, "<span style='color:", CSU_GREEN, ";'>",
-                        block.title, "</span></strong>")
-                .eDiv();
+        htm.add(first ? "<li>" : "<li style='border-top:1px solid gray;'>");
+
+        htm.add(heading, "<strong style='color:", CSU_GREEN, ";'>", block.title, "</strong>");
 
         final List<ExampleData> examples = block.examples;
         final int count = examples.size();
 
-        htm.sDiv(null, "style='margin:0 0 8px 22px;'");
+        htm.sDiv(null, "style='margin:0 0 8px 0;'");
         for (int i = 0; i < count; ++i) {
             final ExampleData ex = examples.get(i);
 
@@ -489,7 +511,8 @@ enum PageStdsTextModule {
                             "'>Video Walkthrough</a>");
             htm.eDiv();
         }
-        htm.eDiv();
+
+        htm.addln("</li>");
     }
 
     /**
@@ -501,12 +524,14 @@ enum PageStdsTextModule {
      * @param title      the title for the block
      * @param assignment the assignment ID
      * @param mode       the mode
+     * @param ineligible true if the student has not yet passed the Skills Review to become eligible for the assignment
      * @param attempted  true if the assessment has been attempted
      * @param mastered   true if the assessment has been mastered
      */
     private static void emitStandardAssignment(final HtmlBuilder htm, final String course, final int unit,
                                                final String title, final String assignment, final String mode,
-                                               final boolean attempted, final boolean mastered) {
+                                               final boolean ineligible, final boolean attempted,
+                                               final boolean mastered) {
 
         htm.add("<div style='font-family:prox-regular,sans-serif;",
                 "font-weight:400;font-size:15px;color:#196F43;margin:0 0 .3em 16px;'>");
@@ -518,22 +543,27 @@ enum PageStdsTextModule {
         htm.addln("  <input type='hidden' name='coursemode' value='", mode, "'/>");
         htm.addln("  <input type='hidden' name='mode' value='", mode, "'/>");
         htm.addln("  <input type='hidden' name='assign' value='", assignment, "'/>");
-        htm.addln("  <input class='smallbtn' type='submit' value='", title, "'/>");
+        if (ineligible) {
+            htm.addln("  <input class='smallbtndim' type='submit' value='", title, "' disabled />");
+        } else {
+            htm.addln("  <input class='smallbtn' type='submit' value='", title, "'/>");
+        }
         htm.addln("</form>");
 
-        if (attempted) {
+        if (ineligible) {
+            htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
+                    "margin-left:16px;'>Skills Review not yet completed</span>");
+        } else if (attempted) {
             if (mastered) {
                 htm.addln(" <span style='background-color:#EBF9EB;color:#105456;",
                         "border:1px #105456 solid;border-radius:6px;padding:3px 19px;",
                         "margin-left:16px;'>Mastered</span>");
             } else {
-                htm.addln(" <span style='color:#B00000;",
-                        "border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
+                htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
                         "margin-left:16px;'>Not Yet Mastered</span>");
             }
         } else {
-            htm.addln(" <span style='color:#B00000;",
-                    "border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
+            htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
                     "margin-left:16px;'>Not Yet Attempted</span>");
         }
         htm.eDiv();
@@ -550,24 +580,11 @@ enum PageStdsTextModule {
         htm.addln("<details style='padding-left:20px;'>");
 
         htm.addln("<summary style='font-family:prox-regular,sans-serif;margin-bottom:6px;'>",
-                text, " (expand with arrow on the left)", "</summary>");
+                text, " (expand with arrow on the left)</summary>");
 
         htm.sDiv(null, "style='padding-left:20px;line-height:1.1em;'");
-        htm.sDiv(null, "style='font-family:prox-regular,sans-serif; color:black;",
-                // "border:1px solid black;padding:6px 6px 0 6px;background:#eeecd3;'");
-                "border:1px solid black;padding:6px 6px 0 6px;background:#f8f8f8;'");
-    }
-
-    /**
-     * Emits the end of a Skills Review block.
-     *
-     * @param htm the {@code HtmlBuilder} to which to append the HTML
-     */
-    private static void endSkillsReview(final HtmlBuilder htm) {
-
-        htm.eDiv(); // font, border, colors
-        htm.eDiv(); // padding-left
-        htm.addln("</details>").hr();
+        htm.sDiv(null, "style='font-family:prox-regular,sans-serif;color:black;",
+                "border:1px solid black;background:#f8f8f8;'");
     }
 
     /**
@@ -588,37 +605,42 @@ enum PageStdsTextModule {
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
      * @param learningTarget the learning target data
      * @param mode           the page mode
+     * @param ineligible     true if the student has not yet passed the Skills Review to become eligible for standard
+     *                       assignments
      * @param exams          the student exams
      * @param homeworks      the student homeworks
      */
-    private static void endLearningTarget(final HtmlBuilder htm,
-                                          final LearningTargetData learningTarget, final String mode,
-                                          final Iterable<RawStexam> exams,
+    private static void endLearningTarget(final HtmlBuilder htm, final LearningTargetData learningTarget,
+                                          final String mode, final boolean ineligible, final Iterable<RawStexam> exams,
                                           final Iterable<RawSthomework> homeworks) {
 
         final boolean triedHw = hasAttemptedHw(homeworks, learningTarget.assignmentId);
         final boolean passedHw = triedHw && hasPassedHw(homeworks, learningTarget.assignmentId);
         final boolean mastered = hasPassedExam(exams, learningTarget.assignmentId);
 
-        endDetailsBlock(htm); // End of Standard 41.3
+        endDetailsBlock(htm);
 
-        emitStandardAssignment(htm, learningTarget.module.course.courseId, learningTarget.unit,
-                "Learning Target " + learningTarget.targetNumber + " Assignment",
-                learningTarget.assignmentId, mode, triedHw, passedHw);
+        final String title = "Learning Target " + learningTarget.targetNumber + " Assignment";
+        emitStandardAssignment(htm, learningTarget.module.course.courseId, learningTarget.unit, title,
+                learningTarget.assignmentId, mode, ineligible, triedHw, passedHw);
 
-        if (mastered) {
+        if (ineligible) {
             htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("This learning target has been reached!").eDiv();
+                    .add("This assignment will become available when you have completed the ",
+                            "<strong>Skills Review</strong>.")
+                    .eDiv();
+        } else if (mastered) {
+            htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
+                    .add("This learning target has been mastered!").eDiv();
         } else if (passedHw) {
             htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("You are eligible for this learning target in the testing center.").eDiv();
+                    .add("You are eligible to master this learning target in the testing center.").eDiv();
         } else {
             htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
                     .add("Once you pass the Learning Target ", learningTarget.targetNumber, " Assignment, you will ",
-                            "become eligible for this learning target in the testing center.")
+                            "become eligible to master this learning target in the testing center.")
                     .eDiv();
         }
-        htm.hr();
     }
 
     /**

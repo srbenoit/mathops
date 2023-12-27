@@ -55,7 +55,7 @@ public final class SiteData {
     public final SiteDataStatus statusData;
 
     /** The error message if loading data failed. */
-    private String error;
+    private String error = null;
 
     /**
      * Constructs a new {@code SiteData}.
@@ -72,9 +72,8 @@ public final class SiteData {
         this.ignoreOT = isIgnoreOT;
         this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
         this.dbProfile = theDbProfile;
-        this.error = null;
 
-        this.contextData = new SiteDataContext(this);
+        this.contextData = new SiteDataContext();
         this.studentData = new SiteDataStudent(this);
         this.registrationData = new SiteDataRegistration(this);
         this.milestoneData = new SiteDataMilestone(this);
@@ -110,13 +109,16 @@ public final class SiteData {
      */
     public void setError(final String theError) {
 
-        final StackTraceElement[] stack = new Exception().getStackTrace();
+        final IllegalArgumentException ex = new IllegalArgumentException("SiteData error");
+        final StackTraceElement[] stack = ex.getStackTrace();
+
         if (stack.length > 1) {
-            Log.warning("SiteData error: ", theError, " (",
-                    stack[1].getFileName(), CoreConstants.COLON, Long.valueOf((long) stack[1].getLineNumber()),
-                    ")", new Exception());
+            final String fileName = stack[1].getFileName();
+            final int lineNum = stack[1].getLineNumber();
+            final String lineNumStr = Integer.toString(lineNum);
+            Log.warning("SiteData error: ", theError, " (", fileName, CoreConstants.COLON, lineNumStr, ")", ex);
         } else {
-            Log.warning("SiteData error: ", theError, new Exception());
+            Log.warning("SiteData error: ", theError, ex);
         }
 
         this.error = theError;
@@ -180,7 +182,7 @@ public final class SiteData {
 
         // final long t0 = System.currentTimeMillis();
 
-        final boolean b1 = this.contextData.loadData(cache, this.ignoreOT, this.courses);
+        this.contextData.loadData(cache, this.ignoreOT, this.courses);
         // final long t1 = System.currentTimeMillis();
 
         final boolean b2 = this.studentData.loadData(cache, session);
@@ -209,6 +211,6 @@ public final class SiteData {
         // Log.info(" Activity data: " + (t6 - t5));
         // Log.info(" Status data: " + (t7 - t6));
 
-        return b1 && b2 && b3 && b4 && b5 && b6 && b7;
+        return b2 && b3 && b4 && b5 && b6 && b7;
     }
 }

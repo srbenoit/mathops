@@ -91,31 +91,23 @@ enum PageStdsCourse {
                 final int targetsSecondHalf = courseMastery.nbrMasteredH2.intValue();
                 final int targetsReachedTotal = targetsFirstHalf + targetsSecondHalf;
                 final int totalPoints = courseMastery.score.intValue();
-                final int minPassingPoints;
-                if (csection.dMinScore != null) {
-                    minPassingPoints = csection.dMinScore.intValue();
-                } else if (csection.cMinScore != null) {
-                    minPassingPoints = csection.cMinScore.intValue();
-                } else if (csection.bMinScore != null) {
-                    minPassingPoints = csection.bMinScore.intValue();
-                } else {
-                    minPassingPoints = csection.aMinScore.intValue();
-                }
 
                 htm.sDiv("hours");
-                htm.addln("To pass this course, you must master at least <b>24</b> learning targets ",
-                        "(at least <b>12</b> from the first half of the course, and at least ",
-                        "<b>12</b> from the second half).  Your grade will then be based on total ",
+                htm.addln("To pass this course, you must master at least <b>20</b> learning targets ",
+                        "(at least <b>10</b> from the first half of the course, and at least ",
+                        "<b>10</b> from the second half).  Your grade will then be based on total ",
                         "points earned.");
                 htm.eDiv();
 
                 htm.sP();
-                htm.addln("Learning Targets Mastered: <b>" + targetsReachedTotal
-                        + "</b> (out of 24 total)").br();
+                final String targetsReachedStr = Integer.toString(targetsReachedTotal);
+                htm.addln("Learning Targets Mastered: <b>" , targetsReachedStr, "</b> (out of 24 total)").br();
 
                 // Bar chart showing number of standards mastered in each half of the course
+                // 3 pixel border all around, 16 pixels per standard plus 1-pixel dividing line
+                // 6 + (12)(16) + 11 = 209 pixels total, 26-pixel gap, so 444 overall, second box starts at 235
 
-                htm.addln("<svg width='444' height='37'>");
+                htm.addln("<svg width='445' height='37'>");
                 htm.addln("<defs>");
                 htm.addln(" <linearGradient id='grad1' x1='0%' y1='0%' x2='0%' y2='100%'>");
                 htm.addln("  <stop offset='0%' style='stop-color:rgb(217, 120, 45)'/>");
@@ -124,25 +116,14 @@ enum PageStdsCourse {
                 htm.addln(" </linearGradient>");
                 htm.addln("</defs>");
 
-                htm.addln("  <rect x='0.5' y='0.5' width='208' height='17' ",
-                        "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
-                htm.addln("  <rect x='1.5' y='1.5' width='207' height='16' ",
-                        "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-                htm.addln("  <rect x='2.5' y='2.5' width='205' height='14' ",
-                        "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
-
-                htm.addln("  <rect x='235.5' y='0.5' width='208' height='17' ",
-                        "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
-                htm.addln("  <rect x='236.5' y='1.5' width='207' height='16' ",
-                        "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-                htm.addln("  <rect x='237.5' y='2.5' width='205' height='14' ",
-                        "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
-
-                htm.addln("  <rect x='156' y='3' width='51' height='13' ",
+                // Fill the last two with green to show that as the target
+                // 3 + (10)(16) + 10 = 173
+                htm.addln("  <rect x='173' y='3' width='34' height='13' ",
                         "style='fill:rgb(120,255,120);stroke-width:0px;'/>");
-                htm.addln("  <rect x='391' y='3' width='51' height='13' ",
+                htm.addln("  <rect x='408' y='3' width='34' height='13' ",
                         "style='fill:rgb(120,255,120);stroke-width:0px;'/>");
 
+                // Paint the number of targets achieved in each half
                 if (targetsFirstHalf > 0) {
                     final int w = 17 * targetsFirstHalf;
                     final String wStr = Integer.toString(w);
@@ -157,8 +138,24 @@ enum PageStdsCourse {
                             "style='fill:url(#grad1);stroke-width:0px;'/>");
                 }
 
+                // Recessed bevel border on both boxes...
+                htm.addln("  <rect x='0' y='0' width='209' height='17' ",
+                        "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
+                htm.addln("  <rect x='1' y='1' width='207' height='16' ",
+                        "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
+                htm.addln("  <rect x='2' y='2' width='205' height='14' ",
+                        "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
+
+                htm.addln("  <rect x='235' y='0' width='209' height='17' ",
+                        "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
+                htm.addln("  <rect x='236' y='1' width='207' height='16' ",
+                        "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
+                htm.addln("  <rect x='237' y='2' width='205' height='14' ",
+                        "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
+
+                // Dividing lines
                 for (int i = 1; i < 12; ++i) {
-                    final String x1 = Float.toString((float) (2.5 + 17 * i));
+                    final String x1 = Float.toString((float) (3.5 + 17 * i));
                     if (i < targetsFirstHalf) {
                         htm.addln("  <line x1='", x1, "' y1='2.5' x2='", x1,
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(80,80,80);'/>");
@@ -167,7 +164,7 @@ enum PageStdsCourse {
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(180,180,180);'/>");
                     }
 
-                    final String x2 = Float.toString((float) (241.5 + 17 * i));
+                    final String x2 = Float.toString((float) (238.5 + 17 * i));
                     if (i < targetsSecondHalf) {
                         htm.addln("  <line x1='", x2, "' y1='2.5' x2='", x2,
                                 "' y2='15.5' style='stroke-width:1px;stroke:rgb(80,80,80);'/>");
@@ -177,34 +174,19 @@ enum PageStdsCourse {
                     }
                 }
 
-                htm.addln("  <text x='12' y='34' style='font-size:16px;'>"
-                        + targetsFirstHalf + " in first half</text>");
+                final String firstHalfStr = Integer.toString(targetsFirstHalf);
+                htm.addln("  <text x='12' y='34' style='font-size:16px;'>", firstHalfStr, " in first half</text>");
 
-                htm.addln("  <text x='247' y='34' style='font-size:16px;'>"
-                        + targetsSecondHalf + " in second half</text>");
+                final String secondHalfStr = Integer.toString(targetsSecondHalf);
+                htm.addln("  <text x='247' y='34' style='font-size:16px;'>", secondHalfStr, " in second half</text>");
 
                 htm.addln("</svg>");
                 htm.eP();
 
-                // Bar chart showing point total
-
                 htm.sP();
-                htm.addln("Current point total in course: <strong>" + totalPoints
-                        + "</strong> (out of 120 possible)").br();
+                final String totalPtsStr = Integer.toString(totalPoints);
+                htm.addln("My current point total: <strong>", totalPtsStr, "</strong> (out of 120 possible)").br();
 
-                final int aRangeBottom = 2 + 440 * 108 / 120;
-                final int aRangeWidth = 441 - aRangeBottom;
-                final int aRangeText = aRangeBottom + aRangeWidth / 2 - 4;
-
-                final int bRangeBottom = 2 + 440 * 96 / 120;
-                final int bRangeWidth = aRangeBottom - bRangeBottom;
-                final int bRangeText = bRangeBottom + bRangeWidth / 2 - 4;
-
-                final int cRangeBottom = 2 + 440 * 72 / 120;
-                final int cRangeWidth = bRangeBottom - cRangeBottom;
-                final int cRangeText = cRangeBottom + cRangeWidth / 2 - 4;
-
-                final int progressWidth = 440 * totalPoints / 120;
                 htm.addln("<svg width='444' height='24'>");
                 htm.addln("<defs>");
                 htm.addln(" <linearGradient id='grad1' x1='0%' y1='0%' x2='0%' y2='100%'>");
@@ -214,28 +196,74 @@ enum PageStdsCourse {
                 htm.addln(" </linearGradient>");
                 htm.addln("</defs>");
 
-                htm.addln("  <rect x='" + aRangeBottom + "' y='2' width='" + aRangeWidth
-                        + "' height='20' style='fill:rgb(150,255,150);stroke-width:0;'/>");
-
-                htm.addln("  <rect x='" + bRangeBottom + "' y='2' width='" + bRangeWidth
-                        + "' height='20' style='fill:rgb(150,235,150);stroke-width:0;'/>");
-
-                htm.addln("  <rect x='" + cRangeBottom + "' y='2' width='" + cRangeWidth
-                        + "' height='20' style='fill:rgb(150,215,150);stroke-width:0;'/>");
-
-                htm.addln("  <rect x='2' y='2' width='" + progressWidth
-                        + "' height='20' style='fill:url(#grad1);fill-opacity=0.3;stroke:none;'/>");
-
-                htm.addln(" <rect x='0.5' y='0.5' width='442' height='22' ",
+                // Recessed bevel border on progress bar
+                htm.addln(" <rect x='0' y='0' width='444' height='24' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
-                htm.addln(" <rect x='1.5' y='1.5' width='441' height='20' ",
+                htm.addln(" <rect x='1' y='1' width='442' height='22' ",
                         "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
+                htm.addln(" <rect x='2' y='2' width='440' height='20' ",
+                        "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black'/>");
 
-                htm.addln("  <rect x='2.5' y='2.5' width='439' height='19' ",
-                        "style='fill:none;stroke-width:1px;stroke:rgb(0,0,0)'/>");
-                htm.addln("  <text x='" + aRangeText + "' y='18' style='font-size:16px;'>A</text>");
-                htm.addln("  <text x='" + bRangeText + "' y='18' style='font-size:16px;'>B</text>");
-                htm.addln("  <text x='" + cRangeText + "' y='18' style='font-size:16px;'>C</text>");
+                // Shade grade ranges
+
+                if (csection.aMinScore != null) {
+                    final int aBottom = 3 + 438 * csection.aMinScore.intValue() / 120;
+                    final int aWidth = 441 - aBottom;
+                    final int aTextPos = aBottom + aWidth / 2 - 4;
+
+                    final String aBottomStr = Integer.toString(aBottom);
+                    final String aWidthStr = Integer.toString(aWidth);
+                    final String aTextPosStr = Integer.toString(aTextPos);
+                    htm.addln("  <rect x='", aBottomStr, "' y='3' width='", aWidthStr,
+                            "' height='18' style='fill:rgb(150,255,150);stroke-width:0;'/>");
+                    htm.addln("  <text x='", aTextPosStr, "' y='18' style='font-size:16px;'>A</text>");
+
+                    if (csection.bMinScore != null) {
+                        final int bBottom = 3 + 438 * csection.bMinScore.intValue() / 120;
+                        final int bWidth = aBottom - bBottom;
+                        final int bTextPos = bBottom + bWidth / 2 - 4;
+
+                        final String bBottomStr = Integer.toString(bBottom);
+                        final String bWidthStr = Integer.toString(bWidth);
+                        final String bTextPosStr = Integer.toString(bTextPos);
+                        htm.addln("  <rect x='", bBottomStr, "' y='3' width='", bWidthStr,
+                                "' height='18' style='fill:rgb(150,235,150);stroke-width:0;'/>");
+                        htm.addln("  <text x='", bTextPosStr, "' y='18' style='font-size:16px;'>B</text>");
+
+                        if (csection.cMinScore != null) {
+                            final int cBottom = 3 + 438 * csection.cMinScore.intValue() / 120;
+                            final int cWidth = bBottom - cBottom;
+                            final int cTextPos = cBottom + cWidth / 2 - 4;
+
+                            final String cBottomStr = Integer.toString(cBottom);
+                            final String cWidthStr = Integer.toString(cWidth);
+                            final String cTextPosStr = Integer.toString(cTextPos);
+                            htm.addln("  <rect x='", cBottomStr, "' y='3' width='", cWidthStr,
+                                    "' height='18' style='fill:rgb(150,215,150);stroke-width:0;'/>");
+                            htm.addln("  <text x='", cTextPosStr, "' y='18' style='font-size:16px;'>C</text>");
+
+                            if (csection.dMinScore != null) {
+                                final int dBottom = 3 + 438 * csection.dMinScore.intValue() / 120;
+                                final int dWidth = bBottom - cBottom;
+                                final int dTextPos = cBottom + cWidth / 2 - 4;
+
+                                final String dBottomStr = Integer.toString(dBottom);
+                                final String dWidthStr = Integer.toString(dWidth);
+                                final String dTextPosStr = Integer.toString(dTextPos);
+                                htm.addln("  <rect x='", dBottomStr, "' y='3' width='", dWidthStr,
+                                        "' height='18' style='fill:rgb(150,215,150);stroke-width:0;'/>");
+                                htm.addln("  <text x='", dTextPosStr, "' y='18' style='font-size:16px;'>C</text>");
+                            }
+                        }
+                    }
+                }
+
+                // Shade in the student's progress (interior of box is 438 x 18)
+                final int progressWidth = 438 * totalPoints / 120;
+                final String progressWidthStr = Integer.toString(progressWidth);
+                htm.addln("  <rect x='3' y='3' width='", progressWidthStr,
+                        "' height='18' style='fill:url(#grad1);fill-opacity=0.3;stroke:none;'/>");
+
                 htm.addln("</svg>");
                 htm.eP();
 

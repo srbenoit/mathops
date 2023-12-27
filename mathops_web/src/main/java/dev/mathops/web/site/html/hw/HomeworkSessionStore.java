@@ -261,6 +261,7 @@ public final class HomeworkSessionStore {
         String moveon = null;
         String mastery = null;
         boolean practice = false;
+        boolean newCourse = false;
         String redirect = null;
         String timeout = null;
         String incorrect = null;
@@ -273,6 +274,9 @@ public final class HomeworkSessionStore {
                     final String tag = child.getTagName();
                     if ("practice".equals(tag)) {
                         practice = true;
+                    }
+                    if ("new-course".equals(tag)) {
+                        newCourse = true;
                     }
 
                 } else if (node instanceof NonemptyElement) {
@@ -472,9 +476,9 @@ public final class HomeworkSessionStore {
         final Integer minMoveon = moveon == null ? null : Integer.valueOf(moveon);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
 
-        final HomeworkSession sess = new HomeworkSession(cache, siteProfile, session, student,
-                assign, practice, redirect, EHomeworkState.valueOf(state), Integer.parseInt(sect),
-                minMoveon, minMastery, Long.parseLong(timeout), Integer.parseInt(incorrect), exam);
+        final HomeworkSession sess = new HomeworkSession(cache, siteProfile, session, student, assign, practice,
+                newCourse, redirect, EHomeworkState.valueOf(state), Integer.parseInt(sect), minMoveon, minMastery,
+                Long.parseLong(timeout), Integer.parseInt(incorrect), exam);
 
         Log.info("Restoring homework session for ", student, CoreConstants.SLASH, assign, CoreConstants.SLASH, state);
 

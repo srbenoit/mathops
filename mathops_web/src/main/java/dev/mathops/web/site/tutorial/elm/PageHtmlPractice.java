@@ -55,7 +55,7 @@ enum PageHtmlPractice {
 
             if (hs == null) {
                 hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId,
-                        session.getEffectiveUserId(), assignmentId, true, "tutorial.html");
+                        session.getEffectiveUserId(), assignmentId, true, false, "tutorial.html");
                 store.setHomeworkSession(hs);
             }
 
