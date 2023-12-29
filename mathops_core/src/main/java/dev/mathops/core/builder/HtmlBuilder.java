@@ -767,6 +767,29 @@ public final class HtmlBuilder extends XmlBuilder {
     }
 
     /**
+     * Emits the start of a "th" tag.
+     *
+     * @param cls        the CSS class; {@code null} to omit
+     * @param attributes additional attributes to add
+     * @return this {@code HtmlBuilder}
+     */
+    public HtmlBuilder sTh(final String cls, final String... attributes) {
+
+        add("<th");
+        if (cls != null) {
+            add(" class='", cls, TICK);
+        }
+
+        for (final String attr : attributes) {
+            add(CoreConstants.SPC_CHAR).add(attr);
+        }
+
+        add(XmlBuilder.GT_CHAR);
+
+        return this;
+    }
+
+    /**
      * Emits the end of a "th" tag.
      *
      * @return this {@code HtmlBuilder}

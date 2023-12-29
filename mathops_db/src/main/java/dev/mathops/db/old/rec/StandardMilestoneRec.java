@@ -11,6 +11,12 @@ import java.util.Objects;
  */
 public final class StandardMilestoneRec extends RecBase implements Comparable<StandardMilestoneRec> {
 
+    /** A possible value for 'ms_type' field (indicating due date for a standard assignment). */
+    public static final String MS_TYPE_STD_ASSIGNMENT = "HW";
+
+    /** A possible value for 'ms_type' field (indicating due date for standard mastery). */
+    public static final String MS_TYPE_STD_MASTERY = "MA";
+
     /** A field name for serialization of records. */
     private static final String FLD_PACE_TRACK = "pace_track";
 

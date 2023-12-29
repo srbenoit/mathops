@@ -88,8 +88,8 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<MasteryAttemptRec> queryByStudentExam(Cache cache, String stuId,
-                                                               String examId, boolean passedOnly) throws SQLException;
+    public abstract List<MasteryAttemptRec> queryByStudentExam(Cache cache, String stuId, String examId,
+                                                               boolean passedOnly) throws SQLException;
 
     /**
      * Queries for a single mastery attempt record.

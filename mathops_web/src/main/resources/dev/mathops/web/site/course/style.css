@@ -1150,7 +1150,22 @@ div.calnote {
     padding:1px 8px;
 }
 
+table.modulestatus {
+    border-collapse: collapse;
+    font-size: 15px;
+    font-family: prox-regular,sans-serif;
+    min-width: 390px;
+}
+table.modulestatus tr {
+    border-style: solid;
+    border-width: 1px 0 1px 0;
+    border-color: black;
+}
 th.status {
     vertical-align: top;
     color: #CC5430;
+    width:140px;
+}
+td.status {
+    text-align:left;
 }

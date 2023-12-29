@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rec;
 
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 
 import java.util.Objects;
@@ -52,12 +51,6 @@ public final class StudentCourseMasteryRec extends RecBase
 
     /** The 'nbr_eligible' field value. */
     public Integer nbrEligible;
-
-    /** The 'explor_1_status' field value. */
-    public String explor1Status;
-
-    /** The 'explor_2_status' field value. */
-    public String explor2Status;
 
     /**
      * Constructs a new {@code StudentCourseMasteryRec}.
@@ -114,10 +107,6 @@ public final class StudentCourseMasteryRec extends RecBase
             this.nbrMasteredH2 = Integer.valueOf(value);
         } else if (FLD_NBR_ELIGIBLE.equals(name)) {
             this.nbrEligible = Integer.valueOf(value);
-        } else if (FLD_EXPLOR_1_STATUS.equals(name)) {
-            this.explor1Status = value;
-        } else if (FLD_EXPLOR_2_STATUS.equals(name)) {
-            this.explor2Status = value;
         }
     }
 
@@ -130,14 +119,10 @@ public final class StudentCourseMasteryRec extends RecBase
      * @param theNbrMasteredH1 the number of standards mastered in half 1 of course
      * @param theNbrMasteredH2 the number of standards mastered in half 2 of course
      * @param theNbrEligible   the number of standards eligible but not yet mastered
-     * @param theExplor1Status the status in exploration 1
-     * @param theExplor2Status the status in exploration 2
      */
-    public StudentCourseMasteryRec(final String theStuId, final String theCourseId,
-                                   final Integer theScore, final Integer theNbrMasteredH1,
-                                   final Integer theNbrMasteredH2,
-                                   final Integer theNbrEligible, final String theExplor1Status,
-                                   final String theExplor2Status) {
+    public StudentCourseMasteryRec(final String theStuId, final String theCourseId, final Integer theScore,
+                                   final Integer theNbrMasteredH1, final Integer theNbrMasteredH2,
+                                   final Integer theNbrEligible) {
 
         super();
 
@@ -147,8 +132,6 @@ public final class StudentCourseMasteryRec extends RecBase
         this.nbrMasteredH1 = theNbrMasteredH1;
         this.nbrMasteredH2 = theNbrMasteredH2;
         this.nbrEligible = theNbrEligible;
-        this.explor1Status = theExplor1Status;
-        this.explor2Status = theExplor2Status;
     }
 
     /**
@@ -192,10 +175,6 @@ public final class StudentCourseMasteryRec extends RecBase
         appendField(htm, FLD_NBR_MASTERED_H2, this.nbrMasteredH2);
         htm.add(DIVIDER);
         appendField(htm, FLD_NBR_ELIGIBLE, this.nbrEligible);
-        htm.add(DIVIDER);
-        appendField(htm, FLD_EXPLOR_1_STATUS, this.explor1Status);
-        htm.add(DIVIDER);
-        appendField(htm, FLD_EXPLOR_2_STATUS, this.explor2Status);
 
         return htm.toString();
     }
@@ -208,14 +187,9 @@ public final class StudentCourseMasteryRec extends RecBase
     @Override
     public int hashCode() {
 
-        return Objects.hashCode(this.stuId) //
-                + Objects.hashCode(this.courseId) //
-                + Objects.hashCode(this.score) //
-                + Objects.hashCode(this.nbrMasteredH1) //
-                + Objects.hashCode(this.nbrMasteredH2) //
-                + Objects.hashCode(this.nbrEligible) //
-                + Objects.hashCode(this.explor1Status) //
-                + Objects.hashCode(this.explor2Status);
+        return Objects.hashCode(this.stuId) + Objects.hashCode(this.courseId) + Objects.hashCode(this.score)
+                + Objects.hashCode(this.nbrMasteredH1) + Objects.hashCode(this.nbrMasteredH2)
+                + Objects.hashCode(this.nbrEligible);
     }
 
     /**
@@ -237,9 +211,7 @@ public final class StudentCourseMasteryRec extends RecBase
                     && Objects.equals(this.score, rec.score)
                     && Objects.equals(this.nbrMasteredH1, rec.nbrMasteredH1)
                     && Objects.equals(this.nbrMasteredH2, rec.nbrMasteredH2)
-                    && Objects.equals(this.nbrEligible, rec.nbrEligible)
-                    && Objects.equals(this.explor1Status, rec.explor1Status)
-                    && Objects.equals(this.explor2Status, rec.explor2Status);
+                    && Objects.equals(this.nbrEligible, rec.nbrEligible);
         } else {
             equal = false;
         }

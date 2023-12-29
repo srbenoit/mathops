@@ -15,7 +15,7 @@ public final class LearningTargetData {
     public final int unit;
 
     /** The objective number. */
-    private final int objective;
+    public final int objective;
 
     /** The learning target number, such as "1.1". */
     public final String targetNumber;

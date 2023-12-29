@@ -204,7 +204,7 @@ enum PageOutline {
         }
 
         if (csection != null && "MAS".equals(csection.gradingStd)) {
-            PageStdsCourse.masteryCoursePanel(cache, course, studentCourse, csection, htm);
+            PageStdsCourse.masteryCoursePanel(cache, logic, course, studentCourse, csection, htm);
 
             if ("888888888".equals(session.getEffectiveUserId())) {
                 htm.div("vgap");

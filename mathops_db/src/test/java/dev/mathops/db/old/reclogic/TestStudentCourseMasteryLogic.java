@@ -34,27 +34,27 @@ final class TestStudentCourseMasteryLogic {
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW1 = new StudentCourseMasteryRec("111111111", "M 125",
-            Integer.valueOf(71), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(1), "M", "ML");
+            Integer.valueOf(71), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(1));
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW2 = new StudentCourseMasteryRec("111111111", "M 126",
-            Integer.valueOf(72), Integer.valueOf(7), Integer.valueOf(8), Integer.valueOf(2), "M1", "A");
+            Integer.valueOf(72), Integer.valueOf(7), Integer.valueOf(8), Integer.valueOf(2));
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW3 = new StudentCourseMasteryRec("222222222", "M 125",
-            Integer.valueOf(73), Integer.valueOf(8), Integer.valueOf(9), Integer.valueOf(3), "AL", null);
+            Integer.valueOf(73), Integer.valueOf(8), Integer.valueOf(9), Integer.valueOf(3));
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW1NEWMASTERY = new StudentCourseMasteryRec("111111111", "M 125",
-            Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11), "M", "ML");
+            Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW1NEWEXP = new StudentCourseMasteryRec("111111111", "M 125",
-            Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11), "M1", "L2");
+            Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /** A raw test record. */
     private static final StudentCourseMasteryRec RAW1NEWSCORE = new StudentCourseMasteryRec("111111111", "M 125",
-            Integer.valueOf(171), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11), "M1", "L2");
+            Integer.valueOf(171), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /**
      * Prints an indication of an unexpected record.
@@ -69,8 +69,6 @@ final class TestStudentCourseMasteryLogic {
         Log.warning("Unexpected nbr_mastered_h1 ", r.nbrMasteredH1);
         Log.warning("Unexpected nbr_mastered_h2 ", r.nbrMasteredH2);
         Log.warning("Unexpected nbr_eligible ", r.nbrEligible);
-        Log.warning("Unexpected explor_1_status ", r.explor1Status);
-        Log.warning("Unexpected explor_2_status ", r.explor2Status);
     }
 
     /**
@@ -296,38 +294,6 @@ final class TestStudentCourseMasteryLogic {
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while updating mastery: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("updateExplorations results")
-        void test0007() {
-
-            try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-
-                try {
-                    final boolean result = StudentCourseMasteryLogic.INFORMIX.updateExplorations(cache, RAW1NEWMASTERY,
-                            RAW1NEWEXP.explor1Status, RAW1NEWEXP.explor2Status);
-                    assertTrue(result, "updateExplorations returned false");
-
-                    final StudentCourseMasteryRec r = StudentCourseMasteryLogic.INFORMIX.query(cache, "111111111",
-                            "M 125");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWEXP.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating explorations: " + ex.getMessage());
             }
         }
 
@@ -632,38 +598,6 @@ final class TestStudentCourseMasteryLogic {
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while updating mastery: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("updateExplorations results")
-        void test0007() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-
-                try {
-                    final boolean result = StudentCourseMasteryLogic.POSTGRES.updateExplorations(cache,
-                            RAW1NEWMASTERY, RAW1NEWEXP.explor1Status, RAW1NEWEXP.explor2Status);
-                    assertTrue(result, "updateExplorations returned false");
-
-                    final StudentCourseMasteryRec r = StudentCourseMasteryLogic.POSTGRES.query(cache, "111111111",
-                            "M 125");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWEXP.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating explorations: " + ex.getMessage());
             }
         }
 

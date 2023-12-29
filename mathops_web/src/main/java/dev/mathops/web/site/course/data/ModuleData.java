@@ -11,7 +11,7 @@ public final class ModuleData {
     /** The owning course. */
     public final CourseData course;
 
-    /** The module number, from 1 to 10. */
+    /** The module number, from 1 to 8. */
     public final int moduleNumber;
 
     /** The module title. */

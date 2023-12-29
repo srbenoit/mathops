@@ -7,19 +7,11 @@ import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
-import dev.mathops.session.sitelogic.data.SiteDataActivity;
-import dev.mathops.session.sitelogic.data.SiteDataMilestone;
-import dev.mathops.session.sitelogic.data.SiteDataRegistration;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.data.CourseData;
@@ -31,7 +23,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -92,22 +83,35 @@ enum PageStdsText {
             PageError.doGet(cache, site, req, resp, session,
                     "No course and mode provided for course outline");
         } else {
-            final MasteryStatus masteryStatus = new MasteryStatus(logic, course);
+            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+            final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
+            final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
+                    PaceTrackLogic.determinePaceTrack(paceRegs, pace);
+
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false,
-                    Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+            final String siteTitle = site.getTitle();
+            Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
+                    true);
 
             htm.sDiv("menupanelu");
             CourseMenu.buildMenu(cache, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            if (RawRecordConstants.MATH125.equals(course)) {
-                showCourseText(session, MathCourses.MATH_125, logic, masteryStatus, mode, htm);
-            } else if (RawRecordConstants.MATH126.equals(course)) {
-                showCourseText(session, MathCourses.MATH_126, logic, masteryStatus, mode, htm);
+            final RawStcourse reg = logic.data.registrationData.getRegistration(course);
+            if (reg == null) {
+                htm.sP("error").addln("You are not registered in this course.").eP();
             } else {
-                htm.sP("error").addln("Invalid course ID").eP();
+                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg);
+
+                if (RawRecordConstants.MATH125.equals(course)) {
+                    showCourseText(session, MathCourses.MATH_125, logic, masteryStatus, mode, htm);
+                } else if (RawRecordConstants.MATH126.equals(course)) {
+                    showCourseText(session, MathCourses.MATH_126, logic, masteryStatus, mode, htm);
+                } else {
+                    htm.sP("error").addln("Invalid course ID").eP();
+                }
+
             }
 
             htm.eDiv(); // panelu
@@ -133,7 +137,7 @@ enum PageStdsText {
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
     private static void showCourseText(final ImmutableSessionInfo session, final CourseData courseData,
-                                       final CourseSiteLogic logic, final MasteryStatus masteryStatus,
+                                       final CourseSiteLogic logic, final StdsMasteryStatus masteryStatus,
                                        final String mode, final HtmlBuilder htm) {
 
         final SiteData data = logic.data;
@@ -167,7 +171,7 @@ enum PageStdsText {
      */
     private static void doCourseText(final ImmutableSessionInfo session,
                                      final CourseData courseData, final CourseSiteLogic logic,
-                                     final MasteryStatus masteryStatus,
+                                     final StdsMasteryStatus masteryStatus,
                                      final String mode, final HtmlBuilder htm) {
 
         final RawStcourse reg = logic.data.registrationData.getRegistration(courseData.courseId);
@@ -189,7 +193,7 @@ enum PageStdsText {
                 final String howToOpenM1 = emitThumb(htm, session, moduleData, masteryStatus, mode, "Open " + heading);
 
                 emitModuleTitle(htm, heading, moduleData.moduleTitle, CSU_GREEN);
-                emitModuleStatus(htm, masteryStatus, 1, howToOpenM1);
+                emitModuleStatus(htm, masteryStatus, moduleData.moduleNumber, howToOpenM1);
                 htm.div(CLEAR);
             }
         }
@@ -205,7 +209,7 @@ enum PageStdsText {
      *         to open the module
      */
     private static String isModuleOpen(final ImmutableSessionInfo session,
-                                       final MasteryStatus status, final int moduleNumber) {
+                                       final StdsMasteryStatus status, final int moduleNumber) {
 
         final String result = null;
 
@@ -296,8 +300,8 @@ enum PageStdsText {
      *         to open the module
      */
     private static String emitThumb(final HtmlBuilder htm, final ImmutableSessionInfo session,
-                                    final ModuleData moduleData, final MasteryStatus masteryStatus, final String mode,
-                                    final String buttonLabel) {
+                                    final ModuleData moduleData, final StdsMasteryStatus masteryStatus,
+                                    final String mode, final String buttonLabel) {
 
         final String course2 = moduleData.course.courseId.replaceAll(CoreConstants.SPC, "%20");
         final String href = SimpleBuilder.concat(//
@@ -361,7 +365,7 @@ enum PageStdsText {
      * @param howToOpen     {@code null} if the module is open; a phrase describing to the student how to open the
      *                      module if not
      */
-    private static void emitModuleStatus(final HtmlBuilder htm, final MasteryStatus masteryStatus,
+    private static void emitModuleStatus(final HtmlBuilder htm, final StdsMasteryStatus masteryStatus,
                                          final int moduleNumber, final String howToOpen) {
 
         if (howToOpen == null) {
@@ -375,10 +379,9 @@ enum PageStdsText {
             final int s2Status = masteryStatus.standardStatus[index * 3 + 1];
             final int s3Status = masteryStatus.standardStatus[index * 3 + 2];
 
-            htm.sTable(null, "border=1", "frame=hsides", "rules=rows",
-                    "style='font-size:15px;font-family:prox-regular,sans-serif;min-width:320px;'");
+            htm.sTable("modulestatus");
 
-            htm.sTr().sTh("status").add("Skills&nbsp;Review:").eTh().sTd();
+            htm.sTr().sTh("status").add("Skills&nbsp;Review:").eTh().sTd("status");
             if (srStatus == 2) {
                 htm.add("Passed!");
             } else if (srStatus == 1) {
@@ -388,7 +391,7 @@ enum PageStdsText {
             }
             htm.eTd().eTr();
 
-            htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;1:  ").eTh().sTd();
+            htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;1:  ").eTh().sTd("status");
             if (srStatus == 2) {
                 if (srStatus == 2) {
                     if (s1Status == 3) {
@@ -398,7 +401,7 @@ enum PageStdsText {
                     } else if (s1Status == 1) {
                         htm.add("In progress...");
                     } else if (a1Status == 2) {
-                        htm.add("Ready to attempt mastery");
+                        htm.add("<strong>Ready to attempt mastery</strong>");
                     } else if (a1Status == 1) {
                         htm.add("Working on practice problems");
                     } else {
@@ -422,7 +425,7 @@ enum PageStdsText {
                     } else if (s2Status == 1) {
                         htm.add("In progress...");
                     } else if (a2Status == 2) {
-                        htm.add("Ready to attempt mastery");
+                        htm.add("<strong>Ready to attempt mastery</strong>");
                     } else if (a2Status == 1) {
                         htm.add("Working on practice problems");
                     } else {
@@ -446,7 +449,7 @@ enum PageStdsText {
                     } else if (s3Status == 1) {
                         htm.add("In progress...");
                     } else if (a3Status == 2) {
-                        htm.add("Ready to attempt mastery");
+                        htm.add("<strong>Ready to attempt mastery</strong>");
                     } else if (a3Status == 1) {
                         htm.add("Working on practice problems");
                     } else {
@@ -466,269 +469,6 @@ enum PageStdsText {
                     "border:1px solid gray;margin:0 20px 0 170px;padding:2px 6px;'"));
             htm.addln(howToOpen);
             htm.eDiv();
-        }
-    }
-
-    /**
-     * A container for mastery status.
-     */
-    static final class MasteryStatus {
-
-        /** Status in 10 Skills Reviews (0=not tried, 1=tried, 2=passed). */
-        final int[] skillsReviewStatus;
-
-        /** Status in 30 assignments (0=not tried, 1=tried, 2=passed). */
-        final int[] assignmentStatus;
-
-        /** Status in 30 standards (0=not tried, 1=tried, 2=mastered on time, 3=mastered late). */
-        final int[] standardStatus;
-
-        /** Dates when each standard was first mastered. */
-        final LocalDate[] standardFirstMastered;
-
-        /** Dates by which each standard is due. */
-        final LocalDate[] standardDeadlines;
-
-        /**
-         * Status in 2 explorations (0=not tried, 1=tried, 2=tried late, 3=passed on time, 4=passed 1-day late, 5 =
-         * passed late).
-         */
-        final int[] explorationStatus;
-
-        /** Dates when each exploration was first attempted. */
-        final LocalDate[] explorationFirstAttempted;
-
-        /** Dates when each exploration was first passed. */
-        final LocalDate[] explorationFirstPassed;
-
-        /** Dates by which each exploration is due. */
-        final LocalDate[] explorationDeadlines;
-
-        /** Dates by which each exploration is considered "1 day late". */
-        final LocalDate[] explorationLastTry;
-
-        /** The number of standards that are "pending" (assignment passed but not mastered). */
-        int numStandardsPending;
-
-        /**
-         * Constructs a new {@code MasteryStatus}.
-         *
-         * @param logic  the course site logic
-         * @param course the course ID
-         */
-        MasteryStatus(final CourseSiteLogic logic, final String course) {
-
-            this.skillsReviewStatus = new int[10];
-            this.assignmentStatus = new int[30];
-            this.standardStatus = new int[30];
-            this.standardFirstMastered = new LocalDate[30];
-            this.standardDeadlines = new LocalDate[30];
-            this.explorationStatus = new int[2];
-            this.explorationFirstAttempted = new LocalDate[2];
-            this.explorationFirstPassed = new LocalDate[2];
-            this.explorationDeadlines = new LocalDate[2];
-            this.explorationLastTry = new LocalDate[2];
-
-            final SiteDataRegistration regData = logic.data.registrationData;
-            final RawStcourse reg = regData.getRegistration(course);
-
-            if ("Y".equals(reg.iInProgress) && !("Y".equals(reg.iCounted))) {
-
-                // TODO: Incomplete that is not counted in current pace. Due dates from the I term
-                // should govern for all work completed in the I term, but current-term dates should
-                // govern new work. How to do?
-
-            } else if (reg.paceOrder != null) {
-                // Current term "in pace" registration
-                final List<RawStcourse> paceRegs = regData.getPaceRegistrations();
-                final int pace = PaceTrackLogic.determinePace(paceRegs);
-                final int order = reg.paceOrder.intValue();
-                final String paceTrack = PaceTrackLogic.determinePaceTrack(paceRegs, pace);
-
-                final TermRec activeTerm = regData.getActiveTerm();
-
-                final SiteDataMilestone msData = logic.data.milestoneData;
-                final List<RawMilestone> milestones = msData.getMilestones(activeTerm.term);
-                final List<RawStmilestone> stmilestones = msData.getStudentMilestones(activeTerm.term);
-
-                final SiteDataActivity acData = logic.data.activityData;
-                final List<RawStexam> stexams = acData.getStudentExams(course);
-                final List<RawSthomework> sthomeworks = acData.getStudentHomeworks(course);
-
-                //
-                // Collect deadlines for standards and explorations
-                //
-
-                for (int index = 0; index < 30; ++index) {
-                    final int unit = ((index / 3) << 2) + 2;
-                    final int msNbr = pace * 1000 + order * 100 + unit;
-
-                    LocalDate onTime = null;
-                    for (final RawMilestone ms : milestones) {
-                        if (ms.paceTrack.equals(paceTrack) && ms.msNbr.intValue() == msNbr) {
-                            if (RawMilestone.STANDARD_MASTERY.equals(ms.msType)) {
-                                onTime = ms.msDate;
-                                break;
-                            }
-                        }
-                    }
-                    for (final RawStmilestone stms : stmilestones) {
-                        if (stms.paceTrack.equals(paceTrack) && stms.msNbr.intValue() == msNbr) {
-                            if (RawMilestone.STANDARD_MASTERY.equals(stms.msType)) {
-                                onTime = stms.msDate;
-                                break;
-                            }
-                        }
-                    }
-
-                    this.standardDeadlines[index] = onTime;
-                }
-
-                for (int index = 0; index < 2; ++index) {
-                    final int unit = 41 + index;
-                    final int msNbr = pace * 1000 + order * 100 + unit;
-
-                    LocalDate onTime = null;
-                    LocalDate late = null;
-                    for (final RawMilestone ms : milestones) {
-                        if (ms.paceTrack.equals(paceTrack) && ms.msNbr.intValue() == msNbr) {
-                            if (RawMilestone.EXPLORATION.equals(ms.msType)) {
-                                onTime = ms.msDate;
-                            } else if (RawMilestone.EXPLORATION_1_DAY_LATE.equals(ms.msType)) {
-                                late = ms.msDate;
-                            }
-                        }
-                    }
-                    for (final RawStmilestone stms : stmilestones) {
-                        if (stms.paceTrack.equals(paceTrack) && stms.msNbr.intValue() == msNbr) {
-                            if (RawMilestone.EXPLORATION.equals(stms.msType)) {
-                                onTime = stms.msDate;
-                            } else if (RawMilestone.EXPLORATION_1_DAY_LATE.equals(stms.msType)) {
-                                late = stms.msDate;
-                            }
-                        }
-                    }
-
-                    this.explorationDeadlines[index] = onTime;
-                    this.explorationLastTry[index] = late;
-                }
-
-                //
-                // Gather homework-based status for Skills Reviews and standard assignments
-                //
-
-                for (final RawSthomework sthomework : sthomeworks) {
-                    final int u = sthomework.unit.intValue();
-                    if (u < 1 || u > 40) {
-                        continue;
-                    }
-
-                    final int value = "Y".equals(sthomework.passed) ? 2 : 1;
-
-                    // unit 1, 5, 9, ..., 37 are Skills Reviews
-                    if ((u - 1) % 4 == 0) {
-                        final int index = (u - 1) / 4;
-                        this.skillsReviewStatus[index] = Math.max(this.skillsReviewStatus[index], value);
-                    } else {
-                        // Not a "Skills Review" unit - must be an assignment
-                        final int block = (u - 1) / 4;
-                        final int std = ((u - 1) % 4) - 1;
-                        final int index = block * 3 + std;
-                        this.assignmentStatus[index] = Math.max(this.assignmentStatus[index], value);
-                    }
-                }
-
-                //
-                // Gather exam-based status for Standard Mastery exams and Explorations
-                //
-
-                for (final RawStexam stexam : stexams) {
-                    final int u = stexam.unit.intValue();
-                    if (u < 1 || u > 42) {
-                        continue;
-                    }
-
-                    final int value = "Y".equals(stexam.passed) ? 2 : 1;
-
-                    if (u > 40) {
-                        // Exploration
-                        final int index = u - 41;
-                        this.explorationStatus[index] = Math.max(this.explorationStatus[index], value);
-                        if (value == 2) {
-                            if (this.explorationFirstPassed[index] == null
-                                    || this.explorationFirstPassed[index].isAfter(stexam.examDt)) {
-                                this.explorationFirstPassed[index] = stexam.examDt;
-                            }
-                        }
-                        if (this.explorationFirstAttempted[index] == null
-                                || this.explorationFirstAttempted[index].isAfter(stexam.examDt)) {
-                            this.explorationFirstAttempted[index] = stexam.examDt;
-                        }
-                    } else if ((u - 1) % 4 != 0) {
-                        // Not a "Skills Review" unit - must be a standard mastery exam
-                        final int block = (u - 1) / 4;
-                        final int std = ((u - 1) % 4) - 1;
-                        final int index = block * 3 + std;
-                        this.standardStatus[index] = Math.max(this.standardStatus[index], value);
-                        if (value == 2) {
-                            if (this.standardFirstMastered[index] == null
-                                    || this.standardFirstMastered[index].isAfter(stexam.examDt)) {
-                                this.standardFirstMastered[index] = stexam.examDt;
-                            }
-                        }
-                    }
-                }
-
-                //
-                // We now have the earliest dates for all mastered standards and explorations. We have
-                // marked all of them as "on time" - update any that were late to indicate "late"
-                //
-
-                for (int index = 0; index < 30; ++index) {
-                    if (this.standardFirstMastered[index] != null && this.standardDeadlines[index] != null
-                            && this.standardFirstMastered[index].isAfter(this.standardDeadlines[index])) {
-
-                        // Standard was mastered late!
-                        this.standardStatus[index] = 3;
-                    }
-                }
-
-                for (int index = 0; index < 2; ++index) {
-                    if (this.explorationFirstPassed[index] != null) {
-                        // Exploration has been passed
-
-                        if (this.explorationDeadlines[index] != null
-                                && this.explorationFirstPassed[index].isAfter(this.explorationDeadlines[index])) {
-                            // Exploration was passed late - but was it "one day late" or "very
-                            // late"?)
-
-                            if (this.explorationLastTry[index] != null
-                                    && this.explorationFirstPassed[index].isAfter(this.explorationLastTry[index])) {
-                                // Very late
-                                this.explorationStatus[index] = 5;
-                            } else {
-                                // Just one day late
-                                this.explorationStatus[index] = 4;
-                            }
-                        }
-                    } else if (this.explorationFirstAttempted[index] != null) {
-                        // Exploration has been attempted, but not passed
-
-                        if (this.explorationDeadlines[index] != null
-                                && this.explorationFirstAttempted[index].isAfter(this.explorationDeadlines[index])) {
-                            // First attempt was late
-                            this.explorationStatus[index] = 2;
-                        }
-                    }
-                }
-            }
-
-            // Count the number of standards "pending"
-            for (int i = 0; i < 30; ++i) {
-                if (this.assignmentStatus[i] == 2 && this.standardStatus[i] < 2) {
-                    ++this.numStandardsPending;
-                }
-            }
         }
     }
 }

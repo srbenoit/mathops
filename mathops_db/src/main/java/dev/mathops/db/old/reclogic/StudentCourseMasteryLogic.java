@@ -71,19 +71,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
                                           Integer newNbrMasteredH2, Integer newNbrEligible) throws SQLException;
 
     /**
-     * Updates fields related to a student's explorations in a course.
-     *
-     * @param cache            the data cache
-     * @param record           the record to be updated
-     * @param newExplor1Status the new status relative to exploration 1
-     * @param newExplor2Status the new status relative to exploration 2
-     * @return true if successful; false if not
-     * @throws SQLException if there is an error performing the update
-     */
-    public abstract boolean updateExplorations(Cache cache, StudentCourseMasteryRec record, String newExplor1Status,
-                                               String newExplor2Status) throws SQLException;
-
-    /**
      * Updates a student's score in a course.
      *
      * @param cache    the data cache
@@ -149,12 +136,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
         /** The criteria for the 'nbr_eligible' field. */
         IntegerCriteria nbrEligible;
 
-        /** The criteria for the 'explor_1_status' field. */
-        StringCriteria explor1Status;
-
-        /** The criteria for the 'explor_2_status' field. */
-        StringCriteria explor2Status;
-
         /**
          * Constructs a new {@code Criteria}.
          */
@@ -188,12 +169,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
         /** A field name. */
         private static final String FLD_NBR_ELIGIBLE = "nbr_eligible";
 
-        /** A field name. */
-        private static final String FLD_EXPLOR_1_STATUS = "explor_1_status";
-
-        /** A field name. */
-        private static final String FLD_EXPLOR_2_STATUS = "explor_2_status";
-
         /**
          * Inserts a new record.
          *
@@ -213,15 +188,13 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             }
 
             final String sql = SimpleBuilder.concat("INSERT INTO stu_course_mastery (stu_id,course_id,score,",
-                    "nbr_mastered_h1,nbr_mastered_h2,nbr_eligible,explor_1_status,explor_2_status) VALUES (",
+                    "nbr_mastered_h1,nbr_mastered_h2,nbr_eligible) VALUES (",
                     sqlStringValue(record.stuId), ",",
                     sqlStringValue(record.courseId), ",",
                     sqlIntegerValue(record.score), ",",
                     sqlIntegerValue(record.nbrMasteredH1), ",",
                     sqlIntegerValue(record.nbrMasteredH2), ",",
-                    sqlIntegerValue(record.nbrEligible), ",",
-                    sqlStringValue(record.explor1Status), ",",
-                    sqlStringValue(record.explor2Status), ")");
+                    sqlIntegerValue(record.nbrEligible), ",");
 
             return doUpdateOneRow(cache, sql);
         }
@@ -279,29 +252,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
                     "SET nbr_mastered_h1=", sqlIntegerValue(newNbrMasteredH1),
                     ", nbr_mastered_h2=", sqlIntegerValue(newNbrMasteredH2),
                     ", nbr_eligible=", sqlIntegerValue(newNbrEligible),
-                    " WHERE stu_id=", sqlStringValue(record.stuId),
-                    " AND course_id=", sqlStringValue(record.courseId));
-
-            return doUpdateOneRow(cache, sql);
-        }
-
-        /**
-         * Updates fields related to a student's explorations in a course.
-         *
-         * @param cache            the data cache
-         * @param record           the record to be updated
-         * @param newExplor1Status the new status relative to exploration 1
-         * @param newExplor2Status the new status relative to exploration 2
-         * @return true if successful; false if not
-         * @throws SQLException if there is an error performing the update
-         */
-        @Override
-        public boolean updateExplorations(final Cache cache, final StudentCourseMasteryRec record,
-                                          final String newExplor1Status, final String newExplor2Status) throws SQLException {
-
-            final String sql = SimpleBuilder.concat("UPDATE stu_course_mastery ",
-                    "SET explor_1_status=", sqlStringValue(newExplor1Status),
-                    ", explor_2_status=", sqlStringValue(newExplor2Status),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
@@ -389,8 +339,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             w = integerWhere(sql, w, "nbr_mastered_h1", queryCriteria.nbrMasteredH1);
             w = integerWhere(sql, w, "nbr_mastered_h2", queryCriteria.nbrMasteredH2);
             w = integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
-            w = stringWhere(sql, w, "explor_1_status", queryCriteria.explor1Status);
-            stringWhere(sql, w, "explor_2_status", queryCriteria.explor2Status);
 
             return doListQuery(cache, sql.toString());
         }
@@ -413,8 +361,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             result.nbrMasteredH1 = getIntegerField(rs, FLD_NBR_MASTERED_H1);
             result.nbrMasteredH2 = getIntegerField(rs, FLD_NBR_MASTERED_H2);
             result.nbrEligible = getIntegerField(rs, FLD_NBR_ELIGIBLE);
-            result.explor1Status = getStringField(rs, FLD_EXPLOR_1_STATUS);
-            result.explor2Status = getStringField(rs, FLD_EXPLOR_2_STATUS);
 
             return result;
         }
@@ -444,12 +390,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
         /** A field name. */
         private static final String FLD_NBR_ELIGIBLE = "nbr_eligible";
 
-        /** A field name. */
-        private static final String FLD_EXPLOR_1_STATUS = "explor_1_status";
-
-        /** A field name. */
-        private static final String FLD_EXPLOR_2_STATUS = "explor_2_status";
-
         /**
          * Inserts a new record.
          *
@@ -469,16 +409,13 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             }
 
             final String sql = SimpleBuilder.concat("INSERT INTO ", cache.termSchemaName,
-                    ".stu_course_mastery (stu_id,course_id,score,nbr_mastered_h1,nbr_mastered_h2,nbr_eligible,",
-                    "explor_1_status,explor_2_status) VALUES (",
+                    ".stu_course_mastery (stu_id,course_id,score,nbr_mastered_h1,nbr_mastered_h2,nbr_eligible) VALUES (",
                     sqlStringValue(record.stuId), ",",
                     sqlStringValue(record.courseId), ",",
                     sqlIntegerValue(record.score), ",",
                     sqlIntegerValue(record.nbrMasteredH1), ",",
                     sqlIntegerValue(record.nbrMasteredH2), ",",
-                    sqlIntegerValue(record.nbrEligible), ",",
-                    sqlStringValue(record.explor1Status), ",",
-                    sqlStringValue(record.explor2Status), ")");
+                    sqlIntegerValue(record.nbrEligible), ",");
 
             return doUpdateOneRow(cache, sql);
         }
@@ -538,29 +475,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
                     "SET nbr_mastered_h1=", sqlIntegerValue(newNbrMasteredH1),
                     ", nbr_mastered_h2=", sqlIntegerValue(newNbrMasteredH2),
                     ", nbr_eligible=", sqlIntegerValue(newNbrEligible),
-                    " WHERE stu_id=", sqlStringValue(record.stuId),
-                    " AND course_id=", sqlStringValue(record.courseId));
-
-            return doUpdateOneRow(cache, sql);
-        }
-
-        /**
-         * Updates fields related to a student's explorations in a course.
-         *
-         * @param cache            the data cache
-         * @param record           the record to be updated
-         * @param newExplor1Status the new status relative to exploration 1
-         * @param newExplor2Status the new status relative to exploration 2
-         * @return true if successful; false if not
-         * @throws SQLException if there is an error performing the update
-         */
-        @Override
-        public boolean updateExplorations(final Cache cache, final StudentCourseMasteryRec record,
-                                          final String newExplor1Status, final String newExplor2Status) throws SQLException {
-
-            final String sql = SimpleBuilder.concat("UPDATE ", cache.termSchemaName, ".stu_course_mastery ",
-                    "SET explor_1_status=", sqlStringValue(newExplor1Status),
-                    ", explor_2_status=", sqlStringValue(newExplor2Status),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
@@ -649,8 +563,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             w = integerWhere(sql, w, "nbr_mastered_h1", queryCriteria.nbrMasteredH1);
             w = integerWhere(sql, w, "nbr_mastered_h2", queryCriteria.nbrMasteredH2);
             w = integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
-            w = stringWhere(sql, w, "explor_1_status", queryCriteria.explor1Status);
-            stringWhere(sql, w, "explor_2_status", queryCriteria.explor2Status);
 
             return doListQuery(cache, sql.toString());
         }
@@ -673,8 +585,6 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             result.nbrMasteredH1 = getIntegerField(rs, FLD_NBR_MASTERED_H1);
             result.nbrMasteredH2 = getIntegerField(rs, FLD_NBR_MASTERED_H2);
             result.nbrEligible = getIntegerField(rs, FLD_NBR_ELIGIBLE);
-            result.explor1Status = getStringField(rs, FLD_EXPLOR_1_STATUS);
-            result.explor2Status = getStringField(rs, FLD_EXPLOR_2_STATUS);
 
             return result;
         }
