@@ -34,7 +34,7 @@ enum PageHome {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, false);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, false);
 
         emitGenadminNavBlock(htm);
         GenAdminPage.emitNavBlock(null, htm);

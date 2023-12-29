@@ -132,7 +132,7 @@ public enum PagePopulationPick {
             if (active == null) {
                 PageStudent.doGet(cache, site, req, resp, session, "Unable to query the active term.");
             } else {
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
                 GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 

@@ -72,7 +72,7 @@ public enum PageDbAdminContextsTableMetadata {
                     try {
                         final DatabaseMetaData meta = jdbc.getMetaData();
 
-                        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
                         htm.sH(2, "gray").add("Database Administration").eH(2);
                         htm.hr("orange");
 

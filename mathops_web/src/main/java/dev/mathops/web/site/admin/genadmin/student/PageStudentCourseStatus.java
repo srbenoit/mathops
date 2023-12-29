@@ -96,7 +96,7 @@ public enum PageStudentCourseStatus {
                                         final ImmutableSessionInfo session, final RawStudent student)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 

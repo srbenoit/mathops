@@ -36,7 +36,7 @@ public enum PageDbSrvAdd {
             throws IOException, SQLException {
 
         if (session.role == ERole.SYSADMIN) {
-            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
             SysAdminPage.emitNavBlock(ESysadminTopic.DB_SERVERS, htm);
             emitPageContent(htm, null, null, null);
@@ -127,11 +127,10 @@ public enum PageDbSrvAdd {
             if (error == null) {
                 PageDb.addServer(new DataDbServer(name, hostname));
                 final String path = site.siteProfile.path;
-                resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) //
-                        ? "db.html" : "/db.html"));
+                resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "db.html" : "/db.html"));
             } else {
                 // Re-display the form with an error message
-                final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+                final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
                 SysAdminPage.emitNavBlock(ESysadminTopic.DB_SERVERS, htm);
                 emitPageContent(htm, name, hostname, error);

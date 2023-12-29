@@ -2,6 +2,7 @@ package dev.mathops.web.site.admin;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 
 /**
@@ -15,10 +16,11 @@ public enum AdminPage {
      *
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param session  the login session
+     * @param whichDb  the database to which we are connected
      * @param showHome true to show a "Home" button that links to "home.html"
      */
     public static void emitPageHeader(final HtmlBuilder htm, final ImmutableSessionInfo session,
-                                      final boolean showHome) {
+                                      final RawWhichDb whichDb, final boolean showHome) {
 
         if (showHome) {
             htm.sDiv("floatnav");
@@ -46,8 +48,8 @@ public enum AdminPage {
 
         htm.sH(1).add(Res.get(Res.SITE_TITLE)).eH(1);
 
-        if (session != null) {
-            htm.sH(3).add(Res.fmt(Res.LOGGED_IN_AS, session.screenName)).eH(3);
+        if (session != null && whichDb != null) {
+            htm.sH(3).add(Res.fmt(Res.LOGGED_IN_TO_AS, whichDb.descr, session.screenName)).eH(3);
         }
 
         htm.div("clear");

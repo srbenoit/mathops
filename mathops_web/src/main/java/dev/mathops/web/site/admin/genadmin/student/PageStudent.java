@@ -37,7 +37,7 @@ public enum PageStudent {
                              final HttpServletResponse resp, final ImmutableSessionInfo session, final String error)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 

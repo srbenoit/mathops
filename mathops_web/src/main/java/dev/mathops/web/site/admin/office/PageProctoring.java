@@ -34,7 +34,7 @@ enum PageProctoring {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
 
         htm.sDiv("buttonstack");
 

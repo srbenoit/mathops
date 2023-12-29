@@ -37,7 +37,7 @@ public enum PageDbSrvPrdAdd {
             throws IOException, SQLException {
 
         if (session.role == ERole.SYSADMIN) {
-            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
             SysAdminPage.emitNavBlock(ESysadminTopic.DB_SERVERS, htm);
             emitPageContent(htm, req, null);
@@ -186,7 +186,7 @@ public enum PageDbSrvPrdAdd {
                         : "/db_srv.html?hostname=" + sanitized));
             } else {
                 // Re-display the form with an error message
-                final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+                final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
                 SysAdminPage.emitNavBlock(ESysadminTopic.DB_SERVERS, htm);
                 emitPageContent(htm, req, error);

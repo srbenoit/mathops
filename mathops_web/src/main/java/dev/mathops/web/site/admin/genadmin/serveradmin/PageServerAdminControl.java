@@ -46,7 +46,7 @@ public enum PageServerAdminControl {
             Log.warning("  id='", action, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+            final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
             GenAdminPage.emitNavBlock(EAdminTopic.SERVER_ADMIN, htm);
 

@@ -1,11 +1,15 @@
 package dev.mathops.web.site.admin.office;
 
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminPage;
 import dev.mathops.web.site.admin.AdminSite;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.chrono.ChronoLocalDateTime;
@@ -30,18 +34,24 @@ enum OfficePage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
+     * @param cache    the data cache
      * @param site     the owning site
      * @param session  the login session
      * @param showHome true to show a "Home" link
      * @return the created {@code HtmlBuilder}
+     * @throws SQLException if there is an error accessing the database
      */
-    public static HtmlBuilder startOfficePage(final AdminSite site, final ImmutableSessionInfo session,
-                                              final boolean showHome) {
+    public static HtmlBuilder startOfficePage(final Cache cache, final AdminSite site,
+                                              final ImmutableSessionInfo session, final boolean showHome)
+            throws SQLException {
+
+        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, null, false, null, "home.html", Page.NO_BARS, null, false, true);
 
-        AdminPage.emitPageHeader(htm, session, showHome);
+        AdminPage.emitPageHeader(htm, session, whichDb, showHome);
 
         return htm;
     }

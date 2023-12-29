@@ -82,7 +82,7 @@ public enum PageStudentPastExam {
                     store.setPastExamSession(pes);
                 }
 
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 
@@ -156,7 +156,7 @@ public enum PageStudentPastExam {
                     store.setPastExamSession(pes);
                 }
 
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 

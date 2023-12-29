@@ -36,7 +36,7 @@ enum PageHome {
             throws IOException, SQLException {
 
         if (session.role == ERole.SYSADMIN) {
-            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
             SysAdminPage.emitNavBlock(null, htm);
 

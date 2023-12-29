@@ -35,7 +35,7 @@ final class Res extends ResBundle {
     static final String ROOT_BTN_LBL = key(index++);
 
     /** A resource key. */
-    static final String LOGGED_IN_AS = key(index++);
+    static final String LOGGED_IN_TO_AS = key(index++);
 
     // Used by PageLogin
 
@@ -83,7 +83,7 @@ final class Res extends ResBundle {
 
             {HOME_BTN_LBL, "Home"},
             {ROOT_BTN_LBL, "Root"},
-            {LOGGED_IN_AS, "Logged in as  <strong>{0}</strong>"},
+            {LOGGED_IN_TO_AS, "Logged in to {0} as <strong>{1}</strong>"},
 
             {LOGIN_PROMPT, "Use your Colorado State University <strong>eID</strong> to log in."},
             {LOGIN_BTN_LBL, "eID Login"},

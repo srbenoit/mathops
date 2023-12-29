@@ -118,7 +118,7 @@ enum PageTestStudent {
                                    final ServletRequest req, final HttpServletResponse resp,
                                    final ImmutableSessionInfo session) throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.TEST_STUDENTS, htm);
 

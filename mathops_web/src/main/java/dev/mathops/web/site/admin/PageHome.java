@@ -4,6 +4,8 @@ import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -35,9 +37,12 @@ enum PageHome {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
+        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
-        AdminPage.emitPageHeader(htm, session, false);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        AdminPage.emitPageHeader(htm, session, whichDb, false);
 
         final ERole role = session.role;
         if (role == ERole.SYSADMIN) {

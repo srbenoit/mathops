@@ -4,6 +4,8 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -45,10 +47,13 @@ enum PageProctoringChallengeTeams {
             Log.warning("  stuId='", stuId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
+            final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html",
+            final String siteTitle = site.getTitle();
+            Page.startOrdinaryPage(htm, siteTitle, null, false, null, "home.html",
                     Page.NO_BARS, null, false, true);
-            AdminPage.emitPageHeader(htm, session, true);
+            AdminPage.emitPageHeader(htm, session, whichDb, true);
 
             htm.sH(3).add("Online Proctoring: Challenge Exams").eH(3);
 

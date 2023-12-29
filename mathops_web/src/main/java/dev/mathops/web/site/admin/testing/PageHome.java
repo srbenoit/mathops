@@ -31,7 +31,7 @@ enum PageHome {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = TestingPage.startTestingPage(site, session);
+        final HtmlBuilder htm = TestingPage.startTestingPage(cache, site, session);
 
         TestingPage.emitNavBlock(null, htm);
 

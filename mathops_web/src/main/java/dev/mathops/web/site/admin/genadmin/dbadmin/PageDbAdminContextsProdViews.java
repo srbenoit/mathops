@@ -63,7 +63,7 @@ public enum PageDbAdminContextsProdViews {
                 if (jdbc == null) {
                     PageDbAdminContextsServer.doGet(cache, site, req, resp, session, null);
                 } else {
-                    final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                    final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
                     htm.sH(2, "gray").add("Database Administration").eH(2);
                     htm.hr("orange");
 

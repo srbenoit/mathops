@@ -42,7 +42,7 @@ enum PageTestingIssueCalc {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
 
         htm.sDiv("center");
         htm.sH(2).add("Testing Center").eH(2);

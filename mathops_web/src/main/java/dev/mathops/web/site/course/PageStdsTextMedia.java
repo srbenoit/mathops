@@ -94,470 +94,418 @@ enum PageStdsTextMedia {
         htm.sH(3).add("MATH 125 Course Materials").eH(3);
 
         htm.div("vgap0");
-        htm.sH(4).add("Unit 1 (Chapter 41): Angles and Angle Measure").eH(4);
+        htm.sH(4).add("Module 1: Angles and Angle Measure").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR41_01_01", "SR41_01_01");
-        emitExample(htm, M125, "Example SR41_02_01", "SR41_02_01");
-        emitExample(htm, M125, "Example SR41_02_02", "SR41_02_02");
-        emitExample(htm, M125, "Example SR41_02_03", "SR41_02_03");
-        emitExample(htm, M125, "Example SR41_03_01", "SR41_03_01");
-        emitExample(htm, M125, "Example SR41_03_02", "SR41_03_02");
-        emitExample(htm, M125, "Example SR41_04_01", "SR41_04_01");
-        emitExample(htm, M125, "Example SR41_04_02", "SR41_04_02");
-        emitExample(htm, M125, "Example SR41_05_01", "SR41_05_01");
-        emitExample(htm, M125, "Example SR41_05_02", "SR41_05_02");
+        emitExample(htm, M125, "Example TR01_SR1_01", "TR01_SR1_01");
+        emitExample(htm, M125, "Example TR01_SR2_01", "TR01_SR2_01");
+        emitExample(htm, M125, "Example TR01_SR2_02", "TR01_SR2_02");
+        emitExample(htm, M125, "Example TR01_SR2_03", "TR01_SR2_03");
+        emitExample(htm, M125, "Example TR01_SR3_01", "TR01_SR3_01");
+        emitExample(htm, M125, "Example TR01_SR3_02", "TR01_SR3_02");
+        emitExample(htm, M125, "Example TR01_SR4_01", "TR01_SR4_01");
+        emitExample(htm, M125, "Example TR01_SR4_02", "TR01_SR4_02");
+        emitExample(htm, M125, "Example TR01_SR5_01", "TR01_SR5_01");
+        emitExample(htm, M125, "Example TR01_SR5_02", "TR01_SR5_02");
 
-        htm.add("<strong>Standard 41.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST41_1_F01_01", "ST41_1_F01_01");
-        emitExample(htm, M125, "Example ST41_1_F02_01", "ST41_1_F02_01");
-        emitExample(htm, M125, "Example ST41_1_F03_01", "ST41_1_F03_01");
-        emitExample(htm, M125, "Example ST41_1_F04_01", "ST41_1_F04_01");
-        emitExample(htm, M125, "Example ST41_1_F05_01", "ST41_1_F05_01");
-        emitExample(htm, M125, "Example ST41_1_F06_01", "ST41_1_F06_01");
+        htm.add("<strong>Learning Target 1.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR01_ST1A_01", "TR01_ST1A_01");
+        emitExample(htm, M125, "Example TR01_ST1A_02", "TR01_ST1A_02");
+        emitExample(htm, M125, "Example TR01_ST1A_03", "TR01_ST1A_03");
+        emitExample(htm, M125, "Example TR01_ST1C_01", "TR01_ST1C_01");
+        emitExample(htm, M125, "Example TR01_ST1C_02", "TR01_ST1C_02");
+        emitExample(htm, M125, "Example TR01_ST1D_01", "TR01_ST1D_01");
+        emitExample(htm, M125, "Example TR01_ST1E_01", "TR01_ST1E_01");
+        emitExample(htm, M125, "Example TR01_ST1F_01", "TR01_ST1F_01");
 
-        htm.add("<strong>Standard 41.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST41_2_F01_01", "ST41_2_F01_01");
-        emitExample(htm, M125, "Example ST41_2_F02_01", "ST41_2_F02_01");
-        emitExample(htm, M125, "Example ST41_2_F03_01", "ST41_2_F03_01");
-        emitExample(htm, M125, "Example ST41_2_F04_01", "ST41_2_F04_01");
-        emitExample(htm, M125, "Example ST41_2_F05_01", "ST41_2_F05_01");
-        emitExample(htm, M125, "Example ST41_2_F06_01", "ST41_2_F06_01");
-        emitExample(htm, M125, "Example ST41_2_F07_01", "ST41_2_F07_01");
+        htm.add("<strong>Learning Target 1.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR01_ST2A_01", "TR01_ST2A_01");
+        emitExample(htm, M125, "Example TR01_ST2A_02", "TR01_ST2A_02");
+        emitExample(htm, M125, "Example TR01_ST2B_01", "TR01_ST2B_01");
+        emitExample(htm, M125, "Example TR01_ST2C_01", "TR01_ST2C_01");
+        emitExample(htm, M125, "Example TR01_ST2E_01", "TR01_ST2E_01");
+        emitExample(htm, M125, "Example TR01_ST2F_01", "TR01_ST2F_01");
 
-        htm.add("<strong>Standard 41.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST41_3_F01_01", "ST41_3_F01_01");
-        emitExample(htm, M125, "Example ST41_3_F02_01", "ST41_3_F02_01");
-        emitExample(htm, M125, "Example ST41_3_F03_01", "ST41_3_F03_01");
-        emitExample(htm, M125, "Example ST41_3_F04_01", "ST41_3_F04_01");
-        emitExample(htm, M125, "Example ST41_3_F05_01", "ST41_3_F05_01");
-        emitExample(htm, M125, "Example ST41_3_F06_01", "ST41_3_F06_01");
+        htm.add("<strong>Learning Target 1.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR01_ST3A_01", "TR01_ST3A_01");
+        emitExample(htm, M125, "Example TR01_ST3C_01", "TR01_ST3C_01");
+        emitExample(htm, M125, "Example TR01_ST3C_02", "TR01_ST3C_02");
+        emitExample(htm, M125, "Example TR01_ST3D_01", "TR01_ST3D_01");
+        emitExample(htm, M125, "Example TR01_ST3D_02", "TR01_ST3D_02");
+        emitExample(htm, M125, "Example TR01_ST3E_01", "TR01_ST3E_01");
+        emitExample(htm, M125, "Example TR01_ST3E_02", "TR01_ST3E_02");
+        emitExample(htm, M125, "Example TR01_ST3F_01", "TR01_ST3F_01");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 2 (Chapter 42): The Unit Circle").eH(4);
+        htm.sH(4).add("Module 2: The Unit Circle").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR42_01_01", "SR42_01_01");
-        emitExample(htm, M125, "Example SR42_01_03", "SR42_01_03");
-        emitExample(htm, M125, "Example SR42_01_04", "SR42_01_04");
-        emitExample(htm, M125, "Example SR42_01_05", "SR42_01_05");
-        emitExample(htm, M125, "Example SR42_01_06", "SR42_01_06");
-        emitExample(htm, M125, "Example SR42_02_01", "SR42_02_01");
-        emitExample(htm, M125, "Example SR42_03_01", "SR42_03_01");
-        emitExample(htm, M125, "Example SR42_04_01", "SR42_04_01");
-        emitExample(htm, M125, "Example SR42_04_02", "SR42_04_02");
+        emitExample(htm, M125, "Example TR02_SR1_01a", "TR02_SR1_01a");
+        emitExample(htm, M125, "Example TR02_SR1_01c", "TR02_SR1_01c");
+        emitExample(htm, M125, "Example TR02_SR1_01d", "TR02_SR1_01d");
+        emitExample(htm, M125, "Example TR02_SR1_01e", "TR02_SR1_01e");
+        emitExample(htm, M125, "Example TR02_SR1_01f", "TR02_SR1_01f");
+        emitExample(htm, M125, "Example TR02_SR2_01", "TR02_SR2_01");
+        emitExample(htm, M125, "Example TR02_SR3_01", "TR02_SR3_01");
+        emitExample(htm, M125, "Example TR02_SR4_01a", "TR02_SR4_01a");
+        emitExample(htm, M125, "Example TR02_SR5_01a", "TR02_SR5_01a");
 
-        htm.add("<strong>Standard 42.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST42_1_F01_01", "ST42_1_F01_01");
-        emitExample(htm, M125, "Example ST42_1_F02_01", "ST42_1_F02_01");
-        emitExample(htm, M125, "Example ST42_1_F02_02", "ST42_1_F02_02");
-        emitExample(htm, M125, "Example ST42_1_F03_01", "ST42_1_F03_01");
-        emitExample(htm, M125, "Example ST42_1_F04_01", "ST42_1_F04_01");
-        emitExample(htm, M125, "Example ST42_1_F05_01", "ST42_1_F05_01");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F05_02");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F05_03");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F05_04");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F05_05");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F05_06");
-        emitExample(htm, M125, "Example ST42_1_F06_01", "ST42_1_F06_01");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F06_02");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F06_03");
-        emitExample(htm, M125, "Example ST42_1_F07_01", "ST42_1_F07_01");
-        emitExample(htm, M125, "Example ST42_1_F07_02", "ST42_1_F07_02");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_1_F07_03");
+        htm.add("<strong>Learning Target 2.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR02_ST1A_01", "TR02_ST1A_01");
+        emitExample(htm, M125, "Example TR02_ST1B_01", "TR02_ST1B_01");
+        emitExample(htm, M125, "Example TR02_ST1B_02", "TR02_ST1B_02");
+        emitExample(htm, M125, "Application TR02_ST1B_APP_01B", "TR02_ST1B_APP_01B");
+        emitExample(htm, M125, "Example TR02_ST1C_01", "TR02_ST1C_01");
+        emitExample(htm, M125, "Application TR02_ST1C_APP_01", "TR02_ST1C_APP_01");
+        emitExample(htm, M125, "Example TR02_ST1D_01", "TR02_ST1D_01");
+        emitExample(htm, M125, "Application TR02_ST1D_APP_01", "TR02_ST1D_APP_01");
+        emitExample(htm, M125, "Application TR02_ST1D_APP_02", "TR02_ST1D_APP_02");
 
-        htm.add("<strong>Standard 42.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST42_2_F01_01", "ST42_2_F01_01");
-        emitExample(htm, M125, "Example ST42_2_F02_01", "ST42_2_F02_01");
-        emitExample(htm, M125, "Example ST42_2_F03_01", "ST42_2_F03_01");
-        emitExample(htm, M125, "Example ST42_2_F04_01", "ST42_2_F04_01");
-        emitExample(htm, M125, "Example ST42_2_F05_01", "ST42_2_F05_01");
+        htm.add("<strong>Learning Target 2.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR02_ST2A_01", "TR02_ST2A_01");
+        emitExample(htm, M125, "Example TR02_ST2B_01", "TR02_ST2B_01");
+        emitExample(htm, M125, "Example TR02_ST2B_02", "TR02_ST2B_02");
+        emitExample(htm, M125, "Example TR02_ST2B_03", "TR02_ST2B_03");
+        emitExample(htm, M125, "Example TR02_ST2C_01", "TR02_ST2C_01");
 
-        htm.add("<strong>Standard 42.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST42_3_F01_01", "ST42_3_F01_01");
-        emitExample(htm, M125, "Example ST42_3_F02_01", "ST42_3_F02_01");
-        emitExample(htm, M125, "Example ST42_3_F02_02", "ST42_3_F02_02");
-        emitExample(htm, M125, "Example ST42_3_F03_01", "ST42_3_F03_01");
-        emitExample(htm, M125, "Example ST42_3_F04_01", "ST42_3_F04_01");
-        emitExample(htm, M125, "Example ST42_3_F05_01", "ST42_3_F05_01");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F05_02");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F05_03");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F05_04");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F05_05");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F05_06");
-        emitExample(htm, M125, "Example ST42_3_F06_01", "ST42_3_F06_01");
-        emitDeferredExample(htm, DEFERRED, "Example ST42_3_F06_02");
-        emitExample(htm, M125, "Example ST42_3_F07_01", "ST42_3_F07_01");
+        htm.add("<strong>Learning Target 2.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR02_ST3A_01", "TR02_ST3A_01");
+        emitExample(htm, M125, "Example TR02_ST3B_01", "TR02_ST3B_01");
+        emitExample(htm, M125, "Example TR02_ST3B_02", "TR02_ST3B_02");
+        emitExample(htm, M125, "Application TR02_ST3B_APP_01", "TR02_ST3B_APP_01");
+        emitExample(htm, M125, "Example TR02_ST3C_01", "TR02_ST3C_01");
+        emitExample(htm, M125, "Application TR02_ST3C_APP_01", "TR02_ST3C_APP_01");
+        emitExample(htm, M125, "Example TR02_ST3D_01", "TR02_ST3D_01");
+        emitExample(htm, M125, "Application TR02_ST3D_APP_01", "TR02_ST3D_APP_01");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 3 (Chapter 43): Trigonometric Functions").eH(4);
+        htm.sH(4).add("Module 3: Trigonometric Functions").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR43_01_01", "SR43_01_01");
-        emitExample(htm, M125, "Example SR43_02_01", "SR43_02_01");
-        emitExample(htm, M125, "Example SR43_03_01", "SR43_03_01");
-        emitExample(htm, M125, "Example SR43_04_01", "SR43_04_01");
-        emitExample(htm, M125, "Example SR43_05_01", "SR43_05_01");
+        emitExample(htm, M125, "Example TR03_SR1_01", "TR03_SR1_01");
+        emitExample(htm, M125, "Example TR03_SR2_01", "TR03_SR2_01");
+        emitExample(htm, M125, "Example TR03_SR3_01", "TR03_SR3_01");
+        emitExample(htm, M125, "Example TR03_SR4_01", "TR03_SR4_01");
+        emitExample(htm, M125, "Example TR03_SR5_01", "TR03_SR5_01");
+        emitExample(htm, M125, "Example TR03_SR6_01", "TR03_SR6_01");
 
-        htm.add("<strong>Standard 43.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST43_1_F01_01", "ST43_1_F01_01");
-        emitExample(htm, M125, "Example ST43_1_F02_01", "ST43_1_F02_01");
-        emitExample(htm, M125, "Example ST43_1_F03_01", "ST43_1_F03_01");
-        emitExample(htm, M125, "Example ST43_1_F04_01", "ST43_1_F04_01");
-        emitExample(htm, M125, "Example ST43_1_F05_01", "ST43_1_F05_01");
-        emitExample(htm, M125, "Example ST43_1_F06_01", "ST43_1_F06_01");
+        htm.add("<strong>Learning Target 3.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR03_ST1A_01", "TR03_ST1A_01");
+        emitExample(htm, M125, "Example TR03_ST1A_02", "TR03_ST1A_02");
+        emitExample(htm, M125, "Example TR03_ST1B_01", "TR03_ST1B_01");
+        emitExample(htm, M125, "Example TR03_ST1C_01", "TR03_ST1C_01");
+        emitExample(htm, M125, "Example TR03_ST1D_01", "TR03_ST1D_01");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_01", "TR03_ST1E_EXP_01");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_02", "TR03_ST1E_EXP_02");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_03", "TR03_ST1E_EXP_03");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_04", "TR03_ST1E_EXP_04");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_05", "TR03_ST1E_EXP_05");
+        emitExample(htm, M125, "Exploration TR03_ST1E_EXP_06", "TR03_ST1E_EXP_06");
+        emitExample(htm, M125, "Exploration TR03_ST1F_EXP_01", "TR03_ST1F_EXP_01");
+        emitExample(htm, M125, "Exploration TR03_ST1F_EXP_02", "TR03_ST1F_EXP_02");
+        emitExample(htm, M125, "Exploration TR03_ST1F_EXP_03", "TR03_ST1F_EXP_03");
 
-        htm.add("<strong>Standard 43.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST43_2_F01_01", "ST43_2_F01_01");
-        emitExample(htm, M125, "Example ST43_2_F02_01", "ST43_2_F02_01");
-        emitExample(htm, M125, "Example ST43_2_F03_01", "ST43_2_F03_01");
-        emitExample(htm, M125, "Example ST43_2_F04_01", "ST43_2_F04_01");
-        emitExample(htm, M125, "Example ST43_2_F05_01", "ST43_2_F05_01");
-        emitExample(htm, M125, "Example ST43_2_F06_01", "ST43_2_F06_01");
-        emitExample(htm, M125, "Example ST43_2_F07_01", "ST43_2_F07_01");
-        emitExample(htm, M125, "Example ST43_2_F08_01", "ST43_2_F08_01");
+        htm.add("<strong>Learning Target 3.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR03_ST2A_01", "TR03_ST2A_01");
+        emitExample(htm, M125, "Example TR03_ST2B_01", "TR03_ST2B_01");
+        emitExample(htm, M125, "Example TR03_ST2B_02", "TR03_ST2B_02");
+        emitExample(htm, M125, "Example TR03_ST2D_01", "TR03_ST2D_01");
+        emitExample(htm, M125, "Example TR03_ST2F_01", "TR03_ST2F_01");
+        emitExample(htm, M125, "Example TR03_ST2F_02", "TR03_ST2F_02");
+        emitExample(htm, M125, "Example TR03_ST2F_03", "TR03_ST2F_03");
+        emitExample(htm, M125, "Example TR03_ST2G_01", "TR03_ST2G_01");
+        emitExample(htm, M125, "Example TR03_ST2H_01", "TR03_ST2H_01");
 
-        htm.add("<strong>Standard 43.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST43_3_F01_01", "ST43_3_F01_01");
-        emitExample(htm, M125, "Example ST43_3_F02_01", "ST43_3_F02_01");
-        emitExample(htm, M125, "Example ST43_3_F03_01", "ST43_3_F03_01");
-        emitExample(htm, M125, "Example ST43_3_F04_01", "ST43_3_F04_01");
-        emitExample(htm, M125, "Example ST43_3_F05_01", "ST43_3_F05_01");
+        htm.add("<strong>Learning Target 3.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR03_ST3A_01", "TR03_ST3A_01");
+        emitExample(htm, M125, "Example TR03_ST3B_01", "TR03_ST3B_01");
+        emitExample(htm, M125, "Example TR03_ST3C_01", "TR03_ST3C_01");
+        emitExample(htm, M125, "Example TR03_ST3C_03", "TR03_ST3C_03");
+        emitExample(htm, M125, "Example TR03_ST3C_05", "TR03_ST3C_05");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 4 (Chapter 44): Transformations of Trigonometric Functions").eH(4);
+        htm.sH(4).add("Module 4: Transformations of Trigonometric Functions").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR44_01_01", "SR44_01_01");
-        emitExample(htm, M125, "Example SR44_02_01", "SR44_02_01");
-        emitExample(htm, M125, "Example SR44_03_01", "SR44_03_01");
-        emitExample(htm, M125, "Example SR44_04_01", "SR44_04_01");
-        emitExample(htm, M125, "Example SR44_05_01", "SR44_05_01");
-        emitExample(htm, M125, "Example SR44_06_01", "SR44_06_01");
-        emitExample(htm, M125, "Example SR44_07_01", "SR44_07_01");
-        emitExample(htm, M125, "Example SR44_08_01", "SR44_08_01");
+        emitExample(htm, M125, "Example TR04_SR1_01", "TR04_SR1_01");
+        emitExample(htm, M125, "Example TR04_SR2_01", "TR04_SR2_01");
+        emitExample(htm, M125, "Example TR04_SR3_01", "TR04_SR3_01");
+        emitExample(htm, M125, "Example TR04_SR4_01", "TR04_SR4_01");
+        emitExample(htm, M125, "Example TR04_SR5_01", "TR04_SR5_01");
+        emitExample(htm, M125, "Example TR04_SR6_01", "TR04_SR6_01");
+        emitExample(htm, M125, "Example TR04_SR7_01", "TR04_SR7_01");
+        emitExample(htm, M125, "Example TR04_SR8_01", "TR04_SR8_01");
+        emitExample(htm, M125, "Example TR04_SR9_01", "TR04_SR9_01");
+        emitExample(htm, M125, "Example TR04_SR10_01", "TR04_SR10_01");
 
-        htm.add("<strong>Standard 44.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST44_1_F01_01", "ST44_1_F01_01");
-        emitExample(htm, M125, "Example ST44_1_F01_02", "ST44_1_F01_02");
-        emitExample(htm, M125, "Example ST44_1_F02_01", "ST44_1_F02_01");
-        emitExample(htm, M125, "Example ST44_1_F02_02", "ST44_1_F02_02");
-        emitExample(htm, M125, "Example ST44_1_F03_01", "ST44_1_F03_01");
-        emitExample(htm, M125, "Example ST44_1_F03_02", "ST44_1_F03_02");
-        emitExample(htm, M125, "Example ST44_1_F04_01", "ST44_1_F04_01");
-        emitExample(htm, M125, "Example ST44_1_F04_02", "ST44_1_F04_02");
-        emitExample(htm, M125, "Example ST44_1_F04_03", "ST44_1_F04_03");
-        emitExample(htm, M125, "Example ST44_1_F04_04", "ST44_1_F04_04");
-        emitExample(htm, M125, "Example ST44_1_F04_05", "ST44_1_F04_05");
-        emitExample(htm, M125, "Example ST44_1_F04_06", "ST44_1_F04_06");
-        emitExample(htm, M125, "Example ST44_1_F05_01", "ST44_1_F05_01");
-        emitExample(htm, M125, "Example ST44_1_F05_02", "ST44_1_F05_02");
-        emitExample(htm, M125, "Example ST44_1_F06_01", "ST44_1_F06_01");
-        emitExample(htm, M125, "Example ST44_1_F06_02", "ST44_1_F06_02");
-        emitExample(htm, M125, "Example ST44_1_F07_01", "ST44_1_F07_01");
-        emitExample(htm, M125, "Example ST44_1_F07_02", "ST44_1_F07_02");
-        emitExample(htm, M125, "Example ST44_1_F08_01", "ST44_1_F08_01");
-        emitExample(htm, M125, "Example ST44_1_F08_02", "ST44_1_F08_02");
-        emitExample(htm, M125, "Example ST44_1_F08_03", "ST44_1_F08_03");
-        emitExample(htm, M125, "Example ST44_1_F08_04", "ST44_1_F08_04");
-        emitExample(htm, M125, "Example ST44_1_F08_05", "ST44_1_F08_05");
-        emitExample(htm, M125, "Example ST44_1_F08_06", "ST44_1_F08_06");
-        emitExample(htm, M125, "Example ST44_1_F09_01", "ST44_1_F09_01");
-        emitExample(htm, M125, "Example ST44_1_F09_02", "ST44_1_F09_02");
-        emitExample(htm, M125, "Example ST44_1_F10_01", "ST44_1_F10_01");
+        htm.add("<strong>Learning Target 4.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR04_ST1A_01", "TR04_ST1A_01");
+        emitExample(htm, M125, "Example TR04_ST1A_02", "TR04_ST1A_02");
+        emitExample(htm, M125, "Example TR04_ST1A_03a", "TR04_ST1A_03a");
+        emitExample(htm, M125, "Example TR04_ST1A_03b", "TR04_ST1A_03b");
+        emitExample(htm, M125, "Example TR04_ST1A_04a", "TR04_ST1A_04a");
+        emitExample(htm, M125, "Example TR04_ST1A_04b", "TR04_ST1A_04b");
+        emitExample(htm, M125, "Example TR04_ST1A_05a", "TR04_ST1A_05a");
+        emitExample(htm, M125, "Example TR04_ST1A_05b", "TR04_ST1A_05b");
+        emitExample(htm, M125, "Example TR04_ST1A_05c", "TR04_ST1A_05c");
+        emitExample(htm, M125, "Example TR04_ST1A_05d", "TR04_ST1A_05d");
+        emitExample(htm, M125, "Example TR04_ST1A_05e", "TR04_ST1A_05e");
+        emitExample(htm, M125, "Example TR04_ST1A_05f", "TR04_ST1A_05f");
+        emitExample(htm, M125, "Example TR04_ST1B_01", "TR04_ST1B_01");
+        emitExample(htm, M125, "Example TR04_ST1B_02", "TR04_ST1B_02");
+        emitExample(htm, M125, "Example TR04_ST1B_03a", "TR04_ST1B_03a");
+        emitExample(htm, M125, "Example TR04_ST1B_03b", "TR04_ST1B_03b");
+        emitExample(htm, M125, "Example TR04_ST1B_04a", "TR04_ST1B_04a");
+        emitExample(htm, M125, "Example TR04_ST1B_04b", "TR04_ST1B_04b");
+        emitExample(htm, M125, "Example TR04_ST1B_05a", "TR04_ST1B_05a");
+        emitExample(htm, M125, "Example TR04_ST1B_05b", "TR04_ST1B_05b");
+        emitExample(htm, M125, "Example TR04_ST1B_05c", "TR04_ST1B_05c");
+        emitExample(htm, M125, "Example TR04_ST1B_05d", "TR04_ST1B_05d");
+        emitExample(htm, M125, "Example TR04_ST1B_05e", "TR04_ST1B_05e");
+        emitExample(htm, M125, "Example TR04_ST1B_05f", "TR04_ST1B_05f");
+        emitExample(htm, M125, "Example TR04_ST1B_06", "TR04_ST1B_06");
+        emitExample(htm, M125, "Example TR04_ST1B_07", "TR04_ST1B_07");
+        emitExample(htm, M125, "Example TR04_ST1C_01", "TR04_ST1C_01");
+        emitExample(htm, M125, "Example TR04_ST1D_01", "TR04_ST1D_01");
+        emitExample(htm, M125, "Example TR04_ST1D_02", "TR04_ST1D_02");
+        emitExample(htm, M125, "Example TR04_ST1D_03a", "TR04_ST1D_03a");
+        emitExample(htm, M125, "Example TR04_ST1D_03b", "TR04_ST1D_03b");
+        emitExample(htm, M125, "Example TR04_ST1D_04a", "TR04_ST1D_04a");
+        emitExample(htm, M125, "Example TR04_ST1D_04b", "TR04_ST1D_04b");
+        emitExample(htm, M125, "Example TR04_ST1D_05a", "TR04_ST1D_05a");
+        emitExample(htm, M125, "Example TR04_ST1D_05b", "TR04_ST1D_05b");
+        emitExample(htm, M125, "Example TR04_ST1D_05c", "TR04_ST1D_05c");
+        emitExample(htm, M125, "Example TR04_ST1D_05d", "TR04_ST1D_05d");
+        emitExample(htm, M125, "Example TR04_ST1D_05e", "TR04_ST1D_05e");
+        emitExample(htm, M125, "Example TR04_ST1D_05f", "TR04_ST1D_05f");
+        emitExample(htm, M125, "Example TR04_ST1E_01", "TR04_ST1E_01");
+        emitExample(htm, M125, "Example TR04_ST1E_02", "TR04_ST1E_02");
+        emitExample(htm, M125, "Example TR04_ST1E_03a", "TR04_ST1E_03a");
+        emitExample(htm, M125, "Example TR04_ST1E_03b", "TR04_ST1E_03b");
+        emitExample(htm, M125, "Example TR04_ST1E_04a", "TR04_ST1E_04a");
+        emitExample(htm, M125, "Example TR04_ST1E_04b", "TR04_ST1E_04b");
+        emitExample(htm, M125, "Example TR04_ST1E_05a", "TR04_ST1E_05a");
+        emitExample(htm, M125, "Example TR04_ST1E_05b", "TR04_ST1E_05b");
+        emitExample(htm, M125, "Example TR04_ST1E_05c", "TR04_ST1E_05c");
+        emitExample(htm, M125, "Example TR04_ST1E_05d", "TR04_ST1E_05d");
+        emitExample(htm, M125, "Example TR04_ST1E_05e", "TR04_ST1E_05e");
+        emitExample(htm, M125, "Example TR04_ST1E_05f", "TR04_ST1E_05f");
+        emitExample(htm, M125, "Example TR04_ST1E_06", "TR04_ST1E_06");
+        emitExample(htm, M125, "Example TR04_ST1E_07", "TR04_ST1E_07");
+        emitExample(htm, M125, "Exploration TR04_ST1E_EXP_01", "TR04_ST1E_EXP_01");
 
-        htm.add("<strong>Standard 44.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST44_2_F01_01", "ST44_2_F01_01");
-        emitExample(htm, M125, "Example ST44_2_F01_02", "ST44_2_F01_02");
-        emitExample(htm, M125, "Example ST44_2_F02_01", "ST44_2_F02_01");
-        emitExample(htm, M125, "Example ST44_2_F02_02", "ST44_2_F02_02");
-        emitExample(htm, M125, "Example ST44_2_F03_01", "ST44_2_F03_01");
-        emitExample(htm, M125, "Example ST44_2_F03_02", "ST44_2_F03_02");
-        emitExample(htm, M125, "Example ST44_2_F04_01", "ST44_2_F04_01");
-        emitExample(htm, M125, "Example ST44_2_F04_02", "ST44_2_F04_02");
-        emitExample(htm, M125, "Example ST44_2_F04_03", "ST44_2_F04_03");
-        emitExample(htm, M125, "Example ST44_2_F04_04", "ST44_2_F04_04");
-        emitExample(htm, M125, "Example ST44_2_F04_05", "ST44_2_F04_05");
-        emitExample(htm, M125, "Example ST44_2_F04_06", "ST44_2_F04_06");
-        emitExample(htm, M125, "Example ST44_2_F05_01", "ST44_2_F05_01");
-        emitExample(htm, M125, "Example ST44_2_F05_02", "ST44_2_F05_02");
-        emitExample(htm, M125, "Example ST44_2_F06_01", "ST44_2_F06_01");
-        emitExample(htm, M125, "Example ST44_2_F06_02", "ST44_2_F06_02");
-        emitExample(htm, M125, "Example ST44_2_F07_01", "ST44_2_F07_01");
-        emitExample(htm, M125, "Example ST44_2_F07_02", "ST44_2_F07_02");
-        emitExample(htm, M125, "Example ST44_2_F08_01", "ST44_2_F08_01");
-        emitExample(htm, M125, "Example ST44_2_F08_02", "ST44_2_F08_02");
-        emitExample(htm, M125, "Example ST44_2_F08_03", "ST44_2_F08_03");
-        emitExample(htm, M125, "Example ST44_2_F08_04", "ST44_2_F08_04");
-        emitExample(htm, M125, "Example ST44_2_F08_05", "ST44_2_F08_05");
-        emitExample(htm, M125, "Example ST44_2_F08_06", "ST44_2_F08_06");
-        emitExample(htm, M125, "Example ST44_2_F09_01", "ST44_2_F09_01");
-        emitExample(htm, M125, "Example ST44_2_F09_02", "ST44_2_F09_02");
-        emitExample(htm, M125, "Example ST44_2_F10_01", "ST44_2_F10_01");
+        htm.add("<strong>Learning Target 4.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR04_ST2A_01", "TR04_ST2A_01");
+        emitExample(htm, M125, "Example TR04_ST2B_01", "TR04_ST2B_01");
+        emitExample(htm, M125, "Example TR04_ST2B_02", "TR04_ST2B_02");
+        emitExample(htm, M125, "Example TR04_ST2B_03", "TR04_ST2B_03");
+        emitExample(htm, M125, "Example TR04_ST2B_04", "TR04_ST2B_04");
+        emitExample(htm, M125, "Example TR04_ST2B_05", "TR04_ST2B_05");
+        emitExample(htm, M125, "Example TR04_ST2C_01", "TR04_ST2C_01");
 
-        htm.add("<strong>Standard 44.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST44_3_F01_01", "ST44_3_F01_01");
-        emitExample(htm, M125, "Example ST44_3_F01_02", "ST44_3_F01_02");
-        emitExample(htm, M125, "Example ST44_3_F02_01", "ST44_3_F02_01");
-        emitExample(htm, M125, "Example ST44_3_F02_02", "ST44_3_F02_02");
-        emitExample(htm, M125, "Example ST44_3_F03_01", "ST44_3_F03_01");
-        emitExample(htm, M125, "Example ST44_3_F04_01", "ST44_3_F04_01");
-        emitExample(htm, M125, "Example ST44_3_F05_01", "ST44_3_F05_01");
+        htm.add("<strong>Learning Target 4.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR04_ST3A_01", "TR04_ST3A_01");
+        emitExample(htm, M125, "Example TR04_ST3A_02", "TR04_ST3A_02");
+        emitExample(htm, M125, "Example TR04_ST3A_03", "TR04_ST3A_03");
+        emitExample(htm, M125, "Application TR04_ST3B_APP_01", "TR04_ST3B_APP_01");
+        emitExample(htm, M125, "Application TR04_ST3B_APP_02", "TR04_ST3B_APP_02");
+        emitExample(htm, M125, "Application TR04_ST3B_APP_03", "TR04_ST3B_APP_03");
+        emitExample(htm, M125, "Application TR04_ST3B_APP_04", "TR04_ST3B_APP_04");
+        emitExample(htm, M125, "Example TR04_ST3C_01", "TR04_ST3C_01");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 5 (Chapter 45): Modeling with Trigonometric Functions").eH(4);
+        htm.sH(4).add("Module 5: Right Triangles").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR45_01_01", "SR45_01_01");
-        emitExample(htm, M125, "Example SR45_02_01", "SR45_02_01");
-        emitExample(htm, M125, "Example SR45_03_01", "SR45_03_01");
-        emitExample(htm, M125, "Example SR45_04_01", "SR45_04_01");
-        emitExample(htm, M125, "Example SR45_05_01", "SR45_05_01");
+        emitExample(htm, M125, "Example TR05_SR1_01", "TR05_SR1_01");
+        emitExample(htm, M125, "Example TR05_SR1_02", "TR05_SR1_02");
+        emitExample(htm, M125, "Example TR05_SR1_03", "TR05_SR1_03");
+        emitExample(htm, M125, "Example TR05_SR2_01", "TR05_SR2_01");
+        emitExample(htm, M125, "Example TR05_SR3_01", "TR05_SR3_01");
+        emitExample(htm, M125, "Example TR05_SR4_01", "TR05_SR4_01");
+        emitExample(htm, M125, "Example TR05_SR5_01", "TR05_SR5_01");
 
-        htm.add("<strong>Standard 45.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST45_1_F01_01", "ST45_1_F01_01");
-        emitExample(htm, M125, "Example ST45_1_F02_01", "ST45_1_F02_01");
-        emitExample(htm, M125, "Example ST45_1_F03_01", "ST45_1_F03_01");
-        emitExample(htm, M125, "Example ST45_1_F04_01", "ST45_1_F04_01");
-        // $NON-NLS-2$
-        htm.add("<strong>Standard 45.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST45_2_F01_01", "ST45_2_F01_01");
-        emitExample(htm, M125, "Example ST45_2_F02_01", "ST45_2_F02_01");
-        emitExample(htm, M125, "Example ST45_2_F03_01", "ST45_2_F03_01");
-        emitExample(htm, M125, "Example ST45_2_F04_01", "ST45_2_F04_01");
-        emitExample(htm, M125, "Example ST45_2_F05_01", "ST45_2_F05_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_2_F06_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_2_F07_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_2_F08_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_2_F09_01");
+        htm.add("<strong>Learning Target 5.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR06_1_F01_01", "TR05_ST1A_01");
+        emitExample(htm, M125, "Example TR06_1_F02_01", "TR05_ST1A_02");
+        emitExample(htm, M125, "Example TR06_1_F03_01", "TR05_ST1B_01");
+        emitExample(htm, M125, "Example TR06_1_F04_01", "TR05_ST1C_01");
+        emitExample(htm, M125, "Example TR06_1_F05_01", "TR05_ST1C_02");
+        emitExample(htm, M125, "Example TR06_1_F06_01", "TR05_ST1C_03");
 
-        htm.add("<strong>Standard 45.3</strong>").br().addln();
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_3_F01_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_3_F02_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_3_F03_01");
-        emitDeferredExample(htm, NOT_DONE, "Example ST45_3_F04_01");
+        htm.add("<strong>Learning Target 5.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR05_ST2A_01", "TR05_ST2A_01");
+        emitExample(htm, M125, "Example TR05_ST2A_02", "TR05_ST2A_02");
+        emitExample(htm, M125, "Example TR05_ST2B_01", "TR05_ST2B_01");
+        emitExample(htm, M125, "Example TR05_ST2B_02", "TR05_ST2B_02");
+        emitExample(htm, M125, "Example TR05_ST2C_01", "TR05_ST2C_01");
+        emitExample(htm, M125, "Example TR05_ST2C_02", "TR05_ST2C_02");
+        emitExample(htm, M125, "Example TR05_ST2D_01", "TR05_ST2D_01");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_01a", "TR05_ST2D_APP_01a");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_01c", "TR05_ST2D_APP_01c");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_02a", "TR05_ST2D_APP_02a");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_02b", "TR05_ST2D_APP_02b");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_03a", "TR05_ST2D_APP_03a");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_03b", "TR05_ST2D_APP_03b");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_05a", "TR05_ST2D_APP_05a");
+        emitExample(htm, M125, "Application TR05_ST2D_APP_06a", "TR05_ST2D_APP_06a");
+
+        htm.add("<strong>Learning Target 5.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR05_ST3A_01", "TR05_ST3A_01");
+        emitExample(htm, M125, "Example TR05_ST3A_02", "TR05_ST3A_02");
+        emitExample(htm, M125, "Example TR05_ST3A_03", "TR05_ST3A_03");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Synthesis Explorations").eH(4);
+        htm.sH(4).add("Module 6: Inverse Trigonometric Functions").eH(4);
 
         htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
+        htm.add("<strong>Skills Review</strong>").br().addln();
+        emitExample(htm, M125, "Example TR06_SR1_01", "TR06_SR1_01");
+        emitExample(htm, M125, "Example TR06_SR1_02", "TR06_SR1_02");
+        emitExample(htm, M125, "Example TR06_SR2_01", "TR06_SR2_01");
+        emitExample(htm, M125, "Example TR06_SR2_02", "TR06_SR2_02");
+        emitExample(htm, M125, "Example TR06_SR3_01", "TR06_SR3_01");
+        emitExample(htm, M125, "Example TR06_SR3_02", "TR06_SR3_02");
+        emitExample(htm, M125, "Example TR06_SR4_01", "TR06_SR4_01");
+        emitExample(htm, M125, "Example TR06_SR5_01", "TR06_SR5_01");
+        emitExample(htm, M125, "Example TR06_SR6_01", "TR06_SR6_01");
+        emitExample(htm, M125, "Example TR06_SR7_01", "TR06_SR7_01");
+
+        htm.add("<strong>Learning Target 6.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR06_ST1A_01", "TR06_ST1A_01");
+        emitExample(htm, M125, "Example TR06_ST1B_01", "TR06_ST1B_01");
+        emitExample(htm, M125, "Example TR06_ST1C_01", "TR06_ST1C_01");
+        emitExample(htm, M125, "Example TR06_ST1D_01", "TR06_ST1D_01");
+        emitExample(htm, M125, "Example TR06_ST1E_01", "TR06_ST1E_01");
+        emitExample(htm, M125, "Example TR06_ST1E_02", "TR06_ST1E_02");
+        emitExample(htm, M125, "Example TR06_ST1E_03", "TR06_ST1E_03");
+        emitExample(htm, M125, "Example TR06_ST1E_04", "TR06_ST1E_04");
+        emitExample(htm, M125, "Example TR06_ST1E_05", "TR06_ST1E_05");
+
+        htm.add("<strong>Learning Target 6.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR06_ST2A_01", "TR06_ST2A_01");
+        emitExample(htm, M125, "Example TR06_ST2A_02", "TR06_ST2A_02");
+        emitExample(htm, M125, "Example TR06_ST2A_03", "TR06_ST2A_03");
+        emitExample(htm, M125, "Example TR06_ST2B_01", "TR06_ST2B_01");
+        emitExample(htm, M125, "Example TR06_ST2C_01", "TR06_ST2C_01");
+        emitExample(htm, M125, "Example TR06_ST2C_02", "TR06_ST2C_02");
+        emitExample(htm, M125, "Example TR06_ST2C_03", "TR06_ST2C_03");
+
+        htm.add("<strong>Learning Target 6.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR06_ST3A_01", "TR06_ST3A_01");
+        emitExample(htm, M125, "Example TR06_ST3A_02", "TR06_ST3A_02");
+        emitExample(htm, M125, "Example TR06_ST3A_03", "TR06_ST3A_03");
+        emitExample(htm, M125, "Application TR06_ST3A_APP_01", "TR06_ST3A_APP_01");
+        emitExample(htm, M125, "Application TR06_ST3A_APP_02", "TR06_ST3A_APP_02");
+        emitExample(htm, M125, "Application TR06_ST3A_APP_03", "TR06_ST3A_APP_03");
+        emitExample(htm, M125, "Application TR06_ST3A_APP_04", "TR06_ST3A_APP_04");
+        emitExample(htm, M125, "Application TR06_ST3A_APP_05", "TR06_ST3A_APP_05");
+        emitExample(htm, M125, "Example TR06_ST3B_01", "TR06_ST3B_01");
+        emitExample(htm, M125, "Application TR06_ST3B_APP_01", "TR06_ST3B_APP_01");
+        emitExample(htm, M125, "Example TR06_ST3C_01", "TR06_ST3C_01");
+        emitExample(htm, M125, "Example TR06_ST3C_02", "TR06_ST3C_02");
+        emitExample(htm, M125, "Example TR06_ST3C_03", "TR06_ST3C_03");
+        emitExample(htm, M125, "Example TR06_ST3C_04", "TR06_ST3C_04");
+
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 6 (Chapter 46): Right Triangles").eH(4);
+        htm.sH(4).add("Module 7: Law of Sines and Law of Cosines").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR46_01_01", "SR46_01_01");
-        emitExample(htm, M125, "Example SR46_01_02", "SR46_01_02");
-        emitExample(htm, M125, "Example SR46_01_03", "SR46_01_03");
-        emitExample(htm, M125, "Example SR46_02_01", "SR46_02_01");
-        emitExample(htm, M125, "Example SR46_03_01", "SR46_03_01");
-        emitExample(htm, M125, "Example SR46_04_01", "SR46_04_01");
-        emitExample(htm, M125, "Example SR46_05_01", "SR46_05_01");
+        emitExample(htm, M125, "Example TR07_SR1_01", "TR07_SR1_01");
+        emitExample(htm, M125, "Example TR07_SR2_01", "TR07_SR2_01");
+        emitExample(htm, M125, "Example TR07_SR3_01", "TR07_SR3_01");
+        emitExample(htm, M125, "Example TR07_SR4_01", "TR07_SR4_01");
+        emitExample(htm, M125, "Example TR07_SR5_01", "TR07_SR5_01");
+        emitExample(htm, M125, "Example TR07_SR6_01", "TR07_SR6_01");
+        emitExample(htm, M125, "Example TR07_SR7_01", "TR07_SR7_01");
 
-        htm.add("<strong>Standard 46.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST46_1_F01_01", "ST46_1_F01_01");
-        emitExample(htm, M125, "Example ST46_1_F02_01", "ST46_1_F02_01");
-        emitExample(htm, M125, "Example ST46_1_F03_01", "ST46_1_F03_01");
-        emitExample(htm, M125, "Example ST46_1_F04_01", "ST46_1_F04_01");
-        emitExample(htm, M125, "Example ST46_1_F05_01", "ST46_1_F05_01");
-        emitExample(htm, M125, "Example ST46_1_F06_01", "ST46_1_F06_01");
+        htm.add("<strong>Learning Target 7.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR07_ST1A_01", "TR07_ST1A_01");
+        emitExample(htm, M125, "Example TR07_ST1B_01", "TR07_ST1B_01");
+        emitExample(htm, M125, "Example TR07_ST1B_02", "TR07_ST1B_02");
+        emitExample(htm, M125, "Example TR07_ST1C_01", "TR07_ST1C_01");
+        emitExample(htm, M125, "Example TR07_ST1C_02", "TR07_ST1C_02");
+        emitExample(htm, M125, "Example TR07_ST1C_03", "TR07_ST1C_03");
 
-        htm.add("<strong>Standard 46.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST46_2_F01_01", "ST46_2_F01_01");
-        emitExample(htm, M125, "Example ST46_2_F01_02", "ST46_2_F01_02");
-        emitExample(htm, M125, "Example ST46_2_F02_01", "ST46_2_F02_01");
-        emitExample(htm, M125, "Example ST46_2_F02_02", "ST46_2_F02_02");
-        emitExample(htm, M125, "Example ST46_2_F03_01", "ST46_2_F03_01");
-        emitExample(htm, M125, "Example ST46_2_F03_02", "ST46_2_F03_02");
-        emitExample(htm, M125, "Example ST46_2_F04_01", "ST46_2_F04_01");
-        emitExample(htm, M125, "Example ST46_2_F05_01", "ST46_2_F05_01");
-        emitExample(htm, M125, "Example ST46_2_F06_01", "ST46_2_F06_01");
-        emitExample(htm, M125, "Example ST46_2_F06_02", "ST46_2_F06_02");
+        htm.add("<strong>Learning Target 7.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR07_ST2A_01", "TR07_ST2A_01");
+        emitExample(htm, M125, "Exploration TR07_ST2A_EXP_01", "TR07_ST2A_EXP_01");
+        emitExample(htm, M125, "Example TR07_ST2B_01", "TR07_ST2B_01");
+        emitExample(htm, M125, "Example TR07_ST2C_01", "TR07_ST2C_01");
 
-        htm.add("<strong>Standard 46.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST46_3_F01_01", "ST46_3_F01_01");
-        emitExample(htm, M125, "Example ST46_3_F02_01", "ST46_3_F02_01");
-        emitExample(htm, M125, "Example ST46_3_F03_01", "ST46_3_F03_01");
-        emitExample(htm, M125, "Example ST46_3_F04_01", "ST46_3_F04_01");
-        emitExample(htm, M125, "Example ST46_3_F05_01", "ST46_3_F05_01");
-        emitExample(htm, M125, "Example ST46_3_F06_01", "ST46_3_F06_01");
+        htm.add("<strong>Learning Target 7.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR07_ST3A_01", "TR07_ST3A_01");
+        emitExample(htm, M125, "Example TR07_ST3A_02", "TR07_ST3A_02");
+        emitExample(htm, M125, "Example TR07_ST3A_03", "TR07_ST3A_03");
+        emitExample(htm, M125, "Example TR07_ST3A_04", "TR07_ST3A_04");
+        emitExample(htm, M125, "Example TR07_ST3A_05", "TR07_ST3A_05");
+        emitExample(htm, M125, "Example TR07_ST3A_06", "TR07_ST3A_06");
+        emitExample(htm, M125, "Application TR07_ST3A_APP_01", "TR07_ST3A_APP_01");
+        emitExample(htm, M125, "Application TR07_ST3A_APP_02", "TR07_ST3A_APP_02");
+        emitExample(htm, M125, "Application TR07_ST3A_APP_03", "TR07_ST3A_APP_03");
+        emitExample(htm, M125, "Application TR07_ST3A_APP_04", "TR07_ST3A_APP_04");
+        emitExample(htm, M125, "Example TR07_ST3B_01", "TR07_ST3B_01");
+        emitExample(htm, M125, "Example TR07_ST3B_02", "TR07_ST3B_02");
+        emitExample(htm, M125, "Example TR07_ST3B_03", "TR07_ST3B_03");
+        emitExample(htm, M125, "Example TR07_ST3B_04", "TR07_ST3B_04");
+        emitExample(htm, M125, "Application TR07_ST3B_APP_01", "TR07_ST3B_APP_01");
+        emitExample(htm, M125, "Application TR07_ST3B_APP_02", "TR07_ST3B_APP_02");
+        emitExample(htm, M125, "Application TR07_ST3B_APP_03", "TR07_ST3B_APP_03");
+        emitExample(htm, M125, "Application TR07_ST3B_APP_04", "TR07_ST3B_APP_04");
+        emitExample(htm, M125, "Application TR07_ST3B_APP_05", "TR07_ST3B_APP_05");
 
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 7 (Chapter 47): Inverse Trigonometric Functions").eH(4);
+        htm.sH(4).add("Module 8: Vectors and Trigonometry").eH(4);
 
         htm.sDiv("indent22");
         htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR47_01_01", "SR47_01_01");
-        emitExample(htm, M125, "Example SR47_01_02", "SR47_01_02");
-        emitExample(htm, M125, "Example SR47_02_01", "SR47_02_01");
-        emitExample(htm, M125, "Example SR47_02_02", "SR47_02_02");
-        emitExample(htm, M125, "Example SR47_03_01", "SR47_03_01");
-        emitExample(htm, M125, "Example SR47_03_02", "SR47_03_02");
-        emitExample(htm, M125, "Example SR47_04_01", "SR47_04_01");
-        emitExample(htm, M125, "Example SR47_05_01", "SR47_05_01");
-        emitExample(htm, M125, "Example SR47_06_01", "SR47_06_01");
+        emitExample(htm, M125, "Example TR08_SR1_01", "TR08_SR1_01");
+        emitExample(htm, M125, "Example TR08_SR2_01", "TR08_SR2_01");
+        emitExample(htm, M125, "Example TR08_SR3_01", "TR08_SR3_01");
+        emitExample(htm, M125, "Example TR08_SR4_01", "TR08_SR4_01");
+        emitExample(htm, M125, "Example TR08_SR5_01", "TR08_SR5_01");
+        emitExample(htm, M125, "Example TR08_SR6_01", "TR08_SR6_01");
 
-        htm.add("<strong>Standard 47.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST47_1_F01_01", "ST47_1_F01_01");
-        emitExample(htm, M125, "Example ST47_1_F02_01", "ST47_1_F02_01");
-        emitExample(htm, M125, "Example ST47_1_F03_01", "ST47_1_F03_01");
-        emitExample(htm, M125, "Example ST47_1_F04_01", "ST47_1_F04_01");
-        emitExample(htm, M125, "Example ST47_1_F05_01", "ST47_1_F05_01");
-        emitExample(htm, M125, "Example ST47_1_F06_01", "ST47_1_F06_01");
-        emitExample(htm, M125, "Example ST47_1_F07_01", "ST47_1_F07_01");
-        emitExample(htm, M125, "Example ST47_1_F08_01", "ST47_1_F08_01");
-        emitExample(htm, M125, "Example ST47_1_F09_01", "ST47_1_F09_01");
+        htm.add("<strong>Learning Target 9.1</strong>").br().addln();
+        emitExample(htm, M125, "Example TR08_ST1A_01", "TR08_ST1A_01");
+        emitExample(htm, M125, "Example TR08_ST1B_01", "TR08_ST1B_01");
+        emitExample(htm, M125, "Application TR08_ST1B_APP_01", "TR08_ST1B_APP_01");
+        emitExample(htm, M125, "Example TR08_ST1C_01", "TR08_ST1C_01");
+        emitExample(htm, M125, "Example TR08_ST1D_01", "TR08_ST1D_01");
+        emitExample(htm, M125, "Exploration TR08_ST1D_EXP_01", "TR08_ST1D_EXP_01");
 
-        htm.add("<strong>Standard 47.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST47_2_F01_01", "ST47_2_F01_01");
-        emitExample(htm, M125, "Example ST47_2_F02_01", "ST47_2_F02_01");
-        emitExample(htm, M125, "Example ST47_2_F03_01", "ST47_2_F03_01");
-        emitExample(htm, M125, "Example ST47_2_F04_01", "ST47_2_F04_01");
-        emitExample(htm, M125, "Example ST47_2_F05_01", "ST47_2_F05_01");
-        emitExample(htm, M125, "Example ST47_2_F06_01", "ST47_2_F06_01");
-        emitExample(htm, M125, "Example ST47_2_F07_01", "ST47_2_F07_01");
+        htm.add("<strong>Learning Target 9.2</strong>").br().addln();
+        emitExample(htm, M125, "Example TR08_ST2A_01", "TR08_ST2A_01");
+        emitExample(htm, M125, "Example TR08_ST2A_02", "TR08_ST2A_02");
+        emitExample(htm, M125, "Example TR08_ST2B_02", "TR08_ST2B_02");
+        emitExample(htm, M125, "Example TR08_ST2C_01", "TR08_ST2C_01");
 
-        htm.add("<strong>Standard 47.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST47_3_F01_01", "ST47_3_F01_01");
-        emitExample(htm, M125, "Example ST47_3_F02_01", "ST47_3_F02_01");
-        emitExample(htm, M125, "Example ST47_3_F03_01", "ST47_3_F03_01");
-        emitExample(htm, M125, "Example ST47_3_F04_01", "ST47_3_F04_01");
-        emitExample(htm, M125, "Example ST47_3_F05_01", "ST47_3_F05_01");
-        emitExample(htm, M125, "Example ST47_3_F06_01", "ST47_3_F06_01");
-        emitExample(htm, M125, "Example ST47_3_F06_03", "ST47_3_F06_03");
-        emitDeferredExample(htm, NOT_DONE, "Example ST47_3_F06_05");
+        htm.add("<strong>Learning Target 9.3</strong>").br().addln();
+        emitExample(htm, M125, "Example TR08_ST3A_01", "TR08_ST3A_01");
+        emitExample(htm, M125, "Example TR08_ST3B_01", "TR08_ST3B_01");
+        emitExample(htm, M125, "Example TR08_ST3C_01", "TR08_ST3C_01");
+        emitExample(htm, M125, "Example TR08_ST3C_02", "TR08_ST3C_02");
 
-        htm.div("vgap");
-        htm.sH(4).add("Unit 8 (Chapter 48): Law of Sines and Law of Cosines").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR48_01_01", "SR48_01_01");
-        emitExample(htm, M125, "Example SR48_02_01", "SR48_02_01");
-        emitExample(htm, M125, "Example SR48_03_01", "SR48_03_01");
-        emitExample(htm, M125, "Example SR48_04_01", "SR48_04_01");
-        emitExample(htm, M125, "Example SR48_05_01", "SR48_05_01");
-
-        htm.add("<strong>Standard 48.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST48_1_F01_01", "ST48_1_F01_01");
-        emitExample(htm, M125, "Example ST48_1_F02_01", "ST48_1_F02_01");
-        emitExample(htm, M125, "Example ST48_1_F03_01", "ST48_1_F03_01");
-        emitExample(htm, M125, "Example ST48_1_F04_01", "ST48_1_F04_01");
-        emitExample(htm, M125, "Example ST48_1_F05_01", "ST48_1_F05_01");
-        emitExample(htm, M125, "Example ST48_1_F06_01", "ST48_1_F06_01");
-
-        htm.add("<strong>Standard 48.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST48_2_F01_01", "ST48_2_F01_01");
-        emitExample(htm, M125, "Example ST48_2_F02_01", "ST48_2_F02_01");
-        emitExample(htm, M125, "Example ST48_2_F03_01", "ST48_2_F03_01");
-        emitExample(htm, M125, "Example ST48_2_F04_01", "ST48_2_F04_01");
-
-        htm.add("<strong>Standard 48.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST48_3_F01_01", "ST48_3_F01_01");
-        emitExample(htm, M125, "Example ST48_3_F02_01", "ST48_3_F02_01");
-        emitExample(htm, M125, "Example ST48_3_F03_01", "ST48_3_F03_01");
-        emitExample(htm, M125, "Example ST48_3_F04_01", "ST48_3_F04_01");
-        emitExample(htm, M125, "Example ST48_3_F05_01", "ST48_3_F05_01");
-        emitExample(htm, M125, "Example ST48_3_F06_01", "ST48_3_F06_01");
-        emitExample(htm, M125, "Example ST48_3_F07_01", "ST48_3_F07_01");
-        emitExample(htm, M125, "Example ST48_3_F08_01", "ST48_3_F08_01");
-        emitExample(htm, M125, "Example ST48_3_F09_01", "ST48_3_F09_01");
-        emitExample(htm, M125, "Example ST48_3_F10_01", "ST48_3_F10_01");
-
-        htm.div("vgap");
-        htm.sH(4).add("Unit 9 (Chapter 49): Vectors and Trigonometry").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR49_01_01", "ST48_3_F10_01");
-        emitExample(htm, M125, "Example SR49_02_01", "ST48_3_F10_01");
-        emitExample(htm, M125, "Example SR49_03_01", "ST48_3_F10_01");
-        emitExample(htm, M125, "Example SR49_04_01", "ST48_3_F10_01");
-        emitExample(htm, M125, "Example SR49_05_01", "ST48_3_F10_01");
-        emitExample(htm, M125, "Example SR49_06_01", "ST48_3_F10_01");
-
-        htm.add("<strong>Standard 49.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST49_1_F01_01", "ST49_1_F01_01");
-        emitExample(htm, M125, "Example ST49_1_F02_01", "ST49_1_F02_01");
-        emitExample(htm, M125, "Example ST49_1_F03_01", "ST49_1_F03_01");
-        emitExample(htm, M125, "Example ST49_1_F04_01", "ST49_1_F04_01");
-        emitExample(htm, M125, "Example ST49_1_F05_01", "ST49_1_F05_01");
-        emitExample(htm, M125, "Example ST49_1_F06_01", "ST49_1_F06_01");
-
-        htm.add("<strong>Standard 49.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST49_2_F01_01", "ST49_2_F01_01");
-        emitExample(htm, M125, "Example ST49_2_F02_01", "ST49_2_F02_01");
-        emitExample(htm, M125, "Example ST49_2_F03_01", "ST49_2_F03_01");
-        emitExample(htm, M125, "Example ST49_2_F04_01", "ST49_2_F04_01");
-
-        htm.add("<strong>Standard 49.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST49_3_F01_01", "ST49_3_F01_01");
-        emitExample(htm, M125, "Example ST49_3_F02_01", "ST49_3_F02_01");
-        emitExample(htm, M125, "Example ST49_3_F03_01", "ST49_3_F03_01");
-        emitExample(htm, M125, "Example ST49_3_F04_01", "ST49_3_F04_01");
-
-        htm.div("vgap");
-        htm.sH(4).add("Unit 10 (Chapter 50): Applications of Trigonometry").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("<strong>Skills Review</strong>").br().addln();
-        emitExample(htm, M125, "Example SR50_01_01", "SR50_01_01");
-        emitExample(htm, M125, "Example SR50_02_01", "SR50_02_01");
-        emitExample(htm, M125, "Example SR50_03_01", "SR50_03_01");
-        emitExample(htm, M125, "Example SR50_04_01", "SR50_04_01");
-        emitExample(htm, M125, "Example SR50_05_01", "SR50_05_01");
-        emitExample(htm, M125, "Example SR50_06_01", "SR50_06_01");
-        emitExample(htm, M125, "Example SR50_07_01", "SR50_07_01");
-        emitExample(htm, M125, "Example SR50_08_01", "SR50_08_01");
-
-        htm.add("<strong>Standard 50.1</strong>").br().addln();
-        emitExample(htm, M125, "Example ST50_1_F01_01", "ST50_1_F01_01");
-        emitExample(htm, M125, "Example ST50_1_F01_02", "ST50_1_F01_02");
-        emitExample(htm, M125, "Example ST50_1_F02_01", "ST50_1_F02_01");
-        emitExample(htm, M125, "Example ST50_1_F02_02", "ST50_1_F02_02");
-        emitExample(htm, M125, "Example ST50_1_F03_01", "ST50_1_F03_01");
-        emitExample(htm, M125, "Example ST50_1_F04_01", "ST50_1_F04_01");
-        emitExample(htm, M125, "Example ST50_1_F05_01", "ST50_1_F05_01");
-        emitExample(htm, M125, "Example ST50_1_F06_01", "ST50_1_F06_01");
-
-        htm.add("<strong>Standard 50.2</strong>").br().addln();
-        emitExample(htm, M125, "Example ST50_2_F01_01", "ST50_2_F01_01");
-        emitExample(htm, M125, "Example ST50_2_F02_01", "ST50_2_F02_01");
-        emitExample(htm, M125, "Example ST50_2_F03_01", "ST50_2_F03_01");
-        emitExample(htm, M125, "Example ST50_2_F04_01", "ST50_2_F04_01");
-
-        htm.add("<strong>Standard 50.3</strong>").br().addln();
-        emitExample(htm, M125, "Example ST50_3_F01_01", "ST50_3_F01_01");
-        emitExample(htm, M125, "Example ST50_3_F02_01", "ST50_3_F02_01");
-        emitExample(htm, M125, "Example ST50_3_F03_01", "ST50_3_F03_01");
-        emitExample(htm, M125, "Example ST50_3_F04_01", "ST50_3_F04_01");
-        emitExample(htm, M125, "Example ST50_3_F05_01", "ST50_3_F05_01");
-
-        htm.div("vgap");
-        htm.sH(4).add("Synthesis Explorations").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
         htm.eDiv();
     }
 
@@ -571,84 +519,56 @@ enum PageStdsTextMedia {
         htm.sH(3).add("MATH 126 Course Materials").eH(3);
 
         htm.div("vgap0");
-        htm.sH(4).add("Unit 1 (Chapter 51): Fundamental Identities").eH(4);
+        htm.sH(4).add("Module 1: Fundamental Trigonometric Identities").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 2 (Chapter 52): Sum and Difference Identities").eH(4);
+        htm.sH(4).add("Module 2: Sum and Difference Identities").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 3 (Chapter 53): Multiple- and Half-Angle Identities").eH(4);
+        htm.sH(4).add("Module 3: Multiple- and Half-Angle Identities").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 4 (Chapter 54): Trigonometric Equations").eH(4);
+        htm.sH(4).add("Module 5: Triangles and Composition").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 5 (Chapter 55): Applications of Trigonometric Equations").eH(4);
+        htm.sH(4).add("Module 4: Trigonometric Equations").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Synthesis Activities").eH(4);
+        htm.sH(4).add("Module 6: Polar Coordinates").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 6 (Chapter 56): Complex Numbers").eH(4);
+        htm.sH(4).add("Module 7: Polar Functions").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");
         htm.eDiv();
 
         htm.div("vgap");
-        htm.sH(4).add("Unit 7 (Chapter 57): Polar Coordinates").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
-        htm.eDiv();
-
-        htm.div("vgap");
-        htm.sH(4).add("Unit 8 (Chapter 58): Polar Functions").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
-        htm.eDiv();
-
-        htm.div("vgap");
-        htm.sH(4).add("Unit 9 (Chapter 59): 3D Cartesian and Cylindrical Coordinates").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
-        htm.eDiv();
-
-        htm.div("vgap");
-        htm.sH(4).add("Unit 10 (Chapter 60): Spherical Coordiantes").eH(4);
-
-        htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
-        htm.eDiv();
-
-        htm.div("vgap");
-        htm.sH(4).add("Synthesis Activities").eH(4);
+        htm.sH(4).add("Module 8: Complex Numbers").eH(4);
 
         htm.sDiv("indent22");
         htm.add("(Not yet designed.)");

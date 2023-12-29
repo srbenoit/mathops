@@ -35,7 +35,7 @@ enum PageHome {
                            final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = BookstorePage.startBookstorePage(site, session);
+        final HtmlBuilder htm = BookstorePage.startBookstorePage(cache, site, session);
 
         BookstorePage.emitKeyForm(htm, null, null);
 

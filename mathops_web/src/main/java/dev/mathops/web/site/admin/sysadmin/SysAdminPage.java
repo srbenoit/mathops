@@ -4,6 +4,8 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.front.BuildDateTime;
@@ -32,15 +34,21 @@ public enum SysAdminPage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
+     * @param cache   the data cache
      * @param site    the owning site
      * @param session the login session
      * @return the created {@code HtmlBuilder}
+     * @throws SQLException if there is an error accessing the database
      */
-    public static HtmlBuilder startSysAdminPage(final AdminSite site, final ImmutableSessionInfo session) {
+    public static HtmlBuilder startSysAdminPage(final Cache cache, final AdminSite site,
+                                                final ImmutableSessionInfo session) throws SQLException {
+
+        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
-        AdminPage.emitPageHeader(htm, session, false);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        AdminPage.emitPageHeader(htm, session, whichDb, false);
 
         return htm;
     }

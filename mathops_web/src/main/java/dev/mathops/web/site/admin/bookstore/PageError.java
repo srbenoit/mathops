@@ -35,7 +35,7 @@ enum PageError {
                       final HttpServletResponse resp, final ImmutableSessionInfo session, final String message)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = BookstorePage.startBookstorePage(site, session);
+        final HtmlBuilder htm = BookstorePage.startBookstorePage(cache, site, session);
 
         htm.sDiv("error").br();
         htm.addln("<strong>An error has occurred:</strong>").br().br();

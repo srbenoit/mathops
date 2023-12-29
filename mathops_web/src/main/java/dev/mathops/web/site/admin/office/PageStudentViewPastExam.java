@@ -116,7 +116,7 @@ enum PageStudentViewPastExam {
                                            final RawStudent student, final String ser, final String course,
                                            final String xml, final String upd) throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
 
         htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
                 student.stuId, "</code></strong>").eP();

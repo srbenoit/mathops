@@ -58,7 +58,7 @@ enum PageCheckKey {
             Log.warning("  key='", key, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final HtmlBuilder htm = BookstorePage.startBookstorePage(site, session);
+            final HtmlBuilder htm = BookstorePage.startBookstorePage(cache, site, session);
 
             if (key == null) {
                 BookstorePage.emitKeyForm(htm, null, null);

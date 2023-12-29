@@ -1003,8 +1003,7 @@ public enum MathCourses {
 
         // Module 1
 
-        final ModuleData m125m1 = m125.addModule(1, "Angle Measure and Right Triangles",
-                "TR01_SR_HW", "c41-thumb.png");
+        final ModuleData m125m1 = m125.addModule(1, "Angle Measure and Right Triangles", "TR01_SR_HW", "c41-thumb.png");
         m125m1.skillsReview.addExampleBlock("Unit Conversions")
                 .addEx("TR01_SR1_01", "Multi-step Unit Conversion");
         m125m1.skillsReview.addExampleBlock("Addition and Subtraction with Fractions")
@@ -1024,12 +1023,13 @@ public enum MathCourses {
         final LearningTargetData m125m1t1 = m125m1.addLearningTarget(1, 1, "1.1",
                 "TR01_ST1_HW",
                 "I can classify and work with angles.  Specifically, I can:",
-                "interpret degree or radian measure as a quantity of rotation",
-                "convert between degree and radian units of measure",
-                "recognize congruent angles",
-                "recognize pairs of complementary and supplementary angles",
-                "compute the complement or supplement of an angle in either unit of measure",
-                "recognize sets of angles that sum to a straight angle, and that their measures sum to half a turn");
+                "interpret and describe degree or radian measure as a quantity of rotation,",
+                // "recognize and identify acute, right, obtuse, straight, and reflex angles,",
+                "convert between degree and radian units of measure,",
+                "recognize congruent angles,",
+                "recognize pairs of complementary and supplementary angles,",
+                "compute the complement or supplement of an angle in either unit of measure, and",
+                "recognize sets of angles that sum to a straight angle, and that their measures sum to half a turn.");
 
         m125m1t1.addExBlock("Interpret degree measure as rotation")
                 .addEx("TR01_ST1A_01", "Determine how many degrees one line must rotate to fall on another");
@@ -1050,10 +1050,15 @@ public enum MathCourses {
 
         final LearningTargetData m125m1t2 = m125m1.addLearningTarget(1, 2, "1.2", "TR01_ST2_HW",
                 "I can classify and work with triangles.  Specifically, I can:",
-                "calculate the measure of any angle in a general triangle given the measure of the other two angles",
-                "recognize congruent and similar triangles",
-                "use proportion to calculate side lengths in similar triangles",
-                "use the Pythagorean theorem to calculate the length of an edge of a right triangle");
+                "calculate the measure of any angle in a triangle given the measure of the other two angles,",
+                "recognize congruent and similar triangles,",
+                "use proportion to calculate side lengths in similar triangles,",
+                // "recognize and identify equilateral, isosceles, and right triangles,",
+                "divide a general triangle into two right triangles with an altitude, or divide a rectangle into "
+                        + "two right triangles with a diagonal,",
+                "use the Pythagorean theorem to calculate the length of any edge of a right triangle,",
+                "calculate the length of the diagonal of a rectangle.");
+
         m125m1t2.addExBlock("Calculate a missing angle in a triangle in degrees")
                 .addEx("TR01_ST2A_01", "Given two interior degree angles in a triangle, find the third");
         m125m1t2.addExBlock("Calculate a missing angle in a triangle in radians")
@@ -1063,8 +1068,8 @@ public enum MathCourses {
         m125m1t2.addExBlock("Use proportion in similar triangles to calculate side lengths")
                 .addEx("TR01_ST2C_01",
                         "Given two similar triangles, and a few side lengths, find remaining side lengths");
-//        m125m1t2.addExBlock("Divide shapes into right triangles")
-//                .addEx("TR01_ST2E_01", "Given several shapes, add lines to divide each into right triangles.");
+        m125m1t2.addExBlock("Divide shapes into right triangles")
+                .addEx("TR01_ST2E_01", "Divide shapes into right triangles by adding lines.");
         m125m1t2.addExBlock("Calculate side lengths in right triangles using the Pythagorean theorem")
                 .addEx("TR01_ST2F_01a", "Find a missing side length in a right triangle");
         m125m1t2.addExBlock("Find the length of the diagonal of a rectangle")
@@ -1073,11 +1078,14 @@ public enum MathCourses {
 
         final LearningTargetData m125m1t3 = m125m1.addLearningTarget(1, 3, "1.3", "TR01_ST3_HW",
                 "I can work with angles in standard position in the plane.  Specifically, I can:",
-                "locate the terminal ray of an angle with positive or negative angle in standard position",
-                "identify the quadrant in which an angle's terminal ray lies",
-                "identify equivalent/co-terminal angles in either degrees or radians",
-                "find an angle equivalent/co-terminal to a given angle that lies in a specified range",
-                "find the reference angle for a given angle in either degrees or radians");
+                "locate the terminal ray of an angle with positive or negative measure in standard position,",
+                "identify the quadrant in which an angle's terminal ray lies,",
+                "identify equivalent/coterminal angles in either degrees or radians,",
+                "find an angle equivalent/coterminal to a given angle that lies in a specified degree or radian range,",
+                "find the reference angle for a given angle in either degrees or radians,",
+                "estimate the angle where two lines intersect, or the signed measure of a given angle in the "
+                        + "Cartesian plane in either degrees or radians, and",
+                "sketch an approximation of a given angle knowing its measure in either unit.");
 
         m125m1t3.addExBlock("Locate/sketch angles in standard position and identify quadrants")
                 .addEx("TR01_ST3A_01", "Locate terminal rays of angles in any quadrant");
@@ -1093,823 +1101,784 @@ public enum MathCourses {
                 .addEx("TR01_ST3E_01", "Find the reference angle of an angle in in degrees each quadrant");
         m125m1t3.addExBlock("Finding reference angles in radians")
                 .addEx("TR01_ST3E_02", "Find the reference angle of an angle in radians in each quadrant");
-//        m125m1t3.addExBlock("Estimating angles")
-//                .addEx("TR01_ST3F_01", "Estimate the measure of an angle");
+        m125m1t3.addExBlock("Estimating and sketching angles")
+                .addEx("TR01_ST3F_01", "Estimate the measure of an angle in degrees and radians");
 
         // Module 2
 
-        final ModuleData m125m2 = m125.addModule(2, "The Unit Circle", "SR42_HW", "c42-thumb.png");
+        final ModuleData m125m2 = m125.addModule(2, "The Unit Circle", "TR02_SR_HW", "c42-thumb.png");
 
         m125m2.skillsReview.addExampleBlock("Percentages")
-                .addEx("SR42_01_01", "Pay cut and pay raise")
-                .addEx("SR42_01_03", "Auto depreciation")
-                .addEx("SR42_01_04", "Home value growth")
-                .addEx("SR42_01_05", "Radioactive decay")
-                .addEx("SR42_01_06", "Enrollment growth");
+                .addEx("TR02_SR1_01a", "Pay cut and pay raise")
+                .addEx("TR02_SR1_01c", "Auto depreciation")
+                .addEx("TR02_SR1_01d", "Home value growth")
+                .addEx("TR02_SR1_01e", "Radioactive decay")
+                .addEx("TR02_SR1_01f", "Enrollment growth");
         m125m2.skillsReview.addExampleBlock("Circle area and perimeter")
-                .addEx("SR42_02_01", "Calculating circumference, radius, and area");
+                .addEx("TR02_SR2_01", "Calculating circumference, radius, and area");
         m125m2.skillsReview.addExampleBlock("Square roots")
-                .addEx("SR42_03_01", "Solve with squares and square roots, when to include +/-");
+                .addEx("TR02_SR3_01", "Solve with squares and square roots, when to include +/-");
         m125m2.skillsReview.addExampleBlock("Angles that sum to 180&deg;")
-                .addEx("SR42_04_01", "Find angles, in degrees, in a drawing with intersecting lines")
-                .addEx("SR42_04_02", "Find angles, in radians, in a drawing with intersecting lines");
+                .addEx("TR02_SR4_01a", "Find angles, in degrees, in a drawing with intersecting lines")
+                .addEx("TR02_SR4_01b", "Find angles, in radians, in a drawing with intersecting lines");
 
-        final LearningTargetData m125m2t1 = m125m2.addLearningTarget(2, 1, "2.1", "ST42_1_HW",
-                "I can interpret angles in terms of arc length, including:",
-                "interpret radian measure as arc length along the unit circle",
-                "calculate the length of the arc that a given angle subtends on a circle of any radius",
-                "calculate the angle subtended by an arc of any length along a circle of any radius",
-                "calculate the radius of an arc of a specified length that subtends a specified angle");
+        final LearningTargetData m125m2t1 = m125m2.addLearningTarget(2, 1, "2.1", "TR02_ST1_HW",
+                "I can interpret angles in terms of arc length.  Specifically, I can:",
+                "interpret radian measure as arc length along the unit circle,",
+                "calculate the length of the arc that a given angle subtends on a circle of any radius,",
+                "calculate the angle subtended by an arc of any length along a circle of any radius, and",
+                "calculate the radius of an arc of a specified length that subtends a specified angle.");
+
         m125m2t1.addExBlock("Interpret radian measure in terms of arc length along the perimeter of a unit circle")
-                .addEx("ST42_1_F01_01", "Relate angle to a fraction of circle's perimeter, then to arc length");
+                .addEx("TR02_ST1A_01", "Relate angle to a fraction of circle's perimeter, then to arc length");
         m125m2t1.addExBlock("Calculate length of arc that subtends a given angle on a circle of any radius")
-                .addEx("ST42_1_F02_01", "Find arc length given degree measure and radius")
-                .addEx("ST42_1_F02_02", "Find arc length given radian measure and radius");
-        m125m2t1.addExBlock("Use radius and arc length subtended by an angle to calculate the angle")
-                .addEx("ST42_1_F03_01", "Given a radius and arc length, calculate the angle subtended");
-        m125m2t1.addExBlock("Use arc length and angle subtended to calculate the radius")
-                .addEx("ST42_1_F04_01", "Given arc length and angle subtended, calculate the radius");
+                .addEx("TR02_ST1B_01", "Find arc length given degree measure and radius")
+                .addEx("TR02_ST1B_02", "Find arc length given radian measure and radius");
         m125m2t1.addExBlock("Applications of finding arc length given angle and radius")
-                .addEx("ST42_1_F05_01", "Find distance a bike travels as its tire rotates by a specified angle");
+                .addEx("TR02_ST1B_APP_01B", "Find distance a bike travels as its tire rotates by a specified angle");
+        m125m2t1.addExBlock("Use radius and arc length subtended by an angle to calculate the angle")
+                .addEx("TR02_ST1C_01", "Given a radius and arc length, calculate the angle subtended");
         m125m2t1.addExBlock("Applications of finding angle subtended by an arc length")
-                .addEx("ST42_1_F06_01", "Find number of turns on a spool needed to wind a specified length of thread");
+                .addEx("TR02_ST1C_APP_01", "Find number of turns on a spool needed to wind a specified length of thread");
+        m125m2t1.addExBlock("Use arc length and angle subtended to calculate the radius")
+                .addEx("TR02_ST1D_01", "Given arc length and angle subtended, calculate the radius");
         m125m2t1.addExBlock("Applications of finding radius given arc length and angle")
-                .addEx("ST42_1_F07_01", "Find radius of walkway edge that will use a specified length of edging")
-                .addEx("ST42_1_F07_02", "Laying out a shape in cloth to create a garment with desired sizing");
+                .addEx("TR02_ST1D_APP_01", "Find radius of walkway edge that will use a specified length of edging")
+                .addEx("TR02_ST1D_APP_02", "Laying out a shape in cloth to create a garment with desired sizing");
 
-        final LearningTargetData m125m2t2 = m125m2.addLearningTarget(2, 2, "2.2", "ST42_2_HW",
-                "I can locate points the unit circle, including:",
+        final LearningTargetData m125m2t2 = m125m2.addLearningTarget(2, 2, "2.2", "TR02_ST2_HW",
+                "I can locate points on the unit circle.  Specifically, I can:",
                 "construct a right triangle whose side lengths are the x- and y-coordinates of a point on the unit "
-                        + "circle",
-                "associate an angle with every point on the unit circle",
-                "identify angles whose associated points have the same x- or y-coordinate",
+                        + "circle,",
+                "associate an angle with every point on the unit circle, and identify angles whose associated points "
+                        + "have the same x- or y-coordinate,",
                 "calculate the x- or y-coordinate of a point on a circle given the other coordinate and the point's "
-                        + "quadrant",
-                "interpret how x- or y-coordinates would change as angle increases in each quadrant");
+                        + "quadrant, and",
+                "interpret how x- or y-coordinates would change as angle increases through each quadrant.");
         m125m2t2.addExBlock("Constructing right triangles corresponding to points on a circle")
-                .addEx("ST42_2_F01_01", "Find point where terminal ray intersects unit circle in any quadrant");
+                .addEx("TR02_ST2A_01", "Find point where terminal ray intersects unit circle in any quadrant");
         m125m2t2.addExBlock("Associate an angle with every point on the unit circle, identify angles whose points "
                         + "share x or y coordinates")
-                .addEx("ST42_2_F02_01",
+                .addEx("TR02_ST2B_01",
                         "Explore relationship between coordinates of points associated with rays having same "
                                 + "reference angle ");
         m125m2t2.addExBlock("Generalize relationship between points sharing the same x coordinate")
-                .addEx("ST42_2_F03_01",
+                .addEx("TR02_ST2B_02",
                         "Find pairs of angles whose terminal rays intersect the unit circle with same x coordinate");
         m125m2t2.addExBlock("Generalize relationship between points sharing the same y coordinate")
-                .addEx("ST42_2_F04_01",
+                .addEx("TR02_ST2B_03",
                         "Find pairs of angles whose terminal rays intersect the unit circle with same y coordinate");
         m125m2t2.addExBlock("Given one coordinate of a point on an arbitrary circle, calculate the other")
-                .addEx("ST42_2_F05_01", "Given radius and one coordinate on a circle, find the missing coordinate");
+                .addEx("TR02_ST2C_01", "Given radius and one coordinate on a circle, find the missing coordinate");
 
-        final LearningTargetData m125m2t3 = m125m2.addLearningTarget(2, 3, "2.3", "ST42_3_HW",
-                "I can work with sector area, including:",
-                "calculate the area of a sector of a circle of any radius subtended by a given angle",
+        final LearningTargetData m125m2t3 = m125m2.addLearningTarget(2, 3, "2.3", "TR02_ST3_HW",
+                "I can work with sector area.  Specifically, I can:",
+                "describe the relationship between radian measure and sector area,",
+                "calculate the area of a sector of a circle of any radius subtended by a given angle,",
                 "calculate the measure of the angle that subtends a sector of a circle of any radius with specified "
-                        + "area",
-                "calculate the radius of a sector subtended by a specified angle having specified area");
+                        + "area, and",
+                "calculate the radius of a sector subtended by a specified angle having specified area.");
         m125m2t3.addExBlock("Interpret the relationship between radian measure and sector area")
-                .addEx("ST42_3_F01_01",
+                .addEx("TR02_ST3A_01",
                         "Relate angle measure to fraction of circle's area contained, then to sector area");
         m125m2t3.addExBlock("Calculate area of a sector subtended by an angle on a circle of radius R")
-                .addEx("ST42_3_F02_01", "Given angle, in degrees, and radius, calculate sector area")
-                .addEx("ST42_3_F02_02", "Given angle, in radians, and radius, calculate sector area");
+                .addEx("TR02_ST3B_01", "Given angle, in degrees, and radius, calculate sector area")
+                .addEx("TR02_ST3B_02", "Given angle, in radians, and radius, calculate sector area");
         m125m2t3.addExBlock("Calculate angle subtended by sector with specified area")
-                .addEx("ST42_3_F03_01", "Find angle that generates a specified sector area with a given radius");
-        m125m2t3.addExBlock("Calculate radius of sector with specified area subtended by specified angle")
-                .addEx("ST42_3_F04_01", "Given an angle and the sector area it contains, find the sector radius");
-        m125m2t3.addExBlock("Applications of calculating sector area from radius and angle")
-                .addEx("ST42_3_F05_01", "Determine which slice of pizza is larger, with different radii and angles");
+                .addEx("TR02_ST3C_01", "Find angle that generates a specified sector area with a given radius");
         m125m2t3.addExBlock("Applications of calculating angle from radius and area")
-                .addEx("ST42_3_F06_01", "Determine angle to cut to make small pizza slices same area as larger ones");
+                .addEx("TR02_ST3C_APP_01", "Determine angle to cut to make small pizza slices same area as larger ones");
+        m125m2t3.addExBlock("Calculate radius of sector with specified area subtended by specified angle")
+                .addEx("TR02_ST3D_01", "Given an angle and the sector area it contains, find the sector radius");
         m125m2t3.addExBlock("Applications of calculating radius from angle and area")
-                .addEx("ST42_3_F07_01", "Given pizzas with slices the same area, with different angles, find radius");
+                .addEx("TR02_ST3D_01", "Given one pizza cut into 8 slices, with a certain area per slice, what size "
+                        + "pizza would generate pieces of the same area when cut into 6 pieces?");
 
         // Module 3
 
-        final ModuleData m125m3 = m125.addModule(3, "The Trigonometric Functions", "SR43_HW", "c43-thumb.png");
+        final ModuleData m125m3 = m125.addModule(3, "The Trigonometric Functions", "TR03_SR_HW", "c43-thumb.png");
 
         m125m3.skillsReview.addExampleBlock("Estimating the measure of angles")
-                .addEx("SR43_01_01", "Match angle to its measure in degrees or radians");
+                .addEx("TR03_SR1_01", "Match angle to its measure in degrees or radians");
         m125m3.skillsReview.addExampleBlock("Negative and co-terminal angles")
-                .addEx("SR43_02_01", "Find positive angle that's co-terminal to a negative angle");
+                .addEx("TR03_SR2_01", "Find positive angle that's co-terminal to a negative angle");
         m125m3.skillsReview.addExampleBlock("Pythagorean theorem")
-                .addEx("SR43_03_01", "Find triangle side length using Pythagorean theorem");
+                .addEx("TR03_SR3_01", "Find triangle side length using Pythagorean theorem");
         m125m3.skillsReview.addExampleBlock("Similar triangles")
-                .addEx("SR43_04_01", "Use proportionality to solve for side length in similar triangle");
+                .addEx("TR03_SR4_01", "Use proportionality to solve for side length in similar triangle");
         m125m3.skillsReview.addExampleBlock("Supplementary angles and reference angles")
-                .addEx("SR43_05_01", "Find angles in all quadrants with reference angle of a given angle.");
+                .addEx("TR03_SR5_01", "Find angles in all quadrants with reference angle of a given angle.");
+        m125m3.skillsReview.addExampleBlock("The Pythagorean relationship between sine and cosine")
+                .addEx("TR03_SR6_01", "Classify statements as true or false");
 
-        final LearningTargetData m125m3t1 = m125m3.addLearningTarget(3, 1, "3.1", "ST43_1_HW",
-                "I can define and interpret the six trigonometric functions, including:",
+        final LearningTargetData m125m3t1 = m125m3.addLearningTarget(3, 1, "3.1", "TR03_ST1_HW",
+                "I can define and interpret the six trigonometric functions. Specifically, I can:",
                 "define each of the six trigonometric functions in terms of ratios of coordinates of points on the "
-                        + "unit circle",
-                "interpret each of the six trigonometric functions in terms of these ratios or geometrically",
-                "express tangent, cotangent, secant, and cosecant in terms of sine and cosine",
-                "calculate tangent of an angle by calculating slope of a terminal ray, or vice-versa",
-                "interpret cosine and sine as (x, y) components of point undergoing circular motion");
+                        + "unit circle,",
+                "express tangent, cotangent, secant, and cosecant in terms of sine and cosine,",
+                "interpret each of the six trigonometric functions in terms of these ratios or geometrically, and",
+                // "[OPTIONAL] calculate tangent of an angle by calculating slope of a terminal ray, or vice-versa,",
+                " interpret cosine and sine as (x, y) components of point undergoing circular motion.");
+                // "[OPTIONAL] explore elliptical motion as circular motion scaled along one axis\n");
         m125m3t1.addExBlock("Algebraic and geometric definition of cosine")
-                .addEx("ST43_1_F01_01", "Describe what the cosine of an angle represents");
+                .addEx("TR03_ST1A_01", "Describe what the cosine of an angle represents");
         m125m3t1.addExBlock("Algebraic and geometric definition of sine")
-                .addEx("ST43_1_F02_01", "Describe what the sine of an angle represents");
+                .addEx("TR03_ST1A_02", "Describe what the sine of an angle represents");
         m125m3t1.addExBlock("Algebraic definitions of the trigonometric functions")
-                .addEx("ST43_1_F03_01", "Match trigonometric functions to their algebraic definitions");
+                .addEx("TR03_ST1B_01", "Match trigonometric functions to their algebraic definitions");
         m125m3t1.addExBlock("Geometric meaning of the trig functions")
-                .addEx("ST43_1_F04_01", "Relate quantities drawn in a unit circle to the trigonometric functions");
+                .addEx("TR03_ST1C_01", "Relate quantities drawn in a unit circle to the trigonometric functions");
         m125m3t1.addExBlock("Relationship between tangent and slope")
-                .addEx("ST43_1_F05_01",
+                .addEx("TR03_ST1D_01",
                         "Given point where terminal ray intersects a unit circle, find tangent of the angle and slope "
                                 + "of the terminal ray");
-        m125m3t1.addExBlock("Interpretation of sine/cosine in terms of circular motion")
-                .addEx("ST43_1_F06_01", "Examine the behavior of sine and cosine as angle increases");
+        // m125m3t1.addExBlock("Exploration: Cosine and sine as the (x, y) components of circular motion")
+        //        .addEx("TR03_ST1E_EXP_01", "Write the equation for a circle with given radius and center")
+        //        .addEx("TR03_ST1E_EXP_02", "Model uniform rotation with angle as a function of time")
+        //        .addEx("TR03_ST1E_EXP_03", "Write parametric equations for x and y modeling circular motion on a "
+        //            + "unit circle")
+        //        .addEx("TR03_ST1E_EXP_04", "Write parametric equations for x and y modeling circular motion "
+        //            + "around a circle of any radius")
+        //        .addEx("TR03_ST1E_EXP_05", "Explore the connection between the parametric equations of circular "
+        //            + "motion and the equation of a circle")
+        //        .addEx("TR03_ST1E_EXP_06", "Write parametric equations for x and y modeling circular motion "
+        //            + "around a circle of any radius and any location in the plane");
 
-        final LearningTargetData m125m3t2 = m125m3.addLearningTarget(3, 2, "3.2", "ST43_2_HW",
-                "I can graph and interpret graphs of the six trigonometric functions, including:",
-                "graph each of the trigonometric functions",
-                "state the domain and range of each trigonometric function, including points where the function is "
-                        + "undefined",
-                "state the period of each trigonometric function",
-                "classify each trigonometric function as even or odd",
-                "state the algebraic relationship that the even/odd characteristic of each trigonometric function "
-                        + "implies",
-                "identify regions where each trigonometric function is positive or negative",
-                "identify regions where each trigonometric function is increasing or decreasing as angle increases");
+        final LearningTargetData m125m3t2 = m125m3.addLearningTarget(3, 2, "3.2", "TR03_ST2_HW",
+                "I can graph and interpret graphs of the six trigonometric functions. Specifically, I can:",
+                "graph each of the trigonometric functions,",
+                "associate quadrants in the plane with intervals in the domain of trigonometric functions,",
+                "state the domain and range of each trigonometric function, including points where the function is"
+                        + " undefined,",
+                "state the period of each trigonometric function,",
+                "identify regions (intervals in the domain or quadrants) where each trigonometric "
+                        + "function is positive or negative,",
+                "identify regions (intervals in the domain or quadrants) where each trigonometric "
+                        + "function is increasing or decreasing as angle increases,",
+                "classify each trigonometric function as \"even\" or \"odd\", and",
+                "state the algebraic relationship that the \"even/odd\" characteristic of each trigonometric "
+                        + "function implies.");
         m125m3t2.addExBlock("Identifying graphs of trig functions")
-                .addEx("ST43_2_F01_01", "Match graphs to the corresponding trigonometric function ");
+                .addEx("TR03_ST2A_01", "Match graphs to the corresponding trigonometric function ");
         m125m3t2.addExBlock("Domain of each trigonometric function")
-                .addEx("ST43_2_F02_01", "Specify the domain where each trigonometric function is defined");
+                .addEx("TR03_ST2B_01", "Specify the domain where each trigonometric function is defined");
         m125m3t2.addExBlock("Range of each trigonometric function")
-                .addEx("ST43_2_F03_01", "Specify the range of each trigonometric function");
+                .addEx("TR03_ST2B_02", "Specify the range of each trigonometric function");
+        m125m3t2.addExBlock("Period of a function")
+                .addEx("TR03_ST2D_01", "Determine the period of each trigonometric function, state the algebraic "
+                        + "relationship that period implies");
+        m125m3t2.addExBlock("Regions where trigonometric functions are positive or negative, increasing or decreasing")
+                .addEx("TR03_ST2F_01",
+                        "Identify quadrants in which each trigonometric function is positive or negative and "
+                                + "increasing or decreasing")
+                .addEx("TR03_ST2F_02",
+                        "Identify quadrants in which each trigonometric function is positive")
+                .addEx("TR03_ST2F_03",
+                        "Identify quadrants in which each trigonometric function is increasing");
         m125m3t2.addExBlock("Even/odd behavior")
-                .addEx("ST43_2_F04_01",
+                .addEx("TR03_ST2G_01",
                         "Describe what is meant by 'even' and 'odd' functions, and classify trigonometric functions "
                                 + "as even or odd");
         m125m3t2.addExBlock("Even/odd relationships and behaviors")
-                .addEx("ST43_2_F05_01",
+                .addEx("TR03_ST2H_01",
                         "Indicate algebraic relationships that are true based on even/odd nature of functions");
-        m125m3t2.addExBlock("Regions where trigonometric functions are positive or negative")
-                .addEx("ST43_2_F06_01",
-                        "Identify quadrants in which each trigonometric function is positive or negative");
-        m125m3t2.addExBlock("Regions where trigonometric functions are increasing or decreasing")
-                .addEx("ST43_2_F07_01",
-                        "Identify quadrants in which each trigonometric function is increasing or decreasing");
-        m125m3t2.addExBlock("Period of a function")
-                .addEx("ST43_2_F08_01", "Determine the period of each trigonometric function");
 
-        final LearningTargetData m125m3t3 = m125m3.addLearningTarget(3, 3, "3.3", "ST43_3_HW",
-                "I can evaluate trigonometric functions in several contexts, including:",
-                "recalling values of sine and cosine for common angles, and calculating the other four function values",
-                "evaluate any trigonometric function for any angle, in either degrees or radians, using technology",
-                "apply the Pythagorean theorem to calculate sine from cosine or vice versa",
-                "calculate possible values of various trigonometric functions for a given value of sine or cosine");
+        final LearningTargetData m125m3t3 = m125m3.addLearningTarget(3, 3, "3.3", "TR03_ST3_HW",
+                "I can evaluate trigonometric functions in several contexts. Specifically, I can:",
+                "recall values of sine and cosine for common angles, and calculating the other four function values,",
+                "evaluate any trigonometric function for any angle, in either degrees or radians, using technology,",
+                "apply the Pythagorean theorem to calculate sine from cosine or vice versa, and",
+                "calculate possible values of various trigonometric functions for a given value of sine or cosine.");
         m125m3t3.addExBlock("Values of sine and cosine for common angles")
-                .addEx("ST43_3_F01_01", "Fill in a diagram of (x, y) coordinates at points around a unit circle with "
+                .addEx("TR03_ST3A_01", "Fill in a diagram of (x, y) coordinates at points around a unit circle with "
                         + "cosine and sine values");
         m125m3t3.addExBlock("Evaluating trigonometric functions using technology")
-                .addEx("ST43_3_F02_01", "Evaluate trigonometric functions for angles measured in degrees or radians");
+                .addEx("TR03_ST3B_01", "Evaluate trigonometric functions for angles measured in degrees or radians");
         m125m3t3.addExBlock("Calculate possible values for sine or cosine from the other")
-                .addEx("ST43_3_F03_01", "Given a value for sine or cosine, find possible values for the other " +
+                .addEx("TR03_ST3C_01", "Given a value for sine or cosine, find possible values for the other " +
                         "function");
         m125m3t3.addExBlock("Calculate possible values for all trigonometric functions from sine or cosine")
-                .addEx("ST43_3_F04_01", "Given a value for sine or cosine, find possible values for all five other "
+                .addEx("TR03_ST3C_03", "Given a value for sine or cosine, find possible values for all five other "
                         + "trigonometric functions");
         m125m3t3.addExBlock("Calculate possible value or all trigonometric functions from either secant or cosecant")
-                .addEx("ST43_3_F05_01", "Given a value for secant or cosecant, find possible values for all five "
+                .addEx("TR03_ST3C_05", "Given a value for secant or cosecant, find possible values for all five "
                         + "other trigonometric functions");
 
         // Module 4
 
-        final ModuleData m125m4 = m125.addModule(4, "Transformations of Trigonometric Functions", "SR44_HW",
+        final ModuleData m125m4 = m125.addModule(4, "Transformations of Trigonometric Functions", "TR04_SR_HW",
                 "c44-thumb.png");
 
         m125m4.skillsReview.addExampleBlock("Evaluation and order of operations")
-                .addEx("SR44_01_01", "Determine order in which to perform operations to evaluate an expression");
+                .addEx("TR04_SR1_01", "Determine order in which to perform operations to evaluate an expression");
         m125m4.skillsReview.addExampleBlock("Behavior of sine at zero")
-                .addEx("SR44_02_01", "Describe the value and behavior of the sine function at angle zero");
+                .addEx("TR04_SR2_01", "Describe the value and behavior of the sine function at angle zero");
         m125m4.skillsReview.addExampleBlock("Behavior of cosine at zero")
-                .addEx("SR44_03_01", "Describe the value and behavior of the cosine function at angle zero");
+                .addEx("TR04_SR3_01", "Describe the value and behavior of the cosine function at angle zero");
         m125m4.skillsReview.addExampleBlock("Behavior of secant at zero")
-                .addEx("SR44_04_01", "Describe the value and behavior of the secant function at angle zero");
+                .addEx("TR04_SR4_01", "Describe the value and behavior of the secant function at angle zero");
         m125m4.skillsReview.addExampleBlock("Behavior of cosecant at zero")
-                .addEx("SR44_05_01", "Describe the value and behavior of the cosecant function at angle zero");
+                .addEx("TR04_SR5_01", "Describe the value and behavior of the cosecant function at angle zero");
         m125m4.skillsReview.addExampleBlock("Behavior of tangent at zero")
-                .addEx("SR44_06_01", "Describe the value and behavior of the tangent function at angle zero");
+                .addEx("TR04_SR6_01", "Describe the value and behavior of the tangent function at angle zero");
         m125m4.skillsReview.addExampleBlock("Behavior of cotangent at zero")
-                .addEx("SR44_07_01", "Describe the value and behavior of the cotangent function at angle zero");
+                .addEx("TR04_SR7_01", "Describe the value and behavior of the cotangent function at angle zero");
         m125m4.skillsReview.addExampleBlock("Relationship between sine and cosine and point where terminal ray of "
                         + "angle meets unit circle")
-                .addEx("SR44_08_01",
+                .addEx("TR04_SR8_01",
                         "Find the (x, y) coordinates of the intersection point of a terminal ray and the unit circle");
+        m125m4.skillsReview.addExampleBlock("Locating points on parametric curves")
+                .addEx("TR04_SR9_01", "Given equations for a parametric curve, find the point on the curve "
+                        + "corresponding to a specified parameter value");
+        m125m4.skillsReview.addExampleBlock("Interpreting parametric curves")
+                .addEx("TR04_SR10_01", "Given a graph of a curve, and three sets of parametric equations, identify "
+                        + "the equations that match the graph");
 
-        final LearningTargetData m125m4t1 = m125m4.addLearningTarget(4, 1, "4.1", "ST44_1_HW",
-                "I can find or interpret shifts of trigonometric functions, graphically or algebraically, including:",
-                "a vertical shift, and its relationship with a \"+ k\" constant added to the function value",
-                "a horizontal shift, and its relationship with a \"- h\" constant subtracted from the function's "
-                        + "argument",
-                "interpret sine and cosine as horizontal shifts of one another",
-                "interpret secant and cosecant as horizontal shifts of one another");
-        m125m4t1.addExBlock("Write a sine or cosine functions from a vertically shifted graph")
-                .addEx("ST44_1_F01_01",
-                        "Given the graph of a vertically shifted sine or cosine function, write its equation");
-        m125m4t1.addExBlock("Write a secant or cosecant functions from a vertically shifted graph")
-                .addEx("ST44_1_F02_01",
-                        "Given the graph of a vertically shifted secant or cosecant function, write its equation");
-        m125m4t1.addExBlock("Write a tangent or cotangent functions from a vertically shifted graph")
-                .addEx("ST44_1_F03_01",
-                        "Given the graph of a vertically shifted tangent or cotangent function, write its equation");
-        m125m4t1.addExBlock("Sketch graphs of vertically shifted trigonometric functions")
-                .addEx("ST44_1_F04_01",
-                        "Given the algebraic form of a trigonometric function with vertical shift, sketch the graph");
-        m125m4t1.addExBlock("Write a sine or cosine functions from a horizontally shifted graph")
-                .addEx("ST44_1_F05_01",
-                        "Given the graph of a horizontally shifted sine or cosine function, write its equation");
-        m125m4t1.addExBlock("Write a secant or cosecant functions from a horizontally shifted graph")
-                .addEx("ST44_1_F06_01",
-                        "Given the graph of a horizontally shifted secant or cosecant function, write its equation");
-        m125m4t1.addExBlock("Write a tangent or cotangent functions from a horizontally shifted graph")
-                .addEx("ST44_1_F07_01",
-                        "Given the graph of a horizontally shifted tangent or cotangent function, write its equation");
-        m125m4t1.addExBlock("Sketch graphs of vertically shifted trigonometric functions")
-                .addEx("ST44_1_F08_01",
-                        "Given the algebraic form of a trigonometric function with horizontal shift, sketch the graph");
-        m125m4t1.addExBlock("Combinations of horizontal and vertical shifts")
-                .addEx("ST44_1_F09_01",
-                        "Given the algebraic form of a trigonometric function with vertical and horizontal shifts, "
-                                + "sketch the graph");
-        m125m4t1.addExBlock("Interpreting shifted sine or cosine as either function")
-                .addEx("ST44_1_F10_01",
-                        "Given a graph that could be a shifted sine or cosine, find its equation using either "
-                                + "function");
+        final LearningTargetData m125m4t1 = m125m4.addLearningTarget(4, 1, "4.1", "TR04_ST1_HW",
+                "I can find or interpret shifts and scalings of trigonometric functions, graphically or "
+                        + "algebraically. Specifically, I can:",
+                "calculate a vertical shift, and describe its relationship with a constant added to the function "
+                        + "value,",
+                "calculate a horizontal shift, and describe its relationship with a constant subtracted from the "
+                        + "function's input variable,",
+                "interpret sine and cosine or secant and cosecant as horizontal shifts of one another,",
+                "calculate a scaling of amplitude, and describe its relationship with the coefficient on the function,",
+                "calculate a scaling of period, and describe its relationship with the coefficient on the input "
+                        + "variable.");
+        m125m4t1.addExBlock("Finding equations for functions with vertical shifts")
+                .addEx("TR04_ST1A_01",
+                        "Given the graph of a vertically shifted sine function, write its equation")
+                .addEx("TR04_ST1A_02",
+                        "Given the graph of a vertically shifted cosine function, write its equation")
+                .addEx("TR04_ST1A_03a",
+                        "Given the graph of a vertically shifted secant function, write its equation")
+                .addEx("TR04_ST1A_03b",
+                        "Given the graph of a vertically shifted cosecant function, write its equation")
+                .addEx("TR04_ST1A_04a",
+                        "Given the graph of a vertically shifted tangent function, write its equation")
+                .addEx("TR04_ST1A_04b",
+                        "Given the graph of a vertically shifted cotangent function, write its equation");
+        m125m4t1.addExBlock("Sketch the graph of a vertically shifted function")
+                .addEx("TR04_ST1A_05a", "Sketch the graph of a vertically shifted sine function")
+                .addEx("TR04_ST1A_05b", "Sketch the graph of a vertically shifted cosine function")
+                .addEx("TR04_ST1A_05c", "Sketch the graph of a vertically shifted secant function")
+                .addEx("TR04_ST1A_05d", "Sketch the graph of a vertically shifted cosecant function")
+                .addEx("TR04_ST1A_05e", "Sketch the graph of a vertically shifted tangent function")
+                .addEx("TR04_ST1A_05f", "Sketch the graph of a vertically shifted cotangent function");
+        m125m4t1.addExBlock("Finding equations for functions with horizontal shifts")
+                .addEx("TR04_ST1B_01",
+                        "Given the graph of a horizontally shifted sine function, write its equation")
+                .addEx("TR04_ST1B_02",
+                        "Given the graph of a horizontally shifted cosine function, write its equation")
+                .addEx("TR04_ST1B_03a",
+                        "Given the graph of a horizontally shifted secant function, write its equation")
+                .addEx("TR04_ST1B_03b",
+                        "Given the graph of a horizontally shifted cosecant function, write its equation")
+                .addEx("TR04_ST1B_04a",
+                        "Given the graph of a horizontally shifted tangent function, write its equation")
+                .addEx("TR04_ST1B_04b",
+                        "Given the graph of a horizontally shifted cotangent function, write its equation");
+        m125m4t1.addExBlock("Sketch the graph of a horizontally shifted function")
+                .addEx("TR04_ST1B_05a", "Sketch the graph of a horizontally shifted sine function")
+                .addEx("TR04_ST1B_05b", "Sketch the graph of a horizontally shifted cosine function")
+                .addEx("TR04_ST1B_05c", "Sketch the graph of a horizontally shifted secant function")
+                .addEx("TR04_ST1B_05d", "Sketch the graph of a horizontally shifted cosecant function")
+                .addEx("TR04_ST1B_05e", "Sketch the graph of a horizontally shifted tangent function")
+                .addEx("TR04_ST1B_05f", "Sketch the graph of a horizontally shifted cotangent function");
+        m125m4t1.addExBlock("Interpret combinations of vertical and horizontal shifts")
+                .addEx("TR04_ST1C_01",
+                        "Given the graph of sine or cosine with vertical and horizontal shifts, write its equation");
+        m125m4t1.addExBlock("Finding equations for functions with vertical scaling")
+                .addEx("TR04_ST1D_01",
+                        "Given the graph of a vertically scaled sine function, write its equation")
+                .addEx("TR04_ST1D_02",
+                        "Given the graph of a vertically scaled cosine function, write its equation")
+                .addEx("TR04_ST1D_03a",
+                        "Given the graph of a vertically scaled secant function, write its equation")
+                .addEx("TR04_ST1D_03b",
+                        "Given the graph of a vertically scaled cosecant function, write its equation")
+                .addEx("TR04_ST1D_04a",
+                        "Given the graph of a vertically scaled tangent function, write its equation")
+                .addEx("TR04_ST1D_04b",
+                        "Given the graph of a vertically scaled cotangent function, write its equation");
+        m125m4t1.addExBlock("Sketch the graph of a vertically scaled function")
+                .addEx("TR04_ST1D_05a", "Sketch the graph of a vertically scaled sine function")
+                .addEx("TR04_ST1D_05b", "Sketch the graph of a vertically scaled cosine function")
+                .addEx("TR04_ST1D_05c", "Sketch the graph of a vertically scaled secant function")
+                .addEx("TR04_ST1D_05d", "Sketch the graph of a vertically scaled cosecant function")
+                .addEx("TR04_ST1D_05e", "Sketch the graph of a vertically scaled tangent function")
+                .addEx("TR04_ST1D_05f", "Sketch the graph of a vertically scaled cotangent function");
+        m125m4t1.addExBlock("Finding equations for functions with horizontal scaling")
+                .addEx("TR04_ST1E_01",
+                        "Given the graph of a horizontally scaled sine function, write its equation")
+                .addEx("TR04_ST1E_02",
+                        "Given the graph of a horizontally scaled cosine function, write its equation")
+                .addEx("TR04_ST1E_03a",
+                        "Given the graph of a horizontally scaled secant function, write its equation")
+                .addEx("TR04_ST1E_03b",
+                        "Given the graph of a horizontally scaled cosecant function, write its equation")
+                .addEx("TR04_ST1E_04a",
+                        "Given the graph of a horizontally scaled tangent function, write its equation")
+                .addEx("TR04_ST1E_04b",
+                        "Given the graph of a horizontally scaled cotangent function, write its equation");
+        m125m4t1.addExBlock("Sketch the graph of a horizontally scaled function")
+                .addEx("TR04_ST1E_05a", "Sketch the graph of a horizontally scaled sine function")
+                .addEx("TR04_ST1E_05b", "Sketch the graph of a horizontally scaled cosine function")
+                .addEx("TR04_ST1E_05c", "Sketch the graph of a horizontally scaled secant function")
+                .addEx("TR04_ST1E_05d", "Sketch the graph of a horizontally scaled cosecant function")
+                .addEx("TR04_ST1E_05e", "Sketch the graph of a horizontally scaled tangent function")
+                .addEx("TR04_ST1E_05f", "Sketch the graph of a horizontally scaled cotangent function");
+        m125m4t1.addExBlock("Combinations of vertical and horizontal scaling")
+                .addEx("TR04_ST1E_06",
+                        "Sketch the graph of a sine function with vertical and horizontal scalings")
+                .addEx("TR04_ST1E_07",
+                        "Sketch the graph of a cosine function with vertical and horizontal scalings");
+        m125m4t1.addExBlock("Exploration: Connection between scaled cosine/sine and circular motion")
+                .addEx("TR04_ST1E_EXP_01",
+                        "Investigate scaled cosine and sine as a parametric description of uniform motion around a "
+                                + "circle of some radius");
 
-        final LearningTargetData m125m4t2 = m125m4.addLearningTarget(4, 2, "4.2", "ST44_2_HW",
-                "I can find or interpret scalings of trigonometric functions, graphically or algebraically, including:",
-                "a scaling of amplitude, and its relationship with the coefficient on the function",
-                "a scaling of period, and its relationship with the coefficient on the function argument",
-                "the relationship between coordinates of a point on a circle of radius R and trigonometric functions " +
-                        "of the corresponding angle scaled with coefficient R");
-        m125m4t2.addExBlock("Write a sine or cosine functions from a vertically scaled graph")
-                .addEx("ST44_2_F01_01",
-                        "Given the graph of a vertically scaled sine or cosine function, write its equation");
-        m125m4t2.addExBlock("Write a secant or cosecant functions from a vertically scaled graph")
-                .addEx("ST44_2_F02_01",
-                        "Given the graph of a vertically scaled secant or cosecant function, write its equation");
-        m125m4t2.addExBlock("Write a tangent or cotangent functions from a vertically scaled graph")
-                .addEx("ST44_2_F03_01",
-                        "Given the graph of a vertically scaled tangent or cotangent function, write its equation");
-        m125m4t1.addExBlock("Sketch graphs of vertically scaled trigonometric functions")
-                .addEx("ST44_2_F04_01",
-                        "Given the algebraic form of a trigonometric function with vertical scaling, sketch the graph");
-        m125m4t1.addExBlock("Write a sine or cosine functions from a horizontally scaled graph")
-                .addEx("ST44_2_F05_01",
-                        "Given the graph of a horizontally scaled sine or cosine function, write its equation");
-        m125m4t1.addExBlock("Write a secant or cosecant functions from a horizontally scaled graph")
-                .addEx("ST44_2_F06_01",
-                        "Given the graph of a horizontally scaled secant or cosecant function, write its equation");
-        m125m4t1.addExBlock("Write a tangent or cotangent functions from a horizontally scaled graph")
-                .addEx("ST44_2_F07_01",
-                        "Given the graph of a horizontally scaled tangent or cotangent function, write its equation");
-        m125m4t1.addExBlock("Sketch graphs of vertically scaled trigonometric functions")
-                .addEx("ST44_2_F08_01",
-                        "Given the algebraic form of a trigonometric function with horizontal scaled, sketch the "
-                                + "graph");
-        m125m4t1.addExBlock("Combinations of horizontal and vertical scalings")
-                .addEx("ST44_2_F09_01",
-                        "Given the algebraic form of a trigonometric function with vertical and horizontal scalings, "
-                                + "sketch the graph");
-        m125m4t1.addExBlock("Express coordinates of point on arbitrary circle as scaled sine and cosine functions")
-                .addEx("ST44_2_F10_01",
-                        "Given an angle and radius, express coordinates of the point its terminal ray meets the unit "
-                                + "circle in terms of scaled sine and cosine");
-
-        final LearningTargetData m125m4t3 = m125m4.addLearningTarget(4, 3, "4.3",
-                "ST44_3_HW",
-                "I can find the algebraic form of a trigonometric function from its graph, including:",
-                "find a scaled and shifted trigonometric function that matches a given graph, in the form <i>y=A "
-                        + "fxn(B (x-h))+k</i>, where <i>fxn</i> is any of the six trigonometric functions.",
-                "given a graph that could be expressed as either sine or cosine, construct a function that matches "
-                        + "the graph",
-                "given a graph that could be expressed as either secant or cosecant, construct a function that "
-                        + "matches the graph");
-        m125m4t3.addExBlock("Identify graph of a given shifted and scaled sine or cosine function")
-                .addEx("ST44_3_F01_01", "Given a scaled and shifted sine or cosine function, construct its graph");
-        m125m4t3.addExBlock("Interpreting graphs of scaled and shifted sine or cosine functions")
-                .addEx("ST44_3_F02_01",
-                        "Given the graph of a scaled and shifted sine or cosine function, write its equation");
-        m125m4t3.addExBlock("Interpreting graphs of scaled and shifted general sine or cosine functions")
-                .addEx("ST44_3_F03_01", "Given the graph that could be a scaled and shifted sine or cosine function, "
-                        + "find its equation for either function");
-        m125m4t3.addExBlock("Interpreting graphs of scaled and shifted general secant or cosecant functions")
-                .addEx("ST44_3_F04_01", "Given the graph that could be a scaled and shifted secant or cosecant " +
-                        "function, find its equation for either function");
-        m125m4t3.addExBlock("Amplitude and period")
-                .addEx("ST44_3_F05_01",
+        final LearningTargetData m125m4t2 = m125m4.addLearningTarget(4, 2, "4.2", "TR04_ST2_HW",
+                "I can find the algebraic form of a trigonometric function from its graph. Specifically, I can:",
+                "identify amplitude, period, and shifts from a graph of a scaled and shifted sine or cosine function,",
+                "find a scaled and shifted trigonometric function that matches a given graph, in the form"
+                        + "y=A \"fxn\"(B (x-h))+k, where fxn is any of the six trigonometric functions,",
+                "construct both a sine and cosine function that matches a given graph.");
+        m125m4t2.addExBlock("Amplitude and period")
+                .addEx("TR04_ST2A_01",
                         "Given a graph, identify its amplitude, period, vertical shift, and horizontal shift");
+        m125m4t2.addExBlock("Sketch the graph of a shifted and scaled sine or cosine function")
+                .addEx("TR04_ST2B_01", "Given a scaled and shifted sine function, construct its graph")
+                .addEx("TR04_ST2B_02", "Given a scaled and shifted cosine function, construct its graph");
+        m125m4t2.addExBlock("Interpreting graphs of scaled and shifted sine or cosine functions")
+                .addEx("TR04_ST2B_03",
+                        "Given the graph of a scaled and shifted sine function, write its equation")
+                .addEx("TR04_ST2B_04",
+                        "Given the graph of a scaled and shifted cosine function, write its equation");
+        m125m4t2.addExBlock("Interpreting graphs of scaled and shifted general secant or cosecant functions")
+                .addEx("TR04_ST2B_05", "Given the graph that could be a scaled and shifted secant or cosecant " +
+                        "function, find its equation for either function");
+        m125m4t2.addExBlock("Graphs that could be expressed using two different trigonometric functions")
+                .addEx("TR04_ST2C_01", "Given the graph that could be a scaled and shifted sine or cosine function, "
+                        + "find its equation for either function")
+                .addEx("TR04_ST2C_02", "Given the graph that could be a scaled and shifted secant or cosecant "
+                        + "function, find its equation for either function");
+
+        final LearningTargetData m125m4t3 = m125m4.addLearningTarget(4, 3, "4.3", "TR04_ST3_HW",
+                "I can model data or real-world phenomena using sine and cosine functions.  Specifically, I can:",
+                "determine a model of tabular data in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
+                "determine a model from a verbal description in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
+                "interpret models and make predictions of behavior.");
+        m125m4t3.addExBlock("Find period and amplitude from tabular data")
+                .addEx("TR04_ST3A_01",
+                        "Given a table of data that varies sinusoidally, determine the period and amplitude");
+        m125m4t3.addExBlock("Find vertical and horizontal shift from tabular data")
+                .addEx("TR04_ST3A_02",
+                        "Given a table of data that varies sinusoidally, determine the vertical and horizontal shift");
+        m125m4t3.addExBlock("Model tabular data using sine or cosine")
+                .addEx("TR04_ST3A_03",
+                        "Given a table of data that varies sinusoidally, generate a cosine model");
+        m125m4t3.addExBlock("Application: Modeling pendulum motion")
+                .addEx("TR04_ST3B_APP_01",
+                        "From a verbal description of a pendulum's swing, generate a sine model");
+        m125m4t3.addExBlock("Application: Modeling weights suspended on springs")
+                .addEx("TR04_ST3B_APP_02",
+                        "From a verbal description of a weight bouncing on a spring, generate a cosine model");
+        m125m4t3.addExBlock("Application: Modeling object bobbing in water")
+                .addEx("TR04_ST3B_APP_03",
+                        "From a verbal description of a buoy bobbing in waves, generate a sine model");
+        m125m4t3.addExBlock("Application: Modeling bungee jumping")
+                .addEx("TR04_ST3B_APP_04",
+                        "From a verbal description of a bungee jumper, generate a damped cosine model");
+        m125m4t3.addExBlock("Model tabular data and make predictions using the model")
+                .addEx("TR04_ST3C_01",
+                        "Given a table of data that varies sinusoidally, generate a sine model and use that model "
+                                + "to make predictions");
 
         // Module 5
 
-        final ModuleData m125m5 = m125.addModule(5, "Modeling with Trigonometric Functions", "SR45_HW",
-                "c45-thumb.png");
+        final ModuleData m125m5 = m125.addModule(5, "Trigonometric Functions in Right Triangles", "TR05_SR_HW",
+                "c46-thumb.png");
 
-        m125m5.skillsReview.addExampleBlock("Amplitude, period, and shifts")
-                .addEx("SR45_01_01",
-                        "Given a graph, identify its amplitude, period, vertical shift, and horizontal shift");
-        m125m5.skillsReview.addExampleBlock("Common unit circle values")
-                .addEx("SR45_02_01", "Given a unit circle with common angles marked, fill in sine and cosine values");
+        m125m5.skillsReview.addExampleBlock("Reference angles")
+                .addEx("TR05_SR1_01", "Given an angle, find its reference angle (Quadrant 2)")
+                .addEx("TR05_SR1_02", "Given an angle, find its reference angle (Quadrant 3)")
+                .addEx("TR05_SR1_03", "Given an angle, find its reference angle (Quadrant 4)");
+        m125m5.skillsReview.addExampleBlock("Angles sharing same sine value")
+                .addEx("TR05_SR2_01", "Find an angle that has the same sine as a given angle");
+        m125m5.skillsReview.addExampleBlock("Angles sharing same cosine value")
+                .addEx("TR05_SR3_01", "Find an angle that has the same cosine as a given angle");
         m125m5.skillsReview.addExampleBlock(
-                        "Pythagorean relationship between sine and cosine, definitions of secant/cosecant/tangent")
-                .addEx("SR45_03_01", "Identify which of several equations are true");
-        m125m5.skillsReview.addExampleBlock("Evaluating parametric curves")
-                .addEx("SR45_04_01", "Given two equations defining a parametric curve, find points on that curve");
-        m125m5.skillsReview.addExampleBlock("Interpreting parametric curves")
-                .addEx("SR45_05_01", "Determine which set of parametric equations matches a given graph");
+                        "Definitions of trigonometric functions in terms of x, y coordinates and sine/cosine")
+                .addEx("TR05_SR4_01",
+                        "Match trigonometric functions to their definitions in terms of (x, y) and in terms of sine "
+                                + "and cosine");
+        m125m5.skillsReview.addExampleBlock("Similar triangles")
+                .addEx("TR05_SR5_01", "Given similar triangles, solve for side lengths using proportionality");
 
-        final LearningTargetData m125m5t1 = m125m5.addLearningTarget(5, 1, "5.1", "ST45_1_HW",
-                "I can model sinusoidal tabular data with shifted and scaled sine or cosine functions, including:",
-                "determine the amplitude and period of sinusoidal tabular data",
-                "determine the horizontal and vertical shift of sine or cosine needed to model sinusoidal tabular data",
-                "write the model in the form <i>y=A sin(B(x-h))+k</i> or <o>y=A cos(B(x-h))+k</i>",
-                "interpret the model in terms of behavior of the system being modeled",
-                "use the resulting model to make predictions");
-        m125m5t1.addExBlock("Extracting amplitude and period from tabular data")
-                .addEx("ST45_1_F01_01", "Given a table of data, determine the amplitude and period");
-        m125m5t1.addExBlock("Extracting shift data for sine or cosine from tabular data")
-                .addEx("ST45_1_F02_01",
-                        "Given a table of data, find the horizontal and vertical shifts for sine or cosine");
-        m125m5t1.addExBlock("Create a sine or cosine model from tabular data")
-                .addEx("ST45_1_F03_01", "Given a table of data, find a cosine or sine model");
-        m125m5t1.addExBlock("Interpreting a sine or cosine model and predicting behavior")
-                .addEx("ST45_1_F04_01", "given a context, tabular data, and a model, interpret and make predictions");
+        final LearningTargetData m125m5t1 = m125m5.addLearningTarget(5, 1, "5.1", "TR05_ST1_HW",
+                "Given a right triangle, I can express the relationships between side lengths using trigonometric "
+                        + "functions.  Specifically, I can:",
+                "deduce the \"SOH-CAH-TOA\" relationships from the definitions of sine, cosine, and tangent in the "
+                        + "context of a unit circle,",
+                "identify the hypotenuse, and which sides are \"adjacent\" and \"opposite\" relative to each acute "
+                        + "angle, and",
+                "recall and use the \"SOH-CAH-TOA\" relationships to calculate trigonometric function values from "
+                        + "triangle side lengths.");
+        m125m5t1.addExBlock("Deduce the SOH-CAH-TOA relationships for triangles with hypotenuse 1")
+                .addEx("TR05_ST1A_01",
+                        "Derive the \"SOH-CAH-TOA\" relationships for right triangles in a unit circle");
+        m125m5t1.addExBlock("Scale relations based on similar triangles")
+                .addEx("TR05_ST1A_02", "Given arbitrary size right triangle, create similar triangle with "
+                        + "hypotenuse 1, and use to scale side length relationships");
+        m125m5t1.addExBlock("Opposite and adjacent sides")
+                .addEx("TR05_ST1B_01", "Identifying adjacent and opposite sides to an angle");
+        m125m5t1.addExBlock("SOH")
+                .addEx("TR05_ST1C_01", "Calculate sine and cosecant values using the sine relationship");
+        m125m5t1.addExBlock("CAH")
+                .addEx("TR05_ST1C_02", "Calculate cosine and secant values using the cosine relationship");
+        m125m5t1.addExBlock("TOA")
+                .addEx("TR05_ST1C_03", "Calculate tangent and cotangent values using the tangent relationship");
 
-        final LearningTargetData m125m5t2 = m125m5.addLearningTarget(5, 2, "5.2", "ST45_2_HW",
-                "I can model circular or elliptical motion using sine and cosine functions, including:",
-                "recognize or write the equation for a circle at arbitrary position in the plane",
-                "determine theta as a function of time given an angular frequency.",
-                "model the x and y coordinates of circular motion on a unit circle using cosine and sine, "
-                        + "respectively, of a function of time that represents theta",
-                "model the x, and y coordinates of circular motion on a circle of arbitrary size centered at the "
-                        + "origin.",
-                "model the x and y coordinates of motion along a circle in arbitrary position.",
-                "model (nonuniform) motion on an axis-aligned ellipse using sine and cosine functions.");
-        m125m5t2.addExBlock("Equation for a circle")
-                .addEx("ST45_2_F01_01", "Given a circle in the plane, write its equation");
-        m125m5t2.addExBlock("Express angle as a function of time")
-                .addEx("ST45_2_F02_01", "Represent circular motion by expressing angle as a function of time");
-        m125m5t2.addExBlock("Parametric representation of motion around unit circle")
-                .addEx("ST45_2_F03_01",
-                        "Represent circular motion on unit circle using parametric functions for x and y");
-        m125m5t2.addExBlock("Parametric representation of motion around general circle")
-                .addEx("ST45_2_F04_01",
-                        "Represent circular motion on general circle using parametric functions for x and y");
-        m125m5t2.addExBlock("Pythagorean relationship between sine and cosine")
-                .addEx("ST45_2_F05_01", "Derive Pythagorean relationship between sine and cosine");
-        m125m5t2.addExBlock("Parametric representation of motion around circle not at origin")
-                .addEx("ST45_2_F06_01", "Represent circular motion on an arbitrary circle in the plane using "
-                        + "parametric functions for x and y");
-        m125m5t2.addExBlock("Equation for an ellipse")
-                .addEx("ST45_2_F07_01", "Write equation for ellipse given center and radii in x and y directions");
-        m125m5t2.addExBlock("Parametric definition of ellipse")
-                .addEx("ST45_2_F08_01", "Derive equation for ellipse from its parametric definition");
-        m125m5t2.addExBlock("Parametric representation of motion around ellipse not at origin")
-                .addEx("ST45_2_F09_01", "Represent circular motion on an arbitrary ellipse in the plane using "
-                        + "parametric functions for x and y");
+        final LearningTargetData m125m5t2 = m125m5.addLearningTarget(5, 2, "5.2", "TR05_ST2_HW",
+                "I can use trigonometric functions to solve for side lengths in right triangles.  Specifically, I can:",
+                "find a side length given one other side length and one angle using sine,",
+                "find a side length given one other side length and one angle using cosine,",
+                "find a side length given one other side length and one angle using tangent,",
+                "given one side and one angle in a right triangle, find all sides and angles, and",
+                "apply these relationships in real-world contexts.");
+        m125m5t2.addExBlock("Apply the sine relationship")
+                .addEx("TR05_ST2A_01", "Use the sine relationship to find hypotenuse length")
+                .addEx("TR05_ST2A_02", "Use the sine relationship to find opposite side length");
+        m125m5t2.addExBlock("Apply the cosine relationship")
+                .addEx("TR05_ST2B_01", "Use the cosine relationship to find hypotenuse length")
+                .addEx("TR05_ST2B_02", "Use the cosine relationship to find adjacent side length");
+        m125m5t2.addExBlock("Apply the tangent relationship")
+                .addEx("TR05_ST2C_01", "Use the tangent relationship to find adjacent side length")
+                .addEx("TR05_ST2C_02", "Use the tangent relationship to find opposite side length");
+        m125m5t2.addExBlock("Apply multiple relationships")
+                .addEx("TR05_ST2D_01",
+                        "Given a right triangle with one angle and one side known, find unknown angle and lengths");
+        m125m5t2.addExBlock("Application: Calculating building height using its shadow")
+                .addEx("TR05_ST2D_APP_01a", "Given shadow angle and distance from building, find building height");
+        m125m5t2.addExBlock("Application: Locating ship's position using lighthouses")
+                .addEx("TR05_ST2D_APP_01c",
+                        "Given bearings to two lighthouses whose positions are charted, find the position of a ship");
+        m125m5t2.addExBlock("Application: anchoring a power pole")
+                .addEx("TR05_ST2D_APP_02a", "Given power pole height, desired angle for support wires, find distance " +
+                        "from pole for anchors, and wire length");
+        m125m5t2.addExBlock("Application: Supporting a radio tower")
+                .addEx("TR05_ST2D_APP_02b",
+                        "Find anchor points and support wire angles for two sets of support wires on a radio tower");
+        m125m5t2.addExBlock("Application: Supporting a radio tower")
+                .addEx("TR05_ST2D_APP_03a", "Given distance to tree and angle of elevation of its top, find its height");
+        m125m5t2.addExBlock("Application: Supporting a cell tower")
+                .addEx("TR05_ST2D_APP_03b", "Given support wire anchor distance and angle, find height and wire length");
+        m125m5t2.addExBlock("Solving a general triangle in the 'angle-side-side' case without the Law of Sines")
+                .addEx("TR05_ST2D_APP_05a",
+                        "Given a right triangle with one angle and two sides known, find unknown angle and lengths");
+        m125m5t2.addExBlock("Application: Cutting tiles to make patterns")
+                .addEx("TR05_ST2D_APP_06b", "Given a desired tile pattern, find dimensions and angles for cuts");
 
-        final LearningTargetData m125m5t3 = m125m5.addLearningTarget(5, 3, "5.3", "ST45_3_HW",
-                "I can model simple harmonic motion using sine or cosine functions, including:",
-                "relate angle theta and time in to a context exhibiting simple harmonic motion",
-                "model simple harmonic motion using either sine or cosine",
-                "interpret the model and make predictions of behavior");
-        m125m5t3.addExBlock("Modeling pendulum swing")
-                .addEx("ST45_3_F01_01", "Write a model based on a verbal description of pendulum");
-        m125m5t3.addExBlock("Modeling spring-mass motion")
-                .addEx("ST45_3_F02_01", "Write a model based on a mass bouncing on a spring");
-        m125m5t3.addExBlock("Modeling water waves")
-                .addEx("ST45_3_F03_01", "Write a model based on water waves");
-        m125m5t3.addExBlock("Interpreting a damped sine or cosine model")
-                .addEx("ST45_3_F04_01", "Given a damped sine or cosine model, interpret and make predictions");
+        final LearningTargetData m125m5t3 = m125m5.addLearningTarget(5, 3, "5.3", "TR05_ST3_HW",
+                "I can apply relationships between right triangle side lengths and trigonometric functions to "
+                        + "reference angles corresponding to angles in quadrants 2, 3, and 4.  Specifically, I can:",
+                "draw a right triangle using the reference angle in any quadrant, and",
+                "use right triangle relationships in these reference triangles to find relationships between side "
+                        + "lengths.");
+        m125m5t3.addExBlock("Solve triangle with Quadrant 2 angle")
+                .addEx("ST46_3_F01_01",
+                        "Given angle to hypotenuse in quadrant 2, solve for side lengths in a right triangle");
+        m125m5t3.addExBlock("Solve triangle with Quadrant 3 angle")
+                .addEx("ST46_3_F02_01",
+                        "Given angle to hypotenuse in quadrant 3, solve for side lengths in a right triangle");
+        m125m5t3.addExBlock("Solve triangle with Quadrant 4 angle")
+                .addEx("ST46_3_F03_01",
+                        "Given angle to hypotenuse in quadrant 4, solve for side lengths in a right triangle");
 
         // Module 6
 
-        final ModuleData m125m6 = m125.addModule(6, "Trigonometric Functions in Right Triangles", "SR46_HW",
-                "c46-thumb.png");
+        final ModuleData m125m6 = m125.addModule(6, "Inverse Trigonometric Functions", "TR06_SR_HW", "c47-thumb.png");
 
-        m125m6.skillsReview.addExampleBlock("Reference angles")
-                .addEx("SR46_01_01", "Given an angle, find its reference angle (Quadrant II)")
-                .addEx("SR46_01_02", "Given an angle, find its reference angle (Quadrant III)")
-                .addEx("SR46_01_03", "Given an angle, find its reference angle (Quadrant IV)");
-        m125m6.skillsReview.addExampleBlock("Angles sharing same sine value")
-                .addEx("SR46_02_01", "Find an angle that has the same sine as a given angle");
-        m125m6.skillsReview.addExampleBlock("Angles sharing same cosine value")
-                .addEx("SR46_03_01", "Find an angle that has the same cosine as a given angle");
-        m125m6.skillsReview.addExampleBlock(
-                        "Definitions of trigonometric functions in terms of x, y coordinates and sine/cosine")
-                .addEx("SR46_04_01",
-                        "Match trigonometric functions to their definitions in terms of (x, y) and in terms of sine "
-                                + "and cosine");
-        m125m6.skillsReview.addExampleBlock("Similar triangles")
-                .addEx("SR46_05_01", "Given similar triangles, solve for side lengths using proportionality");
+        m125m6.skillsReview
+                .addExampleBlock("Recall the graph, domain, and range of sine and cosine")
+                .addEx("TR06_SR1_01", "Sketch graph of sine and recall its domain and range")
+                .addEx("TR06_SR1_02", "Sketch graph of cosine and recall its domain and range");
+        m125m6.skillsReview
+                .addExampleBlock("Recall the graph, domain, and range of tangent and cotangent")
+                .addEx("TR06_SR2_01", "Sketch graph of tangent and recall its domain and range")
+                .addEx("TR06_SR2_02", "Sketch graph of cotangent and recall its domain and range");
+        m125m6.skillsReview
+                .addExampleBlock("Recall the graph, domain, and range of secant and cosecant")
+                .addEx("TR06_SR3_01", "Sketch graph of secant and recall its domain and range")
+                .addEx("TR06_SR3_03", "Sketch graph of cosecant and recall its domain and range");
+        m125m6.skillsReview
+                .addExampleBlock("Recall that angles with the same x coordinate on unit circle have the same cosine")
+                .addEx("TR06_SR4_01", "Find second angle with the same cosine as a given angle");
+        m125m6.skillsReview
+                .addExampleBlock("Recall that angles with the same y coordinate on unit circle have the same sine")
+                .addEx("TR06_SR5_01", "Find second angle with the same sine as a given angle");
+        m125m6.skillsReview
+                .addExampleBlock("Recall that angles with the same slope have the same tangent")
+                .addEx("TR06_SR6_01", "Find second angle with the same tangent as a given angle");
+        m125m6.skillsReview
+                .addExampleBlock("Angle relationships in right triangles")
+                .addEx("TR06_SR7_01", "Express products and quotients of triangle side lengths in terms of "
+                        + "trigonometric functions");
 
-        final LearningTargetData m125m6t1 = m125m6.addLearningTarget(6, 1, "6.1", "ST46_1_HW",
-                "Given a right triangle, I can express the relationships between side lengths using trigonometric "
-                        + "functions, including:",
-                "identify the hypotenuse, and which sides are \"adjacent\" and \"opposite\" relative to each acute"
-                        + " angle",
-                "recall the \"SOH-CAH-TOA\" relationships",
-                "use the \"SOH-CAH-TOA\" relationships to calculate trigonometric function values from triangle side "
-                        + "lengths",
-                "relate these equations to relationships between x and y coordinates of points on the unit circle");
-        m125m6t1.addExBlock("Deduce the SOH-CAH-TOA relationships for triangles with hypotenuse 1")
-                .addEx("ST46_1_F01_01", "Derive the \"SOH-CAH-TOA\" relationships for right triangles in a unit " +
-                        "circle");
-        m125m6t1.addExBlock("Scale relations based on similar triangles")
-                .addEx("ST46_1_F02_01", "Given arbitrary size right triangle, create similar triangle with "
-                        + "hypotenuse 1, and use to scale side length relationships");
-        m125m6t1.addExBlock("Opposite and adjacent sides")
-                .addEx("ST46_1_F03_01", "Identifying adjacent and opposite sides to an angle");
-        m125m6t1.addExBlock("SOH")
-                .addEx("ST46_1_F04_01", "Calculate sine and cosecant values using \"SOH\" relationship");
-        m125m6t1.addExBlock("CAH")
-                .addEx("ST46_1_F05_01", "Calculate cosine and secant values using \"CAH\" relationship");
-        m125m6t1.addExBlock("TOA")
-                .addEx("ST46_1_F06_01", "Calculate tangent and cotangent values using \"TOA\" relationship");
+        final LearningTargetData m125m6t1 = m125m6.addLearningTarget(6, 1, "6.1", "TR06_ST1_HW",
+                "I can work with inverse functions and identify when a function has an inverse.  Specifically, I can:",
+                "describe the requirements for a function to be one-to-one, and apply the horizontal line test,",
+                "describe the relationships that inverse functions satisfy and the relationships between the domain "
+                        + "and range of inverse functions, find an inverse function algebraically,",
+                "identify or sketch the graph of an inverse function from the function's graph, and",
+                "find a domain restriction of a function that is one-to-one, including restrictions of "
+                        + "trigonometric functions.");
+        m125m6t1.addExBlock("Recall what a one-to-one function is, and the horizontal line test")
+                .addEx("TR06_ST1A_01", "Given a set of graphs, indicate which are one-to-one functions");
+        m125m6t1.addExBlock("Recall facts about inverse functions")
+                .addEx("TR06_ST1B_01", "Answer a variety of questions about an inverse function.");
+        m125m6t1.addExBlock("Given an algebraic function, find its inverse")
+                .addEx("TR06_ST1C_01", "Given a function, find the inverse function");
+        m125m6t1.addExBlock("Recall the relationship between the graph of a function and its inverse")
+                .addEx("TR06_ST1D_01", "Given the graph of a function, sketch the graph of the inverse function");
+        m125m6t1.addExBlock("Domain restrictions")
+                .addEx("TR06_ST1E_01",
+                        "Given a graph of a function, find domain restrictions where the function is one-to-one");
+        m125m6t1.addExBlock("Domain restriction of sine")
+                .addEx("TR06_ST1E_02", "Find domain restrictions of sine that are one-to-one");
+        m125m6t1.addExBlock("Domain restriction of cosine")
+                .addEx("TR06_ST1E_03", "Find domain restrictions of cosine that are one-to-one");
+        m125m6t1.addExBlock("Domain restriction of tangent and cotangent")
+                .addEx("TR06_ST1E_04", "Find domain restrictions of tangent and cotangent that are one-to-one");
+        m125m6t1.addExBlock("Domain restriction of secant and cosecant")
+                .addEx("TR06_ST1E_05", "Find domain restrictions of secant and cosecant that are one-to-one");
 
-        final LearningTargetData m125m6t2 = m125m6.addLearningTarget(6, 2, "6.2", "ST46_2_HW",
-                "I can use trigonometric functions to solve for side lengths in right triangles, including:",
-                "find a side length given one other side length and one angle using sine",
-                "find a side length given one other side length and one angle using cosine",
-                "find a side length given one other side length and one angle using tangent",
-                "apply these relationships in applied contexts");
-        m125m6t2.addExBlock("Apply the \"SOH\" relationship")
-                .addEx("ST46_2_F01_01", "Use the \"SOH\" relationship to find hypotenuse length")
-                .addEx("ST46_2_F01_02", "Use the \"SOH\" relationship to find opposite side length");
-        m125m6t2.addExBlock("Apply the \"CAH\" relationship")
-                .addEx("ST46_2_F02_01", "Use the \"CAH\" relationship to find hypotenuse length")
-                .addEx("ST46_2_F02_02", "Use the \"CAH\" relationship to find adjacent side length");
-        m125m6t2.addExBlock("Apply the \"TOA\" relationship")
-                .addEx("ST46_2_F03_01", "Use the \"TOA\" relationship to find adjacent side length")
-                .addEx("ST46_2_F03_02", "Use the \"TOA\" relationship to find opposite side length");
-        m125m6t2.addExBlock("Application: finding heights from distance and angle")
-                .addEx("ST46_2_F04_01", "Given shadow angle and distance from building, find building height");
-        m125m6t2.addExBlock("Application: finding distance from height and angle")
-                .addEx("ST46_2_F05_01", "Given power pole height, desired angle for support wires, find distance " +
-                        "from pole for anchors, and wire length");
-        m125m6t2.addExBlock("Application: finding height from angle of elevation")
-                .addEx("ST46_2_F06_01", "Given distance to tree and angle of elevation of its top, find its height")
-                .addEx("ST46_2_F06_02", "Given support wire anchor distance and angle, find height and wire length");
+        final LearningTargetData m125m6t2 = m125m6.addLearningTarget(6, 2, "6.2", "TR06_ST2_HW",
+                "I can work with inverse trigonometric functions.  Specifically, I can:",
+                "state the definitions of the inverse trigonometric functions, along with their domain and range, and "
+                        + "identify or sketch their graphs,",
+                "interpret values of inverse trigonometric functions as angles in appropriate units, and",
+                "evaluate inverse trigonometric functions using technology, and apply them to find all angles that "
+                        + "have a specified value of a trigonometric function.");
+        m125m6t2.addExBlock("Definition of inverse sine and inverse cosine, domain and range")
+                .addEx("TR06_ST2A_01", "Sketch graphs of inverse sine and inverse cosine");
+        m125m6t2.addExBlock("Definition of inverse tangent and inverse cotangent, domain and range")
+                .addEx("TR06_ST2A_02", "Sketch graphs of inverse tangent and inverse cotangent");
+        m125m6t2.addExBlock("Definition of inverse secant and inverse cosecant, domain and range")
+                .addEx("TR06_ST2A_03", "Sketch graphs of inverse secant and inverse cosecant");
+        m125m6t2.addExBlock("Argument and result types for inverse trigonometric functions")
+                .addEx("TR06_ST2B_01", "Describe the type of value that is the input and output of trigonometric "
+                        + "functions and inverse trigonometric functions");
+        m125m6t2.addExBlock("Evaluate and interpret inverse sine")
+                .addEx("TR06_ST2C_01", "Evaluate inverse sine, then find all angles having a specified sine");
+        m125m6t2.addExBlock("Evaluate and interpret inverse cosine")
+                .addEx("TR06_ST2C_02", "Evaluate inverse cosine, then find all angles having a specified cosine");
+        m125m6t2.addExBlock("Evaluate and interpret inverse tangent")
+                .addEx("TR06_ST2C_03", "Evaluate inverse tangent, then find all angles having a specified tangent");
 
-        final LearningTargetData m125m6t3 = m125m6.addLearningTarget(6, 3, "6.3", "ST46_3_HW",
-                "I can apply relationships between right triangle side lengths and trigonometric functions to "
-                        + "reference angles corresponding to angles in quadrants II, III, and IV, including:",
-                "draw a right triangle using the reference angle in any quadrant",
-                "use right triangle relationships in these reference triangles to find relationships between side "
-                        + "lengths",
-                "given one side and one angle in a right triangle, find all sides and angles");
-        m125m6t3.addExBlock("Solve triangle with Quadrant II angle")
-                .addEx("ST46_3_F01_01",
-                        "Given angle to hypotenuse in quadrant II, solve for side lengths in a right triangle");
-        m125m6t3.addExBlock("Solve triangle with Quadrant III angle")
-                .addEx("ST46_3_F02_01",
-                        "Given angle to hypotenuse in quadrant III, solve for side lengths in a right triangle");
-        m125m6t3.addExBlock("Solve triangle with Quadrant IV angle")
-                .addEx("ST46_3_F03_01",
-                        "Given angle to hypotenuse in quadrant IV, solve for side lengths in a right triangle");
-        m125m6t3.addExBlock("Solving right triangles")
-                .addEx("ST46_3_F04_01", "Given one acute angle and one side length in a right triangle, solve for " +
-                        "all angles and lengths");
-        m125m6t3.addExBlock("Solving general triangles")
-                .addEx("ST46_3_F05_01", "Given a general triangle, one angle, and two side lengths, find altitude and "
-                        + "last side length");
-        m125m6t3.addExBlock("Application: tile patterns")
-                .addEx("ST46_3_F06_01", "Given a tile pattern, find size of innermost tile");
+        final LearningTargetData m125m6t3 = m125m6.addLearningTarget(6, 3, "6.3", "TR06_ST3_HW",
+                "I can apply inverse trigonometric functions to solve problems.  Specifically, I can:",
+                "solve for an angle in a right triangle with known side lengths,",
+                "find the angle whose terminal ray has a specified slope, and",
+                "evaluate compositions of trigonometric functions with their inverse functions.");
+        m125m6t3.addExBlock("Solving using inverse sine")
+                .addEx("TR06_ST3A_01", "Find angle in triangle given opposite side and hypotenuse");
+        m125m6t3.addExBlock("Solving using inverse cosine")
+                .addEx("TR06_ST3A_02", "Find angle in triangle given adjacent side and hypotenuse");
+        m125m6t3.addExBlock("Solving using inverse tangent")
+                .addEx("TR06_ST3A_03", "Find angle in triangle given opposite and adjacent side");
+
+        m125m6t3.addExBlock("Application: Angle of a ladder into a tree-house")
+                .addEx("TR06_ST3A_APP_01", "Given platform height and ladder length, at what angle will a ladder sit?");
+        m125m6t3.addExBlock("Application: Checking wheelchair ramp for compliance")
+                .addEx("TR06_ST3A_APP_02", "Given length of ramp and total rise height, find angle of rise and see "
+                        + "if it falls within allowed values");
+        m125m6t3.addExBlock("Application: Designing a mechanism for a clock")
+                .addEx("TR06_ST3A_APP_03", "Given a pendulum length and desired swing distance, find swing angle in "
+                        + "order to design the escapement mechanism");
+        m125m6t3.addExBlock("Application: Placing a load with a crane")
+                .addEx("TR06_ST3A_APP_04",
+                        "Find the angle a crane's boom needs to have to place a load at a specified location");
+        m125m6t3.addExBlock("Application: Choosing a security camera")
+                .addEx("TR06_ST3A_APP_05","Given the size of a room, find the required view angle so two cameras "
+                        + "can cover the entire room");
+        m125m6t3.addExBlock("Find angle from slope")
+                .addEx("TR06_ST3B_01", "Find angle given slope of terminal ray");
+        m125m6t3.addExBlock("Application: Designing a staircase")
+                .addEx("TR06_ST3B_APP_01",
+                        "Given the length of a staircase and its total rise, find its angle of ascent.");
+        m125m6t3.addExBlock("Compositions: trigonometric function after inverse trigonometric function")
+                .addEx("TR06_ST3C_01", "Evaluate the sine of an inverse sine");
+        m125m6t3.addExBlock("Compositions: inverse trigonometric function after trigonometric function")
+                .addEx("TR06_ST3C_02", "Evaluate the inverse sine of a sine")
+                .addEx("TR06_ST3C_03", "Evaluate the inverse tangent of a tangent")
+                .addEx("TR06_ST3C_04", "Evaluate the inverse secant of a secant");
 
         // Module 7
 
-        final ModuleData m125m7 = m125.addModule(7, "Inverse Trigonometric Functions", "SR47_HW", "c47-thumb.png");
+        final ModuleData m125m7 = m125.addModule(7, "Triangles, the Law of Sines, and the Law of Cosines", "TR07_SR_HW",
+                "c48-thumb.png");
 
         m125m7.skillsReview
-                .addExampleBlock("Recall the graph, domain, and range of sine and cosine")
-                .addEx("SR47_01_01", "Sketch graph of sine and recall its domain and range")
-                .addEx("SR47_01_02", "Sketch graph of cosine and recall its domain and range");
-        m125m7.skillsReview
-                .addExampleBlock("Recall the graph, domain, and range of tangent and cotangent")
-                .addEx("SR47_02_01", "Sketch graph of tangent and recall its domain and range")
-                .addEx("SR47_02_02", "Sketch graph of cotangent and recall its domain and range");
-        m125m7.skillsReview
-                .addExampleBlock("Recall the graph, domain, and range of secant and cosecant")
-                .addEx("SR47_03_01", "Sketch graph of secant and recall its domain and range")
-                .addEx("SR47_03_02", "Sketch graph of cosecant and recall its domain and range");
-        m125m7.skillsReview
-                .addExampleBlock("Recall that angles with the same x coordinate on unit circle have the same cosine")
-                .addEx("SR47_04_01", "Find second angle with the same cosine as a given angle");
-        m125m7.skillsReview
-                .addExampleBlock("Recall that angles with the same y coordinate on unit circle have the same sine")
-                .addEx("SR47_05_01", "Find second angle with the same sine as a given angle");
-        m125m7.skillsReview
-                .addExampleBlock("Recall that angles with the same slope have the same tangent")
-                .addEx("SR47_06_01", "Find second angle with the same tangent as a given angle");
+                .addExampleBlock("Sum of angles in a triangle is 180&deg; or &pi; radians, supplementary angles")
+                .addEx("TR07_SR1_01", "Given a drawing, find the sum of several angle measures");
+        m125m7.skillsReview.addExampleBlock("Pythagorean theorem")
+                .addEx("TR07_SR2_01", "Given the length of a chord within a circle, find its radius");
+        m125m7.skillsReview.addExampleBlock("SOH-CAH-TOA relationships")
+                .addEx("TR07_SR3_01", "Find angles in a kite shape");
+        m125m7.skillsReview.addExampleBlock("Range of inverse sine, cosine, tangent")
+                .addEx("TR07_SR4_01", "Find the quadrant containing inverse trigonometric function values");
+        m125m7.skillsReview.addExampleBlock("Domain and inverse sine, cosine, and tangent")
+                .addEx("TR07_SR5_01", "State the domains of inverse sine, inverse cosine, and inverse tangent");
+        m125m7.skillsReview.addExampleBlock("Complimentary and supplementary angles")
+                .addEx("TR07_SR6_01", "Some short questions about complementary and supplementary angles");
+        m125m7.skillsReview.addExampleBlock("Triangle area")
+                .addEx("TR07_SR7_01", "Recall the parameters needed to calculate triangle or parallelogram area");
 
-        final LearningTargetData m125m7t1 = m125m7.addLearningTarget(7, 1, "7.1", "ST47_1_HW",
-                "I can work identify inverse functions, and determine when a function is invertible, including:",
-                "recall the requirements for a function to be one-to-one, and apply the horizontal line test",
-                "recall the relationships between the domain and range of inverse functions",
-                "recall the relationships that inverse functions satisfy",
-                "recall the reflection relationship between the graph of a function and the graph of its inverse, and "
-                        + "identify the graph of an inverse function from the function's graph",
-                "find a domain restriction of a function that is one-to-one, including restrictions of trigonometric "
-                        + "functions");
-        m125m7t1.addExBlock("Recall what a one-to-one function looks like, and the horizontal line test")
-                .addEx("ST47_1_F01_01", "Given a set of graphs, indicate which are one-to-one functions");
-        m125m7t1.addExBlock("Recall facts about inverse functions")
-                .addEx("ST47_1_F02_01", "Answer a variety of questions about an inverse function.");
-        m125m7t1.addExBlock("Given an algebraic function, find its inverse")
-                .addEx("ST47_1_F03_01", "Given a function, find the inverse function");
-        m125m7t1.addExBlock("Recall the relationship between the graph of a function and its inverse")
-                .addEx("ST47_1_F04_01", "Given the graph of a function, sketch the graph of the inverse function");
-        m125m7t1.addExBlock("Domain restrictions")
-                .addEx("ST47_1_F05_01",
-                        "Given a graph of a function, find domain restrictions where the function is one-to-one");
-        m125m7t1.addExBlock("Domain restriction of sine")
-                .addEx("ST47_1_F06_01", "Find domain restrictions of sine that are one-to-one");
-        m125m7t1.addExBlock("Domain restriction of cosine")
-                .addEx("ST47_1_F07_01", "Find domain restrictions of cosine that are one-to-one");
-        m125m7t1.addExBlock("Domain restriction of tangent and cotangent")
-                .addEx("ST47_1_F08_01", "Find domain restrictions of tangent and cotangent that are one-to-one");
-        m125m7t1.addExBlock("Domain restriction of secant and cosecant")
-                .addEx("ST47_1_F09_01", "Find domain restrictions of secant and cosecant that are one-to-one");
+        final LearningTargetData m125m7t1 = m125m7.addLearningTarget(7, 1, "7.1", "TR07_ST1_HW",
+                "I can recall and apply the Law of Sines. Specifically, I can:",
+                "recognize situations where the law of sines applies and write the relationship implied by the law "
+                        + "of sines in the context of that situation,",
+                "solve for unknown angle and side lengths in general triangles when two angles and one side length "
+                        + "are known, and",
+                "find all solutions for unknown angles and side length in general triangles when one angle and two "
+                        + "side lengths are known.");
+        m125m7t1.addExBlock("Recall the law of sines")
+                .addEx("TR07_ST1A_01", "Given a labeled triangle, write the relationships given by the law of sines");
+        m125m7t1.addExBlock("Solve for missing side - AAS")
+                .addEx("TR07_ST1B_01", "Solve a triangle given two angles and one side length not between them");
+        m125m7t1.addExBlock("Solve for missing side - ASA")
+                .addEx("TR07_ST1B_02", "Solve a triangle given two angles and one side length between them");
+        m125m7t1.addExBlock("Solve for missing angle - two solutions case")
+                .addEx("TR07_ST1C_01", "Solve a triangle given one angle and two side lengths");
+        m125m7t1.addExBlock("Solve for missing angle - one solutions case")
+                .addEx("TR07_ST1C_02", "Solve a triangle given one angle and two side lengths");
+        m125m7t1.addExBlock("Solve for missing angle - zero solutions case")
+                .addEx("TR07_ST1C_03", "Solve a triangle given one angle and two side lengths");
 
-        final LearningTargetData m125m7t2 = m125m7.addLearningTarget(7, 2, "7.2", "ST47_2_HW",
-                "I can work with inverse trigonometric functions, including:",
-                "recall their definitions, and state their domain and range",
-                "identify or sketch graphs of each inverse function",
-                "evaluate inverse function values using technology",
-                "interpret values generated by inverse trigonometric functions as angles",
-                "find all angles that have a specified value for a trigonometric function");
-        m125m7t2.addExBlock("Definition of inverse sine and inverse cosine, domain and range")
-                .addEx("ST47_2_F01_01", "Sketch graphs of inverse sine and inverse cosine");
-        m125m7t2.addExBlock("Definition of inverse tangent and inverse cotangent, domain and range")
-                .addEx("ST47_2_F02_01", "Sketch graphs of inverse tangent and inverse cotangent");
-        m125m7t2.addExBlock("Definition of inverse secant and inverse cosecant, domain and range")
-                .addEx("ST47_2_F03_01", "Sketch graphs of inverse secant and inverse cosecant");
-        m125m7t2.addExBlock("Argument and result types for inverse trigonometric functions")
-                .addEx("ST47_2_F04_01", "Describe the type of value that is the input and output of trigonometric "
-                        + "functions and inverse trigonometric functions");
-        m125m7t2.addExBlock("Evaluate and interpret inverse sine")
-                .addEx("ST47_2_F05_01", "Evaluate inverse sine, then find all angles having a specified sine");
-        m125m7t2.addExBlock("Evaluate and interpret inverse cosine")
-                .addEx("ST47_2_F06_01", "Evaluate inverse cosine, then find all angles having a specified cosine");
-        m125m7t2.addExBlock("Evaluate and interpret inverse tangent")
-                .addEx("ST47_2_F07_01", "Evaluate inverse tangent, then find all angles having a specified tangent");
+        final LearningTargetData m125m7t2 = m125m7.addLearningTarget(7, 2, "7.2", "TR07_ST2_HW",
+                "I can recall and apply the law of cosines. Specifically, I can:",
+                "recognize situations where the law of cosines applies and write the relationship given by the law "
+                        + "of cosines in the context of that situation,",
+                "solve for unknown sides and angles in a triangle when two sides and the included angle are known, and",
+                "solve for unknown angles in triangles when all three side lengths are known.");
+        m125m7t2.addExBlock("Recall the law of cosines")
+                .addEx("TR07_ST2A_01",
+                        "Given a labeled triangle, write the relationships given by the law of cosines");
+        m125m7t2.addExBlock("Exploration: The connection between law of cosines and Pythagorean theorem")
+                .addEx("TR07_ST2A_EXP_01",
+                        "Apply law of cosines to a right triangle and show that it reduces to the Pythagorean theorem");
+        m125m7t2.addExBlock("Solve for missing side - SAS")
+                .addEx("TR07_ST2B_01", "Solve a triangle given one angle and the two adjacent side lengths");
+        m125m7t2.addExBlock("Solve for angles given all three sides")
+                .addEx("TR07_ST2C_01", "Solve a triangle given three side lengths");
 
-        final LearningTargetData m125m7t3 = m125m7.addLearningTarget(7, 3, "7.3", "ST47_3_HW",
-                "I can apply inverse trigonometric functions to solve problems, including:",
-                "solve for an angle in a right triangle with known side lengths",
-                "find the angle whose terminal ray has a specified slope",
-                "evaluate compositions of trigonometric and their inverse functions");
-        m125m7t3.addExBlock("Solving using inverse sine")
-                .addEx("ST47_3_F01_01", "Find angle in triangle given opposite side and hypotenuse");
-        m125m7t3.addExBlock("Solving using inverse cosine")
-                .addEx("ST47_3_F02_01", "Find angle in triangle given adjacent side and hypotenuse");
-        m125m7t3.addExBlock("Solving using inverse tangent")
-                .addEx("ST47_3_F03_01", "Find angle in triangle given opposite and adjacent side");
-        m125m7t3.addExBlock("Find angle from slope")
-                .addEx("ST47_3_F04_01", "Find angle given slope of terminal ray");
-        m125m7t3.addExBlock("Compositions: trigonometric function after inverse trigonometric function")
-                .addEx("ST47_3_F05_01", "Evaluate the sine of an inverse sine");
-        m125m7t3.addExBlock("Compositions: inverse trigonometric function after trigonometric function")
-                .addEx("ST47_3_F06_01", "Evaluate the inverse sine of a sine")
-                .addEx("ST47_3_F06_03", "Evaluate the inverse tangent of a tangent")
-                .addEx("ST47_3_F06_05", "Evaluate the inverse secant of a secant");
+        final LearningTargetData m125m7t3 = m125m7.addLearningTarget(7, 3, "7.3", "TR07_ST3_HW",
+                "I can solve general triangle problems. Specifically, I can:",
+                "choose an appropriate law or relation in the context of a problem, and",
+                "correctly apply the selected law or relation and interpret the result in the context of the problem.");
+
+        m125m7t3.addExBlock("Given a right triangle, choose a technique and solve")
+                .addEx("TR07_ST3A_01", "One angle and hypotenuse given, solve for the opposite side length")
+                .addEx("TR07_ST3A_02", "Two side lengths given, solve for an angle")
+                .addEx("TR07_ST3A_03", "Hypotenuse and one side length given, solve for angle between them")
+                .addEx("TR07_ST3A_04", "Hypotenuse and one side length given, solve for other side length")
+                .addEx("TR07_ST3A_05", "Hypotenuse and one side length given, solve for supplement of angle")
+                .addEx("TR07_ST3A_06", "One side length and supplement of one angle given, find other side length");
+
+        m125m7t3.addExBlock("Applications of right triangles")
+                .addEx("TR07_ST3A_APP_01", "Desigining trusses for a roof")
+                .addEx("TR07_ST3A_APP_02", "Finding roof area that is usable by solar panels")
+                .addEx("TR07_ST3A_APP_03", "Find area of a wall for painting")
+                .addEx("TR07_ST3A_APP_04", "Find area of turf needed for a landscaping job");
+
+        m125m7t3.addExBlock("Given a general triangle, choose a technique and solve")
+                .addEx("TR07_ST3B_01", "Two side lengths and one angle given, find one other angle")
+                .addEx("TR07_ST3B_02", "Two side lengths and included angle given, find remaining side length")
+                .addEx("TR07_ST3B_03", "Two angles and one side length given, find another side length")
+                .addEx("TR07_ST3B_04", "Three side lengths given, find one angle");
+
+        m125m7t3.addExBlock("Applications of general triangles")
+                .addEx("TR07_ST3B_APP_01", "Land surveying - find unknown length of property line")
+                .addEx("TR07_ST3B_APP_02", "Routing piping around an obstruction")
+                .addEx("TR07_ST3B_APP_03", "Fencing a plot of land into three equal areas")
+                .addEx("TR07_ST3B_APP_04", "Find area of farm plot to estimate seed and fertilizer needed")
+                .addEx("TR07_ST3B_APP_05", "Find the area of a regular pentgon");
 
         // Module 8
 
-        final ModuleData m125m8 = m125.addModule(8, "Triangles, the Law of Sines, and the Law of Cosines", "SR48_HW",
-                "c48-thumb.png");
+        final ModuleData m125m8 = m125.addModule(8, "Vectors and Trigonometry", "TR08_SR_HW", "c49-thumb.png");
 
-        m125m8.skillsReview
-                .addExampleBlock("Sum of angles in a triangle is 180&deg; or &pi; radians, supplementary angles")
-                .addEx("SR48_01_01", "Given a drawing, find the sum of several angle measures");
-        m125m8.skillsReview.addExampleBlock("Pythagorean theorem")
-                .addEx("SR48_02_01", "Given the length of a chord within a circle, find its radius");
-        m125m8.skillsReview.addExampleBlock("SOH-CAH-TOA relationships")
-                .addEx("SR48_03_01", "Find angles in a kite shape");
-        m125m8.skillsReview.addExampleBlock("Range of inverse sine, cosine, tangent")
-                .addEx("SR48_04_01", "Find the quadrant containing inverse trigonometric function values");
-        m125m8.skillsReview.addExampleBlock("Domain and inverse sine, cosine, and tangent")
-                .addEx("SR48_05_01", "State the domains of inverse sine, inverse cosine, and inverse tangent");
+        m125m8.skillsReview.addExampleBlock("Vectors, components and vector notation")
+                .addEx("TR08_SR1_01", "Given two points in the plane, write the components of the vector between them");
+        m125m8.skillsReview.addExampleBlock("Vector arithmetic")
+                .addEx("TR08_SR2_01", "Given three vectors, calculate resultants");
+        m125m8.skillsReview.addExampleBlock("The dot product using components")
+                .addEx("TR08_SR3_01", "Given two vectors, calculate their dot product using components");
+        m125m8.skillsReview.addExampleBlock("Triangle area ")
+                .addEx("TR08_SR4_01", "Find the areas of twp triangles");
+        m125m8.skillsReview.addExampleBlock("Parallelogram area")
+                .addEx("TR08_SR5_01", "Find the area of a parallelogram");
+        m125m8.skillsReview.addExampleBlock("Vector length and unit vectors")
+                .addEx("TR08_SR6_01", "Find a unit vector in the direction of a given vector");
 
-        final LearningTargetData m125m8t1 = m125m8.addLearningTarget(8, 1, "8.1", "ST48_1_HW",
-                "I can recall and apply the law of sines, including:",
-                "recognize situations where the law of sines applies",
-                "write the relationship given by the law of sines for a particular triangle problem",
-                "solve for unknown side lengths in general triangles",
-                "solve for unknown angles in general triangles",
-                "determine when a triangle problem has zero, one, or two solutions, and finding all solutions");
-        m125m8t1.addExBlock("Recall the law of sines")
-                .addEx("ST48_1_F01_01", "Given a labeled triangle, write the relationships given by the law of sines");
-        m125m8t1.addExBlock("Solve for missing side - AAS")
-                .addEx("ST48_1_F02_01", "Solve a triangle given two angles and one side length not between them");
-        m125m8t1.addExBlock("Solve for missing side - ASA")
-                .addEx("ST48_1_F03_01", "Solve a triangle given two angles and one side length between them");
-        m125m8t1.addExBlock("Solve for missing angle - two solutions case")
-                .addEx("ST48_1_F04_01", "Solve a triangle given one angle and two side lengths");
-        m125m8t1.addExBlock("Solve for missing angle - one solutions case")
-                .addEx("ST48_1_F05_01", "Solve a triangle given one angle and two side lengths");
-        m125m8t1.addExBlock("Solve for missing angle - zero solutions case")
-                .addEx("ST48_1_F06_01", "Solve a triangle given one angle and two side lengths");
-
-        final LearningTargetData m125m8t2 = m125m8.addLearningTarget(8, 2, "8.2", "ST48_2_HW",
-                "I can recall and apply the law of cosines, including:",
-                "recognizing situations where the law of cosines applies",
-                "writing the relationship given by the law of cosines for a particular triangle problem",
-                "solving for unknown side lengths in general triangles",
-                "solving for unknown angles in general triangles");
-        m125m8t2.addExBlock("Recall the law of cosines")
-                .addEx("ST48_2_F01_01",
-                        "Given a labeled triangle, write the relationships given by the law of cosines");
-        m125m8t2.addExBlock("Connection between law of cosines and Pythagorean theorem")
-                .addEx("ST48_2_F02_01",
-                        "Apply law of cosines to a right triangle, and show that it reduces to the Pythagorean "
-                                + "theorem");
-        m125m8t2.addExBlock("Solve for missing side - SAS")
-                .addEx("ST48_2_F03_01", "Solve a triangle given one angle and the two adjacent side lengths");
-        m125m8t2.addExBlock("Solve for angles given all three sides")
-                .addEx("ST48_2_F04_01", "Solve a triangle given three side lengths");
-
-        final LearningTargetData m125m8t3 = m125m8.addLearningTarget(8, 3, "8.3", "ST48_3_HW",
-                "I can solve general triangle problems, including:",
-                "choose an appropriate law or relation in the context of a problem",
-                "correctly apply the selected law or relation and interpret the results in the context of the problem");
-        m125m8t3.addExBlock("Use the law of sines")
-                .addEx("ST48_3_F01_01", "Solve a triangle using the law of sines");
-        m125m8t3.addExBlock("Use the SOH relationship to solve for a side")
-                .addEx("ST48_3_F02_01", "Solve for a side length using the SOH relationship");
-        m125m8t3.addExBlock("Use the TOA relationship to solve for angle")
-                .addEx("ST48_3_F03_01", "Solve for an angle using the TOA relationship");
-        m125m8t3.addExBlock("Use the law of cosines to solve for side")
-                .addEx("ST48_3_F04_01", "Solve for a side length using the law of cosines");
-        m125m8t3.addExBlock("Use the CAH relationship to solve for angle")
-                .addEx("ST48_3_F05_01", "Solve for an angle using the CAH relationship");
-        m125m8t3.addExBlock("Use the Pythagorean theorem")
-                .addEx("ST48_3_F06_01", "Solve for a side length using the Pythagorean theorem");
-        m125m8t3.addExBlock("Use the SOH relationship to solve for angle")
-                .addEx("ST48_3_F07_01", "Solve for a supplementary angle using the SOH relationship");
-        m125m8t3.addExBlock("Use the law of sines to solve for side")
-                .addEx("ST48_3_F08_01", "Solve for a side length using the law of sines");
-        m125m8t3.addExBlock("Use the TOA relationship to solve for side")
-                .addEx("ST48_3_F09_01", "Solve for a side length using the TOA relationship");
-        m125m8t3.addExBlock("Use the law of cosines to solve for angle")
-                .addEx("ST48_3_F10_01", "Solve for an angle using the law of cosines");
-
-        // Module 9
-
-        final ModuleData m125m9 = m125.addModule(9, "Vectors and Trigonometry", "SR49_HW", "c49-thumb.png");
-
-        m125m9.skillsReview.addExampleBlock("Vectors, components and vector notation")
-                .addEx("SR49_01_01", "Given two points in the plane, write the components of the vector between them");
-        m125m9.skillsReview.addExampleBlock("Vector arithmetic")
-                .addEx("SR49_02_01", "Given three vectors, calculate resultants");
-        m125m9.skillsReview.addExampleBlock("The dot product using components")
-                .addEx("SR49_03_01", "Given two vectors, calculate their dot product using components");
-        m125m9.skillsReview.addExampleBlock("Triangle area ")
-                .addEx("SR49_04_01", "Find the areas of twp triangles");
-        m125m9.skillsReview.addExampleBlock("Parallelogram area")
-                .addEx("SR49_05_01",
-                        "Find the area of a parallelogram");
-        m125m9.skillsReview.addExampleBlock("Unit vectors")
-                .addEx("SR49_06_01", "Find a unit vector in the direction of a given vector");
-
-        final LearningTargetData m125m9t1 = m125m9.addLearningTarget(9, 1, "9.1", "ST49_1_HW",
-                "I can apply the relationship between dot product and the angle between two vectors, including:",
-                "using the dot product to compute the angle between two vectors",
-                "use the dot product to compute the length of a vector",
-                "compute the dot product between two vectors of known length meeting at a specified angle",
-                "determine whether two vectors are perpendicular using the dot product");
-        m125m9t1.addExBlock("Compute the length of a vector")
-                .addEx("ST49_1_F01_01", "Calculate the length of a vector using the dot product");
-        m125m9t1.addExBlock("Compute the angle between two vectors")
-                .addEx("ST49_1_F02_01",
+        final LearningTargetData m125m8t1 = m125m8.addLearningTarget(8, 1, "8.1", "TR08_ST1_HW",
+                "I can apply the relationship between dot product and the angle between two vectors.  Specifically, "
+                        + "I can:",
+                "use the dot product to compute the length of a vector,",
+                "use the dot product to compute the angle between two vectors,",
+                "compute the dot product between two vectors of known length meeting at a specified angle, and",
+                "determine whether two vectors are perpendicular using the dot product.");
+        m125m8t1.addExBlock("Compute the length of a vector")
+                .addEx("TR08_ST1A_01", "Calculate the length of a vector using the dot product");
+        m125m8t1.addExBlock("Compute the angle between two vectors")
+                .addEx("TR08_ST1B_01",
                         "Given two vectors, compute their dot product, lengths, and the angle between them");
-        m125m9t1.addExBlock("Compute dot product from vector angle and lengths")
-                .addEx("ST49_1_F03_01", "Given the lengths and angle between two vectors, find their dot product");
-        m125m9t1.addExBlock("Determine whether vectors are perpendicular")
-                .addEx("ST49_1_F04_01", "Given a vector and one component of a second vector, find the missing "
+        m125m8t1.addExBlock("Application: Solving triangles using vertex coordinates")
+                .addEx("TR08_ST1B_APP_01", "Given coordinates of vertices of a triangle, final its interior angles");
+        m125m8t1.addExBlock("Compute dot product from vector angle and lengths")
+                .addEx("TR08_ST1C_01", "Given the lengths and angle between two vectors, find their dot product");
+        m125m8t1.addExBlock("Determine whether vectors are perpendicular")
+                .addEx("TR08_ST1D_02", "Given a vector and one component of a second vector, find the missing "
                         + "component to make the vectors perpendicular");
-        m125m9t1.addExBlock("Solving triangles using vertex coordinates")
-                .addEx("ST49_1_F05_01", "Given coordinates of vertices of a triangle, final its interior angles");
-        m125m9t1.addExBlock("Find vector perpendicular to a line")
-                .addEx("ST49_1_F06_01", "Find a vector perpendicular to a line");
+        m125m8t1.addExBlock("Exploration: Find vector perpendicular to a line")
+                .addEx("TR08_ST1D_EXP_01", "Find a vector perpendicular to a line");
 
-        final LearningTargetData m125m9t2 = m125m9.addLearningTarget(9, 2, "9.2", "ST49_2_HW",
-                "I can project vectors in specified directions and decompose vectors into components, including:",
-                "finding the projection of one vector in the direction of another",
-                "writing a vector as the sum of vectors having specified directions",
-                "finding the distance of a point from a line");
-        m125m9t2.addExBlock("Project vector in direction of a unit vector")
-                .addEx("ST49_2_F01_01",
+        final LearningTargetData m125m8t2 = m125m8.addLearningTarget(8, 2, "8.2", "TR08_ST2_HW",
+                "I can project vectors in specified directions and decompose vectors into components.  Specifically, "
+                        + "I can:",
+                "find the projection of one vector in the direction of another,",
+                "write a vector as the sum of vectors having specified directions, and",
+                "find the distance of a point from a line.");
+        m125m8t2.addExBlock("Project vector in direction of a unit vector")
+                .addEx("TR08_ST2A_01",
                         "Given a vector and a unit vector, find the projection in the unit vector direction");
-        m125m9t2.addExBlock("Project vector in direction of general vector")
-                .addEx("ST49_2_F02_01",
+        m125m8t2.addExBlock("Project vector in direction of general vector")
+                .addEx("TR08_ST2A_02",
                         "Given two vectors, find the projection of first in the direction of the second");
-        m125m9t2.addExBlock("Decompose vector")
-                .addEx("ST49_2_F03_01", "Given three vectors, write the first as the sum of projections in the "
+        m125m8t2.addExBlock("Decompose vector")
+                .addEx("TR08_ST2B_02", "Given three vectors, write the first as the sum of projections in the "
                         + "directions of the other two");
-        m125m9t2.addExBlock("Find shortest vector from a point to a line, and distance from point to line")
-                .addEx("ST49_2_F04_01",
+        m125m8t2.addExBlock("Find shortest vector from a point to a line, and distance from point to line")
+                .addEx("TR08_ST2C_01",
                         "Find the shortest vector from a point to a line and the distance from the point to the line");
 
-        final LearningTargetData m125m9t3 = m125m9.addLearningTarget(9, 3, "9.3", "ST49_3_HW",
-                "I can use vectors and trigonometry to analyze applied contexts, including:",
-                "writing a force as a resultant sum of forces acting in specified directions",
-                "interpreting a vector as a speed and using time plus speed to compute distance",
-                "modeling tensions in cables using vectors");
-        m125m9t3.addExBlock("Application: decomposing force vectors")
-                .addEx("ST49_3_F01_01",
+        final LearningTargetData m125m8t3 = m125m8.addLearningTarget(8, 3, "8.3", "TR08_ST3_HW",
+                "I can use vectors and trigonometry to analyze applied contexts.  Specifically, I can:",
+                "write a force as a resultant sum of forces acting in specified directions,",
+                "model tensions in cables using vectors, and",
+                "interpret a vector as a speed and using time plus speed to compute distance.");
+        m125m8t3.addExBlock("Application: decomposing force vectors")
+                .addEx("TR08_ST3A_01",
                         "Given a scenario with a rope dragging an object on a ramp, analyze forces using vectors");
-        m125m9t3.addExBlock("Application: bearing and speed, dead reckoning navigation")
-                .addEx("ST49_3_F02_01", "Use bearing direction, speed, and time to calculate start and end position");
-        m125m9t3.addExBlock("Application: cable/rope tension, two ropes holding up load")
-                .addEx("ST49_3_F03_01",
+        m125m8t3.addExBlock("Application: cable/rope tension, two ropes holding up load")
+                .addEx("TR08_ST3B_01",
                         "Given scenario where multiple ropes hold a load, calculate forces using vectors");
-        m125m9t3.addExBlock("Application: vectors that change over time")
-                .addEx("ST49_3_F04_01", "Analyze distance between two moving objects over time");
-
-        // Module 10
-
-        final ModuleData m125m10 = m125.addModule(10, "Applications of Trigonometric Functions and Triangles",
-                "SR50_HW", "c50-thumb.png");
-
-        m125m10.skillsReview.addExampleBlock("SOH-CAH-TOA relationships")
-                .addEx("SR50_01_01", "Fill in missing pieces of relationships pertaining to a right triangle");
-        m125m10.skillsReview.addExampleBlock("Inverse trigonometric functions")
-                .addEx("SR50_02_01",
-                        "Indicate quadrants where equations involving inverse trigonometric functions are true");
-        m125m10.skillsReview.addExampleBlock("The law of sines")
-                .addEx("SR50_03_01", "Calculate side lengths and angles using the law of sines");
-        m125m10.skillsReview.addExampleBlock("The law of cosines")
-                .addEx("SR50_04_01", "Calculate side length and angle using the law of cosines");
-        m125m10.skillsReview.addExampleBlock("Pythagorean theorem")
-                .addEx("SR50_05_01", "Calculate side lengths using the Pythagorean theorem");
-        m125m10.skillsReview.addExampleBlock("Sector area")
-                .addEx("SR50_06_01", "Calculate sector area");
-        m125m10.skillsReview.addExampleBlock("Vertical angles, complements, supplements")
-                .addEx("SR50_07_01", "Answer some questions regarding complementary and supplementary angles");
-        m125m10.skillsReview.addExampleBlock("Triangle and parallelogram area")
-                .addEx("SR50_08_01", "On a diagram of a triangle and parallelogram, label what is meant by 'height' "
-                        + "and 'base' lengths");
-
-        final LearningTargetData m125m10t1 = m125m10.addLearningTarget(10, 1, "10.1", "ST50_1_HW",
-                "I can solve application problems involving right triangles, including:",
-                "identifying right triangles in application contexts and creating labeled diagrams of related "
-                        + "quantities",
-                "identifying applicable relations between quantities in situations involving right triangles",
-                "solving right triangle problems for side lengths or angles, and interpreting results in context");
-        m125m10t1.addExBlock("Applications of right triangles - SOH case")
-                .addEx("ST50_1_F01_01", "For a radio tower supported by wires, calculate anchor point locations, wire "
-                        + "lengths, and angles")
-                .addEx("ST50_1_F01_02",
-                        "For a ladder into a treehouse, find the angle the ladder makes with the ground");
-        m125m10t1.addExBlock("Applications of right triangles - SOH case")
-                .addEx("ST50_1_F02_01", "Determine whether an ADA wheelchair ramp complies with regulations")
-                .addEx("ST50_1_F02_02", "Calculate the angle of swing of a clock pendulum");
-        m125m10t1.addExBlock("Applications of right triangles - CAH case")
-                .addEx("ST50_1_F03_01",
-                        "Calculate angle of crane's boom to place a load a specified distance from its base");
-        m125m10t1.addExBlock("Applications of right triangles - TOA case")
-                .addEx("ST50_1_F04_01",
-                        "For a flight of stairs with given tread depth and riser height, find angle of ascent");
-        m125m10t1.addExBlock("Applications of right triangles - TOA case")
-                .addEx("ST50_1_F05_01", "Find field of view needed for security camera to cover a room");
-        m125m10t1.addExBlock("Applications of right triangles - TOA case")
-                .addEx("ST50_1_F06_01", "Find the position of a ship using the bearing to two lighthouses");
-
-        final LearningTargetData m125m10t2 = m125m10.addLearningTarget(10, 2, "10.2", "ST50_2_HW",
-                "I can solve application problems involving general triangles, including:",
-                "identifying triangles in application contexts and creating labeled diagrams of related quantities",
-                "identifying applicable relations between quantities in situations involving general triangles",
-                "solving general triangle problems for side lengths or angles, and interpreting results in context");
-        m125m10t2.addExBlock("Application: trusses")
-                .addEx("ST50_2_F01_01", "Calculate lengths and angles in a truss design");
-        m125m10t2.addExBlock("Application: land surveying")
-                .addEx("ST50_2_F02_01", "Calculate angles and lengths of the boundary of a plot of land");
-        m125m10t2.addExBlock("Application: routing a pipe around an obstacle")
-                .addEx("ST50_2_F03_01", "Find pope lengths and joint angles to route a pipe around an obstruction.");
-        m125m10t2.addExBlock("Application: dividing field into equal area parts")
-                .addEx("ST50_2_F04_01", "Calculate placement of fencing to divide a triangular field");
-
-        final LearningTargetData m125m10t3 = m125m10.addLearningTarget(10, 3, "10.3", "ST50_3_HW",
-                "I can calculate areas of regions using trigonometry, including:",
-                "calculate the height of a triangle or parallelogram and applying the area formula",
-                "break general polygons into triangles and finding areas of each");
-        m125m10t3.addExBlock("Application: Solar panel area")
-                .addEx("ST50_3_F01_01",
-                        "Find the area of a roof that is not in shadow and can be used for solar panels");
-        m125m10t3.addExBlock("Application: painting")
-                .addEx("ST50_3_F02_01", "Find the area of a wall to calculate amount of paint needed to cover");
-        m125m10t3.addExBlock("Application: area of planted field")
-                .addEx("ST50_3_F03_01", "Find area of a field to calculate seed and fertilizer amounts");
-        m125m10t3.addExBlock("Regular polygons")
-                .addEx("ST50_3_F04_01", "Find the area of a regular pentagon");
-        m125m10t3.addExBlock("Application: Landscape design")
-                .addEx("ST50_3_F05_01", "Given a landscape layout that includes curved walkway, find area of grass");
+        m125m8t3.addExBlock("Application: bearing and speed, dead reckoning navigation")
+                .addEx("TR08_ST3C_01", "Use bearing direction, speed, and time to calculate start and end position");
+        m125m8t3.addExBlock("Application: vectors that change over time")
+                .addEx("TR08_ST3D_01", "Analyze distance between two moving objects over time");
 
         return m125;
     }

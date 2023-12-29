@@ -35,7 +35,7 @@ public enum PageError {
                              final HttpServletResponse resp, final ImmutableSessionInfo session, final String message)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         htm.sDiv("error").br();
         htm.addln("<strong>An error has occurred:</strong>").br().br();

@@ -46,7 +46,7 @@ public enum PageDb {
             throws IOException, SQLException {
 
         if (session.role == ERole.SYSADMIN) {
-            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(site, session);
+            final HtmlBuilder htm = SysAdminPage.startSysAdminPage(cache, site, session);
 
             SysAdminPage.emitNavBlock(ESysadminTopic.DB_SERVERS, htm);
             emitPageContent(htm);

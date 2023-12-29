@@ -44,7 +44,7 @@ enum PageProctoringTeams {
             Log.warning("  code='", code, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final HtmlBuilder htm = OfficePage.startOfficePage(site, session, true);
+            final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
 
             htm.sH(3).add("Online Proctoring: Course Exams, ELM Exam, Precalc Tutorial Exams").eH(3);
 

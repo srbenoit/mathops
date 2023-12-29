@@ -34,7 +34,7 @@ enum PageHome {
     static void doGet(final Cache cache, final AdminSite site, final ServletRequest req, final HttpServletResponse resp,
                       final ImmutableSessionInfo session, final String error) throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(site, session, false);
+        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, false);
 
         htm.addln("<form id='search' class='stuform' name='pick-student' method='post' action='student_pick.html'>");
         htm.sP().add("Student:").eP();

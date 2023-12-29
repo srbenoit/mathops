@@ -6,7 +6,9 @@ import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.CsuLiveRegChecker;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -62,15 +64,20 @@ enum BookstorePage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
+     * @param cache the data cache
      * @param site    the owning site
      * @param session the login session
      * @return the created {@code HtmlBuilder}
+     * @throws SQLException if there is an error accessing the database
      */
-    static HtmlBuilder startBookstorePage(final AdminSite site, final ImmutableSessionInfo session) {
+    static HtmlBuilder startBookstorePage(final Cache cache, final AdminSite site, final ImmutableSessionInfo session)
+            throws SQLException {
+
+        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
-        AdminPage.emitPageHeader(htm, session, false);
+        AdminPage.emitPageHeader(htm, session, whichDb, false);
 
         return htm;
     }

@@ -62,7 +62,7 @@ public enum PageDbAdminContextsServer {
             if (cfg == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
                 htm.sH(2, "gray").add("Database Administration").eH(2);
                 htm.hr("orange");
 

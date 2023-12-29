@@ -38,7 +38,7 @@ public enum PageDbAdmin {
                                      final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
         htm.sH(2, "gray").add("Database Administration").eH(2);
         htm.hr("orange");
 

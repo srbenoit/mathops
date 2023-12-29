@@ -156,7 +156,7 @@ public enum PageStudentPick {
 
         Collections.sort(students);
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 

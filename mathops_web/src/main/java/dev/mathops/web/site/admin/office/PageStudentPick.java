@@ -155,7 +155,7 @@ enum PageStudentPick {
 
         Collections.sort(students);
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
 
         htm.addln("<h2>Student Status</h2>");
 
