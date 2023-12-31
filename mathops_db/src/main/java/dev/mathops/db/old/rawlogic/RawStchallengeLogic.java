@@ -4,6 +4,7 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 
@@ -275,11 +276,16 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
             final String test = studentId.substring(6);
 
             switch (test) {
-                case "019" -> result.add(makeRecord(studentId, RawRecordConstants.M117, "MC117"));
-                case "026" -> result.add(makeRecord(studentId, RawRecordConstants.M118, "MC118"));
-                case "036" -> result.add(makeRecord(studentId, RawRecordConstants.M124, "MC124"));
-                case "046" -> result.add(makeRecord(studentId, RawRecordConstants.M125, "MC125"));
-                case "056" -> result.add(makeRecord(studentId, RawRecordConstants.M126, "MC126"));
+                case "019" -> result.add(makeRecord(studentId, RawRecordConstants.M117,
+                        ChallengeExamLogic.M117_CHALLENGE_EXAM_ID));
+                case "026" -> result.add(makeRecord(studentId, RawRecordConstants.M118,
+                        ChallengeExamLogic.M118_CHALLENGE_EXAM_ID));
+                case "036" -> result.add(makeRecord(studentId, RawRecordConstants.M124,
+                        ChallengeExamLogic.M124_CHALLENGE_EXAM_ID));
+                case "046" -> result.add(makeRecord(studentId, RawRecordConstants.M125,
+                        ChallengeExamLogic.M125_CHALLENGE_EXAM_ID));
+                case "056" -> result.add(makeRecord(studentId, RawRecordConstants.M126,
+                        ChallengeExamLogic.M126_CHALLENGE_EXAM_ID));
             }
         }
     }
@@ -304,22 +310,22 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
 
             if ("019".equals(test)) {
                 if (RawRecordConstants.M117.equals(course)) {
-                    result.add(makeRecord(stuId, RawRecordConstants.M117, "MC117"));
+                    result.add(makeRecord(stuId, RawRecordConstants.M117, ChallengeExamLogic.M117_CHALLENGE_EXAM_ID));
                 }
             } else if ("026".equals(test)) {
                 if (RawRecordConstants.M118.equals(course)) {
-                    result.add(makeRecord(stuId, RawRecordConstants.M118, "MC118"));
+                    result.add(makeRecord(stuId, RawRecordConstants.M118, ChallengeExamLogic.M118_CHALLENGE_EXAM_ID));
                 }
             } else if ("036".equals(test)) {
                 if (RawRecordConstants.M124.equals(course)) {
-                    result.add(makeRecord(stuId, RawRecordConstants.M124, "MC124"));
+                    result.add(makeRecord(stuId, RawRecordConstants.M124, ChallengeExamLogic.M124_CHALLENGE_EXAM_ID));
                 }
             } else if ("046".equals(test)) {
                 if (RawRecordConstants.M125.equals(course)) {
-                    result.add(makeRecord(stuId, RawRecordConstants.M125, "MC125"));
+                    result.add(makeRecord(stuId, RawRecordConstants.M125, ChallengeExamLogic.M125_CHALLENGE_EXAM_ID));
                 }
             } else if ("056".equals(test) && RawRecordConstants.M126.equals(course)) {
-                result.add(makeRecord(stuId, RawRecordConstants.M126, "MC126"));
+                result.add(makeRecord(stuId, RawRecordConstants.M126, ChallengeExamLogic.M126_CHALLENGE_EXAM_ID));
             }
         }
     }

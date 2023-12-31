@@ -68,7 +68,7 @@ public class DbManager extends Application {
         super();
 
         this.config = CfgDatabaseLayer.getDefaultInstance();
-//        this.mutableConfig = new MutableCfgDatabaseLayer(this.config);
+        this.mutableConfig = new MutableCfgDatabaseLayer(this.config);
     }
 
     /**
@@ -96,31 +96,39 @@ public class DbManager extends Application {
     private Parent createContent() {
 
         final TabPane tabPane = new TabPane();
-        tabPane.setPrefSize(1100, 800);
+        tabPane.setPrefSize(1100.0, 800.0);
 
+        final Tab configurationTab = makeNonclosableTab("Configuration");
         final Parent configurationTabContent = createConfigurationTabContent();
-        final Tab configurationTab = new Tab();
-        configurationTab.setClosable(false);
-        configurationTab.setText("Configuration");
         configurationTab.setContent(configurationTabContent);
         tabPane.getTabs().add(configurationTab);
 
-        final Tab validationTab = new Tab();
-        validationTab.setClosable(false);
-        validationTab.setText("Validation");
+        final Tab validationTab = makeNonclosableTab("Validation");
         tabPane.getTabs().add(validationTab);
 
-        final Tab dataTab = new Tab();
-        dataTab.setClosable(false);
-        dataTab.setText("Data");
+        final Tab dataTab = makeNonclosableTab("Data");
         tabPane.getTabs().add(dataTab);
 
-        final Tab reportsTab = new Tab();
-        reportsTab.setClosable(false);
-        reportsTab.setText("Reports");
+        final Tab reportsTab = makeNonclosableTab("Reports");
         tabPane.getTabs().add(reportsTab);
 
         return tabPane;
+    }
+
+    /**
+     * Makes a non-closable tab for a tab pane.
+     *
+     * @param label the tab label
+     * @return the tab
+     */
+    private static Tab makeNonclosableTab(final String label) {
+
+        final Tab tab = new Tab();
+
+        tab.setClosable(false);
+        tab.setText(label);
+
+        return tab;
     }
 
     /**
@@ -140,26 +148,22 @@ public class DbManager extends Application {
         final Font headerFont = new Font(22.0);
 
         final BorderPane instancesDetail = new BorderPane();
-        final Text instancesHeader =new Text("Instances");
-        instancesHeader.setFont(headerFont);
+        final Text instancesHeader = makeHeader("Instances", headerFont);
         instancesDetail.setTop(instancesHeader);
         instancesDetail.setVisible(false);
 
         final BorderPane profilesDetail = new BorderPane();
-        final Text profilesHeader =new Text("Data Profiles");
-        profilesHeader.setFont(headerFont);
+        final Text profilesHeader = makeHeader("Data Profiles", headerFont);
         profilesDetail.setTop(profilesHeader);
         profilesDetail.setVisible(false);
 
         final BorderPane webDetail = new BorderPane();
-        final Text webHeader =new Text("Web Contexts");
-        webHeader.setFont(headerFont);
+        final Text webHeader = makeHeader("Web Contexts", headerFont);
         webDetail.setTop(webHeader);
         webDetail.setVisible(false);
 
         final BorderPane codeDetail = new BorderPane();
-        final Text codeHeader =new Text("Code Contexts");
-        codeHeader.setFont(headerFont);
+        final Text codeHeader = makeHeader("Code Contexts", headerFont);
         codeDetail.setTop(codeHeader);
         codeDetail.setVisible(false);
 
@@ -250,6 +254,21 @@ public class DbManager extends Application {
         }
 
         return btn;
+    }
+
+    /**
+     * Makes a header.
+     *
+     * @param label the label
+     * @param font the font
+     * @return the header
+     */
+    private static Text makeHeader(final String label, final Font font) {
+
+        final Text header =new Text(label);
+        header.setFont(font);
+
+        return header;
     }
 
     /**

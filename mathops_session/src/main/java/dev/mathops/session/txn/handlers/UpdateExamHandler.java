@@ -29,6 +29,7 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
@@ -355,11 +356,11 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                     return false;
                 }
             }
-        } else if ("MC117".equals(presented.examVersion)
-                || "MC118".equals(presented.examVersion)
-                || "MC124".equals(presented.examVersion)
-                || "MC125".equals(presented.examVersion)
-                || "MC126".equals(presented.examVersion)) {
+        } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(presented.examVersion)) {
 
             final List<RawStchallenge> existing = RawStchallengeLogic.queryByStudentCourse(cache, getStudent().stuId,
                     presented.course);
@@ -1247,11 +1248,11 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         boolean rc;
         if (RawRecordConstants.M100P.equals(stexam.course)) {
             rc = insertPlacement(cache, now, stexam);
-        } else if ("MC117".equals(stexam.examId)
-                || "MC118".equals(stexam.examId)
-                || "MC124".equals(stexam.examId)
-                || "MC125".equals(stexam.examId)
-                || "MC126".equals(stexam.examId)) {
+        } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(stexam.examId)) {
             rc = insertChallenge(cache, now, stexam);
         } else if (RawRecordConstants.M100T.equals(stexam.course)
                 || RawRecordConstants.M1170.equals(stexam.course)

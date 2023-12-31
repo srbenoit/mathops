@@ -9,6 +9,7 @@ import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -106,7 +107,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
     private final String testingCenterId;
 
     /** List of exams to show, or null to hide exams. */
-    private Map<String, AvailableExam> exams;
+    private Map<String, ExamStatus> exams;
 
     /** The font to use when drawing exam buttons. */
     private Font headerFont;
@@ -226,7 +227,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
      *
      * @param theExams the list of available exams
      */
-    void showAvailableExams(final Map<String, AvailableExam> theExams) {
+    void showAvailableExams(final Map<String, ExamStatus> theExams) {
 
         synchronized (this.synch) {
             this.exams = new HashMap<>(theExams);
@@ -642,7 +643,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         // Enable buttons according to what exams are available
 
-        AvailableExam exam;
+        ExamStatus exam;
 
         final boolean standardsBased117 = hasExam(RawRecordConstants.M117, 40);
         this.buttons.get("117-1").setVisible(!standardsBased117);
@@ -654,28 +655,22 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         if (standardsBased117) {
             exam = getExam(RawRecordConstants.M117, 40);
-            enableButton("117-40", exam.newLabel == null
-                    ? MASTERY : exam.newLabel, exam);
+            enableButton("117-40", exam.newLabel == null ? MASTERY : exam.newLabel, exam);
         } else {
             exam = getExam(RawRecordConstants.M117, 1);
-            enableButton("117-1", exam.newLabel == null
-                    ? UNIT_1 : exam.newLabel, exam);
+            enableButton("117-1", exam.newLabel == null ? UNIT_1 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M117, 2);
-            enableButton("117-2", exam.newLabel == null
-                    ? UNIT_2 : exam.newLabel, exam);
+            enableButton("117-2", exam.newLabel == null ? UNIT_2 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M117, 3);
-            enableButton("117-3", exam.newLabel == null
-                    ? UNIT_3 : exam.newLabel, exam);
+            enableButton("117-3", exam.newLabel == null ? UNIT_3 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M117, 4);
-            enableButton("117-4", exam.newLabel == null
-                    ? UNIT_4 : exam.newLabel, exam);
+            enableButton("117-4", exam.newLabel == null ? UNIT_4 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M117, 5);
-            enableButton("117-5", exam.newLabel == null
-                    ? FINAL : exam.newLabel, exam);
+            enableButton("117-5", exam.newLabel == null ? FINAL : exam.newLabel, exam);
         }
 
-        exam = getExam("MC117", 0);
-        enableButton("MC117", exam.newLabel == null
+        exam = getExam(ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, 0);
+        enableButton(ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, exam.newLabel == null
                 ? CHALLENGE : exam.newLabel, exam);
 
         final boolean standardsBased118 = hasExam(RawRecordConstants.M118, 40);
@@ -688,28 +683,22 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         if (standardsBased118) {
             exam = getExam(RawRecordConstants.M118, 40);
-            enableButton("118-40", exam.newLabel == null
-                    ? MASTERY : exam.newLabel, exam);
+            enableButton("118-40", exam.newLabel == null ? MASTERY : exam.newLabel, exam);
         } else {
             exam = getExam(RawRecordConstants.M118, 1);
-            enableButton("118-1", exam.newLabel == null
-                    ? UNIT_1 : exam.newLabel, exam);
+            enableButton("118-1", exam.newLabel == null ? UNIT_1 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M118, 2);
-            enableButton("118-2", exam.newLabel == null
-                    ? UNIT_2 : exam.newLabel, exam);
+            enableButton("118-2", exam.newLabel == null ? UNIT_2 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M118, 3);
-            enableButton("118-3", exam.newLabel == null
-                    ? UNIT_3 : exam.newLabel, exam);
+            enableButton("118-3", exam.newLabel == null ? UNIT_3 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M118, 4);
-            enableButton("118-4", exam.newLabel == null
-                    ? UNIT_4 : exam.newLabel, exam);
+            enableButton("118-4", exam.newLabel == null ? UNIT_4 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M118, 5);
-            enableButton("118-5", exam.newLabel == null
-                    ? FINAL : exam.newLabel, exam);
+            enableButton("118-5", exam.newLabel == null ? FINAL : exam.newLabel, exam);
         }
 
-        exam = getExam("MC118", 0);
-        enableButton("MC118", exam.newLabel == null
+        exam = getExam(ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, 0);
+        enableButton(ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, exam.newLabel == null
                 ? CHALLENGE : exam.newLabel, exam);
 
         final boolean standardsBased124 = hasExam(RawRecordConstants.M124, 40);
@@ -722,28 +711,22 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         if (standardsBased124) {
             exam = getExam(RawRecordConstants.M124, 40);
-            enableButton("124-40", exam.newLabel == null
-                    ? MASTERY : exam.newLabel, exam);
+            enableButton("124-40", exam.newLabel == null ? MASTERY : exam.newLabel, exam);
         } else {
             exam = getExam(RawRecordConstants.M124, 1);
-            enableButton("124-1", exam.newLabel == null
-                    ? UNIT_1 : exam.newLabel, exam);
+            enableButton("124-1", exam.newLabel == null ? UNIT_1 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M124, 2);
-            enableButton("124-2", exam.newLabel == null
-                    ? UNIT_2 : exam.newLabel, exam);
+            enableButton("124-2", exam.newLabel == null ? UNIT_2 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M124, 3);
-            enableButton("124-3", exam.newLabel == null
-                    ? UNIT_3 : exam.newLabel, exam);
+            enableButton("124-3", exam.newLabel == null ? UNIT_3 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M124, 4);
-            enableButton("124-4", exam.newLabel == null
-                    ? UNIT_4 : exam.newLabel, exam);
+            enableButton("124-4", exam.newLabel == null ? UNIT_4 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M124, 5);
-            enableButton("124-5", exam.newLabel == null
-                    ? FINAL : exam.newLabel, exam);
+            enableButton("124-5", exam.newLabel == null ? FINAL : exam.newLabel, exam);
         }
 
-        exam = getExam("MC124", 0);
-        enableButton("MC124", exam.newLabel == null
+        exam = getExam(ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, 0);
+        enableButton(ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, exam.newLabel == null
                 ? CHALLENGE : exam.newLabel, exam);
 
         final boolean standardsBased125 = hasExam(RawRecordConstants.M125, 40);
@@ -756,28 +739,22 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         if (standardsBased125) {
             exam = getExam(RawRecordConstants.M125, 40);
-            enableButton("125-40", exam.newLabel == null
-                    ? MASTERY : exam.newLabel, exam);
+            enableButton("125-40", exam.newLabel == null ? MASTERY : exam.newLabel, exam);
         } else {
             exam = getExam(RawRecordConstants.M125, 1);
-            enableButton("125-1", exam.newLabel == null
-                    ? UNIT_1 : exam.newLabel, exam);
+            enableButton("125-1", exam.newLabel == null ? UNIT_1 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M125, 2);
-            enableButton("125-2", exam.newLabel == null
-                    ? UNIT_2 : exam.newLabel, exam);
+            enableButton("125-2", exam.newLabel == null ? UNIT_2 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M125, 3);
-            enableButton("125-3", exam.newLabel == null
-                    ? UNIT_3 : exam.newLabel, exam);
+            enableButton("125-3", exam.newLabel == null ? UNIT_3 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M125, 4);
-            enableButton("125-4", exam.newLabel == null
-                    ? UNIT_4 : exam.newLabel, exam);
+            enableButton("125-4", exam.newLabel == null ? UNIT_4 : exam.newLabel, exam);
             exam = getExam(RawRecordConstants.M125, 5);
-            enableButton("125-5", exam.newLabel == null
-                    ? FINAL : exam.newLabel, exam);
+            enableButton("125-5", exam.newLabel == null ? FINAL : exam.newLabel, exam);
         }
 
-        exam = getExam("MC125", 0);
-        enableButton("MC125", exam.newLabel == null
+        exam = getExam(ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, 0);
+        enableButton(ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, exam.newLabel == null
                 ? CHALLENGE : exam.newLabel, exam);
 
         final boolean standardsBased126 = hasExam(RawRecordConstants.M126, 40);
@@ -810,8 +787,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
                     ? FINAL : exam.newLabel, exam);
         }
 
-        exam = getExam("MC126", 0);
-        enableButton("MC126", exam.newLabel == null
+        exam = getExam(ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, 0);
+        enableButton(ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, exam.newLabel == null
                 ? CHALLENGE : exam.newLabel, exam);
 
         exam = getExam(RawRecordConstants.M100U, 1);
@@ -820,8 +797,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         exam = getExam(RawRecordConstants.M100P, 1);
         enableButton("mpe", "Placement", exam);
 
-        exam =
-                getExam(RawRecordConstants.M100T, this.elmUnit == null ? 0 : this.elmUnit.intValue());
+        exam = getExam(RawRecordConstants.M100T, this.elmUnit == null ? 0 : this.elmUnit.intValue());
         enableButton(ELM, "ELM Exam", exam);
 
         exam = getExam(RawRecordConstants.M1170, 4);
@@ -839,7 +815,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         exam = getExam(RawRecordConstants.M1260, 4);
         enableButton(PRECALC26, "Trig. II", exam);
 
-        exam = new AvailableExam(null, 0);
+        exam = new ExamStatus(null, 0);
         enableButton(CANCEL, CANCEL, exam);
 
         // Draw the wheelchair icon if appropriate for the student.
@@ -868,7 +844,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
 
         final String key = course + CoreConstants.DASH + unit;
 
-        AvailableExam avail = null;
+        ExamStatus avail = null;
 
         if (this.exams != null) {
             avail = this.exams.get(key);
@@ -884,17 +860,17 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
      * @param unit   the unit to test
      * @return the exam, or {@code null} if not found
      */
-    private AvailableExam getExam(final String course, final int unit) {
+    private ExamStatus getExam(final String course, final int unit) {
 
         final String key = course + CoreConstants.DASH + unit;
 
-        AvailableExam avail = null;
+        ExamStatus avail = null;
 
         if (this.exams != null) {
             avail = this.exams.get(key);
 
             if (avail == null) {
-                avail = new AvailableExam(course, unit);
+                avail = new ExamStatus(course, unit);
                 avail.available = false;
                 avail.whyNot = "Unknown State";
                 this.exams.put(key, avail);
@@ -911,7 +887,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
      * @param label the button's main label
      * @param exam  the information on the exam's availability
      */
-    private void enableButton(final String key, final String label, final AvailableExam exam) {
+    private void enableButton(final String key, final String label, final ExamStatus exam) {
 
         final ExamButton btn = this.buttons.get(key);
 
@@ -995,7 +971,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         makeButton(courseColor, font, font2, UNIT_3, x, 3 * h, w, h, "117-3");
         makeButton(courseColor, font, font2, UNIT_4, x, 4 * h, w, h, "117-4");
         makeButton(courseColor, font, font2, FINAL, x, 5 * h, w, h, "117-5");
-        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h, "MC117");
+        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h,
+                ChallengeExamLogic.M117_CHALLENGE_EXAM_ID);
 
         x += w;
         makeButton(courseColor, font, font2, MASTERY, x, h, w, h, "118-40");
@@ -1004,7 +981,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         makeButton(courseColor, font, font2, UNIT_3, x, 3 * h, w, h, "118-3");
         makeButton(courseColor, font, font2, UNIT_4, x, 4 * h, w, h, "118-4");
         makeButton(courseColor, font, font2, FINAL, x, 5 * h, w, h, "118-5");
-        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h, "MC118");
+        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h,
+                ChallengeExamLogic.M118_CHALLENGE_EXAM_ID);
 
         x += w;
         makeButton(courseColor, font, font2, MASTERY, x, h, w, h, "124-40");
@@ -1013,7 +991,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         makeButton(courseColor, font, font2, UNIT_3, x, 3 * h, w, h, "124-3");
         makeButton(courseColor, font, font2, UNIT_4, x, 4 * h, w, h, "124-4");
         makeButton(courseColor, font, font2, FINAL, x, 5 * h, w, h, "124-5");
-        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h, "MC124");
+        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h,
+                ChallengeExamLogic.M124_CHALLENGE_EXAM_ID);
 
         x += w;
         makeButton(courseColor, font, font2, MASTERY, x, h, w, h, "125-40");
@@ -1022,7 +1001,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         makeButton(courseColor, font, font2, UNIT_3, x, 3 * h, w, h, "125-3");
         makeButton(courseColor, font, font2, UNIT_4, x, 4 * h, w, h, "125-4");
         makeButton(courseColor, font, font2, FINAL, x, 5 * h, w, h, "125-5");
-        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h, "MC125");
+        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h,
+                ChallengeExamLogic.M125_CHALLENGE_EXAM_ID);
 
         x += w;
         makeButton(courseColor, font, font2, MASTERY, x, h, w, h, "126-40");
@@ -1031,7 +1011,8 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
         makeButton(courseColor, font, font2, UNIT_3, x, 3 * h, w, h, "126-3");
         makeButton(courseColor, font, font2, UNIT_4, x, 4 * h, w, h, "126-4");
         makeButton(courseColor, font, font2, FINAL, x, 5 * h, w, h, "126-5");
-        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h, "MC126");
+        makeButton(challengeColor, font, font2, CHALLENGE, x, 6 * h + 10, w, h,
+                ChallengeExamLogic.M126_CHALLENGE_EXAM_ID);
 
         x += w + 25;
         makeButton(tutorialColor, font, font2, "ELM Tutorial", x, h, w + 5, h, ELM);
@@ -1210,15 +1191,15 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable, Mous
                 } else if (PRECALC26.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M1260, 4, "U");
 
-                } else if ("MC117".equals(cmd)) {
+                } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M117, 0, "CH");
-                } else if ("MC118".equals(cmd)) {
+                } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M118, 0, "CH");
-                } else if ("MC124".equals(cmd)) {
+                } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M124, 0, "CH");
-                } else if ("MC125".equals(cmd)) {
+                } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M125, 0, "CH");
-                } else if ("MC126".equals(cmd)) {
+                } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M126, 0, "CH");
 
                 } else if ("117-1".equals(cmd)) {

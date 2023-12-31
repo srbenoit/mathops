@@ -90,11 +90,11 @@ enum PageOnlineProctorChallenge {
 
             htm.sP().add("Select the exam being taken:").eP();
             htm.addln("&nbsp; <select name='exam'>");
-            htm.addln(mkOption("MC117", "MATH 117 - Challenge Exam", exam));
-            htm.addln(mkOption("MC118", "MATH 118 - Challenge Exam", exam));
-            htm.addln(mkOption("MC124", "MATH 124 - Challenge Exam", exam));
-            htm.addln(mkOption("MC125", "MATH 125 - Challenge Exam", exam));
-            htm.addln(mkOption("MC126", "MATH 126 - Challenge Exam", exam));
+            htm.addln(mkOption(ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, "MATH 117 - Challenge Exam", exam));
+            htm.addln(mkOption(ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, "MATH 118 - Challenge Exam", exam));
+            htm.addln(mkOption(ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, "MATH 124 - Challenge Exam", exam));
+            htm.addln(mkOption(ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, "MATH 125 - Challenge Exam", exam));
+            htm.addln(mkOption(ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, "MATH 126 - Challenge Exam", exam));
 
             htm.addln("</select>");
 
@@ -188,11 +188,11 @@ enum PageOnlineProctorChallenge {
                 ok = false;
             } else {
                 switch (exam) {
-                    case "MC117" -> course = RawRecordConstants.M117;
-                    case "MC118" -> course = RawRecordConstants.M118;
-                    case "MC124" -> course = RawRecordConstants.M124;
-                    case "MC125" -> course = RawRecordConstants.M125;
-                    case "MC126" -> course = RawRecordConstants.M126;
+                    case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID -> course = RawRecordConstants.M117;
+                    case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID -> course = RawRecordConstants.M118;
+                    case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID -> course = RawRecordConstants.M124;
+                    case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID -> course = RawRecordConstants.M125;
+                    case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID -> course = RawRecordConstants.M126;
                     default -> {
                         proctorError = "Invalid exam configuration - unable to start exam.";
                         ok = false;

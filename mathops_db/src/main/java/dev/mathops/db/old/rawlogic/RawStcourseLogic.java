@@ -392,9 +392,8 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
      * @return the list of records that matched the criteria, a zero-length array if none matched
      * @throws SQLException if there is an error performing the query
      */
-    public static List<RawStcourse> queryByStudent(final Cache cache, final String studentId,
-                                                   final TermKey termKey, final boolean includeOT,
-                                                   final boolean includeDropped)
+    public static List<RawStcourse> queryByStudent(final Cache cache, final String studentId, final TermKey termKey,
+                                                   final boolean includeOT, final boolean includeDropped)
             throws SQLException {
 
         final List<RawStcourse> result;

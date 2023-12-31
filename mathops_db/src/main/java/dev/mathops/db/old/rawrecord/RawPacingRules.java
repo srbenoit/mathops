@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
 

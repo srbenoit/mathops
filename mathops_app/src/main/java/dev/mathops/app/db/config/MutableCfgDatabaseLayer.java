@@ -1,6 +1,7 @@
 package dev.mathops.app.db.config;
 
 import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.core.log.Log;
 import dev.mathops.db.config.CfgCodeContext;
 import dev.mathops.db.config.CfgDataProfile;
 import dev.mathops.db.config.CfgDatabase;
@@ -10,6 +11,7 @@ import dev.mathops.db.config.CfgLogin;
 import dev.mathops.db.config.CfgWebContext;
 import javafx.beans.property.MapPropertyBase;
 import javafx.beans.property.SimpleMapProperty;
+import oracle.sql.Mutable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -189,5 +191,13 @@ public final class MutableCfgDatabaseLayer {
 
         return SimpleBuilder.concat("MutableCfgDatabaseLayer{instances=[", this.instances, "],dataProfiles=[",
                 this.dataProfiles, "],webContexts=[", this.webContexts, "],codeContexts=[", this.codeContexts, "]}");
+    }
+
+    public static void main(final String... args) {
+
+        final CfgDatabaseLayer config = CfgDatabaseLayer.getDefaultInstance();
+        final MutableCfgDatabaseLayer mutable = new MutableCfgDatabaseLayer(config);
+
+        Log.fine(mutable);
     }
 }

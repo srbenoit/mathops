@@ -5,6 +5,7 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
@@ -26,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -141,7 +143,8 @@ class StartExamDialog extends JDialog implements ActionListener {
 
         final JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         header.setBackground(Skin.LIGHTEST);
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM));
+        final MatteBorder border = BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM);
+        header.setBorder(border);
 
         final JLabel lbl = new JLabel("Issue");
         lbl.setFont(Skin.BIG_HEADER_18_FONT);
@@ -170,15 +173,15 @@ class StartExamDialog extends JDialog implements ActionListener {
             sb.append("MATH 126 Unit ");
             sb.append(unit);
             sb.append(" Exam");
-        } else if ("MC117".equals(course)) {
+        } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(course)) {
             sb.append("MATH 117 Challenge Exam");
-        } else if ("MC118".equals(course)) {
+        } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(course)) {
             sb.append("MATH 118 Challenge Exam");
-        } else if ("MC124".equals(course)) {
+        } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(course)) {
             sb.append("MATH 124 Challenge Exam");
-        } else if ("MC125".equals(course)) {
+        } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(course)) {
             sb.append("MATH 125 Challenge Exam");
-        } else if ("MC126".equals(course)) {
+        } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(course)) {
             sb.append("MATH 126 Challenge Exam");
         } else if (RawRecordConstants.M100T.equals(course)) {
             sb.append("ELM Exam");

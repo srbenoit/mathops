@@ -3,6 +3,7 @@ package dev.mathops.app.adm.testing;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
@@ -696,7 +697,11 @@ final class CheckinLogic {
 
         final String[] courses = {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                 RawRecordConstants.M125, RawRecordConstants.M126};
-        final String[] examIds = {"MC117", "MC118", "MC124", "MC125", "MC126"};
+        final String[] examIds = {ChallengeExamLogic.M117_CHALLENGE_EXAM_ID,
+                ChallengeExamLogic.M118_CHALLENGE_EXAM_ID,
+                ChallengeExamLogic.M124_CHALLENGE_EXAM_ID,
+                ChallengeExamLogic.M125_CHALLENGE_EXAM_ID,
+                ChallengeExamLogic.M126_CHALLENGE_EXAM_ID};
 
         final PrerequisiteLogic prereq = new PrerequisiteLogic(this.cache, info.studentId);
         String note = null;

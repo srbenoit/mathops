@@ -5,6 +5,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -556,7 +557,7 @@ class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusLi
             } else if ("M 117-5".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M117, 5, check);
             } else if ("M 117-C".equals(cmd)) {
-                startChallengeExam(cleanStu, "MC117", check);
+                startChallengeExam(cleanStu, ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, check);
             } else if ("M 118-1".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M118, 1, check);
             } else if ("M 118-2".equals(cmd)) {
@@ -568,7 +569,7 @@ class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusLi
             } else if ("M 118-5".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M118, 5, check);
             } else if ("M 118-C".equals(cmd)) {
-                startChallengeExam(cleanStu, "MC118", check);
+                startChallengeExam(cleanStu, ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, check);
             } else if ("M 124-1".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M124, 1, check);
             } else if ("M 124-2".equals(cmd)) {
@@ -580,7 +581,7 @@ class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusLi
             } else if ("M 124-5".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M124, 5, check);
             } else if ("M 124-C".equals(cmd)) {
-                startChallengeExam(cleanStu, "MC124", check);
+                startChallengeExam(cleanStu, ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, check);
             } else if ("M 125-1".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M125, 1, check);
             } else if ("M 125-2".equals(cmd)) {
@@ -592,7 +593,7 @@ class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusLi
             } else if ("M 125-5".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M125, 5, check);
             } else if ("M 125-C".equals(cmd)) {
-                startChallengeExam(cleanStu, "MC125", check);
+                startChallengeExam(cleanStu, ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, check);
             } else if ("M 126-1".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M126, 1, check);
             } else if ("M 126-2".equals(cmd)) {
@@ -604,7 +605,7 @@ class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusLi
             } else if ("M 126-5".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M126, 5, check);
             } else if ("M 126-C".equals(cmd)) {
-                startChallengeExam(cleanStu, "MC126", check);
+                startChallengeExam(cleanStu, ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, check);
             } else if ("M 100T-4".equals(cmd)) {
                 startCourseExam(cleanStu, RawRecordConstants.M100T, 4, check);
             } else if ("M 1170-4".equals(cmd)) {

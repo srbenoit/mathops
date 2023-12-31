@@ -1,5 +1,6 @@
 package dev.mathops.db.old.rawrecord;
 
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rec.RecBase;
 
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,7 @@ final class TestRawStchallenge {
     private static final String TEST_COURSE = "M 117";
 
     /** A field name. */
-    private static final String TEST_VERSION = "MC117";
+    private static final String TEST_VERSION = ChallengeExamLogic.M117_CHALLENGE_EXAM_ID;
 
     /** A field name. */
     private static final String TEST_ACADEMIC_YR = "2021";

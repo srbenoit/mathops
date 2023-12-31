@@ -17,6 +17,9 @@ public final class StandardMilestoneRec extends RecBase implements Comparable<St
     /** A possible value for 'ms_type' field (indicating due date for standard mastery). */
     public static final String MS_TYPE_STD_MASTERY = "MA";
 
+    /** A possible value for 'ms_type' field (indicating an overall course deadline). */
+    public static final String MS_TYPE_COURSE_DEADLINE = "CD";
+
     /** A field name for serialization of records. */
     private static final String FLD_PACE_TRACK = "pace_track";
 

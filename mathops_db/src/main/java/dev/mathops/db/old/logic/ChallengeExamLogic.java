@@ -45,6 +45,21 @@ import java.util.Map;
  */
 public final class ChallengeExamLogic {
 
+    /** The ID for the MATH 117 challenge exam. */
+    public static final String M117_CHALLENGE_EXAM_ID = "MC117";
+
+    /** The ID for the MATH 118 challenge exam. */
+    public static final String M118_CHALLENGE_EXAM_ID = "MC118";
+
+    /** The ID for the MATH 124 challenge exam. */
+    public static final String M124_CHALLENGE_EXAM_ID = "MC124";
+
+    /** The ID for the MATH 125 challenge exam. */
+    public static final String M125_CHALLENGE_EXAM_ID = "MC125";
+
+    /** The ID for the MATH 126 challenge exam. */
+    public static final String M126_CHALLENGE_EXAM_ID = "MC126";
+
     /** The active precalculus registrations for the student. */
     private final List<RawStcourse> activeRegs;
 
@@ -147,15 +162,15 @@ public final class ChallengeExamLogic {
         String examId = null;
 
         if (RawRecordConstants.M117.equals(theCourseId) || RawRecordConstants.MATH117.equals(theCourseId)) {
-            examId = "MC117";
+            examId = ChallengeExamLogic.M117_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M118.equals(theCourseId) || RawRecordConstants.MATH118.equals(theCourseId)) {
-            examId = "MC118";
+            examId = ChallengeExamLogic.M118_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M124.equals(theCourseId) || RawRecordConstants.MATH124.equals(theCourseId)) {
-            examId = "MC124";
+            examId = ChallengeExamLogic.M124_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M125.equals(theCourseId) || RawRecordConstants.MATH125.equals(theCourseId)) {
-            examId = "MC125";
+            examId = ChallengeExamLogic.M125_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M126.equals(theCourseId) || RawRecordConstants.MATH126.equals(theCourseId)) {
-            examId = "MC126";
+            examId = ChallengeExamLogic.M126_CHALLENGE_EXAM_ID;
         }
 
         return examId;

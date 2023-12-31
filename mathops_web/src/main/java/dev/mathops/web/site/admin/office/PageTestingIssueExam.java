@@ -3,6 +3,7 @@ package dev.mathops.web.site.admin.office;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
@@ -290,7 +291,7 @@ enum PageTestingIssueExam {
             if (numUsed >= 2) {
                 errmsg = "Student has no placement attempts remaining.";
             }
-        } else if ("MC117".equals(examId)) {
+        } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(examId)) {
             final List<RawStchallenge> tries =
                     RawStchallengeLogic.queryByStudentCourse(cache, studentId, RawRecordConstants.M117);
 
@@ -314,7 +315,7 @@ enum PageTestingIssueExam {
             } else {
                 errmsg = "Student has already challenged MATH 117";
             }
-        } else if ("MC118".equals(examId)) {
+        } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(examId)) {
             final List<RawStchallenge> tries =
                     RawStchallengeLogic.queryByStudentCourse(cache, studentId, RawRecordConstants.M118);
 
@@ -338,7 +339,7 @@ enum PageTestingIssueExam {
             } else {
                 errmsg = "Student has already challenged MATH 118";
             }
-        } else if ("MC124".equals(examId)) {
+        } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(examId)) {
             final List<RawStchallenge> tries =
                     RawStchallengeLogic.queryByStudentCourse(cache, studentId, RawRecordConstants.M124);
 
@@ -362,7 +363,7 @@ enum PageTestingIssueExam {
             } else {
                 errmsg = "Student has already challenged MATH 124";
             }
-        } else if ("MC125".equals(examId)) {
+        } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(examId)) {
             final List<RawStchallenge> tries =
                     RawStchallengeLogic.queryByStudentCourse(cache, studentId, RawRecordConstants.M125);
 
@@ -387,7 +388,7 @@ enum PageTestingIssueExam {
             } else {
                 errmsg = "Student has already challenged MATH 125";
             }
-        } else if ("MC126".equals(examId)) {
+        } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(examId)) {
             final List<RawStchallenge> tries =
                     RawStchallengeLogic.queryByStudentCourse(cache, studentId, RawRecordConstants.M126);
 
@@ -652,15 +653,15 @@ enum PageTestingIssueExam {
             } else if ("MPTTC".equals(examId)) {
                 courseId = RawRecordConstants.M100P;
                 unit = 1;
-            } else if ("MC117".equals(examId)) {
+            } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(examId)) {
                 courseId = RawRecordConstants.M117;
-            } else if ("MC118".equals(examId)) {
+            } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(examId)) {
                 courseId = RawRecordConstants.M118;
-            } else if ("MC124".equals(examId)) {
+            } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(examId)) {
                 courseId = RawRecordConstants.M124;
-            } else if ("MC125".equals(examId)) {
+            } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(examId)) {
                 courseId = RawRecordConstants.M125;
-            } else if ("MC126".equals(examId)) {
+            } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(examId)) {
                 courseId = RawRecordConstants.M126;
             } else if ("171UE".equals(examId)) {
                 courseId = RawRecordConstants.M117;
@@ -812,7 +813,8 @@ enum PageTestingIssueExam {
         htm.addln("  <option value='173UE'", sel("173UE", examId), ">MATH 117, Unit 3</option>");
         htm.addln("  <option value='174UE'", sel("174UE", examId), ">MATH 117, Unit 4</option>");
         htm.addln("  <option value='17FIN'", sel("17FIN", examId), ">MATH 117, Final</option>");
-        htm.addln("  <option value='MC117'", sel("MC117", examId), ">MATH 117, Challenge</option>");
+        htm.addln("  <option value='MC117'", sel(ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, examId),
+                ">MATH 117, Challenge</option>");
         htm.addln(" </optgroup>");
         htm.addln(" <optgroup label='MATH 118'>");
         htm.addln("  <option value='181UE'", sel("181UE", examId), ">MATH 118, Unit 1</option>");
@@ -820,7 +822,8 @@ enum PageTestingIssueExam {
         htm.addln("  <option value='183UE'", sel("183UE", examId), ">MATH 118, Unit 3</option>");
         htm.addln("  <option value='184UE'", sel("184UE", examId), ">MATH 118, Unit 4</option>");
         htm.addln("  <option value='18FIN'", sel("18FIN", examId), ">MATH 118, Final</option>");
-        htm.addln("  <option value='MC118'", sel("MC118", examId), ">MATH 118, Challenge</option>");
+        htm.addln("  <option value='MC118'", sel(ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, examId),
+                ">MATH 118, Challenge</option>");
         htm.addln(" </optgroup>");
         htm.addln(" <optgroup label='MATH 124'>");
         htm.addln("  <option value='241UE'", sel("241UE", examId), ">MATH 124, Unit 1</option>");
@@ -828,7 +831,8 @@ enum PageTestingIssueExam {
         htm.addln("  <option value='243UE'", sel("243UE", examId), ">MATH 124, Unit 3</option>");
         htm.addln("  <option value='244UE'", sel("244UE", examId), ">MATH 124, Unit 4</option>");
         htm.addln("  <option value='24FIN'", sel("24FIN", examId), ">MATH 124, Final</option>");
-        htm.addln("  <option value='MC124'", sel("MC124", examId), ">MATH 124, Challenge</option>");
+        htm.addln("  <option value='MC124'", sel(ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, examId),
+                ">MATH 124, Challenge</option>");
         htm.addln(" </optgroup>");
         htm.addln(" <optgroup label='MATH 125'>");
         htm.addln("  <option value='251UE'", sel("251UE", examId), ">MATH 125, Unit 1</option>");
@@ -836,7 +840,8 @@ enum PageTestingIssueExam {
         htm.addln("  <option value='253UE'", sel("253UE", examId), ">MATH 125, Unit 3</option>");
         htm.addln("  <option value='254UE'", sel("254UE", examId), ">MATH 125, Unit 4</option>");
         htm.addln("  <option value='25FIN'", sel("25FIN", examId), ">MATH 125, Final</option>");
-        htm.addln("  <option value='MC125'", sel("MC125", examId), ">MATH 125, Challenge</option>");
+        htm.addln("  <option value='MC125'", sel(ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, examId),
+                ">MATH 125, Challenge</option>");
         htm.addln(" </optgroup>");
         htm.addln(" <optgroup label='MATH 126'>");
         htm.addln("  <option value='261UE'", sel("261UE", examId), ">MATH 126, Unit 1</option>");
@@ -844,7 +849,8 @@ enum PageTestingIssueExam {
         htm.addln("  <option value='263UE'", sel("263UE", examId), ">MATH 126, Unit 3</option>");
         htm.addln("  <option value='264UE'", sel("264UE", examId), ">MATH 126, Unit 4</option>");
         htm.addln("  <option value='26FIN'", sel("26FIN", examId), ">MATH 126, Final</option>");
-        htm.addln("  <option value='MC126'", sel("MC126", examId), ">MATH 126, Challenge</option>");
+        htm.addln("  <option value='MC126'", sel(ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, examId),
+                ">MATH 126, Challenge</option>");
         htm.addln(" </optgroup>");
         htm.addln(" <optgroup label='Tutorials'>");
         htm.addln("  <option value='MT4UE'", sel("MT4UE", examId), ">ELM Exam</option>");
