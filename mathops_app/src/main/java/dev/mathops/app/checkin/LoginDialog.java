@@ -1,5 +1,7 @@
 package dev.mathops.app.checkin;
 
+import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.core.ui.UIUtilities;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.BorderFactory;
@@ -9,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -23,7 +26,16 @@ import java.awt.event.ActionListener;
 /**
  * A dialog to gather the database login information to be used to connect to the configured database.
  */
-public class LoginDialog implements ActionListener {
+public final class LoginDialog implements ActionListener {
+
+    /** A common string. */
+    private static final String CONNECT = "Connect";
+
+    /** A common string. */
+    private static final String CANCEL = "Cancel";
+
+    /** The width of fields. */
+    private static final int FIELD_WIDTH = 12;
 
     /** The frame. */
     private JFrame frame;
@@ -35,19 +47,16 @@ public class LoginDialog implements ActionListener {
     private final String defaultUsername;
 
     /** Flag indicating Cancel button was pressed. */
-    private boolean cancel;
+    private boolean cancel = false;
 
     /** Flag indicating Connect button was pressed. */
-    private boolean connect;
+    private boolean connect = false;
 
     /** Color for fields that have been properly filled out. */
     private Color okColor;
 
     /** Color for fields that are empty or have been improperly filled out. */
     private Color badColor;
-
-    /** The content pane. */
-    private JPanel content;
 
     /** The login username field. */
     private JTextField usernameFld;
@@ -82,78 +91,73 @@ public class LoginDialog implements ActionListener {
 
         // final Color col = new Color(220, 220, 220);
 
-        this.frame = new JFrame("Connect");
+        this.frame = new JFrame(CONNECT);
 
         this.okColor = Color.WHITE;
         this.badColor = new Color(255, 255, 200);
 
         // Generate a content pane with a margin.
-        this.content = new JPanel(new BorderLayout(5, 5));
-        this.content.setBorder(BorderFactory.createEmptyBorder(15, 15, 3, 15));
-        this.frame.setContentPane(this.content);
+        final JPanel content = new JPanel(new BorderLayout(5, 5));
+        final Border emptyBorder1 = BorderFactory.createEmptyBorder(15, 15, 3, 15);
+        content.setBorder(emptyBorder1);
+        this.frame.setContentPane(content);
 
         final BundledFontManager bfm = BundledFontManager.getInstance();
 
-        final JLabel lbl = new JLabel("Database Connection (" + this.driverName //
-                + ")");
-        lbl.setFont(bfm.getFont(BundledFontManager.SANS, 16.0, Font.PLAIN));
-        this.content.add(lbl, BorderLayout.PAGE_START);
+        final JLabel lbl = new JLabel("Database Connection (" + this.driverName + ")");
+        final Font font = bfm.getFont(BundledFontManager.SANS, 16.0, Font.PLAIN);
+        lbl.setFont(font);
+        content.add(lbl, BorderLayout.PAGE_START);
 
         final JPanel fields = new JPanel(new GridLayout(2, 1, 5, 0));
-        fields.setBorder(BorderFactory.createEmptyBorder(15, 10, 5, 10));
+        final Border emptyBorder = BorderFactory.createEmptyBorder(15, 10, 5, 10);
+        fields.setBorder(emptyBorder);
 
         // Generate field name labels and set to a common size
         final JLabel[] names = {new JLabel("Login Username:"), new JLabel("Login Password:")};
+        UIUtilities.makeLabelsSameSizeRightAligned(names);
 
-        int max = 0;
-
-        for (final JLabel name : names) {
-            final int width = name.getPreferredSize().width;
-
-            if (width > max) {
-                max = width;
-            }
-        }
-
-        for (final JLabel name : names) {
-            name.setPreferredSize(new Dimension(max, name.getPreferredSize().height));
-        }
-
-        JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
-
-        flow.add(names[0]);
-        this.usernameFld = new JTextField(this.defaultUsername, 12);
+        final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        flow1.add(names[0]);
+        this.usernameFld = new JTextField(this.defaultUsername, FIELD_WIDTH);
         this.usernameFld.setBackground(this.okColor);
-        flow.add(this.usernameFld);
-        fields.add(flow);
+        flow1.add(this.usernameFld);
+        fields.add(flow1);
 
-        flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
-        flow.add(names[1]);
-        this.passwordFld = new JPasswordField(12);
+        final JPanel flow2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 0));
+        flow2.add(names[1]);
+        this.passwordFld = new JPasswordField(FIELD_WIDTH);
         this.passwordFld.setBackground(this.okColor);
-        flow.add(this.passwordFld);
-        fields.add(flow);
+        flow2.add(this.passwordFld);
+        fields.add(flow2);
 
-        this.content.add(fields, BorderLayout.CENTER);
+        content.add(fields, BorderLayout.CENTER);
 
         final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.TRAILING, 5, 2));
-        this.cancelBtn = new JButton("Cancel");
+        this.cancelBtn = new JButton(CANCEL);
+        this.cancelBtn.setActionCommand(CANCEL);
         this.cancelBtn.addActionListener(this);
         buttons.add(this.cancelBtn);
-        this.connectBtn = new JButton("Connect");
+        this.connectBtn = new JButton(CONNECT);
+        this.connectBtn.setActionCommand(CONNECT);
         this.connectBtn.addActionListener(this);
         buttons.add(this.connectBtn);
 
         // Make "Connect" react to Return key
         this.frame.getRootPane().setDefaultButton(this.connectBtn);
 
-        this.content.add(buttons, BorderLayout.PAGE_END);
+        content.add(buttons, BorderLayout.PAGE_END);
         this.frame.pack();
+
+        if (this.defaultUsername != null && !this.defaultUsername.isEmpty()) {
+            this.passwordFld.requestFocus();
+        }
 
         // Center on the screen
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        this.frame.setLocation((screen.width - this.frame.getWidth()) / 2,
-                (screen.height - this.frame.getHeight()) / 2);
+        final int frameWidth = this.frame.getWidth();
+        final int frameHeight = this.frame.getHeight();
+        this.frame.setLocation((screen.width - frameWidth) / 2, (screen.height - frameHeight) / 2);
     }
 
     /**
@@ -167,10 +171,10 @@ public class LoginDialog implements ActionListener {
         final String cmd = e.getActionCommand();
         boolean isConnect = true;
 
-        this.cancel = "Cancel".equals(cmd);
+        this.cancel = CANCEL.equals(cmd);
         this.connect = false;
 
-        if ("Connect".equals(cmd)) {
+        if (CONNECT.equals(cmd)) {
             this.usernameFld.setBackground(this.okColor);
             this.passwordFld.setBackground(this.okColor);
 
@@ -217,7 +221,8 @@ public class LoginDialog implements ActionListener {
         this.connectBtn.setEnabled(true);
         this.usernameFld.setEnabled(true);
         this.passwordFld.setEnabled(true);
-        this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+        this.frame.setCursor(defaultCursor);
         this.usernameFld.requestFocus();
 
         if (this.usernameFld.getText().isEmpty()) {
@@ -239,7 +244,8 @@ public class LoginDialog implements ActionListener {
             this.connectBtn.setEnabled(false);
             this.usernameFld.setEnabled(false);
             this.passwordFld.setEnabled(false);
-            this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            final Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+            this.frame.setCursor(waitCursor);
         }
 
         return this.connect;
@@ -263,5 +269,23 @@ public class LoginDialog implements ActionListener {
     public char[] getPassword() {
 
         return this.passwordFld.getPassword();
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String cancelStr = Boolean.toString(this.cancel);
+        final String connectStr = Boolean.toString(this.connect);
+
+        return SimpleBuilder.concat("LoginDialog{", "frame=", this.frame, ", driverName='", this.driverName,
+                "', defaultUsername='", this.defaultUsername, "', cancel=", cancelStr, ", connect=", connectStr,
+                ", okColor=", this.okColor, ", badColor=", this.badColor, ", usernameFld=", this.usernameFld,
+                ", passwordFld=", this.passwordFld, ", cancelBtn=", this.cancelBtn, ", connectBtn=", this.connectBtn,
+                "}");
     }
 }

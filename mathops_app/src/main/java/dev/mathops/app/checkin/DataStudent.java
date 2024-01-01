@@ -1,5 +1,6 @@
 package dev.mathops.app.checkin;
 
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Data on the student requesting an exam.
  */
-public final class DataOnStudent {
+final class DataStudent {
 
     /** The student's ID. */
     final String stuId;
@@ -33,13 +34,25 @@ public final class DataOnStudent {
      * @param theHolds the list of holds to display to the student
      * @param theSpecialTypes the list of special categories to which the student belongs
      */
-    public DataOnStudent(final RawStudent theStudent, final RawStterm theStudentTerm, final List<String> theHolds,
-                         final List<String> theSpecialTypes) {
+    DataStudent(final RawStudent theStudent, final RawStterm theStudentTerm, final List<String> theHolds,
+                final List<String> theSpecialTypes) {
 
         this.stuId = theStudent.stuId;
         this.student = theStudent;
         this.studentTerm = theStudentTerm;
         this.holdsToShow = theHolds;
         this.specialTypes = theSpecialTypes;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return SimpleBuilder.concat("DataOnStudent{stuId='", this.stuId, "', student=", this.student, ", studentTerm=",
+                this.studentTerm, ", holdsToShow=", this.holdsToShow, ", specialTypes=", this.specialTypes, "}");
     }
 }

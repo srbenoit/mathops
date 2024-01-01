@@ -1,6 +1,5 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
@@ -50,19 +49,22 @@ import java.util.TreeMap;
 final class LogicCheckIn {
 
     /** A commonly used constant. */
-    private static final Integer ZERO = Integer.valueOf(0);
-
-    /** A commonly used constant. */
-    private static final Integer ONE = Integer.valueOf(1);
-
-    /** A commonly used constant. */
     private static final Integer FOUR = Integer.valueOf(4);
-
-    /** A commonly used constant. */
-    private static final Long FOURLONG = Long.valueOf(4L);
 
     /** A commonly used string. */
     private static final String ERROR = "Error";
+
+    /** A commonly used string. */
+    private static final String NOT_ELIGIBLE = "Not Eligible";
+
+    /** A commonly used string. */
+    private static final String NOT_IMPLEMENTED = "Not Implemented";
+
+    /** A commonly used string. */
+    private static final String SEND_TO_OFFICE = "Please send student to the office.";
+
+    /** A commonly used string. */
+    private static final String ACCOMPANY_TO_OFFICE = "Please accompany student to the office.";
 
     /** The context. */
     private final DbProfile profile;
@@ -101,34 +103,35 @@ final class LogicCheckIn {
      * @return {@code true} if initialization succeeded; {@code false} otherwise.
      * @throws SQLException if there is an error accessing the database
      */
-    boolean init(final Cache cache) throws SQLException {
+    boolean isInitialized(final Cache cache) throws SQLException {
 
         boolean ok = false;
 
         this.activeTerm = TermLogic.get(cache).queryActive(cache);
+
         if (this.activeTerm != null) {
             if (this.activeTerm.startDate == null) {
-                JOptionPane.showMessageDialog(null, "Invalid term specification in database.", ERROR,
-                        JOptionPane.ERROR_MESSAGE);
-                Log.warning("Active term has no start date");
+                final String msg = "Active term has no start date configured.";
+                JOptionPane.showMessageDialog(null, msg, ERROR, JOptionPane.ERROR_MESSAGE);
+                Log.warning(msg);
             } else if (this.activeTerm.endDate == null) {
-                JOptionPane.showMessageDialog(null, "Invalid term specification in database.", ERROR,
-                        JOptionPane.ERROR_MESSAGE);
-                Log.warning("Active term has no end date");
+                final String msg = "Active term has no end date configured.";
+                JOptionPane.showMessageDialog(null, msg, ERROR, JOptionPane.ERROR_MESSAGE);
+                Log.warning(msg);
             } else {
                 final LocalDate start = this.activeTerm.startDate;
 
                 if (this.today.isBefore(start)) {
-                    JOptionPane.showMessageDialog(null, "Active term has not yet started.", ERROR,
-                            JOptionPane.ERROR_MESSAGE);
-                    Log.warning("Active term has not yet started.");
+                    final String msg = "Active term has not yet started.";
+                    JOptionPane.showMessageDialog(null, msg, ERROR, JOptionPane.ERROR_MESSAGE);
+                    Log.warning(msg);
                 } else {
                     final LocalDate end = this.activeTerm.endDate;
 
                     if (this.today.isAfter(end)) {
-                        JOptionPane.showMessageDialog(null, "Active term has ended.", ERROR,
-                                JOptionPane.ERROR_MESSAGE);
-                        Log.warning("Active term has ended.");
+                        final String msg = "Active term has ended.";
+                        JOptionPane.showMessageDialog(null, msg, ERROR, JOptionPane.ERROR_MESSAGE);
+                        Log.warning(msg);
                     } else {
                         ok = true;
                     }
@@ -147,9 +150,9 @@ final class LogicCheckIn {
      * @return student information and the list of available proctored exams, encapsulated in a
      *         {@code StudentCheckInInfo} object, or {@code null} if an error in processing occurs
      */
-    DataOnCheckInAttempt performCheckInLogic(final String studentId) {
+    DataCheckInAttempt performCheckInLogic(final String studentId) {
 
-        DataOnCheckInAttempt info = null;
+        DataCheckInAttempt info = null;
 
         final DbContext ctx = this.profile.getDbContext(ESchemaUse.PRIMARY);
         try {
@@ -157,7 +160,7 @@ final class LogicCheckIn {
             final Cache cache = new Cache(this.profile, conn);
 
             try {
-                if (this.activeTerm == null || init(cache)) {
+                if (this.activeTerm == null || isInitialized(cache)) {
                     info = processCheckIn(cache, studentId);
                 }
             } finally {
@@ -179,12 +182,12 @@ final class LogicCheckIn {
      *         {@code StudentCheckInInfo} object, or {@code null} if an error in processing occurs
      * @throws SQLException if there is an error accessing the database
      */
-    private DataOnCheckInAttempt processCheckIn(final Cache cache, final String studentId) throws SQLException {
+    private DataCheckInAttempt processCheckIn(final Cache cache, final String studentId) throws SQLException {
 
         final String[] error = new String[2];
-        final DataOnStudent studentData = loadDataOnStudent(cache, studentId, error);
+        final DataStudent studentData = loadDataOnStudent(cache, studentId, error);
 
-        final DataOnCheckInAttempt info = new DataOnCheckInAttempt(studentData);
+        final DataCheckInAttempt info = new DataCheckInAttempt(studentData);
 
         final boolean ok = error[0] == null;
         if (error[0] != null) {
@@ -227,34 +230,35 @@ final class LogicCheckIn {
      * @return the loaded student data; {@code null} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private DataOnStudent loadDataOnStudent(final Cache cache, final String stuId, final String[] error)
+    private DataStudent loadDataOnStudent(final Cache cache, final String stuId, final String[] error)
             throws SQLException {
 
-        DataOnStudent data = null;
+        DataStudent data = null;
 
         final RawStudent stu = RawStudentLogic.query(cache, stuId, false);
 
         if (stu == null) {
             error[0] = "STUDENT record not found.";
-            error[1] = "Please send student to the office...";
+            error[1] = SEND_TO_OFFICE;
         } else {
             RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, stuId);
             if (stterm == null) {
-                // TODO: Attempt to construct a proper STTERM record here...
-
+                // Attempt to construct an accurate STTERM record
                 final List<RawStcourse> allRegs = RawStcourseLogic.getActiveForStudent(cache, stuId,
                         this.activeTerm.term);
                 final int pace = PaceTrackLogic.determinePace(allRegs);
-                final String paceTrack = PaceTrackLogic.determinePaceTrack(allRegs, pace);
-                final String first = PaceTrackLogic.determineFirstCourse(allRegs);
+                if (pace > 0) {
+                    final String paceTrack = PaceTrackLogic.determinePaceTrack(allRegs, pace);
+                    final String first = PaceTrackLogic.determineFirstCourse(allRegs);
 
-                final Integer paceObj = Integer.valueOf(pace);
-                stterm = new RawStterm(this.activeTerm.term, stuId, paceObj, paceTrack, first, null, null, null);
-                try {
-                    RawSttermLogic.INSTANCE.insert(cache, stterm);
-                } catch (final SQLException ex) {
-                    // Even if this insert fails, we can continue with the STTERM row we have created
-                    Log.warning(ex);
+                    final Integer paceObj = Integer.valueOf(pace);
+                    stterm = new RawStterm(this.activeTerm.term, stuId, paceObj, paceTrack, first, null, null, null);
+                    try {
+                        RawSttermLogic.INSTANCE.insert(cache, stterm);
+                    } catch (final SQLException ex) {
+                        // Even if this insert fails, we can continue with the STTERM row we have created
+                        Log.warning(ex);
+                    }
                 }
             }
 
@@ -265,7 +269,7 @@ final class LogicCheckIn {
             for (final RawAdminHold hold : holds) {
                 if ("F".equalsIgnoreCase(hold.sevAdminHold)) {
                     error[0] = "Student has an administrative hold.";
-                    error[1] = "Please send student to the office...";
+                    error[1] = SEND_TO_OFFICE;
                 } else {
                     final String msg = RawAdminHoldLogic.getStaffMessage(hold.holdId);
                     if (msg != null) {
@@ -282,7 +286,7 @@ final class LogicCheckIn {
                     specialTypes.add(spec.stuType);
                 }
 
-                data = new DataOnStudent(stu, stterm, holdsToShow, specialTypes);
+                data = new DataStudent(stu, stterm, holdsToShow, specialTypes);
             }
         }
 
@@ -297,19 +301,17 @@ final class LogicCheckIn {
      * @return {@code true} if there are no exams pending for the student; {@code false} if there are pending exams
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean isNoExamInProgress(final Cache cache, final DataOnCheckInAttempt info) throws SQLException {
+    private static boolean isNoExamInProgress(final Cache cache, final DataCheckInAttempt info) throws SQLException {
 
         final boolean result;
 
         final List<RawPendingExam> open = RawPendingExamLogic.queryByStudent(cache, info.studentData.stuId);
 
         if (open.size() > 1) {
-            info.error = new String[]{"The student is currently taking multiple exams.",
-                    "Please accompany student to the office."};
+            info.error = new String[]{"The student is currently taking multiple exams.", ACCOMPANY_TO_OFFICE};
             result = false;
         } else if (open.size() == 1) {
-            info.error = new String[]{"The student is currently taking an exam.",
-                    "Please accompany student to the office."};
+            info.error = new String[]{"The student is currently taking an exam.", ACCOMPANY_TO_OFFICE};
             result = false;
         } else {
             result = true;
@@ -327,30 +329,27 @@ final class LogicCheckIn {
      * @param info  the data object to populate with available exams
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineAvailableNonCourseExams(final Cache cache, final DataOnCheckInAttempt info)
+    private void determineAvailableNonCourseExams(final Cache cache, final DataCheckInAttempt info)
             throws SQLException {
-
 
         // See if there is an active user's exam
         boolean searchingForUsersExam = true;
         final List<RawExam> exams = RawExamLogic.queryActiveByCourse(cache, RawRecordConstants.M100U);
         for (final RawExam exam : exams) {
             if ("Q".equals(exam.examType)) {
-                addAvailableExam(info, RawRecordConstants.M100U, exam.unit, null);
                 searchingForUsersExam = false;
                 break;
             }
         }
         if (searchingForUsersExam) {
-            addUnavailableExam(info, RawRecordConstants.M100U, ZERO, "Not Implemented");
+            info.nonCourseExams.usersExam = new DataExamStatus(RawRecordConstants.M100U, 0, NOT_IMPLEMENTED);
+        } else {
+            info.nonCourseExams.usersExam = new DataExamStatus(RawRecordConstants.M100U, 0);
         }
 
         // See if there is an active tutorial exam
-        testElmTutorialAvaialability(cache, info);
+        testElmTutorialAvailability(cache, info);
         testPrecalcTutorialAvailability(cache, info);
-
-        // Paper exams - unimplemented at this time.
-        addUnavailableExam(info, "Paper", ZERO, "Not Implemented");
 
         // Math Placement Tool
         final PlacementLogic logic = new PlacementLogic(cache, info.studentData.stuId,
@@ -358,10 +357,10 @@ final class LogicCheckIn {
         final PlacementStatus status = logic.status;
 
         if (status.availableLocalProctoredIds.contains("MPTTC")) {
-            addAvailableExam(info, RawRecordConstants.M100P, ONE, null);
+            info.nonCourseExams.placement = new DataExamStatus(RawRecordConstants.M100P, 1);
         } else {
             final String msg = Objects.requireNonNullElse(status.shortWhyProctoredUnavailable, "No attempts left");
-            addUnavailableExam(info, RawRecordConstants.M100P, ONE, msg);
+            info.nonCourseExams.placement = new DataExamStatus(RawRecordConstants.M100P, 1, msg);
         }
     }
 
@@ -374,16 +373,16 @@ final class LogicCheckIn {
      * @param info  the data object to populate with available exams
      * @throws SQLException if there is an error accessing the database
      */
-    private void testElmTutorialAvaialability(final Cache cache, final DataOnCheckInAttempt info) throws SQLException {
+    private void testElmTutorialAvailability(final Cache cache, final DataCheckInAttempt info) throws SQLException {
 
-        boolean ineligible = true;
+        boolean eligible = false;
 
         final List<RawExam> exams = RawExamLogic.queryActiveByCourse(cache, RawRecordConstants.M100T);
 
         // Sort the exams in descending order by unit, and filter out all but unit exams.
         final SortedMap<Integer, RawExam> map = new TreeMap<>();
         for (final RawExam exam : exams) {
-            if ("U".equals(exam.examType) && exam.unit != null) {
+            if ("U".equals(exam.examType) && Objects.nonNull(exam.unit)) {
                 map.put(exam.unit, exam);
             }
         }
@@ -397,8 +396,7 @@ final class LogicCheckIn {
 
             if (!stexams.isEmpty()) {
                 this.tutorialUnit = unit;
-                addAvailableExam(info, RawRecordConstants.M100T, unit, null);
-                ineligible = false;
+                eligible = true;
                 break;
             }
 
@@ -408,7 +406,7 @@ final class LogicCheckIn {
                     RawRecordConstants.M100T, unit, true, RawStexamLogic.REVIEW_EXAM_TYPES);
 
             if (stReviewExams.isEmpty()) {
-                Log.info("Bypassing M 100T unit " + unit + " (no passing review exam)");
+                Log.info("Bypassing M 100T unit ", unit, " (no passing review exam)");
             } else {
                 // Get the unit configuration
                 final RawCusection unitData = RawCusectionLogic.query(cache, RawRecordConstants.M100T, "1", unit,
@@ -419,13 +417,12 @@ final class LogicCheckIn {
                     continue;
                 }
 
-                if (unitData.atmptsPerReview != null) {
+                if (Objects.nonNull(unitData.atmptsPerReview)) {
 
                     // Value of zero indicates unlimited attempts.
                     if (unitData.atmptsPerReview.intValue() == 0) {
                         this.tutorialUnit = unit;
-                        addAvailableExam(info, RawRecordConstants.M100T, unit, null);
-                        ineligible = false;
+                        eligible = true;
 
                         break;
                     }
@@ -439,8 +436,7 @@ final class LogicCheckIn {
                     }
 
                     this.tutorialUnit = unit;
-                    addAvailableExam(info, RawRecordConstants.M100T, unit, null);
-                    ineligible = false;
+                    eligible = true;
                     break;
                 }
             }
@@ -448,8 +444,10 @@ final class LogicCheckIn {
             map.remove(unit);
         }
 
-        if (ineligible) {
-            addUnavailableExam(info, RawRecordConstants.M100T, ZERO, "Not Eligible");
+        if (eligible) {
+            info.nonCourseExams.elmExam = new DataExamStatus(RawRecordConstants.M100T, 0);
+        } else {
+            info.nonCourseExams.elmExam = new DataExamStatus(RawRecordConstants.M100T, 0, NOT_ELIGIBLE);
         }
     }
 
@@ -462,14 +460,12 @@ final class LogicCheckIn {
      * @param info  the data object to populate with available exams
      * @throws SQLException if there is an error accessing the database
      */
-    private void testPrecalcTutorialAvailability(final Cache cache, final DataOnCheckInAttempt info)
+    private void testPrecalcTutorialAvailability(final Cache cache, final DataCheckInAttempt info)
             throws SQLException {
 
-        final String[] courses = {RawRecordConstants.M1260, RawRecordConstants.M1250, RawRecordConstants.M1240,
-                RawRecordConstants.M1180, RawRecordConstants.M1170};
+        for (final CourseNumbers numbers : CourseNumbers.COURSES) {
 
-        for (final String course : courses) {
-
+            final String course = numbers.tutorialId();
             boolean passedReview = false;
             boolean needsToPassUnit = true;
 
@@ -485,68 +481,44 @@ final class LogicCheckIn {
                 }
             }
 
+            final DataExamStatus status;
             if (passedReview && needsToPassUnit) {
-                // Get the unit configuration
                 final RawCusection unitData = RawCusectionLogic.query(cache, course, "1", FOUR, this.activeTerm.term);
 
                 if (unitData.lastTestDt.isEqual(this.today) || unitData.lastTestDt.isAfter(this.today)) {
-
-                    Log.info("Adding available ", course);
-                    addAvailableExam(info, course, FOURLONG, null);
+                    status = new DataExamStatus(course, 4);
+                } else {
+                    status = new DataExamStatus(course, 4, NOT_ELIGIBLE);
                 }
-                // Working from the top down, so break when we find one...
-                break;
+            } else {
+                status = new DataExamStatus(course, 4, NOT_ELIGIBLE);
             }
 
-            Log.info("Adding unavailable ", course);
-            addUnavailableExam(info, course, FOUR, "Not Eligible");
+            final String tutorialId = numbers.tutorialId();
+
+            if (RawRecordConstants.M1170.equals(tutorialId)) {
+                info.nonCourseExams.precalc117 = status;
+            } else if (RawRecordConstants.M1180.equals(tutorialId)) {
+                info.nonCourseExams.precalc118 = status;
+            } else if (RawRecordConstants.M1240.equals(tutorialId)) {
+                info.nonCourseExams.precalc124 = status;
+            } else if (RawRecordConstants.M1250.equals(tutorialId)) {
+                info.nonCourseExams.precalc125 = status;
+            } else if (RawRecordConstants.M1260.equals(tutorialId)) {
+                info.nonCourseExams.precalc126 = status;
+            }
         }
     }
 
     /**
-     * Adds a record of an available exam to the list of exams in the student information object.
+     * Generates a diagnostic string representation of the object.
      *
-     * @param info     the student information object
-     * @param course   the exam course
-     * @param unit     the exam unit
-     * @param newLabel the new button label for the exam
+     * @return the string representation
      */
-    private static void addAvailableExam(final DataOnCheckInAttempt info, final String course, final Number unit,
-                                         final String newLabel) {
+    @Override
+    public String toString() {
 
-        final String key = SimpleBuilder.concat(course, CoreConstants.DASH, unit);
-
-        if (!info.availableExams.containsKey(key)) {
-            // Log.info("Adding available ", key);
-
-            final int unitInt = unit.intValue();
-            final ExamStatus avail = new ExamStatus(course, unitInt);
-            avail.newLabel = newLabel;
-            info.availableExams.put(key, avail);
-        }
-    }
-
-    /**
-     * Adds a record of an unavailable exam to the list of exams in the student information object.
-     *
-     * @param info   the student information object
-     * @param course the exam course
-     * @param unit   the exam unit
-     * @param whyNot the reason the exam is not available
-     */
-    private static void addUnavailableExam(final DataOnCheckInAttempt info, final String course, final Integer unit,
-                                           final String whyNot) {
-
-        final String key = SimpleBuilder.concat(course, CoreConstants.DASH, unit);
-
-        if (!info.availableExams.containsKey(key)) {
-            // Log.info("Adding unavailable ", key);
-
-            final int unitInt = unit.intValue();
-            final ExamStatus avail = new ExamStatus(course, unitInt);
-            avail.available = false;
-            avail.whyNot = whyNot;
-            info.availableExams.put(key, avail);
-        }
+        return SimpleBuilder.concat("LogicCheckIn{profile=", this.profile, ", curDate=", this.curDate, ", today=",
+                this.today, ", activeTerm=", this.activeTerm, ", tutorialUnit=", this.tutorialUnit, "}");
     }
 }

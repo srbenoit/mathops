@@ -3,7 +3,6 @@ package dev.mathops.app.checkin;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
@@ -20,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -58,22 +56,6 @@ import java.util.Objects;
  */
 final class LogicCheckInCourseExams {
 
-    /** The list of courses to consider with their IDs. */
-    private static final CourseNumbers[] COURSES = {
-            new CourseNumbers(RawRecordConstants.M117, RawRecordConstants.MATH117,
-                    ChallengeExamLogic.M117_CHALLENGE_EXAM_ID),
-            new CourseNumbers(RawRecordConstants.M118, RawRecordConstants.MATH118,
-                    ChallengeExamLogic.M118_CHALLENGE_EXAM_ID),
-            new CourseNumbers(RawRecordConstants.M124, RawRecordConstants.MATH124,
-                    ChallengeExamLogic.M124_CHALLENGE_EXAM_ID),
-            new CourseNumbers(RawRecordConstants.M125, RawRecordConstants.MATH125,
-                    ChallengeExamLogic.M125_CHALLENGE_EXAM_ID),
-            new CourseNumbers(RawRecordConstants.M126, RawRecordConstants.MATH126,
-                    ChallengeExamLogic.M126_CHALLENGE_EXAM_ID)};
-
-    /** The number of courses. */
-    private static final int NUM_COURSES = COURSES.length;
-
     /** A commonly used constant. */
     private static final Integer ONE = Integer.valueOf(1);
 
@@ -95,6 +77,9 @@ final class LogicCheckInCourseExams {
     /** A commonly used string. */
     private static final String UNAVAILABLE = "Unavailable";
 
+    /** A commonly used string. */
+    private static final String NOT_REGISTERED = "Not Registered";
+
     /** The current day number. */
     private final LocalDate today;
 
@@ -102,7 +87,7 @@ final class LogicCheckInCourseExams {
     private final TermRec activeTerm;
 
     /** Data on the check-in attempt. */
-    private final DataOnCheckInAttempt checkInData;
+    private final DataCheckInAttempt checkInData;
 
     /**
      * Constructs a new {@code CheckInLogicCourseExams}.
@@ -112,7 +97,7 @@ final class LogicCheckInCourseExams {
      * @param theCheckInData data on the check-in attempt
      */
     LogicCheckInCourseExams(final LocalDate theToday, final TermRec theActiveTerm,
-                            final DataOnCheckInAttempt theCheckInData) {
+                            final DataCheckInAttempt theCheckInData) {
 
         this.today = theToday;
         this.activeTerm = theActiveTerm;
@@ -163,22 +148,23 @@ final class LogicCheckInCourseExams {
      */
     private void setSpecialStudentStatus() {
 
-        for (int i = 0; i < NUM_COURSES; ++i) {
-            final CourseNumbers numbers = COURSES[i];
+        for (final CourseNumbers numbers : CourseNumbers.COURSES) {
             final String newCourseId = numbers.newCourseId();
             final String oldCourseId = numbers.oldCourseId();
             final String challengeId = numbers.challengeId();
 
-            final CheckInDataCourseExams data = this.checkInData.getCourseExams(newCourseId);
-            data.unit1Exam = new ExamStatus(oldCourseId, 1);
-            data.unit2Exam = new ExamStatus(oldCourseId, 2);
-            data.unit3Exam = new ExamStatus(oldCourseId, 3);
-            data.unit4Exam = new ExamStatus(oldCourseId, 4);
-            data.finalExam = new ExamStatus(oldCourseId, 5);
-            data.challengeExam = new ExamStatus(challengeId, 0);
+            final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+            data.registeredInOld = true;
+            data.registeredInNew = true;
+            data.unit1Exam = new DataExamStatus(oldCourseId, 1);
+            data.unit2Exam = new DataExamStatus(oldCourseId, 2);
+            data.unit3Exam = new DataExamStatus(oldCourseId, 3);
+            data.unit4Exam = new DataExamStatus(oldCourseId, 4);
+            data.finalExam = new DataExamStatus(oldCourseId, 5);
+            data.challengeExam = new DataExamStatus(challengeId, 0);
             data.challengeExam.available = false;
             data.challengeExam.whyNot = UNAVAILABLE;
-            data.masteryExam = new ExamStatus(newCourseId, 0);
+            data.masteryExam = new DataExamStatus(newCourseId, 0);
 
             // FIXME: Get this from data
             data.masteryExam.numStandardsAvailable = 24;
@@ -210,9 +196,7 @@ final class LogicCheckInCourseExams {
         final List<RawStcourse> priorRegs = RawStcourseLogic.getAllPrior(cache, stuId, this.activeTerm.term);
         final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(cache, stuId);
 
-        for (int i = 0; i < NUM_COURSES; ++i) {
-            final CourseNumbers numbers = COURSES[i];
-            final String newCourseId = numbers.newCourseId();
+        for (final CourseNumbers numbers : CourseNumbers.COURSES) {
             final String oldCourseId = numbers.oldCourseId();
             final String challengeId = numbers.challengeId();
 
@@ -258,8 +242,8 @@ final class LogicCheckInCourseExams {
                 }
             }
 
-            final CheckInDataCourseExams data = this.checkInData.getCourseExams(newCourseId);
-            data.challengeExam = new ExamStatus(challengeId, 0, reasonNotAvailable);
+            final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+            data.challengeExam = new DataExamStatus(challengeId, 0, reasonNotAvailable);
         }
     }
 
@@ -277,51 +261,75 @@ final class LogicCheckInCourseExams {
             throws SQLException {
 
         final RawStterm studentTerm = this.checkInData.studentData.studentTerm;
+        if (studentTerm == null) {
+            // Set all exams as "unavailable"
 
-        final int pace = studentTerm.pace.intValue();
-        final String track = studentTerm.paceTrack;
+            for (final CourseNumbers numbers : CourseNumbers.COURSES) {
+                final String newCourseId = numbers.newCourseId();
+                final String oldCourseId = numbers.oldCourseId();
 
-        final int numRegs = activeRegs.size();
-        final Map<RawStcourse, SectionData> sections = new HashMap<>(numRegs);
-        loadSectionData(cache, activeRegs, sections);
-
-        for (int i = 0; i < NUM_COURSES; ++i) {
-            final CourseNumbers numbers = COURSES[i];
-            final String newCourseId = numbers.newCourseId();
-            final String oldCourseId = numbers.oldCourseId();
-
-            final CheckInDataCourseExams data = this.checkInData.getCourseExams(newCourseId);
-
-            RawStcourse reg = null;
-            for (final RawStcourse test : activeRegs) {
-                if (test.course.equals(oldCourseId) || test.course.equals(newCourseId)) {
-                    reg = test;
-                    break;
-                }
+                final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+                data.registeredInOld = false;
+                data.registeredInNew = false;
+                data.unit1Exam = new DataExamStatus(oldCourseId, 1, NOT_REGISTERED);
+                data.unit2Exam = new DataExamStatus(oldCourseId, 2, NOT_REGISTERED);
+                data.unit3Exam = new DataExamStatus(oldCourseId, 3, NOT_REGISTERED);
+                data.unit4Exam = new DataExamStatus(oldCourseId, 4, NOT_REGISTERED);
+                data.finalExam = new DataExamStatus(oldCourseId, 5, NOT_REGISTERED);
+                data.masteryExam = new DataExamStatus(newCourseId, 0, NOT_REGISTERED);
             }
+        } else {
+            final int pace = studentTerm.pace.intValue();
+            final String track = studentTerm.paceTrack;
 
-            if (reg == null) {
-                makeCourseUnavailable(data, numbers, "Not Registered");
-            } else if (reg.openStatus == null) {
-                makeCourseUnavailable(data, numbers, "Not Yet Open");
-            } else if ("G".equals(reg.openStatus)) {
-                makeCourseUnavailable(data, numbers, "Course is Forfeit");
-            } else if ("Y".equals(reg.openStatus)) {
-                final SectionData sectData = sections.get(reg);
+            final int numRegs = activeRegs.size();
+            final Map<RawStcourse, SectionData> sections = new HashMap<>(numRegs);
+            loadSectionData(cache, activeRegs, sections);
 
-                if (sectData == null) {
-                    makeCourseUnavailable(data, numbers, "No Sect Data");
-                } else if ("OT".equals(sectData.cSection.instrnType)) {
-                    makeCourseUnavailable(data, numbers, "Credit by Exam");
-                } else if (sectData.pacing == null || sectData.rules == null) {
-                    makeCourseUnavailable(data, numbers, "No Pacing Data");
-                } else if ("Y".equals(reg.iInProgress)) {
-                    testSingleIncomplete(cache, data, reg, pace, track, sectData);
-                } else {
-                    testSingleCourse(cache, data, reg, pace, track, sectData);
+            for (final CourseNumbers numbers : CourseNumbers.COURSES) {
+                final String newCourseId = numbers.newCourseId();
+                final String oldCourseId = numbers.oldCourseId();
+
+                final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+
+                RawStcourse reg = null;
+                for (final RawStcourse test : activeRegs) {
+                    if (test.course.equals(oldCourseId) || test.course.equals(newCourseId)) {
+                        reg = test;
+                        break;
+                    }
                 }
-            } else {
-                makeCourseUnavailable(data, numbers, "Course Not Open");
+
+                if (reg == null) {
+                    makeCourseUnavailable(data, numbers, NOT_REGISTERED);
+                    data.registeredInOld = false;
+                    data.registeredInNew = false;
+                } else {
+                    data.registeredInOld = reg.course.equals(oldCourseId);
+                    data.registeredInNew = reg.course.equals(newCourseId);
+
+                    if (reg.openStatus == null) {
+                        makeCourseUnavailable(data, numbers, "Not Yet Open");
+                    } else if ("G".equals(reg.openStatus)) {
+                        makeCourseUnavailable(data, numbers, "Course is Forfeit");
+                    } else if ("Y".equals(reg.openStatus)) {
+                        final SectionData sectData = sections.get(reg);
+
+                        if (sectData == null) {
+                            makeCourseUnavailable(data, numbers, "No Sect Data");
+                        } else if ("OT".equals(sectData.cSection.instrnType)) {
+                            makeCourseUnavailable(data, numbers, "Credit by Exam");
+                        } else if (sectData.pacing == null || sectData.rules == null) {
+                            makeCourseUnavailable(data, numbers, "No Pacing Data");
+                        } else if ("Y".equals(reg.iInProgress)) {
+                            testSingleIncomplete(cache, data, reg, pace, track, sectData);
+                        } else {
+                            testSingleCourse(cache, data, reg, pace, track, sectData);
+                        }
+                    } else {
+                        makeCourseUnavailable(data, numbers, "Course Not Open");
+                    }
+                }
             }
         }
     }
@@ -353,9 +361,10 @@ final class LogicCheckInCourseExams {
             }
 
             CourseNumbers numbers = null;
-            for (int i = 0; i < NUM_COURSES; ++i) {
-                if (COURSES[i].isMatching(reg.course)) {
-                    numbers = COURSES[i];
+            for (final CourseNumbers test : CourseNumbers.COURSES) {
+                if (test.isMatching(reg.course)) {
+                    numbers = test;
+                    break;
                 }
             }
             if (numbers == null) {
@@ -371,7 +380,6 @@ final class LogicCheckInCourseExams {
             }
 
             final RawCsection cSection = RawCsectionLogic.query(cache, reg.course, reg.sect, effTerm.term);
-
             if (cSection == null) {
                 continue;
             }
@@ -415,7 +423,7 @@ final class LogicCheckInCourseExams {
      * @param sectData  the section data
      * @throws SQLException if there is an error accessing the database
      */
-    private void testSingleIncomplete(final Cache cache, final CheckInDataCourseExams data, final RawStcourse reg,
+    private void testSingleIncomplete(final Cache cache, final DataCourseExams data, final RawStcourse reg,
                                       final int pace, final String paceTrack, final SectionData sectData)
             throws SQLException {
 
@@ -431,7 +439,7 @@ final class LogicCheckInCourseExams {
             final WorkRecord workRecord = gatherWorkRecord(cache, reg);
 
             if ("Y".equals(reg.iCounted)) {
-                available = checkCourseDeadline(data, sectData, courseDeadlines, workRecord);
+                available = checkCourseDeadline(reg, data, sectData, courseDeadlines, workRecord);
             }
 
             if (available) {
@@ -446,13 +454,13 @@ final class LogicCheckInCourseExams {
                 testUnitExamDeadlines(data, courseDeadlines, workRecord);
 
                 // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(data, sectData, workRecord);
+                testPacingRules(reg, data, sectData, workRecord);
 
                 // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(data, sectData, workRecord);
+                testPassingReviewAfterFailedUnit(reg, data, sectData, workRecord);
 
                 // Test max attempts per unit
-                testMaxAttempts(data, sectData, workRecord);
+                testMaxAttempts(reg, data, sectData, workRecord);
             }
         }
     }
@@ -468,7 +476,7 @@ final class LogicCheckInCourseExams {
      * @param sectData  the section data
      * @throws SQLException if there is an error accessing the database
      */
-    private void testSingleCourse(final Cache cache, final CheckInDataCourseExams data, final RawStcourse reg,
+    private void testSingleCourse(final Cache cache, final DataCourseExams data, final RawStcourse reg,
                                   final int pace, final String paceTrack, final SectionData sectData)
             throws SQLException {
 
@@ -485,7 +493,7 @@ final class LogicCheckInCourseExams {
             final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
             final WorkRecord workRecord = gatherWorkRecord(cache, reg);
 
-            if (checkCourseDeadline(data, sectData, courseDeadlines, workRecord)) {
+            if (checkCourseDeadline(reg, data, sectData, courseDeadlines, workRecord)) {
                 // At this point, we begin checking unit by unit, and setting the availability of each, rather than
                 // marking the whole course as unavailable.
 
@@ -500,13 +508,13 @@ final class LogicCheckInCourseExams {
                 testUnitExamDeadlines(data, courseDeadlines, workRecord);
 
                 // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(data, sectData, workRecord);
+                testPacingRules(reg, data, sectData, workRecord);
 
                 // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(data, sectData, workRecord);
+                testPassingReviewAfterFailedUnit(reg, data, sectData, workRecord);
 
                 // Test max attempts per unit
-                testMaxAttempts(data, sectData, workRecord);
+                testMaxAttempts(reg, data, sectData, workRecord);
             }
         }
     }
@@ -653,18 +661,20 @@ final class LogicCheckInCourseExams {
      * deadline has passed, and the student has passed Unit 4, the number of final exam tries since the FE deadline is
      * counted and compared to the "attempts allowed" field.
      *
+     * @param reg        the course registration
      * @param data            the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData        the section data
      * @param courseDeadlines the course deadlines
      * @param workRecord      the work record
      * @return true if the course is still available after these checks; false if not
      */
-    private boolean checkCourseDeadline(final CheckInDataCourseExams data, final SectionData sectData,
-                                        final CourseDeadlines courseDeadlines, final WorkRecord workRecord) {
+    private boolean checkCourseDeadline(final RawStcourse reg, final DataCourseExams data,
+                                        final SectionData sectData, final CourseDeadlines courseDeadlines,
+                                        final WorkRecord workRecord) {
 
         boolean available = true;
 
-        final boolean isNew = sectData.numbers.isNew(data.courseId);
+        final boolean isNew = sectData.numbers.isNew(reg.course);
 
         if (isNew) {
             // If enough standards have been mastered to complete the course, do nothing, since the student can
@@ -715,7 +725,7 @@ final class LogicCheckInCourseExams {
      * @param data     the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData the section data
      */
-    private void testTestingWindows(final CheckInDataCourseExams data, final SectionData sectData) {
+    private void testTestingWindows(final DataCourseExams data, final SectionData sectData) {
 
         final RawCusection unit1 = sectData.cuSections.get(ONE);
         if (Objects.nonNull(unit1.firstTestDt) && unit1.firstTestDt.isAfter(this.today)) {
@@ -772,7 +782,7 @@ final class LogicCheckInCourseExams {
      * @param courseDeadlines the course deadlines
      * @param workRecord      the student's work record
      */
-    private void testUnitExamDeadlines(final CheckInDataCourseExams data, final CourseDeadlines courseDeadlines,
+    private void testUnitExamDeadlines(final DataCourseExams data, final CourseDeadlines courseDeadlines,
                                        final WorkRecord workRecord) {
 
         if (data.unit1Exam.available) {
@@ -823,14 +833,15 @@ final class LogicCheckInCourseExams {
     /**
      * Ensures that requirements specified in the pacing rules for the section are satisfied.
      *
+     * @param reg        the course registration
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
      */
-    private static void testPacingRules(final CheckInDataCourseExams data, final SectionData sectData,
-                                        final WorkRecord workRecord) {
+    private static void testPacingRules(final RawStcourse reg, final DataCourseExams data,
+                                        final SectionData sectData, final WorkRecord workRecord) {
 
-        final boolean isOld = sectData.numbers.isOld(data.courseId);
+        final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
 
@@ -944,14 +955,15 @@ final class LogicCheckInCourseExams {
      * enforce limits on the number of times the student may take the proctored exam after each successful attempt on
      * the review exam.
      *
+     * @param reg        the course registration
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
      */
-    private static void testPassingReviewAfterFailedUnit(final CheckInDataCourseExams data, final SectionData sectData,
-                                                         final WorkRecord workRecord) {
+    private static void testPassingReviewAfterFailedUnit(final RawStcourse reg, final DataCourseExams data,
+                                                         final SectionData sectData, final WorkRecord workRecord) {
 
-        final boolean isOld = sectData.numbers.isOld(data.courseId);
+        final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
             if (data.unit1Exam.available) {
@@ -1005,14 +1017,15 @@ final class LogicCheckInCourseExams {
      * enforce limits on the number of times the student may take the proctored exam after each successful attempt on
      * the review exam.
      *
+     * @param reg        the course registration
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
      */
-    private static void testMaxAttempts(final CheckInDataCourseExams data, final SectionData sectData,
-                                        final WorkRecord workRecord) {
+    private static void testMaxAttempts(final RawStcourse reg, final DataCourseExams data,
+                                        final SectionData sectData, final WorkRecord workRecord) {
 
-        final boolean isOld = sectData.numbers.isOld(data.courseId);
+        final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
             if (data.unit1Exam.available) {
@@ -1080,18 +1093,18 @@ final class LogicCheckInCourseExams {
      * @param numbers the course numbers
      * @param reason  the reason the exams are not available
      */
-    private static void makeCourseUnavailable(final CheckInDataCourseExams data, final CourseNumbers numbers,
+    private static void makeCourseUnavailable(final DataCourseExams data, final CourseNumbers numbers,
                                               final String reason) {
 
         final String oldCourseId = numbers.oldCourseId();
         final String newCourseId = numbers.newCourseId();
 
-        data.unit1Exam = new ExamStatus(oldCourseId, 1, reason);
-        data.unit2Exam = new ExamStatus(oldCourseId, 2, reason);
-        data.unit3Exam = new ExamStatus(oldCourseId, 3, reason);
-        data.unit4Exam = new ExamStatus(oldCourseId, 4, reason);
-        data.finalExam = new ExamStatus(oldCourseId, 5, reason);
-        data.masteryExam = new ExamStatus(newCourseId, 0, reason);
+        data.unit1Exam = new DataExamStatus(oldCourseId, 1, reason);
+        data.unit2Exam = new DataExamStatus(oldCourseId, 2, reason);
+        data.unit3Exam = new DataExamStatus(oldCourseId, 3, reason);
+        data.unit4Exam = new DataExamStatus(oldCourseId, 4, reason);
+        data.finalExam = new DataExamStatus(oldCourseId, 5, reason);
+        data.masteryExam = new DataExamStatus(newCourseId, 0, reason);
     }
 
     /**
@@ -1100,17 +1113,17 @@ final class LogicCheckInCourseExams {
      * @param data    the {@code CheckInDataCourseExams} whose exam status values to update
      * @param numbers the course numbers
      */
-    private static void makeCourseAvailable(final CheckInDataCourseExams data, final CourseNumbers numbers) {
+    private static void makeCourseAvailable(final DataCourseExams data, final CourseNumbers numbers) {
 
         final String oldCourseId = numbers.oldCourseId();
         final String newCourseId = numbers.newCourseId();
 
-        data.unit1Exam = new ExamStatus(oldCourseId, 1);
-        data.unit2Exam = new ExamStatus(oldCourseId, 2);
-        data.unit3Exam = new ExamStatus(oldCourseId, 3);
-        data.unit4Exam = new ExamStatus(oldCourseId, 4);
-        data.finalExam = new ExamStatus(oldCourseId, 5);
-        data.masteryExam = new ExamStatus(newCourseId, 0);
+        data.unit1Exam = new DataExamStatus(oldCourseId, 1);
+        data.unit2Exam = new DataExamStatus(oldCourseId, 2);
+        data.unit3Exam = new DataExamStatus(oldCourseId, 3);
+        data.unit4Exam = new DataExamStatus(oldCourseId, 4);
+        data.finalExam = new DataExamStatus(oldCourseId, 5);
+        data.masteryExam = new DataExamStatus(newCourseId, 0);
     }
 
     /**
@@ -1123,43 +1136,6 @@ final class LogicCheckInCourseExams {
 
         return SimpleBuilder.concat("CheckInLogicCourseExams{today=", this.today, ", activeTerm=", this.activeTerm,
                 ", checkInData=", this.checkInData, "}");
-    }
-
-    /** A record to store the various course/exam numbers associated with a course. */
-    private record CourseNumbers(String oldCourseId, String newCourseId, String challengeId) {
-
-        /**
-         * Tests whether a given course ID matches either the old or the new course ID of this course.
-         *
-         * @param courseId the course ID to test
-         * @return {@code true} if {@code courseId} matches either the old or new course ID
-         */
-        boolean isMatching(final String courseId) {
-
-            return courseId != null && (courseId.equals(this.oldCourseId) || courseId.equals(this.newCourseId));
-        }
-
-        /**
-         * Tests whether a given course ID matches the NEW course ID of this course.
-         *
-         * @param courseId the course ID to test
-         * @return {@code true} if {@code courseId} matches the new course ID
-         */
-        boolean isNew(final String courseId) {
-
-            return courseId != null && courseId.equals(this.newCourseId);
-        }
-
-        /**
-         * Tests whether a given course ID matches the OLD course ID of this course.
-         *
-         * @param courseId the course ID to test
-         * @return {@code true} if {@code courseId} matches the old course ID
-         */
-        boolean isOld(final String courseId) {
-
-            return courseId != null && courseId.equals(this.oldCourseId);
-        }
     }
 
     /** A record to store deadlines associated with a course. */

@@ -1,11 +1,13 @@
 package dev.mathops.app.checkin;
 
+import dev.mathops.core.builder.SimpleBuilder;
+
 import java.util.Objects;
 
 /**
  * An exam to present in the UI.
  */
-final class ExamStatus {
+final class DataExamStatus {
 
     /** The course ID for the exam (start with "M " for OLD courses, and "MATH " for NEW courses). */
     private final String courseId;
@@ -17,7 +19,7 @@ final class ExamStatus {
     boolean available;
 
     /** For a NEW course, the number of standards available to master. */
-    int numStandardsAvailable;
+    int numStandardsAvailable = 0;
 
     /** An override label. */
     String newLabel = null;
@@ -31,7 +33,7 @@ final class ExamStatus {
      * @param theCourse the course for the exam
      * @param theUnit   the unit for the exam
      */
-    ExamStatus(final String theCourse, final int theUnit) {
+    DataExamStatus(final String theCourse, final int theUnit) {
 
         this.courseId = theCourse;
         this.unit = theUnit;
@@ -45,7 +47,7 @@ final class ExamStatus {
      * @param theUnit   the unit for the exam
      * @param theWhyNot the reason the exam is not available (if {@code null}, the exam is available)
      */
-    ExamStatus(final String theCourse, final int theUnit, final String theWhyNot) {
+    DataExamStatus(final String theCourse, final int theUnit, final String theWhyNot) {
 
         this.courseId = theCourse;
         this.unit = theUnit;
@@ -104,7 +106,7 @@ final class ExamStatus {
 
         if (obj == null) {
             result = false;
-        } else if (obj instanceof final ExamStatus test) {
+        } else if (obj instanceof final DataExamStatus test) {
             final int testUnit = test.getUnit();
             final String testCourseId = test.getCourseId();
             result = testUnit == this.unit && Objects.equals(testCourseId, this.courseId);
@@ -113,5 +115,22 @@ final class ExamStatus {
         }
 
         return result;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String unitStr = Integer.toString(this.unit);
+        final String availableStr = Boolean.toString(this.available);
+        final String numStandardsAvailableStr = Integer.toString(this.numStandardsAvailable);
+
+        return SimpleBuilder.concat("DataExamStatus{courseId='", this.courseId, "', unit=", unitStr, ", available=",
+                availableStr, ", numStandardsAvailable=", numStandardsAvailableStr, ", newLabel='", this.newLabel,
+                "' whyNot='", this.whyNot, "'}");
     }
 }

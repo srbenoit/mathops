@@ -1,5 +1,7 @@
 package dev.mathops.app.checkin;
 
+import dev.mathops.core.builder.SimpleBuilder;
+
 import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.Font;
@@ -14,20 +16,20 @@ import java.io.Serial;
  * name of the exam), and a subtext message giving the reason the exam is unavailable, or indicating that the exam is
  * available conditionally. The labels are drawn with text antialiasing.
  */
-class ExamButton extends JButton {
+final class ExamButton extends JButton {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -244686957864152149L;
 
     /** The exam title. */
-    private String title;
+    private String title = null;
 
     /** The sub-text message string. */
-    private String message;
+    private String message = null;
 
     /** The sub-text font. */
-    private Font subFont;
+    private Font subFont = null;
 
     /** The background color if the button is active. */
     private final Color activeBackground;
@@ -49,7 +51,7 @@ class ExamButton extends JButton {
      *
      * @param font the font for sub-text messages
      */
-    public void setSubFont(final Font font) {
+    void setSubFont(final Font font) {
 
         this.subFont = font;
     }
@@ -82,31 +84,27 @@ class ExamButton extends JButton {
     @Override
     public void paintComponent(final Graphics g) {
 
-        final Color bg = getBackground();
+        final Graphics2D g2d = (Graphics2D) g;
+        final Color origBg = getBackground();
 
-        // if (isEnabled()) {
         setBackground(this.activeBackground);
-        // }
 
-        // Let the superclass paint the button border and background.
         super.paintComponent(g);
 
-        final Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-        // Now, paint the labels
-        g2d.setFont(getFont());
+        final Font font = getFont();
+        g2d.setFont(font);
 
         FontMetrics fm = g.getFontMetrics();
-        int w = fm.stringWidth(this.title);
+        final int titleWidth = fm.stringWidth(this.title);
+
         final int width = getWidth();
         final int height = getHeight();
+        final int titleX = (width - titleWidth) / 2;
+        final int titleY = (height / 2) + (fm.getAscent() / 3);
 
-        int x = (width - w) / 2;
-        int y = (height / 2) + (fm.getAscent() / 3);
-        g2d.drawString(this.title, x, y);
+        g2d.drawString(this.title, titleX, titleY);
 
         if (this.message != null) {
             if (this.subFont != null) {
@@ -114,15 +112,26 @@ class ExamButton extends JButton {
                 fm = g2d.getFontMetrics();
             }
 
-            w = fm.stringWidth(this.message);
-            x = (width - w) / 2;
-            y += fm.getHeight() * 6 / 5;
-            g.drawString(this.message, x, y);
+            final int messageWidth = fm.stringWidth(this.message);
+            final int messageX = (width - messageWidth) / 2;
+            final int messageY = titleY + fm.getHeight() * 6 / 5;
+            g.drawString(this.message, messageX, messageY);
         }
 
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
 
-        setBackground(bg);
+        setBackground(origBg);
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return SimpleBuilder.concat("ExamButton{title='", this.title, "', message='", this.message,
+                "', subFont=", this.subFont, ", activeBackground=", this.activeBackground, "}");
     }
 }

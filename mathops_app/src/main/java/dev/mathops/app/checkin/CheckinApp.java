@@ -5,6 +5,7 @@ import dev.mathops.app.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ChangeUI;
 import dev.mathops.db.old.Cache;
@@ -53,7 +54,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This is the checkin station application for use in the proctored testing center. It performs two basic functions:
+ * This is the check-in station application for use in the proctored testing center. It performs two basic functions:
  * checking students into the testing center, and displaying a map of the stations in the testing center, with the
  * current status of each station reflected in its icon color.
  */
@@ -108,13 +109,13 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     private String studentId;
 
     /** Information on the student attempting to check in. */
-    private DataOnCheckInAttempt info;
+    private DataCheckInAttempt info;
 
     /** Random number generator used to assign seats. */
     private final Random random;
 
     /**
-     * Constructs a new {@code CheckinApp}.
+     * Constructs a new {@code CheckInApp}.
      *
      * @param theCenterId the ID of the testing center this application manages
      */
@@ -123,17 +124,18 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         super();
 
         this.centerId = theCenterId;
-        this.random = new Random(System.currentTimeMillis());
+        final long seed = System.currentTimeMillis();
+        this.random = new Random(seed);
     }
 
     /**
-     * The application's main processing method. This should be called after object construction to run the checkin
+     * The application's main processing method. This should be called after object construction to run the check-in
      * process.
      *
      * @param now        the date/time to consider as "now"
      * @param fullScreen {@code true} to build screen in full-screen mode
      */
-    private void runCheckinApplication(final ZonedDateTime now, final boolean fullScreen) {
+    private void runCheckInApplication(final ZonedDateTime now, final boolean fullScreen) {
 
         this.dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.CHECKIN_PATH);
         if (this.dbProfile == null) {
@@ -164,7 +166,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
                 // everything else on the desktop. All windows this application creates will be children of this
                 // window, so they will not be obscured, but the desktop will not be available.
-                if (logic.init(cache) && createBlockingWindow(fullScreen)) {
+                if (logic.isInitialized(cache) && createBlockingWindow(fullScreen)) {
 
                     final LocalTime closing = determineClosing(cache);
 
@@ -228,7 +230,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             } finally {
                 ctx.checkInConnection(conn);
             }
-        } catch (final Exception ex) {
+        } catch (final SQLException ex) {
             Log.severe(ex);
         }
 
@@ -272,7 +274,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 }
 
                 if (end != null) {
-                    final String hours = end.substring(0, end.length() - 6);
+                    final int endLen = end.length();
+                    final String hours = end.substring(0, endLen - 6);
                     final int hour = 12 + Integer.parseInt(hours);
 
                     try {
@@ -350,34 +353,33 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         final DbContext dbctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
 
+        final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
+
         // Present a login dialog to gather username, password
         for (; ; ) {
-            final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
-
             if (dlg.gatherInformation()) {
-                dbctx.loginConfig.setLogin(dlg.getUsername(), String.valueOf(dlg.getPassword()));
-            } else {
-                dlg.close();
-                throw new SQLException("Login canceled by user");
-            }
-
-            try {
-                final DbConnection conn = dbctx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+                final String username = dlg.getUsername();
+                final char[] passwordChars = dlg.getPassword();
+                final String password = String.valueOf(passwordChars);
+                dbctx.loginConfig.setLogin(username, password);
 
                 try {
-                    TermLogic.get(cache).queryActive(cache);
-                    dlg.close();
-                    break;
-                } finally {
-                    dbctx.checkInConnection(conn);
+                    final DbConnection conn = dbctx.checkOutConnection();
+                    final Cache cache = new Cache(this.dbProfile, conn);
+
+                    try {
+                        TermLogic.get(cache).queryActive(cache);
+                        dlg.close();
+                        break;
+                    } finally {
+                        dbctx.checkInConnection(conn);
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    JOptionPane.showMessageDialog(null, "Unable to connect to database");
                 }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                JOptionPane.showMessageDialog(null, "Unable to connect to database");
             }
         }
-
     }
 
     /**
@@ -386,7 +388,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      * windows. The goal of this window is to prevent the user from accessing other applications while the process is
      * running.
      *
-     * @param fullScreen {@code true} to build screen in fullscreen mode
+     * @param fullScreen {@code true} to build screen in full-screen mode
      * @return {@code true} if the blocking window was created; {@code false} otherwise
      */
     private boolean createBlockingWindow(final boolean fullScreen) {
@@ -401,10 +403,10 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             Log.warning(ex);
         }
 
-        this.frame = builder.getFrame();
-        this.top = builder.getTop();
-        this.bottom = builder.getBottom();
-        this.center = builder.getCenter();
+        this.frame = builder.getBuilderFrame();
+        this.top = builder.getTopPanel();
+        this.bottom = builder.getBottomPanel();
+        this.center = builder.getCenterPanel();
 
         return true;
     }
@@ -433,28 +435,21 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     }
 
     /**
-     * For the selected student ID, looks up the student information, and populates the {@code StudentCheckinInfo}
+     * For the selected student ID, looks up the student information, and populates the {@code StudentCheckInInfo}
      * object with eligibility information, which will include holds, exams the student is eligible for.
      *
      * @param cache the data cache
-     * @param logic the implementation of checkin logic to use
+     * @param logic the implementation of check-in logic to use
      * @throws SQLException if there is an error accessing the database
      */
     private void processStudentCheckin(final Cache cache, final LogicCheckIn logic) throws SQLException {
 
-        // Perform checkin logic, resulting in a checkin info structure for the student, or null on any error.
+        // Perform check-in logic, resulting in a check-in info structure for the student, or null on any error.
         this.info = logic.performCheckInLogic(this.studentId);
 
         if (this.info != null) {
             final Integer tutorialUnit = logic.getTutorialUnit();
-            this.center.setTutorialUnit(tutorialUnit);
-
-            final List<String> specialTypes = this.info.studentData.specialTypes;
-            boolean hasWheelchair = false;
-            if (specialTypes != null) {
-                hasWheelchair = specialTypes.contains("WHLCHR");
-                this.center.setIsWheelchair(hasWheelchair);
-            }
+            this.center.setElmUnit(tutorialUnit);
 
             // If there were any errors, display them and abort
             if (this.info.error != null) {
@@ -472,27 +467,25 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
             // Display the student name at the bottom of the screen.
             final RawStudent student = this.info.studentData.student;
-            final String name = student.firstName + CoreConstants.SPC + student.lastName;
+            final String name = student.getScreenName();
             this.bottom.setMessage(name);
 
             // There is no pending exam, so process the check-in now.
             displayHolds(this.info);
 
-            // Present the complete list of exams on the screen with the unavailable exams
-            // dimmed, and the available exams lit.
+            // Present the complete list of exams on the screen with the unavailable exams dimmed, and the available
+            // exams lit.
 
-            // Enter a loop to handle mistakes when choosing the exam. The staff member may go
-            // back to the exams list after selecting an exam in error.
+            // Enter a loop to handle mistakes when choosing the exam. The staff member may go back to the exams list
+            // after selecting an exam in error.
             this.state = CHOOSING_EXAM;
 
             while (this.state == CHOOSING_EXAM) {
                 // Display the list of exams available to the student.
-                this.center.showAvailableExams(this.info.availableExams);
+                this.center.showAvailableExams(this.info);
 
-                // Wait for the staff member to choose one of the exams, or cancel out of the
-                // transaction.
+                // Wait for the staff member to choose one of the exams, or cancel out of the transaction.
                 while (this.frame.isVisible() && this.state == CHOOSING_EXAM) {
-
                     try {
                         Thread.sleep(100L);
                     } catch (final InterruptedException ex) {
@@ -506,16 +499,15 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 // If an exam was selected, go on to process the selection.
                 if (this.state == ISSUE_EXAM) {
 
-                    // Reserve a seat for the exam, or show an error message if there are no
-                    // seats that can accommodate the exam selected.
-                    final boolean ok = reserveSeat(cache, hasWheelchair);
+                    // Reserve a seat for the exam, or show an error message if there are no seats that can accommodate
+                    // the exam selected.
+                    final boolean ok = reserveSeat(cache);
 
-                    // Display the selected exam for confirmation. For a paper exam,
-                    // confirmation consists of scanning a calculator. For an online exam,
-                    // there is a button to press to confirm. In either case, there is a "Back"
-                    // button to return to the exams list.
+                    // Display the selected exam for confirmation. For a paper exam, confirmation consists of scanning
+                    // a calculator. For an online exam, there is a button to press to confirm. In either case, there
+                    // is a "Back" button to return to the exams list.
                     if (ok) {
-                        if ("PAPER".equals(this.info.selectedCourse) ? scanCalculator() : confirmIssuance()) {
+                        if (confirmIssuance()) {
                             startExam(cache);
                         } else {
                             // Not confirmed, return to selecting exam
@@ -537,11 +529,11 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     /**
      * Tests whether there are holds that will prevent the student from testing.
      *
-     * @param checkinInfo the data object that contains the holds to display
+     * @param checkInInfo the data object that contains the holds to display
      */
-    private void displayHolds(final DataOnCheckInAttempt checkinInfo) {
+    private void displayHolds(final DataCheckInAttempt checkInInfo) {
 
-        final List<String> holds = checkinInfo.studentData.holdsToShow;
+        final List<String> holds = checkInInfo.studentData.holdsToShow;
 
         if (holds != null) {
             for (String str : holds) {
@@ -561,12 +553,10 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      * support that exam, if any seats are free which can accommodate the selected exam.
      *
      * @param cache      the data cache
-     * @param wheelchair {@code true} to reserve a wheelchair seat, {@code false} to try to reserve any non-wheelchair
-     *                   seat first, then fall back to wheelchair seats
      * @return {@code true} if a seat was reserved, {@code false} if it could not be
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean reserveSeat(final Cache cache, final boolean wheelchair) throws SQLException {
+    private boolean reserveSeat(final Cache cache) throws SQLException {
 
         final List<RawClientPc> choices;
         boolean ok = false;
@@ -575,8 +565,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         // STATE_PAPER_ONLY), based on paper/online status of the exam. Then for each computer,
         // compute the distance to the nearest station running the same course (and unit).
 
-        final Integer theStatus = "PAPER".equals(this.info.selectedCourse)
-                ? RawClientPc.STATUS_PAPER_ONLY : RawClientPc.STATUS_LOCKED;
+        final Integer theStatus = RawClientPc.STATUS_LOCKED;
 
         final List<RawClientPc> clients = RawClientPcLogic.queryByTestingCenter(cache, this.centerId);
         if (clients.isEmpty()) {
@@ -603,14 +592,14 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                         || RawClientPc.STATUS_LOGIN_NOCHECK.equals(status)) {
                     PopupPanel.showPopupMessage(this, this.center, "Student already at seat " + client.stationNbr,
                             null, null, PopupPanel.STYLE_OK);
-                    Log.info("Student " + this.studentId + " already at seat " + client.stationNbr);
+                    Log.info("Student ", this.studentId, " already at seat ", client.stationNbr);
 
                     return false;
                 }
             }
 
             // Computers not in the desired state are ineligible.
-            if (!client.currentStatus.equals(theStatus)) {
+            if (client.currentStatus == null || !client.currentStatus.equals(theStatus)) {
                 continue;
             }
 
@@ -627,7 +616,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 final RawClientPc test = clients.get(j);
 
                 // Ignore systems not running an exam or not the current course.
-                if (test.currentCourse == null || !test.currentCourse.equals(this.info.selectedCourse)) {
+                if (test.currentCourse == null || !test.currentCourse.equals(this.info.selections.course)) {
                     continue;
                 }
 
@@ -644,9 +633,15 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 if (client.iconX != null && client.iconY != null && test.iconX != null && test.iconY != null) {
 
                     // Compute distance using iconX and iconY
-                    double dist = Math.pow((double) (client.iconX.intValue() - test.iconX.intValue()), 2.0)
-                            + Math.pow((double) (client.iconY.intValue() - test.iconY.intValue()), 2.0);
-                    dist = Math.sqrt(dist);
+                    final int clientX = client.iconX.intValue();
+                    final int testX = test.iconX.intValue();
+                    final int clientY = client.iconY.intValue();
+                    final int testY = test.iconY.intValue();
+                    final double dx = (double)(clientX - testX);
+                    final double dy = (double)(clientY - testY);
+
+                    final double distSq = dx * dx + dy *dy;
+                    final double dist = Math.sqrt(distSq);
 
                     if (dist < min) {
                         min = dist;
@@ -691,9 +686,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         for (int i = 0; i < numClients; ++i) {
             final RawClientPc client = clients.get(i);
-            final boolean pcIsWheelchair = RawClientPc.USAGE_WHEELCHAIR.equals(client.pcUsage);
 
-            if (pcIsWheelchair == wheelchair && (distances[i] != null && distances[i].doubleValue() >= min)) {
+            if (distances[i] != null && distances[i].doubleValue() >= min) {
                 choices.add(client);
             }
         }
@@ -719,25 +713,17 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         }
 
         // Now pick from the choices
-        final RawClientPc chosen = choices.isEmpty() ? null : choices.get(this.random.nextInt(choices.size()));
+        final int numChoices = choices.size();
+        final int selectedChoiceIndex = this.random.nextInt(numChoices);
+        final RawClientPc chosen = choices.get(selectedChoiceIndex);
 
         if (chosen != null) {
-            final boolean chosenIsWC = RawClientPc.USAGE_WHEELCHAIR.equals(chosen.pcUsage);
-
-            if ((wheelchair && !chosenIsWC) && "No".equals(PopupPanel.showPopupMessage(this, this.center,
-                    "No wheelchair accessible seats available.", null,
-                    "Do you want to assign a non-accessible seat?", PopupPanel.STYLE_NO_YES))) {
-                Log.info("Unable to reserve accessible seat");
-
-                return false;
-            }
-
-            this.info.reservedSeat = chosen;
-            Log.info("Station " + chosen.stationNbr + " reserved for " + this.info.selectedCourse);
+            this.info.selections.reservedSeat = chosen;
+            Log.info("Station ", chosen.stationNbr, " reserved for ", this.info.selections.course);
             ok = true;
         } else {
             PopupPanel.showPopupMessage(this, this.center, "No seats available", null, null, PopupPanel.STYLE_OK);
-            Log.info("Attempt to reserve seat for " + this.info.selectedCourse + " failed due to lack of seats");
+            Log.info("Attempt to reserve seat for ", this.info.selections.course, " failed due to lack of seats");
         }
 
         return ok;
@@ -753,15 +739,17 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add("Assigning ", this.info.selectedCourse);
+        htm.add("Assigning ", this.info.selections.course);
 
-        if (this.info.selectedUnit != 0) {
-            htm.add(" unit ", Integer.toString(this.info.selectedUnit));
+        if (this.info.selections.unit != 0) {
+            final String unitStr = Integer.toString(this.info.selections.unit);
+            htm.add(" unit ", unitStr);
         }
 
-        htm.add(" at station ", this.info.reservedSeat);
+        htm.add(" at station ", this.info.selections.reservedSeat);
 
-        final String cmd = PopupPanel.showPopupMessage(this, this.center, htm.toString(), null,
+        final String htmStr = htm.toString();
+        final String cmd = PopupPanel.showPopupMessage(this, this.center, htmStr, null,
                 "Scan calculator if one is required:", PopupPanel.STYLE_OK_CANCEL);
 
         if ("Cancel".equalsIgnoreCase(cmd)) {
@@ -806,25 +794,28 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        final String course = this.info.selectedCourse;
+        final String course = this.info.selections.course;
         String warn = null;
 
-        Log.info("Selected exam ID: " + this.info.selectedExam.version);
-        Log.info("Selected exam type: " + this.info.selectedExam.examType);
+        Log.info("Selected exam ID: " + this.info.selections.exam.version);
+        Log.info("Selected exam type: " + this.info.selections.exam.examType);
 
-        if ("CH".equals(this.info.selectedExam.examType)) {
-            htm.add("Assigning ", this.info.selectedExam.buttonLabel, " at station ", this.info.reservedSeat.stationNbr);
+        if ("CH".equals(this.info.selections.exam.examType)) {
+            htm.add("Assigning ", this.info.selections.exam.buttonLabel, " at station ",
+                    this.info.selections.reservedSeat.stationNbr);
             warn = "TELL STUDENT $20 FEE WILL BE BILLED TO ACCOUNT!";
         } else if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
                 || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
                 || RawRecordConstants.M126.equals(course)) {
-            htm.add("Assigning ", course, CoreConstants.SPC, this.info.selectedExam.buttonLabel, " at station ",
-                    this.info.reservedSeat.stationNbr);
+            htm.add("Assigning ", course, CoreConstants.SPC, this.info.selections.exam.buttonLabel, " at station ",
+                    this.info.selections.reservedSeat.stationNbr);
         } else {
-            htm.add("Assigning ", this.info.selectedExam.buttonLabel, " at station ", this.info.reservedSeat.stationNbr);
+            htm.add("Assigning ", this.info.selections.exam.buttonLabel, " at station ",
+                    this.info.selections.reservedSeat.stationNbr);
         }
 
-        final String cmd = PopupPanel.showPopupMessage(this, this.center, htm.toString(), warn,
+        final String htmStr = htm.toString();
+        final String cmd = PopupPanel.showPopupMessage(this, this.center, htmStr, warn,
                 "Do you want to start this exam?", PopupPanel.STYLE_YES_NO);
 
         return "Yes".equalsIgnoreCase(cmd);
@@ -840,17 +831,17 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private boolean startExam(final Cache cache) throws SQLException {
 
-        final RawClientPc station = this.info.reservedSeat;
+        final RawClientPc station = this.info.selections.reservedSeat;
 
         final String stuId = this.info.studentData.stuId;
 
         final LocalDateTime now = LocalDateTime.now();
         RawStvisitLogic.INSTANCE.startNewVisit(cache, stuId, now, "TC", station.stationNbr);
 
-        final Integer selectedUnitObj = Integer.valueOf(this.info.selectedUnit);
+        final Integer selectedUnitObj = Integer.valueOf(this.info.selections.unit);
         final boolean ok = RawClientPcLogic.updateAllCurrent(cache, station.computerId,
-                RawClientPc.STATUS_AWAIT_STUDENT, stuId, this.info.selectedCourse, selectedUnitObj,
-                this.info.selectedExam.version);
+                RawClientPc.STATUS_AWAIT_STUDENT, stuId, this.info.selections.course, selectedUnitObj,
+                this.info.selections.exam.version);
 
         if (!ok) {
             PopupPanel.showPopupMessage(this, this.center, "Unable to complete check in process", null,
@@ -898,44 +889,46 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     void chooseExam(final Cache cache, final String course, final int unit, final String type) throws SQLException {
 
         final RawStudent student = this.info.studentData.student;
-        final String name = student.firstName + CoreConstants.SPC + student.lastName;
+        final String name = student.getScreenName();
 
         if (course == null) {
             this.info = null;
             this.state = AWAIT_STUDENT;
             this.bottom.setMessage("CHECK IN");
         } else {
-            this.info.selectedCourse = course;
-            this.info.selectedUnit = unit;
+            this.info.selections.course = course;
+            this.info.selections.unit = unit;
 
             // Look up the version of the exam
 
             if (RawRecordConstants.M100P.equals(course)) {
-                this.info.selectedExam = RawExamLogic.query(cache, "MPTTC");
+                this.info.selections.exam = RawExamLogic.query(cache, "MPTTC");
                 this.bottom.setMessage(name);
             } else if (RawRecordConstants.M100U.equals(course)) {
-                this.info.selectedExam = RawExamLogic.query(cache, "UOOOO");
+                this.info.selections.exam = RawExamLogic.query(cache, "UOOOO");
                 this.bottom.setMessage(name);
-            } else if ("CH".equals(type)) {
-                this.info.selectedExam = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(unit), type);
-                if (this.info.selectedExam == null) {
-                    Log.warning("Unable to query exam ", course, CoreConstants.SPC, Integer.toString(unit),
-                            CoreConstants.SPC, type);
-                }
             } else {
-                this.info.selectedExam = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(unit), type);
-                if (this.info.selectedExam == null) {
-                    this.bottom.setMessage("INVALID EXAM");
-                    return;
+                final Integer unitObj = Integer.valueOf(unit);
+                if ("CH".equals(type)) {
+                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    if (this.info.selections.exam == null) {
+                        Log.warning("Unable to query exam ", course, CoreConstants.SPC, unitObj, CoreConstants.SPC,
+                                type);
+                        this.bottom.setMessage(name);
+                    }
+                } else {
+                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    if (this.info.selections.exam == null) {
+                        this.bottom.setMessage("INVALID EXAM");
+                    } else {
+                        this.bottom.setMessage(name);
+                        Log.info("Exam version is ", this.info.selections.exam.version);
+                    }
                 }
-
-                Log.info("Exam version is " + this.info.selectedExam.version);
             }
 
-            this.bottom.setMessage(name);
             this.bottom.repaint();
-
-            this.state = this.info.selectedExam == null ? AWAIT_STUDENT : ISSUE_EXAM;
+            this.state = this.info.selections.exam == null ? AWAIT_STUDENT : ISSUE_EXAM;
         }
     }
 
@@ -971,19 +964,6 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     }
 
     /**
-     * Sets the flag indicating the student needs a wheelchair.
-     *
-     * @param newIsWheelchair {@code true} if the student requires wheelchair access; {@code false} if not.
-     */
-    void setWheelchair(final boolean newIsWheelchair) {
-
-        // NOTE: Called from the AWT event thread.
-
-        this.center.setIsWheelchair(newIsWheelchair);
-        this.center.repaint();
-    }
-
-    /**
      * Main method that launches the remote testing application.
      *
      * @param args command-line arguments: first (optional) argument is the testing center ID, and second (optional) is
@@ -1009,16 +989,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         final CheckinApp app = new CheckinApp(centerId);
         final ZonedDateTime now = ZonedDateTime.now();
-        app.runCheckinApplication(now, fullScreen);
-
-        try {
-            Thread.sleep(500L);
-        } catch (final InterruptedException ex) {
-            Log.warning(ex);
-        }
-
-        System.exit(0);
-    }
+        app.runCheckInApplication(now, fullScreen);    }
 }
 
 /**
@@ -1041,16 +1012,16 @@ final class BlockingWindowBuilder implements Runnable {
     private final boolean full;
 
     /** The frame in which the background desktop pane will live. */
-    private JFrame builderFrame;
+    private JFrame builderFrame = null;
 
     /** The top panel. */
-    private FieldPanel topPanel;
+    private FieldPanel topPanel = null;
 
     /** The bottom panel. */
-    private BottomPanel bottomPanel;
+    private BottomPanel bottomPanel = null;
 
     /** The center panel. */
-    private CenterPanel centerPanel;
+    private CenterPanel centerPanel = null;
 
     /**
      * Constructs a new {@code BlockingWindowBuilder}.
@@ -1060,8 +1031,8 @@ final class BlockingWindowBuilder implements Runnable {
      * @param centerId     the ID of the testing center being managed
      * @param fullScreen   {@code true} to build screen in full-screen mode
      */
-    BlockingWindowBuilder(final CheckinApp theListener, final DbProfile theDbProfile,
-                          final String centerId, final boolean fullScreen) {
+    BlockingWindowBuilder(final CheckinApp theListener, final DbProfile theDbProfile, final String centerId,
+                          final boolean fullScreen) {
 
         this.listener = theListener;
         this.dbProfile = theDbProfile;
@@ -1074,7 +1045,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the frame
      */
-    public JFrame getFrame() {
+    JFrame getBuilderFrame() {
 
         return this.builderFrame;
     }
@@ -1084,7 +1055,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the top panel
      */
-    public FieldPanel getTop() {
+    FieldPanel getTopPanel() {
 
         return this.topPanel;
     }
@@ -1094,7 +1065,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the bottom panel
      */
-    public BottomPanel getBottom() {
+    BottomPanel getBottomPanel() {
 
         return this.bottomPanel;
     }
@@ -1104,7 +1075,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the center panel
      */
-    public CenterPanel getCenter() {
+    CenterPanel getCenterPanel() {
 
         return this.centerPanel;
     }
@@ -1115,7 +1086,7 @@ final class BlockingWindowBuilder implements Runnable {
     @Override
     public void run() {
 
-        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1200, 960);
+        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1600, 900);
 
         this.builderFrame = new JFrame("Checkin");
         if (this.full) {
@@ -1152,5 +1123,21 @@ final class BlockingWindowBuilder implements Runnable {
 
         // Start the map updater thread.
         new Thread(this.centerPanel).start();
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final String fullStr = Boolean.toString(this.full);
+
+        return SimpleBuilder.concat("BlockingWindowBuilder{listener=", this.listener, ", dbProfile=", this.dbProfile,
+                ", testingCenterId='", this.testingCenterId, "', full=", fullStr, ", builderFrame=", this.builderFrame,
+                ", topPanel=", this.topPanel, ", bottomPanel=", this.bottomPanel, ", centerPanel=", this.centerPanel,
+                "}");
     }
 }

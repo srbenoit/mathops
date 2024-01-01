@@ -212,4 +212,28 @@ public class SimpleBuilder extends CoreBuilder {
 
         return builder.toString();
     }
+
+    /**
+     * Given a string, pads it to a specified length with trailing spaces if the string is not already at least that
+     * length.
+     *
+     * @param toPad the string to be padded
+     * @param len   the desired length
+     * @return the padded string
+     */
+    public static String pad(final String toPad, final int len) {
+
+        final String result;
+
+        if (toPad.length() < len) {
+            final SimpleBuilder builder = new SimpleBuilder(len);
+            builder.innerAddString(toPad);
+            builder.padToLength(len);
+            result = builder.toString();
+        } else {
+            result = toPad;
+        }
+
+        return result;
+    }
 }

@@ -3,7 +3,6 @@ package dev.mathops.app.checkin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.JPanel;
@@ -17,59 +16,62 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.Serial;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * The bottom panel, showing "CHECK IN", the current time, and the time remaining until closing. When an exam is to be
  * started, the exam's duration (including student time-limit factor adjustments) is compared with the time remaining to
  * close, and a warning is shown if the student does not have their full measure of time remaining.
  */
-public class BottomPanel extends JPanel {
+public final class BottomPanel extends JPanel {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 4327818980945601933L;
 
-    /** The text message to display in the panel. */
-    private String message;
+    /** Object on which to synchronize changes. */
+    private final Object synch;
 
-    /** The font in which to draw the message. */
-    private Font messageFont;
+    /** The text message to display in the panel. */
+    private String message = null;
 
     /** The font in which to draw the current time clock. */
-    private Font clockFont;
+    private Font clockFont = null;
 
     /** The font in which to draw the time remaining. */
-    private Font remainFont;
+    private Font closingFont = null;
 
     /** The color in which to paint the message. */
-    private Color color;
+    private final Color color;
 
     /** The shadow color. */
-    private Color shadow;
+    private final Color shadow;
 
-    /** The offscreen image buffer. */
-    private BufferedImage backbuffer;
+    /** The off-screen image buffer. */
+    private BufferedImage backBuffer = null;
 
     /** The graphics context of the back buffer. */
-    private Graphics2D offscreen;
+    private Graphics2D offScreen = null;
 
     /** The closing time. */
-    private LocalTime closingTime;
+    private LocalTime closingTime = null;
 
     /** The current time string. */
     private String currentTimeStr;
 
     /** The closing time string. */
-    private String closingTimeString;
+    private String closingTimeString = null;
 
     /**
      * Constructs a new {@code BottomPanel}.
      *
      * @param screen the size of the screen or window this panel is contained in
      */
-    public BottomPanel(final Dimension screen) {
+    BottomPanel(final Dimension screen) {
 
         super();
+
+        this.synch = new Object();
 
         // NOTE: This constructor is called from the GUI builder in the main application, which
         // runs in the AWT thread, so we are safe to do AWT operations.
@@ -77,38 +79,15 @@ public class BottomPanel extends JPanel {
         setDoubleBuffered(false);
         setBackground(new Color(210, 210, 235));
         setPreferredSize(new Dimension(screen.width, screen.height / 7));
-        updateColor();
+
+        final Color bg = getBackground();
+        this.color = bg.darker();
+        this.shadow = this.color.darker();
+
         setFocusable(true);
 
         final LocalTime now = LocalTime.now();
         this.currentTimeStr = TemporalUtils.FMT_HM_A.format(now);
-    }
-
-    /**
-     * Updates the color in which to paint the text, based on the current background color.
-     */
-    private void updateColor() {
-
-        // NOTE: Runs in the AWT event thread.
-
-        final Color bg = getBackground();
-
-        // Generate a slightly lighter color than the background
-        int r = bg.getRed();
-        int g = bg.getGreen();
-        int b = bg.getBlue();
-        r = r * 2 / 3;
-        g = g * 2 / 3;
-        b = b * 2 / 3;
-        this.color = new Color(r, g, b);
-
-        r = this.color.getRed();
-        g = this.color.getGreen();
-        b = this.color.getBlue();
-        r = r * 2 / 3;
-        g = g * 2 / 3;
-        b = b * 2 / 3;
-        this.shadow = new Color(r, g, b);
     }
 
     /**
@@ -117,15 +96,12 @@ public class BottomPanel extends JPanel {
      * @param theMessage the new message text
      */
     public void setMessage(final String theMessage) {
-        synchronized (this) {
 
+        synchronized (this.synch) {
             this.message = theMessage;
-            this.messageFont = null;
-            this.clockFont = null;
-            this.remainFont = null;
 
-            if (this.offscreen != null) {
-                drawOffscreen();
+            if (this.offScreen != null) {
+                drawOffScreen(this.offScreen);
                 repaint();
             }
         }
@@ -136,13 +112,13 @@ public class BottomPanel extends JPanel {
      *
      * @param theClosingTime the closing time
      */
-    public void setClosingTime(final LocalTime theClosingTime) {
-        synchronized (this) {
+    void setClosingTime(final LocalTime theClosingTime) {
 
+        synchronized (this.synch) {
             this.closingTime = theClosingTime;
 
-            if (this.offscreen != null) {
-                drawOffscreen();
+            if (this.offScreen != null) {
+                drawOffScreen(this.offScreen);
                 repaint();
             }
         }
@@ -152,8 +128,8 @@ public class BottomPanel extends JPanel {
      * Refreshes the display if needed.
      */
     public void refresh() {
-        synchronized (this) {
 
+        synchronized (this.synch) {
             final LocalTime now = LocalTime.now();
 
             String closing = CoreConstants.EMPTY;
@@ -163,19 +139,19 @@ public class BottomPanel extends JPanel {
                 final int remain = closeMin - nowMin;
 
                 if (remain < 0) {
-                    closing = SimpleBuilder.concat(TemporalUtils.FMT_HM_A.format(this.closingTime),
-                            " [CLOSED]");
+                    final String timeStr = TemporalUtils.FMT_HM_A.format(this.closingTime);
+                    closing = SimpleBuilder.concat(timeStr, " [CLOSED]");
                 } else {
-                    closing =
-                            SimpleBuilder.concat("Closing in ", Integer.toString(remain), " minutes.");
+                    final String remainStr = Integer.toString(remain);
+                    closing = SimpleBuilder.concat("Closing in ", remainStr, " minutes.");
                 }
             }
 
             this.currentTimeStr = TemporalUtils.FMT_HM_A.format(now);
             this.closingTimeString = closing;
 
-            if (this.offscreen != null) {
-                drawOffscreen();
+            if (this.offScreen != null) {
+                drawOffScreen(this.offScreen);
                 repaint();
             }
         }
@@ -188,78 +164,120 @@ public class BottomPanel extends JPanel {
      */
     @Override
     public void paintComponent(final Graphics g) {
-        synchronized (this) {
 
-            if (this.offscreen == null) {
-                this.backbuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-                this.offscreen = (Graphics2D) this.backbuffer.getGraphics();
+        synchronized (this.synch) {
+            if (this.offScreen == null) {
+                final int width = getWidth();
+                final int height = getHeight();
+                this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                this.offScreen = (Graphics2D) this.backBuffer.getGraphics();
 
                 // Configure permanent attributes of the drawing context.
-                this.offscreen.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                this.offScreen.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-                drawOffscreen();
+                drawOffScreen(this.offScreen);
             }
 
-            g.drawImage(this.backbuffer, 0, 0, this);
+            g.drawImage(this.backBuffer, 0, 0, this);
         }
     }
 
     /**
      * Updates the off-screen image.
      */
-    private void drawOffscreen() {
-        synchronized (this) {
+    private void drawOffScreen(final Graphics2D grx) {
 
-            // NOTE: Does not run in the AWT thread, but only draws to a private Graphics pointing to a
-            // private BufferedImage, so it should not impact the AWT tree.
+        // Called only from within blocks synchronized on "this.synch"
 
-            final Graphics2D grx = this.offscreen;
-            if (grx == null) {
-                return;
-            }
+        // NOTE: Does not run in the AWT thread, but only draws to a private Graphics pointing to a private
+        // BufferedImage, so it should not impact the AWT tree.
 
-            grx.setColor(getBackground());
-            grx.fillRect(0, 0, getWidth(), getHeight());
+        if (Objects.nonNull(grx)) {
+            final Color background = getBackground();
 
             final Dimension size = getSize();
-            final int height = size.height;
             final int width = size.width;
+            final int height = size.height;
 
-            // Generate a string that is the width of the message and a number of nines equal to the
-            // width of the field.
-            final String test = (this.message != null) ? this.message : CoreConstants.EMPTY;
+            grx.setColor(background);
+            grx.fillRect(0, 0, width, height);
 
+            int right = width - height / 3;
+
+            if (Objects.nonNull(this.currentTimeStr)) {
+
+                if (this.clockFont == null) {
+                    final BundledFontManager bfm = BundledFontManager.getInstance();
+                    final double clockSize = (double) height * 0.45;
+                    final double closingSize = clockSize * 0.43;
+                    this.clockFont = bfm.getFont(BundledFontManager.SERIF, clockSize, Font.BOLD);
+                    this.closingFont = bfm.getFont(BundledFontManager.SERIF, closingSize, Font.BOLD);
+                }
+
+                grx.setFont(this.clockFont);
+                final FontMetrics fm2 = grx.getFontMetrics();
+
+                final int timeWidth = fm2.stringWidth(this.currentTimeStr);
+                int timeY = (height + fm2.getAscent()) / 2;
+                int closingWidth = 0;
+                int closingY = 0;
+
+                if (Objects.nonNull(this.closingTimeString)) {
+                    grx.setFont(this.closingFont);
+                    final FontMetrics fm3 = grx.getFontMetrics();
+                    closingWidth = fm3.stringWidth(this.closingTimeString);
+                    grx.setFont(this.clockFont);
+
+                    final int closingHeight = fm3.getHeight();
+                    timeY -= closingHeight / 2;
+                    closingY = timeY + closingHeight;
+                }
+
+                final int timeX = right - Math.max(timeWidth, closingWidth);
+
+                grx.setColor(this.shadow);
+                grx.drawString(this.currentTimeStr, timeX + 1, timeY);
+                grx.drawString(this.currentTimeStr, timeX - 1, timeY);
+                grx.drawString(this.currentTimeStr, timeX, timeY + 1);
+                grx.drawString(this.currentTimeStr, timeX, timeY - 1);
+
+                grx.setColor(this.color);
+                grx.drawString(this.currentTimeStr, timeX, timeY);
+
+                if (Objects.nonNull(this.closingTimeString)) {
+                    grx.setFont(this.closingFont);
+                    grx.setColor(this.shadow);
+                    grx.drawString(this.closingTimeString, timeX, closingY);
+                }
+
+                right = timeX - height / 2;
+            }
+
+            final String test = this.message == null ? CoreConstants.EMPTY : this.message;
             int pts;
 
             if (!test.isEmpty()) {
 
-                if (this.messageFont == null) {
-                    final BundledFontManager bfm = BundledFontManager.getInstance();
-                    pts = 10;
+                final int left = height / 3;
+                final int avail = right - left;
 
-                    while (pts < 200) {
-                        this.messageFont = bfm.getFont(BundledFontManager.SERIF, (double) pts, Font.BOLD);
-                        this.clockFont = bfm.getFont(BundledFontManager.SERIF, (double) (pts * 3) / 5.0, Font.BOLD);
-                        this.remainFont =
-                                bfm.getFont(BundledFontManager.SERIF, (double) (pts * 3) / 10.0, Font.PLAIN);
+                final BundledFontManager bfm = BundledFontManager.getInstance();
+                pts = height * 3 / 5;
+                Font messageFont = null;
+                while (pts >= 10) {
+                    messageFont = bfm.getFont(BundledFontManager.SERIF, (double) pts, Font.BOLD);
+                    final FontMetrics fm = grx.getFontMetrics(messageFont);
+                    final int textWidth = fm.stringWidth(test);
 
-                        final FontMetrics fm = grx.getFontMetrics(this.messageFont);
-
-                        if ((double) fm.stringWidth(test) >= ((double) width * 0.8)
-                                || (double) fm.getHeight() >= ((double) height * 0.8)) {
-                            break;
-                        }
-
-                        pts += 4;
+                    if (textWidth <= avail) {
+                        break;
                     }
+                    pts -= 10;
                 }
-
-                grx.setFont(this.messageFont);
+                grx.setFont(messageFont);
 
                 final FontMetrics fm = grx.getFontMetrics();
-                final int x1 = getHeight() / 3;
-
                 int yPix = ((fm.getAscent() * 3 / 4) + height) / 2;
 
                 if ((yPix + fm.getDescent() + fm.getLeading()) > height) {
@@ -268,41 +286,32 @@ public class BottomPanel extends JPanel {
 
                 if (this.message != null) {
                     grx.setColor(this.shadow);
-                    grx.drawString(this.message, x1 + 1, yPix);
-                    grx.drawString(this.message, x1 - 1, yPix);
-                    grx.drawString(this.message, x1, yPix + 1);
-                    grx.drawString(this.message, x1, yPix - 1);
+                    grx.drawString(this.message, left + 1, yPix);
+                    grx.drawString(this.message, left - 1, yPix);
+                    grx.drawString(this.message, left, yPix + 1);
+                    grx.drawString(this.message, left, yPix - 1);
 
                     grx.setColor(this.color);
-                    grx.drawString(this.message, x1, yPix);
-                }
-
-                if (this.currentTimeStr != null) {
-                    grx.setFont(this.clockFont);
-
-                    final FontMetrics fm2 = grx.getFontMetrics();
-                    final int yPix2 = yPix - (fm.getAscent() - fm2.getAscent());
-
-                    final int x2 = getWidth() - x1 - fm2.stringWidth(this.currentTimeStr);
-
-                    grx.setColor(this.shadow);
-                    grx.drawString(this.currentTimeStr, x2 + 1, yPix2);
-                    grx.drawString(this.currentTimeStr, x2 - 1, yPix2);
-                    grx.drawString(this.currentTimeStr, x2, yPix2 + 1);
-                    grx.drawString(this.currentTimeStr, x2, yPix2 - 1);
-
-                    grx.setColor(this.color);
-                    grx.drawString(this.currentTimeStr, x2, yPix2);
-
-                    if (this.closingTimeString != null) {
-                        Log.info(this.closingTimeString);
-                        grx.setFont(this.remainFont);
-
-                        grx.setColor(this.shadow);
-                        grx.drawString(this.closingTimeString, x2, yPix);
-                    }
+                    grx.drawString(this.message, left, yPix);
                 }
             }
+        }
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        synchronized (this.synch) {
+            return SimpleBuilder.concat("BottomPanel{message='", this.message, "', clockFont=", this.clockFont,
+                    ", closingFont=", this.closingFont, ", color=", this.color, ", shadow=", this.shadow,
+                    ", backBuffer=", this.backBuffer, ", offScreen=", this.offScreen, ", closingTime=",
+                    this.closingTime, ", currentTimeStr='", this.currentTimeStr, "', closingTimeString='",
+                    this.closingTimeString, "'}");
         }
     }
 }
