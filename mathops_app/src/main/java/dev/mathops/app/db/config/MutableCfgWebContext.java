@@ -4,10 +4,11 @@ import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.config.CfgDataProfile;
 import dev.mathops.db.config.CfgSite;
 import dev.mathops.db.config.CfgWebContext;
-import javafx.beans.property.MapPropertyBase;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public final class MutableCfgWebContext {
     public final StringPropertyBase host;
 
     /** A mutable map from site path to the mutable site configuration. */
-    private final MapPropertyBase<String, MutableCfgSite> sites;
+    private final ObservableMap<String, MutableCfgSite> sites;
 
     /**
      * Constructs a new, empty {@code MutableCfgWebContext}.
@@ -46,7 +47,7 @@ public final class MutableCfgWebContext {
     public MutableCfgWebContext() {
 
         this.host = new SimpleStringProperty();
-        this.sites = new SimpleMapProperty<>();
+        this.sites = FXCollections.observableHashMap();
     }
 
     /**
@@ -80,7 +81,7 @@ public final class MutableCfgWebContext {
      *
      * @return the sites property
      */
-    public MapPropertyBase<String, MutableCfgSite> getSitesProperty() {
+    public ObservableMap<String, MutableCfgSite> getSites() {
 
         return this.sites;
     }

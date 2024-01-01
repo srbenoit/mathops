@@ -9,9 +9,8 @@ import dev.mathops.db.config.CfgDatabaseLayer;
 import dev.mathops.db.config.CfgInstance;
 import dev.mathops.db.config.CfgLogin;
 import dev.mathops.db.config.CfgWebContext;
-import javafx.beans.property.MapPropertyBase;
-import javafx.beans.property.SimpleMapProperty;
-import oracle.sql.Mutable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,26 +46,26 @@ import java.util.Map;
 public final class MutableCfgDatabaseLayer {
 
     /** A mutable map from instance ID to the mutable instance configuration. */
-    private final MapPropertyBase<String, MutableCfgInstance> instances;
+    private final ObservableMap<String, MutableCfgInstance> instances;
 
     /** A mutable map from data profile ID to the mutable data profile configuration. */
-    private final MapPropertyBase<String, MutableCfgDataProfile> dataProfiles;
+    private final ObservableMap<String, MutableCfgDataProfile> dataProfiles;
 
     /** A mutable map from web context path to the mutable web context configuration. */
-    private final MapPropertyBase<String, MutableCfgWebContext> webContexts;
+    private final ObservableMap<String, MutableCfgWebContext> webContexts;
 
     /** A mutable map from code context ID to the mutable code context configuration. */
-    private final MapPropertyBase<String, MutableCfgCodeContext> codeContexts;
+    private final ObservableMap<String, MutableCfgCodeContext> codeContexts;
 
     /**
-     * Constructs a new, empty {@code MutableCfgDatabaseLayer}.
+     * Initializes a new {@code MutableCfgDatabaseLayer}.
      */
-    public MutableCfgDatabaseLayer() {
+    private MutableCfgDatabaseLayer() {
 
-        this.instances = new SimpleMapProperty<>();
-        this.dataProfiles = new SimpleMapProperty<>();
-        this.webContexts = new SimpleMapProperty<>();
-        this.codeContexts = new SimpleMapProperty<>();
+        this.instances = FXCollections.observableHashMap();
+        this.dataProfiles = FXCollections.observableHashMap();
+        this.webContexts = FXCollections.observableHashMap();
+        this.codeContexts = FXCollections.observableHashMap();
     }
 
     /**
@@ -101,7 +100,7 @@ public final class MutableCfgDatabaseLayer {
      *
      * @return the instances property
      */
-    public MapPropertyBase<String, MutableCfgInstance> getInstancesProperty() {
+    public ObservableMap<String, MutableCfgInstance> getInstances() {
 
         return this.instances;
     }
@@ -111,7 +110,7 @@ public final class MutableCfgDatabaseLayer {
      *
      * @return the data profiles property
      */
-    public MapPropertyBase<String, MutableCfgDataProfile> getDataProfilesProperty() {
+    public ObservableMap<String, MutableCfgDataProfile> getDataProfiles() {
 
         return this.dataProfiles;
     }
@@ -121,7 +120,7 @@ public final class MutableCfgDatabaseLayer {
      *
      * @return the web contexts property
      */
-    public MapPropertyBase<String, MutableCfgWebContext> getWebContextsProperty() {
+    public ObservableMap<String, MutableCfgWebContext> getWebContexts() {
 
         return this.webContexts;
     }
@@ -131,7 +130,7 @@ public final class MutableCfgDatabaseLayer {
      *
      * @return the code contexts property
      */
-    public MapPropertyBase<String, MutableCfgCodeContext> getCodeContextsProperty() {
+    public ObservableMap<String, MutableCfgCodeContext> getCodeContexts() {
 
         return this.codeContexts;
     }

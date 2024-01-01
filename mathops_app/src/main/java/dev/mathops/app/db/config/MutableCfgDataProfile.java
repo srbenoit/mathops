@@ -6,10 +6,11 @@ import dev.mathops.db.config.CfgDatabase;
 import dev.mathops.db.config.CfgLogin;
 import dev.mathops.db.config.CfgSchemaLogin;
 import dev.mathops.db.config.ESchemaType;
-import javafx.beans.property.MapPropertyBase;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ public final class MutableCfgDataProfile {
     public final StringPropertyBase id;
 
     /** A mutable map from schema login ID to the mutable schema login configuration. */
-    private final MapPropertyBase<ESchemaType, MutableCfgSchemaLogin> schemaLogins;
+    private final ObservableMap<ESchemaType, MutableCfgSchemaLogin> schemaLogins;
 
     /** The set of {@code MutableCfgWebContext} objects that reference this data profile. */
     private final transient Set<MutableCfgWebContext> referencingWebContexts;
@@ -59,7 +60,7 @@ public final class MutableCfgDataProfile {
     public MutableCfgDataProfile() {
 
         this.id = new SimpleStringProperty();
-        this.schemaLogins = new SimpleMapProperty<>();
+        this.schemaLogins = FXCollections.observableHashMap();
         this.referencingWebContexts = new HashSet<>(10);
         this.referencingCodeContexts = new HashSet<>(10);
     }
@@ -97,7 +98,7 @@ public final class MutableCfgDataProfile {
      *
      * @return the schema logins property
      */
-    public MapPropertyBase<ESchemaType, MutableCfgSchemaLogin> getSchemaLoginsProperty() {
+    public ObservableMap<ESchemaType, MutableCfgSchemaLogin> getSchemaLogins() {
 
         return this.schemaLogins;
     }

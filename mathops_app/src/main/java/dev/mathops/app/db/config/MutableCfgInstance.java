@@ -6,13 +6,14 @@ import dev.mathops.db.config.CfgDatabase;
 import dev.mathops.db.config.CfgInstance;
 import dev.mathops.db.config.CfgLogin;
 import javafx.beans.property.IntegerPropertyBase;
-import javafx.beans.property.MapPropertyBase;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +63,10 @@ public final class MutableCfgInstance {
     public final StringPropertyBase dbaUser;
 
     /** A mutable map from database ID to the mutable database configuration. */
-    private final MapPropertyBase<String, MutableCfgDatabase> databases;
+    private final ObservableMap<String, MutableCfgDatabase> databases;
 
     /** A mutable map from login ID to the mutable login configuration. */
-    private final MapPropertyBase<String, MutableCfgLogin> logins;
+    private final ObservableMap<String, MutableCfgLogin> logins;
 
     /**
      * Constructs a new, empty {@code MutableCfgInstance}.
@@ -78,8 +79,8 @@ public final class MutableCfgInstance {
         this.port = new SimpleIntegerProperty();
         this.name = new SimpleStringProperty();
         this.dbaUser = new SimpleStringProperty();
-        this.databases = new SimpleMapProperty<>();
-        this.logins = new SimpleMapProperty<>();
+        this.databases = FXCollections.observableHashMap();
+        this.logins = FXCollections.observableHashMap();
     }
 
     /**
@@ -173,7 +174,7 @@ public final class MutableCfgInstance {
      *
      * @return the databases property
      */
-    public MapPropertyBase<String, MutableCfgDatabase> getDatabasesProperty() {
+    public ObservableMap<String, MutableCfgDatabase> getDatabasesProperty() {
 
         return this.databases;
     }
@@ -183,7 +184,7 @@ public final class MutableCfgInstance {
      *
      * @return the logins property
      */
-    public MapPropertyBase<String, MutableCfgLogin> getLoginsProperty() {
+    public ObservableMap<String, MutableCfgLogin> getLoginsProperty() {
 
         return this.logins;
     }
