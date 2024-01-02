@@ -85,73 +85,73 @@ import java.util.Properties;
 public final class TestStationApp extends ClientBase implements Runnable, ExamContainerInt {
 
     /** Version number for screen displays. */
-    static final String VERSION = "v2.5.6 (Oct. 6, 2023)";
+    static final String VERSION = "v2.5.7 (Jan 2, 2024)";
 
     /** The main frame for the application. */
-    private JFrame frame;
+    private JFrame frame = null;
 
     /** The user home directory. */
     private final File userHomeDir;
 
     /** The desktop pane that holds all internal frames. */
-    private BackgroundPane desk;
+    private BackgroundPane desk = null;
 
     /** The status label at the bottom of the desktop. */
-    private JLabel statusLabel;
+    private JLabel statusLabel = null;
 
     /** The desktop background colors for each state. */
-    private Map<Integer, Color> colors;
+    private Map<Integer, Color> colors = null;
 
     /** The name of the testing center this station is in. */
-    private String testingCenterName;
+    private String testingCenterName = null;
 
     /** The number of this testing station. */
-    private String stationNumber;
+    private String stationNumber = null;
 
     /** The current status of the station. */
     private Integer status = RawClientPc.STATUS_ERROR;
 
     /** The ID of the student who is to take the exam. */
-    private String currentStudentId;
+    private String currentStudentId = null;
 
     /** The name of the student taking the exam. */
-    private String currentStudentName;
+    private String currentStudentName = null;
 
     /** The current version of exam being taken. */
-    private String currentVersion;
+    private String currentVersion = null;
 
     /** The exam session. */
-    private ExamSession examSession;
+    private ExamSession examSession = null;
 
     /** The panel showing the active exam. */
-    private ExamPanel examPanel;
+    private ExamPanel examPanel = null;
 
     /** The wrapper to present the exam panel in an internal frame. */
-    private ExamPanelWrapper examPanelWrapper;
+    private ExamPanelWrapper examPanelWrapper = null;
 
     /** Flag to indicate grading should take place. */
-    private String grade;
+    private String grade = null;
 
     /** Grades from the submitted exam. */
-    private Map<String, Integer> examScores;
+    private Map<String, Integer> examScores = null;
 
     /** Grades from the submitted exam. */
-    private Map<String, Object> examGrades;
+    private Map<String, Object> examGrades = null;
 
     /** Error grading the exam. */
-    private String examError;
+    private String examError = null;
 
     /** A dialog to confirm that the exam is complete. */
-    private AreYouFinished confirm;
+    private AreYouFinished confirm = null;
 
     /** Flag controlling whether coupons are used when exam is started. */
-    private boolean checkCoupons;
+    private boolean checkCoupons = false;
 
     /** Flag controlling whether eligibility is tested when exam is started. */
-    private boolean checkEligibility;
+    private boolean checkEligibility = false;
 
     /** The currently displayed error text. */
-    private String errorDisplay;
+    private String errorDisplay = null;
 
     /**
      * Constructs a new {@code TestStationApp}.
@@ -332,8 +332,8 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         }
 
         if (result) {
-            this.frame = builder.getFrame();
-            this.desk = builder.getDesk();
+            this.frame = builder.getBuilderFrame();
+            this.desk = builder.getBuilderDesk();
             this.statusLabel = builder.getStatusLabel();
             this.frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -1981,7 +1981,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
 
             try {
                 app.execute(fullScreen);
-            } catch (final Exception ex) {
+            } catch (final RuntimeException ex) {
                 JOptionPane.showMessageDialog(null, "Testing station app crashed: " + ex.getMessage());
                 Log.warning(ex);
             }
@@ -2004,13 +2004,13 @@ final class BlockingWindowBuilder implements Runnable {
     private final boolean full;
 
     /** The frame in which the background desktop pane will live. */
-    private JFrame builderFrame;
+    private JFrame builderFrame = null;
 
     /** The desktop background. */
-    private BackgroundPane builderDesk;
+    private BackgroundPane builderDesk = null;
 
     /** The desktop backgrounds. */
-    private JLabel statusLabel;
+    private JLabel statusLabel = null;
 
     /**
      * Constructs a new {@code BlockingWindowBuilder}.
@@ -2027,7 +2027,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the frame
      */
-    public JFrame getFrame() {
+    JFrame getBuilderFrame() {
 
         return this.builderFrame;
     }
@@ -2037,7 +2037,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the background panel
      */
-    public BackgroundPane getDesk() {
+    BackgroundPane getBuilderDesk() {
 
         return this.builderDesk;
     }
@@ -2058,7 +2058,7 @@ final class BlockingWindowBuilder implements Runnable {
     @Override
     public void run() {
 
-        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1280, 1024);
+        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1600, 900);
 
         this.builderFrame = new JFrame("Testing Station");
         this.builderFrame.setBackground(Color.BLACK);
@@ -2289,10 +2289,10 @@ final class ExamPanelBuilder implements Runnable {
     private final ExamSession examSession;
 
     /** The generated panel. */
-    private ExamPanel panel;
+    private ExamPanel panel = null;
 
     /** The generated panel wrapper. */
-    private ExamPanelWrapper wrapper;
+    private ExamPanelWrapper wrapper = null;
 
     /**
      * Constructs a new {@code ExamPanelBuilder}.
@@ -2338,7 +2338,7 @@ final class ExamPanelBuilder implements Runnable {
      *
      * @return the panel wrapper
      */
-    public ExamPanelWrapper getWrapper() {
+    ExamPanelWrapper getWrapper() {
 
         return this.wrapper;
     }
@@ -2382,7 +2382,8 @@ final class ExamPanelDisplay implements Runnable {
 
         this.background.add(this.wrapper);
         this.wrapper.makeFullscreen();
-        this.wrapper.setSize(this.wrapper.getPreferredSize());
+        final Dimension preferredSize = this.wrapper.getPreferredSize();
+        this.wrapper.setSize(preferredSize);
         this.wrapper.buildUI();
 
         if (panel.getExamSession().getExam().instructions == null) {
@@ -2469,7 +2470,7 @@ final class TimeoutUpdater implements Runnable {
     private final int max;
 
     /** The value to be set. */
-    private int value;
+    private int value = 0;
 
     /**
      * Constructs a new {@code TimeoutUpdater}.
