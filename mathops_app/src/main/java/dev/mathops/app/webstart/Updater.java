@@ -64,7 +64,7 @@ import java.lang.reflect.InvocationTargetException;
 final class Updater implements Runnable {
 
     /** Updater version. */
-    private static final String VERSION = "1.2.005";
+    private static final String VERSION = "1.2.006";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
