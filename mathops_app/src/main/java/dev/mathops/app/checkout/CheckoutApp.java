@@ -212,30 +212,30 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
         final DbContext dbctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
 
         // Present a login dialog to gather username, password
+        final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
+
         for (; ; ) {
-            final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
-
             if (dlg.gatherInformation()) {
-                dbctx.loginConfig.setLogin(dlg.getUsername(), String.valueOf(dlg.getPassword()));
-            } else {
-                dlg.close();
-                throw new SQLException("Login canceled by user");
-            }
-
-            try {
-                final DbConnection conn = dbctx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+                final String username = dlg.getUsername();
+                final char[] passwordChars = dlg.getPassword();
+                final String password = String.valueOf(passwordChars);
+                dbctx.loginConfig.setLogin(username, password);
 
                 try {
-                    TermLogic.get(cache).queryActive(cache);
-                    dlg.close();
-                    break;
-                } finally {
-                    dbctx.checkInConnection(conn);
+                    final DbConnection conn = dbctx.checkOutConnection();
+                    final Cache cache = new Cache(this.dbProfile, conn);
+
+                    try {
+                        TermLogic.get(cache).queryActive(cache);
+                        dlg.close();
+                        break;
+                    } finally {
+                        dbctx.checkInConnection(conn);
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    JOptionPane.showMessageDialog(null, "Unable to connect to database");
                 }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                JOptionPane.showMessageDialog(null, "Unable to connect to database");
             }
         }
     }

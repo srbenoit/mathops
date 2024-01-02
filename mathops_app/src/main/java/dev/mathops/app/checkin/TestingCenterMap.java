@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * A class that can draw the testing center map.
  */
-final class TestingCenterMap {
+public final class TestingCenterMap {
 
     /** The client computer list (can be updated to update the map).  */
     private final List<RawClientPc> stations;
@@ -75,7 +75,7 @@ final class TestingCenterMap {
     /**
      * Constructs a new {@code TestingCenterMap}.
      */
-    TestingCenterMap() {
+    public TestingCenterMap() {
 
         this.stations = new ArrayList<>(100);
 
