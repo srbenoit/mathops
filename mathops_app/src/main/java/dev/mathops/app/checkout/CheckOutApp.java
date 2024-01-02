@@ -6,6 +6,7 @@ import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.checkin.FieldPanel;
 import dev.mathops.app.checkin.LoginDialog;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ChangeUI;
 import dev.mathops.db.old.Cache;
@@ -39,6 +40,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,7 +50,7 @@ import java.util.List;
  * checking students out of the testing center, and displaying a map of the stations in the testing center, with the
  * current status of each station reflected in its icon color.
  */
-final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
+final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
 
     /** The initializing state. */
     private static final int INITIALIZING = 0;
@@ -72,32 +74,32 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
     private final String centerId;
 
     /** The main frame for the application. */
-    private JFrame frame;
+    private JFrame frame = null;
 
     /** The top panel in the interface. */
-    private FieldPanel top;
+    private FieldPanel top = null;
 
     /** The bottom panel in the interface. */
-    private FieldPanel bottom;
+    private FieldPanel bottom = null;
 
     /** The center panel in the interface. */
-    private CenterPanel center;
+    private CenterPanel center = null;
 
     /** The current state of the application. */
     private int state = INITIALIZING;
 
     /** The ID of the student attempting to check out. */
-    private String studentId;
+    private String studentId = null;
 
     /** The context. */
-    private DbProfile dbProfile;
+    private DbProfile dbProfile = null;
 
     /**
-     * Constructs a new {@code CheckoutApp}.
+     * Constructs a new {@code CheckOutApp}.
      *
      * @param theCenterId the ID of the testing center this application manages
      */
-    private CheckoutApp(final String theCenterId) {
+    private CheckOutApp(final String theCenterId) {
         super();
 
         this.centerId = theCenterId;
@@ -107,7 +109,7 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
      * The application's main processing method. This should be called after object construction to run the checkout
      * process.
      *
-     * @param fullScreen {@code true} to build screen in fullscreen mode
+     * @param fullScreen {@code true} to build screen in full-screen mode
      */
     private void runCheckoutApplication(final boolean fullScreen) {
 
@@ -187,12 +189,13 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
                     }
 
                     // We have a 9-digit student ID, so attempt to process it.
-                    processStudentCheckout(cache, LocalDateTime.now());
+                    final LocalDateTime now = LocalDateTime.now();
+                    processStudentCheckout(cache, now);
                 }
             } finally {
                 ctx.checkInConnection(conn);
             }
-        } catch (final Exception ex) {
+        } catch (final SQLException | RuntimeException ex) {
             Log.severe(ex);
         }
 
@@ -257,19 +260,16 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
 
         try {
             SwingUtilities.invokeAndWait(builder);
-        } catch (final Exception e) {
-            // No action
+
+            this.frame = builder.getBuilderFrame();
+            this.top = builder.getTopPanel();
+            this.bottom = builder.getBottomPanel();
+            this.center = builder.getCenterPanel();
+        } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        } catch (final InvocationTargetException ex) {
+            Log.warning(ex);
         }
-
-        this.frame = builder.getFrame();
-        this.top = builder.getTop();
-        this.bottom = builder.getBottom();
-        this.center = builder.getCenter();
-
-        // Start the thread that will keep the blocking window on top of all other objects on the
-        // desktop.
-
-        // new Thread(this).start();
 
         return true;
     }
@@ -286,14 +286,18 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
 
             try {
                 SwingUtilities.invokeAndWait(obj);
-            } catch (final Exception e) {
-                // No action
+            } catch (final InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (final InvocationTargetException ex) {
+                Log.warning(ex);
             }
 
             try {
                 Thread.sleep(50L);
             } catch (final InterruptedException e) {
-                // No action
+                Thread.currentThread().interrupt();
+                break;
             }
         }
     }
@@ -324,9 +328,10 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
 
             if (this.studentId.equals(comp.currentStuId)) {
                 if (pc != null) {
-                    PopupPanel.showPopupMessage(this, this.center,
-                            "Student was checked in to Station " + pc.stationNbr + " AND Station " + comp.stationNbr
-                                    + CoreConstants.DOT, null, "Inform a director immediately!", PopupPanel.STYLE_OK);
+                    final String msg1 = SimpleBuilder.concat("Student was checked in to Station ", pc.stationNbr,
+                            " AND Station ", comp.stationNbr, CoreConstants.DOT);
+                    PopupPanel.showPopupMessage(this, this.center, msg1, null, "Inform a director immediately!",
+                            PopupPanel.STYLE_OK);
 
                     return;
                 }
@@ -370,9 +375,10 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
         if (RawClientPc.STATUS_AWAIT_STUDENT.equals(theStatus)
                 || RawClientPc.STATUS_LOGIN_NOCHECK.equals(theStatus)) {
 
-            final String btn = PopupPanel.showPopupMessage(this, this.center,
-                    "Student never signed in at testing station " + pc.stationNbr + CoreConstants.DOT,
-                    null, "Do you want to cancel the student's check-in?", PopupPanel.STYLE_YES_NO);
+            final String msg1 = SimpleBuilder.concat("Student never signed in at testing station ", pc.stationNbr,
+                    CoreConstants.DOT);
+            final String btn = PopupPanel.showPopupMessage(this, this.center, msg1, null,
+                    "Do you want to cancel the student's check-in?", PopupPanel.STYLE_YES_NO);
 
             if ("Yes".equals(btn)) {
                 // Cancel the check-in
@@ -380,23 +386,25 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
                 verifyNoPending(cache);
                 PopupPanel.showPopupMessage(this, this.center, "Check out cancelled.", null, null, PopupPanel.STYLE_OK);
             } else {
-                PopupPanel.showPopupMessage(this, this.center,
-                        "The student should sign-in at station " + pc.stationNbr + CoreConstants.DOT,
-                        null, null, PopupPanel.STYLE_OK);
+                final String msg2 = SimpleBuilder.concat("The student should sign-in at station ", pc.stationNbr,
+                        CoreConstants.DOT);
+                PopupPanel.showPopupMessage(this, this.center, msg2, null, null, PopupPanel.STYLE_OK);
             }
         } else if (RawClientPc.STATUS_TAKING_EXAM.equals(theStatus)) {
-            final String btn = PopupPanel.showPopupMessage(this, this.center,
-                    "Student's exam is in progress at testing station " + pc.stationNbr + CoreConstants.DOT,
-                    null, "Do you want to submit the exam for grading?", PopupPanel.STYLE_YES_NO);
+            final String msg3 = SimpleBuilder.concat("Student's exam is in progress at testing station ", pc.stationNbr,
+                    CoreConstants.DOT);
+            final String btn = PopupPanel.showPopupMessage(this, this.center, msg3, null,
+                    "Do you want to submit the exam for grading?", PopupPanel.STYLE_YES_NO);
 
             if ("Yes".equals(btn)) {
                 // Submit the exam.
                 submitExam(cache, pc);
                 verifyNoPending(cache);
             } else {
-                PopupPanel.showPopupMessage(this, this.center,
-                        "The student should return to testing station " + pc.stationNbr + CoreConstants.COMMA,
-                        null, " and complete the exam.", PopupPanel.STYLE_OK);
+                final String msg4 = SimpleBuilder.concat("The student should return to testing station ", pc.stationNbr,
+                        CoreConstants.COMMA);
+                PopupPanel.showPopupMessage(this, this.center, msg4, null, " and complete the exam.",
+                        PopupPanel.STYLE_OK);
             }
         } else if (RawClientPc.STATUS_EXAM_RESULTS.equals(theStatus)) {
             resetStation(cache, pc);
@@ -405,9 +413,9 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
         } else {
             resetStation(cache, pc);
             verifyNoPending(cache);
-            PopupPanel.showPopupMessage(this, this.center,
-                    "Testing station " + pc.stationNbr + " was in an invalid state:", null,
-                    theStatus + ".  Please inform a director.", PopupPanel.STYLE_OK);
+            final String msg5a = SimpleBuilder.concat("Testing station ", pc.stationNbr, " was in an invalid state:");
+            final String msg5b = SimpleBuilder.concat(theStatus, ".  Please inform a director.");
+            PopupPanel.showPopupMessage(this, this.center, msg5a, null, msg5b, PopupPanel.STYLE_OK);
         }
 
         this.bottom.setMessage(null);
@@ -499,8 +507,7 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private boolean verifyNoPending(final Cache cache) throws SQLException {
 
-        final List<RawPendingExam> exams =
-                RawPendingExamLogic.queryByStudent(cache, this.studentId);
+        final List<RawPendingExam> exams = RawPendingExamLogic.queryByStudent(cache, this.studentId);
 
         if (!exams.isEmpty()) {
             PopupPanel.showPopupMessage(this, this.center, "A pending exam still exists for the student", null,
@@ -547,7 +554,7 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
     @Override
     public void keyTyped(final KeyEvent e) {
 
-        if (e.getKeyChar() == 22) {
+        if ((int) e.getKeyChar() == 22) {
 
             final Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
             try {
@@ -591,29 +598,20 @@ final class CheckoutApp extends KeyAdapter implements Runnable, ActionListener {
         ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
-        final CheckoutApp app = new CheckoutApp(centerId);
-
+        final CheckOutApp app = new CheckOutApp(centerId);
         app.runCheckoutApplication(fullScreen);
-
-        try {
-            Thread.sleep(500L);
-        } catch (final InterruptedException ex) {
-            Log.warning(ex);
-        }
-
-        System.exit(0);
     }
 }
 
 /**
  * Runnable class to be called in the AWT dispatcher thread to construct the blocking window. The window consists of a
- * fullscreen {@code JFrame} that contains a top {@code FieldPanel}, a {@code CenterPanel}, and a bottom
+ * full-screen {@code JFrame} that contains a top {@code FieldPanel}, a {@code CenterPanel}, and a bottom
  * {@code FieldPanel}.
  */
 final class BlockingWindowBuilder implements Runnable {
 
     /** The listener to install on all panels. */
-    private final CheckoutApp listener;
+    private final CheckOutApp listener;
 
     /** The database profile. */
     private final DbProfile dbProfile;
@@ -625,16 +623,16 @@ final class BlockingWindowBuilder implements Runnable {
     private final boolean full;
 
     /** The frame in which the background desktop pane will live. */
-    private JFrame builderFrame;
+    private JFrame builderFrame = null;
 
     /** The top panel. */
-    private FieldPanel topPanel;
+    private FieldPanel topPanel = null;
 
     /** The bottom panel. */
-    private FieldPanel bottomPanel;
+    private FieldPanel bottomPanel = null;
 
     /** The center panel. */
-    private CenterPanel centerPanel;
+    private CenterPanel centerPanel = null;
 
     /**
      * Constructs a new {@code BlockingWindowBuilder}.
@@ -644,7 +642,7 @@ final class BlockingWindowBuilder implements Runnable {
      * @param centerId     the ID of the testing center being managed
      * @param fullScreen   {@code true} to build screen in full-screen mode
      */
-    BlockingWindowBuilder(final CheckoutApp theListener, final DbProfile theDbProfile, final String centerId,
+    BlockingWindowBuilder(final CheckOutApp theListener, final DbProfile theDbProfile, final String centerId,
                           final boolean fullScreen) {
 
         this.listener = theListener;
@@ -658,7 +656,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the frame
      */
-    public JFrame getFrame() {
+    public JFrame getBuilderFrame() {
 
         return this.builderFrame;
     }
@@ -668,7 +666,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the top panel
      */
-    public FieldPanel getTop() {
+    public FieldPanel getTopPanel() {
 
         return this.topPanel;
     }
@@ -678,7 +676,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the bottom panel
      */
-    public FieldPanel getBottom() {
+    public FieldPanel getBottomPanel() {
 
         return this.bottomPanel;
     }
@@ -688,7 +686,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the center panel
      */
-    public CenterPanel getCenter() {
+    public CenterPanel getCenterPanel() {
 
         return this.centerPanel;
     }

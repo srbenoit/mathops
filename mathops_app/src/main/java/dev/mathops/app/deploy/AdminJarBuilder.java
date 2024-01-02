@@ -69,7 +69,7 @@ final class AdminJarBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbjobsClasses1, fontClasses,
+        final boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbjobsClasses1, fontClasses,
                 assessmentClasses, sessionClasses, appClasses, jars);
 
         if (success) {
