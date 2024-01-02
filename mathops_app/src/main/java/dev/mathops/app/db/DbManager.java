@@ -1,11 +1,13 @@
 package dev.mathops.app.db;
 
 import dev.mathops.app.AppFileLoader;
-import dev.mathops.app.db.config.MutableCfgDatabaseLayer;
+import dev.mathops.app.db.config.CodeContextPane;
+import dev.mathops.app.db.config.model.CfgDatabaseLayerModel;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.config.CfgDatabaseLayer;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -30,6 +32,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * The database manager application.
@@ -58,7 +61,7 @@ public class DbManager extends Application {
     private CfgDatabaseLayer config;
 
     /** The mutable version of the loaded database configuration. */
-    private MutableCfgDatabaseLayer mutableConfig;
+    private CfgDatabaseLayerModel mutableConfig;
 
     /**
      * Constructs a new {@code DbManager}.
@@ -67,8 +70,6 @@ public class DbManager extends Application {
 
         super();
 
-        this.config = CfgDatabaseLayer.getDefaultInstance();
-        this.mutableConfig = new MutableCfgDatabaseLayer(this.config);
     }
 
     /**
@@ -166,6 +167,26 @@ public class DbManager extends Application {
         final Text codeHeader = makeHeader("Code Contexts", headerFont);
         codeDetail.setTop(codeHeader);
         codeDetail.setVisible(false);
+
+        VBox codeDetailCenter = new VBox();
+        HBox codeDetailCenterLeft = new HBox();
+        codeDetailCenter.getChildren().add(codeDetailCenterLeft);
+        codeDetail.setCenter(codeDetailCenter);
+
+
+        try {
+            final URL fxmlUrl = CodeContextPane.class.getResource("CodeContextPane.fxml");
+            if (fxmlUrl == null) {
+                Log.warning("CodeContextPane.fxml resource not found");
+            } else {
+                final HBox box = FXMLLoader.load(fxmlUrl);
+                if (box != null) {
+                    codeDetailCenterLeft.getChildren().add(box);
+                }
+            }
+        } catch (final IOException ex) {
+            Log.warning(ex);
+        }
 
         final ObservableList<Node> centerChildren = center.getChildren();
         centerChildren.addAll(instancesDetail, profilesDetail, webDetail, codeDetail);

@@ -1,30 +1,23 @@
-package dev.mathops.app.db.config;
+package dev.mathops.app.db.config.model;
 
 import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.db.EDbProduct;
-import dev.mathops.db.config.CfgDatabase;
-import dev.mathops.db.config.CfgInstance;
-import dev.mathops.db.config.CfgLogin;
 import javafx.beans.property.IntegerPropertyBase;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * A mutable configuration of a database product running on a server and listening on a TCP port.  A single server
- * could run multiple products, or multiple instances of the same product, listening on different ports.  Each
- * instance may then have multiple databases.
+ * The data model of a database product running on a server and listening on a TCP port.  A single server could run
+ * multiple products, or multiple instances of the same product, listening on different ports.  Each instance may then
+ * have multiple databases.
  *
  * <p>
- * To create a new {@code MutableCfgInstance}, the UI would present fields to enter its ID, select the database product,
+ * To create a new {@code CfgInstanceModel}, the UI would present fields to enter its ID, select the database product,
  * enter the hostname and port, and supply an instance name (if needed by the database product) and optional DBA
  * username, with a button to execute the addition, which would fail if any attribute was invalid.  The new instance
  * would have no database or login configurations.
@@ -42,7 +35,7 @@ import java.util.List;
  * A GUI should support deletion of an instance, but this should succeed only if none of the database or login
  * configurations within that instance are referenced.
  */
-public final class MutableCfgInstance {
+public final class CfgInstanceModel {
 
     /** The instance ID. */
     public final StringPropertyBase id;
@@ -63,15 +56,15 @@ public final class MutableCfgInstance {
     public final StringPropertyBase dbaUser;
 
     /** A mutable map from database ID to the mutable database configuration. */
-    private final ObservableMap<String, MutableCfgDatabase> databases;
+    private final ObservableMap<String, CfgDatabaseModel> databases;
 
     /** A mutable map from login ID to the mutable login configuration. */
-    private final ObservableMap<String, MutableCfgLogin> logins;
+    private final ObservableMap<String, CfgLoginModel> logins;
 
     /**
-     * Constructs a new, empty {@code MutableCfgInstance}.
+     * Constructs a new, empty {@code CfgInstanceModel}.
      */
-    public MutableCfgInstance() {
+    public CfgInstanceModel() {
 
         this.id = new SimpleStringProperty();
         this.product = new SimpleObjectProperty<>();
@@ -81,32 +74,6 @@ public final class MutableCfgInstance {
         this.dbaUser = new SimpleStringProperty();
         this.databases = FXCollections.observableHashMap();
         this.logins = FXCollections.observableHashMap();
-    }
-
-    /**
-     * Constructs a new {@code MutableCfgInstance} from a {@code CfgInstance}.
-     *
-     * @param source   the source {@code CfgInstance}
-     */
-    public MutableCfgInstance(final CfgInstance source) {
-
-        this.id = new SimpleStringProperty(source.id);
-        this.product = new SimpleObjectProperty<>(source.product);
-        this.host = new SimpleStringProperty(source.host);
-        this.port = new SimpleIntegerProperty(source.port);
-        this.name = new SimpleStringProperty(source.name);
-        this.dbaUser = new SimpleStringProperty(source.dbaUser);
-        this.databases = new SimpleMapProperty<>();
-        this.logins = new SimpleMapProperty<>();
-
-        for (final CfgDatabase database : source.getDatabases()) {
-            final MutableCfgDatabase mutableDatabase = new MutableCfgDatabase(database);
-            this.databases.put(database.id, mutableDatabase);
-        }
-        for (final CfgLogin login : source.getLogins()) {
-            final MutableCfgLogin mutableLogin = new MutableCfgLogin(login);
-            this.logins.put(login.id, mutableLogin);
-        }
     }
 
     /**
@@ -174,7 +141,7 @@ public final class MutableCfgInstance {
      *
      * @return the databases property
      */
-    public ObservableMap<String, MutableCfgDatabase> getDatabasesProperty() {
+    public ObservableMap<String, CfgDatabaseModel> getDatabasesProperty() {
 
         return this.databases;
     }
@@ -184,41 +151,9 @@ public final class MutableCfgInstance {
      *
      * @return the logins property
      */
-    public ObservableMap<String, MutableCfgLogin> getLoginsProperty() {
+    public ObservableMap<String, CfgLoginModel> getLoginsProperty() {
 
         return this.logins;
-    }
-
-    /**
-     * Generate an immutable {@code CfgInstance} from this object.
-     *
-     * @return the generated {@code CfgInstance}
-     */
-    CfgInstance toCfgInstance() {
-
-        final List<CfgDatabase> databaseList = new ArrayList<>(10);
-        final List<CfgLogin> loginList = new ArrayList<>(10);
-
-        for (final MutableCfgDatabase mutableDatabase : this.databases.values()) {
-            final CfgDatabase database = mutableDatabase.toCfgDatabase();
-            databaseList.add(database);
-        }
-
-        for (final MutableCfgLogin mutableLogin : this.logins.values()) {
-            final CfgLogin login = mutableLogin.toCfgLogin();
-            loginList.add(login);
-        }
-
-        final String idValue = this.id.getValue();
-        final EDbProduct productValue = this.product.getValue();
-        final String hostValue = this.host.getValue();
-        final Integer portValue = this.port.getValue();
-        final String nameValue = this.name.getValue();
-        final String dbaValue = this.dbaUser.getValue();
-
-        final int portInt = portValue == null ? 0 : portValue.intValue();
-
-        return new CfgInstance(idValue, productValue, hostValue, portInt, nameValue, dbaValue, databaseList, loginList);
     }
 
     /**
@@ -229,7 +164,7 @@ public final class MutableCfgInstance {
     @Override
     public String toString() {
 
-        return SimpleBuilder.concat("MutableCfgInstance{id='", this.id, "',product='", this.product, "',host='",
+        return SimpleBuilder.concat("CfgInstanceModel{id='", this.id, "',product='", this.product, "',host='",
                 this.host, "',port='", this.port, "',name='", this.name, "',dbaUser='", this.dbaUser, "',databases=[",
                 this.databases, "],logins=[", this.logins, "]}");
     }

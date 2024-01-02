@@ -1,19 +1,15 @@
-package dev.mathops.app.db.config;
+package dev.mathops.app.db.config.model;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.config.CfgDataProfile;
-import dev.mathops.db.config.CfgSite;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.util.Map;
-
 /**
- * A mutable model of a site (as specified by an absolute path) within a web context, which specifies the
+ * The data model of a site (as specified by an absolute path) within a web context, which specifies the
  * data profile to use for that site.
  *
  * <p>
- * To create a new {@code MutableCfgSite}, the UI would present a field to enter
+ * To create a new {@code CfgSiteModel}, the UI would present a field to enter
  * a path, and a dropdown to select a profile, with a button to execute the addition, which would fail if the path
  * were empty or not unique, or if the profile had not been selected.  Creating a new site adds this object to the list
  * of dependencies on the selected profile.
@@ -22,10 +18,10 @@ import java.util.Map;
  * If the path is updated and an "apply" button pressed in a GUI, the new path is tested for uniqueness within the
  * owning web context.
  */
-public final class MutableCfgSite {
+public final class CfgSiteModel {
 
     /** The owning web context. */
-    private final MutableCfgWebContext owner;
+    private final CfgWebContextModel owner;
 
     /** The path. */
     private StringProperty path;
@@ -34,13 +30,13 @@ public final class MutableCfgSite {
     private StringProperty profileId;
 
     /**
-     * Constructs a new {@code MutableCfgSite}.
+     * Constructs a new {@code CfgSiteModel}.
      *
      * @param theOwner     the owning mutable web context
      * @param thePath      the path
      * @param theProfileId the data profile ID
      */
-    public MutableCfgSite(final MutableCfgWebContext theOwner, final String thePath, final String theProfileId) {
+    public CfgSiteModel(final CfgWebContextModel theOwner, final String thePath, final String theProfileId) {
 
         if (theOwner == null) {
             throw new IllegalArgumentException("Owning web context may not be null");
@@ -58,28 +54,11 @@ public final class MutableCfgSite {
     }
 
     /**
-     * Constructs a new {@code MutableCfgSite} from a {@code CfgSite}.
-     *
-     * @param theOwner the owning mutable web context
-     * @param source   the source {@code CfgSite}
-     */
-    public MutableCfgSite(final MutableCfgWebContext theOwner, final CfgSite source) {
-
-        if (theOwner == null) {
-            throw new IllegalArgumentException("Owning web context may not be null");
-        }
-
-        this.owner = theOwner;
-        this.path = new SimpleStringProperty(source.path);
-        this.profileId = new SimpleStringProperty(source.profile.id);
-    }
-
-    /**
      * Gets the owning mutable web context.
      *
      * @return the owning mutable web context
      */
-    public MutableCfgWebContext getOwner() {
+    public CfgWebContextModel getOwner() {
 
         return this.owner;
     }
@@ -105,21 +84,6 @@ public final class MutableCfgSite {
     }
 
     /**
-     * Generate an immutable {@code CfgSite} from this object.
-     *
-     * @param profiles a map from string profile ID to the data profile object
-     * @return the generated {@code CfgSite}
-     */
-    CfgSite toCfgSite(final Map<String, CfgDataProfile> profiles) {
-
-        final String pathStr = this.path.get();
-        final String profileIdStr = this.profileId.get();
-        final CfgDataProfile profile = profiles.get(profileIdStr);
-
-        return new CfgSite(pathStr, profile);
-    }
-
-    /**
      * Generates a diagnostic string representation of the object.
      *
      * @return the string representation
@@ -127,6 +91,6 @@ public final class MutableCfgSite {
     @Override
     public String toString() {
 
-        return SimpleBuilder.concat("MutableCfgSite{path='", this.path, "',profileId='", this.profileId, "'}");
+        return SimpleBuilder.concat("CfgSiteModel{path='", this.path, "',profileId='", this.profileId, "'}");
     }
 }

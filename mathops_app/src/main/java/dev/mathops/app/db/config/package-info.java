@@ -1,4 +1,4 @@
 /**
- * Objects that represent a mutable data model of a database configuration.
+ * Controller and View classes for management of the configuration data model.
  */
 package dev.mathops.app.db.config;

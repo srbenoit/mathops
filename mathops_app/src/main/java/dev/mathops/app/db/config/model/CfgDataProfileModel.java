@@ -1,32 +1,24 @@
-package dev.mathops.app.db.config;
+package dev.mathops.app.db.config.model;
 
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.config.CfgDataProfile;
-import dev.mathops.db.config.CfgDatabase;
-import dev.mathops.db.config.CfgLogin;
-import dev.mathops.db.config.CfgSchemaLogin;
 import dev.mathops.db.config.ESchemaType;
-import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * A mutable configuration of a database profile, which provides a mapping from every defined schema types to a
- * schema login configuration.
+ * The data model of a database profile, which provides a mapping from every defined schema types to a schema login
+ * configuration.
  *
  * <p>
- * To create a new {@code MutableCfgDataProfile}, the UI would present fields to enter its ID, and to select (from the
+ * To create a new {@code CfgDataProfileModel}, the UI would present fields to enter its ID, and to select (from the
  * set of defined objects) a database and login for each defined schema, with a button to execute the addition, which
  * would fail if entered ID is not unique.  The new instance would have a schema login for each defined schema.  The
- * button to create a new {@code MutableCfgDataProfile} would not be enabled when there are no databases or no logins
+ * button to create a new {@code CfgDataProfileModel} would not be enabled when there are no databases or no logins
  * defined.
  *
  * <p>
@@ -40,45 +32,27 @@ import java.util.Set;
  * A GUI should support deletion of a data profile, but this should succeed only if no web context or code context
  * references the profile.
  */
-public final class MutableCfgDataProfile {
+public final class CfgDataProfileModel {
 
     /** The instance ID. */
     public final StringPropertyBase id;
 
     /** A mutable map from schema login ID to the mutable schema login configuration. */
-    private final ObservableMap<ESchemaType, MutableCfgSchemaLogin> schemaLogins;
+    private final ObservableMap<ESchemaType, CfgSchemaLoginModel> schemaLogins;
 
     /** The set of {@code MutableCfgWebContext} objects that reference this data profile. */
-    private final transient Set<MutableCfgWebContext> referencingWebContexts;
+    private final transient Set<CfgWebContextModel> referencingWebContexts;
 
     /** The set of {@code MutableCfgCodeContext} objects that reference this data profile. */
-    private final transient Set<MutableCfgCodeContext> referencingCodeContexts;
+    private final transient Set<CfgCodeContextModel> referencingCodeContexts;
 
     /**
-     * Constructs a new, empty {@code MutableCfgDataProfile}.
+     * Constructs a new, empty {@code CfgDataProfileModel}.
      */
-    public MutableCfgDataProfile() {
+    public CfgDataProfileModel() {
 
         this.id = new SimpleStringProperty();
         this.schemaLogins = FXCollections.observableHashMap();
-        this.referencingWebContexts = new HashSet<>(10);
-        this.referencingCodeContexts = new HashSet<>(10);
-    }
-
-    /**
-     * Constructs a new {@code MutableCfgDataProfile} from a {@code CfgDataProfile}.
-     *
-     * @param source   the source {@code CfgDataProfile}
-     */
-    public MutableCfgDataProfile(final CfgDataProfile source) {
-
-        this.id = new SimpleStringProperty(source.id);
-        this.schemaLogins = new SimpleMapProperty<>();
-
-        for (final CfgSchemaLogin schemaLogin : source.getSchemaLogins()) {
-            final MutableCfgSchemaLogin mutableSchemaLogin = new MutableCfgSchemaLogin(this, schemaLogin);
-            this.schemaLogins.put(schemaLogin.schema, mutableSchemaLogin);
-        }
         this.referencingWebContexts = new HashSet<>(10);
         this.referencingCodeContexts = new HashSet<>(10);
     }
@@ -98,7 +72,7 @@ public final class MutableCfgDataProfile {
      *
      * @return the schema logins property
      */
-    public ObservableMap<ESchemaType, MutableCfgSchemaLogin> getSchemaLogins() {
+    public ObservableMap<ESchemaType, CfgSchemaLoginModel> getSchemaLogins() {
 
         return this.schemaLogins;
     }
@@ -108,7 +82,7 @@ public final class MutableCfgDataProfile {
      *
      * @param referencer the referencing {@code MutableCfgWebContext}
      */
-    public void addReference(final MutableCfgWebContext referencer) {
+    public void addReference(final CfgWebContextModel referencer) {
 
         this.referencingWebContexts.add(referencer);
     }
@@ -118,7 +92,7 @@ public final class MutableCfgDataProfile {
      *
      * @param referencer the no-longer referencing {@code MutableCfgWebContext}
      */
-    public void deleteReference(final MutableCfgWebContext referencer) {
+    public void deleteReference(final CfgWebContextModel referencer) {
 
         this.referencingWebContexts.remove(referencer);
     }
@@ -128,7 +102,7 @@ public final class MutableCfgDataProfile {
      *
      * @param referencer the referencing {@code MutableCfgCodeContext}
      */
-    public void addReference(final MutableCfgCodeContext referencer) {
+    public void addReference(final CfgCodeContextModel referencer) {
 
         this.referencingCodeContexts.add(referencer);
     }
@@ -138,7 +112,7 @@ public final class MutableCfgDataProfile {
      *
      * @param referencer the no-longer referencing {@code MutableCfgCodeContext}
      */
-    public void deleteReference(final MutableCfgCodeContext referencer) {
+    public void deleteReference(final CfgCodeContextModel referencer) {
 
         this.referencingCodeContexts.remove(referencer);
     }
@@ -155,27 +129,6 @@ public final class MutableCfgDataProfile {
     }
 
     /**
-     * Generate an immutable {@code CfgDataProfile} from this object.
-     *
-     * @param databases a map from database ID to the database object
-     * @param logins    a map from login ID to the login object
-     * @return the generated {@code CfgDataProfile}
-     */
-    CfgDataProfile toCfgDataProfile(final Map<String, CfgDatabase> databases, final Map<String, CfgLogin> logins) {
-
-        final List<CfgSchemaLogin> schemaLoginList = new ArrayList<>(10);
-
-        for (final MutableCfgSchemaLogin mutableSchemaLogin : this.schemaLogins.values()) {
-            final CfgSchemaLogin schemaLogin = mutableSchemaLogin.toCfgSchemaLogin(databases, logins);
-            schemaLoginList.add(schemaLogin);
-        }
-
-        final String idValue = this.id.getValue();
-
-        return new CfgDataProfile(idValue, schemaLoginList);
-    }
-
-    /**
      * Generates a diagnostic string representation of the object.
      *
      * @return the string representation
@@ -183,6 +136,6 @@ public final class MutableCfgDataProfile {
     @Override
     public String toString() {
 
-        return SimpleBuilder.concat("MutableCfgDataProfile{id='", this.id, "',schemaLogins=[", this.schemaLogins, "]}");
+        return SimpleBuilder.concat("CfgDataProfileModel{id='", this.id, "',schemaLogins=[", this.schemaLogins, "]}");
     }
 }

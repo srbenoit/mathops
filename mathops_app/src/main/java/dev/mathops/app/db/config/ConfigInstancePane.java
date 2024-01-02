@@ -1,4 +1,4 @@
-package dev.mathops.app.db;
+package dev.mathops.app.db.config;
 
 import javafx.scene.layout.BorderPane;
 

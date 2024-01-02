@@ -17,6 +17,9 @@ module mathops_app {
     requires javafx.controls;
     requires com.formdev.flatlaf;
     requires com.oracle.database.jdbc;
+    requires javafx.fxml;
 
     exports dev.mathops.app.db;
+    exports dev.mathops.app.db.config;
+    exports dev.mathops.app.db.config.model;
 }
