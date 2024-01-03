@@ -35,8 +35,7 @@ public final class TxnSite extends AbstractSite {
      * @param theSiteProfile the website context
      * @param theSessions    the singleton user session repository
      */
-    public TxnSite(final WebSiteProfile theSiteProfile,
-                   final ISessionManager theSessions) {
+    public TxnSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
 
         super(theSiteProfile, theSessions);
     }
