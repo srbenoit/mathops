@@ -1420,8 +1420,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         this.examError = null;
         this.grade = null;
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(TestStationApp.class, "ExamPanelSkin",
-                new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         if (exam.examVersion.startsWith("30")) {
             skin.setProperty("bottom-bar-lbl", "I am finished.  Submit the quiz for grading.");
@@ -2060,7 +2059,7 @@ final class BlockingWindowBuilder implements Runnable {
     @Override
     public void run() {
 
-        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1280, 1024);
+        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1280, 720);
 
         this.builderFrame = new JFrame("Testing Station");
         this.builderFrame.setBackground(Color.BLACK);

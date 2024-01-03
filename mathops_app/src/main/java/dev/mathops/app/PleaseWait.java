@@ -28,8 +28,7 @@ public final  class PleaseWait extends InternalPanelBase {
 
         super(theResOwner, null);
 
-        final Properties res = AppFileLoader.loadFileAsProperties(theResOwner.getClass(), "PleaseWaitSkin",
-                new DefaultPleaseWaitSkin(), false);
+        final Properties res = new DefaultPleaseWaitSkin();
 
         if (examVersion.startsWith("30")) {
             final String existing = res.getProperty("wait-text");

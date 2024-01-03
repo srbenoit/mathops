@@ -958,8 +958,7 @@ class DisplayExamPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(UnitExamApp.class, "ExamPanelSkin",
-                        new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         if (this.answers) {
             skin.setProperty("run-timer", "false");

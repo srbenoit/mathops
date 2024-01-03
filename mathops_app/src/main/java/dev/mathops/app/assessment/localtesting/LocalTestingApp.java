@@ -665,8 +665,7 @@ final class ExamDeliverer implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(LocalTestingApp.class, "ExamPanelSkin",
-                new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         if (this.isDemo) {
             skin.setProperty("bottom-bar-lbl", "Submit the Exam for Grading...");

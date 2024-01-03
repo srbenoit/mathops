@@ -698,7 +698,7 @@ final class BlockingWindowBuilder implements Runnable {
     @Override
     public void run() {
 
-        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1600, 900);
+        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1280, 720);
 
         this.builderFrame = new JFrame("Checkout");
         if (this.full) {

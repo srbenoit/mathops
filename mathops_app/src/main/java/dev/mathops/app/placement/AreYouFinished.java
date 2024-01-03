@@ -41,8 +41,7 @@ class AreYouFinished extends AbstractInternalDialogBase {
         super(null, null, theListener);
 
         setResOwner(this);
-        final Properties res = AppFileLoader.loadFileAsProperties(AreYouFinished.class, "AreYouFinishedSkin",
-                new DefaultAreYouFinishedSkin(), false);
+        final Properties res = new DefaultAreYouFinishedSkin();
         buildUI(res, numProblems, numCompleted);
         pack();
     }

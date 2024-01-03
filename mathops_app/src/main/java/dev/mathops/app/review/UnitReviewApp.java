@@ -980,8 +980,7 @@ class DisplayExamPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(UnitReviewApp.class, "ExamPanelSkin",
-                        new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         if (this.examSession.getExam().examVersion.startsWith("30")) {
             skin.setProperty("bottom-bar-lbl",

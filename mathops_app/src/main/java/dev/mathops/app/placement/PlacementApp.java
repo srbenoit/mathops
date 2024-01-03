@@ -1441,8 +1441,7 @@ final class ShowExamPanel implements Runnable {
     @Override
     public void run() {
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(PlacementApp.class, "ExamPanelSkin",
-                new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         final String stuId = this.app.getStudentId();
         final boolean populateAnswers = "111223333".equals(stuId) || RawStudent.TEST_STUDENT_ID.equals(stuId);

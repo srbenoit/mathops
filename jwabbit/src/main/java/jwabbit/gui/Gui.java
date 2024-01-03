@@ -6,6 +6,7 @@ package jwabbit.gui;
  * included in the terms of that license.
  */
 
+import jwabbit.FileLoader;
 import jwabbit.Launcher;
 import jwabbit.core.EnumCalcModel;
 import jwabbit.hardware.HardwareConstants;
@@ -14,11 +15,8 @@ import jwabbit.iface.Calc;
 import jwabbit.iface.EnumEventType;
 import jwabbit.log.LoggedObject;
 
-import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * The main application class.
@@ -149,8 +147,9 @@ public final class Gui {
         if (numRoms > 0) {
             for (int i = 0; i < numRoms; ++i) {
                 // if you specify more than one rom file to be loaded, only the first is loaded
-                LoggedObject.LOG.info("Loading from file ", args.getRomFile(i));
-                if (calc.romLoad(args.getRomFile(i))) {
+                final String romFile = args.getRomFile(i);
+                LoggedObject.LOG.info("Loading from file ", romFile);
+                if (calc.romLoad(romFile)) {
                     loadedRom = true;
                     break;
                 }
@@ -159,8 +158,9 @@ public final class Gui {
 
         if (!loadedRom) {
             calc.setRomPath(Registry.asString(Registry.queryWabbitKey("rom_path")));
-            LoggedObject.LOG.info("Loading ROM: ", calc.getRomPath());
-            loadedRom = calc.romLoad(calc.getRomPath());
+            final String romPath = calc.getRomPath();
+            LoggedObject.LOG.info("Loading ROM: ", romPath);
+            loadedRom = calc.romLoad(romPath);
         }
 
         CalcUI theCalcUI = null;
@@ -211,21 +211,7 @@ public final class Gui {
      */
     public static BufferedImage loadImage(final String name) {
 
-        BufferedImage img;
-
-        try (final InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("jwabbit/gui/images/" + name)) {
-            if (in == null) {
-                img = null;
-            } else {
-                img = ImageIO.read(in);
-            }
-        } catch (final IOException ex) {
-            LoggedObject.LOG.warning("Failed to load ", name, ex);
-            img = null;
-        }
-
-        return img;
+        return FileLoader.loadFileAsImage(Gui.class, "images/" + name, true);
     }
 
     /**
@@ -236,20 +222,6 @@ public final class Gui {
      */
     static BufferedImage loadSkin(final String name) {
 
-        BufferedImage img;
-
-        try (final InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("jwabbit/gui/skins/" + name)) {
-            if (in == null) {
-                img = null;
-            } else {
-                img = ImageIO.read(in);
-            }
-        } catch (final IOException ex) {
-            LoggedObject.LOG.warning("Failed to load skin ", name, ex);
-            img = null;
-        }
-
-        return img;
+        return FileLoader.loadFileAsImage(Gui.class, name, true);
     }
 }

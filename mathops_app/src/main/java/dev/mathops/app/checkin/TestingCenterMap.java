@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,17 +118,40 @@ public final class TestingCenterMap {
         }
     }
 
+    private static final int DESIRED_MAP_HEIGHT = 675;
+
     /**
      * Draws the map.  This should be called on the AWT event thread.
      *
      * @param g2d the {@code Graphics} to which to draw
-     * @param numberWidth the width of the area in which to draw
+     * @param width the width of the area in which to draw
      * @param height the height of the area in which to draw
      */
-    public void drawMap(final Graphics2D g2d, final int numberWidth, final int height) {
+    public void drawMap(final Graphics2D g2d, final int width, final int height) {
 
-        final int x = Math.max(10, ((numberWidth << 2) / 5 - 642) / 2);
-        final int y = (height - 612) / 2;
+        // The map itself is 642 wide by 612 high, and we would like a buffer top and bottom of at least 5%, so we want
+        // a height of at least 675.  If the height we are given is less than this, scale...
+
+        int sh = height;
+        int sw = width;
+
+        final AffineTransform origXform = g2d.getTransform();
+
+        if (height < DESIRED_MAP_HEIGHT) {
+            final double translateY = origXform.getTranslateY();
+            g2d.translate(0.0, -translateY);
+
+            final double scale = (double)height / (double) DESIRED_MAP_HEIGHT;
+            g2d.scale(scale, scale);
+
+            g2d.translate(0.0, translateY / scale);
+
+            sh = (int)((double) height / scale);
+            sw = (int)((double) width / scale);
+        }
+
+        final int x = Math.max(10, ((sw << 2) / 5 - 642) / 2);
+        final int y = (sh - 612) / 2;
 
         // Draw the room outline
         final Polygon floor = new Polygon();
@@ -249,103 +273,104 @@ public final class TestingCenterMap {
             clientList = this.stations;
         }
 
-        if (clientList == null) {
-            return;
-        }
+        if (Objects.nonNull(clientList)) {
+            g2d.setFont(this.pcFont);
 
-        g2d.setFont(this.pcFont);
+            final FontMetrics fm = g2d.getFontMetrics();
 
-        final FontMetrics fm = g2d.getFontMetrics();
+            int numInUse = 0;
+            int numAvailable = 0;
 
-        int numInUse = 0;
-        int numAvailable = 0;
+            for (final RawClientPc client : clientList) {
 
-        for (final RawClientPc client : clientList) {
+                if (Objects.nonNull(client.iconX) && Objects.nonNull(client.iconY)
+                        && Objects.nonNull(client.currentStatus)) {
 
-            if (client.iconX != null && client.iconY != null && client.currentStatus != null) {
+                    final Integer status = client.currentStatus;
 
-                final Integer status = client.currentStatus;
+                    if (RawClientPc.STATUS_FORCE_SUBMIT.equals(status)) {
+                        g2d.setColor(this.pcWarningColor);
+                        ++numInUse;
+                    } else if (RawClientPc.STATUS_LOCKED.equals(status)) {
+                        g2d.setColor(this.pcLockedColor);
+                        ++numAvailable;
+                    } else if (RawClientPc.STATUS_PAPER_ONLY.equals(status)) {
+                        g2d.setColor(this.pcPaperColor);
+                    } else if (RawClientPc.STATUS_AWAIT_STUDENT.equals(status)
+                            || RawClientPc.STATUS_LOGIN_NOCHECK.equals(status)) {
+                        g2d.setColor(this.pcAwaitColor);
+                        ++numInUse;
+                    } else if (RawClientPc.STATUS_TAKING_EXAM.equals(status)
+                            || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
+                        g2d.setColor(this.pcInExamColor);
+                        ++numInUse;
+                    } else {
+                        g2d.setColor(this.pcErrorColor);
+                    }
 
-                if (RawClientPc.STATUS_FORCE_SUBMIT.equals(status)) {
-                    g2d.setColor(this.pcWarningColor);
-                    ++numInUse;
-                } else if (RawClientPc.STATUS_LOCKED.equals(status)) {
-                    g2d.setColor(this.pcLockedColor);
-                    ++numAvailable;
-                } else if (RawClientPc.STATUS_PAPER_ONLY.equals(status)) {
-                    g2d.setColor(this.pcPaperColor);
-                } else if (RawClientPc.STATUS_AWAIT_STUDENT.equals(status)
-                        || RawClientPc.STATUS_LOGIN_NOCHECK.equals(status)) {
-                    g2d.setColor(this.pcAwaitColor);
-                    ++numInUse;
-                } else if (RawClientPc.STATUS_TAKING_EXAM.equals(status)
-                        || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
-                    g2d.setColor(this.pcInExamColor);
-                    ++numInUse;
-                } else {
-                    g2d.setColor(this.pcErrorColor);
-                }
+                    final int clientX = client.iconX.intValue();
+                    final int clientY = client.iconY.intValue();
+                    g2d.fillRect(x + clientX, y + clientY, 20, 20);
+                    g2d.setColor(this.pcOutline);
+                    g2d.drawRect(x + clientX, y + clientY, 20, 20);
+                    g2d.setColor(this.pcNumber);
+                    final int nbrWidth = fm.stringWidth(client.stationNbr);
+                    final int descent = fm.getDescent();
+                    g2d.drawString(client.stationNbr, x + clientX + (20 - nbrWidth) / 2, y + clientY + 18 - descent);
 
-                final int clientX = client.iconX.intValue();
-                final int clientY = client.iconY.intValue();
-                g2d.fillRect(x + clientX, y + clientY, 20, 20);
-                g2d.setColor(this.pcOutline);
-                g2d.drawRect(x + clientX, y + clientY, 20, 20);
-                g2d.setColor(this.pcNumber);
-                final int nbrWidth = fm.stringWidth(client.stationNbr);
-                final int descent = fm.getDescent();
-                g2d.drawString(client.stationNbr, x + clientX + (20 - nbrWidth) / 2, y + clientY + 18 - descent);
-
-                if (this.wheelchairIcon != null && RawClientPc.USAGE_WHEELCHAIR.equals(client.pcUsage)) {
-                    g2d.drawImage(this.wheelchairIcon, x + clientX + 17, y + clientY + 14, null);
+                    if (Objects.nonNull(this.wheelchairIcon) && RawClientPc.USAGE_WHEELCHAIR.equals(client.pcUsage)) {
+                        g2d.drawImage(this.wheelchairIcon, x + clientX + 17, y + clientY + 14, null);
+                    }
                 }
             }
+
+            // Draw the legend
+            g2d.setFont(this.legendFont);
+
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("LEGEND", x + 680, y + 20);
+
+            g2d.setColor(this.pcErrorColor);
+            g2d.fillRect(x + 680, y + 32, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 32, 20, 20);
+            g2d.drawString("Station Down", x + 706, y + 50);
+
+            g2d.setColor(this.pcWarningColor);
+            g2d.fillRect(x + 680, y + 62, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 62, 20, 20);
+            g2d.drawString("Self-Configuring", x + 706, y + 80);
+
+            g2d.setColor(this.pcLockedColor);
+            g2d.fillRect(x + 680, y + 92, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 92, 20, 20);
+            g2d.drawString("Station Locked", x + 706, y + 110);
+
+            g2d.setColor(this.pcPaperColor);
+            g2d.fillRect(x + 680, y + 122, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 122, 20, 20);
+            g2d.drawString("Paper Exams Only", x + 706, y + 140);
+
+            g2d.setColor(this.pcAwaitColor);
+            g2d.fillRect(x + 680, y + 152, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 152, 20, 20);
+            g2d.drawString("Student Login", x + 706, y + 170);
+
+            g2d.setColor(this.pcInExamColor);
+            g2d.fillRect(x + 680, y + 182, 20, 20);
+            g2d.setColor(this.pcOutline);
+            g2d.drawRect(x + 680, y + 182, 20, 20);
+            g2d.drawString("Exam In Progress", x + 706, y + 200);
+
+            g2d.setColor(this.pcOutline);
+            g2d.drawString("Stations in use: " + numInUse, x + 680, sh - 60);
+            g2d.drawString("Stations available: " + numAvailable, x + 680, sw - 30);
         }
 
-        // Draw the legend
-        g2d.setFont(this.legendFont);
-
-        g2d.setColor(Color.WHITE);
-        g2d.drawString("LEGEND", x + 680, y + 20);
-
-        g2d.setColor(this.pcErrorColor);
-        g2d.fillRect(x + 680, y + 32, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 32, 20, 20);
-        g2d.drawString("Station Down", x + 706, y + 50);
-
-        g2d.setColor(this.pcWarningColor);
-        g2d.fillRect(x + 680, y + 62, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 62, 20, 20);
-        g2d.drawString("Self-Configuring", x + 706, y + 80);
-
-        g2d.setColor(this.pcLockedColor);
-        g2d.fillRect(x + 680, y + 92, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 92, 20, 20);
-        g2d.drawString("Station Locked", x + 706, y + 110);
-
-        g2d.setColor(this.pcPaperColor);
-        g2d.fillRect(x + 680, y + 122, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 122, 20, 20);
-        g2d.drawString("Paper Exams Only", x + 706, y + 140);
-
-        g2d.setColor(this.pcAwaitColor);
-        g2d.fillRect(x + 680, y + 152, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 152, 20, 20);
-        g2d.drawString("Student Login", x + 706, y + 170);
-
-        g2d.setColor(this.pcInExamColor);
-        g2d.fillRect(x + 680, y + 182, 20, 20);
-        g2d.setColor(this.pcOutline);
-        g2d.drawRect(x + 680, y + 182, 20, 20);
-        g2d.drawString("Exam In Progress", x + 706, y + 200);
-
-        g2d.setColor(this.pcOutline);
-        g2d.drawString("Stations in use: " + numInUse, x + 680, height - 60);
-        g2d.drawString("Stations available: " + numAvailable, x + 680, height - 30);
+        g2d.setTransform(origXform);
     }
 }

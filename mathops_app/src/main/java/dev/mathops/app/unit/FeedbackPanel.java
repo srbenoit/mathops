@@ -37,11 +37,9 @@ class FeedbackPanel extends InternalPanelBase implements ActionListener {
         super(null, theUsername);
 
         setResOwner(this);
-        final Properties res = AppFileLoader.loadFileAsProperties(FeedbackPanel.class, "FeedbackPanelSkin",
-                new DefaultFeedbackPanelSkin(), false);
+        final Properties res = new DefaultFeedbackPanelSkin();
 
-        final Runnable builder =
-                new FeedbackGUIBuilder(this, res, subtestScores, examGrades);
+        final Runnable builder = new FeedbackGUIBuilder(this, res, subtestScores, examGrades);
 
         try {
             SwingUtilities.invokeAndWait(builder);

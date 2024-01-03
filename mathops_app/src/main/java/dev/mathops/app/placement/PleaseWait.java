@@ -42,8 +42,7 @@ class PleaseWait extends JFrame {
 
         super();
 
-        final Properties res = AppFileLoader.loadFileAsProperties(PleaseWait.class, "PleaseWaitSkin",
-                        new DefaultPleaseWaitSkin(), false);
+        final Properties res = new DefaultPleaseWaitSkin();
 
         try {
             SwingUtilities.invokeAndWait(new PleaseWaitGUIBuilder(this, res));

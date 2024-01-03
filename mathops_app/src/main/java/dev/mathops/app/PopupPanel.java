@@ -21,7 +21,7 @@ import java.util.Properties;
  * An internal frame popup dialog that displays a message and waits a click on its OK button or either an ESC or ENTER
  * key press.
  */
-public class PopupPanel extends InternalPanelBase implements ActionListener {
+public final class PopupPanel extends InternalPanelBase implements ActionListener {
 
     /** Style code to include an OK button only. */
     public static final int STYLE_OK = 1;
@@ -63,9 +63,7 @@ public class PopupPanel extends InternalPanelBase implements ActionListener {
 
         super(theResOwner, null);
 
-        final Properties res = //
-                AppFileLoader.loadFileAsProperties(theResOwner.getClass(), "PopupPanelSkin",
-                        new DefaultPopupPanelSkin(), false);
+        final Properties res = new DefaultPopupPanelSkin();
 
         buildUI(res, theMessage1, theWarn, theMessage2, style);
         pack();

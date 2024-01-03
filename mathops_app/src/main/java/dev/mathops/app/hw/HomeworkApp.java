@@ -1167,13 +1167,13 @@ final class DisplayHomeworkPanel implements Runnable {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        final Properties skin = AppFileLoader.loadFileAsProperties(HomeworkApp.class, "ExamPanelSkin",
-                new DefaultSkin(), false);
+        final Properties skin = new DefaultSkin();
 
         this.panel = new ExamPanel(this.owner, skin, CoreConstants.EMPTY, this.homeworkSession, false, this.practice,
                 this.moveon, this.mastery);
-        this.panel.setPreferredSize(this.contentPane.getSize());
-        this.panel.setSize(this.contentPane.getSize());
+        final Dimension size = this.contentPane.getSize();
+        this.panel.setPreferredSize(size);
+        this.panel.setSize(size);
         this.contentPane.setLayout(new BorderLayout());
         this.contentPane.add(this.panel, BorderLayout.CENTER);
         this.panel.buildUI();

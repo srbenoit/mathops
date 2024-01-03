@@ -188,8 +188,7 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
         }
 
         // Set up the calculator panel
-        if ("true"
-                .equalsIgnoreCase(this.skin.getProperty("show-calculator"))) {
+        if ("true".equalsIgnoreCase(this.skin.getProperty("show-calculator"))) {
             this.calculator = CalculatorPanel.getInstance();
 
             // final Dimension size = this.owner.getFrame().getSize();
