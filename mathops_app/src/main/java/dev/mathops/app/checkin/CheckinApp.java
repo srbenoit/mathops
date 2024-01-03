@@ -399,14 +399,16 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         try {
             SwingUtilities.invokeAndWait(builder);
-        } catch (final InterruptedException | InvocationTargetException ex) {
+
+            this.frame = builder.getBuilderFrame();
+            this.top = builder.getTopPanel();
+            this.bottom = builder.getBottomPanel();
+            this.center = builder.getCenterPanel();
+        } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        } catch (final InvocationTargetException ex) {
             Log.warning(ex);
         }
-
-        this.frame = builder.getBuilderFrame();
-        this.top = builder.getTopPanel();
-        this.bottom = builder.getBottomPanel();
-        this.center = builder.getCenterPanel();
 
         return true;
     }
@@ -422,7 +424,10 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         while (this.frame.isVisible()) {
             try {
                 SwingUtilities.invokeAndWait(obj);
-            } catch (final InterruptedException | InvocationTargetException ex) {
+            } catch (final InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (final InvocationTargetException ex) {
                 Log.warning(ex);
             }
 

@@ -2,6 +2,7 @@ package dev.mathops.app;
 
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
+import dev.mathops.core.log.LogEntry;
 import dev.mathops.core.log.LogWriter;
 import dev.mathops.core.log.LoggingSubsystem;
 import dev.mathops.db.Contexts;
@@ -97,7 +98,8 @@ public class ClientBase {
 
         this.serverConnection = new BlsWebServiceClient(theScheme, theServer, thePort, theSessionId);
 
-        this.homeDir = new File(System.getProperty("user.home"));
+        final String userHome = System.getProperty("user.home");
+        this.homeDir = new File(userHome);
 
         LoggingSubsystem.getSettings().setLogToFiles(false);
         LoggingSubsystem.getSettings().setLogToConsole(true);
@@ -210,7 +212,7 @@ public class ClientBase {
                         }
 
                         if (ok) {
-                            this.machineId = new String(data, Charset.defaultCharset());
+                            this.machineId = new String(data, StandardCharsets.UTF_8);
                         }
                     } else {
                         Log.warning("Unable to read machine ID file");
@@ -255,13 +257,15 @@ public class ClientBase {
         panel.waitForButton();
         final int rc;
 
-        if ("Cancel".equals(panel.getAction()) || !panel.isVisible()) {
+        final String action = panel.getAction();
+        if ("Cancel".equals(action) || !panel.isVisible()) {
             rc = FAILURE;
         } else {
             final int testCenterId;
-            if ("Precalculus Center".equals(panel.getTestingCenter())) {
+            final String testingCenter = panel.getTestingCenter();
+            if ("Precalculus Center".equals(testingCenter)) {
                 testCenterId = 1;
-            } else if ("Development Center".equals(panel.getTestingCenter())) {
+            } else if ("Development Center".equals(testingCenter)) {
                 testCenterId = 3;
             } else {
                 testCenterId = MachineSetupRequest.PUBLIC_INTERNET;
@@ -311,11 +315,13 @@ public class ClientBase {
         final Properties props = System.getProperties();
 
         for (final String key : props.stringPropertyNames()) {
-            req.systemProperties.put(key, props.getProperty(key));
+            final String property = props.getProperty(key);
+            req.systemProperties.put(key, property);
         }
 
         int rc;
-        if (this.serverConnection.writeObject(req.toXml())) {
+        final String xml = req.toXml();
+        if (this.serverConnection.writeObject(xml)) {
             final char[] obj = this.serverConnection.readObject("MachineSetupReply");
 
             if (obj == null) {
@@ -370,7 +376,8 @@ public class ClientBase {
         int rc;
 
         try (final FileOutputStream fos = new FileOutputStream(new File(this.homeDir, ID_FILE))) {
-            fos.write(theMachineId.getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = theMachineId.getBytes(StandardCharsets.UTF_8);
+            fos.write(bytes);
             rc = SUCCESS;
         } catch (final IOException ex) {
             Log.warning(ex);
@@ -429,7 +436,8 @@ public class ClientBase {
         AbstractReplyBase reply = null;
 
         // Perform the exchange of messages
-        if (this.serverConnection.writeObject(request.toXml())) {
+        final String requestXml = request.toXml();
+        if (this.serverConnection.writeObject(requestXml)) {
             final char[] xml = this.serverConnection.readObject(name + " reply");
 
             if (xml != null) {
@@ -447,7 +455,7 @@ public class ClientBase {
         if (reply == null) {
             disconnectFromServer();
 
-            if (connectToServer() == SUCCESS && this.serverConnection.writeObject(request.toXml())) {
+            if (connectToServer() == SUCCESS && this.serverConnection.writeObject(requestXml)) {
                 final char[] xml = this.serverConnection.readObject(name + " reply");
 
                 if (xml != null) {
@@ -478,10 +486,12 @@ public class ClientBase {
         if (count > 0) {
             final HtmlBuilder allError = new HtmlBuilder(count * 100);
             for (int i = 0; i < count; i++) {
-                allError.addln(writer.getListMessage(i).message);
+                final LogEntry msg = writer.getListMessage(i);
+                allError.addln(msg.message);
             }
 
-            final ExceptionSubmissionRequest req = new ExceptionSubmissionRequest(null, allError.toString(), null);
+            final String errorStr = allError.toString();
+            final ExceptionSubmissionRequest req = new ExceptionSubmissionRequest(null, errorStr, null);
 
             doExchange(req, "Exception submission", false);
         }
@@ -499,7 +509,7 @@ final class ShowRegistrationPanel implements Runnable {
     private final JFrame dialogParent;
 
     /** the generated registration dialog panel. */
-    private ClientPCRegisterPanel panel;
+    private ClientPCRegisterPanel panel = null;
 
     /**
      * Constructs a new {@code ShowRegistrationPanel}.

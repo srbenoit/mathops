@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -384,7 +385,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
                 // Cancel the check-in
                 resetStation(cache, pc);
                 verifyNoPending(cache);
-                PopupPanel.showPopupMessage(this, this.center, "Check out cancelled.", null, null, PopupPanel.STYLE_OK);
+                PopupPanel.showPopupMessage(this, this.center, "Check-in cancelled.", null, null, PopupPanel.STYLE_OK);
             } else {
                 final String msg2 = SimpleBuilder.concat("The student should sign-in at station ", pc.stationNbr,
                         CoreConstants.DOT);
@@ -697,18 +698,20 @@ final class BlockingWindowBuilder implements Runnable {
     @Override
     public void run() {
 
-        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1040, 920);
+        final Dimension screen = this.full ? Toolkit.getDefaultToolkit().getScreenSize() : new Dimension(1600, 900);
 
         this.builderFrame = new JFrame("Checkout");
-        this.builderFrame.setUndecorated(true);
+        if (this.full) {
+            this.builderFrame.setUndecorated(true);
+        }
         this.builderFrame.setFocusableWindowState(true);
+        this.builderFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final JPanel content = new JPanel(new BorderLayout(1, 1));
         content.setPreferredSize(screen);
         this.builderFrame.setContentPane(content);
         content.setBackground(new Color(100, 100, 255));
 
-        this.builderFrame.pack();
         this.builderFrame.setSize(screen);
         this.builderFrame.setLocation(0, 0);
         this.builderFrame.setVisible(true);

@@ -85,7 +85,7 @@ import java.util.Properties;
 public final class TestStationApp extends ClientBase implements Runnable, ExamContainerInt {
 
     /** Version number for screen displays. */
-    static final String VERSION = "v2.5.6 (Oct. 6, 2023)";
+    static final String VERSION = "v2.5.7 (Jan. 2, 2024)";
 
     /** The main frame for the application. */
     private JFrame frame;
@@ -166,6 +166,8 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
                            final String theSessionId) throws UnknownHostException {
 
         super(theScheme, theServer, thePort, theSessionId);
+
+        Log.info("Connected to ", theServer);
 
         // Set the ROM location to load a particular calculator
         final String home = System.getProperty("user.home");
