@@ -47,7 +47,7 @@ import java.util.List;
 public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
 
     /** All homework types considered. */
-    public static final String[] ALL_HW_TYPES = {"HW"};
+    public static final String[] ALL_HW_TYPES = {"HW", "ST"};
 
     /** A single instance. */
     public static final RawSthomeworkLogic INSTANCE = new RawSthomeworkLogic();

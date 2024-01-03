@@ -758,6 +758,17 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
                 } else if ("126-5".equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M126, 5, "F");
 
+                } else if ("117-MA".equals(cmd)) {
+                    this.owner.chooseExam(cache, RawRecordConstants.MATH117, 0, "MA");
+                } else if ("118-MA".equals(cmd)) {
+                    this.owner.chooseExam(cache, RawRecordConstants.MATH118, 0, "MA");
+                } else if ("124-MA".equals(cmd)) {
+                    this.owner.chooseExam(cache, RawRecordConstants.MATH124, 0, "MA");
+                } else if ("125-MA".equals(cmd)) {
+                    this.owner.chooseExam(cache, RawRecordConstants.MATH125, 0, "MA");
+                } else if ("126-MA".equals(cmd)) {
+                    this.owner.chooseExam(cache, RawRecordConstants.MATH126, 0, "MA");
+
                 } else if (CANCEL.equals(cmd)) {
                     this.owner.chooseExam(cache, null, 0, null);
                 } else {

@@ -59,8 +59,7 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
 
         this.studentId = theStudentId;
 
-        final StartExamPanelGuiBuilder builder =
-                new StartExamPanelGuiBuilder(desk, this, baseColor);
+        final StartExamPanelGuiBuilder builder = new StartExamPanelGuiBuilder(desk, this, baseColor);
 
         try {
             SwingUtilities.invokeAndWait(builder);
@@ -86,7 +85,7 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
      *
      * @return the timeout progress bar
      */
-    public JProgressBar getProgressBar() {
+    JProgressBar getProgressBar() {
 
         return this.timeout;
     }
@@ -94,7 +93,7 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
     /**
      * Tries to set the input focus to the input field.
      */
-    public void focusInput() {
+    void focusInput() {
 
         this.idField.requestFocus();
         this.idField.requestFocusInWindow();

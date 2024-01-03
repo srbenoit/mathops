@@ -23,6 +23,7 @@ import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 
 import javax.swing.JFrame;
@@ -719,13 +720,18 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         // Now pick from the choices
         final int numChoices = choices.size();
-        final int selectedChoiceIndex = this.random.nextInt(numChoices);
-        final RawClientPc chosen = choices.get(selectedChoiceIndex);
+        if (numChoices > 0) {
+            final int selectedChoiceIndex = this.random.nextInt(numChoices);
+            final RawClientPc chosen = choices.get(selectedChoiceIndex);
 
-        if (chosen != null) {
-            this.info.selections.reservedSeat = chosen;
-            Log.info("Station ", chosen.stationNbr, " reserved for ", this.info.selections.course);
-            ok = true;
+            if (chosen != null) {
+                this.info.selections.reservedSeat = chosen;
+                Log.info("Station ", chosen.stationNbr, " reserved for ", this.info.selections.course);
+                ok = true;
+            } else {
+                PopupPanel.showPopupMessage(this, this.center, "No seats available", null, null, PopupPanel.STYLE_OK);
+                Log.info("Attempt to reserve seat for ", this.info.selections.course, " failed due to lack of seats");
+            }
         } else {
             PopupPanel.showPopupMessage(this, this.center, "No seats available", null, null, PopupPanel.STYLE_OK);
             Log.info("Attempt to reserve seat for ", this.info.selections.course, " failed due to lack of seats");
@@ -888,7 +894,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      * @param cache  the data cache
      * @param course the course selected
      * @param unit   the unit selected
-     * @param type   the exam type
+     * @param type   the exam type (L, Q, U, F, CH, or MA)
      * @throws SQLException if there is an error accessing the database
      */
     void chooseExam(final Cache cache, final String course, final int unit, final String type) throws SQLException {
@@ -921,6 +927,22 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                                 type);
                         this.bottom.setMessage(name);
                     }
+                } else if ("MA".equals(type)) {
+                    // The user has selected a generic "mastery exam" which must create a synthetic exam with
+                    // all the standards for which the user is eligible...
+
+                    // All check-in needs to do is look up a general "RawExam" record with the course and unit
+                    // specified, and store that so the server can generate the proper synthetic exam.
+
+                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    if (this.info.selections.exam == null) {
+                        this.bottom.setMessage("INVALID EXAM");
+                    } else {
+                        this.bottom.setMessage(name);
+                        Log.info("Exam version is ", this.info.selections.exam.version);
+                    }
+
+
                 } else {
                     this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
                     if (this.info.selections.exam == null) {

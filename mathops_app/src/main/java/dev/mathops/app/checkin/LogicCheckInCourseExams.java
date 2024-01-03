@@ -2,6 +2,7 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
@@ -943,8 +944,8 @@ final class LogicCheckInCourseExams {
                         data.masteryExam.whyNot = "No Targets Avail.";
                     }
                 } else {
-                    data.masteryExam.newLabel = numAvailableStandards == 1 ? "1 Learning Target"
-                            : (numAvailableStandards + " Learning Targets");
+                    data.masteryExam.newLabel = numAvailableStandards == 1 ? "Mastery (1)"
+                            : ("Mastery (" + numAvailableStandards + ")");
                 }
             }
         }
@@ -1341,7 +1342,7 @@ final class LogicCheckInCourseExams {
             RawStexam firstPassing = null;
 
             for (final RawStexam rec : this.stExams) {
-                if (RawStexam.UNIT_EXAM.equals(rec.examType) && "Y".equals(rec.passed)
+                if (RawStexam.REVIEW_EXAM.equals(rec.examType) && "Y".equals(rec.passed)
                         && rec.unit.intValue() == theUnit) {
                     if (firstPassing == null || firstPassing.examDt.isAfter(rec.examDt)) {
                         firstPassing = rec;
@@ -1429,8 +1430,9 @@ final class LogicCheckInCourseExams {
                     final int obj = exam.objective.intValue();
 
                     for (final RawSthomework hw : this.stHomeworks) {
-                        if (hw.unit.intValue() == unit && hw.objective.intValue() == obj && "T".equals(hw.passed)) {
+                        if (hw.unit.intValue() == unit && hw.objective.intValue() == obj && "Y".equals(hw.passed)) {
                             ++available;
+                            break;
                         }
                     }
                 }

@@ -26,14 +26,22 @@ import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMpeLog;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawTestingCenter;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -54,6 +62,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -125,7 +134,6 @@ public final class GetExamHandler extends AbstractHandlerBase {
         boolean ok = loadStudentInfo(cache, request.studentId, reply);
 
         if (ok) {
-
             LogBase.setSessionInfo("TXN", request.studentId);
 
             // Look up the exam and store it in an AvailableExam object.
@@ -153,13 +161,15 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final ZonedDateTime now = ZonedDateTime.now();
 
             if (ok) {
-                final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, getStudent().stuId);
+                final RawStudent student = getStudent();
+                final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, student.stuId);
 
                 // We need to verify the exam and fill in the remaining fields in AvailableExam
                 final HtmlBuilder reasons = new HtmlBuilder(100);
                 reply.status = GetExamReply.SUCCESS;
 
-                boolean isProctored = "Y".equals(getTestingCenter().isProctored);
+                final RawTestingCenter testingCenter = getTestingCenter();
+                boolean isProctored = "Y".equals(testingCenter.isProctored);
 
                 // FIXME: Hardcode - add proctored field to request
                 if ("PPPPP".equals(request.examVersion) || "MPTTC".equals(request.examVersion)) {
@@ -168,20 +178,22 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
                 String section = null;
                 boolean eligible;
+                List<MasteryExamRec> eligibleToMaster = null;
+
                 if ("Q".equals(avail.exam.examType)) {
 
                     // NOTE: This includes user's exams
                     if ("M 100U".equals(avail.exam.course)) {
                         eligible = true;
 
-                        final RawStudent stu = getStudent();
+                        final RawStudent stu = student;
                         if (stu.timelimitFactor != null) {
                             avail.timelimitFactor = stu.timelimitFactor;
                         }
                     } else {
                         try {
-                            final PlacementLogic logic = new PlacementLogic(cache, getStudent().stuId,
-                                    getStudent().aplnTerm, now);
+                            final PlacementLogic logic = new PlacementLogic(cache, student.stuId,
+                                    student.aplnTerm, now);
                             final PlacementStatus status = logic.status;
                             final Set<String> availablePlacement = isProctored ? status.availableLocalProctoredIds
                                     : status.availableUnproctoredIds;
@@ -193,7 +205,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                             } else {
                                 eligible = true;
 
-                                final RawStudent stu = getStudent();
+                                final RawStudent stu = student;
                                 if (stu.timelimitFactor != null) {
                                     avail.timelimitFactor = stu.timelimitFactor;
                                 }
@@ -206,7 +218,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     }
                 } else if ("CH".equals(avail.exam.examType)) {
 
-                    final ChallengeExamLogic logic = new ChallengeExamLogic(cache, getStudent().stuId);
+                    final ChallengeExamLogic logic = new ChallengeExamLogic(cache, student.stuId);
                     final ChallengeExamStatus status = logic.getStatus(avail.exam.course);
 
                     if (status.availableExamId == null) {
@@ -215,13 +227,27 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     } else {
                         eligible = true;
 
-                        final RawStudent stu = getStudent();
+                        final RawStudent stu = student;
                         if (stu.timelimitFactor != null) {
                             avail.timelimitFactor = stu.timelimitFactor;
                         }
                     }
+                } else if ("MA".equals(avail.exam.examType)) {
+
+                    eligibleToMaster = gatherEligibleStandards(cache, request.studentId, avail.exam.course);
+
+                    if (eligibleToMaster.isEmpty()) {
+                        eligible = false;
+                        reasons.add("Not eligible to master any learning targets");
+                    } else {
+                        eligible = true;
+                        if (student.timelimitFactor != null) {
+                            avail.timelimitFactor = student.timelimitFactor;
+                        }
+                    }
+
                 } else {
-                    final ExamEligibilityTester examtest = new ExamEligibilityTester(getStudent().stuId);
+                    final ExamEligibilityTester examtest = new ExamEligibilityTester(student.stuId);
 
                     eligible = examtest.isExamEligible(cache, now, avail, reasons, holds, request.checkEligibility);
 
@@ -231,20 +257,17 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 }
 
                 if (eligible) {
-
                     // Generate a serial number for the exam
                     final long serial = generateSerialNumber(false);
 
-                    TermRec term = null;
-                    if (ok) {
-                        term = TermLogic.get(cache).queryActive(cache);
-                        if (term == null) {
-                            ok = false;
+                    final TermRec term = TermLogic.get(cache).queryActive(cache);
+                    if (Objects.nonNull(term)) {
+                        final String treeRef = avail.exam.treeRef;
+                        if ("synthetic".equals(treeRef)) {
+                            buildSyntheticExam(cache, avail.exam, eligibleToMaster, serial, reply);
+                        } else {
+                            buildPresentedExam(cache, treeRef, serial, reply, term, isProctored);
                         }
-                    }
-
-                    if (ok && term != null) {
-                        buildPresentedExam(cache, avail.exam.treeRef, serial, reply, term, isProctored);
 
                         final ExamObj exam = reply.presentedExam;
 
@@ -260,21 +283,17 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         para.add(text);
                         newInstr.add(para);
 
-                        final String singular = "M 101".equals(avail.exam.course) ? "quiz" : "exam";
-                        final String plural = "M 101".equals(avail.exam.course) ? "quizzes" : "exams";
-
                         // Alter the exam instructions based on section number
                         if (section != null && !section.isEmpty()
                                 && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
 
                             // Instructions for Distance Math courses
                             para = new DocParagraph();
-                            para.add(new DocText("This " + singular + " consists of "
-                                    + exam.getNumProblems()
+                            para.add(new DocText("This exam consists of " + exam.getNumProblems()
                                     + " questions. Your score will be based on the number of "
                                     + "questions answered correctly. There is at least one "
                                     + "correct response to each question. To correctly answer a "
-                                    + "question on this " + singular + ", you must choose "));
+                                    + "question on this exam, you must choose "));
 
                             final DocWrappingSpan all = new DocWrappingSpan();
                             all.tag = "span";
@@ -294,8 +313,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
                                 // Instructions for all Resident course unit and final exams
                                 para = new DocParagraph();
-                                para.add(new DocText("This " + singular + " has a time limit.  The time remaining to "
-                                        + "complete the " + singular + " is displayed at the top right hand "
+                                para.add(new DocText("This exam has a time limit.  The time remaining to "
+                                        + "complete the exam is displayed at the top right hand "
                                         + "corner of your computer screen."));
                                 newInstr.add(para);
 
@@ -309,7 +328,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                 note.add(new DocText("PLEASE NOTE"));
                                 para.add(note);
 
-                                text = new DocText(": all " + plural + " taken in the Precalculus");
+                                text = new DocText(": all exams taken in the Precalculus");
                                 para.add(text);
 
                                 text = new DocText(" Center must be submitted by the posted "
@@ -321,11 +340,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                 newInstr.add(new DocParagraph());
 
                                 para = new DocParagraph();
-                                para.add(new DocText("This " + singular + " consists of "
-                                        + exam.getNumProblems()
+                                para.add(new DocText("This exam consists of " + exam.getNumProblems()
                                         + " questions. Your score will be based on the number of questions answered "
                                         + "correctly. There is at least one correct response to each question. To "
-                                        + "correctly answer a question on this " + singular + ", you must choose "));
+                                        + "correctly answer a question on this exam, you must choose "));
 
                                 final DocWrappingSpan all = new DocWrappingSpan();
                                 all.tag = "span";
@@ -356,11 +374,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                 not.add(new DocText("NOT"));
                                 para.add(not);
 
-                                para.add(new DocText(
-                                        " permitted to use reference materials of any kind on this " + singular
-                                                + ". If you are found to be in possession of reference materials "
-                                                + "while working on this " + singular + ", even if unintentional, "
-                                                + "you will be charged with academic misconduct."));
+                                para.add(new DocText(" permitted to use reference materials of any kind on this "
+                                        + "exam. If you are found to be in possession of reference materials while "
+                                        + "working on this exam, even if unintentional, you will be charged with "
+                                        + "academic misconduct."));
                                 newInstr.add(para);
 
                                 exam.instructions = newInstr;
@@ -374,7 +391,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                     Instant.ofEpochMilli(reply.presentedExam.realizationTime));
                             final int startTime = start.getHour() * 60 + start.getMinute();
 
-                            final RawMpeLog mpelog = new RawMpeLog(getStudent().stuId, term.academicYear,
+                            final RawMpeLog mpelog = new RawMpeLog(student.stuId, term.academicYear,
                                     avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
                                     Long.valueOf(serial), Integer.valueOf(startTime), null);
 
@@ -406,7 +423,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                             final int min = tm.getHour() * 60 + tm.getMinute();
 
                             final RawPendingExam pending = new RawPendingExam(Long.valueOf(serial),
-                                    reply.presentedExam.examVersion, getStudent().stuId, realized.toLocalDate(),
+                                    reply.presentedExam.examVersion, student.stuId, realized.toLocalDate(),
                                     null, Integer.valueOf(min), null, null, null, null, avail.exam.course,
                                     avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
 
@@ -428,6 +445,67 @@ public final class GetExamHandler extends AbstractHandlerBase {
         }
 
         return reply.toXml();
+    }
+
+    /**
+     * Tests whether the student is eligible to try to master any standards in a specified course.
+     *
+     * @param cache   the cache
+     * @param stuId   the student ID
+     * @param course  the course
+     * @return a list of the mastery exams for which the student is eligible
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<MasteryExamRec> gatherEligibleStandards(final Cache cache, final String stuId, final String course)
+            throws SQLException {
+
+        final List<MasteryExamRec> available = new ArrayList<>(10);
+
+        final List<MasteryExamRec> allMasteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, course);
+        final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, stuId);
+        final List<RawSthomework> homeworks = RawSthomeworkLogic.queryByStudentCourse(cache, stuId, course, false);
+
+        for (final MasteryExamRec exam : allMasteryExams) {
+            boolean needsMastery = true;
+            for (final MasteryAttemptRec attempt : allAttempts) {
+                if (attempt.examId.equals(exam.examId) && "Y".equals(attempt.passed)) {
+                    needsMastery = false;
+                    break;
+                }
+            }
+
+            if (needsMastery) {
+                final int unit = exam.unit.intValue();
+                final int obj = exam.objective.intValue();
+
+                for (final RawSthomework hw : homeworks) {
+                    if (hw.unit.intValue() == unit && hw.objective.intValue() == obj && "Y".equals(hw.passed)) {
+                        available.add(exam);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return available;
+    }
+
+    /**
+     * Builds a synthetic "ExamObj" object for mastery of course standards based on the set of standards for which the
+     * student is currently eligible.  The exam will have one section for each unit in which the student is eligible
+     * to try to master at least one standard.
+     *
+     * @param cache            the data cache
+     * @param examRec          the exam record
+     * @param eligibleToMaster the list of mastery exams the student is eligible to attempt (known to be non-empty)
+     * @param serial           the serial number to associate with the exam
+     * @param reply            the reply message to populate with the realized exam or the error status
+     */
+    private void buildSyntheticExam(final Cache cache, final RawExam examRec,
+                                    final List<MasteryExamRec> eligibleToMaster, final long serial,
+                                    final GetExamReply reply) {
+
+        TODO: Build the exam object here...
     }
 
     /**
