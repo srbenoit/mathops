@@ -274,14 +274,15 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
         final int targetWidth = size.height * skin.getWidth() / skin.getHeight();
         this.calcUi.resizeSkin(targetWidth, size.height);
 
-        // LOG.info("Size: " + size);
-        // LOG.info("Target size: " + targetWidth + "x" + size.height);
-        // LOG.info("Skin rect size: " + this.owner.getRectSkin());
+//         LOG.info("Size: " + size);
+//         LOG.info("Target size: " + targetWidth + "x" + size.height);
+//         LOG.info("Skin rect size: " + skin.getWidth() + "x" + skin.getHeight());
 
         skin = this.calcUi.getRenderedSkin();
 
         final Dimension newSize = new Dimension(skin.getWidth(), skin.getHeight());
-        // LOG.info("Rendered skin size: " + newSize);
+
+//        LOG.info("Rendered skin size: " + newSize);
 
         setPreferredSize(newSize);
         setMinimumSize(newSize);
@@ -733,7 +734,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public DataFlavor[] getTransferDataFlavors() {
 
-        // LOG.fine("Get transfer data flavors");
         return new DataFlavor[]{DataFlavor.imageFlavor};
     }
 
@@ -746,7 +746,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public boolean isDataFlavorSupported(final DataFlavor flavor) {
 
-        // LOG.fine("is transfer data " + flavor);
         return flavor.equals(DataFlavor.imageFlavor);
     }
 
@@ -758,8 +757,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
      */
     @Override
     public Object getTransferData(final DataFlavor flavor) {
-
-        // LOG.fine("Get transfer data " + flavor);
 
         if (!SwingUtilities.isEventDispatchThread()) {
             LOG.warning("getTransferData called, not in AWT event thread!!!");
@@ -798,7 +795,7 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public void dragEnter(final DragSourceDragEvent dsde) {
 
-        // LOG.fine("Drag enter");
+        // No action
     }
 
     /**
@@ -809,7 +806,7 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public void dragOver(final DragSourceDragEvent dsde) {
 
-        // LOG.fine("Drag over");
+        // No action
     }
 
     /**
@@ -820,7 +817,7 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public void dropActionChanged(final DragSourceDragEvent dsde) {
 
-        // LOG.fine("Drop action changed");
+        // No action
     }
 
     /**
@@ -831,7 +828,7 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public void dragExit(final DragSourceEvent dse) {
 
-        LOG.fine("Drag exit");
+        // No action
     }
 
     /**
@@ -842,7 +839,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
     @Override
     public void dragDropEnd(final DragSourceDropEvent dsde) {
 
-        // LOG.fine("END");
         repaint();
     }
 
@@ -865,7 +861,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
         final int height = (int) ((double) rc.height * scale);
 
         if (where.x >= left && where.x <= (left + width) && where.y >= top && where.y <= (top + height)) {
-            // LOG.fine("START");
             this.dragSource.startDrag(dge, DragSource.DefaultCopyDrop, this, this);
         }
     }
@@ -903,7 +898,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
         @Override
         public int getSourceActions(final JComponent c) {
 
-            // LOG.fine("GET SOURCE ACTIONS");
             return COPY_OR_MOVE;
         }
 
@@ -915,7 +909,6 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
         @Override
         public Transferable createTransferable(final JComponent c) {
 
-            // LOG.fine("CREATE TRANSFERABLE");
             return this.source;
         }
 
@@ -929,7 +922,7 @@ public final class CalculatorPanel extends LoggedPanel implements Runnable, KeyL
         @Override
         public void exportDone(final JComponent source, final Transferable data, final int action) {
 
-            // LOG.fine("EXPORT DONE");
+            // No action
         }
     }
 }

@@ -1422,12 +1422,9 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
 
         final Properties skin = new DefaultSkin();
 
-        if (exam.examVersion.startsWith("30")) {
-            skin.setProperty("bottom-bar-lbl", "I am finished.  Submit the quiz for grading.");
-        }
-
-        final ExamPanelBuilder builder =
-                new ExamPanelBuilder(skin, this.currentStudentName, this, this.examSession);
+        final Dimension deskSize = this.desk.getSize();
+        final ExamPanelBuilder builder = new ExamPanelBuilder(skin, deskSize, this.currentStudentName, this,
+                this.examSession);
 
         try {
             SwingUtilities.invokeAndWait(builder);
@@ -2299,13 +2296,16 @@ final class ExamPanelBuilder implements Runnable {
      * Constructs a new {@code ExamPanelBuilder}.
      *
      * @param theSkin           the skin
+     * @param theContainerSize  the container's size
      * @param theCurStudentName the current student name
      * @param theOwner          the owning app
      * @param theExamSession    the exam session
      */
-    ExamPanelBuilder(final Properties theSkin, final String theCurStudentName,
+    ExamPanelBuilder(final Properties theSkin, final Dimension theContainerSize, final String theCurStudentName,
                      final TestStationApp theOwner, final ExamSession theExamSession) {
 
+
+        Log.info("Container size is ", theContainerSize);
         this.skin = theSkin;
         this.currentStudentName = theCurStudentName;
         this.owner = theOwner;

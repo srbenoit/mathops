@@ -1,1 +1,0 @@
-/opt/jdk/bin/java -cp .\ifxjdbc.jar;.\ojdbc7.jar;.\ADMIN.jar;.\flatlaf-3.0.jar dev.mathops.app.checkin.CheckInApp

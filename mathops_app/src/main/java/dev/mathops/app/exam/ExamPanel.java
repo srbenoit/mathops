@@ -175,11 +175,23 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
         final Rectangle bounds = getBounds();
         final BundledFontManager bfm = BundledFontManager.getInstance();
 
-        // Set up the problem list
-        if ("true"
-                .equalsIgnoreCase(this.skin.getProperty("show-problem-list"))) {
 
-            this.problems = new ProblemListPanel(this, this.examSession, bfm, bounds.width);
+        // Set up the calculator panel
+        int calculatorWidth = 0;
+        int calculatorHeight = 0;
+        if ("true".equalsIgnoreCase(this.skin.getProperty("show-calculator"))) {
+            // NOTE: 725 below is exactly half the native height of the calculator's skin - bigger than this looks
+            // too big on the testing station...
+
+            calculatorHeight = Math.min(725, this.owner.getFrame().getSize().height
+                    - this.top.getPreferredSize().height - this.bottom.getPreferredSize().height);
+            calculatorWidth = calculatorHeight / 3;
+        }
+
+        // Set up the problem list
+        if ("true".equalsIgnoreCase(this.skin.getProperty("show-problem-list"))) {
+
+            this.problems = new ProblemListPanel(this, this.examSession, bfm, bounds.width - calculatorWidth);
             final JScrollPane scroll = new JScrollPane(this.problems, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                     ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             scroll.setWheelScrollingEnabled(true);
@@ -190,19 +202,15 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
         // Set up the calculator panel
         if ("true".equalsIgnoreCase(this.skin.getProperty("show-calculator"))) {
             this.calculator = CalculatorPanel.getInstance();
+            if (this.calculator != null) {
+                this.calculator.setPreferredSize(new Dimension(calculatorWidth, calculatorHeight));
+                this.calculator.setSize(calculatorWidth, calculatorHeight);
 
-            // final Dimension size = this.owner.getFrame().getSize();
+                decorateCalcPanel();
 
-            final int hr = this.owner.getFrame().getSize().height
-                    - this.top.getPreferredSize().height - this.bottom.getPreferredSize().height;
-
-            this.calculator.setPreferredSize(new Dimension(hr / 3, hr));
-            this.calculator.setSize(hr / 3, hr);
-
-            decorateCalcPanel();
-
-            add(this.calculator, BorderLayout.LINE_END);
-            this.calculator.showCalculator(true);
+                add(this.calculator, BorderLayout.LINE_END);
+                this.calculator.showCalculator(true);
+            }
         }
 
         // Set up the current problem panel

@@ -946,8 +946,14 @@ public final class CalcUI extends WindowAdapter implements ComponentListener, IL
             this.skinScale = 1.0;
         } else if (skinHeight * 3 / 4 <= maxHeight && skinWidth * 3 / 4 <= maxWidth) {
             this.skinScale = 0.75;
+        } else if (skinHeight * 3 / 5 <= maxHeight && skinWidth * 3 / 5 <= maxWidth) {
+            this.skinScale = 0.6;
         } else if (skinHeight / 2 <= maxHeight && skinWidth / 2 <= maxWidth) {
             this.skinScale = 0.5;
+        } else if (skinHeight * 2 / 5 <= maxHeight && skinWidth * 2 / 5 <= maxWidth) {
+            this.skinScale = 0.4;
+        } else if (skinHeight / 3 <= maxHeight && skinWidth / 3 <= maxWidth) {
+            this.skinScale = 0.333333333333;
         } else {
             this.skinScale = 0.25;
         }
