@@ -21,12 +21,12 @@ import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawExam;
@@ -34,14 +34,10 @@ import dev.mathops.db.old.rawrecord.RawMpeLog;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -178,7 +174,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
                 String section = null;
                 boolean eligible;
-                List<MasteryExamRec> eligibleToMaster = null;
+                StandardsMasteryLogic standardsMasteryLogic = null;
 
                 if ("Q".equals(avail.exam.examType)) {
 
@@ -234,9 +230,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     }
                 } else if ("MA".equals(avail.exam.examType)) {
 
-                    eligibleToMaster = gatherEligibleStandards(cache, request.studentId, avail.exam.course);
+                    standardsMasteryLogic = new StandardsMasteryLogic(cache, request.studentId, avail.exam.course);
+                    final int numAvailableToMaster = standardsMasteryLogic.countAvailableStandards();
 
-                    if (eligibleToMaster.isEmpty()) {
+                    if (numAvailableToMaster == 0) {
                         eligible = false;
                         reasons.add("Not eligible to master any learning targets");
                     } else {
@@ -262,9 +259,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
                     final TermRec term = TermLogic.get(cache).queryActive(cache);
                     if (Objects.nonNull(term)) {
+
                         final String treeRef = avail.exam.treeRef;
-                        if ("synthetic".equals(treeRef)) {
-                            buildSyntheticExam(cache, avail.exam, eligibleToMaster, serial, reply);
+                        if ("synthetic".equals(treeRef) && standardsMasteryLogic != null) {
+                            buildSyntheticExam(avail.exam, standardsMasteryLogic, serial, reply, term);
                         } else {
                             buildPresentedExam(cache, treeRef, serial, reply, term, isProctored);
                         }
@@ -448,64 +446,140 @@ public final class GetExamHandler extends AbstractHandlerBase {
     }
 
     /**
-     * Tests whether the student is eligible to try to master any standards in a specified course.
+     * Builds a synthetic "ExamObj" object for mastery of course standards based on the set of standards for which the
+     * student is currently eligible.  The exam will have one section for each unit in which the student is eligible
+     * to try to master at least one standard.
      *
-     * @param cache   the cache
-     * @param stuId   the student ID
-     * @param course  the course
-     * @return a list of the mastery exams for which the student is eligible
-     * @throws SQLException if there is an error accessing the database
+     * @param examRec  the exam record
+     * @param logic    the standards mastery logic
+     * @param serial   the serial number to associate with the exam
+     * @param reply    the reply message to populate with the realized exam or the error status
+     * @param term     the active term
      */
-    private List<MasteryExamRec> gatherEligibleStandards(final Cache cache, final String stuId, final String course)
-            throws SQLException {
+    private void buildSyntheticExam(final RawExam examRec, final StandardsMasteryLogic logic, final long serial,
+                                    final GetExamReply reply, final TermRec term) {
 
-        final List<MasteryExamRec> available = new ArrayList<>(10);
+        final List<MasteryExamRec> eligibleToMaster = logic.gatherEligibleStandards();
 
-        final List<MasteryExamRec> allMasteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, course);
-        final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, stuId);
-        final List<RawSthomework> homeworks = RawSthomeworkLogic.queryByStudentCourse(cache, stuId, course, false);
+        // Ordering of mastery exams is based on course, unt, objective, then type.  All our exams should be for the
+        // same course, so this will sort by unit and objective
+        eligibleToMaster.sort(null);
 
-        for (final MasteryExamRec exam : allMasteryExams) {
-            boolean needsMastery = true;
-            for (final MasteryAttemptRec attempt : allAttempts) {
-                if (attempt.examId.equals(exam.examId) && "Y".equals(attempt.passed)) {
-                    needsMastery = false;
-                    break;
-                }
-            }
+        final ExamObj exam = new ExamObj();
+        ExamSection currentSection = null;
+        Integer currentUnit = null;
 
-            if (needsMastery) {
-                final int unit = exam.unit.intValue();
-                final int obj = exam.objective.intValue();
+        for (final MasteryExamRec masteryExam : eligibleToMaster) {
+            final String examId = masteryExam.examId;
 
-                for (final RawSthomework hw : homeworks) {
-                    if (hw.unit.intValue() == unit && hw.objective.intValue() == obj && "Y".equals(hw.passed)) {
-                        available.add(exam);
-                        break;
+            // See which questions have already been answered correctly twice
+            final int alreadyPassed = logic.whichQuestionsPassedTwice(examId);
+            if (alreadyPassed == 2) {
+                Log.warning("Mastery exam for ", examRec.course, " Unit ", masteryExam.unit,
+                        " is showing as available to master, but both questions have been answered correctly twice.");
+            } else {
+                // Load up the exam object for the mastery exam
+                final ExamObj unitMasteryExam = InstructionalCache.getExam(masteryExam.treeRef);
+                if (unitMasteryExam == null) {
+                    Log.warning("Unable to find Mastery exam for ", examRec.course, " Unit ", masteryExam.unit,
+                            " with ref ", masteryExam.treeRef);
+                } else {
+                    if (!masteryExam.unit.equals(currentUnit)) {
+                        // Start a new section for this unit
+                        currentSection = new ExamSection();
+                        currentUnit = masteryExam.unit;
+                        currentSection.sectionName = "Module " + masteryExam.unit;
+                        currentSection.shortName = currentSection.sectionName;
+                        exam.addSection(currentSection);
+                    }
+
+                    final ExamSection unitMasterySection = unitMasteryExam.getSection(0);
+                    if (unitMasterySection.getNumProblems() == 2) {
+
+                        // Add questions to the open section
+                        if ((alreadyPassed & 0x01) == 0x00) {
+                            final ExamProblem problem1 = unitMasterySection.getProblem(0);
+                            final ExamProblem problem1Copy = problem1.deepCopy(exam);
+                            problem1Copy.problemName = unitMasterySection.sectionName + " Question 1";
+                            currentSection.addProblem(problem1Copy);
+                        } else {
+                            final ExamProblem eprob = new ExamProblem(exam);
+                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                            eprob.addProblem(prb);
+                            eprob.problemName = unitMasterySection.sectionName + " Question 1";
+                            currentSection.addProblem(eprob);
+                        }
+
+                        if ((alreadyPassed & 0x02) == 0x00) {
+                            final ExamProblem problem2 = unitMasterySection.getProblem(1);
+                            final ExamProblem problem2Copy = problem2.deepCopy(exam);
+                            problem2Copy.problemName = unitMasterySection.sectionName + " Question 2";
+                            currentSection.addProblem(problem2Copy);
+                        } else {
+                            final ExamProblem eprob = new ExamProblem(exam);
+                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                            eprob.addProblem(prb);
+                            eprob.problemName = unitMasterySection.sectionName + " Question 2";
+                            currentSection.addProblem(eprob);
+                        }
+                    } else {
+                        Log.warning("Mastery exam for ", examRec.course, " Unit ", masteryExam.unit,
+                                " does not have 2 problems");
                     }
                 }
             }
         }
 
-        return available;
-    }
+        // Now we must add the exam's problems so it can be realized.
+        final int numSect = exam.getNumSections();
 
-    /**
-     * Builds a synthetic "ExamObj" object for mastery of course standards based on the set of standards for which the
-     * student is currently eligible.  The exam will have one section for each unit in which the student is eligible
-     * to try to master at least one standard.
-     *
-     * @param cache            the data cache
-     * @param examRec          the exam record
-     * @param eligibleToMaster the list of mastery exams the student is eligible to attempt (known to be non-empty)
-     * @param serial           the serial number to associate with the exam
-     * @param reply            the reply message to populate with the realized exam or the error status
-     */
-    private void buildSyntheticExam(final Cache cache, final RawExam examRec,
-                                    final List<MasteryExamRec> eligibleToMaster, final long serial,
-                                    final GetExamReply reply) {
+        for (int onSect = 0; onSect < numSect; ++onSect) {
+            final ExamSection esect = exam.getSection(onSect);
+            final int numProb = esect.getNumProblems();
 
-        TODO: Build the exam object here...
+            for (int onProb = 0; onProb < numProb; ++onProb) {
+
+                final ExamProblem eprob = esect.getProblem(onProb);
+                final int num = eprob.getNumProblems();
+
+                for (int i = 0; i < num; ++i) {
+                    AbstractProblemTemplate prb = eprob.getProblem(i);
+
+                    if (prb == null || prb.ref == null) {
+                        Log.warning("Exam " + exam.ref + " section " + onSect + " problem " + onProb + " choice "
+                                + i + " getProblem() returned " + prb);
+                    } else if (!(prb instanceof ProblemAutoCorrectTemplate)) {
+                        prb = InstructionalCache.getProblem(prb.ref);
+
+                        if (prb != null) {
+                            eprob.setProblem(i, prb);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (exam.realize("Y".equals(getTestingCenter().isRemote), true, serial)) {
+            reply.presentedExam = exam;
+            reply.status = GetExamReply.SUCCESS;
+            reply.studentId = getStudent().stuId;
+
+            if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
+                    reply.toXml())) {
+                Log.warning("Unable to cache exam " + exam.ref);
+                reply.presentedExam = null;
+                reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+            }
+        } else {
+            Log.warning("Unable to realize " + exam.ref);
+            reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+        }
+
+        // TODO: Pre-populate "Survey" section of exam with existing answers.
+
+        if (reply.status == GetExamReply.SUCCESS) {
+            reply.presentedExam = exam;
+        }
     }
 
     /**

@@ -5,7 +5,6 @@ import dev.mathops.assessment.Randomizer;
 import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 
@@ -100,6 +99,7 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
      * Constructs a new, empty {@code ExamSection}.
      */
     public ExamSection() {
+
         super();
 
         this.resources = new ArrayList<>(0);

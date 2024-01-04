@@ -93,21 +93,6 @@ import java.util.Set;
  */
 public class PlacementLogic {
 
-    /** A commonly used string. */
-    private static final String MATH_117 = "MATH 117";
-
-    /** A commonly used string. */
-    private static final String MATH_118 = "MATH 118";
-
-    /** A commonly used string. */
-    private static final String MATH_124 = "MATH 124";
-
-    /** A commonly used string. */
-    private static final String MATH_125 = "MATH 125";
-
-    /** A commonly used string. */
-    private static final String MATH_126 = "MATH 126";
-
     /** An exam ID. */
     private static final String LEGACY_PROCTORED_MPE_ID = "PPPPP";
 
@@ -185,8 +170,8 @@ public class PlacementLogic {
      *                           the database
      * @throws SQLException if there is an error accessing the database
      */
-    public PlacementLogic(final Cache cache, final String theStudentId,
-                          final TermKey theApplicationTerm, final ZonedDateTime now) throws SQLException {
+    public PlacementLogic(final Cache cache, final String theStudentId, final TermKey theApplicationTerm,
+                          final ZonedDateTime now) throws SQLException {
 
         if (cache == null) {
             throw new IllegalArgumentException("Cache may not be null");
@@ -206,7 +191,8 @@ public class PlacementLogic {
         this.allPlacementCredit = RawMpeCreditLogic.queryByStudent(cache, this.studentId);
         this.allSpecials = SpecialCategoriesStatus.of(cache, this.studentId);
 
-        computeStatus(cache, now.toLocalDate());
+        final LocalDate today = now.toLocalDate();
+        computeStatus(cache, today);
     }
 
     /**
@@ -225,8 +211,9 @@ public class PlacementLogic {
             this.status.allowedToUseUnproctored = false;
             this.status.attemptsRemaining = 0;
             this.status.attemptsUsed = 0;
-            this.status.setWhyProctoredUnavailable(Res.get(Res.PLC_CANT_LOOKUP_RECORD_L),
-                    Res.get(Res.PLC_CANT_LOOKUP_RECORD_S));
+            final String admMsg = Res.get(Res.PLC_CANT_LOOKUP_RECORD_L);
+            final String stuMsg = Res.get(Res.PLC_CANT_LOOKUP_RECORD_S);
+            this.status.setWhyProctoredUnavailable(admMsg, stuMsg);
         } else {
             this.status.placementAttempted = !this.allAttempts.isEmpty();
 
@@ -291,8 +278,8 @@ public class PlacementLogic {
      * @param maxTries       the maximum number of total attempts allowed for this student
      * @throws SQLException if there is an error accessing the database
      */
-    private void computeStatusAttemptsRemain(final Cache cache, final LocalDate today,
-                                             final int numUnproctored, final int numTotal, final int maxTries) throws SQLException {
+    private void computeStatusAttemptsRemain(final Cache cache, final LocalDate today, final int numUnproctored,
+                                             final int numTotal, final int maxTries) throws SQLException {
 
         // Create list of date ranges for unproctored exams
 
@@ -400,15 +387,17 @@ public class PlacementLogic {
 
                         if (mostRecent == null) {
                             // No dates remain - should never occur, but handle just in case
-                            Log.warning(Res.fmt(Res.PLC_ERR_NO_DATE_RANGES, this.studentId));
+                            final String msg = Res.fmt(Res.PLC_ERR_NO_DATE_RANGES, this.studentId);
+                            Log.warning(msg);
                             this.status.allowedToUseUnproctored = false;
                         } else {
-                            this.status.whyUnproctoredUnavailable = Res.fmt(Res.PLC_WHY_PAST_LAST_DATE,
-                                    TemporalUtils.FMT_MDY.format(mostRecent.end));
+                            final String endStr = TemporalUtils.FMT_MDY.format(mostRecent.end);
+                            this.status.whyUnproctoredUnavailable = Res.fmt(Res.PLC_WHY_PAST_LAST_DATE, endStr);
                         }
                     } else {
-                        this.status.whyUnproctoredUnavailable = Res.fmt(Res.PLC_WHY_PAST_LAST_DATE,
-                                TemporalUtils.FMT_MDY.format(unproc.future.get(0).start));
+                        final DateRange futureRange = unproc.future.getFirst();
+                        final String startStr = TemporalUtils.FMT_MDY.format(futureRange.start);
+                        this.status.whyUnproctoredUnavailable = Res.fmt(Res.PLC_WHY_PAST_LAST_DATE, startStr);
                     }
                 } else {
                     this.status.availableUnproctoredIds.addAll(UNPROCTORED_IDS);
@@ -434,70 +423,70 @@ public class PlacementLogic {
             final String course = cred.course;
 
             if (RawRecordConstants.M100C.equals(course)) {
-                cleared.add(MATH_117);
+                cleared.add(RawRecordConstants.MATH117);
                 this.status.transferSatisfied = true;
             } else if ("M 100M".equals(course) || RawRecordConstants.M100T.equals(course)) {
                 this.status.transferSatisfied = true;
             } else if ("M 100A".equals(course)) {
-                cleared.add(MATH_117);
+                cleared.add(RawRecordConstants.MATH117);
                 this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M117.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_117);
+                    earnedCredit.add(RawRecordConstants.MATH117);
                 } else {
-                    placedOut.add(MATH_117);
+                    placedOut.add(RawRecordConstants.MATH117);
                 }
-                cleared.add(MATH_118);
+                cleared.add(RawRecordConstants.MATH118);
                 this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M118.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_118);
+                    earnedCredit.add(RawRecordConstants.MATH118);
                 } else {
-                    placedOut.add(MATH_118);
+                    placedOut.add(RawRecordConstants.MATH118);
                 }
-                cleared.add(MATH_124);
-                cleared.add(MATH_125);
+                cleared.add(RawRecordConstants.MATH124);
+                cleared.add(RawRecordConstants.MATH125);
                 cleared.add("MATH 141");
                 this.status.transferSatisfied = true;
             } else if ("M 120".equals(course) || "M 120A".equals(course) || "M 121".equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_117);
-                    earnedCredit.add(MATH_118);
+                    earnedCredit.add(RawRecordConstants.MATH117);
+                    earnedCredit.add(RawRecordConstants.MATH118);
                 } else {
-                    placedOut.add(MATH_117);
-                    placedOut.add(MATH_118);
+                    placedOut.add(RawRecordConstants.MATH117);
+                    placedOut.add(RawRecordConstants.MATH118);
                 }
-                cleared.add(MATH_124);
-                cleared.add(MATH_125);
+                cleared.add(RawRecordConstants.MATH124);
+                cleared.add(RawRecordConstants.MATH125);
                 this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M124.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_124);
+                    earnedCredit.add(RawRecordConstants.MATH124);
                 } else {
-                    placedOut.add(MATH_124);
+                    placedOut.add(RawRecordConstants.MATH124);
                 }
                 this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M125.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_125);
+                    earnedCredit.add(RawRecordConstants.MATH125);
                 } else {
-                    placedOut.add(MATH_125);
+                    placedOut.add(RawRecordConstants.MATH125);
                 }
-                cleared.add(MATH_126);
+                cleared.add(RawRecordConstants.MATH126);
                 this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M126.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
-                    earnedCredit.add(MATH_126);
+                    earnedCredit.add(RawRecordConstants.MATH126);
                 } else {
-                    placedOut.add(MATH_126);
+                    placedOut.add(RawRecordConstants.MATH126);
                 }
                 this.status.transferSatisfied = true;
             }
 
-            if (placedOut.contains(MATH_124) && placedOut.contains(MATH_125)) {
+            if (placedOut.contains(RawRecordConstants.MATH124) && placedOut.contains(RawRecordConstants.MATH125)) {
                 cleared.add("MATH 155");
             }
-            if (placedOut.contains(MATH_124) && placedOut.contains(MATH_126)) {
+            if (placedOut.contains(RawRecordConstants.MATH124) && placedOut.contains(RawRecordConstants.MATH126)) {
                 cleared.add("MATH 156");
                 cleared.add("MATH 160");
             }

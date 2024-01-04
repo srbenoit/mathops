@@ -77,7 +77,7 @@ public final class ExamProblem extends AbstractXmlObject {
      * @param theExam the exam to which this problem belongs
      * @return a copy of the original object
      */
-    ExamProblem deepCopy(final ExamObj theExam) {
+    public ExamProblem deepCopy(final ExamObj theExam) {
 
         final ExamProblem copy = new ExamProblem(theExam);
 

@@ -77,8 +77,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<MasteryAttemptQaRec> queryByAttempt(final Cache cache,
-                                                             final Integer serialNbr, final String examId) throws SQLException;
+    public abstract List<MasteryAttemptQaRec> queryByAttempt(final Cache cache, final Integer serialNbr,
+                                                             final String examId) throws SQLException;
 
     /**
      * Queries for a single mastery attempt record.

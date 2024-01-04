@@ -2,9 +2,9 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
+import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
@@ -437,10 +437,19 @@ final class LogicCheckInCourseExams {
             boolean available = true;
 
             final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
-            final WorkRecord workRecord = gatherWorkRecord(cache, reg);
+
+            final boolean isNew = sectData.numbers.isNew(reg.course);
+            OldCourseWorkRecord oldWorkRecord = null;
+            StandardsMasteryLogic standardsLogic = null;
+
+            if (isNew) {
+                standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
+            } else {
+                oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+            }
 
             if ("Y".equals(reg.iCounted)) {
-                available = checkCourseDeadline(reg, data, sectData, courseDeadlines, workRecord);
+                available = checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic);
             }
 
             if (available) {
@@ -452,16 +461,16 @@ final class LogicCheckInCourseExams {
                 makeCourseAvailable(data, sectData.numbers);
 
                 // Check for "UE" deadlines from milestones (for OLD courses)
-                testUnitExamDeadlines(data, courseDeadlines, workRecord);
+                testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord);
 
                 // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(reg, data, sectData, workRecord);
+                testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic);
 
                 // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(reg, data, sectData, workRecord);
+                testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord);
 
                 // Test max attempts per unit
-                testMaxAttempts(reg, data, sectData, workRecord);
+                testMaxAttempts(reg, data, sectData, oldWorkRecord);
             }
         }
     }
@@ -492,9 +501,18 @@ final class LogicCheckInCourseExams {
 
         if (available) {
             final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
-            final WorkRecord workRecord = gatherWorkRecord(cache, reg);
 
-            if (checkCourseDeadline(reg, data, sectData, courseDeadlines, workRecord)) {
+            final boolean isNew = sectData.numbers.isNew(reg.course);
+            OldCourseWorkRecord oldWorkRecord = null;
+            StandardsMasteryLogic standardsLogic = null;
+
+            if (isNew) {
+                standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
+            } else {
+                oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+            }
+
+            if (checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic)) {
                 // At this point, we begin checking unit by unit, and setting the availability of each, rather than
                 // marking the whole course as unavailable.
 
@@ -506,16 +524,16 @@ final class LogicCheckInCourseExams {
                 testTestingWindows(data, sectData);
 
                 // Check for "UE" deadlines from milestones (for OLD courses)
-                testUnitExamDeadlines(data, courseDeadlines, workRecord);
+                testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord);
 
                 // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(reg, data, sectData, workRecord);
+                testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic);
 
                 // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(reg, data, sectData, workRecord);
+                testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord);
 
                 // Test max attempts per unit
-                testMaxAttempts(reg, data, sectData, workRecord);
+                testMaxAttempts(reg, data, sectData, oldWorkRecord);
             }
         }
     }
@@ -636,7 +654,8 @@ final class LogicCheckInCourseExams {
      * @return the work record
      * @throws SQLException if there is an error accessing the database
      */
-    private static WorkRecord gatherWorkRecord(final Cache cache, final RawStcourse reg) throws SQLException {
+    private static OldCourseWorkRecord gatherOldCourseWorkRecord(final Cache cache, final RawStcourse reg)
+            throws SQLException {
 
         final List<RawStexam> stexams = RawStexamLogic.getExams(cache, reg.stuId, reg.course, false,
                 RawStexamLogic.ALL_EXAM_TYPES);
@@ -644,16 +663,7 @@ final class LogicCheckInCourseExams {
         final List<RawSthomework> sthws = RawSthomeworkLogic.getHomeworks(cache, reg.stuId, reg.course, false,
                 RawSthomeworkLogic.ALL_HW_TYPES);
 
-        final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, reg.course);
-
-        final List<MasteryAttemptRec> allAttempts = new ArrayList<>(20);
-        for (final MasteryExamRec exam : masteryExams) {
-            final List<MasteryAttemptRec> attempts = MasteryAttemptLogic.get(cache).queryByStudentExam(cache, reg.stuId,
-                    exam.examId, false);
-            allAttempts.addAll(attempts);
-        }
-
-        return new WorkRecord(sthws, stexams, masteryExams, allAttempts);
+        return new OldCourseWorkRecord(sthws, stexams);
     }
 
     /**
@@ -671,7 +681,8 @@ final class LogicCheckInCourseExams {
      */
     private boolean checkCourseDeadline(final RawStcourse reg, final DataCourseExams data,
                                         final SectionData sectData, final CourseDeadlines courseDeadlines,
-                                        final WorkRecord workRecord) {
+                                        final OldCourseWorkRecord workRecord,
+                                        final StandardsMasteryLogic standardsLogic) {
 
         boolean available = true;
 
@@ -680,7 +691,7 @@ final class LogicCheckInCourseExams {
         if (isNew) {
             // If enough standards have been mastered to complete the course, do nothing, since the student can
             // continue to master standards until the section's last testing date.
-            if (!workRecord.areEnoughStandardsMastered()) {
+            if (!standardsLogic.areEnoughStandardsMasteredToPassCourse()) {
                 // New courses have only the "course deadline" with no "last try" concept
                 final LocalDate courseDeadline = courseDeadlines.courseDeadline();
                 if (Objects.nonNull(courseDeadline) && this.today.isAfter(courseDeadline)) {
@@ -784,7 +795,7 @@ final class LogicCheckInCourseExams {
      * @param workRecord      the student's work record
      */
     private void testUnitExamDeadlines(final DataCourseExams data, final CourseDeadlines courseDeadlines,
-                                       final WorkRecord workRecord) {
+                                       final OldCourseWorkRecord workRecord) {
 
         if (data.unit1Exam.available) {
             final LocalDate u1Due = courseDeadlines.u1Deadline();
@@ -840,7 +851,8 @@ final class LogicCheckInCourseExams {
      * @param workRecord the student's work record
      */
     private static void testPacingRules(final RawStcourse reg, final DataCourseExams data,
-                                        final SectionData sectData, final WorkRecord workRecord) {
+                                        final SectionData sectData, final OldCourseWorkRecord workRecord,
+                                        final StandardsMasteryLogic standardsLogic) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
@@ -929,12 +941,12 @@ final class LogicCheckInCourseExams {
             // FIXME: which the corresponding standard has not yet been mastered.
 
             if (data.masteryExam.available) {
-                final int numAvailableStandards = workRecord.countAvailableStandards();
+                final int numAvailableStandards = standardsLogic.countAvailableStandards();
                 if (numAvailableStandards == 0) {
                     // It could be zero because all have been mastered, or because student needs to pass homework
 
-                    final int numCompleteStandards = workRecord.countCompleteStandards();
-                    final int totalStandards = workRecord.countTotalStandards();
+                    final int numCompleteStandards = standardsLogic.countCompleteStandards();
+                    final int totalStandards = standardsLogic.countTotalStandards();
 
                     if (numCompleteStandards == totalStandards) {
                         data.masteryExam.available = false;
@@ -962,7 +974,7 @@ final class LogicCheckInCourseExams {
      * @param workRecord the student's work record
      */
     private static void testPassingReviewAfterFailedUnit(final RawStcourse reg, final DataCourseExams data,
-                                                         final SectionData sectData, final WorkRecord workRecord) {
+                                                         final SectionData sectData, final OldCourseWorkRecord workRecord) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
@@ -1024,7 +1036,7 @@ final class LogicCheckInCourseExams {
      * @param workRecord the student's work record
      */
     private static void testMaxAttempts(final RawStcourse reg, final DataCourseExams data,
-                                        final SectionData sectData, final WorkRecord workRecord) {
+                                        final SectionData sectData, final OldCourseWorkRecord workRecord) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
@@ -1223,7 +1235,7 @@ final class LogicCheckInCourseExams {
     /**
      * A container for the student's work record in a course.
      */
-    private static final class WorkRecord {
+    private static final class OldCourseWorkRecord {
 
         /** Homeworks the student has taken. */
         final List<RawSthomework> stHomeworks;
@@ -1231,27 +1243,16 @@ final class LogicCheckInCourseExams {
         /** Exams the student has taken. */
         final List<RawStexam> stExams;
 
-        /** Mastery exams associated with the course. */
-        final List<MasteryExamRec> masteryExams;
-
-        /** Mastery attempts the student has taken. */
-        final List<MasteryAttemptRec> masteryAttempts;
-
         /**
          * Constructs a new {@code WorkRecord}.
          *
          * @param theStHomeworks     homeworks the student has taken
          * @param theStExams         exams the student has taken
-         * @param theMasteryExams    mastery exams associated with the course
-         * @param theMasteryAttempts mastery attempts the student has taken
          */
-        WorkRecord(final List<RawSthomework> theStHomeworks, final List<RawStexam> theStExams,
-                   final List<MasteryExamRec> theMasteryExams, final List<MasteryAttemptRec> theMasteryAttempts) {
+        OldCourseWorkRecord(final List<RawSthomework> theStHomeworks, final List<RawStexam> theStExams) {
 
             this.stHomeworks = theStHomeworks;
             this.stExams = theStExams;
-            this.masteryExams = theMasteryExams;
-            this.masteryAttempts = theMasteryAttempts;
         }
 
         /**
@@ -1271,41 +1272,6 @@ final class LogicCheckInCourseExams {
             }
 
             return passedFinal;
-        }
-
-        /**
-         * Tests whether the student has a passing score on the final exam (used for NEW courses).
-         *
-         * @return true if the final exam has been passed
-         */
-        boolean areEnoughStandardsMastered() {
-
-            int numberMasteredFirstHalf = 0;
-            int numberMasteredSecondHalf = 0;
-
-            // FIXME: Move the number of units into data to eliminate hardcoded cutoff between halves
-
-            for (final MasteryExamRec masteryExam : this.masteryExams) {
-                boolean passed = false;
-                for (final MasteryAttemptRec attempt : this.masteryAttempts) {
-                    if (attempt.examId.equals(masteryExam.examId) && "Y".equals(attempt.passed)) {
-                        passed = true;
-                        break;
-                    }
-                }
-
-                if (passed) {
-                    if (masteryExam.unit.intValue() < 5) {
-                        ++numberMasteredFirstHalf;
-                    } else {
-                        ++numberMasteredSecondHalf;
-                    }
-                }
-            }
-
-            // FIXME: Move the number needed per half into data
-
-            return numberMasteredFirstHalf >= 10 && numberMasteredSecondHalf >= 10;
         }
 
         /**
@@ -1374,71 +1340,6 @@ final class LogicCheckInCourseExams {
             }
 
             return count;
-        }
-
-        /**
-         * Returns the total number of standards.
-         *
-         * @return the number of standards
-         */
-        int countTotalStandards() {
-
-            return this.masteryExams.size();
-        }
-
-        /**
-         * Returns the number of standards the student has completed.
-         *
-         * @return the number of standards
-         */
-        int countCompleteStandards() {
-
-            int completed = 0;
-
-            for (final MasteryExamRec exam : this.masteryExams) {
-                for (final MasteryAttemptRec attempt : this.masteryAttempts) {
-                    if (attempt.examId.equals(exam.examId) && "Y".equals(attempt.passed)) {
-                        ++completed;
-                        break;
-                    }
-                }
-            }
-
-            return completed;
-        }
-
-        /**
-         * Returns the number of standards for which the student is eligible to demonstrate mastery.
-         *
-         * @return the number of standards
-         */
-        int countAvailableStandards() {
-
-            int available = 0;
-
-            for (final MasteryExamRec exam : this.masteryExams) {
-                boolean needsMastery = true;
-                for (final MasteryAttemptRec attempt : this.masteryAttempts) {
-                    if (attempt.examId.equals(exam.examId) && "Y".equals(attempt.passed)) {
-                        needsMastery = false;
-                        break;
-                    }
-                }
-
-                if (needsMastery) {
-                    final int unit = exam.unit.intValue();
-                    final int obj = exam.objective.intValue();
-
-                    for (final RawSthomework hw : this.stHomeworks) {
-                        if (hw.unit.intValue() == unit && hw.objective.intValue() == obj && "Y".equals(hw.passed)) {
-                            ++available;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return available;
         }
 
         /**
@@ -1519,8 +1420,8 @@ final class LogicCheckInCourseExams {
         @Override
         public String toString() {
 
-            return SimpleBuilder.concat("WorkRecord{stHomeworks=", this.stHomeworks, ", stExams=", this.stExams,
-                    ", masteryExams=", this.masteryExams, ", masteryAttempts=", this.masteryAttempts, "}");
+            return SimpleBuilder.concat("OldCourseWorkRecord{stHomeworks=", this.stHomeworks, ", stExams=",
+                    this.stExams, "}");
         }
     }
 }
