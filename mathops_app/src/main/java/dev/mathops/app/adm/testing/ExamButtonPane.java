@@ -8,6 +8,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -16,7 +19,7 @@ import java.io.Serial;
 /**
  * A pane that shows a button for an exam along with a status message.
  */
-class ExamButtonPane extends JPanel {
+final class ExamButtonPane extends JPanel {
 
     /** Version for serialization. */
     @Serial
@@ -43,9 +46,10 @@ class ExamButtonPane extends JPanel {
         super(new BorderLayout());
 
         setBackground(Skin.LIGHTEST);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 1, 1, 1, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(8, 4, 8, 4)));
+        final MatteBorder outline = BorderFactory.createMatteBorder(0, 1, 1, 1, Skin.MEDIUM);
+        final Border margin = BorderFactory.createEmptyBorder(6, 4, 6, 4);
+        final CompoundBorder border = BorderFactory.createCompoundBorder(outline, margin);
+        setBorder(border);
 
         this.button = new JButton(buttonTitle);
         this.button.setFont(Skin.BIG_BUTTON_16_FONT);
@@ -55,7 +59,8 @@ class ExamButtonPane extends JPanel {
 
         this.padded = new JPanel(new BorderLayout());
         this.padded.setBackground(Skin.LIGHTEST);
-        this.padded.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        final Border padding = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+        this.padded.setBorder(padding);
         add(this.padded, BorderLayout.CENTER);
 
         this.padded.add(this.button, BorderLayout.CENTER);
@@ -64,10 +69,11 @@ class ExamButtonPane extends JPanel {
         this.status.setHorizontalAlignment(SwingConstants.CENTER);
         this.status.setFont(Skin.BODY_12_FONT);
         this.status.setForeground(Skin.LABEL_COLOR3);
-        add(this.status, BorderLayout.SOUTH);
+        add(this.status, BorderLayout.PAGE_END);
 
         final Dimension sz = getPreferredSize();
-        final Dimension pref = new Dimension(Math.max(120, sz.width), sz.height);
+        final int actualwidth = Math.max(120, sz.width);
+        final Dimension pref = new Dimension(actualwidth, sz.height);
         setPreferredSize(pref);
     }
 
@@ -98,7 +104,7 @@ class ExamButtonPane extends JPanel {
      *
      * @param text the new status text
      */
-    public void setStatusText(final String text) {
+    void setStatusText(final String text) {
 
         this.status.setText(text);
     }
@@ -106,7 +112,7 @@ class ExamButtonPane extends JPanel {
     /**
      * Indicates (through a darkened background) that the student is not registered in the course.
      */
-    public void reset() {
+    void reset() {
 
         setBackground(Skin.LIGHTEST);
         this.padded.setBackground(Skin.LIGHTEST);
@@ -116,7 +122,7 @@ class ExamButtonPane extends JPanel {
     /**
      * Indicates (through a darkened background) that the student is not registered in the course.
      */
-    public void indicateNotRegistered() {
+    void indicateNotRegistered() {
 
         setBackground(Skin.LIGHT);
         this.padded.setBackground(Skin.LIGHT);

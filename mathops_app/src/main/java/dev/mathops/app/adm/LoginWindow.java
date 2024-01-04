@@ -294,7 +294,7 @@ import java.util.prefs.Preferences;
             this.pickAntialias.setBackground(Skin.OFF_WHITE_GRAY);
 
             final JLabel antialiasHeader = new JLabel("Select the item below with the clearest text: ");
-            this.pickAntialias.add(antialiasHeader, BorderLayout.NORTH);
+            this.pickAntialias.add(antialiasHeader, StackedBorderLayout.NORTH);
 
             final Font tiny = new Font(Font.DIALOG, Font.PLAIN, 8);
 
@@ -372,12 +372,12 @@ import java.util.prefs.Preferences;
             flow6.add(lbl6);
             flow6.add(lbl6b);
 
-            this.pickAntialias.add(flow1, BorderLayout.PAGE_START);
-            this.pickAntialias.add(flow2, BorderLayout.PAGE_START);
-            this.pickAntialias.add(flow3, BorderLayout.PAGE_START);
-            this.pickAntialias.add(flow4, BorderLayout.PAGE_START);
-            this.pickAntialias.add(flow5, BorderLayout.PAGE_START);
-            this.pickAntialias.add(flow6, BorderLayout.PAGE_START);
+            this.pickAntialias.add(flow1, StackedBorderLayout.NORTH);
+            this.pickAntialias.add(flow2, StackedBorderLayout.NORTH);
+            this.pickAntialias.add(flow3, StackedBorderLayout.NORTH);
+            this.pickAntialias.add(flow4, StackedBorderLayout.NORTH);
+            this.pickAntialias.add(flow5, StackedBorderLayout.NORTH);
+            this.pickAntialias.add(flow6, StackedBorderLayout.NORTH);
 
             if (pref >= 0 && pref <= 5) {
                 this.radios[pref].setSelected(true);
