@@ -21,6 +21,7 @@ import dev.mathops.assessment.variable.VariableInteger;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
+import dev.mathops.core.builder.SimpleBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.old.Cache;
@@ -74,6 +75,12 @@ import dev.mathops.db.old.rawrecord.RawStsurveyqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.rawrecord.RawUsers;
+import dev.mathops.db.old.rec.MasteryAttemptQaRec;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -89,6 +96,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -337,6 +346,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 presented.presentationTime = System.currentTimeMillis();
             }
 
+            // The following just sets the completion time...
             presented.finalizeExam();
         }
 
@@ -344,14 +354,15 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         final Long ser = presented.serialNumber;
         final LocalDateTime start = TemporalUtils.toLocalDateTime(presented.realizationTime);
 
+        final RawStudent student = getStudent();
         if (RawRecordConstants.M100P.equals(presented.course)) {
-            final List<RawStmpe> existing = RawStmpeLogic.queryLegalByStudent(cache, getStudent().stuId);
+            final List<RawStmpe> existing = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
 
             for (final RawStmpe test : existing) {
                 final LocalDateTime st = test.getStartDateTime();
 
                 if (test.serialNbr != null && test.serialNbr.equals(ser) && st != null && st.equals(start)) {
-                    Log.warning("Submitted placement exam for student ", getStudent().stuId, ", exam ",
+                    Log.warning("Submitted placement exam for student ", student.stuId, ", exam ",
                             presented.examVersion, ": serial=", test.serialNbr, " submitted a second time - ignoring");
                     return false;
                 }
@@ -362,7 +373,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(presented.examVersion)
                 || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(presented.examVersion)) {
 
-            final List<RawStchallenge> existing = RawStchallengeLogic.queryByStudentCourse(cache, getStudent().stuId,
+            final List<RawStchallenge> existing = RawStchallengeLogic.queryByStudentCourse(cache, student.stuId,
                     presented.course);
 
             for (final RawStchallenge test : existing) {
@@ -377,19 +388,31 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
                 if (test.serialNbr != null && test.serialNbr.equals(ser) && testStart != null
                         && testStart.equals(start)) {
-                    Log.warning("Submitted challenge exam for student ", getStudent().stuId, ", exam ",
+                    Log.warning("Submitted challenge exam for student ", student.stuId, ", exam ",
                             presented.examVersion, ": serial=", test.serialNbr, " submitted a second time - ignoring");
                     return false;
                 }
             }
+        } else if ("synthetic".equals(presented.ref)) {
+
+            final List<MasteryAttemptRec> existing = MasteryAttemptLogic.get(cache).queryByStudent(cache,
+                    student.stuId);
+
+            for (final MasteryAttemptRec test : existing) {
+                if (test.serialNbr != null && test.serialNbr.equals(ser)) {
+                    Log.warning("Submitted mastery exam for student ", student.stuId, ", exam ", presented.examVersion,
+                            ": serial=", test.serialNbr, " submitted a second time - ignoring");
+                    return false;
+                }
+            }
         } else {
-            final List<RawStexam> existing = RawStexamLogic.getExams(cache, getStudent().stuId, courseId, true);
+            final List<RawStexam> existing = RawStexamLogic.getExams(cache, student.stuId, courseId, true);
             for (final RawStexam test : existing) {
                 final LocalDateTime started = test.getStartDateTime();
 
                 if (test.serialNbr != null && test.serialNbr.equals(ser) && started != null && started.equals(start)) {
 
-                    Log.warning("Submitted exam for student ", getStudent().stuId, ", exam ", presented.examVersion,
+                    Log.warning("Submitted exam for student ", student.stuId, ", exam ", presented.examVersion,
                             ": serial=", test.serialNbr, " submitted a second time - ignoring");
                     return false;
                 }
@@ -400,8 +423,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         // match the serial number based on realization time
 
         if (serial == null) {
-            final List<RawPendingExam> pendings =
-                    RawPendingExamLogic.queryByStudent(cache, req.studentId);
+            final List<RawPendingExam> pendings = RawPendingExamLogic.queryByStudent(cache, req.studentId);
 
             for (final RawPendingExam obj : pendings) {
                 final LocalDateTime realized = TemporalUtils.toLocalDateTime(presented.realizationTime);
@@ -415,16 +437,196 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
         }
 
-        final EvalContext params = new EvalContext();
+        RawPendingExamLogic.delete(cache, presented.serialNumber, student.stuId);
 
+        boolean ok = false;
+
+        if ("synthetic".equals(presented.ref)) {
+            ok = processStandardMasteryExam(cache, presented, student, isTut, req, rep);
+        } else {
+            ok = processOldExam(cache, presented, student, isTut, req, rep);
+        }
+
+        if (getClient() != null) {
+            RawClientPcLogic.updateCurrentStatus(cache, getClient().computerId, RawClientPc.STATUS_EXAM_RESULTS);
+        }
+
+        return ok;
+    }
+    /**
+     * Processes finalization of an "OLD" exam.
+     *
+     * @param cache     the cache
+     * @param presented the presented exam
+     * @param student   the student record
+     * @param isTut     TRUE if the exam is a tutorial exam
+     * @param req       the request
+     * @param rep       the reply
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean processStandardMasteryExam(final Cache cache, final ExamObj presented, final RawStudent student,
+                                   final Boolean isTut, final UpdateExamRequest req, final UpdateExamReply rep)
+            throws SQLException {
+
+        boolean ok = true;
+
+        final String remoteStr = Boolean.toString(presented.remote);
+        Log.info("Grading standards mastery exam for student ", student.stuId, ", exam ", presented.examVersion,
+                ": Remote=", remoteStr);
+
+        // We record every "unit" represented in the submitted exam as a separate mastery attempt
+
+        final ZonedDateTime zonedNow = ZonedDateTime.now();
+        final ZoneOffset zonedNowOffset = zonedNow.getOffset();
+
+        final long startSecond = presented.presentationTime / 1000L;
+        final int startNano = (int)(presented.presentationTime % 1000L) * 1000000;
+        final LocalDateTime start = LocalDateTime.ofEpochSecond(startSecond, startNano, zonedNowOffset);
+
+        final long endSecond = presented.completionTime / 1000L;
+        final int endNano = (int)(presented.completionTime % 1000L) * 1000000;
+        final LocalDateTime finish = LocalDateTime.ofEpochSecond(endSecond, endNano, zonedNowOffset);
+
+        final int ser = presented.serialNumber.intValue();
+        final Integer serialInt = Integer.valueOf(ser);
+
+        final Object[][] answers = req.getAnswers();
+        int answerId = 1;
+
+        final int numSect = presented.getNumSections();
+        for (int i = 0; i < numSect; ++i) {
+            final ExamSection sect = presented.getSection(i);
+            final int[] unitObjective = parseUnitAndObjective(sect.shortName);
+
+            if (unitObjective != null) {
+                final Integer unitInt = Integer.valueOf(unitObjective[0]);
+                final Integer objInt = Integer.valueOf(unitObjective[1]);
+
+                final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache)
+                        .queryActiveByCourseUnitObjective(cache, presented.course, unitInt, objInt);
+
+                final int count = masteryExams.size();
+                if (count == 1) {
+                    final MasteryExamRec masteryExam = masteryExams.getFirst();
+
+                    final MasteryAttemptRec attempt = new MasteryAttemptRec();
+                    attempt.serialNbr = serialInt;
+                    attempt.examId = masteryExam.examId;
+                    attempt.stuId = student.stuId;
+                    attempt.whenStarted = start;
+                    attempt.whenFinished = finish;
+                    attempt.examSource = "TC";
+                    attempt.masteryScore = Integer.valueOf(2);
+
+                    int score = 0;
+
+                    final int numProblems = sect.getNumProblems();
+                    for (int j = 0; j < numProblems; ++j) {
+
+                        final ExamProblem eprob = sect.getProblem(j);
+                        if (eprob != null) {
+                            final AbstractProblemTemplate prob = eprob.getSelectedProblem();
+                            prob.recordAnswer(answers[answerId]);
+
+                            final MasteryAttemptQaRec attemptQa = new MasteryAttemptQaRec();
+                            attemptQa.serialNbr = serialInt;
+                            attemptQa.examId = masteryExam.examId;
+                            attemptQa.questionNbr = Integer.valueOf(j + 1);
+                            final boolean correct = prob.isCorrect(answers[answerId]);
+                            attemptQa.correct = correct ? "Y" : "N";
+
+                            if (correct) {
+                                ++score;
+                            }
+
+                            if (!MasteryAttemptQaLogic.get(cache).insert(cache, attemptQa)) {
+                                final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ",
+                                        unitInt, ".", objInt);
+                                Log.warning("Failed to insert mastery attempt QA for ", courseTargetStr, ": ",
+                                        attemptQa);
+                                ok = false;
+                            }
+
+                            ++answerId;
+                        }
+                    }
+
+                    attempt.examScore = Integer.valueOf(score);
+                    attempt.passed = score >= 2 ? "Y" : "N";
+                    attempt.isFirstPassed = attempt.passed;
+
+                    if (!MasteryAttemptLogic.get(cache).insert(cache, attempt)) {
+                        final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ", unitInt, ".",
+                                objInt);
+                        Log.warning("Failed to insert mastery attempt for ", courseTargetStr, ": ", attempt);
+                        ok = false;
+                    }
+                } else {
+                    final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ", unitInt, ".",
+                            objInt);
+                    Log.warning("Found " + count+ " mastery exams for ", courseTargetStr);
+                }
+            }
+        }
+
+        return ok;
+    }
+
+    /**
+     * Attempts to parse a unit and objective number from the short name of an exam section.
+     * @param shortName the short name
+     * @return a 2-integer array with the parsed unit and objective number if successful; null if not
+     */
+    private int[] parseUnitAndObjective(final String shortName) {
+
+        int[] result = null;
+
+        final int dot = shortName.indexOf('.');
+        if (shortName.startsWith("Target ") && dot > 7) {
+            try {
+                final String unitStr = shortName.substring(7, dot);
+                final String objStr = shortName.substring(dot + 1);
+
+                final int unit = Integer.parseInt(unitStr);
+                final int obj = Integer.parseInt(objStr);
+
+                result = new int[] {unit, obj};
+
+            } catch (final NumberFormatException ex) {
+                Log.warning("Unable to parse unit number from section name: ", shortName, ex);
+            }
+        } else {
+            Log.warning("Unable to determine unit number from section name: ", shortName);
+        }
+
+        return result;
+    }
+
+    /**
+     * Processes finalization of an "OLD" exam.
+     *
+     * @param cache     the cache
+     * @param presented the presented exam
+     * @param student   the student record
+     * @param isTut     TRUE if the exam is a tutorial exam
+     * @param req       the request
+     * @param rep       the reply
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    private boolean processOldExam(final Cache cache, final ExamObj presented, final RawStudent student,
+                                   final Boolean isTut, final UpdateExamRequest req, final UpdateExamReply rep)
+            throws SQLException {
+
+        final EvalContext params = new EvalContext();
         final VariableBoolean param1 = new VariableBoolean("proctored");
         param1.setValue(Boolean.valueOf(req.proctored));
         params.addVariable(param1);
 
-        Log.info("Grading exam for student ", getStudent().stuId, ", exam ", presented.examVersion, ": Proctored=",
+        Log.info("Grading exam for student ", student.stuId, ", exam ", presented.examVersion, ": Proctored=",
                 param1.getValue(), ", Remote=" + presented.remote);
 
-        RawPendingExamLogic.delete(cache, presented.serialNumber, getStudent().stuId);
 
         // Get the student's SAT and ACT scores from the database, and store in parameters for use
         // in scoring formulae.
@@ -439,17 +641,17 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         String exType = exam.examType;
         // FIXME: Make sure 17ELM is recorded as a review exam and not a Q exam
         if ("17ELM".equals(exam.version) || "7TELM".equals(exam.version)) {
-
             exType = "R";
         }
 
         final ZonedDateTime now = ZonedDateTime.now();
 
         StudentExamRec stexam = null;
+
         if (ok) {
             // Begin preparing the database object to store exam results
             stexam = new StudentExamRec();
-            stexam.studentId = getStudent().stuId;
+            stexam.studentId = student.stuId;
             stexam.examType = exType;
             stexam.course = presented.course;
             try {
@@ -523,7 +725,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                                 || RawRecordConstants.MATH126.equals(stexam.course)) {
 
                             final List<RawSpecialStus> specials = RawSpecialStusLogic
-                                    .queryActiveByStudent(cache, getStudent().stuId, now.toLocalDate());
+                                    .queryActiveByStudent(cache, student.stuId, now.toLocalDate());
 
                             for (final RawSpecialStus special : specials) {
                                 final String type = special.stuType;
@@ -641,10 +843,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             rep.subtestScores = stexam.subtestScores;
             rep.examGrades = stexam.examGrades;
             rep.missed = stexam.missed;
-        }
-
-        if (getClient() != null) {
-            RawClientPcLogic.updateCurrentStatus(cache, getClient().computerId, RawClientPc.STATUS_EXAM_RESULTS);
         }
 
         return ok;
@@ -906,9 +1104,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             while (problems.hasNext()) {
                 final ExamSubtestProblem problem = problems.next();
                 final int id = problem.problemId;
-                final String key =
-                        subtest.subtestName + CoreConstants.DOT + id / 100
-                                + id / 10 % 10 + id % 10;
+                final String key = subtest.subtestName + CoreConstants.DOT + id / 100 + id / 10 % 10 + id % 10;
                 final StudentExamAnswerRec answer = stexam.answers.get(key);
 
                 if (answer != null && answer.correct) {

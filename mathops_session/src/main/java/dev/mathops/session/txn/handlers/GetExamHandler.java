@@ -6,11 +6,15 @@ import dev.mathops.assessment.document.template.DocNonwrappingSpan;
 import dev.mathops.assessment.document.template.DocParagraph;
 import dev.mathops.assessment.document.template.DocText;
 import dev.mathops.assessment.document.template.DocWrappingSpan;
+import dev.mathops.assessment.exam.ExamGradingRule;
 import dev.mathops.assessment.exam.ExamObj;
+import dev.mathops.assessment.exam.ExamOutcome;
 import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
+import dev.mathops.assessment.exam.ExamSubtest;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemAutoCorrectTemplate;
+import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
@@ -47,6 +51,8 @@ import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetExamRequest;
 
+import javax.print.Doc;
+import java.awt.Color;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -69,6 +75,9 @@ import java.util.Set;
  * This class is not thread-safe. Use a new handler within each thread.
  */
 public final class GetExamHandler extends AbstractHandlerBase {
+
+    /** The time allowed for each standard in a standards-based course. */
+    private static final long TEN_MIN = 600L;
 
     /**
      * Construct a new {@code GetExamHandler}.
@@ -466,8 +475,34 @@ public final class GetExamHandler extends AbstractHandlerBase {
         eligibleToMaster.sort(null);
 
         final ExamObj exam = new ExamObj();
+        exam.ref = "synthetic";
+        exam.refRoot = "math";
+        exam.examName = "Learning Target Mastery";
+        exam.course = examRec.course;
+        exam.courseUnit = "0";
+        exam.examVersion = examRec.version;
+
+        exam.instructions = new DocColumn();
+        final DocParagraph instrPara1 = new DocParagraph();
+        exam.instructions.add(instrPara1);
+        instrPara1.setColorName("navy");
+        instrPara1.add(new DocText("Instructions:"));
+        final DocParagraph instrPara2 = new DocParagraph();
+        exam.instructions.add(instrPara2);
+        instrPara2.add(new DocText("This proctored exam allows you to demonstrate mastery of one or more Learning "
+                + "Targets. Each learning target has two questions.  You have to answer both questions correctly to "
+                + "master that target.  You may use as many attempts as you need to do this - once you have answered "
+                + "one of the questions correctly twice, you will not have to answer it again on future attempts."));
+
+        // Time limit is 10 minutes per standard
+        final int numToMaster = eligibleToMaster.size();
+        exam.allowedSeconds = Long.valueOf((long) numToMaster * TEN_MIN);
+
         ExamSection currentSection = null;
         Integer currentUnit = null;
+        Integer currentObj = null;
+
+        int id = 1;
 
         for (final MasteryExamRec masteryExam : eligibleToMaster) {
             final String examId = masteryExam.examId;
@@ -475,21 +510,24 @@ public final class GetExamHandler extends AbstractHandlerBase {
             // See which questions have already been answered correctly twice
             final int alreadyPassed = logic.whichQuestionsPassedTwice(examId);
             if (alreadyPassed == 2) {
-                Log.warning("Mastery exam for ", examRec.course, " Unit ", masteryExam.unit,
-                        " is showing as available to master, but both questions have been answered correctly twice.");
+                Log.warning("Mastery exam for ", examRec.course, " Target ", masteryExam.unit, ".",
+                        masteryExam.objective,
+                        " is available to master, but both questions have been answered correctly twice.");
             } else {
                 // Load up the exam object for the mastery exam
                 final ExamObj unitMasteryExam = InstructionalCache.getExam(masteryExam.treeRef);
                 if (unitMasteryExam == null) {
-                    Log.warning("Unable to find Mastery exam for ", examRec.course, " Unit ", masteryExam.unit,
-                            " with ref ", masteryExam.treeRef);
+                    Log.warning("Unable to find Mastery exam for ", examRec.course, " Target ", masteryExam.unit, ".",
+                            masteryExam.objective, " with ref ", masteryExam.treeRef);
                 } else {
-                    if (!masteryExam.unit.equals(currentUnit)) {
+                    if (!(masteryExam.unit.equals(currentUnit) && masteryExam.objective.equals(currentObj))) {
                         // Start a new section for this unit
                         currentSection = new ExamSection();
                         currentUnit = masteryExam.unit;
-                        currentSection.sectionName = "Module " + masteryExam.unit;
-                        currentSection.shortName = currentSection.sectionName;
+                        currentObj = masteryExam.objective;
+                        currentSection.sectionName = "Learning Target " + masteryExam.unit + "."
+                                + masteryExam.objective;
+                        currentSection.shortName = "Target " +masteryExam.unit + "." + masteryExam.objective;
                         exam.addSection(currentSection);
                     }
 
@@ -500,10 +538,14 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         if ((alreadyPassed & 0x01) == 0x00) {
                             final ExamProblem problem1 = unitMasterySection.getProblem(0);
                             final ExamProblem problem1Copy = problem1.deepCopy(exam);
+                            problem1Copy.problemId = id;
+                            ++id;
                             problem1Copy.problemName = unitMasterySection.sectionName + " Question 1";
                             currentSection.addProblem(problem1Copy);
                         } else {
                             final ExamProblem eprob = new ExamProblem(exam);
+                            eprob.problemId = id;
+                            ++id;
                             final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
                             eprob.addProblem(prb);
                             eprob.problemName = unitMasterySection.sectionName + " Question 1";
@@ -513,10 +555,14 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         if ((alreadyPassed & 0x02) == 0x00) {
                             final ExamProblem problem2 = unitMasterySection.getProblem(1);
                             final ExamProblem problem2Copy = problem2.deepCopy(exam);
+                            problem2Copy.problemId = id;
+                            ++id;
                             problem2Copy.problemName = unitMasterySection.sectionName + " Question 2";
                             currentSection.addProblem(problem2Copy);
                         } else {
                             final ExamProblem eprob = new ExamProblem(exam);
+                            eprob.problemId = id;
+                            ++id;
                             final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
                             eprob.addProblem(prb);
                             eprob.problemName = unitMasterySection.sectionName + " Question 2";
@@ -575,8 +621,6 @@ public final class GetExamHandler extends AbstractHandlerBase {
             reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
         }
 
-        // TODO: Pre-populate "Survey" section of exam with existing answers.
-
         if (reply.status == GetExamReply.SUCCESS) {
             reply.presentedExam = exam;
         }
@@ -608,9 +652,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final Collection<Integer> autoPassItems = new ArrayList<>(10);
 
             // See which items the student has already gotten correct twice on this exam version
+            final RawStudent student = getStudent();
             try {
-                final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, getStudent().stuId,
-                        exam.examVersion, false);
+                final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, student.stuId, exam.examVersion,
+                        false);
 
                 final String examCourse = exam.course;
                 if (stexams.size() > 1 && (RawRecordConstants.M117.equals(examCourse)
@@ -619,7 +664,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         || RawRecordConstants.M125.equals(examCourse)
                         || RawRecordConstants.M126.equals(examCourse))) {
 
-                    final List<RawStqa> answers = RawStqaLogic.queryByStudent(cache, getStudent().stuId);
+                    final List<RawStqa> answers = RawStqaLogic.queryByStudent(cache, student.stuId);
 
                     // Map from question number to count of correct answers
                     final Map<Integer, Integer> correctCount = new HashMap<>(20);
@@ -700,9 +745,9 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     serial)) {
                 reply.presentedExam = exam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = getStudent().stuId;
+                reply.studentId = student.stuId;
 
-                if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
+                if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam,
                         reply.toXml())) {
                     Log.warning("Unable to cache exam " + ref);
                     reply.presentedExam = null;

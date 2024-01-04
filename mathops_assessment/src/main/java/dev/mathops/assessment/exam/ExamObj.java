@@ -5,7 +5,6 @@ import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 
@@ -338,46 +337,6 @@ public final class ExamObj extends AbstractXmlObject {
                 && (this.currentProblem != null) && (this.currentProblem.intValue() == problem);
     }
 
-//    /**
-//     * Gets the currently selected section.
-//     *
-//     * @return the index of the section containing the selected problem ({@code null} if none)
-//     */
-//    public Integer getCurrentSection() {
-//
-//        return this.currentSection;
-//    }
-
-//    /**
-//     * Gets the currently selected problem.
-//     *
-//     * @return the index of the selected problem within its section ({@code null} if none)
-//     */
-//    public Integer getCurrentProblem() {
-//
-//        return this.currentProblem;
-//    }
-
-//    /**
-//     * Gets the index of the currently selected problem.
-//     *
-//     * @return the currently selected problem
-//     */
-//    public Integer getOnSection() {
-//
-//        return this.currentSection;
-//    }
-
-//    /**
-//     * Gets the index of the currently selected problem.
-//     *
-//     * @return the currently selected problem
-//     */
-//    public Integer getOnProblem() {
-//
-//        return this.currentProblem;
-//    }
-
     /**
      * Sets the completion time on the exam to the current date/time. This should be done by the server when the exam is
      * submitted, to avoid differences in client clock setting from affecting computed durations.
@@ -386,21 +345,6 @@ public final class ExamObj extends AbstractXmlObject {
 
         this.completionTime = System.currentTimeMillis();
     }
-
-//    /**
-//     * Gets the maximum problem ID in the exam.
-//     *
-//     * @return the maximum problem ID
-//     */
-//    public int getMaxId() {
-//
-//        // If not yet realized, return 0
-//        if (this.problemById == null) {
-//            return 0;
-//        }
-//
-//        return this.problemById.length - 1;
-//    }
 
     /**
      * Gets the problem for a given ID.

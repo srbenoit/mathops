@@ -67,8 +67,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<MasteryExamRec> queryActiveByCourse(Cache cache, String courseId)
-            throws SQLException;
+    public abstract List<MasteryExamRec> queryActiveByCourse(Cache cache, String courseId) throws SQLException;
 
     /**
      * Queries for all active (having null pull date) exams in a course unit.
@@ -92,8 +91,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<MasteryExamRec> queryActiveByCourseUnitObjective(Cache cache,
-                                                                          String courseId, Integer unit,
+    public abstract List<MasteryExamRec> queryActiveByCourseUnitObjective(Cache cache, String courseId, Integer unit,
                                                                           Integer objective) throws SQLException;
 
     /**
@@ -108,8 +106,8 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
      * @return the exam; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public abstract MasteryExamRec queryActive(Cache cache, String courseId, Integer unit,
-                                               Integer objective, String examType) throws SQLException;
+    public abstract MasteryExamRec queryActive(Cache cache, String courseId, Integer unit, Integer objective,
+                                               String examType) throws SQLException;
 
     /**
      * Queries for a mastery exam by its ID.
@@ -129,8 +127,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<MasteryExamRec> generalQuery(Cache cache, Criteria queryCriteria)
-            throws SQLException;
+    public abstract List<MasteryExamRec> generalQuery(Cache cache, Criteria queryCriteria) throws SQLException;
 
     /**
      * An "assignment" criteria record used to perform arbitrary queries.
