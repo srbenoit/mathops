@@ -66,7 +66,7 @@ import java.util.List;
 final class Launch implements Runnable {
 
     /** Launcher version. */
-    private static final String VERSION = "1.2.006";
+    private static final String VERSION = "1.2.010";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
@@ -321,8 +321,7 @@ final class Launch implements Runnable {
                 writeAppDescriptorXml(newApp, APP_XML, this.updateDir);
             }
         } catch (final IOException ex) {
-            FileUtils.log(this.logFile, //
-                    "  Unable to download descriptors to test for update", ex);
+            FileUtils.log(this.logFile, "  Unable to download descriptors to test for update", ex);
         }
     }
 

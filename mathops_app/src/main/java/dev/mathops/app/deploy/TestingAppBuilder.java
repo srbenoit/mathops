@@ -48,29 +48,8 @@ final class TestingAppBuilder {
     /** The version number. */
     private static final String VERSION = "1.2.010";
 
-    /** The core project directory name. */
-    private static final String CORE_DIR = "bls01core";
-
-    /** The db project directory name. */
-    private static final String DB_DIR = "bls21db";
-
-    /** The main project directory name. */
-    private static final String MAIN_DIR = "bls";
-
-    /** Working deploy directory. */
-    private static final String DEPLOY_DIR = "bls99deploy";
-
-    /** The bin directory under each project directory. */
-    private static final String BIN_DIR = "bin";
-
-    /** The lib directory under each project directory. */
-    private static final String LIB_DIR = "lib";
-
     /** Directory where project is stored. */
     private final File projectDir;
-
-    /** Directory where GIT projects are stored. */
-    private File gitDir;
 
     /** The target directory to which to copy generated files. */
     private final File targetDir;
@@ -79,7 +58,7 @@ final class TestingAppBuilder {
     private final Set<String> jarDirs;
 
     /**
-     * Constructs a new {@code AdminJarBuilder}.
+     * Constructs a new {@code TestingAppBuilder}.
      */
     private TestingAppBuilder() {
 
@@ -87,11 +66,6 @@ final class TestingAppBuilder {
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
-
-        this.gitDir = new File(new File(userDir, "dev"), "git");
-        if (!this.gitDir.exists()) {
-            this.gitDir = new File(userDir, "git");
-        }
 
         this.targetDir = new File("/opt/public/www/apps/testing");
         if (!this.targetDir.exists()) {
@@ -114,30 +88,22 @@ final class TestingAppBuilder {
             // NOTE: non-short-circuiting AND test so we see all errors
             if (checkBuildBls8Jar() && checkBuildLaunchJar() && checkBuildUpdaterJar()) {
 
-                File deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-                if (!deployDir.exists()) {
-                    deployDir = new File(new File(this.gitDir, DEPLOY_DIR), DEPLOY_DIR);
-                }
-                final File deployLib = new File(deployDir, LIB_DIR);
+                final File jars = new File(this.projectDir, "jars");
 
-                final File bls8Jar = new File(deployLib, "bls8.jar");
-                final File jwabbitJar = new File(deployLib, "jwabbit.jar");
-                final File appXml = new File(deployLib, "app.xml");
+                final File bls8Jar = new File(jars, "bls8.jar");
+                final File jwabbitJar = new File(jars, "jwabbit.jar");
+                final File appXml = new File(jars, "app.xml");
 
-                final File launchJar = new File(deployLib, "launch.jar");
-                final File launchXml = new File(deployLib, "launch.xml");
+                final File launchJar = new File(jars, "launch.jar");
+                final File launchXml = new File(jars, "launch.xml");
 
-                final File updaterJar = new File(deployLib, "updater.jar");
-                final File updaterXml = new File(deployLib, "updater.xml");
+                final File updaterJar = new File(jars, "updater.jar");
+                final File updaterXml = new File(jars, "updater.xml");
 
-                createXmlDescriptor(sha256, appXml, "testing",
-                        "dev.mathops.app.teststation.TestStationApp", bls8Jar, jwabbitJar);
-
-                createXmlDescriptor(sha256, launchXml, "launch",
-                        "dev.mathops.app.webstart.Launch", launchJar);
-
-                createXmlDescriptor(sha256, updaterXml, "updater",
-                        "dev.mathops.app.webstart.Updater", updaterJar);
+                createXmlDescriptor(sha256, appXml, "testing", "dev.mathops.app.teststation.TestStationApp", bls8Jar,
+                        jwabbitJar);
+                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", launchJar);
+                createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", updaterJar);
 
                 // TODO: Copy all to /opt/public/app/testing
 
@@ -319,7 +285,8 @@ final class TestingAppBuilder {
 
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
-        final File appClasses = new File(appRoot, "dev/mathops/app/webstart");
+        final File appClasses = new File(appRoot, "dev/mathops/app");
+        final File wsClasses = new File(appRoot, "dev/mathops/app/webstart");
 
         final File jars = new File(this.projectDir, "jars");
 
@@ -337,7 +304,12 @@ final class TestingAppBuilder {
                 addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
-                addFiles(appRoot, appClasses, jar);
+                addFiles(appRoot, wsClasses, jar);
+
+                final File fileLoader = new File(appClasses, "AppFileLoader.class");
+                copyFile(appRoot, fileLoader, jar);
+                final File fileLoaderRes = new File(appClasses, "Res.class");
+                copyFile(appRoot, fileLoaderRes, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "launch"), CoreConstants.CRLF);
@@ -364,7 +336,8 @@ final class TestingAppBuilder {
 
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
-        final File appClasses = new File(appRoot, "dev/mathops/app/webstart");
+        final File appClasses = new File(appRoot, "dev/mathops/app");
+        final File wsClasses = new File(appRoot, "dev/mathops/app/webstart");
 
         final File jars = new File(this.projectDir, "jars");
 
@@ -382,7 +355,12 @@ final class TestingAppBuilder {
                 addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
-                addFiles(appRoot, appClasses, jar);
+                addFiles(appRoot, wsClasses, jar);
+
+                final File fileLoader = new File(appClasses, "AppFileLoader.class");
+                copyFile(appRoot, fileLoader, jar);
+                final File fileLoaderRes = new File(appClasses, "Res.class");
+                copyFile(appRoot, fileLoaderRes, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "updater"), CoreConstants.CRLF);
@@ -479,6 +457,48 @@ final class TestingAppBuilder {
                 }
                 jar.closeEntry();
             }
+        }
+
+        return count;
+    }
+
+    /**
+     * Copies a single file to a JAR stream.
+     *
+     * @param rootDir the root directory; used for building the relative path in the Jar file
+     * @param file    the file to copy
+     * @param jar     the JAR stream to which to copy
+     * @return 1 if the file was copied, 0 if not
+     * @throws IOException if an exception occurs while writing
+     */
+    private int copyFile(final File rootDir, final File file, final JarOutputStream jar) throws IOException {
+
+        final int count;
+
+        String name = file.getName();
+        if ("package-info.class".equals(name) || name.endsWith(".xlsx")) {
+            count = 0;
+        } else {
+            // Prepend relative path to the name
+            File parent = file.getParentFile();
+            final HtmlBuilder builder = new HtmlBuilder(100);
+            while (!parent.equals(rootDir)) {
+                final String parentName = parent.getName();
+                builder.add(parentName, CoreConstants.SLASH, name);
+                name = builder.toString();
+                builder.reset();
+                parent = parent.getParentFile();
+            }
+
+            jar.putNextEntry(new ZipEntry(name));
+            final byte[] bytes = AppFileLoader.loadFileAsBytes(file, true);
+            if (bytes == null) {
+                throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
+            }
+            jar.write(bytes);
+            jar.closeEntry();
+
+            count = 1;
         }
 
         return count;

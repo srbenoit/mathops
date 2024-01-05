@@ -49,3 +49,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/jars/app.xml
+/jars/launch.xml
+/jars/updater.xml
