@@ -2,7 +2,14 @@ package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
+import dev.mathops.app.checkin.CourseNumbers;
+import dev.mathops.app.checkin.DataCheckInAttempt;
+import dev.mathops.app.checkin.DataCourseExams;
+import dev.mathops.app.checkin.DataExamStatus;
+import dev.mathops.app.checkin.DataNonCourseExams;
+import dev.mathops.app.checkin.LogicCheckIn;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
@@ -20,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -35,6 +43,7 @@ import java.io.Serial;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -50,6 +59,33 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     /** An action command. */
     private static final String ELIG = "ELIG";
 
+    /** An action command. */
+    private static final String UNIT_1 = "Unit 1";
+
+    /** An action command. */
+    private static final String UNIT_2 = "Unit 2";
+
+    /** An action command. */
+    private static final String UNIT_3 = "Unit 3";
+
+    /** An action command. */
+    private static final String UNIT_4 = "Unit 4";
+
+    /** An action command. */
+    private static final String FINAL = "Final";
+
+    /** An action command. */
+    private static final String MASTERY = "Mastery";
+
+    /** An action command. */
+    private static final String CHALLENGE= "Challenge";
+
+    /** A commonly used integer. */
+    static final Integer ZERO = Integer.valueOf(0);
+
+    /** A commonly used integer. */
+    static final Integer ONE = Integer.valueOf(1);
+
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 6444481681579133884L;
@@ -61,7 +97,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     private final Cache cache;
 
     /** The check-in logic. */
-    private final CheckinLogic logic;
+    private final LogicCheckIn logic;
 
     /** The student ID field. */
     private final JTextField studentIdField;
@@ -97,16 +133,20 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         panel.setBorder(border);
 
         setBackground(Skin.LT_CYAN);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        final Border bevel = BorderFactory.createLoweredBevelBorder();
+        final Border margin = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+        final CompoundBorder mainBorder = BorderFactory.createCompoundBorder(bevel, margin);
+        setBorder(mainBorder);
         add(panel, BorderLayout.CENTER);
 
         this.cache = theCache;
         this.frame = theFrame;
-        this.logic = new CheckinLogic(theCache);
+        final ZonedDateTime now = ZonedDateTime.now();
+        this.logic = new LogicCheckIn(theCache, now);
         this.examButtons = new HashMap<>(40);
 
-        panel.add(makeHeader("Issue Exam", false), BorderLayout.PAGE_START);
+        final JLabel issueExamHdr = makeHeader("Issue Exam", false);
+        panel.add(issueExamHdr, BorderLayout.PAGE_START);
 
         final JPanel center = new JPanel(new StackedBorderLayout(10, 10));
         center.setBackground(Skin.OFF_WHITE_CYAN);
@@ -167,14 +207,18 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         final GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
 
+        final Border courseMargin = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+        final MatteBorder courseLineBorder = BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM);
+        final CompoundBorder courseBorder = BorderFactory.createCompoundBorder(courseLineBorder, courseMargin);
+        final Border outline = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
+
         c.gridx = 0;
 
         c.gridy = 0;
         final JPanel header117 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder outline117 = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        header117.setBorder(outline117);
+        header117.setBorder(outline);
         header117.setBackground(Skin.WHITE);
-        final JLabel title117 = new JLabel("MATH 117");
+        final JLabel title117 = new JLabel(RawRecordConstants.MATH117);
         title117.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title117.setForeground(Skin.LABEL_COLOR2);
         header117.add(title117);
@@ -182,41 +226,39 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 1;
         c.weighty = 1.0;
-        final ExamButtonPane m117u1 = new ExamButtonPane("Unit 1", this, "M 117-1");
+        final ExamButtonPane m117u1 = new ExamButtonPane(UNIT_1, this, "M 117-1");
         this.examButtons.put("M 117-1", m117u1);
         this.grid.add(m117u1, c);
         c.gridy = 2;
-        final ExamButtonPane m117u2 = new ExamButtonPane("Unit 2", this, "M 117-2");
+        final ExamButtonPane m117u2 = new ExamButtonPane(UNIT_2, this, "M 117-2");
         this.examButtons.put("M 117-2", m117u2);
         this.grid.add(m117u2, c);
         c.gridy = 3;
-        final ExamButtonPane m117u3 = new ExamButtonPane("Unit 3", this, "M 117-3");
+        final ExamButtonPane m117u3 = new ExamButtonPane(UNIT_3, this, "M 117-3");
         this.examButtons.put("M 117-3", m117u3);
         this.grid.add(m117u3, c);
         c.gridy = 4;
-        final ExamButtonPane m117u4 = new ExamButtonPane("Unit 4", this, "M 117-4");
+        final ExamButtonPane m117u4 = new ExamButtonPane(UNIT_4, this, "M 117-4");
         this.examButtons.put("M 117-4", m117u4);
         this.grid.add(m117u4, c);
         c.gridy = 5;
-        final ExamButtonPane m117u5 = new ExamButtonPane("Final", this, "M 117-5");
+        final ExamButtonPane m117u5 = new ExamButtonPane(FINAL, this, "M 117-5");
         this.examButtons.put("M 117-5", m117u5);
         this.grid.add(m117u5, c);
         c.gridy = 6;
-        final ExamButtonPane m117ma = new ExamButtonPane("Mastery", this, "M 117-M");
+        final ExamButtonPane m117ma = new ExamButtonPane(MASTERY, this, "M 117-M");
         this.examButtons.put("M 117-M", m117ma);
         this.grid.add(m117ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc117 = new JPanel();
         spc117.setBackground(Skin.OFF_WHITE_CYAN);
-        spc117.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        spc117.setBorder(courseBorder);
         this.grid.add(spc117, c);
         c.gridy = 8;
         c.weighty = 1.0;
-        final ExamButtonPane m117ch = new ExamButtonPane("Challenge", this, "M 117-C");
-        this.examButtons.put("MC117-0", m117ch);
+        final ExamButtonPane m117ch = new ExamButtonPane(CHALLENGE, this, "M 117-C");
+        this.examButtons.put("M 117-C", m117ch);
         this.grid.add(m117ch, c);
         c.weighty = 0.0;
 
@@ -224,10 +266,9 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel header118 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder outline118 = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        header118.setBorder(outline118);
+        header118.setBorder(outline);
         header118.setBackground(Skin.WHITE);
-        final JLabel title118 = new JLabel("MATH 118");
+        final JLabel title118 = new JLabel(RawRecordConstants.MATH118);
         title118.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title118.setForeground(Skin.LABEL_COLOR2);
         header118.add(title118);
@@ -235,41 +276,39 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.weighty = 1.0;
         c.gridy = 1;
-        final ExamButtonPane m118u1 = new ExamButtonPane("Unit 1", this, "M 118-1");
+        final ExamButtonPane m118u1 = new ExamButtonPane(UNIT_1, this, "M 118-1");
         this.examButtons.put("M 118-1", m118u1);
         this.grid.add(m118u1, c);
         c.gridy = 2;
-        final ExamButtonPane m118u2 = new ExamButtonPane("Unit 2", this, "M 118-2");
+        final ExamButtonPane m118u2 = new ExamButtonPane(UNIT_2, this, "M 118-2");
         this.examButtons.put("M 118-2", m118u2);
         this.grid.add(m118u2, c);
         c.gridy = 3;
-        final ExamButtonPane m118u3 = new ExamButtonPane("Unit 3", this, "M 118-3");
+        final ExamButtonPane m118u3 = new ExamButtonPane(UNIT_3, this, "M 118-3");
         this.examButtons.put("M 118-3", m118u3);
         this.grid.add(m118u3, c);
         c.gridy = 4;
-        final ExamButtonPane m118u4 = new ExamButtonPane("Unit 4", this, "M 118-4");
+        final ExamButtonPane m118u4 = new ExamButtonPane(UNIT_4, this, "M 118-4");
         this.examButtons.put("M 118-4", m118u4);
         this.grid.add(m118u4, c);
         c.gridy = 5;
-        final ExamButtonPane m118u5 = new ExamButtonPane("Final", this, "M 118-5");
+        final ExamButtonPane m118u5 = new ExamButtonPane(FINAL, this, "M 118-5");
         this.examButtons.put("M 118-5", m118u5);
         this.grid.add(m118u5, c);
         c.gridy = 6;
-        final ExamButtonPane m118ma = new ExamButtonPane("Mastery", this, "M 118-M");
+        final ExamButtonPane m118ma = new ExamButtonPane(MASTERY, this, "M 118-M");
         this.examButtons.put("M 118-M", m118ma);
         this.grid.add(m118ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc118 = new JPanel();
         spc118.setBackground(Skin.OFF_WHITE_CYAN);
-        spc118.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        spc118.setBorder(courseBorder);
         this.grid.add(spc118, c);
         c.gridy = 8;
         c.weighty = 1.0;
-        final ExamButtonPane m118ch = new ExamButtonPane("Challenge", this, "M 118-C");
-        this.examButtons.put("MC118-0", m118ch);
+        final ExamButtonPane m118ch = new ExamButtonPane(CHALLENGE, this, "M 118-C");
+        this.examButtons.put("M 118-C", m118ch);
         this.grid.add(m118ch, c);
         c.weighty = 0.0;
 
@@ -277,10 +316,9 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel header124 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder outline124 = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        header124.setBorder(outline124);
+        header124.setBorder(outline);
         header124.setBackground(Skin.WHITE);
-        final JLabel title124 = new JLabel("MATH 124");
+        final JLabel title124 = new JLabel(RawRecordConstants.MATH124);
         title124.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title124.setForeground(Skin.LABEL_COLOR2);
         header124.add(title124);
@@ -288,41 +326,39 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.weighty = 1.0;
         c.gridy = 1;
-        final ExamButtonPane m124u1 = new ExamButtonPane("Unit 1", this, "M 124-1");
+        final ExamButtonPane m124u1 = new ExamButtonPane(UNIT_1, this, "M 124-1");
         this.examButtons.put("M 124-1", m124u1);
         this.grid.add(m124u1, c);
         c.gridy = 2;
-        final ExamButtonPane m124u2 = new ExamButtonPane("Unit 2", this, "M 124-2");
+        final ExamButtonPane m124u2 = new ExamButtonPane(UNIT_2, this, "M 124-2");
         this.examButtons.put("M 124-2", m124u2);
         this.grid.add(m124u2, c);
         c.gridy = 3;
-        final ExamButtonPane m124u3 = new ExamButtonPane("Unit 3", this, "M 124-3");
+        final ExamButtonPane m124u3 = new ExamButtonPane(UNIT_3, this, "M 124-3");
         this.examButtons.put("M 124-3", m124u3);
         this.grid.add(m124u3, c);
         c.gridy = 4;
-        final ExamButtonPane m124u4 = new ExamButtonPane("Unit 4", this, "M 124-4");
+        final ExamButtonPane m124u4 = new ExamButtonPane(UNIT_4, this, "M 124-4");
         this.examButtons.put("M 124-4", m124u4);
         this.grid.add(m124u4, c);
         c.gridy = 5;
-        final ExamButtonPane m124u5 = new ExamButtonPane("Final", this, "M 124-5");
+        final ExamButtonPane m124u5 = new ExamButtonPane(FINAL, this, "M 124-5");
         this.examButtons.put("M 124-5", m124u5);
         this.grid.add(m124u5, c);
         c.gridy = 6;
-        final ExamButtonPane m124ma = new ExamButtonPane("Mastery", this, "M 124-M");
+        final ExamButtonPane m124ma = new ExamButtonPane(MASTERY, this, "M 124-M");
         this.examButtons.put("M 124-M", m124ma);
         this.grid.add(m124ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc124 = new JPanel();
         spc124.setBackground(Skin.OFF_WHITE_CYAN);
-        spc124.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        spc124.setBorder(courseBorder);
         this.grid.add(spc124, c);
         c.gridy = 8;
         c.weighty = 1.0;
-        final ExamButtonPane m124ch = new ExamButtonPane("Challenge", this, "M 124-C");
-        this.examButtons.put("MC124-0", m124ch);
+        final ExamButtonPane m124ch = new ExamButtonPane(CHALLENGE, this, "M 124-C");
+        this.examButtons.put("M 124-C", m124ch);
         this.grid.add(m124ch, c);
         c.weighty = 0.0;
 
@@ -330,10 +366,9 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel header125 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder outline125 = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        header125.setBorder(outline125);
+        header125.setBorder(outline);
         header125.setBackground(Skin.WHITE);
-        final JLabel title125 = new JLabel("MATH 125");
+        final JLabel title125 = new JLabel(RawRecordConstants.MATH125);
         title125.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title125.setForeground(Skin.LABEL_COLOR2);
         header125.add(title125);
@@ -341,41 +376,39 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.weighty = 1.0;
         c.gridy = 1;
-        final ExamButtonPane m125u1 = new ExamButtonPane("Unit 1", this, "M 125-1");
+        final ExamButtonPane m125u1 = new ExamButtonPane(UNIT_1, this, "M 125-1");
         this.examButtons.put("M 125-1", m125u1);
         this.grid.add(m125u1, c);
         c.gridy = 2;
-        final ExamButtonPane m125u2 = new ExamButtonPane("Unit 2", this, "M 125-2");
+        final ExamButtonPane m125u2 = new ExamButtonPane(UNIT_2, this, "M 125-2");
         this.examButtons.put("M 125-2", m125u2);
         this.grid.add(m125u2, c);
         c.gridy = 3;
-        final ExamButtonPane m125u3 = new ExamButtonPane("Unit 3", this, "M 125-3");
+        final ExamButtonPane m125u3 = new ExamButtonPane(UNIT_3, this, "M 125-3");
         this.examButtons.put("M 125-3", m125u3);
         this.grid.add(m125u3, c);
         c.gridy = 4;
-        final ExamButtonPane m125u4 = new ExamButtonPane("Unit 4", this, "M 125-4");
+        final ExamButtonPane m125u4 = new ExamButtonPane(UNIT_4, this, "M 125-4");
         this.examButtons.put("M 125-4", m125u4);
         this.grid.add(m125u4, c);
         c.gridy = 5;
-        final ExamButtonPane m125u5 = new ExamButtonPane("Final", this, "M 125-5");
+        final ExamButtonPane m125u5 = new ExamButtonPane(FINAL, this, "M 125-5");
         this.examButtons.put("M 125-5", m125u5);
         this.grid.add(m125u5, c);
         c.gridy = 6;
-        final ExamButtonPane m125ma = new ExamButtonPane("Mastery", this, "M 125-M");
+        final ExamButtonPane m125ma = new ExamButtonPane(MASTERY, this, "M 125-M");
         this.examButtons.put("M 125-M", m125ma);
         this.grid.add(m125ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc125 = new JPanel();
         spc125.setBackground(Skin.OFF_WHITE_CYAN);
-        spc125.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        spc125.setBorder(courseBorder);
         this.grid.add(spc125, c);
         c.gridy = 8;
         c.weighty = 1.0;
-        final ExamButtonPane m125ch = new ExamButtonPane("Challenge", this, "M 125-C");
-        this.examButtons.put("MC125-0", m125ch);
+        final ExamButtonPane m125ch = new ExamButtonPane(CHALLENGE, this, "M 125-C");
+        this.examButtons.put("M 125-C", m125ch);
         this.grid.add(m125ch, c);
         c.weighty = 0.0;
 
@@ -383,10 +416,9 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel header126 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder outline126 = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        header126.setBorder(outline126);
+        header126.setBorder(outline);
         header126.setBackground(Skin.WHITE);
-        final JLabel title126 = new JLabel("MATH 126");
+        final JLabel title126 = new JLabel(RawRecordConstants.MATH124);
         title126.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title126.setForeground(Skin.LABEL_COLOR2);
         header126.add(title126);
@@ -394,41 +426,39 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.weighty = 1.0;
         c.gridy = 1;
-        final ExamButtonPane m126u1 = new ExamButtonPane("Unit 1", this, "M 126-1");
+        final ExamButtonPane m126u1 = new ExamButtonPane(UNIT_1, this, "M 126-1");
         this.examButtons.put("M 126-1", m126u1);
         this.grid.add(m126u1, c);
         c.gridy = 2;
-        final ExamButtonPane m126u2 = new ExamButtonPane("Unit 2", this, "M 126-2");
+        final ExamButtonPane m126u2 = new ExamButtonPane(UNIT_2, this, "M 126-2");
         this.examButtons.put("M 126-2", m126u2);
         this.grid.add(m126u2, c);
         c.gridy = 3;
-        final ExamButtonPane m126u3 = new ExamButtonPane("Unit 3", this, "M 126-3");
+        final ExamButtonPane m126u3 = new ExamButtonPane(UNIT_3, this, "M 126-3");
         this.examButtons.put("M 126-3", m126u3);
         this.grid.add(m126u3, c);
         c.gridy = 4;
-        final ExamButtonPane m126u4 = new ExamButtonPane("Unit 4", this, "M 126-4");
+        final ExamButtonPane m126u4 = new ExamButtonPane(UNIT_4, this, "M 126-4");
         this.examButtons.put("M 126-4", m126u4);
         this.grid.add(m126u4, c);
         c.gridy = 5;
-        final ExamButtonPane m126u5 = new ExamButtonPane("Final", this, "M 126-5");
+        final ExamButtonPane m126u5 = new ExamButtonPane(FINAL, this, "M 126-5");
         this.examButtons.put("M 126-5", m126u5);
         this.grid.add(m126u5, c);
         c.gridy = 6;
-        final ExamButtonPane m126ma = new ExamButtonPane("Mastery", this, "M 126-M");
+        final ExamButtonPane m126ma = new ExamButtonPane(MASTERY, this, "M 126-M");
         this.examButtons.put("M 126-M", m126ma);
         this.grid.add(m126ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc126 = new JPanel();
         spc126.setBackground(Skin.OFF_WHITE_CYAN);
-        spc126.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.MEDIUM),
-                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        spc126.setBorder(courseBorder);
         this.grid.add(spc126, c);
         c.gridy = 8;
         c.weighty = 1.0;
-        final ExamButtonPane m126ch = new ExamButtonPane("Challenge", this, "M 126-C");
-        this.examButtons.put("MC126-0", m126ch);
+        final ExamButtonPane m126ch = new ExamButtonPane(CHALLENGE, this, "M 126-C");
+        this.examButtons.put("M 126-C", m126ch);
         this.grid.add(m126ch, c);
         c.weighty = 0.0;
 
@@ -445,8 +475,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel headerTut = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder tutOutline = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        headerTut.setBorder(tutOutline);
+        headerTut.setBorder(outline);
         headerTut.setBackground(Skin.WHITE);
         final JLabel titleTut = new JLabel("Tutorials");
         titleTut.setFont(Skin.MEDIUM_HEADER_15_FONT);
@@ -456,8 +485,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.weighty = 1.0;
         c.gridy = 1;
-        final ExamButtonPane elm =
-                new ExamButtonPane("ELM Exam", this, "M 100T-4");
+        final ExamButtonPane elm = new ExamButtonPane("ELM Exam", this, "M 100T-4");
         this.examButtons.put("M 100T-4", elm);
         this.grid.add(elm, c);
         c.gridy = 2;
@@ -490,8 +518,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         c.gridy = 0;
         final JPanel headerOther = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        final MatteBorder otuerOutline = BorderFactory.createMatteBorder(1, 1, 1, 1, Skin.MEDIUM);
-        headerOther.setBorder(otuerOutline);
+        headerOther.setBorder(outline);
         headerOther.setBackground(Skin.WHITE);
         final JLabel titleOther = new JLabel("Other");
         titleOther.setFont(Skin.MEDIUM_HEADER_15_FONT);
@@ -522,6 +549,14 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         buttonFlow.add(this.enforceEligible);
 
         south.add(buttonFlow, BorderLayout.PAGE_START);
+
+        try {
+            if (!this.logic.isInitialized()) {
+                this.studentStatusDisplay.setText("Unable to initialize available exams logic.");
+            }
+        } catch (final SQLException ex) {
+            this.studentStatusDisplay.setText("Unable to initialize available exams logic.");
+        }
     }
 
     /**
@@ -542,84 +577,51 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
             final String cleanStu = stuId.trim().replace(CoreConstants.SPC, CoreConstants.EMPTY)
                     .replace(CoreConstants.DASH, CoreConstants.EMPTY);
 
-            if ("M 117-1".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M117, 1, check);
-            } else if ("M 117-2".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M117, 2, check);
-            } else if ("M 117-3".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M117, 3, check);
-            } else if ("M 117-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M117, 4, check);
-            } else if ("M 117-5".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M117, 5, check);
-            } else if ("M 117-C".equals(cmd)) {
-                startChallengeExam(cleanStu, ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, check);
-            } else if ("M 118-1".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M118, 1, check);
-            } else if ("M 118-2".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M118, 2, check);
-            } else if ("M 118-3".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M118, 3, check);
-            } else if ("M 118-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M118, 4, check);
-            } else if ("M 118-5".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M118, 5, check);
-            } else if ("M 118-C".equals(cmd)) {
-                startChallengeExam(cleanStu, ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, check);
-            } else if ("M 124-1".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M124, 1, check);
-            } else if ("M 124-2".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M124, 2, check);
-            } else if ("M 124-3".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M124, 3, check);
-            } else if ("M 124-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M124, 4, check);
-            } else if ("M 124-5".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M124, 5, check);
-            } else if ("M 124-C".equals(cmd)) {
-                startChallengeExam(cleanStu, ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, check);
-            } else if ("M 125-1".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M125, 1, check);
-            } else if ("M 125-2".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M125, 2, check);
-            } else if ("M 125-3".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M125, 3, check);
-            } else if ("M 125-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M125, 4, check);
-            } else if ("M 125-5".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M125, 5, check);
-            } else if ("M 125-C".equals(cmd)) {
-                startChallengeExam(cleanStu, ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, check);
-            } else if ("M 126-1".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M126, 1, check);
-            } else if ("M 126-2".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M126, 2, check);
-            } else if ("M 126-3".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M126, 3, check);
-            } else if ("M 126-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M126, 4, check);
-            } else if ("M 126-5".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M126, 5, check);
-            } else if ("M 126-C".equals(cmd)) {
-                startChallengeExam(cleanStu, ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, check);
-            } else if ("M 100T-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M100T, 4, check);
-            } else if ("M 1170-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M1170, 4, check);
-            } else if ("M 1180-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M1180, 4, check);
-            } else if ("M 1240-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M1240, 4, check);
-            } else if ("M 1250-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M1250, 4, check);
-            } else if ("M 1260-4".equals(cmd)) {
-                startCourseExam(cleanStu, RawRecordConstants.M1260, 4, check);
-            } else if ("M 100U-1".equals(cmd)) {
-                startUsersExam(cleanStu, check);
-            } else if ("M 100P-1".equals(cmd)) {
-                startPlacementTool(cleanStu, check);
-            } else {
-                Log.warning("Unrecognized action command: ", cmd);
+            switch (cmd) {
+                case "M 117-1" -> startCourseExam(cleanStu, RawRecordConstants.M117, 1, check);
+                case "M 117-2" -> startCourseExam(cleanStu, RawRecordConstants.M117, 2, check);
+                case "M 117-3" -> startCourseExam(cleanStu, RawRecordConstants.M117, 3, check);
+                case "M 117-4" -> startCourseExam(cleanStu, RawRecordConstants.M117, 4, check);
+                case "M 117-5" -> startCourseExam(cleanStu, RawRecordConstants.M117, 5, check);
+                case "M 117-M" -> startMasteryExam(cleanStu, RawRecordConstants.MATH117, check);
+                case "M 117-C" -> startChallengeExam(cleanStu, ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, check);
+                case "M 118-1" -> startCourseExam(cleanStu, RawRecordConstants.M118, 1, check);
+                case "M 118-2" -> startCourseExam(cleanStu, RawRecordConstants.M118, 2, check);
+                case "M 118-3" -> startCourseExam(cleanStu, RawRecordConstants.M118, 3, check);
+                case "M 118-4" -> startCourseExam(cleanStu, RawRecordConstants.M118, 4, check);
+                case "M 118-5" -> startCourseExam(cleanStu, RawRecordConstants.M118, 5, check);
+                case "M 118-M" -> startMasteryExam(cleanStu, RawRecordConstants.MATH118, check);
+                case "M 118-C" -> startChallengeExam(cleanStu, ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, check);
+                case "M 124-1" -> startCourseExam(cleanStu, RawRecordConstants.M124, 1, check);
+                case "M 124-2" -> startCourseExam(cleanStu, RawRecordConstants.M124, 2, check);
+                case "M 124-3" -> startCourseExam(cleanStu, RawRecordConstants.M124, 3, check);
+                case "M 124-4" -> startCourseExam(cleanStu, RawRecordConstants.M124, 4, check);
+                case "M 124-5" -> startCourseExam(cleanStu, RawRecordConstants.M124, 5, check);
+                case "M 124-M" -> startMasteryExam(cleanStu, RawRecordConstants.MATH124, check);
+                case "M 124-C" -> startChallengeExam(cleanStu, ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, check);
+                case "M 125-1" -> startCourseExam(cleanStu, RawRecordConstants.M125, 1, check);
+                case "M 125-2" -> startCourseExam(cleanStu, RawRecordConstants.M125, 2, check);
+                case "M 125-3" -> startCourseExam(cleanStu, RawRecordConstants.M125, 3, check);
+                case "M 125-4" -> startCourseExam(cleanStu, RawRecordConstants.M125, 4, check);
+                case "M 125-5" -> startCourseExam(cleanStu, RawRecordConstants.M125, 5, check);
+                case "M 125-M" -> startMasteryExam(cleanStu, RawRecordConstants.MATH125, check);
+                case "M 125-C" -> startChallengeExam(cleanStu, ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, check);
+                case "M 126-1" -> startCourseExam(cleanStu, RawRecordConstants.M126, 1, check);
+                case "M 126-2" -> startCourseExam(cleanStu, RawRecordConstants.M126, 2, check);
+                case "M 126-3" -> startCourseExam(cleanStu, RawRecordConstants.M126, 3, check);
+                case "M 126-4" -> startCourseExam(cleanStu, RawRecordConstants.M126, 4, check);
+                case "M 126-5" -> startCourseExam(cleanStu, RawRecordConstants.M126, 5, check);
+                case "M 126-M" -> startMasteryExam(cleanStu, RawRecordConstants.MATH126, check);
+                case "M 126-C" -> startChallengeExam(cleanStu, ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, check);
+                case "M 100T-4" -> startCourseExam(cleanStu, RawRecordConstants.M100T, 4, check);
+                case "M 1170-4" -> startCourseExam(cleanStu, RawRecordConstants.M1170, 4, check);
+                case "M 1180-4" -> startCourseExam(cleanStu, RawRecordConstants.M1180, 4, check);
+                case "M 1240-4" -> startCourseExam(cleanStu, RawRecordConstants.M1240, 4, check);
+                case "M 1250-4" -> startCourseExam(cleanStu, RawRecordConstants.M1250, 4, check);
+                case "M 1260-4" -> startCourseExam(cleanStu, RawRecordConstants.M1260, 4, check);
+                case "M 100U-1" -> startUsersExam(cleanStu, check);
+                case "M 100P-1" -> startPlacementTool(cleanStu, check);
+                case null, default -> Log.warning("Unrecognized action command: ", cmd);
             }
         }
     }
@@ -632,12 +634,12 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
      * @param unit     the unit
      * @param check    true to enable eligibility checks
      */
-    private void startCourseExam(final String stuId, final String courseId, final int unit,
-                                 final boolean check) {
+    private void startCourseExam(final String stuId, final String courseId, final int unit, final boolean check) {
 
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId,
-                    Integer.valueOf(unit), unit == 5 ? RawStexam.FINAL_EXAM : RawStexam.UNIT_EXAM);
+            final Integer unitObj = Integer.valueOf(unit);
+            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, unitObj,
+                    unit == 5 ? RawStexam.FINAL_EXAM : RawStexam.UNIT_EXAM);
 
             if (examRec != null) {
                 new StartExamDialog(this.cache, this.frame, stuId, courseId, unit, examRec.version,
@@ -647,6 +649,18 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         } catch (final SQLException ex) {
             Log.warning("Error querying selected exam.", ex);
         }
+    }
+
+    /**
+     * Attempts to start a mastery exam.
+     *
+     * @param stuId    the student ID
+     * @param courseId the course ID
+     * @param check    true to enable eligibility checks
+     */
+    private void startMasteryExam(final String stuId, final String courseId, final boolean check) {
+
+        // TODO:
     }
 
     /**
@@ -661,8 +675,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         Log.info("Attempting to start challenge exam.");
 
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId,
-                    Integer.valueOf(0), "CH");
+            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, ZERO, "CH");
 
             if (examRec == null) {
                 Log.warning("Could not find an exam of type 'CH' for ", courseId);
@@ -685,12 +698,12 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     private void startUsersExam(final String stuId, final boolean check) {
 
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache,
-                    RawRecordConstants.M100U, Integer.valueOf(1), "Q");
+            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, RawRecordConstants.M100U, ONE,
+                    "Q");
 
             if (examRec != null) {
-                new StartExamDialog(this.cache, this.frame, stuId, RawRecordConstants.M100U, 1,
-                        examRec.version, check).setVisible(true);
+                new StartExamDialog(this.cache, this.frame, stuId, RawRecordConstants.M100U, 1, examRec.version,
+                        check).setVisible(true);
                 reset();
             }
         } catch (final SQLException ex) {
@@ -753,7 +766,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     /**
      * Resets the card to accept data for a new loan.
      */
-    public void reset() {
+    void reset() {
 
         this.studentIdField.setText(CoreConstants.EMPTY);
         this.studentIdField.setBackground(Skin.FIELD_BG);
@@ -825,40 +838,151 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
      * determine what exams they are eligible for, and will enable the corresponding exam buttons.
      *
      * @param cleanedStuId the student ID
+     * @throws SQLException if there is an error accessing the database
      */
-    private void studentFound(final String cleanedStuId) {
+    private void studentFound(final String cleanedStuId) throws SQLException{
 
         final boolean enforceElig = this.enforceEligible.isSelected();
-        final StudentCheckinInfo info = this.logic.performCheckinLogic(cleanedStuId, enforceElig);
+        final DataCheckInAttempt info = this.logic.performCheckInLogic(cleanedStuId, enforceElig);
 
         if (info == null) {
             this.studentStatusDisplay.setText("Unable to determine eligible exams.");
         } else if (info.error == null) {
+            // Present the complete list of exams on the screen with unavailable exams dimmed, and available exams lit.
 
-            // Present the complete list of exams on the screen with the unavailable exams
-            // dimmed, and the available exams lit.
+            final DataCourseExams course17 = info.getCourseExams(CourseNumbers.MATH117);
+            final ExamButtonPane pane117u1 = this.examButtons.get("M 117-1");
+            updateCourseExamButton(pane117u1, course17.unit1Exam);
+            final ExamButtonPane pane117u2 = this.examButtons.get("M 117-2");
+            updateCourseExamButton(pane117u2, course17.unit2Exam);
+            final ExamButtonPane pane117u3 = this.examButtons.get("M 117-3");
+            updateCourseExamButton(pane117u3, course17.unit3Exam);
+            final ExamButtonPane pane117u4 = this.examButtons.get("M 117-4");
+            updateCourseExamButton(pane117u4, course17.unit4Exam);
+            final ExamButtonPane pane117u5 = this.examButtons.get("M 117-5");
+            updateCourseExamButton(pane117u5, course17.finalExam);
+            final ExamButtonPane pane117ma = this.examButtons.get("M 117-M");
+            updateCourseExamButton(pane117ma, course17.masteryExam);
+            final ExamButtonPane pane117ch = this.examButtons.get("M 117-C");
+            updateCourseExamButton(pane117ch, course17.challengeExam);
 
-            for (final Map.Entry<String, AvailableExam> entry : info.availableExams.entrySet()) {
+            final DataCourseExams course18 = info.getCourseExams(CourseNumbers.MATH118);
+            final ExamButtonPane pane118u1 = this.examButtons.get("M 118-1");
+            updateCourseExamButton(pane118u1, course18.unit1Exam);
+            final ExamButtonPane pane118u2 = this.examButtons.get("M 118-2");
+            updateCourseExamButton(pane118u2, course18.unit2Exam);
+            final ExamButtonPane pane118u3 = this.examButtons.get("M 118-3");
+            updateCourseExamButton(pane118u3, course18.unit3Exam);
+            final ExamButtonPane pane118u4 = this.examButtons.get("M 118-4");
+            updateCourseExamButton(pane118u4, course18.unit4Exam);
+            final ExamButtonPane pane118u5 = this.examButtons.get("M 118-5");
+            updateCourseExamButton(pane118u5, course18.finalExam);
+            final ExamButtonPane pane118ma = this.examButtons.get("M 118-M");
+            updateCourseExamButton(pane118ma, course18.masteryExam);
+            final ExamButtonPane pane118ch = this.examButtons.get("M 118-C");
+            updateCourseExamButton(pane118ch, course18.challengeExam);
 
-                final ExamButtonPane pane = this.examButtons.get(entry.getKey());
-                if (pane != null) {
-                    pane.reset();
-                    final AvailableExam avail = entry.getValue();
+            final DataCourseExams course24 = info.getCourseExams(CourseNumbers.MATH124);
+            final ExamButtonPane pane124u1 = this.examButtons.get("M 124-1");
+            updateCourseExamButton(pane124u1, course24.unit1Exam);
+            final ExamButtonPane pane124u2 = this.examButtons.get("M 124-2");
+            updateCourseExamButton(pane124u2, course24.unit2Exam);
+            final ExamButtonPane pane124u3 = this.examButtons.get("M 124-3");
+            updateCourseExamButton(pane124u3, course24.unit3Exam);
+            final ExamButtonPane pane124u4 = this.examButtons.get("M 124-4");
+            updateCourseExamButton(pane124u4, course24.unit4Exam);
+            final ExamButtonPane pane124u5 = this.examButtons.get("M 124-5");
+            updateCourseExamButton(pane124u5, course24.finalExam);
+            final ExamButtonPane pane124ma = this.examButtons.get("M 124-M");
+            updateCourseExamButton(pane124ma, course24.masteryExam);
+            final ExamButtonPane pane124ch = this.examButtons.get("M 124-C");
+            updateCourseExamButton(pane124ch, course24.challengeExam);
 
-                    if (avail.available) {
-                        pane.enable();
-                        pane.setStatusText(Objects.requireNonNullElse(avail.note, CoreConstants.SPC));
-                    } else {
-                        pane.disable();
-                        pane.setStatusText(avail.whyNot);
-                        if ("Not Registered".equals(avail.whyNot) || "Not Eligible".equals(avail.whyNot)) {
-                            pane.indicateNotRegistered();
-                        }
-                    }
-                }
-            }
+            final DataCourseExams course25 = info.getCourseExams(CourseNumbers.MATH125);
+            final ExamButtonPane pane125u1 = this.examButtons.get("M 125-1");
+            updateCourseExamButton(pane125u1, course25.unit1Exam);
+            final ExamButtonPane pane125u2 = this.examButtons.get("M 125-2");
+            updateCourseExamButton(pane125u2, course25.unit2Exam);
+            final ExamButtonPane pane125u3 = this.examButtons.get("M 125-3");
+            updateCourseExamButton(pane125u3, course25.unit3Exam);
+            final ExamButtonPane pane125u4 = this.examButtons.get("M 125-4");
+            updateCourseExamButton(pane125u4, course25.unit4Exam);
+            final ExamButtonPane pane125u5 = this.examButtons.get("M 125-5");
+            updateCourseExamButton(pane125u5, course25.finalExam);
+            final ExamButtonPane pane125ma = this.examButtons.get("M 125-M");
+            updateCourseExamButton(pane125ma, course25.masteryExam);
+            final ExamButtonPane pane125ch = this.examButtons.get("M 125-C");
+            updateCourseExamButton(pane125ch, course25.challengeExam);
+
+            final DataCourseExams course26 = info.getCourseExams(CourseNumbers.MATH126);
+            final ExamButtonPane pane126u1 = this.examButtons.get("M 126-1");
+            updateCourseExamButton(pane126u1, course26.unit1Exam);
+            final ExamButtonPane pane126u2 = this.examButtons.get("M 126-2");
+            updateCourseExamButton(pane126u2, course26.unit2Exam);
+            final ExamButtonPane pane126u3 = this.examButtons.get("M 126-3");
+            updateCourseExamButton(pane126u3, course26.unit3Exam);
+            final ExamButtonPane pane126u4 = this.examButtons.get("M 126-4");
+            updateCourseExamButton(pane126u4, course26.unit4Exam);
+            final ExamButtonPane pane126u5 = this.examButtons.get("M 126-5");
+            updateCourseExamButton(pane126u5, course26.finalExam);
+            final ExamButtonPane pane126ma = this.examButtons.get("M 126-M");
+            updateCourseExamButton(pane126ma, course26.masteryExam);
+            final ExamButtonPane pane126ch = this.examButtons.get("M 126-C");
+            updateCourseExamButton(pane126ch, course26.challengeExam);
+
+            final DataNonCourseExams nonCourse = info.nonCourseExams;
+            final ExamButtonPane paneElm = this.examButtons.get("M 100T-4");
+            updateCourseExamButton(paneElm, nonCourse.elmExam);
+            final ExamButtonPane paneTut117 = this.examButtons.get("M 1170-4");
+            updateCourseExamButton(paneTut117, nonCourse.precalc117);
+            final ExamButtonPane paneTut118 = this.examButtons.get("M 1180-4");
+            updateCourseExamButton(paneTut118, nonCourse.precalc118);
+            final ExamButtonPane paneTut124 = this.examButtons.get("M 1240-4");
+            updateCourseExamButton(paneTut124, nonCourse.precalc124);
+            final ExamButtonPane paneTut125 = this.examButtons.get("M 1250-4");
+            updateCourseExamButton(paneTut125, nonCourse.precalc125);
+            final ExamButtonPane paneTut126 = this.examButtons.get("M 1260-4");
+            updateCourseExamButton(paneTut126, nonCourse.precalc126);
+            final ExamButtonPane paneUsers = this.examButtons.get("M 100U-1");
+            updateCourseExamButton(paneUsers, nonCourse.usersExam);
+            final ExamButtonPane paneMpt = this.examButtons.get("M 100P-1");
+            updateCourseExamButton(paneMpt, nonCourse.placement);
         } else {
             this.studentStatusDisplay.setText(info.error[0]);
         }
+    }
+
+    /**
+     * Updates an exam button with the status of that exam.
+     *
+     * @param button the button to update
+     * @param status the exam status
+     */
+    private void updateCourseExamButton(final ExamButtonPane button, final DataExamStatus status) {
+
+        final HtmlBuilder tooltip = new HtmlBuilder(100);
+        boolean newline = false;
+        for (final String msg : status.eligibilityOverrides) {
+            if (newline) {
+                // NOTE: we don't just "addln" each line since the trailing newline on the last item is annoying.
+                tooltip.addln();
+            }
+            tooltip.add(msg);
+            newline = true;
+        }
+        final String tipString = tooltip.toString();
+        button.setTooltip(tipString);
+
+        if (status.available) {
+            button.enable();
+            button.setStatusText(Objects.requireNonNullElse(status.note, CoreConstants.SPC));
+        } else {
+            button.disable();
+            button.setStatusText(Objects.requireNonNullElse(status.note, CoreConstants.SPC));
+            if ("Not Registered".equals(status.note) || "Not Eligible".equals(status.note)) {
+                button.indicateNotRegistered();
+            }
+        }
+
     }
 }

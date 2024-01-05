@@ -110,6 +110,21 @@ final class ExamButtonPane extends JPanel {
     }
 
     /**
+     * Sets the "tool tip" text.
+     *
+     * @param text the new tool-tip text
+     */
+    void setTooltip(final String text) {
+
+        if (text == null) {
+            this.button.setToolTipText(null);
+        } else {
+            final boolean blank = text.isBlank();
+            this.button.setToolTipText(blank ? null : text);
+        }
+    }
+
+    /**
      * Indicates (through a darkened background) that the student is not registered in the course.
      */
     void reset() {

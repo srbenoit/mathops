@@ -8,34 +8,34 @@ import java.util.List;
 /**
  * A record to store the various course/exam numbers associated with a course.
  */
-record CourseNumbers(String oldCourseId, String newCourseId, String challengeId, String tutorialId) {
+public record CourseNumbers(String oldCourseId, String newCourseId, String challengeId, String tutorialId) {
 
     /** A course. */
-    static final CourseNumbers MATH117 = new CourseNumbers(RawRecordConstants.M117, RawRecordConstants.MATH117,
+    public static final CourseNumbers MATH117 = new CourseNumbers(RawRecordConstants.M117, RawRecordConstants.MATH117,
             ChallengeExamLogic.M117_CHALLENGE_EXAM_ID, RawRecordConstants.M1170);
 
     /** A course. */
-    static final CourseNumbers MATH118 = new CourseNumbers(RawRecordConstants.M118, RawRecordConstants.MATH118,
+    public static final CourseNumbers MATH118 = new CourseNumbers(RawRecordConstants.M118, RawRecordConstants.MATH118,
             ChallengeExamLogic.M118_CHALLENGE_EXAM_ID, RawRecordConstants.M1180);
 
     /** A course. */
-    static final CourseNumbers MATH124 = new CourseNumbers(RawRecordConstants.M124, RawRecordConstants.MATH124,
+    public static final CourseNumbers MATH124 = new CourseNumbers(RawRecordConstants.M124, RawRecordConstants.MATH124,
             ChallengeExamLogic.M124_CHALLENGE_EXAM_ID, RawRecordConstants.M1240);
 
     /** A course. */
-    static final CourseNumbers MATH125 = new CourseNumbers(RawRecordConstants.M125, RawRecordConstants.MATH125,
+    public static final CourseNumbers MATH125 = new CourseNumbers(RawRecordConstants.M125, RawRecordConstants.MATH125,
                       ChallengeExamLogic.M125_CHALLENGE_EXAM_ID, RawRecordConstants.M1250);
 
     /** A course. */
-    static final CourseNumbers MATH126 = new CourseNumbers(RawRecordConstants.M126, RawRecordConstants.MATH126,
+    public static final CourseNumbers MATH126 = new CourseNumbers(RawRecordConstants.M126, RawRecordConstants.MATH126,
             ChallengeExamLogic.M126_CHALLENGE_EXAM_ID, RawRecordConstants.M1260);
 
 
     /** The list of courses to consider with their IDs. */
-    static final List<CourseNumbers> COURSES = List.of(MATH117, MATH118, MATH124, MATH125, MATH126);
+    public static final List<CourseNumbers> COURSES = List.of(MATH117, MATH118, MATH124, MATH125, MATH126);
 
     /** The number of courses. */
-    static final int NUM_COURSES = COURSES.size();
+    public static final int NUM_COURSES = COURSES.size();
 
     /**
      * Tests whether a given course ID matches either the old or the new course ID of this course.

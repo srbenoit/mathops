@@ -162,12 +162,12 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
                 // Before we begin, we initialize checkin logic. This provides a quick validation that our database
                 // connection is working.
-                final LogicCheckIn logic = new LogicCheckIn(this.dbProfile, now);
+                final LogicCheckIn logic = new LogicCheckIn(cache, now);
 
                 // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
                 // everything else on the desktop. All windows this application creates will be children of this
                 // window, so they will not be obscured, but the desktop will not be available.
-                if (logic.isInitialized(cache) && createBlockingWindow(fullScreen)) {
+                if (logic.isInitialized() && createBlockingWindow(fullScreen)) {
 
                     final LocalTime closing = determineClosing(cache);
 
@@ -451,12 +451,9 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     private void processStudentCheckin(final Cache cache, final LogicCheckIn logic) throws SQLException {
 
         // Perform check-in logic, resulting in a check-in info structure for the student, or null on any error.
-        this.info = logic.performCheckInLogic(this.studentId);
+        this.info = logic.performCheckInLogic(this.studentId, true);
 
         if (this.info != null) {
-            final Integer tutorialUnit = logic.getTutorialUnit();
-            this.center.setElmUnit(tutorialUnit);
-
             // If there were any errors, display them and abort
             if (this.info.error != null) {
 

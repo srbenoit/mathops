@@ -13,37 +13,37 @@ import dev.mathops.core.builder.SimpleBuilder;
  * <p>
  * Every course also has a "Challenge Exam" whose eligibility is stored in this class as well.
  */
-final class DataCourseExams {
+public final class DataCourseExams {
 
     /** The course numbers. */
-    final CourseNumbers courseNumbers;
+    public final CourseNumbers courseNumbers;
 
     /** True if the student is registered in the OLD version of the course. */
-    boolean registeredInOld = false;
+    public boolean registeredInOld = false;
 
     /** True if the student is registered in the NEW version of the course. */
-    boolean registeredInNew = false;
+    public boolean registeredInNew = false;
 
     /** The OLD course Unit 1 exam status, or {@code null} if not an OLD course (has old course ID). */
-    DataExamStatus unit1Exam = null;
+    public DataExamStatus unit1Exam = null;
 
     /** The OLD course Unit 2 exam status, or {@code null} if not an OLD course (has old course ID). */
-    DataExamStatus unit2Exam = null;
+    public DataExamStatus unit2Exam = null;
 
     /** The OLD course Unit 3 exam status, or {@code null} if not an OLD course (has old course ID). */
-    DataExamStatus unit3Exam = null;
+    public DataExamStatus unit3Exam = null;
 
     /** The OLD course Unit 4 exam status, or {@code null} if not an OLD course (has old course ID). */
-    DataExamStatus unit4Exam = null;
+    public DataExamStatus unit4Exam = null;
 
     /** The OLD course Final Exam status, or {@code null} if not an OLD course (has old course ID). */
-    DataExamStatus finalExam = null;
+    public DataExamStatus finalExam = null;
 
     /** The Mastery Exam status, or {@code null} if not a NEW course (has new course ID and unit 0) */
-    DataExamStatus masteryExam = null;
+    public DataExamStatus masteryExam = null;
 
     /** The Challenge Exam status (has challenge exam course ID and unit 0). */
-    DataExamStatus challengeExam = null;
+    public DataExamStatus challengeExam = null;
 
     /**
      * Constructs a new {@code DataCourseExams}.

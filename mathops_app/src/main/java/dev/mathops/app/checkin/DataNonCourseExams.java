@@ -13,31 +13,31 @@ import dev.mathops.core.builder.SimpleBuilder;
  * <p>
  * Every course also has a "Challenge Exam" whose eligibility is stored in this class as well.
  */
-final class DataNonCourseExams {
+public final class DataNonCourseExams {
 
     /** The ELM exam (stored with unit 0). */
-    DataExamStatus elmExam = null;
+    public DataExamStatus elmExam = null;
 
     /** The Precalculus tutorial exam to place out of MATH 117 (stored with unit 4). */
-    DataExamStatus precalc117 = null;
+    public DataExamStatus precalc117 = null;
 
     /** The Precalculus tutorial exam to place out of MATH 118 (stored with unit 4). */
-    DataExamStatus precalc118 = null;
+    public DataExamStatus precalc118 = null;
 
     /** The Precalculus tutorial exam to place out of MATH 124 (stored with unit 4). */
-    DataExamStatus precalc124 = null;
+    public DataExamStatus precalc124 = null;
 
     /** The Precalculus tutorial exam to place out of MATH 125 (stored with unit 4). */
-    DataExamStatus precalc125 = null;
+    public DataExamStatus precalc125 = null;
 
     /** The Precalculus tutorial exam to place out of MATH 126 (stored with unit 4). */
-    DataExamStatus precalc126 = null;
+    public DataExamStatus precalc126 = null;
 
     /** The User's exam (stored with unit 0). */
-    DataExamStatus usersExam = null;
+    public DataExamStatus usersExam = null;
 
     /** The Math Placement Tool (stored with unit 1). */
-    DataExamStatus placement = null;
+    public DataExamStatus placement = null;
 
     /**
      * Constructs a new {@code DataNonCourseExams}.

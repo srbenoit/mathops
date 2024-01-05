@@ -125,9 +125,6 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
     /** The font in which to draw numbers on the PCs. */
     private final Font pcFont;
 
-    /** The unit of the ELM tutorial the student is eligible for. */
-    private Integer elmUnit = null;
-
     /**
      * Constructs a new {@code CenterPanel}.
      *
@@ -191,16 +188,6 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
                 Log.warning(ex);
             }
         }
-    }
-
-    /**
-     * Sets the unit of the ELM tutorial the student is eligible for.
-     *
-     * @param theUnit the unit number
-     */
-    void setElmUnit(final Integer theUnit) {
-
-        this.elmUnit = theUnit;
     }
 
     /**
@@ -400,7 +387,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
         enableButton(PRECALC25, "Trig. I", this.data.nonCourseExams.precalc125);
         enableButton(PRECALC26, "Trig. II", this.data.nonCourseExams.precalc126);
 
-        final DataExamStatus cancel = new DataExamStatus(null, 0);
+        final DataExamStatus cancel = DataExamStatus.available(null, 0);
         enableButton(CANCEL, CANCEL, cancel);
     }
 
@@ -431,22 +418,22 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
 
         if (exams.registeredInNew) {
             exam = exams.masteryExam;
-            enableButton(keyMastery, exam.newLabel == null ? MASTERY : exam.newLabel, exam);
+            enableButton(keyMastery, MASTERY, exam);
         } else if (exams.registeredInOld) {
             exam = exams.unit1Exam;
-            enableButton(keyUnit1, exam.newLabel == null ? UNIT_1 : exam.newLabel, exam);
+            enableButton(keyUnit1, UNIT_1, exam);
             exam = exams.unit2Exam;
-            enableButton(keyUnit2, exam.newLabel == null ? UNIT_2 : exam.newLabel, exam);
+            enableButton(keyUnit2, UNIT_2, exam);
             exam = exams.unit3Exam;
-            enableButton(keyUnit3, exam.newLabel == null ? UNIT_3 : exam.newLabel, exam);
+            enableButton(keyUnit3, UNIT_3, exam);
             exam = exams.unit4Exam;
-            enableButton(keyUnit4, exam.newLabel == null ? UNIT_4 : exam.newLabel, exam);
+            enableButton(keyUnit4, UNIT_4, exam);
             exam = exams.finalExam;
-            enableButton(keyUnit5, exam.newLabel == null ? FINAL : exam.newLabel, exam);
+            enableButton(keyUnit5, FINAL, exam);
         }
 
         exam = exams.challengeExam;
-        enableButton(keyChal, exam.newLabel == null ? CHALLENGE : exam.newLabel, exam);
+        enableButton(keyChal, CHALLENGE, exam);
     }
 
     /**
@@ -467,24 +454,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
         } else {
             btn.setTitle(label);
             btn.setVisible(true);
-
-            if (exam.whyNot == null) {
-                if (ELM.equals(key) && this.elmUnit != null) {
-
-                    // FIXME: get this into data somehow
-                    if (this.elmUnit.intValue() == 3) {
-                        btn.setMessage("For M 105");
-                    } else if (this.elmUnit.intValue() == 4) {
-                        btn.setMessage("For M 117");
-                    } else {
-                        btn.setMessage(null);
-                    }
-                } else {
-                    btn.setMessage(null);
-                }
-            } else {
-                btn.setMessage(exam.whyNot);
-            }
+            btn.setMessage(exam.note);
 
             btn.setEnabled(exam.available);
             btn.setForeground(exam.available ? Color.BLACK : Color.GRAY);
@@ -677,10 +647,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
                 } else if (PLACEMENT.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M100P, 0, "Q");
                 } else if (ELM.equals(cmd)) {
-                    if (this.elmUnit != null) {
-                        final int unit = this.elmUnit.intValue();
-                        this.owner.chooseExam(cache, RawRecordConstants.M100T, unit, "U");
-                    }
+                    this.owner.chooseExam(cache, RawRecordConstants.M100T, 4, "U");
                 } else if (PRECALC17.equals(cmd)) {
                     this.owner.chooseExam(cache, RawRecordConstants.M1170, 4, "U");
                 } else if (PRECALC18.equals(cmd)) {

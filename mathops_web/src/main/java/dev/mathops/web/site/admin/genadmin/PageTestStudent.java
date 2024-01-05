@@ -1858,7 +1858,7 @@ enum PageTestStudent {
             if (wantExam[i]) {
                 if (attempts[i] == null) {
                     // Build the attempt
-                    insertPlacement(cache, active, testStu, wantOutcomes[i]);
+                    insertPlacement(cache, active, testStu, i, wantOutcomes[i]);
                 } else {
                     final LocalDateTime examDt = attempts[i].getFinishDateTime();
                     final Long serial = attempts[i].serialNbr;
@@ -1872,6 +1872,7 @@ enum PageTestStudent {
                             for (final RawMpeCredit res : results) {
                                 if ((PT_OUTCOMES[j].equals(res.course) && res.serialNbr.equals(serial))
                                         && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                    Log.warning("Failed to delete test student MPE_CREDIT");
                                     error = true;
                                 }
                             }
@@ -1903,11 +1904,13 @@ enum PageTestStudent {
                         for (final RawMpeCredit res : results) {
                             if ((res.serialNbr != null && res.serialNbr.equals(serial))
                                     && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                Log.warning("Failed to delete test student MPE_CREDIT");
                                 error = true;
                             }
                         }
                     }
                 } else {
+                    Log.warning("Failed to delete test student STMPE with answers");
                     error = true;
                 }
             }
@@ -1938,14 +1941,17 @@ enum PageTestStudent {
      * @param cache      the data cache
      * @param activeTerm the active term
      * @param testStu    the test student
+     * @param index      the index of the attempt, to ensure different timestamps
      * @param outcomes   the outcomes
      * @throws SQLException if there was an error accessing the database
      */
     private static void insertPlacement(final Cache cache, final TermRec activeTerm, final RawStudent testStu,
-                                        final String[] outcomes) throws SQLException {
+                                        final int index, final String[] outcomes) throws SQLException {
 
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
-        final LocalDateTime examDt = LocalDateTime.now();
+
+        final LocalDate examDt = LocalDate.now();
+
         final String academic;
         final int yr = activeTerm.term.shortYear.intValue();
         if (activeTerm.term.name == ETermName.SPRING) {
@@ -1960,15 +1966,15 @@ enum PageTestStudent {
         for (int i = 0; i < numOutcomes; ++i) {
             final String outcome = outcomes[i];
             if ("P".equals(outcome) || "C".equals(outcome)) {
-                insertResult(cache, serial, PT_OUTCOMES[i], examDt.toLocalDate(), outcome);
+                insertResult(cache, serial, PT_OUTCOMES[i], examDt, outcome);
                 placed = true;
             }
         }
 
-        final int finish = TemporalUtils.minuteOfDay(examDt);
+        final int finish = (index + 8) * 60;
 
         final RawStmpe record = new RawStmpe(RawStudent.TEST_STUDENT_ID, "MPTTC",
-                academic, examDt.toLocalDate(), Integer.valueOf(finish - 1), Integer.valueOf(finish),
+                academic, examDt, Integer.valueOf(finish - 1), Integer.valueOf(finish),
                 testStu.lastName, testStu.firstName, testStu.middleInitial, null, Long.valueOf(serial),
                 Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
                 Integer.valueOf(0), Integer.valueOf(0), placed ? "Y" : "N",

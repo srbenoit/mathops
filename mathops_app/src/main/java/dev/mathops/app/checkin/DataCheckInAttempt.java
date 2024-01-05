@@ -11,7 +11,7 @@ import java.util.Map;
  * class is created each time a new student attempts to check in, and it is populated as various tests and checks are
  * performed, and when the staff member indicates the selected exam.
  */
-final class DataCheckInAttempt {
+public final class DataCheckInAttempt {
 
     /** Data on the student requesting an exam. */
     final DataStudent studentData;
@@ -20,13 +20,13 @@ final class DataCheckInAttempt {
     private final Map<CourseNumbers, DataCourseExams> courseExams;
 
     /** A container for status of non-course exams. */
-    final DataNonCourseExams nonCourseExams;
+    public final DataNonCourseExams nonCourseExams;
 
     /** The selected course, unit, exam ID, and the reserved seat. */
     final DataSelections selections;
 
     /** An error message in the event that an error occurs. */
-    String[] error = null;
+    public String[] error = null;
 
     /**
      * Constructs a new {@code StudentCheckInInfo}.
@@ -53,7 +53,7 @@ final class DataCheckInAttempt {
      * @param numbers the numbers object
      * @return the corresponding {@code DataCourseExams} object; {@code null} if none matches the given numbers object
      */
-    DataCourseExams getCourseExams(final CourseNumbers numbers) {
+    public DataCourseExams getCourseExams(final CourseNumbers numbers) {
 
         return this.courseExams.get(numbers);
     }

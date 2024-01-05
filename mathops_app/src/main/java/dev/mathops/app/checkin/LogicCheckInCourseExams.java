@@ -26,12 +26,8 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
-import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
@@ -40,7 +36,6 @@ import dev.mathops.db.old.svc.term.TermRec;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +76,27 @@ final class LogicCheckInCourseExams {
     /** A commonly used string. */
     private static final String NOT_REGISTERED = "Not Registered";
 
+    /** A commonly used string. */
+    private static final String ALL_ATTEMPTS_USED = "All Attempts Used";
+
+    /** A commonly used string. */
+    private static final String MUST_REPASS_REVIEW = "Must Repass Review";
+
+    /** A commonly used string. */
+    private static final String MUST_PASS_REVIEW = "Must Pass Review";
+
+    /** A commonly used string. */
+    private static final String PAST_UNIT_DEADLINE = "Past Unit Deadline";
+
+    /** A commonly used string. */
+    private static final String PAST_DEADLINE = "Past Deadline";
+
+    /** A commonly used string. */
+    private static final String OPENS = "Opens ";
+
+    /** A commonly used string. */
+    private static final String CLOSED = "Closed ";
+
     /** The current day number. */
     private final LocalDate today;
 
@@ -109,9 +125,12 @@ final class LogicCheckInCourseExams {
      * Determines exam status for all courses.
      *
      * @param cache the data cache
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    void execute(final Cache cache) throws SQLException {
+    void execute(final Cache cache, final boolean enforceEligibility) throws SQLException {
 
         if (isSpecial()) {
             setSpecialStudentStatus();
@@ -119,8 +138,8 @@ final class LogicCheckInCourseExams {
             final String stuId = this.checkInData.studentData.stuId;
             final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, stuId, this.activeTerm.term);
 
-            determineAvailableChallengeExams(cache, regs);
-            determineAvailableCourseExams(cache, regs);
+            determineAvailableChallengeExams(cache, regs, enforceEligibility);
+            determineAvailableCourseExams(cache, regs, enforceEligibility);
         }
     }
 
@@ -157,15 +176,13 @@ final class LogicCheckInCourseExams {
             final DataCourseExams data = this.checkInData.getCourseExams(numbers);
             data.registeredInOld = true;
             data.registeredInNew = true;
-            data.unit1Exam = new DataExamStatus(oldCourseId, 1);
-            data.unit2Exam = new DataExamStatus(oldCourseId, 2);
-            data.unit3Exam = new DataExamStatus(oldCourseId, 3);
-            data.unit4Exam = new DataExamStatus(oldCourseId, 4);
-            data.finalExam = new DataExamStatus(oldCourseId, 5);
-            data.challengeExam = new DataExamStatus(challengeId, 0);
-            data.challengeExam.available = false;
-            data.challengeExam.whyNot = UNAVAILABLE;
-            data.masteryExam = new DataExamStatus(newCourseId, 0);
+            data.unit1Exam = DataExamStatus.available(oldCourseId, 1);
+            data.unit2Exam = DataExamStatus.available(oldCourseId, 2);
+            data.unit3Exam = DataExamStatus.available(oldCourseId, 3);
+            data.unit4Exam = DataExamStatus.available(oldCourseId, 4);
+            data.finalExam = DataExamStatus.available(oldCourseId, 5);
+            data.challengeExam = DataExamStatus.unavailable(challengeId, 0, UNAVAILABLE);
+            data.masteryExam = DataExamStatus.available(newCourseId, 0);
 
             // FIXME: Get this from data
             data.masteryExam.numStandardsAvailable = 24;
@@ -187,10 +204,13 @@ final class LogicCheckInCourseExams {
      *
      * @param cache      the data cache
      * @param activeRegs the student's current-term registrations
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineAvailableChallengeExams(final Cache cache, final Iterable<RawStcourse> activeRegs)
-            throws SQLException {
+    private void determineAvailableChallengeExams(final Cache cache, final Iterable<RawStcourse> activeRegs,
+                                                  final boolean enforceEligibility) throws SQLException {
 
         final String stuId = this.checkInData.studentData.stuId;
 
@@ -198,53 +218,37 @@ final class LogicCheckInCourseExams {
         final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(cache, stuId);
 
         for (final CourseNumbers numbers : CourseNumbers.COURSES) {
+
             final String oldCourseId = numbers.oldCourseId();
             final String challengeId = numbers.challengeId();
 
-            // We do checks, and if "reasonNotAvailable" remains null, the exam is available.
-            String reasonNotAvailable = null;
+            final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+            final DataExamStatus status = DataExamStatus.available(challengeId, 0);
+            data.challengeExam = status;
 
             for (final RawStcourse test : activeRegs) {
                 if (numbers.isMatching(test.course)) {
                     if ("OT".equals(test.instrnType)) {
-                        reasonNotAvailable = "Has Placement Credit";
+                        indicateExamUnavailable(status, "Has Placement Credit", enforceEligibility);
                     } else {
-                        reasonNotAvailable = "Currently Enrolled";
+                        indicateExamUnavailable(status, "Currently Enrolled", enforceEligibility);
                     }
                     break;
                 }
             }
 
-            if (reasonNotAvailable == null) {
-                for (final RawStcourse test : priorRegs) {
-                    if (numbers.isMatching(test.course) && "OT".equals(test.instrnType)) {
-                        reasonNotAvailable = "Has Placement Credit";
-                        break;
-                    }
-                }
+            final List<RawStchallenge> att = RawStchallengeLogic.queryByStudent(cache, stuId);
 
-                if (reasonNotAvailable == null) {
-                    // No course credit - see if the course ahs already been challenged
-                    final List<RawStchallenge> att = RawStchallengeLogic.queryByStudent(cache, stuId);
-
-                    for (final RawStchallenge test : att) {
-                        if (numbers.isMatching(test.course) && challengeId.equals(test.version)) {
-                            reasonNotAvailable = "Attempt Used";
-                            break;
-                        }
-                    }
-
-                    if (reasonNotAvailable == null) {
-                        // Student has not challenged before - check prerequisites
-                        if (!prereqLogic.hasSatisfiedPrereqsFor(oldCourseId)) {
-                            reasonNotAvailable = "Needs Prereq.";
-                        }
-                    }
+            for (final RawStchallenge test : att) {
+                if (numbers.isMatching(test.course) && challengeId.equals(test.version)) {
+                    indicateExamUnavailable(status, "Attempt used", enforceEligibility);
+                    break;
                 }
             }
 
-            final DataCourseExams data = this.checkInData.getCourseExams(numbers);
-            data.challengeExam = new DataExamStatus(challengeId, 0, reasonNotAvailable);
+            if (!prereqLogic.hasSatisfiedPrereqsFor(oldCourseId)) {
+                indicateExamUnavailable(status, "Needs Prereq.", enforceEligibility);
+            }
         }
     }
 
@@ -256,28 +260,24 @@ final class LogicCheckInCourseExams {
      *
      * @param cache      the data cache
      * @param activeRegs the student's current-term registrations
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineAvailableCourseExams(final Cache cache, final Collection<RawStcourse> activeRegs)
-            throws SQLException {
+    private void determineAvailableCourseExams(final Cache cache, final Collection<RawStcourse> activeRegs,
+                                               final boolean enforceEligibility) throws SQLException {
 
         final RawStterm studentTerm = this.checkInData.studentData.studentTerm;
         if (studentTerm == null) {
-            // Set all exams as "unavailable"
+            // Set all exams as "unavailable" - student is not registered, and changes to "enforceEligibility" cannot
+            // make such exams available.
 
             for (final CourseNumbers numbers : CourseNumbers.COURSES) {
-                final String newCourseId = numbers.newCourseId();
-                final String oldCourseId = numbers.oldCourseId();
-
                 final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+                makeCourseUnavailable(data, numbers, NOT_REGISTERED);
                 data.registeredInOld = false;
                 data.registeredInNew = false;
-                data.unit1Exam = new DataExamStatus(oldCourseId, 1, NOT_REGISTERED);
-                data.unit2Exam = new DataExamStatus(oldCourseId, 2, NOT_REGISTERED);
-                data.unit3Exam = new DataExamStatus(oldCourseId, 3, NOT_REGISTERED);
-                data.unit4Exam = new DataExamStatus(oldCourseId, 4, NOT_REGISTERED);
-                data.finalExam = new DataExamStatus(oldCourseId, 5, NOT_REGISTERED);
-                data.masteryExam = new DataExamStatus(newCourseId, 0, NOT_REGISTERED);
             }
         } else {
             final int pace = studentTerm.pace.intValue();
@@ -310,24 +310,30 @@ final class LogicCheckInCourseExams {
                     data.registeredInNew = reg.course.equals(newCourseId);
 
                     if (reg.openStatus == null) {
+                        // "enforceEligibility" cannot make exams available in unopened courses
                         makeCourseUnavailable(data, numbers, "Not Yet Open");
                     } else if ("G".equals(reg.openStatus)) {
+                        // "enforceEligibility" cannot make exams available in forfeit courses
                         makeCourseUnavailable(data, numbers, "Course is Forfeit");
                     } else if ("Y".equals(reg.openStatus)) {
                         final SectionData sectData = sections.get(reg);
 
                         if (sectData == null) {
+                            // "enforceEligibility" cannot make exams available with bad configuration data
                             makeCourseUnavailable(data, numbers, "No Sect Data");
                         } else if ("OT".equals(sectData.cSection.instrnType)) {
+                            // "enforceEligibility" cannot allow testing in a challenge credit section
                             makeCourseUnavailable(data, numbers, "Credit by Exam");
                         } else if (sectData.pacing == null || sectData.rules == null) {
+                            // "enforceEligibility" cannot make exams available with bad configuration data
                             makeCourseUnavailable(data, numbers, "No Pacing Data");
                         } else if ("Y".equals(reg.iInProgress)) {
-                            testSingleIncomplete(cache, data, reg, pace, track, sectData);
+                            testSingleIncomplete(cache, data, reg, pace, track, sectData, enforceEligibility);
                         } else {
-                            testSingleCourse(cache, data, reg, pace, track, sectData);
+                            testSingleCourse(cache, data, reg, pace, track, sectData, enforceEligibility);
                         }
                     } else {
+                        // "enforceEligibility" cannot make exams available in course that is not open
                         makeCourseUnavailable(data, numbers, "Course Not Open");
                     }
                 }
@@ -422,56 +428,67 @@ final class LogicCheckInCourseExams {
      * @param pace      the student's pace
      * @param paceTrack the student's pace track
      * @param sectData  the section data
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      * @throws SQLException if there is an error accessing the database
      */
     private void testSingleIncomplete(final Cache cache, final DataCourseExams data, final RawStcourse reg,
-                                      final int pace, final String paceTrack, final SectionData sectData)
-            throws SQLException {
+                                      final int pace, final String paceTrack, final SectionData sectData,
+                                      final boolean enforceEligibility) throws SQLException {
+
+        makeCourseAvailable(data, sectData.numbers);
 
         if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(this.today)) {
-            makeCourseUnavailable(data, sectData.numbers, "Past Inc. Deadline");
-        } else if ("Y".equals(sectData.pacing.requireLicensed) &&
-                !"Y".equals(this.checkInData.studentData.student.licensed)) {
-            makeCourseUnavailable(data, sectData.numbers, "Need User's Exam");
+            indicateCourseUnavailable(data, "Past Inc. Deadline", enforceEligibility);
+        }
+
+        if ("Y".equals(sectData.pacing.requireLicensed) && !"Y".equals(this.checkInData.studentData.student.licensed)) {
+            indicateCourseUnavailable(data, "Need User's Exam", enforceEligibility);
+        }
+
+        final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
+
+        final boolean isNew = sectData.numbers.isNew(reg.course);
+        OldCourseWorkRecord oldWorkRecord = null;
+        StandardsMasteryLogic standardsLogic = null;
+
+        if (isNew) {
+            standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
         } else {
-            boolean available = true;
+            oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+        }
 
-            final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
+        if ("Y".equals(reg.iCounted)) {
+            checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic,
+                    enforceEligibility);
+        }
 
-            final boolean isNew = sectData.numbers.isNew(reg.course);
-            OldCourseWorkRecord oldWorkRecord = null;
-            StandardsMasteryLogic standardsLogic = null;
+        // All tests above marked the entire course as available or not.  At this point, we begin checking unit by
+        // unit, and setting the availability of each.
+        if (!enforceEligibility || data.unit1Exam.available) {
 
-            if (isNew) {
-                standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
-            } else {
-                oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
-            }
+            // Check for "UE" deadlines from milestones (for OLD courses)
+            testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord, enforceEligibility);
 
-            if ("Y".equals(reg.iCounted)) {
-                available = checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic);
-            }
+            // Mark exams as unavailable if required prior work has not been completed
+            testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic, enforceEligibility);
 
-            if (available) {
-                // At this point, we begin checking unit by unit, and setting the availability of each, rather tha
-                // marking the whole course as unavailable.
+            // Test whether the student has N or more failed UE attempts since the last passing RE
+            testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord, enforceEligibility);
 
-                // We begin by adding exam status records that show all exams as available, then run a series of tests
-                // that might update their status to unavailable.
-                makeCourseAvailable(data, sectData.numbers);
+            // Test max attempts per unit
+            testMaxAttempts(reg, data, sectData, oldWorkRecord, enforceEligibility);
+        }
 
-                // Check for "UE" deadlines from milestones (for OLD courses)
-                testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord);
-
-                // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic);
-
-                // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord);
-
-                // Test max attempts per unit
-                testMaxAttempts(reg, data, sectData, oldWorkRecord);
-            }
+        if (!enforceEligibility) {
+            data.unit1Exam.annotateIneligible();
+            data.unit2Exam.annotateIneligible();
+            data.unit3Exam.annotateIneligible();
+            data.unit4Exam.annotateIneligible();
+            data.finalExam.annotateIneligible();
+            data.masteryExam.annotateIneligible();
+            data.challengeExam.annotateIneligible();
         }
     }
 
@@ -484,57 +501,65 @@ final class LogicCheckInCourseExams {
      * @param pace      the student's pace
      * @param paceTrack the student's pace track
      * @param sectData  the section data
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      * @throws SQLException if there is an error accessing the database
      */
     private void testSingleCourse(final Cache cache, final DataCourseExams data, final RawStcourse reg,
-                                  final int pace, final String paceTrack, final SectionData sectData)
-            throws SQLException {
+                                  final int pace, final String paceTrack, final SectionData sectData,
+                                  final boolean enforceEligibility) throws SQLException {
 
-        boolean available = true;
+        makeCourseAvailable(data, sectData.numbers);
 
         // If the course requires "licensing" and the student is not licensed, mark as unavailable
         if ("Y".equals(sectData.pacing.requireLicensed) &&
                 !"Y".equals(this.checkInData.studentData.student.licensed)) {
-            makeCourseUnavailable(data, sectData.numbers, "Need User's Exam");
-            available = false;
+            indicateCourseUnavailable(data, "Need User's Exam", enforceEligibility);
         }
 
-        if (available) {
-            final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
+        final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
 
-            final boolean isNew = sectData.numbers.isNew(reg.course);
-            OldCourseWorkRecord oldWorkRecord = null;
-            StandardsMasteryLogic standardsLogic = null;
+        final boolean isNew = sectData.numbers.isNew(reg.course);
+        OldCourseWorkRecord oldWorkRecord = null;
+        StandardsMasteryLogic standardsLogic = null;
 
-            if (isNew) {
-                standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
-            } else {
-                oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
-            }
+        if (isNew) {
+            standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
+        } else {
+            oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+        }
 
-            if (checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic)) {
-                // At this point, we begin checking unit by unit, and setting the availability of each, rather than
-                // marking the whole course as unavailable.
+        checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic, enforceEligibility);
 
-                // We begin by adding exam status records that show all exams as available, then run a series of tests
-                // that might update their status to unavailable.
-                makeCourseAvailable(data, sectData.numbers);
+        // All tests above marked the entire course as available or not.  At this point, we begin checking unit by
+        // unit, and setting the availability of each.
+        if (!enforceEligibility || data.unit1Exam.available) {
 
-                // Check the "first_test_dt" and "last_test_dt" for each unit from CUSECTION
-                testTestingWindows(data, sectData);
+            // Check the "first_test_dt" and "last_test_dt" for each unit from CUSECTION
+            testTestingWindows(data, sectData, enforceEligibility);
 
-                // Check for "UE" deadlines from milestones (for OLD courses)
-                testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord);
+            // Check for "UE" deadlines from milestones (for OLD courses)
+            testUnitExamDeadlines(data, courseDeadlines, oldWorkRecord, enforceEligibility);
 
-                // Mark exams as unavailable if required prior work has not been completed
-                testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic);
+            // Mark exams as unavailable if required prior work has not been completed
+            testPacingRules(reg, data, sectData, oldWorkRecord, standardsLogic, enforceEligibility);
 
-                // Test whether the student has N or more failed UE attempts since the last passing RE
-                testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord);
+            // Test whether the student has N or more failed UE attempts since the last passing RE
+            testPassingReviewAfterFailedUnit(reg, data, sectData, oldWorkRecord, enforceEligibility);
 
-                // Test max attempts per unit
-                testMaxAttempts(reg, data, sectData, oldWorkRecord);
-            }
+            // Test max attempts per unit
+            testMaxAttempts(reg, data, sectData, oldWorkRecord, enforceEligibility);
+        }
+
+        if (!enforceEligibility) {
+            data.unit1Exam.annotateIneligible();
+            data.unit2Exam.annotateIneligible();
+            data.unit3Exam.annotateIneligible();
+            data.unit4Exam.annotateIneligible();
+            data.finalExam.annotateIneligible();
+            data.masteryExam.annotateIneligible();
+            data.challengeExam.annotateIneligible();
         }
     }
 
@@ -672,19 +697,20 @@ final class LogicCheckInCourseExams {
      * deadline has passed, and the student has passed Unit 4, the number of final exam tries since the FE deadline is
      * counted and compared to the "attempts allowed" field.
      *
-     * @param reg        the course registration
-     * @param data            the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param reg             the course registration
+     * @param data            the {@code CheckInDataCourseExams} whose exam status values to update (exams in this
+     *                        object may be marked as unavailable already, or as available but with eligibility
+     *                        override notes.
      * @param sectData        the section data
      * @param courseDeadlines the course deadlines
      * @param workRecord      the work record
-     * @return true if the course is still available after these checks; false if not
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
-    private boolean checkCourseDeadline(final RawStcourse reg, final DataCourseExams data,
-                                        final SectionData sectData, final CourseDeadlines courseDeadlines,
-                                        final OldCourseWorkRecord workRecord,
-                                        final StandardsMasteryLogic standardsLogic) {
-
-        boolean available = true;
+    private void checkCourseDeadline(final RawStcourse reg, final DataCourseExams data, final SectionData sectData,
+                                     final CourseDeadlines courseDeadlines, final OldCourseWorkRecord workRecord,
+                                     final StandardsMasteryLogic standardsLogic, final boolean enforceEligibility) {
 
         final boolean isNew = sectData.numbers.isNew(reg.course);
 
@@ -695,40 +721,33 @@ final class LogicCheckInCourseExams {
                 // New courses have only the "course deadline" with no "last try" concept
                 final LocalDate courseDeadline = courseDeadlines.courseDeadline();
                 if (Objects.nonNull(courseDeadline) && this.today.isAfter(courseDeadline)) {
-                    makeCourseUnavailable(data, sectData.numbers, "Past Deadline");
-                    available = false;
+                    indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
                 }
             }
-        } else {
+        } else if (!workRecord.isFinalExamPassed()) {
             // If the final exam has already been passed, we disregard the course deadline.  The student can re-test
             // to improve grade until the section's last test date.
-            if (!workRecord.isFinalExamPassed()) {
-                final LocalDate f1Deadline = courseDeadlines.f1Deadline();
 
-                if (Objects.nonNull(f1Deadline) && f1Deadline.isBefore(this.today)) {
-                    makeCourseUnavailable(data, sectData.numbers, "Past Deadline");
-                    available = false;
-                } else {
-                    final LocalDate feDeadline = courseDeadlines.feDeadline();
+            final LocalDate f1Deadline = courseDeadlines.f1Deadline();
 
-                    if (Objects.nonNull(feDeadline) && feDeadline.isBefore(this.today)) {
-                        final int triesAllowed = courseDeadlines.f1AttemptsAllowed();
-                        if (triesAllowed == 0) {
-                            makeCourseUnavailable(data, sectData.numbers, "Past Deadline");
-                            available = false;
-                        } else {
-                            final int attemptsSoFar = workRecord.countFinalAttemptsAfter(feDeadline);
-                            if (attemptsSoFar >= triesAllowed) {
-                                makeCourseUnavailable(data, sectData.numbers, "Past Deadline");
-                                available = false;
-                            }
+            if (Objects.nonNull(f1Deadline) && f1Deadline.isBefore(this.today)) {
+                indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
+            } else {
+                final LocalDate feDeadline = courseDeadlines.feDeadline();
+
+                if (Objects.nonNull(feDeadline) && feDeadline.isBefore(this.today)) {
+                    final int triesAllowed = courseDeadlines.f1AttemptsAllowed();
+                    if (triesAllowed == 0) {
+                        indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
+                    } else {
+                        final int attemptsSoFar = workRecord.countFinalAttemptsAfter(feDeadline);
+                        if (attemptsSoFar >= triesAllowed) {
+                            indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
                         }
                     }
                 }
             }
         }
-
-        return available;
     }
 
     /**
@@ -736,52 +755,49 @@ final class LogicCheckInCourseExams {
      *
      * @param data     the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData the section data
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
-    private void testTestingWindows(final DataCourseExams data, final SectionData sectData) {
+    private void testTestingWindows(final DataCourseExams data, final SectionData sectData,
+                                    final boolean enforceEligibility) {
 
         final RawCusection unit1 = sectData.cuSections.get(ONE);
-        if (Objects.nonNull(unit1.firstTestDt) && unit1.firstTestDt.isAfter(this.today)) {
-            data.unit1Exam.available = false;
-            data.unit1Exam.whyNot = "Opens " + TemporalUtils.FMT_MDY_COMPACT.format(unit1.firstTestDt);
-        } else if (unit1.lastTestDt != null && unit1.lastTestDt.isBefore(this.today)) {
-            data.unit1Exam.available = false;
-            data.unit1Exam.whyNot = "Closed " + TemporalUtils.FMT_MDY_COMPACT.format(unit1.lastTestDt);
-        }
+        testUnitTestingWindow(unit1, data.unit1Exam, enforceEligibility);
 
         final RawCusection unit2 = sectData.cuSections.get(TWO);
-        if (Objects.nonNull(unit2.firstTestDt) && unit2.firstTestDt.isAfter(this.today)) {
-            data.unit2Exam.available = false;
-            data.unit2Exam.whyNot = "Opens " + TemporalUtils.FMT_MDY_COMPACT.format(unit2.firstTestDt);
-        } else if (Objects.nonNull(unit2.lastTestDt) && unit2.lastTestDt.isBefore(this.today)) {
-            data.unit2Exam.available = false;
-            data.unit2Exam.whyNot = "Closed " + TemporalUtils.FMT_MDY_COMPACT.format(unit2.lastTestDt);
-        }
+        testUnitTestingWindow(unit2, data.unit2Exam, enforceEligibility);
 
         final RawCusection unit3 = sectData.cuSections.get(THREE);
-        if (Objects.nonNull(unit3.firstTestDt) && unit3.firstTestDt.isAfter(this.today)) {
-            data.unit3Exam.available = false;
-            data.unit3Exam.whyNot = "Opens " + TemporalUtils.FMT_MDY_COMPACT.format(unit3.firstTestDt);
-        } else if (Objects.nonNull(unit3.lastTestDt) && unit3.lastTestDt.isBefore(this.today)) {
-            data.unit3Exam.available = false;
-            data.unit3Exam.whyNot = "Closed " + TemporalUtils.FMT_MDY_COMPACT.format(unit3.lastTestDt);
-        }
+        testUnitTestingWindow(unit3, data.unit3Exam, enforceEligibility);
 
         final RawCusection unit4 = sectData.cuSections.get(FOUR);
-        if (Objects.nonNull(unit4.firstTestDt) && unit4.firstTestDt.isAfter(this.today)) {
-            data.unit4Exam.available = false;
-            data.unit4Exam.whyNot = "Opens " + TemporalUtils.FMT_MDY_COMPACT.format(unit4.firstTestDt);
-        } else if (Objects.nonNull(unit4.lastTestDt) && unit4.lastTestDt.isBefore(this.today)) {
-            data.unit4Exam.available = false;
-            data.unit4Exam.whyNot = "Closed " + TemporalUtils.FMT_MDY_COMPACT.format(unit4.lastTestDt);
-        }
+        testUnitTestingWindow(unit4, data.unit4Exam, enforceEligibility);
 
         final RawCusection unit5 = sectData.cuSections.get(FIVE);
-        if (Objects.nonNull(unit5.firstTestDt) && unit5.firstTestDt.isAfter(this.today)) {
-            data.finalExam.available = false;
-            data.finalExam.whyNot = "Opens " + TemporalUtils.FMT_MDY_COMPACT.format(unit5.firstTestDt);
-        } else if (Objects.nonNull(unit5.lastTestDt) && unit5.lastTestDt.isBefore(this.today)) {
-            data.finalExam.available = false;
-            data.finalExam.whyNot = "Closed " + TemporalUtils.FMT_MDY_COMPACT.format(unit5.lastTestDt);
+        testUnitTestingWindow(unit5, data.finalExam, enforceEligibility);
+    }
+
+    /**
+     * Checks whether the current date is outside the testing window for a unit, and marks the exam status accordingly.
+     *
+     * @param unit the unit section configuration
+     * @param exam  the exam object to update
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
+     */
+    private void testUnitTestingWindow(final RawCusection unit, final DataExamStatus exam,
+                                       final boolean enforceEligibility) {
+
+        if (Objects.nonNull(unit.firstTestDt) && unit.firstTestDt.isAfter(this.today)) {
+            final String firstTestDtStr = TemporalUtils.FMT_MDY_COMPACT.format(unit.firstTestDt);
+            final String msg = SimpleBuilder.concat(OPENS, firstTestDtStr);
+            indicateExamUnavailable(exam, msg, enforceEligibility);
+        } else if (Objects.nonNull(unit.lastTestDt) && unit.lastTestDt.isBefore(this.today)) {
+            final String lastTestDtStr = TemporalUtils.FMT_MDY_COMPACT.format(unit.lastTestDt);
+            final String msg = SimpleBuilder.concat(OPENS, lastTestDtStr);
+            indicateExamUnavailable(exam, msg, enforceEligibility);
         }
     }
 
@@ -793,51 +809,42 @@ final class LogicCheckInCourseExams {
      * @param data            the {@code CheckInDataCourseExams} whose exam status values to update
      * @param courseDeadlines the course deadlines
      * @param workRecord      the student's work record
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
     private void testUnitExamDeadlines(final DataCourseExams data, final CourseDeadlines courseDeadlines,
-                                       final OldCourseWorkRecord workRecord) {
+                                       final OldCourseWorkRecord workRecord, final boolean enforceEligibility) {
 
-        if (data.unit1Exam.available) {
-            final LocalDate u1Due = courseDeadlines.u1Deadline();
-            if (Objects.nonNull(u1Due) && u1Due.isBefore(this.today)) {
-                final RawStexam firstPassingU1 = workRecord.getFirstPassingUnitExam(1);
-                if (firstPassingU1 == null) {
-                    data.unit1Exam.available = false;
-                    data.unit1Exam.whyNot = "Past Unit Deadline";
-                }
+        final LocalDate u1Due = courseDeadlines.u1Deadline();
+        if (Objects.nonNull(u1Due) && u1Due.isBefore(this.today)) {
+            final RawStexam firstPassingU1 = workRecord.getFirstPassingUnitExam(1);
+            if (firstPassingU1 == null) {
+                indicateExamUnavailable(data.unit1Exam, PAST_UNIT_DEADLINE, enforceEligibility);
             }
         }
 
-        if (data.unit2Exam.available) {
-            final LocalDate u2Due = courseDeadlines.u2Deadline();
-            if (Objects.nonNull(u2Due) && u2Due.isBefore(this.today)) {
-                final RawStexam firstPassingU2 = workRecord.getFirstPassingUnitExam(2);
-                if (firstPassingU2 == null) {
-                    data.unit2Exam.available = false;
-                    data.unit2Exam.whyNot = "Past Unit Deadline";
-                }
+        final LocalDate u2Due = courseDeadlines.u2Deadline();
+        if (Objects.nonNull(u2Due) && u2Due.isBefore(this.today)) {
+            final RawStexam firstPassingU2 = workRecord.getFirstPassingUnitExam(2);
+            if (firstPassingU2 == null) {
+                indicateExamUnavailable(data.unit2Exam, PAST_UNIT_DEADLINE, enforceEligibility);
             }
         }
 
-        if (data.unit3Exam.available) {
-            final LocalDate u3Due = courseDeadlines.u3Deadline();
-            if (Objects.nonNull(u3Due) && u3Due.isBefore(this.today)) {
-                final RawStexam firstPassingU3 = workRecord.getFirstPassingUnitExam(3);
-                if (firstPassingU3 == null) {
-                    data.unit3Exam.available = false;
-                    data.unit3Exam.whyNot = "Past Unit Deadline";
-                }
+        final LocalDate u3Due = courseDeadlines.u3Deadline();
+        if (Objects.nonNull(u3Due) && u3Due.isBefore(this.today)) {
+            final RawStexam firstPassingU3 = workRecord.getFirstPassingUnitExam(3);
+            if (firstPassingU3 == null) {
+                indicateExamUnavailable(data.unit3Exam, PAST_UNIT_DEADLINE, enforceEligibility);
             }
         }
 
-        if (data.unit4Exam.available) {
-            final LocalDate u4Due = courseDeadlines.u4Deadline();
-            if (Objects.nonNull(u4Due) && u4Due.isBefore(this.today)) {
-                final RawStexam firstPassingU4 = workRecord.getFirstPassingUnitExam(4);
-                if (firstPassingU4 == null) {
-                    data.unit4Exam.available = false;
-                    data.unit4Exam.whyNot = "Past Unit Deadline";
-                }
+        final LocalDate u4Due = courseDeadlines.u4Deadline();
+        if (Objects.nonNull(u4Due) && u4Due.isBefore(this.today)) {
+            final RawStexam firstPassingU4 = workRecord.getFirstPassingUnitExam(4);
+            if (firstPassingU4 == null) {
+                indicateExamUnavailable(data.unit4Exam, PAST_UNIT_DEADLINE, enforceEligibility);
             }
         }
     }
@@ -849,41 +856,35 @@ final class LogicCheckInCourseExams {
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
     private static void testPacingRules(final RawStcourse reg, final DataCourseExams data,
                                         final SectionData sectData, final OldCourseWorkRecord workRecord,
-                                        final StandardsMasteryLogic standardsLogic) {
+                                        final StandardsMasteryLogic standardsLogic,
+                                        final boolean enforceEligibility) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
-
             // See if the prior unit exam must be passed before accessing a Unit exam
             if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR)
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS)) {
 
-                if (data.unit2Exam.available) {
-                    final RawStexam passedU1 = workRecord.getFirstPassingUnitExam(1);
-                    if (passedU1 == null) {
-                        data.unit2Exam.available = false;
-                        data.unit2Exam.whyNot = "Must Pass Unit 1";
-                    }
+                final RawStexam passedU1 = workRecord.getFirstPassingUnitExam(1);
+                if (passedU1 == null) {
+                    indicateExamUnavailable(data.unit2Exam, "Must Pass Unit 1", enforceEligibility);
                 }
 
-                if (data.unit3Exam.available) {
-                    final RawStexam passedU2 = workRecord.getFirstPassingUnitExam(2);
-                    if (passedU2 == null) {
-                        data.unit3Exam.available = false;
-                        data.unit3Exam.whyNot = "Must Pass Unit 2";
-                    }
+                final RawStexam passedU2 = workRecord.getFirstPassingUnitExam(2);
+                if (passedU2 == null) {
+                    indicateExamUnavailable(data.unit3Exam, "Must Pass Unit 2", enforceEligibility);
                 }
 
-                if (data.unit4Exam.available) {
-                    final RawStexam passedU3 = workRecord.getFirstPassingUnitExam(3);
-                    if (passedU3 == null) {
-                        data.unit4Exam.available = false;
-                        data.unit4Exam.whyNot = "Must Pass Unit 3";
-                    }
+                final RawStexam passedU3 = workRecord.getFirstPassingUnitExam(3);
+                if (passedU3 == null) {
+                    indicateExamUnavailable(data.unit4Exam, "Must Pass Unit 3", enforceEligibility);
                 }
             }
 
@@ -891,36 +892,24 @@ final class LogicCheckInCourseExams {
             if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_MSTR)
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS)) {
 
-                if (data.unit1Exam.available) {
-                    final RawStexam passedR1 = workRecord.getFirstPassingReviewExam(1);
-                    if (passedR1 == null) {
-                        data.unit1Exam.available = false;
-                        data.unit1Exam.whyNot = "Must Pass Review";
-                    }
+                final RawStexam passedR1 = workRecord.getFirstPassingReviewExam(1);
+                if (passedR1 == null) {
+                    indicateExamUnavailable(data.unit1Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
-                if (data.unit2Exam.available) {
-                    final RawStexam passedR2 = workRecord.getFirstPassingReviewExam(2);
-                    if (passedR2 == null) {
-                        data.unit2Exam.available = false;
-                        data.unit2Exam.whyNot = "Must Pass Review";
-                    }
+                final RawStexam passedR2 = workRecord.getFirstPassingReviewExam(2);
+                if (passedR2 == null) {
+                    indicateExamUnavailable(data.unit2Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
-                if (data.unit3Exam.available) {
-                    final RawStexam passedR3 = workRecord.getFirstPassingReviewExam(3);
-                    if (passedR3 == null) {
-                        data.unit3Exam.available = false;
-                        data.unit3Exam.whyNot = "Must Pass Review";
-                    }
+                final RawStexam passedR3 = workRecord.getFirstPassingReviewExam(3);
+                if (passedR3 == null) {
+                    indicateExamUnavailable(data.unit3Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
-                if (data.unit4Exam.available) {
-                    final RawStexam passedR4 = workRecord.getFirstPassingReviewExam(4);
-                    if (passedR4 == null) {
-                        data.unit4Exam.available = false;
-                        data.unit4Exam.whyNot = "Must Pass Review";
-                    }
+                final RawStexam passedR4 = workRecord.getFirstPassingReviewExam(4);
+                if (passedR4 == null) {
+                    indicateExamUnavailable(data.unit4Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
             }
 
@@ -928,12 +917,9 @@ final class LogicCheckInCourseExams {
             if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_MSTR)
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_PASS)) {
 
-                if (data.finalExam.available) {
-                    final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
-                    if (passedU4 == null) {
-                        data.finalExam.available = false;
-                        data.finalExam.whyNot = "Must Pass Unit 4";
-                    }
+                final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
+                if (passedU4 == null) {
+                    indicateExamUnavailable(data.finalExam, "Must Pass Unit 4", enforceEligibility);
                 }
             }
         } else {
@@ -949,15 +935,13 @@ final class LogicCheckInCourseExams {
                     final int totalStandards = standardsLogic.countTotalStandards();
 
                     if (numCompleteStandards == totalStandards) {
-                        data.masteryExam.available = false;
-                        data.masteryExam.whyNot = "All Targets Mastered";
+                        indicateExamUnavailable(data.masteryExam, "All Targets Mastered", enforceEligibility);
                     } else {
-                        data.masteryExam.available = false;
-                        data.masteryExam.whyNot = "No Targets Avail.";
+                        indicateExamUnavailable(data.masteryExam, "No Targets Avail.", enforceEligibility);
                     }
                 } else {
-                    data.masteryExam.newLabel = numAvailableStandards == 1 ? "Mastery (1)"
-                            : ("Mastery (" + numAvailableStandards + ")");
+                    data.masteryExam.note = numAvailableStandards == 1 ? "(1 standard)"
+                            : ("(" + numAvailableStandards + " standards)");
                 }
             }
         }
@@ -972,54 +956,47 @@ final class LogicCheckInCourseExams {
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
     private static void testPassingReviewAfterFailedUnit(final RawStcourse reg, final DataCourseExams data,
-                                                         final SectionData sectData, final OldCourseWorkRecord workRecord) {
+                                                         final SectionData sectData,
+                                                         final OldCourseWorkRecord workRecord,
+                                                         final boolean enforceEligibility) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
-            if (data.unit1Exam.available) {
-                final Integer attemptsPerReview = sectData.cuSections.get(ONE).atmptsPerReview;
-                if (Objects.nonNull(attemptsPerReview) && attemptsPerReview.intValue() < INFINITY) {
-                    final int numFailed = workRecord.countFailedExamSincePassingReview(1);
-                    if (numFailed >= attemptsPerReview.intValue()) {
-                        data.unit1Exam.available = false;
-                        data.unit1Exam.whyNot = "Must Repass Review";
-                    }
+            final Integer allowed1 = sectData.cuSections.get(ONE).atmptsPerReview;
+            if (Objects.nonNull(allowed1) && allowed1.intValue() < INFINITY) {
+                final int numFailed = workRecord.countFailedExamSincePassingReview(1);
+                if (numFailed >= allowed1.intValue()) {
+                    indicateExamUnavailable(data.unit1Exam, MUST_REPASS_REVIEW, enforceEligibility);
                 }
             }
 
-            if (data.unit2Exam.available) {
-                final Integer attemptsPerReview = sectData.cuSections.get(TWO).atmptsPerReview;
-                if (Objects.nonNull(attemptsPerReview) && attemptsPerReview.intValue() < INFINITY) {
-                    final int numFailed = workRecord.countFailedExamSincePassingReview(2);
-                    if (numFailed >= attemptsPerReview.intValue()) {
-                        data.unit2Exam.available = false;
-                        data.unit2Exam.whyNot = "Must Repass Review";
-                    }
+            final Integer allowed2 = sectData.cuSections.get(TWO).atmptsPerReview;
+            if (Objects.nonNull(allowed2) && allowed2.intValue() < INFINITY) {
+                final int numFailed = workRecord.countFailedExamSincePassingReview(2);
+                if (numFailed >= allowed2.intValue()) {
+                    indicateExamUnavailable(data.unit2Exam, MUST_REPASS_REVIEW, enforceEligibility);
                 }
             }
 
-            if (data.unit3Exam.available) {
-                final Integer attemptsPerReview = sectData.cuSections.get(THREE).atmptsPerReview;
-                if (Objects.nonNull(attemptsPerReview) && attemptsPerReview.intValue() < INFINITY) {
-                    final int numFailed = workRecord.countFailedExamSincePassingReview(3);
-                    if (numFailed >= attemptsPerReview.intValue()) {
-                        data.unit3Exam.available = false;
-                        data.unit3Exam.whyNot = "Must Repass Review";
-                    }
+            final Integer allowed3 = sectData.cuSections.get(THREE).atmptsPerReview;
+            if (Objects.nonNull(allowed3) && allowed3.intValue() < INFINITY) {
+                final int numFailed = workRecord.countFailedExamSincePassingReview(3);
+                if (numFailed >= allowed3.intValue()) {
+                    indicateExamUnavailable(data.unit3Exam, MUST_REPASS_REVIEW, enforceEligibility);
                 }
             }
 
-            if (data.unit4Exam.available) {
-                final Integer attemptsPerReview = sectData.cuSections.get(FOUR).atmptsPerReview;
-                if (Objects.nonNull(attemptsPerReview) && attemptsPerReview.intValue() < INFINITY) {
-                    final int numFailed = workRecord.countFailedExamSincePassingReview(4);
-                    if (numFailed >= attemptsPerReview.intValue()) {
-                        data.unit4Exam.available = false;
-                        data.unit4Exam.whyNot = "Must Repass Review";
-                    }
+            final Integer allowed4 = sectData.cuSections.get(FOUR).atmptsPerReview;
+            if (Objects.nonNull(allowed4) && allowed4.intValue() < INFINITY) {
+                final int numFailed = workRecord.countFailedExamSincePassingReview(4);
+                if (numFailed >= allowed4.intValue()) {
+                    indicateExamUnavailable(data.unit4Exam, MUST_REPASS_REVIEW, enforceEligibility);
                 }
             }
         }
@@ -1034,68 +1011,58 @@ final class LogicCheckInCourseExams {
      * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
      * @param sectData   the section data
      * @param workRecord the student's work record
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
      */
     private static void testMaxAttempts(final RawStcourse reg, final DataCourseExams data,
-                                        final SectionData sectData, final OldCourseWorkRecord workRecord) {
+                                        final SectionData sectData, final OldCourseWorkRecord workRecord,
+                                        final boolean enforceEligibility) {
 
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
-            if (data.unit1Exam.available) {
-                final Integer maxAttempts = sectData.cuSections.get(ONE).nbrAtmptsAllow;
-                if (Objects.nonNull(maxAttempts) && maxAttempts.intValue() < INFINITY) {
-                    final int attemptsSoFar = workRecord.countUnitExams(1);
-                    if (attemptsSoFar >= maxAttempts.intValue()) {
-                        data.unit1Exam.available = false;
-                        data.unit1Exam.whyNot = "All Attempts Used";
-                    }
+            final Integer maxAttempts1 = sectData.cuSections.get(ONE).nbrAtmptsAllow;
+            if (Objects.nonNull(maxAttempts1) && maxAttempts1.intValue() < INFINITY) {
+                final int attemptsSoFar = workRecord.countUnitExams(1);
+                if (attemptsSoFar >= maxAttempts1.intValue()) {
+                    indicateExamUnavailable(data.unit1Exam, ALL_ATTEMPTS_USED, enforceEligibility);
                 }
             }
 
-            if (data.unit2Exam.available) {
-                final Integer maxAttempts = sectData.cuSections.get(TWO).nbrAtmptsAllow;
-                if (Objects.nonNull(maxAttempts) && maxAttempts.intValue() < INFINITY) {
-                    final int attemptsSoFar = workRecord.countUnitExams(2);
-                    if (attemptsSoFar >= maxAttempts.intValue()) {
-                        data.unit2Exam.available = false;
-                        data.unit2Exam.whyNot = "All Attempts Used";
-                    }
+            final Integer maxAttempts2 = sectData.cuSections.get(TWO).nbrAtmptsAllow;
+            if (Objects.nonNull(maxAttempts2) && maxAttempts2.intValue() < INFINITY) {
+                final int attemptsSoFar = workRecord.countUnitExams(2);
+                if (attemptsSoFar >= maxAttempts2.intValue()) {
+                    indicateExamUnavailable(data.unit2Exam, ALL_ATTEMPTS_USED, enforceEligibility);
                 }
             }
 
-            if (data.unit3Exam.available) {
-                final Integer maxAttempts = sectData.cuSections.get(THREE).nbrAtmptsAllow;
-                if (Objects.nonNull(maxAttempts) && maxAttempts.intValue() < INFINITY) {
-                    final int attemptsSoFar = workRecord.countUnitExams(3);
-                    if (attemptsSoFar >= maxAttempts.intValue()) {
-                        data.unit3Exam.available = false;
-                        data.unit3Exam.whyNot = "All Attempts Used";
-                    }
+            final Integer maxAttempts3 = sectData.cuSections.get(THREE).nbrAtmptsAllow;
+            if (Objects.nonNull(maxAttempts3) && maxAttempts3.intValue() < INFINITY) {
+                final int attemptsSoFar = workRecord.countUnitExams(3);
+                if (attemptsSoFar >= maxAttempts3.intValue()) {
+                    indicateExamUnavailable(data.unit3Exam, ALL_ATTEMPTS_USED, enforceEligibility);
                 }
             }
 
-            if (data.unit4Exam.available) {
-                final Integer maxAttempts = sectData.cuSections.get(FOUR).nbrAtmptsAllow;
-                if (Objects.nonNull(maxAttempts) && maxAttempts.intValue() < INFINITY) {
-                    final int attemptsSoFar = workRecord.countUnitExams(4);
-                    if (attemptsSoFar >= maxAttempts.intValue()) {
-                        data.unit4Exam.available = false;
-                        data.unit4Exam.whyNot = "All Attempts Used";
-                    }
+            final Integer maxAttempts4 = sectData.cuSections.get(FOUR).nbrAtmptsAllow;
+            if (Objects.nonNull(maxAttempts4) && maxAttempts4.intValue() < INFINITY) {
+                final int attemptsSoFar = workRecord.countUnitExams(4);
+                if (attemptsSoFar >= maxAttempts4.intValue()) {
+                    indicateExamUnavailable(data.unit4Exam, ALL_ATTEMPTS_USED, enforceEligibility);
                 }
             }
 
-            if (data.finalExam.available) {
-                final Integer maxAttempts = sectData.cuSections.get(FIVE).nbrAtmptsAllow;
-                if (Objects.nonNull(maxAttempts) && maxAttempts.intValue() < INFINITY) {
-                    final int attemptsSoFar = workRecord.countFinalExams();
-                    if (attemptsSoFar >= maxAttempts.intValue()) {
-                        data.finalExam.available = false;
-                        data.finalExam.whyNot = "All Attempts Used";
-                    }
+            final Integer maxAttempts5 = sectData.cuSections.get(FIVE).nbrAtmptsAllow;
+            if (Objects.nonNull(maxAttempts5) && maxAttempts5.intValue() < INFINITY) {
+                final int attemptsSoFar = workRecord.countFinalExams();
+                if (attemptsSoFar >= maxAttempts5.intValue()) {
+                    indicateExamUnavailable(data.finalExam, ALL_ATTEMPTS_USED, enforceEligibility);
                 }
             }
         }
+
         // TODO: Limit on NEW course mastery exams?
     }
 
@@ -1112,12 +1079,12 @@ final class LogicCheckInCourseExams {
         final String oldCourseId = numbers.oldCourseId();
         final String newCourseId = numbers.newCourseId();
 
-        data.unit1Exam = new DataExamStatus(oldCourseId, 1, reason);
-        data.unit2Exam = new DataExamStatus(oldCourseId, 2, reason);
-        data.unit3Exam = new DataExamStatus(oldCourseId, 3, reason);
-        data.unit4Exam = new DataExamStatus(oldCourseId, 4, reason);
-        data.finalExam = new DataExamStatus(oldCourseId, 5, reason);
-        data.masteryExam = new DataExamStatus(newCourseId, 0, reason);
+        data.unit1Exam = DataExamStatus.unavailable(oldCourseId, 1, reason);
+        data.unit2Exam = DataExamStatus.unavailable(oldCourseId, 2, reason);
+        data.unit3Exam = DataExamStatus.unavailable(oldCourseId, 3, reason);
+        data.unit4Exam = DataExamStatus.unavailable(oldCourseId, 4, reason);
+        data.finalExam = DataExamStatus.unavailable(oldCourseId, 5, reason);
+        data.masteryExam = DataExamStatus.unavailable(newCourseId, 0, reason);
     }
 
     /**
@@ -1131,12 +1098,68 @@ final class LogicCheckInCourseExams {
         final String oldCourseId = numbers.oldCourseId();
         final String newCourseId = numbers.newCourseId();
 
-        data.unit1Exam = new DataExamStatus(oldCourseId, 1);
-        data.unit2Exam = new DataExamStatus(oldCourseId, 2);
-        data.unit3Exam = new DataExamStatus(oldCourseId, 3);
-        data.unit4Exam = new DataExamStatus(oldCourseId, 4);
-        data.finalExam = new DataExamStatus(oldCourseId, 5);
-        data.masteryExam = new DataExamStatus(newCourseId, 0);
+        data.unit1Exam = DataExamStatus.available(oldCourseId, 1);
+        data.unit2Exam = DataExamStatus.available(oldCourseId, 2);
+        data.unit3Exam = DataExamStatus.available(oldCourseId, 3);
+        data.unit4Exam = DataExamStatus.available(oldCourseId, 4);
+        data.finalExam = DataExamStatus.available(oldCourseId, 5);
+        data.masteryExam = DataExamStatus.available(newCourseId, 0);
+    }
+
+    /**
+     * Marks all course exams in a course as unavailable with a specified message, if unit 1's exam is not already
+     * marked as unavailable.  If eligibility is not being enforced, exams are not marked as unavailable, but the
+     * message is added to all exams' lists of eligibility conditions that were not met.
+     *
+     * @param data the course exams data object to update
+     * @param msg  the reason message
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
+     */
+    private static void indicateCourseUnavailable(final DataCourseExams data, final String msg,
+                                                  final boolean enforceEligibility) {
+
+        if (enforceEligibility) {
+            if (data.unit1Exam.available) {
+                data.unit1Exam.indicateUnavailable(msg);
+                data.unit2Exam.indicateUnavailable(msg);
+                data.unit3Exam.indicateUnavailable(msg);
+                data.unit4Exam.indicateUnavailable(msg);
+                data.finalExam.indicateUnavailable(msg);
+                data.masteryExam.indicateUnavailable(msg);
+            }
+        } else {
+            data.unit1Exam.eligibilityOverrides.add(msg);
+            data.unit2Exam.eligibilityOverrides.add(msg);
+            data.unit3Exam.eligibilityOverrides.add(msg);
+            data.unit4Exam.eligibilityOverrides.add(msg);
+            data.finalExam.eligibilityOverrides.add(msg);
+            data.masteryExam.eligibilityOverrides.add(msg);
+        }
+    }
+
+    /**
+     * Marks one exam in a course as unavailable with a specified message.  If eligibility is not being enforced, the
+     * exam is not marked as unavailable, but the message is added to that exam's list of eligibility conditions that
+     * were not met.
+     *
+     * @param exam the exam data object to update
+     * @param msg  the reason message
+     * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
+     *                           student to take an exam in special situations where an eligibility condition should be
+     *                           waived
+     */
+    private static void indicateExamUnavailable(final DataExamStatus exam, final String msg,
+                                                final boolean enforceEligibility) {
+
+        if (enforceEligibility) {
+            if (exam.available) {
+                exam.indicateUnavailable(msg);
+            }
+        } else {
+            exam.eligibilityOverrides.add(msg);
+        }
     }
 
     /**
