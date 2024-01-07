@@ -639,6 +639,8 @@ public enum DocFactory {
                         valid = valid && extractImage(empty, span);
                     } else if ("input".equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
+                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHSpace(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within math.");
                         valid = false;
