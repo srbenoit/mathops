@@ -1,6 +1,0 @@
-Application-Name: Colorado State University Precalculus System
-Permissions: all-permissions
-Codebase: https://*.colostate.edu
-Application-Library-Allowable-Codebase: *
-Caller-Allowable-Codebase: *
-Main-Class: jwabbit.Launcher

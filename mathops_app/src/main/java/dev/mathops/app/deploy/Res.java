@@ -19,9 +19,6 @@ final class Res extends ResBundle {
     static final String JAR_WRITE_FAILED = key(index++);
 
     /** A resource key. */
-    static final String WAR_WRITE_FAILED = key(index++);
-
-    /** A resource key. */
     static final String READ_FAILED = key(index++);
 
     /** A resource key. */
@@ -45,7 +42,6 @@ final class Res extends ResBundle {
     private static final String[][] EN_US = { //
             {ADDING_FILES, "Adding files from [{0}] project"},
             {JAR_WRITE_FAILED, "Failed to write jar file"},
-            {WAR_WRITE_FAILED, "Failed to write war file"},
             {READ_FAILED, "Failed to read file: {0}"},
             {FILES_COPIED, "File(s) copied"},
             {JAR_DONE, "{0}.jar created"},
@@ -79,18 +75,6 @@ final class Res extends ResBundle {
         return instance.getMsg(key);
     }
 
-//    /**
-//     * Gets the message with a specified key using the current locale.
-//     *
-//     * @param key the message key
-//     * @param locale the desired {@code Locale}
-//     * @return the best-matching message, an empty string if none is registered (never {@code null})
-//     */
-//     static String get(final String key, final Locale locale) {
-//
-//     return instance.getMsg(key, locale);
-//     }
-
     /**
      * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with
      * a collection of arguments.
@@ -103,18 +87,4 @@ final class Res extends ResBundle {
 
         return instance.formatMsg(key, arguments);
     }
-
-//    /**
-//     * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format
-//     * that message pattern with a collection of arguments.
-//     *
-//     * @param key the message key
-//     * @param locale the desired {@code Locale}
-//     * @param arguments the arguments, as for {@code MessageFormat}
-//     * @return the formatted string (never {@code null})
-//     */
-//     static String fmt(final String key, final Locale locale, final Object... arguments) {
-//
-//     return instance.formatMsg(key, locale, arguments);
-//     }
 }
