@@ -60,40 +60,13 @@ final class ProblemPane extends JPanel implements ActionListener {
     private final AbstractProblemTemplate workingProblem;
 
     /** The identifier reference. */
-    private final JTextField problemId;
-
-    /** The identifier reference. */
     private final JComboBox<EProblemType> problemType;
-
-    /** The calculator type allowed. */
-    private final JComboBox<ECalculatorType> calculatorType;
-
-    /** The "min correct" formula for multiple-selection problems. */
-    private final FormulaEditorPanel minCorrect;
-
-    /** The "max correct" formula for multiple-selection problems. */
-    private final FormulaEditorPanel maxCorrect;
-
-    /** The "correctness" formula for embedded-input problems. */
-    private final FormulaEditorPanel correctness;
 
     /** The "force integer" flag for an "accept-number" configuration in a numeric problem. */
     private final JCheckBox forceInteger;
 
     /** The "variance" formula for an "accept-number" configuration in a numeric problem. */
     private final FormulaEditorPanel variance;
-
-    /** The "correct answer" formula for an "accept-number" configuration in a numeric problem. */
-    private final FormulaEditorPanel correctAnswer;
-
-    /** The "question" document. */
-    private final DocColumnPane question;
-
-    /** The "answer" document (for EmbeddedInput only). */
-    private final DocColumnPane answer;
-
-    /** The "solution" document. */
-    private final DocColumnPane solution;
 
     /** Flag indicating the "Min Correct Choices / Max Correct Choices" are showing. */
     private boolean minMaxCorrectShowing;
@@ -163,15 +136,15 @@ final class ProblemPane extends JPanel implements ActionListener {
         final Insets formulaInsets = new Insets(6, 8, 6, 8);
 
         // Line 1: Problem ID (<ref-base>) and type
-        this.problemId = new JTextField(25);
-        this.problemId.setEditable(false);
+        final JTextField problemId = new JTextField(25);
+        problemId.setEditable(false);
         if (this.workingProblem.ref != null) {
-            this.problemId.setText(this.workingProblem.ref);
+            problemId.setText(this.workingProblem.ref);
         }
 
         final JPanel flow1 = makeFlow(bg);
         flow1.add(new JLabel("Problem ID:"));
-        flow1.add(this.problemId);
+        flow1.add(problemId);
         add(flow1, StackedBorderLayout.NORTH);
 
         final JPanel flow2 = makeFlow(bg);
@@ -187,9 +160,9 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow3 = makeFlow(bg);
         flow3.add(new JLabel("Calculator allowed:"));
-        this.calculatorType = new JComboBox<>(ECalculatorType.values());
-        this.calculatorType.setSelectedItem(this.workingProblem.calculator);
-        flow3.add(this.calculatorType);
+        final JComboBox<ECalculatorType> calculatorType = new JComboBox<>(ECalculatorType.values());
+        calculatorType.setSelectedItem(this.workingProblem.calculator);
+        flow3.add(calculatorType);
         add(flow3, StackedBorderLayout.NORTH);
 
         Formula minCorrectFormula = null;
@@ -214,18 +187,18 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow4 = makeFlow(bg);
         flow4.add(new JLabel("Min correct choices to display:"));
-        this.minCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, minCorrectFormula,
+        final FormulaEditorPanel minCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, minCorrectFormula,
                 this.workingProblem.evalContext, EType.INTEGER);
-        this.minCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
-        flow4.add(this.minCorrect);
+        minCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
+        flow4.add(minCorrect);
         minMaxCorrectInner.add(flow4, StackedBorderLayout.NORTH);
 
         final JPanel flow5 = makeFlow(bg);
         flow5.add(new JLabel("Max correct choices to display:"));
-        this.maxCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, maxCorrectFormula,
+        final FormulaEditorPanel maxCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, maxCorrectFormula,
                 this.workingProblem.evalContext, EType.INTEGER);
-        this.maxCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
-        flow5.add(this.maxCorrect);
+        maxCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
+        flow5.add(maxCorrect);
         minMaxCorrectInner.add(flow5, StackedBorderLayout.NORTH);
 
         this.minMaxCorrectContainer = new JPanel(new StackedBorderLayout());
@@ -239,10 +212,10 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow6 = makeFlow(bg);
         flow6.add(new JLabel("Correctness formula:"));
-        this.correctness = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, correctnessFormula,
+        final FormulaEditorPanel correctness = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, correctnessFormula,
                 this.workingProblem.evalContext, EType.BOOLEAN);
-        this.correctness.setEnabled(this.workingProblem instanceof ProblemEmbeddedInputTemplate);
-        flow6.add(this.correctness);
+        correctness.setEnabled(this.workingProblem instanceof ProblemEmbeddedInputTemplate);
+        flow6.add(correctness);
         this.correctnessBox.add(flow6, StackedBorderLayout.NORTH);
 
         this.correctnessContainer = new JPanel(new BorderLayout());
@@ -288,9 +261,9 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow9 = makeFlow(bg);
         flow9.add(new JLabel("Correct answer:"));
-        this.correctAnswer = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
+        final FormulaEditorPanel correctAnswer = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
                 correctAnswerFormula, this.workingProblem.evalContext, EType.INTEGER, EType.REAL);
-        flow9.add(this.correctAnswer);
+        flow9.add(correctAnswer);
         acceptNumberInner.add(flow9, StackedBorderLayout.NORTH);
 
         this.acceptNumberContainer = new JPanel(new StackedBorderLayout());
@@ -343,15 +316,15 @@ final class ProblemPane extends JPanel implements ActionListener {
         final JPanel questionBox = new JPanel(new StackedBorderLayout());
         questionBox.setBackground(bg);
         questionBox.setBorder(BorderFactory.createTitledBorder("Question"));
-        this.question = new DocColumnPane();
+        final DocColumnPane question = new DocColumnPane();
         if (this.workingProblem.question != null) {
             final HtmlBuilder xml = new HtmlBuilder(100);
             for (final AbstractDocObjectTemplate child : this.workingProblem.question.getChildren()) {
                 child.toXml(xml, 0);
             }
-            this.question.setText(xml.toString());
+            question.setText(xml.toString());
         }
-        questionBox.add(this.question, StackedBorderLayout.CENTER);
+        questionBox.add(question, StackedBorderLayout.CENTER);
         add(questionBox, StackedBorderLayout.NORTH);
 
         //
@@ -363,7 +336,7 @@ final class ProblemPane extends JPanel implements ActionListener {
         answerInner.setBackground(bg);
         this.answerBox.add(answerInner, StackedBorderLayout.NORTH);
 
-        this.answer = new DocColumnPane();
+        final DocColumnPane answer = new DocColumnPane();
         if ((this.workingProblem instanceof final ProblemEmbeddedInputTemplate embedded)
                 && (embedded.correctAnswer != null)) {
 
@@ -371,9 +344,9 @@ final class ProblemPane extends JPanel implements ActionListener {
             for (final AbstractDocObjectTemplate child : embedded.correctAnswer.getChildren()) {
                 child.toXml(xml, 0);
             }
-            this.answer.setText(xml.toString());
+            answer.setText(xml.toString());
         }
-        answerInner.add(this.answer, StackedBorderLayout.CENTER);
+        answerInner.add(answer, StackedBorderLayout.CENTER);
 
         this.answerContainer = new JPanel(new StackedBorderLayout());
         this.answerContainer.setBackground(bg);
@@ -385,15 +358,15 @@ final class ProblemPane extends JPanel implements ActionListener {
         final JPanel solutionBox = new JPanel(new StackedBorderLayout());
         solutionBox.setBackground(bg);
         solutionBox.setBorder(BorderFactory.createTitledBorder("Solution"));
-        this.solution = new DocColumnPane();
+        final DocColumnPane solution = new DocColumnPane();
         if (this.workingProblem.solution != null) {
             final HtmlBuilder xml = new HtmlBuilder(100);
             for (final AbstractDocObjectTemplate child : this.workingProblem.solution.getChildren()) {
                 child.toXml(xml, 0);
             }
-            this.solution.setText(xml.toString());
+            solution.setText(xml.toString());
         }
-        solutionBox.add(this.solution, StackedBorderLayout.CENTER);
+        solutionBox.add(solution, StackedBorderLayout.CENTER);
         add(solutionBox, StackedBorderLayout.NORTH);
 
         final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 6));

@@ -50,9 +50,6 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
     @Serial
     private static final long serialVersionUID = -593777255738938860L;
 
-    /** The top panel. */
-    private final TopPanelStudent topPanel;
-
     /** The data cache. */
     private final Cache cache;
 
@@ -74,16 +71,13 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
     /**
      * Constructs a new {@code CardPopulationsCourseStatusPane}.
      *
-     * @param theTopPanel      the top panel to notify when a population has been selected
      * @param theCache         the data cache
      * @param theFixed         the fixed data
      */
-    CardPopulationsCourseStatusPane(final TopPanelStudent theTopPanel, final Cache theCache,
-                                    final FixedData theFixed) {
+    CardPopulationsCourseStatusPane(final Cache theCache, final FixedData theFixed) {
 
         super(new BorderLayout());
 
-        this.topPanel = theTopPanel;
         this.cache = theCache;
         this.activeKey = theFixed.activeTerm.term;
         this.frontBoxes = new HashMap<>(5);

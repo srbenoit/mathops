@@ -18,5 +18,5 @@ public enum EFenceType {
     BRACES,
 
     /** A constant to indicate left brace only (curly bracket). */
-    LBRACE;
+    LBRACE,
 }

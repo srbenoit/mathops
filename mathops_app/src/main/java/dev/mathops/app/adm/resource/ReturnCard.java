@@ -1,9 +1,9 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -278,37 +278,37 @@ final class ReturnCard extends AdminPanelBase implements ActionListener {
                         final String type;
 
                         if (RawResource.TYPE_INHOUSE_CALC.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
                             type = "TI-84 calculator";
                         } else if (RawResource.TYPE_OFFICE_CALC.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
                             type = "Office TI-84 calculator";
                         } else if (RawResource.TYPE_RENTAL_CALC.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
                             type = "*** RENTAL *** TI-84 calculator (SHOULD NOT LEND)";
                         } else if (RawResource.TYPE_RENTAL_MANUAL.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
                             type = "TI-84 calculator manual";
                         } else if (RawResource.TYPE_INHOUSE_IPAD.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
                             type = "iPad tablet";
                         } else if (RawResource.TYPE_INHOUSE_NOTEBOOK.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
                             type = "Windows notebook";
                         } else if (RawResource.TYPE_INHOUSE_TEXT.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
                             type = "In-house textbook";
                         } else if (RawResource.TYPE_OVERNIGHT_TEXT.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
                             type = "Overnight textbook";
                         } else if (RawResource.TYPE_INHOUSE_HEADSET.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
                             type = "Headphones";
                         } else if (RawResource.TYPE_INHOUSE_LOCK.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
                             type = "Padlock";
                         } else if (RawResource.TYPE_TUTOR_TABLET.equals(foundType)) {
-                            icon = AppFileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
+                            icon = FileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
                             type = "Tutor Tablet";
                         } else {
                             type = "*** Unknown resource type ***";

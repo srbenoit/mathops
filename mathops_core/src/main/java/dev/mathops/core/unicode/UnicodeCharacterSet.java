@@ -1,7 +1,7 @@
 package dev.mathops.core.unicode;
 
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.CoreFileLoader;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public final class UnicodeCharacterSet {
      */
     private void loadCharsFile() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(getClass(), FILENAME, true);
+        final String[] lines = FileLoader.loadFileAsLines(getClass(), FILENAME, true);
         try {
             for (String line : lines) {
                 if (!line.isEmpty() && line.charAt(0) != '#') {

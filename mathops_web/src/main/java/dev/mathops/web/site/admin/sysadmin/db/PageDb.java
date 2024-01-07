@@ -4,12 +4,12 @@ import dev.mathops.core.CoreConstants;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.sysadmin.ESysadminTopic;
 import dev.mathops.web.site.admin.sysadmin.SysAdminPage;
@@ -121,7 +121,7 @@ public enum PageDb {
     static void emitXmlFile(final HtmlBuilder htm) {
 
         final File file = new File(PathList.getInstance().get(EPath.CFG_PATH), "db_servers.xml");
-        final String xml = WebFileLoader.loadFileAsString(file, false);
+        final String xml = FileLoader.loadFileAsString(file, false);
 
         htm.div("vgap").hr();
         if (xml == null) {

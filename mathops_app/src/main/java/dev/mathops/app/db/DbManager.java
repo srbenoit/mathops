@@ -1,8 +1,8 @@
 package dev.mathops.app.db;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.db.config.CodeContextPane;
 import dev.mathops.app.db.config.model.CfgDatabaseLayerModel;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.config.CfgDatabaseLayer;
 import javafx.application.Application;
@@ -240,7 +240,7 @@ public class DbManager extends Application {
         btn.setGraphicTextGap(BUTTON_GAP);
         btn.setMaxWidth(Double.MAX_VALUE);
 
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, iconFilename, true)) {
+        try (final InputStream in = FileLoader.openInputStream(DbManager.class, iconFilename, true)) {
             final Image instancesImg = new Image(in);
             final ImageView instancesIcon = new ImageView(instancesImg);
             btn.setGraphic(instancesIcon);
@@ -266,7 +266,7 @@ public class DbManager extends Application {
         btn.setGraphicTextGap(BUTTON_GAP);
         btn.setMaxWidth(Double.MAX_VALUE);
 
-        try (final InputStream in = AppFileLoader.openInputStream(DbManager.class, iconFilename, true)) {
+        try (final InputStream in = FileLoader.openInputStream(DbManager.class, iconFilename, true)) {
             final Image instancesImg = new Image(in);
             final ImageView instancesIcon = new ImageView(instancesImg);
             btn.setGraphic(instancesIcon);

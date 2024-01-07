@@ -14,17 +14,11 @@ import java.util.Map;
  */
 public final class CourseRecommendations {
 
-    /** Flag indicating student will need to take a calculus course. */
-    private boolean needsCalc;
-
-    /** Flag indicating student will need to take MATH 160. */
-    private boolean needsMath160;
-
     /** The critical course sequence. */
     public final CourseSequence criticalSequence;
 
     /** The recommended course sequence. */
-    public final CourseSequence recommendedSequence;
+    final CourseSequence recommendedSequence;
 
     /** The typical course sequence. */
     public final CourseSequence typicalSequence;
@@ -207,16 +201,16 @@ public final class CourseRecommendations {
             all.put(lowest, new CourseInfo(courseData.get(lowest), false));
         }
 
-        this.needsCalc = false;
-        this.needsMath160 = false;
-        for (final String courseId : all.keySet()) {
-            if ("M 160".equals(courseId)) {
-                this.needsCalc = true;
-                this.needsMath160 = true;
-            } else if ("M 155".equals(courseId) || "M 141".equals(courseId)) {
-                this.needsCalc = true;
-            }
-        }
+//        boolean needsCalc = false;
+//        boolean needsMath160 = false;
+//        for (final String courseId : all.keySet()) {
+//            if ("M 160".equals(courseId)) {
+//                needsCalc = true;
+//                needsMath160 = true;
+//            } else if ("M 155".equals(courseId) || "M 141".equals(courseId)) {
+//                needsCalc = true;
+//            }
+//        }
     }
 
     /**
@@ -271,37 +265,4 @@ public final class CourseRecommendations {
             }
         }
     }
-
-//    /**
-//     * Gets the flag indicating student will need to take a calculus course.
-//     *
-//     * @return {@code true} if calculus is required
-//     */
-//    public boolean isNeedsCalc() {
-//
-//        return this.needsCalc;
-//    }
-
-//    /**
-//     * Gets the flag indicating student will need to take MATH 160.
-//     *
-//     * @return {@code true} if MATH 160 is required
-//     */
-//    public boolean isNeedsMath160() {
-//
-//        return this.needsMath160;
-//    }
-
-    ///**
-    // * Dumps the internal data to a log.
-    // *
-    // * @param heading a heading for the log record
-    // */
-    // private void dumpLog(final String heading) {
-    //
-    // Log.info(heading);
-    // this.criticalSequence.dumpLog("Critical ");
-    // this.recommendedSequence.dumpLog("Recommended");
-    // this.typicalSequence.dumpLog("Typical ");
-    // }
 }

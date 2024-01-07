@@ -3,9 +3,9 @@ package dev.mathops.session;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.session.file.SessionFileLoader;
 import dev.mathops.session.login.LocalLoginProcessor;
 
 import java.io.File;
@@ -96,7 +96,7 @@ public class SessionCache {
 
         this.sysadmins = new ArrayList<>(4);
         final File file = new File(PathList.getInstance().get(EPath.CFG_PATH), "sysadmins");
-        final String[] lines = SessionFileLoader.loadFileAsLines(file, false);
+        final String[] lines = FileLoader.loadFileAsLines(file, false);
         if (lines != null) {
             for (final String line : lines) {
                 if (line.length() == 9) {

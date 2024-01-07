@@ -12,9 +12,6 @@ class ResultsPanel2Descriptor extends WizardPanelDescriptor {
     /** The identifier for this panel. */
     static final String IDENTIFIER = "PRE_EXAM_PREP_PANEL";
 
-    /** The panel. */
-    private final ResultsPanel2 panel2;
-
     /** The list of courses the student placed out of. */
     private final SortedSet<String> placed;
 
@@ -35,10 +32,10 @@ class ResultsPanel2Descriptor extends WizardPanelDescriptor {
         this.placed = thePlaced;
         this.cleared = theCleared;
 
-        this.panel2 = new ResultsPanel2(theCredit);
+        final ResultsPanel2 panel2 = new ResultsPanel2(theCredit);
 
         setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(this.panel2);
+        setPanelComponent(panel2);
     }
 
     /**

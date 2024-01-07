@@ -1,6 +1,5 @@
 package dev.mathops.app.placement;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.exam.ExamContainerInt;
 import dev.mathops.app.exam.ExamPanel;

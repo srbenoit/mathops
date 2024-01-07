@@ -1718,7 +1718,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
      *
      * @param index the index of the section to enable
      */
-    final void enableSection(final int index) {
+    void enableSection(final int index) {
 
         this.exam.getSection(index).enabled = true;
 

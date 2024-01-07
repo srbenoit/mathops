@@ -33,7 +33,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     private static final long serialVersionUID = -375439145801857218L;
 
     /** The formula to graph. */
-    private Formula formula;
+    private final Formula formula;
 
     /** The name of the domain variable that will be used for graphing. */
     private String domainVarName;
@@ -48,25 +48,25 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     private final int formulaStyle;
 
     /** The minimum X value from which to draw the function. */
-    private NumberOrFormula formulaMinX;
+    private final NumberOrFormula formulaMinX;
 
     /** The maximum X value to which to draw the function. */
-    private NumberOrFormula formulaMaxX;
+    private final NumberOrFormula formulaMaxX;
 
     /** The min x coordinate of the window that the graph shows. */
-    private Number windowMinX;
+    private Number windowMinX = null;
 
     /** The max x coordinate of the window that the graph shows. */
-    private Number windowMaxX;
+    private Number windowMaxX = null;
 
     /** The min y coordinate of the window that the graph shows. */
-    private Number windowMinY;
+    private Number windowMinY = null;
 
     /** The max y coordinate of the window that the graph shows. */
-    private Number windowMaxY;
+    private Number windowMaxY = null;
 
     /** Graph bounds within drawing surface. */
-    private transient Rectangle bounds;
+    private transient Rectangle bounds = null;
 
     /**
      * Construct a new {@code DocPrimitiveFormula}.

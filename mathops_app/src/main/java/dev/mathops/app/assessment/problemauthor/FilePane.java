@@ -1,6 +1,5 @@
 package dev.mathops.app.assessment.problemauthor;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
@@ -17,6 +16,7 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.IElement;
@@ -162,7 +162,7 @@ final class FilePane extends JPanel implements ActionListener {
         buttons.add(generate);
 
         JButton larger;
-        final byte[] largerIcon = AppFileLoader.loadFileAsBytes(getClass(), "zoom-in-3.png", true);
+        final byte[] largerIcon = FileLoader.loadFileAsBytes(getClass(), "zoom-in-3.png", true);
         if (largerIcon == null) {
             larger = new JButton("Larger");
         } else {
@@ -179,7 +179,7 @@ final class FilePane extends JPanel implements ActionListener {
         buttons.add(larger);
 
         JButton smaller;
-        final byte[] smallerIcon = AppFileLoader.loadFileAsBytes(getClass(), "zoom-out-3.png", true);
+        final byte[] smallerIcon = FileLoader.loadFileAsBytes(getClass(), "zoom-out-3.png", true);
         if (smallerIcon == null) {
             smaller = new JButton("Smaller");
         } else {
@@ -235,7 +235,7 @@ final class FilePane extends JPanel implements ActionListener {
         this.problemPane = null;
         this.examPane = null;
 
-        final String fileContent = AppFileLoader.loadFileAsString(this.file, true);
+        final String fileContent = FileLoader.loadFileAsString(this.file, true);
         if (fileContent == null) {
             this.console.setText("<p color='red'>ERROR: Unable to load file.</p>");
         } else {
@@ -655,7 +655,7 @@ final class FilePane extends JPanel implements ActionListener {
         htm.addln("<!DOCTYPE html>");
         htm.addln("<head>");
 
-        final String css1 = AppFileLoader.loadFileAsString(ProblemAuthor.class, "basestyle.css", true);
+        final String css1 = FileLoader.loadFileAsString(ProblemAuthor.class, "basestyle.css", true);
 
         if (css1 != null) {
             htm.addln("<style>");
@@ -663,7 +663,7 @@ final class FilePane extends JPanel implements ActionListener {
             htm.addln("</style>");
         }
 
-        final String css2 = AppFileLoader.loadFileAsString(ProblemAuthor.class, "style.css", true);
+        final String css2 = FileLoader.loadFileAsString(ProblemAuthor.class, "style.css", true);
 
         if (css2 != null) {
             htm.addln("<style>");

@@ -1,6 +1,5 @@
 package dev.mathops.assessment.variable.edit;
 
-import dev.mathops.assessment.file.AssessmentFileLoader;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
@@ -27,6 +26,7 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.IElement;
@@ -200,9 +200,6 @@ public final class VariableEditorPanel extends JPanel
     /** The span value. */
     private final JTextField spanValue;
 
-    /** A panel for "Random Choice" variables. */
-    private final JPanel randomChoiceProperties;
-
     /** A panel for "Min/Max" properties. */
     private final JPanel minMaxProperties;
 
@@ -211,9 +208,6 @@ public final class VariableEditorPanel extends JPanel
 
     /** The derived max formula. */
     private final FormulaEditorPanel maxFormula;
-
-    /** A panel for "Exclude" properties. */
-    private final JPanel excludeProperties;
 
     /** The exclude formula (a number or a vector of numbers). */
     private final FormulaEditorPanel excludeFormula;
@@ -255,7 +249,7 @@ public final class VariableEditorPanel extends JPanel
         topFlow.setBackground(Color.WHITE);
 
         JButton deleteBtn;
-        final byte[] icon = AssessmentFileLoader.loadFileAsBytes(getClass(), "delete_icon.png", true);
+        final byte[] icon = FileLoader.loadFileAsBytes(getClass(), "delete_icon.png", true);
         if (icon == null) {
             deleteBtn = new JButton("Delete");
         } else {
@@ -356,12 +350,12 @@ public final class VariableEditorPanel extends JPanel
         this.spanProperties.setPreferredSize(new Dimension(oldSpanPref.width, 0));
         this.spanProperties.setVisible(false);
 
-        this.randomChoiceProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 0));
-        this.randomChoiceProperties.setBackground(Color.WHITE);
-        this.randomChoiceProperties.add(new JLabel("  Choices:"));
+        final JPanel randomChoiceProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 0));
+        randomChoiceProperties.setBackground(Color.WHITE);
+        randomChoiceProperties.add(new JLabel("  Choices:"));
         // TODO: Add choices
-        this.randomChoiceProperties.setVisible(false);
-        topFlow.add(this.randomChoiceProperties);
+        randomChoiceProperties.setVisible(false);
+        topFlow.add(randomChoiceProperties);
 
         this.minMaxProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 0));
         this.minMaxProperties.setBackground(Color.WHITE);
@@ -379,16 +373,16 @@ public final class VariableEditorPanel extends JPanel
         this.minMaxProperties.setVisible(false);
         topFlow.add(this.minMaxProperties);
 
-        this.excludeProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 0));
-        this.excludeProperties.setBackground(Color.WHITE);
+        final JPanel excludeProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 0));
+        excludeProperties.setBackground(Color.WHITE);
 
-        this.excludeProperties.add(new JLabel("  Exclude:"));
+        excludeProperties.add(new JLabel("  Exclude:"));
         this.excludeFormula = new FormulaEditorPanel(FORMULA_FONT_SIZE, new Insets(4, 6, 4, 6));
         this.excludeFormula.setBorder(border);
-        this.excludeProperties.add(this.excludeFormula);
+        excludeProperties.add(this.excludeFormula);
 
-        this.excludeProperties.setVisible(false);
-        topFlow.add(this.excludeProperties);
+        excludeProperties.setVisible(false);
+        topFlow.add(excludeProperties);
 
         this.derivedProperties = new JPanel(new FlowLayout(FlowLayout.LEADING, 2, 2));
         this.derivedProperties.setBackground(Color.WHITE);
@@ -426,7 +420,7 @@ public final class VariableEditorPanel extends JPanel
         this.choices.setPreferredSize(new Dimension(oldChoicesPref.width, 0));
         this.choices.setVisible(false);
 
-        final byte[] addicon = AssessmentFileLoader.loadFileAsBytes(getClass(), "add_icon.png", true);
+        final byte[] addicon = FileLoader.loadFileAsBytes(getClass(), "add_icon.png", true);
 
         JButton addChoiceBtn;
         if (addicon == null) {
@@ -548,7 +542,7 @@ public final class VariableEditorPanel extends JPanel
                 this.minFormula.setFormula(varRandomInteger.getMin());
                 this.maxFormula.setFormula(varRandomInteger.getMax());
 
-                this.excludeProperties.setVisible(true);
+                excludeProperties.setVisible(true);
                 final Formula[] excludes = varRandomInteger.getExcludes();
                 final IntegerFormulaVector vec = new IntegerFormulaVector();
                 if (excludes != null) {
@@ -563,7 +557,7 @@ public final class VariableEditorPanel extends JPanel
                 this.minFormula.setFormula(varRandomReal.getMin());
                 this.maxFormula.setFormula(varRandomReal.getMax());
             } else if (theVar instanceof final VariableRandomChoice varRandomChoice) {
-                this.randomChoiceProperties.setVisible(true);
+                randomChoiceProperties.setVisible(true);
 
                 // TODO: Populate choices - this should be typed and editable...
 
@@ -592,7 +586,7 @@ public final class VariableEditorPanel extends JPanel
                 }
 
                 if (DERIVED_INTEGER.equals(type)) {
-                    this.excludeProperties.setVisible(true);
+                    excludeProperties.setVisible(true);
                     final Formula[] excludes = derived.getExcludes();
                     final IntegerFormulaVector vec = new IntegerFormulaVector();
                     if (excludes != null) {

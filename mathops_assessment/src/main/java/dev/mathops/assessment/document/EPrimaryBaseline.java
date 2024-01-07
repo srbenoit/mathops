@@ -15,5 +15,5 @@ public enum EPrimaryBaseline {
     CENTERLINE,
 
     /** The line on which plus or minus symbols are centered. */
-    MATH_AXIS;
+    MATH_AXIS,
 }

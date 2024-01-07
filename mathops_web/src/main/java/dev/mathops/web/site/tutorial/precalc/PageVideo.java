@@ -3,13 +3,13 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -167,7 +167,7 @@ enum PageVideo {
                     htm.addln(" Please describe the error or recommend an improvement:<br/>");
                     htm.addln(" <textarea rows='5' cols='40' name='comments'>");
                     if (file.exists()) {
-                        htm.addln(XmlEscaper.escape(WebFileLoader.loadFileAsString(file, true)));
+                        htm.addln(XmlEscaper.escape(FileLoader.loadFileAsString(file, true)));
                     }
                     htm.addln(" </textarea>").br();
                     htm.addln(" <input type='submit' value='Submit'/>");

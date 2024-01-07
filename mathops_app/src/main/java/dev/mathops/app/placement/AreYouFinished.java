@@ -1,7 +1,6 @@
 package dev.mathops.app.placement;
 
 import dev.mathops.app.AbstractInternalDialogBase;
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.log.Log;
 
@@ -16,17 +15,11 @@ import java.util.Properties;
  * A simple dialog to ask the user to confirm that they are finished with the exam. If any questions were left
  * unanswered, the student is warned that the exam is partially completed.
  */
-class AreYouFinished extends AbstractInternalDialogBase {
+final class AreYouFinished extends AbstractInternalDialogBase {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -7261135208848045008L;
-
-    /** The Yes button. */
-    private JButton yesBtn;
-
-    /** The No button. */
-    private JButton noBtn;
 
     /**
      * Construct a new {@code AreYouFinished} dialog. If some problems are uncompleted, the student will be warned and
@@ -78,16 +71,15 @@ class AreYouFinished extends AbstractInternalDialogBase {
         configureSingleLabel(res, line1, "line1");
         createSingleLabel(res, "line2");
 
-        // Create the buttons
-        this.yesBtn = new JButton();
-        this.yesBtn.setActionCommand("Yes");
-        this.yesBtn.addActionListener(this);
-        configureButton(res, this.yesBtn, "yes");
+        final JButton yesBtn = new JButton();
+        yesBtn.setActionCommand("Yes");
+        yesBtn.addActionListener(this);
+        configureButton(res, yesBtn, "yes");
 
-        this.noBtn = new JButton();
-        this.noBtn.setActionCommand("No");
-        this.noBtn.addActionListener(this);
-        configureButton(res, this.noBtn, "no");
+        final JButton noBtn = new JButton();
+        noBtn.setActionCommand("No");
+        noBtn.addActionListener(this);
+        configureButton(res, noBtn, "no");
     }
 
     /**

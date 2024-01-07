@@ -2,7 +2,6 @@ package dev.mathops.app.ops.snapin.canvas;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 
 import javax.swing.BorderFactory;
@@ -38,15 +37,6 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
     /** Button action command. */
     private static final String CMD_SYNCH = "SYNCH";
 
-    /** The data cache. */
-    private final Cache cache;
-
-    /** The snap-in. */
-    private final CanvasSnapIn snapIn;
-
-    /** The owning frame. */
-    private final JFrame frame;
-
     /** The synchronize button. */
     private final JButton synchronize;
 
@@ -59,17 +49,11 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
     /**
      * Constructs a new {@code CanvasFull}.
      *
-     * @param theCache  the data cache
-     * @param theSnapIn the snap-in
      * @param theFrame  the owning frame
      */
-    CanvasFull(final Cache theCache, final CanvasSnapIn theSnapIn, final JFrame theFrame) {
+    CanvasFull(final JFrame theFrame) {
 
         super();
-
-        this.cache = theCache;
-        this.snapIn = theSnapIn;
-        this.frame = theFrame;
 
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 

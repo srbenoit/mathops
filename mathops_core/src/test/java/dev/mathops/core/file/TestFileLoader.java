@@ -108,7 +108,7 @@ final class TestFileLoader {
             writer.write(TEST_STRING_1.getBytes(StandardCharsets.UTF_8));
         }
 
-        final String str = CoreFileLoader.loadFileAsString(file, false);
+        final String str = FileLoader.loadFileAsString(file, false);
         deleteFile(file);
 
         assertEquals(TEST_STRING_1, str, "loadFileAsString() file content");
@@ -119,7 +119,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsString(class, file, false)")
     void test002() {
 
-        final String str = CoreFileLoader.loadFileAsString(TestFileLoader.class, TXT_FILENAME, false);
+        final String str = FileLoader.loadFileAsString(TestFileLoader.class, TXT_FILENAME, false);
 
         assertEquals(TEST_TXT_FILE + CoreConstants.CRLF + HAS_2_LINES + CoreConstants.CRLF, str, 
                 "loadFileAsString() class-relative file content");
@@ -131,7 +131,7 @@ final class TestFileLoader {
     void test003() {
 
         final File file = new File(NONEXIST_FILENAME);
-        final String str = CoreFileLoader.loadFileAsString(file, false);
+        final String str = FileLoader.loadFileAsString(file, false);
 
         assertNull(str, "loadFileAsString() nonexistent file");
     }
@@ -141,7 +141,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsString(class, file, false) on nonexistent file")
     void test004() {
 
-        final String str = CoreFileLoader.loadFileAsString(TestFileLoader.class, NONEXIST_FILENAME, false);
+        final String str = FileLoader.loadFileAsString(TestFileLoader.class, NONEXIST_FILENAME, false);
 
         assertNull(str, "loadFileAsString() nonexistent class-relative file");
     }
@@ -163,7 +163,7 @@ final class TestFileLoader {
             writer.write(TEST_STRING_2.getBytes(StandardCharsets.UTF_8));
         }
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(file, false);
+        final String[] lines = FileLoader.loadFileAsLines(file, false);
         deleteFile(file);
 
         assertEquals(lines.length, 2, "loadFileAsLines() file line count");
@@ -186,7 +186,7 @@ final class TestFileLoader {
             writer.write(TEST_STRING_2.getBytes(StandardCharsets.UTF_8));
         }
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(file, false);
+        final String[] lines = FileLoader.loadFileAsLines(file, false);
         deleteFile(file);
 
         assertEquals(TEST_STRING_1, lines[0], "loadFileAsLines() file line 1 content");
@@ -209,7 +209,7 @@ final class TestFileLoader {
             writer.write(TEST_STRING_2.getBytes(StandardCharsets.UTF_8));
         }
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(file, false);
+        final String[] lines = FileLoader.loadFileAsLines(file, false);
         deleteFile(file);
 
         assertEquals(TEST_STRING_2, lines[1], "loadFileAsLines() file line 2 content");
@@ -220,7 +220,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsLines(class, file, false) line count")
     void test008() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
+        final String[] lines = FileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
 
         assertEquals(2, lines.length, "loadFileAsLines() class-relative file line count");
     }
@@ -230,7 +230,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsLines(class, file, false) line 1 content")
     void test009() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
+        final String[] lines = FileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
 
         assertEquals(TEST_TXT_FILE, lines[0], "loadFileAsLines class-relative file line 1 content");
     }
@@ -240,7 +240,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsLines(class, file, false) line 2 content")
     void test010() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
+        final String[] lines = FileLoader.loadFileAsLines(TestFileLoader.class, TXT_FILENAME, false);
 
         assertEquals(HAS_2_LINES, lines[1], "loadFileAsLines class-relative file line 2 content");
     }
@@ -250,7 +250,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsLines(file, false) for nonexistent file")
     void test011() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(new File(NONEXIST_FILENAME), false);
+        final String[] lines = FileLoader.loadFileAsLines(new File(NONEXIST_FILENAME), false);
 
         assertNull(lines, "loadFileAsLines() nonexistent file");
     }
@@ -261,7 +261,7 @@ final class TestFileLoader {
     void test012() {
 
         final String[] lines =
-                CoreFileLoader.loadFileAsLines(TestFileLoader.class, NONEXIST_FILENAME, false);
+                FileLoader.loadFileAsLines(TestFileLoader.class, NONEXIST_FILENAME, false);
 
         assertNull(lines, "loadFileAsLines() nonexistent class-relative file");
     }
@@ -281,7 +281,7 @@ final class TestFileLoader {
             writer.write(TEST_STRING_1.getBytes(StandardCharsets.UTF_8));
         }
 
-        final byte[] loaded = CoreFileLoader.loadFileAsBytes(file, false);
+        final byte[] loaded = FileLoader.loadFileAsBytes(file, false);
         deleteFile(file);
 
         assertArrayEquals(TEST_STRING_1.getBytes(StandardCharsets.UTF_8), loaded, "loadFileAsBytes() file content");
@@ -292,7 +292,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsBytes(class, file, false)")
     void test014() {
 
-        final byte[] loaded = CoreFileLoader.loadFileAsBytes(TestFileLoader.class, TXT_FILENAME, false);
+        final byte[] loaded = FileLoader.loadFileAsBytes(TestFileLoader.class, TXT_FILENAME, false);
         final byte[] expect = (TEST_TXT_FILE + CoreConstants.CRLF + HAS_2_LINES
                 + CoreConstants.CRLF).getBytes(StandardCharsets.UTF_8);
 
@@ -305,7 +305,7 @@ final class TestFileLoader {
     void test015() {
 
         final File file = new File(NONEXIST_FILENAME);
-        final byte[] bytes = CoreFileLoader.loadFileAsBytes(file, false);
+        final byte[] bytes = FileLoader.loadFileAsBytes(file, false);
 
         assertNull(bytes, "loadFileAsBytes() nonexistent file");
     }
@@ -315,7 +315,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsBytes(class, file, false) with nonexistent file")
     void test016() {
 
-        final byte[] bytes = CoreFileLoader.loadFileAsBytes(TestFileLoader.class, NONEXIST_FILENAME, false);
+        final byte[] bytes = FileLoader.loadFileAsBytes(TestFileLoader.class, NONEXIST_FILENAME, false);
 
         assertNull(bytes, "loadFileAsBytes() nonexistent class-relative file");
     }
@@ -340,7 +340,7 @@ final class TestFileLoader {
             writer.write(img);
         }
 
-        final BufferedImage data = CoreFileLoader.loadFileAsImage(file, false);
+        final BufferedImage data = FileLoader.loadFileAsImage(file, false);
         deleteFile(file);
 
         for (int x = 0; x < 10; ++x) {
@@ -357,7 +357,7 @@ final class TestFileLoader {
 
         final BufferedImage img = makeTestImage();
 
-        final BufferedImage data = CoreFileLoader.loadFileAsImage(TestFileLoader.class, "test.png", false);
+        final BufferedImage data = FileLoader.loadFileAsImage(TestFileLoader.class, "test.png", false);
 
         for (int x = 0; x < 10; ++x) {
             for (int y = 0; y < 10; ++y) {
@@ -372,7 +372,7 @@ final class TestFileLoader {
     void test019() {
 
         final File file = new File(NONEXIST_FILENAME);
-        final BufferedImage data = CoreFileLoader.loadFileAsImage(file, false);
+        final BufferedImage data = FileLoader.loadFileAsImage(file, false);
 
         assertNull(data, "loadFileAsImage() nonexistent file");
     }
@@ -382,7 +382,7 @@ final class TestFileLoader {
     @DisplayName("loadFileAsImage(class, file, false) with nonexistent file")
     void test020() {
 
-        final BufferedImage data = CoreFileLoader.loadFileAsImage(TestFileLoader.class, NONEXIST_FILENAME, false);
+        final BufferedImage data = FileLoader.loadFileAsImage(TestFileLoader.class, NONEXIST_FILENAME, false);
 
         assertNull(data, "loadFileAsImage() nonexistent class-relative file");
     }
@@ -410,7 +410,7 @@ final class TestFileLoader {
 
         final Locale current = Locale.getDefault();
         Locale.setDefault(Locale.ENGLISH);
-        final Properties data = CoreFileLoader.loadFileAsProperties(dir, PROPERTIES_BASE, false);
+        final Properties data = FileLoader.loadFileAsProperties(dir, PROPERTIES_BASE, false);
         Locale.setDefault(current);
         deleteFile(file);
 
@@ -442,9 +442,9 @@ final class TestFileLoader {
         final Locale current = Locale.getDefault();
         Locale.setDefault(new Locale(LOCALE_SPAIN));
 
-        Log.info(CoreFileLoader.loadFileAsString(file, false));
+        Log.info(FileLoader.loadFileAsString(file, false));
 
-        final Properties data = CoreFileLoader.loadFileAsProperties(dir, PROPERTIES_BASE, false);
+        final Properties data = FileLoader.loadFileAsProperties(dir, PROPERTIES_BASE, false);
         Log.info(data.toString());
 
         Locale.setDefault(current);
@@ -461,7 +461,7 @@ final class TestFileLoader {
 
         final Locale current = Locale.getDefault();
         Locale.setDefault(new Locale("en"));
-        final Properties data = CoreFileLoader.loadFileAsProperties(TestFileLoader.class, PROPERTIES_BASE,
+        final Properties data = FileLoader.loadFileAsProperties(TestFileLoader.class, PROPERTIES_BASE,
                 new Properties(), false);
         Locale.setDefault(current);
 
@@ -476,7 +476,7 @@ final class TestFileLoader {
 
         final Locale current = Locale.getDefault();
         Locale.setDefault(new Locale(LOCALE_SPAIN));
-        final Properties data = CoreFileLoader.loadFileAsProperties(TestFileLoader.class, PROPERTIES_BASE,
+        final Properties data = FileLoader.loadFileAsProperties(TestFileLoader.class, PROPERTIES_BASE,
                 new Properties(), false);
         Locale.setDefault(current);
 
@@ -492,7 +492,7 @@ final class TestFileLoader {
     void test025() {
 
         final File file = new File(System.getProperty("user.home"), "sadfsaerefasdfsad");
-        final Properties data = CoreFileLoader.loadFileAsProperties(file, BOGUS, false);
+        final Properties data = FileLoader.loadFileAsProperties(file, BOGUS, false);
 
         assertNull(data, "loadFileAsProperties() nonexistent path");
     }
@@ -503,7 +503,7 @@ final class TestFileLoader {
     void test026() {
 
         final Properties def = new Properties();
-        final Properties data = CoreFileLoader.loadFileAsProperties(TestFileLoader.class, "Nonexistent", def, false);
+        final Properties data = FileLoader.loadFileAsProperties(TestFileLoader.class, "Nonexistent", def, false);
 
         assertEquals(data, def, "loadFileAsProperties() nonexistent class-relative file with defaults");
     }
@@ -523,7 +523,7 @@ final class TestFileLoader {
             Log.warning("Failed to create directory");
         }
 
-        final Properties data = CoreFileLoader.loadFileAsProperties(file.getParentFile(), BOGUS, false);
+        final Properties data = FileLoader.loadFileAsProperties(file.getParentFile(), BOGUS, false);
 
         assertNull(data, "loadFileAsProperties() nonexistent file");
     }
@@ -534,7 +534,7 @@ final class TestFileLoader {
     void test028() {
 
         final Properties def = new Properties();
-        final Properties data = CoreFileLoader.loadFileAsProperties(TestFileLoader.class, "bogus", def, false);
+        final Properties data = FileLoader.loadFileAsProperties(TestFileLoader.class, "bogus", def, false);
 
         assertEquals(data, def, "loadFileAsProperties() invalid class-relative file with defaults");
     }

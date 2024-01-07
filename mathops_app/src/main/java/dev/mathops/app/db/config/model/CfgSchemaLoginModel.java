@@ -23,13 +23,13 @@ public final class CfgSchemaLoginModel {
     private final CfgDataProfileModel owner;
 
     /** The schema. */
-    private ObjectProperty<ESchemaType> schema;
+    private final ObjectProperty<ESchemaType> schema;
 
     /** The database ID. */
-    private StringProperty database;
+    private final StringProperty database;
 
     /** The database ID. */
-    private StringProperty login;
+    private final StringProperty login;
 
     /**
      * Constructs a new {@code CfgSchemaLoginModel}.

@@ -76,9 +76,6 @@ class ProblemListPanel extends JPanel implements MouseListener {
     /** Color for question labels. */
     private final Color questionColor;
 
-    /** Outline color. */
-    private final Color outlineColor;
-
     /** Base size for the font for section labels. */
     private final float sectionFontBaseSize;
 
@@ -130,10 +127,7 @@ class ProblemListPanel extends JPanel implements MouseListener {
     /** Owning exam panel. */
     private final ExamPanelInt owner;
 
-    /** Font manager. */
-    private final BundledFontManager bfm;
-
-    /** Offscreen image. */
+    /** Off-screen image. */
     private Image offscreen;
 
     /** Maximum panel width. */
@@ -189,7 +183,6 @@ class ProblemListPanel extends JPanel implements MouseListener {
 
         this.owner = theOwner;
         this.examSession = theExamSession;
-        this.bfm = theBfm;
 
         // Load skin settings
         this.backgroundColor = ColorNames.getColor("alice blue");
@@ -199,7 +192,8 @@ class ProblemListPanel extends JPanel implements MouseListener {
         this.checkmarkColor = ColorNames.getColor("dark green");
         this.rightColor = ColorNames.getColor("dark green");
         this.wrongColor = ColorNames.getColor("dark red");
-        this.outlineColor = ColorNames.getColor("steel blue");
+
+        final Color outlineColor = ColorNames.getColor("steel blue");
 
         this.sectionFontBaseSize = 22.0f;
         this.questionFontBaseSize = 18.0f;
@@ -208,12 +202,12 @@ class ProblemListPanel extends JPanel implements MouseListener {
         this.rightFontBaseSize = 15.0f;
         this.wrongFontBaseSize = 15.0f;
 
-        this.sectionFont = this.bfm.getFont(BundledFontManager.SANS, (double) this.sectionFontBaseSize, Font.PLAIN);
-        this.questionFont = this.bfm.getFont(BundledFontManager.SERIF, (double) this.questionFontBaseSize, Font.PLAIN);
-        this.arrowFont = this.bfm.getFont("ESSTIXOne", (double) this.arrowFontBaseSize, Font.PLAIN);
-        this.checkmarkFont = this.bfm.getFont("ESSTIXTwo", (double) this.checkmarkFontBaseSize, Font.PLAIN);
-        this.rightFont = this.bfm.getFont("Martin_Vogels_Symbole", (double) this.rightFontBaseSize, Font.PLAIN);
-        this.wrongFont = this.bfm.getFont("Martin_Vogels_Symbole", (double) this.wrongFontBaseSize, Font.PLAIN);
+        this.sectionFont = theBfm.getFont(BundledFontManager.SANS, (double) this.sectionFontBaseSize, Font.PLAIN);
+        this.questionFont = theBfm.getFont(BundledFontManager.SERIF, (double) this.questionFontBaseSize, Font.PLAIN);
+        this.arrowFont = theBfm.getFont("ESSTIXOne", (double) this.arrowFontBaseSize, Font.PLAIN);
+        this.checkmarkFont = theBfm.getFont("ESSTIXTwo", (double) this.checkmarkFontBaseSize, Font.PLAIN);
+        this.rightFont = theBfm.getFont("Martin_Vogels_Symbole", (double) this.rightFontBaseSize, Font.PLAIN);
+        this.wrongFont = theBfm.getFont("Martin_Vogels_Symbole", (double) this.wrongFontBaseSize, Font.PLAIN);
 
         this.arrowString = "\u003c";
         this.checkString = "\u0023 ";
@@ -222,7 +216,7 @@ class ProblemListPanel extends JPanel implements MouseListener {
 
         setBackground(this.backgroundColor);
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
-                BorderFactory.createLineBorder(this.outlineColor)));
+                BorderFactory.createLineBorder(outlineColor)));
 
         this.maxWidth = theWidth / 5;
 

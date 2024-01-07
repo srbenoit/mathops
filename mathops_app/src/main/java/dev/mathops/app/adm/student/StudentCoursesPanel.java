@@ -57,9 +57,6 @@ import java.util.List;
     /** Scroll pane for the dropped course table. */
     private final JScrollPane droppedScroll;
 
-    /** The header for the dropped course list. */
-    private final JLabel droppedHeader;
-
     /** Split pane between current and dropped. */
     private final JSplitPane split;
 
@@ -111,9 +108,8 @@ import java.util.List;
         this.currentScroll = new JScrollPane(this.currentTable);
         splitTop.add(this.currentScroll, BorderLayout.CENTER);
 
-        this.droppedHeader =
-                makeHeader("Courses Dropped/Forfeit this Term", false);
-        splitBottom.add(this.droppedHeader, BorderLayout.NORTH);
+        final JLabel droppedHeader = makeHeader("Courses Dropped/Forfeit this Term", false);
+        splitBottom.add(droppedHeader, BorderLayout.NORTH);
 
         this.droppedTable = new JTableDroppedCourses();
         this.droppedTable.setFillsViewportHeight(true);

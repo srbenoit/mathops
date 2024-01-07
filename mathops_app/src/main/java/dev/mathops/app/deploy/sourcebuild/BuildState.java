@@ -13,16 +13,16 @@ final class BuildState {
     final String dateSuffix;
 
     /** The server domain. */
-    private String domain;
+    private String domain = null;
 
     /** The server type (PROD | DEV | TEST). */
-    private String type;
+    private String type = null;
 
     /** The /opt/build file (set once directory verified as present). */
-    private File optBuild;
+    private File optBuild = null;
 
     /** The /opt/build/src file (set once directory verified as present). */
-    private File optBuildSrc;
+    private File optBuildSrc = null;
 
     /** All source files. */
     private final EnumMap<EStateSourceFile, File> sourceFiles;
@@ -31,16 +31,13 @@ final class BuildState {
     private final EnumMap<EStateSourceFile, File> uncompressedDirectories;
 
     /** The target directory for Apache HTTPD installation. */
-    private File httpdTargetDir;
+    private File httpdTargetDir = null;
 
     /** The target directory for Shibboleth SP installation. */
-    private File shibbolethTargetDir;
+    private File shibbolethTargetDir = null;
 
     /** The target directory for PostgreSQL installation. */
-    private File postgresqlTargetDir;
-
-    /** The target directory for Apache Tomcat installation. */
-    private File tomcatTargetDir;
+    private File postgresqlTargetDir = null;
 
     /**
      * Constructs a new {@code BuildState}.
@@ -60,7 +57,7 @@ final class BuildState {
      *
      * @param theDomain the domain
      */
-    public void setDomain(final String theDomain) {
+    void setDomain(final String theDomain) {
 
         this.domain = theDomain;
     }
@@ -135,16 +132,6 @@ final class BuildState {
         return this.optBuildSrc;
     }
 
-//    /**
-//     * Sets the HTTP target directory.
-//     *
-//     * @param theHttpTargetDir the target directory
-//     */
-//    private void setHttpTargetDir(final File theHttpTargetDir) {
-//
-//        this.httpdTargetDir = theHttpTargetDir;
-//    }
-
     /**
      * Gets the ShibbolethSP target directory.
      *
@@ -154,16 +141,6 @@ final class BuildState {
 
         return this.httpdTargetDir;
     }
-
-//    /**
-//     * Sets the ShibbolethSP target directory.
-//     *
-//     * @param theShibbolethTargetDir the target directory
-//     */
-//    private void setShibbolethTargetDir(final File theShibbolethTargetDir) {
-//
-//        this.shibbolethTargetDir = theShibbolethTargetDir;
-//    }
 
     /**
      * Gets the HTTP target directory.
@@ -175,16 +152,6 @@ final class BuildState {
         return this.shibbolethTargetDir;
     }
 
-//    /**
-//     * Sets the PostgeSQL target directory.
-//     *
-//     * @param thePostgresqlTargetDirectory the target directory
-//     */
-//    private void setPostgresqlTargetDir(final File thePostgresqlTargetDirectory) {
-//
-//        this.postgresqlTargetDir = thePostgresqlTargetDirectory;
-//    }
-
     /**
      * Gets the PostgeSQL target directory.
      *
@@ -194,26 +161,6 @@ final class BuildState {
 
         return this.postgresqlTargetDir;
     }
-
-//    /**
-//     * Sets the Tomcat target directory.
-//     *
-//     * @param theTomcatTargetDirectory the target directory
-//     */
-//    private void setTomcatTargetDir(final File theTomcatTargetDirectory) {
-//
-//        this.tomcatTargetDir = theTomcatTargetDirectory;
-//    }
-
-//    /**
-//     * Gets the Tomcat target directory.
-//     *
-//     * @return the target directory
-//     */
-//    public File getTomcatTargetDir() {
-//
-//        return this.tomcatTargetDir;
-//    }
 
     /**
      * Sets a source file.
@@ -265,7 +212,7 @@ final class BuildState {
         } else if (key == EStateSourceFile.POSTGRESQL) {
             this.postgresqlTargetDir = new File(StepBase.OPT, file.getName() + this.dateSuffix);
         } else if (key == EStateSourceFile.APACHE_TOMCAT) {
-            this.tomcatTargetDir = new File(StepBase.OPT, file.getName() + this.dateSuffix);
+//            File tomcatTargetDir = new File(StepBase.OPT, file.getName() + this.dateSuffix);
         }
     }
 

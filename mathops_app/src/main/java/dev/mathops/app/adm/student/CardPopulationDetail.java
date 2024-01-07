@@ -29,7 +29,7 @@ import java.io.Serial;
  * A card to display when the user selects the "Populations" option. This card includes a tabbed pane with ways to
  * select a population.
  */
-class CardPopulationDetail extends JPanel implements ActionListener {
+final class CardPopulationDetail extends JPanel implements ActionListener {
 
     /** An action command. */
     private static final String PICK_CMD = "PICK";
@@ -44,54 +44,6 @@ class CardPopulationDetail extends JPanel implements ActionListener {
     @Serial
     private static final long serialVersionUID = -1672732730332605390L;
 
-    /** The fixed data. */
-    private final FixedData fixed;
-
-    /** The currently selected student. */
-    private final JTextField selectedStudentName;
-
-    /** The currently selected student ID. */
-    private final JTextField selectedStudentId;
-
-    /** The center panel. */
-    private final JPanel cardPane;
-
-    /** The card layout. */
-    private final CardLayout cards;
-
-    /** The tabbed layout with actions once a student is picked. */
-    private final JTabbedPane tabs;
-
-    /** The "Info" panel. */
-    private final StudentInfoPanel infoPanel;
-
-    /** The "Course" panel. */
-    private final StudentCoursesPanel coursePanel;
-
-    /** The "Deadlines" panel. */
-    private final StudentDeadlinesPanel deadlinesPanel;
-
-    /** The "Activity" panel. */
-    private final StudentActivityPanel activityPanel;
-
-    /** The "Discipline" panel. */
-    private final StudentDisciplinePanel disciplinePanel;
-
-    /** The "Holds" panel. */
-    private final StudentHoldsPanel holdsPanel;
-
-    /** The "Exams" panel. */
-    private final StudentExamsPanel examsPanel;
-
-    /** The "MPT" panel. */
-    private final StudentPlacementPanel mptPanel;
-
-    /** The "Math Plan" panel. */
-    private final StudentMathPlanPanel mathPlanPanel;
-
-    /** The key of the currently showing card layout. */
-    private final String showing;
-
     /**
      * Constructs a new {@code CardPopulationDetail}.
      *
@@ -105,11 +57,10 @@ class CardPopulationDetail extends JPanel implements ActionListener {
         super(new BorderLayout(5, 5));
         setPreferredSize(AdminMainWindow.PREF_SIZE);
 
-        this.fixed = theFixed;
+        // The fixed data.
 
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder( //
-                BorderFactory.createEtchedBorder(), //
+        setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         // Top - [Pick] button and selected student name/ID
@@ -121,8 +72,8 @@ class CardPopulationDetail extends JPanel implements ActionListener {
         final JButton pick = new JButton("Pick Student");
         final JPanel pickBox = new JPanel(new BorderLayout());
         pickBox.setBackground(Skin.LT_GREEN);
-        pickBox.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        pickBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
         pickBox.add(pick, BorderLayout.CENTER);
 
         pick.setFont(Skin.BIG_BUTTON_16_FONT);
@@ -153,10 +104,10 @@ class CardPopulationDetail extends JPanel implements ActionListener {
         selectedLbl.setForeground(Skin.LABEL_COLOR);
         top.add(selectedLbl);
 
-        this.selectedStudentName = new JTextField(16);
-        this.selectedStudentName.setBorder(null);
-        this.selectedStudentName.setFont(Skin.MEDIUM_HEADER_15_FONT);
-        top.add(this.selectedStudentName);
+        final JTextField selectedStudentName = new JTextField(16);
+        selectedStudentName.setBorder(null);
+        selectedStudentName.setFont(Skin.MEDIUM_HEADER_15_FONT);
+        top.add(selectedStudentName);
 
         final JLabel stuIdLbl = new JLabel("Student ID:");
         stuIdLbl.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
@@ -164,18 +115,18 @@ class CardPopulationDetail extends JPanel implements ActionListener {
         stuIdLbl.setForeground(Skin.LABEL_COLOR);
         top.add(stuIdLbl);
 
-        this.selectedStudentId = new JTextField(9);
-        this.selectedStudentId.setBorder(null);
-        this.selectedStudentId.setEditable(false);
-        this.selectedStudentId.setFont(Skin.MEDIUM_HEADER_15_FONT);
-        top.add(this.selectedStudentId);
+        final JTextField selectedStudentId = new JTextField(9);
+        selectedStudentId.setBorder(null);
+        selectedStudentId.setEditable(false);
+        selectedStudentId.setFont(Skin.MEDIUM_HEADER_15_FONT);
+        top.add(selectedStudentId);
 
         // Center - card pane (pick pane card, and card with tabs for data areas)
 
-        this.cards = new CardLayout();
-        this.cardPane = new JPanel(this.cards);
-        this.cardPane.setBackground(Color.WHITE);
-        add(this.cardPane, BorderLayout.CENTER);
+        final CardLayout cards = new CardLayout();
+        final JPanel cardPane = new JPanel(cards);
+        cardPane.setBackground(Color.WHITE);
+        add(cardPane, BorderLayout.CENTER);
 
         // Card 1: pick student
 
@@ -186,49 +137,47 @@ class CardPopulationDetail extends JPanel implements ActionListener {
 
         // Card 3: data area tabs
 
-        this.tabs = new JTabbedPane();
-        this.tabs.setBackground(Color.WHITE);
-        this.cardPane.add(this.tabs, TABS_CMD);
+        final JTabbedPane tabs = new JTabbedPane();
+        tabs.setBackground(Color.WHITE);
+        cardPane.add(tabs, TABS_CMD);
 
-        this.infoPanel = new StudentInfoPanel(theFixed);
-        this.tabs.addTab("Info", this.infoPanel);
+        final StudentInfoPanel infoPanel = new StudentInfoPanel(theFixed);
+        tabs.addTab("Info", infoPanel);
 
-        this.coursePanel = new StudentCoursesPanel(theCache.conn);
-        this.tabs.addTab("Courses", this.coursePanel);
+        final StudentCoursesPanel coursePanel = new StudentCoursesPanel(theCache.conn);
+        tabs.addTab("Courses", coursePanel);
 
-        this.deadlinesPanel = new StudentDeadlinesPanel(this.fixed);
-        this.tabs.addTab("Deadlines", this.deadlinesPanel);
+        final StudentDeadlinesPanel deadlinesPanel = new StudentDeadlinesPanel(theFixed);
+        tabs.addTab("Deadlines", deadlinesPanel);
 
-        this.activityPanel = new StudentActivityPanel();
-        this.tabs.addTab("Activity", this.activityPanel);
+        final StudentActivityPanel activityPanel = new StudentActivityPanel();
+        tabs.addTab("Activity", activityPanel);
 
-        this.disciplinePanel = new StudentDisciplinePanel(theCache);
-        this.tabs.addTab("Discipline", this.disciplinePanel);
+        final StudentDisciplinePanel disciplinePanel = new StudentDisciplinePanel(theCache);
+        tabs.addTab("Discipline", disciplinePanel);
 
-        this.holdsPanel = new StudentHoldsPanel(theCache, this.fixed);
-        this.tabs.addTab("Holds", this.holdsPanel);
+        final StudentHoldsPanel holdsPanel = new StudentHoldsPanel(theCache, theFixed);
+        tabs.addTab("Holds", holdsPanel);
 
-        this.examsPanel =
-                new StudentExamsPanel(theCache, liveContext, this.fixed);
-        this.tabs.addTab("Exams", this.examsPanel);
+        final StudentExamsPanel examsPanel = new StudentExamsPanel(theCache, liveContext, theFixed);
+        tabs.addTab("Exams", examsPanel);
 
-        this.mptPanel = new StudentPlacementPanel();
-        final JScrollPane scroll = new JScrollPane(this.mptPanel);
+        final StudentPlacementPanel mptPanel = new StudentPlacementPanel();
+        final JScrollPane scroll = new JScrollPane(mptPanel);
         scroll.getVerticalScrollBar().setUnitIncrement(10);
         scroll.getVerticalScrollBar().setBlockIncrement(30);
-        this.tabs.addTab("Placement", scroll);
+        tabs.addTab("Placement", scroll);
 
-        this.mathPlanPanel = new StudentMathPlanPanel(theRenderingHint);
-        this.tabs.addTab("Math Plan", this.mathPlanPanel);
+        final StudentMathPlanPanel mathPlanPanel = new StudentMathPlanPanel(theRenderingHint);
+        tabs.addTab("Math Plan", mathPlanPanel);
 
-        this.cards.show(this.cardPane, PICK_CMD);
-        this.showing = PICK_CMD;
+        cards.show(cardPane, PICK_CMD);
     }
 
     /**
      * Sets the focus when this panel is activated.
      */
-    public void focus() {
+    void focus() {
 
         // TODO:
     }

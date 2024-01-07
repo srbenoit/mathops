@@ -1,4 +1,0 @@
-/**
- * Debugger.
- */
-package jwabbit.debugger;

@@ -3,6 +3,7 @@ package dev.mathops.web.site.tutorial.elm;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.old.Cache;
@@ -11,7 +12,6 @@ import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -88,14 +88,11 @@ public final class ElmTutorialSite extends AbstractPageSite {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
             final String path = this.siteProfile.path;
-            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) //
-                    ? "index.html" : "/index.html"));
+            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css",
-                    WebFileLoader.loadFileAsBytes(ElmTutorialSite.class, "style.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(ElmTutorialSite.class, "style.css", true));
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if (subpath.endsWith(".vtt")) {
@@ -106,8 +103,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
             final String maintMsg = isMaintenance(this.siteProfile);
 
             if (maintMsg == null) {
-                if ("index.html".equals(subpath)
-                        || "login.html".equals(subpath)) {
+                if ("index.html".equals(subpath) || "login.html".equals(subpath)) {
                     PageLogin.doGet(cache, this, req, resp);
                 } else {
                     // The pages that follow require the user to be logged in
@@ -127,8 +123,8 @@ public final class ElmTutorialSite extends AbstractPageSite {
 
                         LogBase.setSessionInfo(session.loginSessionId, studentId);
 
-                        final ELMTutorialStatus status = ELMTutorialStatus.of(cache, studentId,
-                                session.getNow(), HoldsStatus.of(cache, studentId));
+                        final ELMTutorialStatus status = ELMTutorialStatus.of(cache, studentId, session.getNow(),
+                                HoldsStatus.of(cache, studentId));
 
                         switch (subpath) {
                             case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session, "home.html");

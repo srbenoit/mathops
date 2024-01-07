@@ -51,17 +51,11 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     @Serial
     private static final long serialVersionUID = -1672732730332605390L;
 
-    /** The owning admin pane. */
-    private final TopPanelStudent owner;
-
     /** The data cache. */
     private final Cache cache;
 
-    /** The fixed data. */
-    private final FixedData fixed;
-
     /** A button to search by course/section. */
-    private JButton cstatusBtn;
+    private JButton cstatusBtn = null;
 
     /** Map from course to map from section to checkbox to search for that section's students. */
     private final Map<String, Map<String, JCheckBox>> csectCheckboxes;
@@ -69,11 +63,10 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     /**
      * Constructs a new {@code CardPopulations}.
      *
-     * @param theOwner         the owning top-level student panel
      * @param theCache         the data cache
      * @param theFixed         the fixed data
      */
-    CardPopulations(final TopPanelStudent theOwner, final Cache theCache, final FixedData theFixed) {
+    CardPopulations(final Cache theCache, final FixedData theFixed) {
 
         super();
 
@@ -88,9 +81,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
                 BorderFactory.createEmptyBorder(3, 3, 3, 3)));
         add(panel, BorderLayout.CENTER);
 
-        this.owner = theOwner;
         this.cache = theCache;
-        this.fixed = theFixed;
 
         panel.add(makeHeader("Select a population...", false), BorderLayout.PAGE_START);
 
@@ -101,8 +92,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
         final JPanel byCoursePanel = makeByCoursePanel(theCache, theFixed);
         tabs.addTab("By Course and Section", byCoursePanel);
 
-        final JPanel byCourseStatusPanel =
-                new CardPopulationsCourseStatusPane(theOwner, theCache, theFixed);
+        final JPanel byCourseStatusPanel = new CardPopulationsCourseStatusPane(theCache, theFixed);
         tabs.addTab("By Course Status", byCourseStatusPanel);
 
         // By special student type...

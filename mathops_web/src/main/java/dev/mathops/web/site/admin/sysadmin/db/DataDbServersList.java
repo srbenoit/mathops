@@ -3,13 +3,13 @@ package dev.mathops.web.site.admin.sysadmin.db;
 import dev.mathops.core.EPath;
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.IElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 import dev.mathops.core.parser.xml.XmlContent;
-import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -116,7 +116,7 @@ final class DataDbServersList {
         DataDbServersList list = null;
 
         final File file = new File(PathList.getInstance().get(EPath.CFG_PATH), "db_servers.xml");
-        final String xml = WebFileLoader.loadFileAsString(file, false);
+        final String xml = FileLoader.loadFileAsString(file, false);
         if (xml != null) {
             try {
                 final XmlContent content = new XmlContent(xml, true, false);

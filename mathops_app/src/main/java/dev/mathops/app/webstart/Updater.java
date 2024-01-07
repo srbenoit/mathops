@@ -1,8 +1,8 @@
 package dev.mathops.app.webstart;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.UIUtilities;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
@@ -93,20 +93,11 @@ final class Updater implements Runnable {
     /** Background color. */
     private static final Color FIELD = new Color(237, 232, 99);
 
-    /** The main application directory (the home directory on execution). */
-    private final File appDir;
-
     /** The launch subdirectory of the application directory. */
     private final File launchDir;
 
     /** The update/launch subdirectory of the application directory. */
     private final File updateLaunchDir;
-
-    /** The backup subdirectory of the application directory. */
-    private final File bakDir;
-
-    /** The backup/launch subdirectory of the application directory. */
-    private final File bakLaunchDir;
 
     /** A log file. */
     private final File logFile;
@@ -115,36 +106,36 @@ final class Updater implements Runnable {
     private final Font font;
 
     /** The splash screen frame. */
-    private JFrame splash;
+    private JFrame splash = null;
 
     /** Label that will show installed version. */
-    private JLabel installedVersion;
+    private JLabel installedVersion = null;
 
     /** Label that will show available date. */
-    private JLabel installedDate;
+    private JLabel installedDate = null;
 
     /** Label that will show available version. */
-    private JLabel availableVersion;
+    private JLabel availableVersion = null;
 
     /** Label that will show available date. */
-    private JLabel availableDate;
+    private JLabel availableDate = null;
 
     /** Label that will show status. */
-    private JLabel status;
+    private JLabel status = null;
 
     /**
      * Private constructor to prevent instantiation.
      */
     private Updater() {
 
-        this.appDir = new File(System.getProperty("user.dir"));
+        final File appDir = new File(System.getProperty("user.dir"));
 
-        this.launchDir = new File(this.appDir, LAUNCH);
+        this.launchDir = new File(appDir, LAUNCH);
         if (!this.launchDir.exists() && !this.launchDir.mkdirs()) {
             Log.warning("Unable to create directory: ", this.launchDir.getAbsolutePath());
         }
 
-        final File updateDir = new File(this.appDir, UPDATE);
+        final File updateDir = new File(appDir, UPDATE);
         if (!updateDir.exists() && !updateDir.mkdirs()) {
             Log.warning("Unable to create directory: ", updateDir.getAbsolutePath());
         }
@@ -154,25 +145,25 @@ final class Updater implements Runnable {
             Log.warning("Unable to create directory: ", this.updateLaunchDir.getAbsolutePath());
         }
 
-        this.bakDir = new File(this.appDir, BAK);
-        if (!this.bakDir.exists() && !this.bakDir.mkdirs()) {
-            Log.warning("Unable to create directory: ", this.bakDir.getAbsolutePath());
+        final File bakDir = new File(appDir, BAK);
+        if (!bakDir.exists() && !bakDir.mkdirs()) {
+            Log.warning("Unable to create directory: ", bakDir.getAbsolutePath());
         }
 
-        this.bakLaunchDir = new File(this.bakDir, LAUNCH);
-        if (!this.bakLaunchDir.exists() && !this.bakLaunchDir.mkdirs()) {
-            Log.warning("Unable to create directory: ", this.bakLaunchDir.getAbsolutePath());
+        final File bakLaunchDir = new File(bakDir, LAUNCH);
+        if (!bakLaunchDir.exists() && !bakLaunchDir.mkdirs()) {
+            Log.warning("Unable to create directory: ", bakLaunchDir.getAbsolutePath());
         }
 
         this.logFile = new File(this.launchDir, "updater.log");
         this.logFile.delete();
 
         FileUtils.log(this.logFile, "Updater ", VERSION, " starting");
-        FileUtils.log(this.logFile, "Application Directory: ", this.appDir.getAbsolutePath());
+        FileUtils.log(this.logFile, "Application Directory: ", appDir.getAbsolutePath());
         FileUtils.log(this.logFile, CoreConstants.EMPTY);
 
         Font theFont;
-        try (final InputStream in = AppFileLoader.openInputStream(Updater.class, "ProximaNova-Reg-webfont.ttf",
+        try (final InputStream in = FileLoader.openInputStream(Updater.class, "ProximaNova-Reg-webfont.ttf",
                 false)) {
             theFont = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (final IOException | FontFormatException ex) {

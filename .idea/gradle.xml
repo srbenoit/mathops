@@ -11,7 +11,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/jwabbit" />
             <option value="$PROJECT_DIR$/mathops_app" />
             <option value="$PROJECT_DIR$/mathops_assessment" />
             <option value="$PROJECT_DIR$/mathops_core" />

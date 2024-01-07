@@ -2,10 +2,10 @@ package dev.mathops.web.deploy;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.installation.Installation;
 import dev.mathops.core.installation.Installations;
 import dev.mathops.core.log.Log;
-import dev.mathops.web.file.WebFileLoader;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -167,17 +167,17 @@ final class ServletWarBuilder {
 
             final File jarFile = new File(deployDir, "ROOT.jar");
             war.putNextEntry(new ZipEntry("WEB-INF/lib/ROOT.jar"));
-            war.write(WebFileLoader.loadFileAsBytes(jarFile, true));
+            war.write(FileLoader.loadFileAsBytes(jarFile, true));
             war.closeEntry();
 
             final File fonts3File = new File(deployDir, "minfonts3.jar");
             war.putNextEntry(new ZipEntry("WEB-INF/lib/minfonts3.jar"));
-            war.write(WebFileLoader.loadFileAsBytes(fonts3File, true));
+            war.write(FileLoader.loadFileAsBytes(fonts3File, true));
             war.closeEntry();
 
             final File webFile = new File(webRoot, "dev/mathops/web/deploy/web.xml");
             war.putNextEntry(new ZipEntry("WEB-INF/web.xml"));
-            war.write(WebFileLoader.loadFileAsBytes(webFile, true));
+            war.write(FileLoader.loadFileAsBytes(webFile, true));
             war.closeEntry();
 
             final SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss 'on' EEEE, MMM d, yyyy", Locale.US);
@@ -275,7 +275,7 @@ final class ServletWarBuilder {
                     addFiles(rootDir, file, jar);
                 } else {
                     jar.putNextEntry(new ZipEntry(name));
-                    final byte[] bytes = WebFileLoader.loadFileAsBytes(file, true);
+                    final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
                     if (bytes == null) {
                         throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
                     }

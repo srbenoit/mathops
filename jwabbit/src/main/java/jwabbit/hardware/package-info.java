@@ -1,4 +1,0 @@
-/**
- * Hardware.
- */
-package jwabbit.hardware;

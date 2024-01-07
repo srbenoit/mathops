@@ -2,6 +2,7 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
@@ -20,7 +21,6 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
 import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -385,7 +385,7 @@ enum PageLesson {
         fixed.add("&media-id=");
 
         if (lessonId != null) {
-            final String[] lines = WebFileLoader.loadFileAsLines(new File("/bls/lessons/" + lessonId + ".html"), true);
+            final String[] lines = FileLoader.loadFileAsLines(new File("/bls/lessons/" + lessonId + ".html"), true);
 
             if (lines == null) {
                 htm.sP().add("FAILED TO READ LESSON!").eP();

@@ -2,12 +2,12 @@ package dev.mathops.web.site.admin.sysadmin;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.front.BuildDateTime;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -69,7 +69,9 @@ public enum SysAdminPage {
             throws IOException, SQLException {
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final String htmStr = htm.toString();
+        final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -109,9 +111,10 @@ public enum SysAdminPage {
         // Attempt to glean HTTPD version
         String httpdVersion = null;
         try {
-            final Process p = Runtime.getRuntime().exec("/opt/httpd/bin/httpd -v");
+            final String[] command = {"/opt/httpd/bin/httpd", "-v"};
+            final Process p = Runtime.getRuntime().exec(command);
             try (final InputStream in = p.getInputStream()) {
-                final byte[] data = WebFileLoader.readStreamAsBytes(in);
+                final byte[] data = FileLoader.readStreamAsBytes(in);
                 final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
                 final String[] lines = s.split("\n");
 
@@ -132,9 +135,10 @@ public enum SysAdminPage {
         // Attempt to glean Tomcat version
         String tomcatVersion = null;
         try {
-            final Process p = Runtime.getRuntime().exec("/opt/tomcat/bin/version.sh");
+            final String[] command = {"/opt/tomcat/bin/version.sh"};
+            final Process p = Runtime.getRuntime().exec(command);
             try (final InputStream in = p.getInputStream()) {
-                final byte[] data = WebFileLoader.readStreamAsBytes(in);
+                final byte[] data = FileLoader.readStreamAsBytes(in);
                 final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
                 final String[] lines = s.split("\n");
 
@@ -182,7 +186,9 @@ public enum SysAdminPage {
         if (id != null) {
             htm.add(" id='", id, "'");
         }
-        htm.add(" onclick='pick(\"", topic.getUrl(), "\");'>", topic.getLabel(), "</button>");
+        final String url = topic.getUrl();
+        final String label = topic.getLabel();
+        htm.add(" onclick='pick(\"", url, "\");'>", label, "</button>");
     }
 
     /**
@@ -200,7 +206,8 @@ public enum SysAdminPage {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
 
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, Page.NO_BARS, null, false, true);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, null, false, Page.NO_BARS, null, false, true);
 
         htm.sH(1).add("System Administration").eH(1);
         htm.div("vgap");
@@ -208,6 +215,8 @@ public enum SysAdminPage {
 
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final String htmStr = htm.toString();
+        final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

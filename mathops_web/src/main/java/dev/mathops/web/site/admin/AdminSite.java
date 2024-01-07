@@ -1,6 +1,7 @@
 package dev.mathops.web.site.admin;
 
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.old.Cache;
@@ -8,7 +9,6 @@ import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -125,9 +125,9 @@ public final class AdminSite extends AbstractPageSite {
         } else if ("login.html".equals(subpath)) {
             PageLogin.doLoginPage(cache, this, req, resp);
         } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if ("favicon.ico".equals(subpath)) {

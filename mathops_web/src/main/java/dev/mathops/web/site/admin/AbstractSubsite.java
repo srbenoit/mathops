@@ -1,8 +1,8 @@
 package dev.mathops.web.site.admin;
 
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.old.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -45,10 +45,10 @@ public abstract class AbstractSubsite {
                             final HttpServletRequest req, final HttpServletResponse resp) throws IOException, SQLException {
 
         if ("basestyle.css".equals(subpath)) {
-            AbstractSite.sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css",
+            AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css",
                     true));
         } else if ("style.css".equals(subpath)) {
-            AbstractSite.sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(this.site.getClass(),
+            AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(this.site.getClass(),
                     "style.css", true));
         } else if (subpath.startsWith("images/")) {
             this.site.serveImage(subpath.substring(7), req, resp);

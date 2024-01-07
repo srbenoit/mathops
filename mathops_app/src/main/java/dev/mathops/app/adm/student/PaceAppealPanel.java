@@ -4,7 +4,6 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.TemporalUtils;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 
 import javax.swing.BorderFactory;
@@ -24,14 +23,11 @@ import java.io.Serial;
 /**
  * A panel that creates or edits a "Pace appeal" record.
  */
-/* default */ class PaceAppealPanel extends JPanel implements ActionListener {
+final class PaceAppealPanel extends JPanel implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 3042908501448883872L;
-
-    /** The data cache. */
-    private final Cache cache;
 
     /** The "interviewer" field. */
     private final JTextField interviewerField;
@@ -58,21 +54,18 @@ import java.io.Serial;
     private final JButton applyBtn;
 
     /** The record currently being edited; null if a new record is being created. */
-    private RawPaceAppeals recordBeingEdited;
+    private RawPaceAppeals recordBeingEdited = null;
 
     /** The record currently being created; null if a record is being edited. */
-    private RawPaceAppeals recordBeingCreated;
+    private RawPaceAppeals recordBeingCreated = null;
 
     /**
      * Constructs a new {@code PaceAppealPanel}.
      *
-     * @param theCache         the data cache
      */
-    PaceAppealPanel(final Cache theCache) {
+    PaceAppealPanel() {
 
         super(new StackedBorderLayout(5, 5));
-
-        this.cache = theCache;
 
         setBackground(Skin.LIGHTEST);
         setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));

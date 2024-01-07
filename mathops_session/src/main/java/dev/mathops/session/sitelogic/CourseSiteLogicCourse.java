@@ -62,7 +62,6 @@ public final class CourseSiteLogicCourse {
 
     /** The set of guest student IDs. */
     private static final List<String> GUEST_IDS = Arrays.asList(GUEST, AACTUTOR);
-    ;
 
     /** The owning site logic object. */
     private final CourseSiteLogic owner;

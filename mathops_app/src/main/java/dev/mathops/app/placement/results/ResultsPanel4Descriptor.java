@@ -12,9 +12,6 @@ class ResultsPanel4Descriptor extends WizardPanelDescriptor {
     /** The identifier for this panel. */
     static final String IDENTIFIER = "CLEARED_FOR_PANEL";
 
-    /** The panel. */
-    private final ResultsPanel4 panel4;
-
     /** The list of courses for which credit was earned. */
     private final SortedSet<String> credit;
 
@@ -35,10 +32,10 @@ class ResultsPanel4Descriptor extends WizardPanelDescriptor {
         this.credit = theCredit;
         this.placed = thePlaced;
 
-        this.panel4 = new ResultsPanel4(theCleared);
+        final ResultsPanel4 panel4 = new ResultsPanel4(theCleared);
 
         setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(this.panel4);
+        setPanelComponent(panel4);
     }
 
     /**

@@ -5,9 +5,9 @@ import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -70,7 +70,7 @@ enum PageItemEdit {
                 if (src == null) {
                     htm.sP().add("Unable to load item definition file!").eP();
                 } else {
-                    final String xml = WebFileLoader.loadFileAsString(src, true);
+                    final String xml = FileLoader.loadFileAsString(src, true);
                     if (xml == null) {
                         htm.sP().add("Unable to loread item definition data!").eP();
                     } else {
@@ -180,7 +180,7 @@ enum PageItemEdit {
             final File src = InstructionalCache.getProblemSource(itemId);
 
             if (src != null) {
-                final String xml = WebFileLoader.loadFileAsString(src, true);
+                final String xml = FileLoader.loadFileAsString(src, true);
                 if (xml != null) {
 
                     final String oldFixed = xml.replace("\n", CoreConstants.CRLF)

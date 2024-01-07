@@ -13,20 +13,17 @@ class SurveyPanel6Descriptor extends WizardPanelDescriptor implements ActionList
     /** The identifier for this panel. */
     static final String IDENTIFIER = "COLLEGE_COURSES_PANEL";
 
-    /** The panel. */
-    private final SurveyPanel6 panel6;
-
     /**
      * Construct a new {@code SurveyPanel6Descriptor}.
      */
     SurveyPanel6Descriptor() {
         super();
 
-        this.panel6 = new SurveyPanel6();
-        this.panel6.addActionListener(this);
+        final SurveyPanel6 panel6 = new SurveyPanel6();
+        panel6.addActionListener(this);
 
         setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(this.panel6);
+        setPanelComponent(panel6);
     }
 
     /**

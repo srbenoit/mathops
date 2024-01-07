@@ -10,19 +10,17 @@ class ResultsPanel5Descriptor extends WizardPanelDescriptor {
     /** The identifier for this panel. */
     static final String IDENTIFIER = "NOT_CLEARED_PANEL";
 
-    /** The panel. */
-    private final ResultsPanel5 panel5;
-
     /**
      * Construct a new {@code ResultsPanel5Descriptor}.
      */
     ResultsPanel5Descriptor() {
+
         super();
 
-        this.panel5 = new ResultsPanel5();
+        final ResultsPanel5 panel5 = new ResultsPanel5();
 
         setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(this.panel5);
+        setPanelComponent(panel5);
     }
 
     /**

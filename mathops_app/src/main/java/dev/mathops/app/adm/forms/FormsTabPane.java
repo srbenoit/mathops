@@ -113,7 +113,7 @@ public class FormsTabPane extends JPanel implements ActionListener {
         add(makeButtonGrid(), BUTTONS_CARD);
 
         for (final String table : TABLE_NAMES) {
-            final JPanel card = makeTablePanel(table, theRenderingHint);
+            final JPanel card = makeTablePanel(table);
             add(card, table);
         }
 
@@ -218,7 +218,7 @@ public class FormsTabPane extends JPanel implements ActionListener {
      * @param tableName        the table name
      * @return the pane
      */
-    private JPanel makeTablePanel(final String tableName, final Object theRenderingHint) {
+    private JPanel makeTablePanel(final String tableName) {
 
         final JPanel result = new JPanel(new BorderLayout());
         result.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -252,7 +252,7 @@ public class FormsTabPane extends JPanel implements ActionListener {
             form = new AdminHoldForm(this.cache);
             this.forms.put(tableName, form);
         } else if ("csection".equals(tableName)) {
-            form = new CSectionForm(this.cache, theRenderingHint);
+            form = new CSectionForm(this.cache);
             this.forms.put(tableName, form);
         }
 

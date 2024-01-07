@@ -16,11 +16,12 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
     implementation(project(":mathops_core"))
     implementation(project(":mathops_db"))
     implementation(project(":mathops_font"))
+
+    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 tasks.test {

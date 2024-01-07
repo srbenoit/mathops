@@ -24,16 +24,10 @@ import java.io.Serial;
     @Serial
     private static final long serialVersionUID = -2097566677702003943L;
 
-    /** The tabbed pane. */
-    private final JTabbedPane tabs;
-
-    /** The panel that shows special student populations. */
-    private final SpecialStudentsPanel specialStudents;
-
     /**
      * Constructs a new {@code PeopleCard}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     PeopleCard(final Cache theCache) {
 
@@ -54,13 +48,13 @@ import java.io.Serial;
         center.setBackground(Skin.OFF_WHITE_BROWN);
         panel.add(center, BorderLayout.CENTER);
 
-        this.tabs = new JTabbedPane();
-        this.tabs.setFont(Skin.BIG_BUTTON_16_FONT);
-        this.tabs.setBackground(Skin.OFF_WHITE_RED);
-        panel.add(this.tabs, BorderLayout.CENTER);
+        final JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(Skin.BIG_BUTTON_16_FONT);
+        tabs.setBackground(Skin.OFF_WHITE_RED);
+        panel.add(tabs, BorderLayout.CENTER);
 
-        this.specialStudents = new SpecialStudentsPanel(theCache);
-        this.tabs.addTab("Special Students", this.specialStudents);
+        final SpecialStudentsPanel specialStudents = new SpecialStudentsPanel(theCache);
+        tabs.addTab("Special Students", specialStudents);
     }
 
     /**

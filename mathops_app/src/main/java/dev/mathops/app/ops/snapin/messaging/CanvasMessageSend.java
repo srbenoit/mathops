@@ -30,9 +30,6 @@ public final class CanvasMessageSend {
     /** The data cache. */
     private final Cache cache;
 
-    /** The user object. */
-    private final UserInfo userInfo;
-
     /** The course ID. */
     private final Long courseId;
 
@@ -51,11 +48,11 @@ public final class CanvasMessageSend {
 
         this.cache = theCache;
 
-        this.userInfo = this.api.fetchUser();
-        if (this.userInfo == null) {
+        final UserInfo userInfo = this.api.fetchUser();
+        if (userInfo == null) {
             throw new IllegalArgumentException("Unable to log in and check user ID.");
         }
-        final String name = this.userInfo.getDisplayName();
+        final String name = userInfo.getDisplayName();
         Log.info("Connected to Canvas course ", theCourseId, " as ", name);
 
         this.courseId = theCourseId;

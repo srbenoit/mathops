@@ -4,8 +4,6 @@ import dev.mathops.core.builder.HtmlBuilder;
 
 import java.util.Arrays;
 
-;
-
 /**
  * A specification of a stroke style.
  */

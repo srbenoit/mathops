@@ -2,6 +2,7 @@ package dev.mathops.web.site.reporting;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.old.Cache;
@@ -10,7 +11,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -100,9 +100,9 @@ public final class ReportingSite extends AbstractSite {
 
         switch (subpath) {
             case "basestyle.css", "secure/basestyle.css" ->
-                    sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
             case "style.css", "secure/style.css" ->
-                    sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
             case "favicon.ico", "secure/favicon.ico" -> serveImage(subpath, req, resp);
             case null -> resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -167,7 +167,7 @@ public final class ReportingSite extends AbstractSite {
     private static void serveJs(final String name, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException {
 
-        final byte[] data = WebFileLoader.loadFileAsBytes(ReportingSite.class, name, true);
+        final byte[] data = FileLoader.loadFileAsBytes(ReportingSite.class, name, true);
 
         if (data == null) {
             Log.warning(name, " not found");

@@ -1,8 +1,8 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.ImageIcon;
@@ -307,12 +307,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /** Menu item disable the east wall. */
     private final JMenuItem eastWallDisable;
 
-    /** Menu item to power on the east wall. */
-    private final JMenuItem eastWallPowerOn;
-
-    /** Menu item power off the east wall. */
-    private final JMenuItem eastWallPowerOff;
-
     /** Hamburger button to open "east main 1" menu. */
     private final JButton eastMain1Hamburger;
 
@@ -321,12 +315,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
     /** Menu item to disable the east main 1. */
     private final JMenuItem eastMain1Disable;
-
-    /** Menu item to power on the east main 1. */
-    private final JMenuItem eastMain1PowerOn;
-
-    /** Menu item power off the east main 1. */
-    private final JMenuItem eastMain1PowerOff;
 
     /** Hamburger button to open "east main 2" menu. */
     private final JButton eastMain2Hamburger;
@@ -337,12 +325,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /** Menu item to disable the east main 2. */
     private final JMenuItem eastMain2Disable;
 
-    /** Menu item to power on the east main 2. */
-    private final JMenuItem eastMain2PowerOn;
-
-    /** Menu item power off the east main 2. */
-    private final JMenuItem eastMain2PowerOff;
-
     /** Hamburger button to open "east aisle" menu. */
     private final JButton eastAisleHamburger;
 
@@ -351,12 +333,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
     /** Menu item to disable the east aisle. */
     private final JMenuItem eastAisleDisable;
-
-    /** Menu item to power on the east aisle. */
-    private final JMenuItem eastAislePowerOn;
-
-    /** Menu item power off the east aisle. */
-    private final JMenuItem eastAislePowerOff;
 
     /** Hamburger button to open "west aisle" menu. */
     private final JButton westAisleHamburger;
@@ -367,12 +343,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /** Menu item to disable the west aisle. */
     private final JMenuItem westAisleDisable;
 
-    /** Menu item to power on the west aisle. */
-    private final JMenuItem westAislePowerOn;
-
-    /** Menu item power off the west aisle. */
-    private final JMenuItem westAislePowerOff;
-
     /** Hamburger button to open "west main" menu. */
     private final JButton westMainHamburger;
 
@@ -381,12 +351,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
     /** Menu item to disable the west main. */
     private final JMenuItem westMainDisable;
-
-    /** Menu item to power on the west main. */
-    private final JMenuItem westMainPowerOn;
-
-    /** Menu item power off the west main. */
-    private final JMenuItem westMainPowerOff;
 
     /** Hamburger button to open "west wall" menu. */
     private final JButton westWallHamburger;
@@ -397,12 +361,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /** Menu item to disable the west wall. */
     private final JMenuItem westWallDisable;
 
-    /** Menu item to power on the west wall. */
-    private final JMenuItem westWallPowerOn;
-
-    /** Menu item power off the west wall. */
-    private final JMenuItem westWallPowerOff;
-
     /** Hamburger button to open "west wall center" menu. */
     private final JButton westWallCenterHamburger;
 
@@ -411,12 +369,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
     /** Menu item to disable the west wall center. */
     private final JMenuItem westWallCenterDisable;
-
-    /** Menu item to power on the west wall center. */
-    private final JMenuItem westWallCenterPowerOn;
-
-    /** Menu item power off the west wall center. */
-    private final JMenuItem westWallCenterPowerOff;
 
     /** Hamburger button to open "last 1" menu. */
     private final JButton last1Hamburger;
@@ -427,12 +379,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /** Menu item to disable the last 1 zone. */
     private final JMenuItem last1Disable;
 
-    /** Menu item to power on the last 1. */
-    private final JMenuItem last1PowerOn;
-
-    /** Menu item power off the last 1. */
-    private final JMenuItem last1PowerOff;
-
     /** Hamburger button to open "last 2" menu. */
     private final JButton last2Hamburger;
 
@@ -441,12 +387,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
     /** Menu item to disable the last 2 zone. */
     private final JMenuItem last2Disable;
-
-    /** Menu item to power on the last 2. */
-    private final JMenuItem last2PowerOn;
-
-    /** Menu item power off the last 2. */
-    private final JMenuItem last2PowerOff;
 
     /**
      * Constructs a new {@code TestingCenterMapPanel}.
@@ -465,8 +405,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         setBackground(Skin.OFF_WHITE_RED);
 
         ImageIcon icon = null;
-        final byte[] iconBytes = AppFileLoader.loadFileAsBytes(getClass(), "gear.png",
-                true);
+        final Class<? extends TestingCenterManagePanel> aClass = getClass();
+        final byte[] iconBytes = FileLoader.loadFileAsBytes(aClass, "gear.png", true);
         if (iconBytes != null) {
             icon = new ImageIcon(iconBytes);
         }
@@ -505,14 +445,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.eastWallEnable = makeMenuItem(ENABLE, E_WALL_ENABLE);
         this.eastWallDisable = makeMenuItem(DISABLE, E_WALL_DISABLE);
-        this.eastWallPowerOn = makeMenuItem(POWER_ON, E_WALL_POWER_ON);
-        this.eastWallPowerOff = makeMenuItem(POWER_OFF, E_WALL_POWER_OFF);
+        final JMenuItem eastWallPowerOn = makeMenuItem(POWER_ON, E_WALL_POWER_ON);
+        final JMenuItem eastWallPowerOff = makeMenuItem(POWER_OFF, E_WALL_POWER_OFF);
 
         final JPopupMenu eastWallPopup = new JPopupMenu();
         eastWallPopup.add(this.eastWallEnable);
         eastWallPopup.add(this.eastWallDisable);
-        eastWallPopup.add(this.eastWallPowerOn);
-        eastWallPopup.add(this.eastWallPowerOff);
+        eastWallPopup.add(eastWallPowerOn);
+        eastWallPopup.add(eastWallPowerOff);
 
         this.eastWallHamburger = makeContextMenu(eastWallPopup, icon);
         add(this.eastWallHamburger);
@@ -521,14 +461,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.eastMain1Enable = makeMenuItem(ENABLE, E_MAIN1_ENABLE);
         this.eastMain1Disable = makeMenuItem(DISABLE, E_MAIN1_DISABLE);
-        this.eastMain1PowerOn = makeMenuItem(POWER_ON, E_MAIN1_POWER_ON);
-        this.eastMain1PowerOff = makeMenuItem(POWER_OFF, E_MAIN1_POWER_OFF);
+        final JMenuItem eastMain1PowerOn = makeMenuItem(POWER_ON, E_MAIN1_POWER_ON);
+        final JMenuItem eastMain1PowerOff = makeMenuItem(POWER_OFF, E_MAIN1_POWER_OFF);
 
         final JPopupMenu eastMain1Popup = new JPopupMenu();
         eastMain1Popup.add(this.eastMain1Enable);
         eastMain1Popup.add(this.eastMain1Disable);
-        eastMain1Popup.add(this.eastMain1PowerOn);
-        eastMain1Popup.add(this.eastMain1PowerOff);
+        eastMain1Popup.add(eastMain1PowerOn);
+        eastMain1Popup.add(eastMain1PowerOff);
 
         this.eastMain1Hamburger = makeContextMenu(eastMain1Popup, icon);
         add(this.eastMain1Hamburger);
@@ -537,14 +477,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.eastMain2Enable = makeMenuItem(ENABLE, E_MAIN2_ENABLE);
         this.eastMain2Disable = makeMenuItem(DISABLE, E_MAIN2_DISABLE);
-        this.eastMain2PowerOn = makeMenuItem(POWER_ON, E_MAIN2_POWER_ON);
-        this.eastMain2PowerOff = makeMenuItem(POWER_OFF, E_MAIN2_POWER_OFF);
+        final JMenuItem eastMain2PowerOn = makeMenuItem(POWER_ON, E_MAIN2_POWER_ON);
+        final JMenuItem eastMain2PowerOff = makeMenuItem(POWER_OFF, E_MAIN2_POWER_OFF);
 
         final JPopupMenu eastMain2Popup = new JPopupMenu();
         eastMain2Popup.add(this.eastMain2Enable);
         eastMain2Popup.add(this.eastMain2Disable);
-        eastMain2Popup.add(this.eastMain2PowerOn);
-        eastMain2Popup.add(this.eastMain2PowerOff);
+        eastMain2Popup.add(eastMain2PowerOn);
+        eastMain2Popup.add(eastMain2PowerOff);
 
         this.eastMain2Hamburger = makeContextMenu(eastMain2Popup, icon);
         add(this.eastMain2Hamburger);
@@ -553,14 +493,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.eastAisleEnable = makeMenuItem(ENABLE, E_AISLE_ENABLE);
         this.eastAisleDisable = makeMenuItem(DISABLE, E_AISLE_DISABLE);
-        this.eastAislePowerOn = makeMenuItem(POWER_ON, E_AISLE_POWER_ON);
-        this.eastAislePowerOff = makeMenuItem(POWER_OFF, E_AISLE_POWER_OFF);
+        final JMenuItem eastAislePowerOn = makeMenuItem(POWER_ON, E_AISLE_POWER_ON);
+        final JMenuItem eastAislePowerOff = makeMenuItem(POWER_OFF, E_AISLE_POWER_OFF);
 
         final JPopupMenu eastAislePopup = new JPopupMenu();
         eastAislePopup.add(this.eastAisleEnable);
         eastAislePopup.add(this.eastAisleDisable);
-        eastAislePopup.add(this.eastAislePowerOn);
-        eastAislePopup.add(this.eastAislePowerOff);
+        eastAislePopup.add(eastAislePowerOn);
+        eastAislePopup.add(eastAislePowerOff);
 
         this.eastAisleHamburger = makeContextMenu(eastAislePopup, icon);
         add(this.eastAisleHamburger);
@@ -569,14 +509,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.westAisleEnable = makeMenuItem(ENABLE, W_AISLE_ENABLE);
         this.westAisleDisable = makeMenuItem(DISABLE, W_AISLE_DISABLE);
-        this.westAislePowerOn = makeMenuItem(POWER_ON, W_AISLE_POWER_ON);
-        this.westAislePowerOff = makeMenuItem(POWER_OFF, W_AISLE_POWER_OFF);
+        final JMenuItem westAislePowerOn = makeMenuItem(POWER_ON, W_AISLE_POWER_ON);
+        final JMenuItem westAislePowerOff = makeMenuItem(POWER_OFF, W_AISLE_POWER_OFF);
 
         final JPopupMenu westAislePopup = new JPopupMenu();
         westAislePopup.add(this.westAisleEnable);
         westAislePopup.add(this.westAisleDisable);
-        westAislePopup.add(this.westAislePowerOn);
-        westAislePopup.add(this.westAislePowerOff);
+        westAislePopup.add(westAislePowerOn);
+        westAislePopup.add(westAislePowerOff);
 
         this.westAisleHamburger = makeContextMenu(westAislePopup, icon);
         add(this.westAisleHamburger);
@@ -585,14 +525,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.westMainEnable = makeMenuItem(ENABLE, W_MAIN_ENABLE);
         this.westMainDisable = makeMenuItem(DISABLE, W_MAIN_DISABLE);
-        this.westMainPowerOn = makeMenuItem(POWER_ON, W_MAIN_POWER_ON);
-        this.westMainPowerOff = makeMenuItem(POWER_OFF, W_MAIN_POWER_OFF);
+        final JMenuItem westMainPowerOn = makeMenuItem(POWER_ON, W_MAIN_POWER_ON);
+        final JMenuItem westMainPowerOff = makeMenuItem(POWER_OFF, W_MAIN_POWER_OFF);
 
         final JPopupMenu westMainPopup = new JPopupMenu();
         westMainPopup.add(this.westMainEnable);
         westMainPopup.add(this.westMainDisable);
-        westMainPopup.add(this.westMainPowerOn);
-        westMainPopup.add(this.westMainPowerOff);
+        westMainPopup.add(westMainPowerOn);
+        westMainPopup.add(westMainPowerOff);
 
         this.westMainHamburger = makeContextMenu(westMainPopup, icon);
         add(this.westMainHamburger);
@@ -601,14 +541,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.westWallEnable = makeMenuItem(ENABLE, W_WALL_ENABLE);
         this.westWallDisable = makeMenuItem(DISABLE, W_WALL_DISABLE);
-        this.westWallPowerOn = makeMenuItem(POWER_ON, W_WALL_POWER_ON);
-        this.westWallPowerOff = makeMenuItem(POWER_OFF, W_WALL_POWER_OFF);
+        final JMenuItem westWallPowerOn = makeMenuItem(POWER_ON, W_WALL_POWER_ON);
+        final JMenuItem westWallPowerOff = makeMenuItem(POWER_OFF, W_WALL_POWER_OFF);
 
         final JPopupMenu westWallPopup = new JPopupMenu();
         westWallPopup.add(this.westWallEnable);
         westWallPopup.add(this.westWallDisable);
-        westWallPopup.add(this.westWallPowerOn);
-        westWallPopup.add(this.westWallPowerOff);
+        westWallPopup.add(westWallPowerOn);
+        westWallPopup.add(westWallPowerOff);
 
         this.westWallHamburger = makeContextMenu(westWallPopup, icon);
         add(this.westWallHamburger);
@@ -617,14 +557,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.westWallCenterEnable = makeMenuItem(ENABLE, W_WALL_CENTER_ENABLE);
         this.westWallCenterDisable = makeMenuItem(DISABLE, W_WALL_CENTER_DISABLE);
-        this.westWallCenterPowerOn = makeMenuItem(POWER_ON, W_WALL_CENTER_POWER_ON);
-        this.westWallCenterPowerOff = makeMenuItem(POWER_OFF, W_WALL_CENTER_POWER_OFF);
+        final JMenuItem westWallCenterPowerOn = makeMenuItem(POWER_ON, W_WALL_CENTER_POWER_ON);
+        final JMenuItem westWallCenterPowerOff = makeMenuItem(POWER_OFF, W_WALL_CENTER_POWER_OFF);
 
         final JPopupMenu westWallCenterPopup = new JPopupMenu();
         westWallCenterPopup.add(this.westWallCenterEnable);
         westWallCenterPopup.add(this.westWallCenterDisable);
-        westWallCenterPopup.add(this.westWallCenterPowerOn);
-        westWallCenterPopup.add(this.westWallCenterPowerOff);
+        westWallCenterPopup.add(westWallCenterPowerOn);
+        westWallCenterPopup.add(westWallCenterPowerOff);
 
         this.westWallCenterHamburger = makeContextMenu(westWallCenterPopup, icon);
         add(this.westWallCenterHamburger);
@@ -633,14 +573,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.last1Enable = makeMenuItem(ENABLE, LAST1_ENABLE);
         this.last1Disable = makeMenuItem(DISABLE, LAST1_DISABLE);
-        this.last1PowerOn = makeMenuItem(POWER_ON, LAST1_POWER_ON);
-        this.last1PowerOff = makeMenuItem(POWER_OFF, LAST1_POWER_OFF);
+        final JMenuItem last1PowerOn = makeMenuItem(POWER_ON, LAST1_POWER_ON);
+        final JMenuItem last1PowerOff = makeMenuItem(POWER_OFF, LAST1_POWER_OFF);
 
         final JPopupMenu last1Popup = new JPopupMenu();
         last1Popup.add(this.last1Enable);
         last1Popup.add(this.last1Disable);
-        last1Popup.add(this.last1PowerOn);
-        last1Popup.add(this.last1PowerOff);
+        last1Popup.add(last1PowerOn);
+        last1Popup.add(last1PowerOff);
 
         this.last1Hamburger = makeContextMenu(last1Popup, icon);
         add(this.last1Hamburger);
@@ -650,14 +590,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         this.last2Enable = makeMenuItem(ENABLE, LAST2_ENABLE);
         this.last2Disable = makeMenuItem(DISABLE, LAST2_DISABLE);
-        this.last2PowerOn = makeMenuItem(POWER_ON, LAST2_POWER_ON);
-        this.last2PowerOff = makeMenuItem(POWER_OFF, LAST2_POWER_OFF);
+        final JMenuItem last2PowerOn = makeMenuItem(POWER_ON, LAST2_POWER_ON);
+        final JMenuItem last2PowerOff = makeMenuItem(POWER_OFF, LAST2_POWER_OFF);
 
         final JPopupMenu last2Popup = new JPopupMenu();
         last2Popup.add(this.last2Enable);
         last2Popup.add(this.last2Disable);
-        last2Popup.add(this.last2PowerOn);
-        last2Popup.add(this.last2PowerOff);
+        last2Popup.add(last2PowerOn);
+        last2Popup.add(last2PowerOff);
 
         this.last2Hamburger = makeContextMenu(last2Popup, icon);
         add(this.last2Hamburger);

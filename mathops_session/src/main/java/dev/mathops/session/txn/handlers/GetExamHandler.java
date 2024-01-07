@@ -191,9 +191,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     if ("M 100U".equals(avail.exam.course)) {
                         eligible = true;
 
-                        final RawStudent stu = student;
-                        if (stu.timelimitFactor != null) {
-                            avail.timelimitFactor = stu.timelimitFactor;
+                        if (student.timelimitFactor != null) {
+                            avail.timelimitFactor = student.timelimitFactor;
                         }
                     } else {
                         try {
@@ -210,9 +209,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
                             } else {
                                 eligible = true;
 
-                                final RawStudent stu = student;
-                                if (stu.timelimitFactor != null) {
-                                    avail.timelimitFactor = stu.timelimitFactor;
+                                if (student.timelimitFactor != null) {
+                                    avail.timelimitFactor = student.timelimitFactor;
                                 }
                             }
                         } catch (final SQLException ex) {
@@ -232,9 +230,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     } else {
                         eligible = true;
 
-                        final RawStudent stu = student;
-                        if (stu.timelimitFactor != null) {
-                            avail.timelimitFactor = stu.timelimitFactor;
+                        if (student.timelimitFactor != null) {
+                            avail.timelimitFactor = student.timelimitFactor;
                         }
                     }
                 } else if ("MA".equals(avail.exam.examType)) {

@@ -1,9 +1,9 @@
 package dev.mathops.web.site.admin;
 
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -79,7 +79,7 @@ public final class AdminRootSite extends AbstractSite {
                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
         if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("admin.css".equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
         } else if (subpath.startsWith("images/")) {

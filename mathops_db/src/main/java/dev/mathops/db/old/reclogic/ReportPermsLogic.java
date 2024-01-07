@@ -287,7 +287,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
 
             String w = stringWhere(sql, WHERE, "stu_id", queryCriteria.stuId);
             w = stringWhere(sql, w, "rpt_id", queryCriteria.rptId);
-            integerWhere(sql, w, "perm_level", queryCriteria.permLevel);;
+            integerWhere(sql, w, "perm_level", queryCriteria.permLevel);
 
             return doListQuery(cache, sql.toString());
         }
@@ -474,7 +474,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
 
             String w = stringWhere(sql, WHERE, "stu_id", queryCriteria.stuId);
             w = stringWhere(sql, w, "rpt_id", queryCriteria.rptId);
-            integerWhere(sql, w, "perm_level", queryCriteria.permLevel);;
+            integerWhere(sql, w, "perm_level", queryCriteria.permLevel);
 
             return doListQuery(cache, sql.toString());
         }

@@ -22,10 +22,10 @@ import javafx.beans.property.StringProperty;
 public final class CfgCodeContextModel {
 
     /** The ID. */
-    private StringProperty id;
+    private final StringProperty id;
 
     /** The profile. */
-    private ObjectProperty<CfgDataProfileModel> profile;
+    private final ObjectProperty<CfgDataProfileModel> profile;
 
     /**
      * Constructs a new {@code CfgCodeContextModel}.

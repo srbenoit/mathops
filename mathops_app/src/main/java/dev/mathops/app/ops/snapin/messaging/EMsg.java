@@ -1473,7 +1473,7 @@ public enum EMsg {
     ;
 
     /** A description of the message. */
-    private final String desc;
+    final String desc;
 
     /**
      * Constructs a new {@code EMsgCode}.

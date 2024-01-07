@@ -1,6 +1,6 @@
 package dev.mathops.app.webstart;
 
-import dev.mathops.app.AppFileLoader;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.HexEncoder;
 
@@ -150,7 +150,7 @@ final class Launch implements Runnable {
         this.updater = AppDescriptor.parse(new File(this.launchDir, UPDATER_XML));
 
         Font theFont;
-        try (final InputStream in = AppFileLoader.openInputStream(Launch.class, "ProximaNova-Reg-webfont.ttf", false)) {
+        try (final InputStream in = FileLoader.openInputStream(Launch.class, "ProximaNova-Reg-webfont.ttf", false)) {
             theFont = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (final IOException | FontFormatException ex) {
             FileUtils.log(this.logFile, Res.get(Res.CANT_LOAD_FONT), ex);

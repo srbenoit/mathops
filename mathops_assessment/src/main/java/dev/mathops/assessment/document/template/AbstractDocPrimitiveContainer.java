@@ -37,7 +37,7 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     private BufferedImage offscreen;
 
     /** The alternative text for the generated image for accessibility. */
-    private String altText;
+    private final String altText;
 
     /**
      * Construct a new {@code AbstractDocPrimitiveContainer}.

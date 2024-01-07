@@ -1,9 +1,9 @@
 package dev.mathops.session.txn;
 
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.session.SessionCache;
-import dev.mathops.session.file.SessionFileLoader;
 import dev.mathops.session.SessionManager;
 
 import javax.net.ssl.HostnameVerifier;
@@ -114,7 +114,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
     public final boolean init() {
 
         // Load the trust store
-        try (final InputStream input = SessionFileLoader.openInputStream(getClass(), "client.kdb", true)) {
+        try (final InputStream input = FileLoader.openInputStream(getClass(), "client.kdb", true)) {
 
             final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(input, "pace.not.imp".toCharArray());

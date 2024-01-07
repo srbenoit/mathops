@@ -24,10 +24,10 @@ public final class CfgSiteModel {
     private final CfgWebContextModel owner;
 
     /** The path. */
-    private StringProperty path;
+    private final StringProperty path;
 
     /** The profile ID. */
-    private StringProperty profileId;
+    private final StringProperty profileId;
 
     /**
      * Constructs a new {@code CfgSiteModel}.

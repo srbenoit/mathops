@@ -35,7 +35,7 @@ public final class CanvasSnapIn extends AbstractSnapIn {
 
         this.thumbnail = new CanvasThumbnail();
         this.dashboardTile = new CanvasDashboard();
-        this.full = new CanvasFull(theCache, this, theFrame);
+        this.full = new CanvasFull(theFrame);
     }
 
     /**

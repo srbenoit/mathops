@@ -4,7 +4,6 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawCourse;
 
 import javax.swing.BorderFactory;
@@ -27,27 +26,18 @@ final class AssessExamsPanel extends AdminPanelBase implements ActionListener {
     @Serial
     private static final long serialVersionUID = 4844651125895554806L;
 
-    /** The data cache. */
-    private final Cache cache;
-
-    /** A panel in the center to which report contents will be added. */
-    private final JPanel center;
-
     /** Map from course ID to button. */
     private final Map<String, JToggleButton> courseButtons;
 
     /**
      * Constructs a new {@code AssessExamsPanel}.
      *
-     * @param theCache         the data cache
      * @param courses          the sorted list of courses
      */
-    AssessExamsPanel(final Cache theCache, final Collection<RawCourse> courses) {
+    AssessExamsPanel(final Collection<RawCourse> courses) {
 
         super();
         setBackground(Skin.LIGHTEST);
-
-        this.cache = theCache;
 
         final JPanel buttonPanel = new JPanel(new StackedBorderLayout(3, 3));
         buttonPanel.setBackground(Skin.LIGHTEST);
@@ -67,10 +57,10 @@ final class AssessExamsPanel extends AdminPanelBase implements ActionListener {
             this.courseButtons.put(id, btn);
         }
 
-        this.center = makeOffWhitePanel(new BorderLayout(0, 0));
-        this.center.setBorder(BorderFactory.createEtchedBorder());
-        this.center.setBackground(Skin.LIGHTEST);
-        add(this.center, StackedBorderLayout.CENTER);
+        final JPanel center = makeOffWhitePanel(new BorderLayout(0, 0));
+        center.setBorder(BorderFactory.createEtchedBorder());
+        center.setBackground(Skin.LIGHTEST);
+        add(center, StackedBorderLayout.CENTER);
     }
 
     /**

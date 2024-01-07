@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * A card with assessment-related data.
  */
-/* default */ class AssessCard extends AdminPanelBase implements ActionListener {
+class AssessCard extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";
@@ -29,18 +29,6 @@ import java.util.List;
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -7258055062067929993L;
-
-    /** The tabbed pane. */
-    private final JTabbedPane tabs;
-
-    /** The panel that shows all configured assignments, and supports add/delete/edit. */
-    private final AssessAssignmentsPanel assignments;
-
-    /** The panel that shows all configured exams, and supports add/delete/edit. */
-    private final AssessExamsPanel exams;
-
-    /** The panel that shows all configured mastery exams, and supports add/delete/edit. */
-    private final AssessMasteryExamsPanel masteryExams;
 
     /**
      * Constructs a new {@code AssessCard}.
@@ -62,10 +50,10 @@ import java.util.List;
 
         panel.add(makeHeader("Assessments", false), BorderLayout.NORTH);
 
-        this.tabs = new JTabbedPane();
-        this.tabs.setFont(Skin.BIG_BUTTON_16_FONT);
-        this.tabs.setBackground(Skin.OFF_WHITE_YELLOW);
-        panel.add(this.tabs, BorderLayout.CENTER);
+        final JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(Skin.BIG_BUTTON_16_FONT);
+        tabs.setBackground(Skin.OFF_WHITE_YELLOW);
+        panel.add(tabs, BorderLayout.CENTER);
 
         List<RawCourse> courses;
         try {
@@ -76,14 +64,14 @@ import java.util.List;
             courses = new ArrayList<>(0);
         }
 
-        this.assignments = new AssessAssignmentsPanel(theCache, courses);
-        this.tabs.addTab("Assignments", this.assignments);
+        final AssessAssignmentsPanel assignments = new AssessAssignmentsPanel(courses);
+        tabs.addTab("Assignments", assignments);
 
-        this.exams = new AssessExamsPanel(theCache, courses);
-        this.tabs.addTab("Exams", this.exams);
+        final AssessExamsPanel exams = new AssessExamsPanel(courses);
+        tabs.addTab("Exams", exams);
 
-        this.masteryExams = new AssessMasteryExamsPanel(theCache, courses);
-        this.tabs.addTab("Mastery Exams", this.masteryExams);
+        final AssessMasteryExamsPanel masteryExams = new AssessMasteryExamsPanel(courses);
+        tabs.addTab("Mastery Exams", masteryExams);
     }
 
     /**

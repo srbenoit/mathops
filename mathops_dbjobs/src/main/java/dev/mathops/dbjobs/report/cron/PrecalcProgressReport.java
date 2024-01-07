@@ -93,7 +93,7 @@ public final class PrecalcProgressReport {
     public PrecalcProgressReport(final String theFilename, final Collection<String> theStudentIds) {
 
         this.filename = theFilename;
-        this.category = null;;
+        this.category = null;
         this.subheader = null;
         this.studentIds = theStudentIds;
 

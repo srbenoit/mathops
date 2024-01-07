@@ -1,6 +1,5 @@
 package dev.mathops.app.hw;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.PleaseWait;
 import dev.mathops.app.TempFileCleaner;
@@ -52,9 +51,6 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
     /** The homework session. */
     private ExamSession homeworkSession;
 
-    /** The currently active section. */
-    private int currentSection;
-
     /** The assignment ID being worked on. */
     private final String assignment;
 
@@ -75,9 +71,6 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
 
     /** The ID of the student doing the homework. */
     private String studentId;
-
-    /** A class to pick a section/problem in the AWT thread. */
-    private ProblemPicker picker;
 
     /** A class to enable/disable the exam panel in the AWT thread. */
     private PanelEnabler enabler;
@@ -274,7 +267,7 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
         }
 
         this.homeworkPanel = panel.getHomeworkPanel();
-        this.picker = new ProblemPicker(this.homeworkPanel);
+        final ProblemPicker picker = new ProblemPicker(this.homeworkPanel);
         this.enabler = new PanelEnabler(this.homeworkPanel);
 
         this.homeworkSession.setState(EExamSessionState.INTERACTING);
@@ -288,10 +281,10 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
         // that section, and present it to the student. If the student answers enough correctly, we
         // move on to the next section. If not, we continue to regenerate the section until it is
         // completed sufficiently.
-        this.currentSection = 0;
+        int currentSection = 0;
 
         while (this.frame.isVisible()) {
-            int onSect = this.currentSection;
+            int onSect = currentSection;
 
             ExamSection sect = homework.getSection(onSect);
 
@@ -301,22 +294,22 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
                 for (int attempt = 1; attempt <= 5; attempt++) {
 
                     if (sect.realize(homework.getEvalContext())) {
-                        this.picker.setSectionAndProblem(onSect, 0);
-                        SwingUtilities.invokeLater(this.picker);
+                        picker.setSectionAndProblem(onSect, 0);
+                        SwingUtilities.invokeLater(picker);
 
                         break;
                     }
 
-                    Log.warning("Error on attempt " + attempt + " to generate section " + this.currentSection);
+                    Log.warning("Error on attempt " + attempt + " to generate section " + currentSection);
                 }
             }
 
             // Wait for the section to be submitted
             while (this.frame.isVisible() && !this.grade) {
 
-                if (this.currentSection != onSect) {
+                if (currentSection != onSect) {
                     // User has changed sections.
-                    onSect = this.currentSection;
+                    onSect = currentSection;
                 }
 
                 try {
@@ -356,11 +349,11 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
                             }
 
                             Log.warning("Error on attempt " + attempt + " to regenerate section "
-                                    + this.currentSection);
+                                    + currentSection);
                         }
                     }
 
-                    this.currentSection = newSect;
+                    currentSection = newSect;
                     this.enabler.setEnable(true);
                     SwingUtilities.invokeLater(this.enabler);
                 }

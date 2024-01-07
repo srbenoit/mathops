@@ -1,7 +1,7 @@
 package dev.mathops.font;
 
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
-import dev.mathops.font.file.FontFileLoader;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
@@ -107,7 +107,7 @@ public final class GlyphViewer implements ActionListener, ViewerInt {
      */
     private void loadNameMap() {
 
-        try (final InputStream input = FontFileLoader.openInputStream(GlyphViewer.class,
+        try (final InputStream input = FileLoader.openInputStream(GlyphViewer.class,
                 "edu/colostate/math/app/font/fontnames.properties", true)) {
             this.nameMap.load(input);
         } catch (final IOException ex) {

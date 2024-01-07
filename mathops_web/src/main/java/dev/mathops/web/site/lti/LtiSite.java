@@ -2,6 +2,7 @@ package dev.mathops.web.site.lti;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
@@ -11,7 +12,6 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -80,9 +80,9 @@ public final class LtiSite extends CourseSite {
         Log.info("GET ", subpath);
 
         if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("course.css".equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
         } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {

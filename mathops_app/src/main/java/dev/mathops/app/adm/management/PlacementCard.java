@@ -19,9 +19,6 @@ import java.io.Serial;
     @Serial
     private static final long serialVersionUID = -4649552398988781982L;
 
-    /** The tabbed pane. */
-    private final JTabbedPane tabs;
-
     /** The panel that shows billing status and allows billing batches to be run. */
     private final PlacementBillingPanel billing;
 
@@ -52,16 +49,16 @@ import java.io.Serial;
         center.setBackground(Skin.OFF_WHITE_LIME);
         panel.add(center, BorderLayout.CENTER);
 
-        this.tabs = new JTabbedPane();
-        this.tabs.setFont(Skin.BIG_BUTTON_16_FONT);
-        this.tabs.setBackground(Skin.OFF_WHITE_RED);
-        panel.add(this.tabs, BorderLayout.CENTER);
+        final JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(Skin.BIG_BUTTON_16_FONT);
+        tabs.setBackground(Skin.OFF_WHITE_RED);
+        panel.add(tabs, BorderLayout.CENTER);
 
         this.billing = new PlacementBillingPanel(theCache);
-        this.tabs.addTab("Billing", this.billing);
+        tabs.addTab("Billing", this.billing);
 
         this.report = new PlacementReportPanel(theCache);
-        this.tabs.addTab("Report", this.report);
+        tabs.addTab("Report", this.report);
     }
 
     /**

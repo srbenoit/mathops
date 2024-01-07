@@ -50,7 +50,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     private final Cache ifxCache;
 
     /** The PostgreSQL data cache. */
-    private final Cache pgCache;
+//    private final Cache pgCache;
 
     /** The client stub. */
     private final ScramClientStub stub;
@@ -102,7 +102,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         this.ifxContext = theIfxContext;
         this.pgContext = thePgContext;
         this.ifxCache = theIfxCache;
-        this.pgCache = thePgCache;
+//        this.pgCache = thePgCache;
         this.liveContext = theLiveContext;
 
         this.fixed = new FixedData(this.ifxCache, theUsername);

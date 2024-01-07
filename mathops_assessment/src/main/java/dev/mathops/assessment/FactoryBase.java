@@ -1,7 +1,7 @@
 package dev.mathops.assessment;
 
-import dev.mathops.assessment.file.AssessmentFileLoader;
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.parser.CharSpan;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.XmlContent;
@@ -23,7 +23,7 @@ public enum FactoryBase {
      */
     public static XmlContent getSourceContent(final File file) throws ParsingException {
 
-        final String xml = AssessmentFileLoader.loadFileAsString(file, true);
+        final String xml = FileLoader.loadFileAsString(file, true);
 
         if (xml == null) {
             throw new ParsingException(new CharSpan(0, 0, 1, 1), "Failed to load file");
@@ -63,8 +63,7 @@ public enum FactoryBase {
                 return null;
             }
 
-            converted = converted.substring(0, escape) + Character.valueOf(ch)
-                    + converted.substring(escape + 6);
+            converted = converted.substring(0, escape) + Character.valueOf(ch) + converted.substring(escape + 6);
 
             escape = converted.indexOf("\\u");
         }

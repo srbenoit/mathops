@@ -151,21 +151,18 @@ final class CSectionForm extends AbstractForm implements ListSelectionListener {
     /** The list of terms from which to select. */
     private final JList<TermKey> termsList;
 
-    /** The scroll pane for the terms list. */
-    private final JScrollPane termsScroll;
-
     /** Cursor pointing the current query result. */
-    private int cursor;
+    private int cursor = 0;
 
     /** The currently selected term. */
-    private TermKey selectedTerm;
+    private TermKey selectedTerm = null;
 
     /**
      * Constructs a new {@code CSectionForm}.
      *
      * @param theCache         the data cache
      */
-    /* default */ CSectionForm(final Cache theCache, final Object theRenderingHint) {
+    CSectionForm(final Cache theCache) {
 
         super();
 
@@ -188,9 +185,10 @@ final class CSectionForm extends AbstractForm implements ListSelectionListener {
         this.termsList = new JList<>(new DefaultListModel<>());
         this.termsList.setPreferredSize(new Dimension(100, 100));
         this.termsList.addListSelectionListener(this);
-        this.termsScroll = new JScrollPane(this.termsList);
-        this.termsScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        add(this.termsScroll, StackedBorderLayout.WEST);
+
+        final JScrollPane termsScroll = new JScrollPane(this.termsList);
+        termsScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        add(termsScroll, StackedBorderLayout.WEST);
 
         final JPanel left = new JPanel(new BorderLayout());
         left.setBackground(Color.WHITE);

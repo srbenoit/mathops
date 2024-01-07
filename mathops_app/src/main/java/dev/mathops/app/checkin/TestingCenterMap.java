@@ -1,6 +1,6 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.app.AppFileLoader;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.font.BundledFontManager;
@@ -68,10 +68,7 @@ public final class TestingCenterMap {
     private final Font legendFont;
 
     /** An icon to label a station as wheelchair accessible. */
-    private BufferedImage wheelchairIcon;
-
-    /** The wheelchair button in its lit state. */
-    private BufferedImage wheelchairLit;
+    private final BufferedImage wheelchairIcon;
 
     /**
      * Constructs a new {@code TestingCenterMap}.
@@ -99,8 +96,7 @@ public final class TestingCenterMap {
         this.pcFont = bfm.getFont(BundledFontManager.SANS, 14.0, Font.BOLD);
         this.legendFont = bfm.getFont(BundledFontManager.SANS, 18.0, Font.BOLD);
 
-        this.wheelchairIcon = AppFileLoader.loadFileAsImage(TestingCenterMap.class, "whlchr-tiny.jpg", true);
-        this.wheelchairLit = AppFileLoader.loadFileAsImage(TestingCenterMap.class, "whlchr-lit.jpg", true);
+        this.wheelchairIcon = FileLoader.loadFileAsImage(TestingCenterMap.class, "whlchr-tiny.jpg", true);
     }
 
     /**

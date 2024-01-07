@@ -2,6 +2,7 @@ package dev.mathops.db.config;
 
 import dev.mathops.core.PathList;
 import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.EmptyElement;
@@ -9,7 +10,6 @@ import dev.mathops.core.parser.xml.IElement;
 import dev.mathops.core.parser.xml.INode;
 import dev.mathops.core.parser.xml.NonemptyElement;
 import dev.mathops.core.parser.xml.XmlContent;
-import dev.mathops.db.DbFileLoader;
 
 import java.io.File;
 import java.util.Collection;
@@ -349,7 +349,7 @@ public final class CfgDatabaseLayer {
             throw new ParsingException(-1, -1, msg);
         }
 
-        final String xml = DbFileLoader.loadFileAsString(xmlFile, true);
+        final String xml = FileLoader.loadFileAsString(xmlFile, true);
 
         if (xml == null) {
             final String xmlPath = xmlFile.getAbsolutePath();

@@ -72,12 +72,6 @@ abstract class AbstractForm extends JPanel implements ActionListener {
     @Serial
     private static final long serialVersionUID = -2713239521885208627L;
 
-    /** The query button. */
-    private final JButton query;
-
-    /** The add button. */
-    private final JButton add;
-
     /** The query execute button. */
     private final JButton execute;
 
@@ -108,17 +102,17 @@ abstract class AbstractForm extends JPanel implements ActionListener {
         buttons.setBackground(Color.WHITE);
         add(buttons, StackedBorderLayout.NORTH);
 
-        this.query = new JButton("Query");
-        this.query.setMnemonic(KeyEvent.VK_Q);
-        this.query.setActionCommand(QUERY_CMD);
-        this.query.addActionListener(this);
-        buttons.add(this.query);
+        final JButton query = new JButton("Query");
+        query.setMnemonic(KeyEvent.VK_Q);
+        query.setActionCommand(QUERY_CMD);
+        query.addActionListener(this);
+        buttons.add(query);
 
-        this.add = new JButton("Add");
-        this.add.setMnemonic(KeyEvent.VK_A);
-        this.add.setActionCommand(ADD_CMD);
-        this.add.addActionListener(this);
-        buttons.add(this.add);
+        final JButton add = new JButton("Add");
+        add.setMnemonic(KeyEvent.VK_A);
+        add.setActionCommand(ADD_CMD);
+        add.addActionListener(this);
+        buttons.add(add);
 
         final JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBackground(Color.WHITE);

@@ -5,6 +5,7 @@ import dev.mathops.core.ui.layout.StackedBorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -97,81 +98,6 @@ public final class FormulaEditorPalette extends JPanel implements ActionListener
     /** The owning panel. */
     private final FormulaEditorPanel owner;
 
-    /** A button to enter the "Pi" symbol. */
-    private final JButton piButton;
-
-    /** A button to enter the "E" symbol. */
-    private final JButton eButton;
-
-    /** A button to enter the "TRUE" symbol. */
-    private final JButton trueButton;
-
-    /** A button to enter the "FALSE" symbol. */
-    private final JButton falseButton;
-
-    /** A button to enter the "abs()" function. */
-    private final JButton absButton;
-
-    /** A button to enter the "cos()" function. */
-    private final JButton cosButton;
-
-    /** A button to enter the "sin()" function. */
-    private final JButton sinButton;
-
-    /** A button to enter the "tan()" function. */
-    private final JButton tanButton;
-
-    /** A button to enter the "acos()" function. */
-    private final JButton acosButton;
-
-    /** A button to enter the "asin()" function. */
-    private final JButton asinButton;
-
-    /** A button to enter the "atan()" function. */
-    private final JButton atanButton;
-
-    /** A button to enter the "exp()" function. */
-    private final JButton expButton;
-
-    /** A button to enter the "log()" function. */
-    private final JButton logButton;
-
-    /** A button to enter the "ceil()" function. */
-    private final JButton ceilButton;
-
-    /** A button to enter the "floor()" function. */
-    private final JButton floorButton;
-
-    /** A button to enter the "round()" function. */
-    private final JButton roundButton;
-
-    /** A button to enter the "sqrt()" function. */
-    private final JButton sqrtButton;
-
-    /** A button to enter the "cbrt()" function. */
-    private final JButton cbrtButton;
-
-    /** A button to enter the "toDeg()" function. */
-    private final JButton toDegButton;
-
-    /** A button to enter the "toRad()" function. */
-    private final JButton toRadButton;
-
-    /** A button to enter the "not()" function. */
-    private final JButton notButton;
-
-    /** A button to enter the "gcd()" function. */
-    private final JButton gcdButton;
-
-    /** A button to enter the "srad2()" function. */
-    private final JButton srad2Button;
-
-    /** A button to enter the "srad3()" function. */
-    private final JButton srad3Button;
-
-    /** A button to enter the "test(?:)" construction. */
-    private final JButton testButton;
-
     /**
      * Constructs a new {@code FormulaEditorPalette}.
      *
@@ -195,139 +121,140 @@ public final class FormulaEditorPalette extends JPanel implements ActionListener
         final JPanel line4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
         add(line4, StackedBorderLayout.NORTH);
 
-        this.piButton = new JButton("\u03C0");
-        this.piButton.setActionCommand(PI_CMD);
-        this.piButton.addActionListener(this);
-        line1.add(this.piButton);
+        final JButton piButton = new JButton("\u03C0");
+        piButton.setActionCommand(PI_CMD);
+        piButton.addActionListener(this);
+        line1.add(piButton);
 
-        this.eButton = new JButton("e");
-        this.eButton.setActionCommand(E_CMD);
-        this.eButton.addActionListener(this);
-        line1.add(this.eButton);
+        final JButton eButton = new JButton("e");
+        eButton.setActionCommand(E_CMD);
+        eButton.addActionListener(this);
+        line1.add(eButton);
 
-        this.trueButton = new JButton("TRUE");
-        this.trueButton.setActionCommand(TRUE_CMD);
-        this.trueButton.addActionListener(this);
-        line1.add(this.trueButton);
+        final JButton trueButton = new JButton("TRUE");
+        trueButton.setActionCommand(TRUE_CMD);
+        trueButton.addActionListener(this);
+        line1.add(trueButton);
 
-        this.falseButton = new JButton("FALSE");
-        this.falseButton.setActionCommand(FALSE_CMD);
-        this.falseButton.addActionListener(this);
-        line1.add(this.falseButton);
+        final JButton falseButton = new JButton("FALSE");
+        falseButton.setActionCommand(FALSE_CMD);
+        falseButton.addActionListener(this);
+        line1.add(falseButton);
 
-        this.piButton.setPreferredSize(this.falseButton.getPreferredSize());
-        this.eButton.setPreferredSize(this.falseButton.getPreferredSize());
+        final Dimension falsePrefSize = falseButton.getPreferredSize();
+        piButton.setPreferredSize(falsePrefSize);
+        eButton.setPreferredSize(falsePrefSize);
 
-        this.absButton = new JButton("abs()");
-        this.absButton.setActionCommand(ABS_CMD);
-        this.absButton.addActionListener(this);
-        line1.add(this.absButton);
+        final JButton absButton = new JButton("abs()");
+        absButton.setActionCommand(ABS_CMD);
+        absButton.addActionListener(this);
+        line1.add(absButton);
 
-        this.cosButton = new JButton("cos()");
-        this.cosButton.setActionCommand(COS_CMD);
-        this.cosButton.addActionListener(this);
-        line1.add(this.cosButton);
+        final JButton cosButton = new JButton("cos()");
+        cosButton.setActionCommand(COS_CMD);
+        cosButton.addActionListener(this);
+        line1.add(cosButton);
 
-        this.sinButton = new JButton("sin()");
-        this.sinButton.setActionCommand(SIN_CMD);
-        this.sinButton.addActionListener(this);
-        line1.add(this.sinButton);
+        final JButton sinButton = new JButton("sin()");
+        sinButton.setActionCommand(SIN_CMD);
+        sinButton.addActionListener(this);
+        line1.add(sinButton);
 
-        this.tanButton = new JButton("tan()");
-        this.tanButton.setActionCommand(TAN_CMD);
-        this.tanButton.addActionListener(this);
-        line1.add(this.tanButton);
-
-        //
-
-        this.acosButton = new JButton("acos()");
-        this.acosButton.setActionCommand(ACOS_CMD);
-        this.acosButton.addActionListener(this);
-        line2.add(this.acosButton);
-
-        this.asinButton = new JButton("asin()");
-        this.asinButton.setActionCommand(ASIN_CMD);
-        this.asinButton.addActionListener(this);
-        line2.add(this.asinButton);
-
-        this.atanButton = new JButton("atan()");
-        this.atanButton.setActionCommand(ATAN_CMD);
-        this.atanButton.addActionListener(this);
-        line2.add(this.atanButton);
-
-        this.expButton = new JButton("exp()");
-        this.expButton.setActionCommand(EXP_CMD);
-        this.expButton.addActionListener(this);
-        line2.add(this.expButton);
-
-        this.logButton = new JButton("log()");
-        this.logButton.setActionCommand(LOG_CMD);
-        this.logButton.addActionListener(this);
-        line2.add(this.logButton);
-
-        this.ceilButton = new JButton("ceil()");
-        this.ceilButton.setActionCommand(CEIL_CMD);
-        this.ceilButton.addActionListener(this);
-        line2.add(this.ceilButton);
-
-        this.floorButton = new JButton("floor()");
-        this.floorButton.setActionCommand(FLOOR_CMD);
-        this.floorButton.addActionListener(this);
-        line2.add(this.floorButton);
-
-        this.roundButton = new JButton("round()");
-        this.roundButton.setActionCommand(ROUND_CMD);
-        this.roundButton.addActionListener(this);
-        line2.add(this.roundButton);
+        final JButton tanButton = new JButton("tan()");
+        tanButton.setActionCommand(TAN_CMD);
+        tanButton.addActionListener(this);
+        line1.add(tanButton);
 
         //
 
-        this.sqrtButton = new JButton("sqrt()");
-        this.sqrtButton.setActionCommand(SQRT_CMD);
-        this.sqrtButton.addActionListener(this);
-        line3.add(this.sqrtButton);
+        final JButton acosButton = new JButton("acos()");
+        acosButton.setActionCommand(ACOS_CMD);
+        acosButton.addActionListener(this);
+        line2.add(acosButton);
 
-        this.cbrtButton = new JButton("cbrt()");
-        this.cbrtButton.setActionCommand(CBRT_CMD);
-        this.cbrtButton.addActionListener(this);
-        line3.add(this.cbrtButton);
+        final JButton asinButton = new JButton("asin()");
+        asinButton.setActionCommand(ASIN_CMD);
+        asinButton.addActionListener(this);
+        line2.add(asinButton);
 
-        this.toDegButton = new JButton("toDeg()");
-        this.toDegButton.setActionCommand(TO_DEG_CMD);
-        this.toDegButton.addActionListener(this);
-        line3.add(this.toDegButton);
+        final JButton atanButton = new JButton("atan()");
+        atanButton.setActionCommand(ATAN_CMD);
+        atanButton.addActionListener(this);
+        line2.add(atanButton);
 
-        this.toRadButton = new JButton("toRad()");
-        this.toRadButton.setActionCommand(TO_RAD_CMD);
-        this.toRadButton.addActionListener(this);
-        line3.add(this.toRadButton);
+        final JButton expButton = new JButton("exp()");
+        expButton.setActionCommand(EXP_CMD);
+        expButton.addActionListener(this);
+        line2.add(expButton);
 
-        this.notButton = new JButton("not()");
-        this.notButton.setActionCommand(NOT_CMD);
-        this.notButton.addActionListener(this);
-        line3.add(this.notButton);
+        final JButton logButton = new JButton("log()");
+        logButton.setActionCommand(LOG_CMD);
+        logButton.addActionListener(this);
+        line2.add(logButton);
 
-        this.gcdButton = new JButton("gcd()");
-        this.gcdButton.setActionCommand(GCD_CMD);
-        this.gcdButton.addActionListener(this);
-        line3.add(this.gcdButton);
+        final JButton ceilButton = new JButton("ceil()");
+        ceilButton.setActionCommand(CEIL_CMD);
+        ceilButton.addActionListener(this);
+        line2.add(ceilButton);
 
-        this.srad2Button = new JButton("srad2()");
-        this.srad2Button.setActionCommand(SRAD2_CMD);
-        this.srad2Button.addActionListener(this);
-        line3.add(this.srad2Button);
+        final JButton floorButton = new JButton("floor()");
+        floorButton.setActionCommand(FLOOR_CMD);
+        floorButton.addActionListener(this);
+        line2.add(floorButton);
 
-        this.srad3Button = new JButton("srad3()");
-        this.srad3Button.setActionCommand(SRAD3_CMD);
-        this.srad3Button.addActionListener(this);
-        line3.add(this.srad3Button);
+        final JButton roundButton = new JButton("round()");
+        roundButton.setActionCommand(ROUND_CMD);
+        roundButton.addActionListener(this);
+        line2.add(roundButton);
 
         //
 
-        this.testButton = new JButton("IF - THEN - ELSE");
-        this.testButton.setActionCommand(TEST_CMD);
-        this.testButton.addActionListener(this);
-        line4.add(this.testButton);
+        final JButton sqrtButton = new JButton("sqrt()");
+        sqrtButton.setActionCommand(SQRT_CMD);
+        sqrtButton.addActionListener(this);
+        line3.add(sqrtButton);
+
+        final JButton cbrtButton = new JButton("cbrt()");
+        cbrtButton.setActionCommand(CBRT_CMD);
+        cbrtButton.addActionListener(this);
+        line3.add(cbrtButton);
+
+        final JButton toDegButton = new JButton("toDeg()");
+        toDegButton.setActionCommand(TO_DEG_CMD);
+        toDegButton.addActionListener(this);
+        line3.add(toDegButton);
+
+        final JButton toRadButton = new JButton("toRad()");
+        toRadButton.setActionCommand(TO_RAD_CMD);
+        toRadButton.addActionListener(this);
+        line3.add(toRadButton);
+
+        final JButton notButton = new JButton("not()");
+        notButton.setActionCommand(NOT_CMD);
+        notButton.addActionListener(this);
+        line3.add(notButton);
+
+        final JButton gcdButton = new JButton("gcd()");
+        gcdButton.setActionCommand(GCD_CMD);
+        gcdButton.addActionListener(this);
+        line3.add(gcdButton);
+
+        final JButton srad2Button = new JButton("srad2()");
+        srad2Button.setActionCommand(SRAD2_CMD);
+        srad2Button.addActionListener(this);
+        line3.add(srad2Button);
+
+        final JButton srad3Button = new JButton("srad3()");
+        srad3Button.setActionCommand(SRAD3_CMD);
+        srad3Button.addActionListener(this);
+        line3.add(srad3Button);
+
+        //
+
+        final JButton testButton = new JButton("IF - THEN - ELSE");
+        testButton.setActionCommand(TEST_CMD);
+        testButton.addActionListener(this);
+        line4.add(testButton);
     }
 
     /**

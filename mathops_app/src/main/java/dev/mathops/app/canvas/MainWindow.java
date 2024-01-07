@@ -839,9 +839,6 @@ final class MainWindow extends JFrame implements ActionListener {
     /** The Canvas API object. */
     private final CanvasApi api;
 
-    /** The Canvas user object. */
-    private final UserInfo userInfo;
-
     /** The content panel. */
     private final JPanel content;
 
@@ -852,7 +849,7 @@ final class MainWindow extends JFrame implements ActionListener {
     private final CardLayout centerCards;
 
     /** The currently visible center panel; null if none. */
-    private JPanel currentCenter;
+    private JPanel currentCenter = null;
 
     /**
      * Constructs a new {@code MainWindow}. Called in the AWT event thread.
@@ -865,7 +862,6 @@ final class MainWindow extends JFrame implements ActionListener {
         super(Res.get(Res.TITLE));
 
         this.api = theApi;
-        this.userInfo = theUserInfo;
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 

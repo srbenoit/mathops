@@ -2,7 +2,7 @@ package dev.mathops.core.unicode;
 
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.CoreFileLoader;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public final class UnicodeBlocks {
      */
     private void loadBlocksFile() {
 
-        final String[] lines = CoreFileLoader.loadFileAsLines(getClass(), FILENAME, true);
+        final String[] lines = FileLoader.loadFileAsLines(getClass(), FILENAME, true);
         try {
             for (String line : lines) {
                 if (!line.isEmpty() && line.charAt(0) != '#') {

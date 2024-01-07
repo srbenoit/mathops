@@ -34,12 +34,6 @@ final class CanvasUserIDScanner extends SwingWorker<String, ScannerStatus> {
     /** The Canvas API. */
     private final CanvasApi api;
 
-    /** The user object. */
-    private final UserInfo userInfo;
-
-    /** True to cancel/abort scan. */
-    private final AtomicBoolean cancel;
-
     /** The progress bar. */
     private final JProgressBar progressBar;
 
@@ -71,24 +65,15 @@ final class CanvasUserIDScanner extends SwingWorker<String, ScannerStatus> {
         this.invokingButton = theInvokingButton;
         this.progressLabel = theProgressLabel;
 
-        this.userInfo = this.api.fetchUser();
-        if (this.userInfo == null) {
+        final UserInfo userInfo = this.api.fetchUser();
+        if (userInfo == null) {
             throw new IllegalArgumentException("Unable to log in and check user ID.");
         }
 
-        final String name = this.userInfo.getDisplayName();
+        final String name = userInfo.getDisplayName();
         Log.info("Connected to Canvas as ", name);
 
-        this.cancel = new AtomicBoolean(false);
     }
-
-//    /**
-//     * Cancels the scan.
-//     */
-//    public void cancelScan() {
-//
-//        this.cancel.set(true);
-//    }
 
     /**
      * Execute the task in a background thread.

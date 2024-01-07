@@ -279,7 +279,7 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
                 // Emit numbers using their numeric representation
                 // FIXME: Could we emit {\minus} rather than \u2212 directly?
                 final String str = var instanceof final AbstractFormattableVariable formattable
-                        ? formattable.valueAsString() : numberValue.toString().replace('-', '\u2212');;
+                        ? formattable.valueAsString() : numberValue.toString().replace('-', '\u2212');
                 result = new DocTextInst(null, null, str);
             } else if (value instanceof IntegerVectorValue || value instanceof RealVectorValue) {
                 // FIXME: Does the following replace '-' minus signs with better symbols?

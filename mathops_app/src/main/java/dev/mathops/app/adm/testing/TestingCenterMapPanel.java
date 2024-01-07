@@ -75,9 +75,6 @@ final class TestingCenterMapPanel extends JPanel {
     /** The color for a "powering on" badge. */
     private final Color poweringColor;
 
-    /** The color for an "unknown" badge. */
-    private final Color unknownColor;
-
     /** The font in which to draw numbers on the PCs. */
     private final Font pcFont;
 
@@ -119,7 +116,6 @@ final class TestingCenterMapPanel extends JPanel {
         this.onColor = Color.GREEN;
         this.offColor = Color.RED;
         this.poweringColor = Color.ORANGE;
-        this.unknownColor = Color.GRAY;
 
         this.pcFont = new Font(Font.SANS_SERIF, Font.BOLD, 14);
         this.legendFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);

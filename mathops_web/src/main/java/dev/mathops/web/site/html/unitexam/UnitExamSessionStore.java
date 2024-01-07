@@ -9,6 +9,7 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.Attribute;
@@ -23,7 +24,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
-import dev.mathops.web.file.WebFileLoader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -297,7 +297,7 @@ public final class UnitExamSessionStore {
             Log.info("Restoring unit exam sessions from ", target.getAbsolutePath());
 
             if (target.exists()) {
-                final String xml = WebFileLoader.loadFileAsString(target, true);
+                final String xml = FileLoader.loadFileAsString(target, true);
 
                 try {
                     final XmlContent content = new XmlContent(xml, false, false);

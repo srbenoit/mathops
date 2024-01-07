@@ -108,13 +108,10 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     /** The student status display field. */
     private final JLabel studentStatusDisplay;
 
-    /** The center panel where the grid of exam buttons will be displayed. */
-    private final JPanel grid;
-
     /** The button to toggle enforcement of eligibility checks. */
     private final JCheckBox enforceEligible;
 
-    /** Map from exam key top it's button panel. */
+    /** Map from exam key top its button panel. */
     private final Map<String, ExamButtonPane> examButtons;
 
     /**
@@ -157,15 +154,15 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         north.setBackground(Skin.OFF_WHITE_CYAN);
 
         // Center: grid of buttons just like check-in
-        this.grid = new JPanel(new GridBagLayout());
-        this.grid.setBackground(Skin.OFF_WHITE_CYAN);
+        final JPanel grid = new JPanel(new GridBagLayout());
+        grid.setBackground(Skin.OFF_WHITE_CYAN);
 
         // Bottom: Checkbox to allow exams to be issued for which student is not eligible
         final JPanel south = new JPanel(new BorderLayout(10, 10));
         south.setBackground(Skin.OFF_WHITE_CYAN);
 
         center.add(north, StackedBorderLayout.NORTH);
-        center.add(this.grid, StackedBorderLayout.NORTH);
+        center.add(grid, StackedBorderLayout.NORTH);
         center.add(south, StackedBorderLayout.SOUTH);
 
         //
@@ -222,44 +219,44 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         title117.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title117.setForeground(Skin.LABEL_COLOR2);
         header117.add(title117);
-        this.grid.add(header117, c);
+        grid.add(header117, c);
 
         c.gridy = 1;
         c.weighty = 1.0;
         final ExamButtonPane m117u1 = new ExamButtonPane(UNIT_1, this, "M 117-1");
         this.examButtons.put("M 117-1", m117u1);
-        this.grid.add(m117u1, c);
+        grid.add(m117u1, c);
         c.gridy = 2;
         final ExamButtonPane m117u2 = new ExamButtonPane(UNIT_2, this, "M 117-2");
         this.examButtons.put("M 117-2", m117u2);
-        this.grid.add(m117u2, c);
+        grid.add(m117u2, c);
         c.gridy = 3;
         final ExamButtonPane m117u3 = new ExamButtonPane(UNIT_3, this, "M 117-3");
         this.examButtons.put("M 117-3", m117u3);
-        this.grid.add(m117u3, c);
+        grid.add(m117u3, c);
         c.gridy = 4;
         final ExamButtonPane m117u4 = new ExamButtonPane(UNIT_4, this, "M 117-4");
         this.examButtons.put("M 117-4", m117u4);
-        this.grid.add(m117u4, c);
+        grid.add(m117u4, c);
         c.gridy = 5;
         final ExamButtonPane m117u5 = new ExamButtonPane(FINAL, this, "M 117-5");
         this.examButtons.put("M 117-5", m117u5);
-        this.grid.add(m117u5, c);
+        grid.add(m117u5, c);
         c.gridy = 6;
         final ExamButtonPane m117ma = new ExamButtonPane(MASTERY, this, "M 117-M");
         this.examButtons.put("M 117-M", m117ma);
-        this.grid.add(m117ma, c);
+        grid.add(m117ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc117 = new JPanel();
         spc117.setBackground(Skin.OFF_WHITE_CYAN);
         spc117.setBorder(courseBorder);
-        this.grid.add(spc117, c);
+        grid.add(spc117, c);
         c.gridy = 8;
         c.weighty = 1.0;
         final ExamButtonPane m117ch = new ExamButtonPane(CHALLENGE, this, "M 117-C");
         this.examButtons.put("M 117-C", m117ch);
-        this.grid.add(m117ch, c);
+        grid.add(m117ch, c);
         c.weighty = 0.0;
 
         c.gridx = 1;
@@ -272,44 +269,44 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         title118.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title118.setForeground(Skin.LABEL_COLOR2);
         header118.add(title118);
-        this.grid.add(header118, c);
+        grid.add(header118, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane m118u1 = new ExamButtonPane(UNIT_1, this, "M 118-1");
         this.examButtons.put("M 118-1", m118u1);
-        this.grid.add(m118u1, c);
+        grid.add(m118u1, c);
         c.gridy = 2;
         final ExamButtonPane m118u2 = new ExamButtonPane(UNIT_2, this, "M 118-2");
         this.examButtons.put("M 118-2", m118u2);
-        this.grid.add(m118u2, c);
+        grid.add(m118u2, c);
         c.gridy = 3;
         final ExamButtonPane m118u3 = new ExamButtonPane(UNIT_3, this, "M 118-3");
         this.examButtons.put("M 118-3", m118u3);
-        this.grid.add(m118u3, c);
+        grid.add(m118u3, c);
         c.gridy = 4;
         final ExamButtonPane m118u4 = new ExamButtonPane(UNIT_4, this, "M 118-4");
         this.examButtons.put("M 118-4", m118u4);
-        this.grid.add(m118u4, c);
+        grid.add(m118u4, c);
         c.gridy = 5;
         final ExamButtonPane m118u5 = new ExamButtonPane(FINAL, this, "M 118-5");
         this.examButtons.put("M 118-5", m118u5);
-        this.grid.add(m118u5, c);
+        grid.add(m118u5, c);
         c.gridy = 6;
         final ExamButtonPane m118ma = new ExamButtonPane(MASTERY, this, "M 118-M");
         this.examButtons.put("M 118-M", m118ma);
-        this.grid.add(m118ma, c);
+        grid.add(m118ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc118 = new JPanel();
         spc118.setBackground(Skin.OFF_WHITE_CYAN);
         spc118.setBorder(courseBorder);
-        this.grid.add(spc118, c);
+        grid.add(spc118, c);
         c.gridy = 8;
         c.weighty = 1.0;
         final ExamButtonPane m118ch = new ExamButtonPane(CHALLENGE, this, "M 118-C");
         this.examButtons.put("M 118-C", m118ch);
-        this.grid.add(m118ch, c);
+        grid.add(m118ch, c);
         c.weighty = 0.0;
 
         c.gridx = 2;
@@ -322,44 +319,44 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         title124.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title124.setForeground(Skin.LABEL_COLOR2);
         header124.add(title124);
-        this.grid.add(header124, c);
+        grid.add(header124, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane m124u1 = new ExamButtonPane(UNIT_1, this, "M 124-1");
         this.examButtons.put("M 124-1", m124u1);
-        this.grid.add(m124u1, c);
+        grid.add(m124u1, c);
         c.gridy = 2;
         final ExamButtonPane m124u2 = new ExamButtonPane(UNIT_2, this, "M 124-2");
         this.examButtons.put("M 124-2", m124u2);
-        this.grid.add(m124u2, c);
+        grid.add(m124u2, c);
         c.gridy = 3;
         final ExamButtonPane m124u3 = new ExamButtonPane(UNIT_3, this, "M 124-3");
         this.examButtons.put("M 124-3", m124u3);
-        this.grid.add(m124u3, c);
+        grid.add(m124u3, c);
         c.gridy = 4;
         final ExamButtonPane m124u4 = new ExamButtonPane(UNIT_4, this, "M 124-4");
         this.examButtons.put("M 124-4", m124u4);
-        this.grid.add(m124u4, c);
+        grid.add(m124u4, c);
         c.gridy = 5;
         final ExamButtonPane m124u5 = new ExamButtonPane(FINAL, this, "M 124-5");
         this.examButtons.put("M 124-5", m124u5);
-        this.grid.add(m124u5, c);
+        grid.add(m124u5, c);
         c.gridy = 6;
         final ExamButtonPane m124ma = new ExamButtonPane(MASTERY, this, "M 124-M");
         this.examButtons.put("M 124-M", m124ma);
-        this.grid.add(m124ma, c);
+        grid.add(m124ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc124 = new JPanel();
         spc124.setBackground(Skin.OFF_WHITE_CYAN);
         spc124.setBorder(courseBorder);
-        this.grid.add(spc124, c);
+        grid.add(spc124, c);
         c.gridy = 8;
         c.weighty = 1.0;
         final ExamButtonPane m124ch = new ExamButtonPane(CHALLENGE, this, "M 124-C");
         this.examButtons.put("M 124-C", m124ch);
-        this.grid.add(m124ch, c);
+        grid.add(m124ch, c);
         c.weighty = 0.0;
 
         c.gridx = 3;
@@ -372,44 +369,44 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         title125.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title125.setForeground(Skin.LABEL_COLOR2);
         header125.add(title125);
-        this.grid.add(header125, c);
+        grid.add(header125, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane m125u1 = new ExamButtonPane(UNIT_1, this, "M 125-1");
         this.examButtons.put("M 125-1", m125u1);
-        this.grid.add(m125u1, c);
+        grid.add(m125u1, c);
         c.gridy = 2;
         final ExamButtonPane m125u2 = new ExamButtonPane(UNIT_2, this, "M 125-2");
         this.examButtons.put("M 125-2", m125u2);
-        this.grid.add(m125u2, c);
+        grid.add(m125u2, c);
         c.gridy = 3;
         final ExamButtonPane m125u3 = new ExamButtonPane(UNIT_3, this, "M 125-3");
         this.examButtons.put("M 125-3", m125u3);
-        this.grid.add(m125u3, c);
+        grid.add(m125u3, c);
         c.gridy = 4;
         final ExamButtonPane m125u4 = new ExamButtonPane(UNIT_4, this, "M 125-4");
         this.examButtons.put("M 125-4", m125u4);
-        this.grid.add(m125u4, c);
+        grid.add(m125u4, c);
         c.gridy = 5;
         final ExamButtonPane m125u5 = new ExamButtonPane(FINAL, this, "M 125-5");
         this.examButtons.put("M 125-5", m125u5);
-        this.grid.add(m125u5, c);
+        grid.add(m125u5, c);
         c.gridy = 6;
         final ExamButtonPane m125ma = new ExamButtonPane(MASTERY, this, "M 125-M");
         this.examButtons.put("M 125-M", m125ma);
-        this.grid.add(m125ma, c);
+        grid.add(m125ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc125 = new JPanel();
         spc125.setBackground(Skin.OFF_WHITE_CYAN);
         spc125.setBorder(courseBorder);
-        this.grid.add(spc125, c);
+        grid.add(spc125, c);
         c.gridy = 8;
         c.weighty = 1.0;
         final ExamButtonPane m125ch = new ExamButtonPane(CHALLENGE, this, "M 125-C");
         this.examButtons.put("M 125-C", m125ch);
-        this.grid.add(m125ch, c);
+        grid.add(m125ch, c);
         c.weighty = 0.0;
 
         c.gridx = 4;
@@ -422,44 +419,44 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         title126.setFont(Skin.MEDIUM_HEADER_15_FONT);
         title126.setForeground(Skin.LABEL_COLOR2);
         header126.add(title126);
-        this.grid.add(header126, c);
+        grid.add(header126, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane m126u1 = new ExamButtonPane(UNIT_1, this, "M 126-1");
         this.examButtons.put("M 126-1", m126u1);
-        this.grid.add(m126u1, c);
+        grid.add(m126u1, c);
         c.gridy = 2;
         final ExamButtonPane m126u2 = new ExamButtonPane(UNIT_2, this, "M 126-2");
         this.examButtons.put("M 126-2", m126u2);
-        this.grid.add(m126u2, c);
+        grid.add(m126u2, c);
         c.gridy = 3;
         final ExamButtonPane m126u3 = new ExamButtonPane(UNIT_3, this, "M 126-3");
         this.examButtons.put("M 126-3", m126u3);
-        this.grid.add(m126u3, c);
+        grid.add(m126u3, c);
         c.gridy = 4;
         final ExamButtonPane m126u4 = new ExamButtonPane(UNIT_4, this, "M 126-4");
         this.examButtons.put("M 126-4", m126u4);
-        this.grid.add(m126u4, c);
+        grid.add(m126u4, c);
         c.gridy = 5;
         final ExamButtonPane m126u5 = new ExamButtonPane(FINAL, this, "M 126-5");
         this.examButtons.put("M 126-5", m126u5);
-        this.grid.add(m126u5, c);
+        grid.add(m126u5, c);
         c.gridy = 6;
         final ExamButtonPane m126ma = new ExamButtonPane(MASTERY, this, "M 126-M");
         this.examButtons.put("M 126-M", m126ma);
-        this.grid.add(m126ma, c);
+        grid.add(m126ma, c);
         c.gridy = 7;
         c.weighty = 0.0;
         final JPanel spc126 = new JPanel();
         spc126.setBackground(Skin.OFF_WHITE_CYAN);
         spc126.setBorder(courseBorder);
-        this.grid.add(spc126, c);
+        grid.add(spc126, c);
         c.gridy = 8;
         c.weighty = 1.0;
         final ExamButtonPane m126ch = new ExamButtonPane(CHALLENGE, this, "M 126-C");
         this.examButtons.put("M 126-C", m126ch);
-        this.grid.add(m126ch, c);
+        grid.add(m126ch, c);
         c.weighty = 0.0;
 
         c.gridx = 5;
@@ -469,7 +466,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         vgap1.setBackground(Skin.OFF_WHITE_CYAN);
         final Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         vgap1.setBorder(padding);
-        this.grid.add(vgap1, c);
+        grid.add(vgap1, c);
 
         c.gridx = 6;
 
@@ -481,36 +478,36 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         titleTut.setFont(Skin.MEDIUM_HEADER_15_FONT);
         titleTut.setForeground(Skin.LABEL_COLOR2);
         headerTut.add(titleTut);
-        this.grid.add(headerTut, c);
+        grid.add(headerTut, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane elm = new ExamButtonPane("ELM Exam", this, "M 100T-4");
         this.examButtons.put("M 100T-4", elm);
-        this.grid.add(elm, c);
+        grid.add(elm, c);
         c.gridy = 2;
         final ExamButtonPane pre117 = new ExamButtonPane("Algebra I", this, "M 1170-4");
         this.examButtons.put("M 1170-4", pre117);
-        this.grid.add(pre117, c);
+        grid.add(pre117, c);
         c.gridy = 3;
         final ExamButtonPane pre118 = new ExamButtonPane("Algebra II", this, "M 1180-4");
         this.examButtons.put("M 1180-4", pre118);
-        this.grid.add(pre118, c);
+        grid.add(pre118, c);
         c.gridy = 4;
         final ExamButtonPane pre124 = new ExamButtonPane("Functions", this, "M 1240-4");
         this.examButtons.put("M 1240-4", pre124);
-        this.grid.add(pre124, c);
+        grid.add(pre124, c);
         c.gridy = 5;
         final ExamButtonPane pre125 = new ExamButtonPane("Trig. I", this, "M 1250-4");
         this.examButtons.put("M 1250-4", pre125);
-        this.grid.add(pre125, c);
+        grid.add(pre125, c);
         c.gridy = 6;
         c.gridheight = 2;
         final Insets orig = c.insets;
         c.insets = new Insets(0, 0, 12, 0);
         final ExamButtonPane pre126 = new ExamButtonPane("Trig. II", this, "M 1260-4");
         this.examButtons.put("M 1260-4", pre126);
-        this.grid.add(pre126, c);
+        grid.add(pre126, c);
         c.gridheight = 1;
         c.insets = orig;
 
@@ -524,17 +521,17 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         titleOther.setFont(Skin.MEDIUM_HEADER_15_FONT);
         titleOther.setForeground(Skin.LABEL_COLOR2);
         headerOther.add(titleOther);
-        this.grid.add(headerOther, c);
+        grid.add(headerOther, c);
 
         c.weighty = 1.0;
         c.gridy = 1;
         final ExamButtonPane users = new ExamButtonPane("User's Exam", this, "M 100U-1");
         this.examButtons.put("M 100U-1", users);
-        this.grid.add(users, c);
+        grid.add(users, c);
         c.gridy = 2;
         final ExamButtonPane placement = new ExamButtonPane("Placement", this, "M 100P-1");
         this.examButtons.put("M 100P-1", placement);
-        this.grid.add(placement, c);
+        grid.add(placement, c);
 
         // Bottom panel
 

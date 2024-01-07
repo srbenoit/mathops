@@ -5,34 +5,34 @@ import java.time.LocalDate;
 /**
  * The data for one row in the deadline table.
  */
-/* default */ class DeadlineRow {
+class DeadlineRow {
 
     /** The order. */
-    /* default */ private final int order;
+    private final int order;
 
     /** The milestone. */
-    /* default */ private final int milestone;
+    private final int milestone;
 
     /** The course. */
-    /* default */ private final String course;
+    private final String course;
 
     /** The unit. */
-    /* default */ private final int unit;
+    private final int unit;
 
     /** The type. */
-    /* default */ private final String type;
+    private final String type;
 
     /** The original deadline. */
-    /* default */ private final LocalDate origDeadline;
+    private final LocalDate origDeadline;
 
     /** The override deadline. */
-    /* default */ private final LocalDate overrideDeadline;
+    private final LocalDate overrideDeadline;
 
     /** The date completed. */
-    /* default */ private final LocalDate completed;
+    private final LocalDate completed;
 
     /** True if on time, false if late. */
-    /* default */ private final boolean onTime;
+    private final boolean onTime;
 
     /**
      * Constructs a new {@code DeadlineRow}.

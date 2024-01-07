@@ -50,9 +50,6 @@ final class StudentStallPoints {
     /** Flag that can cancel an in-progress scan. */
     private final AtomicBoolean canceled;
 
-    /** The active term. */
-    private TermRec active;
-
     /** All open, non-completed registrations in the term. */
     private List<RawStcourse> registrations;
 
@@ -162,11 +159,11 @@ final class StudentStallPoints {
     private void gatherOneTimeInformation() throws SQLException {
 
         fireProgress("Querying active term", 1, 200);
-        this.active = TermLogic.get(this.cache).queryActive(this.cache);
-        Log.info("    Active term is ", this.active.term);
+        final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+        Log.info("    Active term is ", active.term);
 
         fireProgress("Querying registrations", 2, 200);
-        final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(this.cache, this.active.term, false, false);
+        final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(this.cache, active.term, false, false);
         Log.info("    Queried ", Integer.toString(allRegs.size()), " registrations");
 
         this.registrations = new ArrayList<>(8000);

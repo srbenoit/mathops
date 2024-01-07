@@ -1,6 +1,6 @@
 package dev.mathops.app.placement;
 
-import dev.mathops.app.AppFileLoader;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
@@ -135,7 +135,7 @@ class PleaseWait extends JFrame {
         // Finally, set the background color or image.
         prop = res.getProperty("panel-background-image");
         final Image img =
-                prop == null ? null : AppFileLoader.loadFileAsImage(PleaseWait.class, prop, true);
+                prop == null ? null : FileLoader.loadFileAsImage(PleaseWait.class, prop, true);
 
         this.layered.setOpaque(true);
 

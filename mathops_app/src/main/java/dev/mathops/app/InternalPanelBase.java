@@ -1,6 +1,7 @@
 package dev.mathops.app;
 
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
@@ -55,9 +56,6 @@ public class InternalPanelBase extends JInternalFrame {
 
     /** The set of listeners registered to receive action events. */
     private final List<ActionListener> listeners;
-
-    /** The content pane for the internal frame. */
-    private JPanel content;
 
     /** A unique number to assign to each action event sent. */
     private int eventId = 1;
@@ -186,15 +184,15 @@ public class InternalPanelBase extends JInternalFrame {
         setBorder(BorderFactory.createLineBorder(Color.black, 1));
 
         // Generate the content panel, with no layout manager
-        this.content = new JPanel();
-        this.content.setLayout(null);
-        setContentPane(this.content);
+        final JPanel content = new JPanel();
+        content.setLayout(null);
+        setContentPane(content);
 
         // Configure the frame size
         final int width = getInt(res, "panel-width", 300);
         final int height = getInt(res, "panel-height", 200);
-        this.content.setPreferredSize(new Dimension(width, height));
-        this.content.setLocation(0, 0);
+        content.setPreferredSize(new Dimension(width, height));
+        content.setLocation(0, 0);
         setSize(width, height);
 
         // Configure the frame border. Possible styles are "line" (in which case
@@ -202,22 +200,22 @@ public class InternalPanelBase extends JInternalFrame {
         String prop = res.getProperty("panel-border-style") == null ? null : res.getProperty("panel-border-style");
 
         if ("line".equals(prop)) {
-            this.content.setBorder(BorderFactory.createLineBorder(getColor(res, "panel-border-color", "black"),
+            content.setBorder(BorderFactory.createLineBorder(getColor(res, "panel-border-color", "black"),
                     getInt(res, "panel-border-size", 1)));
         }
 
         // Finally, set the background color or image.
         prop = res.getProperty("panel-background-image") == null ? null : res.getProperty("panel-background-image");
 
-        final Image img = (prop == null) ? null : AppFileLoader.loadFileAsImage(this.resOwner.getClass(), prop, true);
+        final Image img = (prop == null) ? null : FileLoader.loadFileAsImage(this.resOwner.getClass(), prop, true);
 
         if (img == null) {
             // Set a simple background color for the panel
-            this.content.setOpaque(true);
-            this.content.setBackground(getColor(res, "panel-background-color", "gray80"));
+            content.setOpaque(true);
+            content.setBackground(getColor(res, "panel-background-color", "gray80"));
         } else {
             // Install the image as the panel background
-            this.content.setOpaque(false);
+            content.setOpaque(false);
 
             final Icon icon = new ImageIcon(img);
             final JLabel lbl = new JLabel(icon);

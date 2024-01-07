@@ -1,6 +1,7 @@
 package dev.mathops.web.site.help;
 
 import dev.mathops.core.CoreConstants;
+import dev.mathops.core.file.FileLoader;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.log.LogBase;
 import dev.mathops.db.old.Cache;
@@ -9,7 +10,6 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
-import dev.mathops.web.file.WebFileLoader;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -111,9 +111,9 @@ public final class HelpSite extends AbstractSite {
         // TODO: Honor maintenance mode.
 
         if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", WebFileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {

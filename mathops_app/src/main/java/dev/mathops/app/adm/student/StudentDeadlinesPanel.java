@@ -79,12 +79,6 @@ import java.util.List;
     /** The "comments" text area. */
     private final JTextArea commentsArea;
 
-    /** The "Apply" button. */
-    private final JButton applyBtn;
-
-    /** The "Accommodation Notes" button. */
-    private final JButton accommodationNotes;
-
     /**
      * Constructs a new {@code StudentDeadlinesPanel}.
      *
@@ -151,9 +145,9 @@ import java.util.List;
         this.circumstancesArea.setEnabled(false);
         this.commentsArea = new JTextArea(3, 20);
         this.commentsArea.setEnabled(false);
-        this.applyBtn = new JButton("Apply");
-        this.applyBtn.setEnabled(false);
-        this.accommodationNotes = new JButton("Accommodation Notes");
+        final JButton applyBtn = new JButton("Apply");
+        applyBtn.setEnabled(false);
+        final JButton accommodationNotes = new JButton("Accommodation Notes");
 
         if (allowEdit) {
             // Center: detail fields for a deadline override
@@ -228,14 +222,14 @@ import java.util.List;
 
             final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
             buttons.setBackground(Skin.LIGHTEST);
-            this.applyBtn.setFont(Skin.MEDIUM_15_FONT);
-            buttons.add(this.applyBtn);
+            applyBtn.setFont(Skin.MEDIUM_15_FONT);
+            buttons.add(applyBtn);
             center.add(buttons, StackedBorderLayout.NORTH);
 
             final JPanel buttons2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
             buttons2.setBackground(Skin.LIGHTEST);
-            this.accommodationNotes.setFont(Skin.MEDIUM_15_FONT);
-            buttons2.add(this.accommodationNotes);
+            accommodationNotes.setFont(Skin.MEDIUM_15_FONT);
+            buttons2.add(accommodationNotes);
             left.add(buttons2, StackedBorderLayout.SOUTH);
         }
 

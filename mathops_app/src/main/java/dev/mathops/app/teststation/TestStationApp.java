@@ -1,6 +1,5 @@
 package dev.mathops.app.teststation;
 
-import dev.mathops.app.AppFileLoader;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.FrameToFront;
 import dev.mathops.app.TempFileCleaner;
@@ -2522,73 +2521,6 @@ final class DefaultSkin extends Properties {
     @Serial
     private static final long serialVersionUID = -569310176568552327L;
 
-    /** Default settings. */
-    private final String[][] contents = {//
-            {"top-bar-title", "$EXAM_TITLE"},
-            {"top-bar-title-show-answers", "$EXAM_TITLE Answers"},
-            {"top-bar-username", "Logged In As: $USERNAME"},
-            {"top-bar-username-practice", "Logged In As: $USERNAME"},
-            {"top-bar-username-zero-req", "Logged In As: $USERNAME"},
-            {"top-bar-username-one-section", "Logged In As: $USERNAME"},
-            {"top-bar-background-color", "alice blue"},
-            {"top-bar-border-color", "steel blue"},
-            {"top-bar-border-size", "1"},
-            {"top-bar-border-inset", "1"},
-            {"top-bar-title-font", "SANS"},
-            {"top-bar-title-size", "24"},
-            {"top-bar-title-style", "bold"},
-            {"top-bar-title-color", "SteelBlue4"},
-            {"top-bar-title-x", "0.5"},
-            {"top-bar-title-y", "28"},
-            {"top-bar-title-alignment", "center"},
-            {"top-bar-title-shadow-color", "gray80"},
-            {"top-bar-title-shadow-dx", "2"},
-            {"top-bar-title-shadow-dy", "1"},
-            {"top-bar-username-font", "SANS"},
-            {"top-bar-username-size", "14"},
-            {"top-bar-username-style", "plain"},
-            {"top-bar-username-color", "black"},
-            {"top-bar-username-x", "0.01"},
-            {"top-bar-username-y", "53"},
-            {"top-bar-username-alignment", "left"},
-            {"top-bar-clock-format", "Current Time: HH:MM"},
-            {"top-bar-clock-font", "SANS"},
-            {"top-bar-clock-size", "14"},
-            {"top-bar-clock-style", "plain"},
-            {"top-bar-clock-color", "black"},
-            {"top-bar-clock-x", "0.5"},
-            {"top-bar-clock-y", "53"},
-            {"top-bar-clock-alignment", "center"},
-            {"top-bar-timer-format", "Time Remaining: HH:MM:SS"},
-            {"top-bar-timer-font", "SANS"},
-            {"top-bar-timer-size", "14"},
-            {"top-bar-timer-style", "plain"},
-            {"top-bar-timer-color", "black"},
-            {"top-bar-timer-x", "0.99"},
-            {"top-bar-timer-y", "53"},
-            {"top-bar-timer-alignment", "right"},
-            {"top-bar-show-sections", "false"},
-            {"top-bar-show-sections-if-one", "false"},
-
-            {"bottom-bar-background-color", "alice blue"},
-            {"bottom-bar-button-font", "SANS"},
-            {"bottom-bar-button-size", "20"},
-            {"bottom-bar-button-style", "plain"},
-            {"bottom-bar-label-font", "SANS"},
-            {"bottom-bar-label-size", "16"},
-            {"bottom-bar-label-style", "plain"},
-            {"bottom-bar-border-color", "steel blue"},
-            {"bottom-bar-border-size", "1"},
-            {"bottom-bar-border-inset", "1"},
-            {"bottom-bar-padding-size", "0"},
-            {"bottom-bar-lbl", "I am finished.  Submit the exam for grading."},
-            {"bottom-bar-lbl-show-answers", "Close"},
-            {"bottom-bar-lbl-practice", "Show the Answers"},
-
-            {"show-problem-list", "true"},
-            {"show-calculator", "true"},
-            {"run-timer", "true"},};
-
     /**
      * Constructs a new {@code DefaultSkin} properties object.
      */
@@ -2596,7 +2528,73 @@ final class DefaultSkin extends Properties {
 
         super();
 
-        for (final String[] content : this.contents) {
+        final String[][] contents = {//
+                {"top-bar-title", "$EXAM_TITLE"},
+                {"top-bar-title-show-answers", "$EXAM_TITLE Answers"},
+                {"top-bar-username", "Logged In As: $USERNAME"},
+                {"top-bar-username-practice", "Logged In As: $USERNAME"},
+                {"top-bar-username-zero-req", "Logged In As: $USERNAME"},
+                {"top-bar-username-one-section", "Logged In As: $USERNAME"},
+                {"top-bar-background-color", "alice blue"},
+                {"top-bar-border-color", "steel blue"},
+                {"top-bar-border-size", "1"},
+                {"top-bar-border-inset", "1"},
+                {"top-bar-title-font", "SANS"},
+                {"top-bar-title-size", "24"},
+                {"top-bar-title-style", "bold"},
+                {"top-bar-title-color", "SteelBlue4"},
+                {"top-bar-title-x", "0.5"},
+                {"top-bar-title-y", "28"},
+                {"top-bar-title-alignment", "center"},
+                {"top-bar-title-shadow-color", "gray80"},
+                {"top-bar-title-shadow-dx", "2"},
+                {"top-bar-title-shadow-dy", "1"},
+                {"top-bar-username-font", "SANS"},
+                {"top-bar-username-size", "14"},
+                {"top-bar-username-style", "plain"},
+                {"top-bar-username-color", "black"},
+                {"top-bar-username-x", "0.01"},
+                {"top-bar-username-y", "53"},
+                {"top-bar-username-alignment", "left"},
+                {"top-bar-clock-format", "Current Time: HH:MM"},
+                {"top-bar-clock-font", "SANS"},
+                {"top-bar-clock-size", "14"},
+                {"top-bar-clock-style", "plain"},
+                {"top-bar-clock-color", "black"},
+                {"top-bar-clock-x", "0.5"},
+                {"top-bar-clock-y", "53"},
+                {"top-bar-clock-alignment", "center"},
+                {"top-bar-timer-format", "Time Remaining: HH:MM:SS"},
+                {"top-bar-timer-font", "SANS"},
+                {"top-bar-timer-size", "14"},
+                {"top-bar-timer-style", "plain"},
+                {"top-bar-timer-color", "black"},
+                {"top-bar-timer-x", "0.99"},
+                {"top-bar-timer-y", "53"},
+                {"top-bar-timer-alignment", "right"},
+                {"top-bar-show-sections", "false"},
+                {"top-bar-show-sections-if-one", "false"},
+
+                {"bottom-bar-background-color", "alice blue"},
+                {"bottom-bar-button-font", "SANS"},
+                {"bottom-bar-button-size", "20"},
+                {"bottom-bar-button-style", "plain"},
+                {"bottom-bar-label-font", "SANS"},
+                {"bottom-bar-label-size", "16"},
+                {"bottom-bar-label-style", "plain"},
+                {"bottom-bar-border-color", "steel blue"},
+                {"bottom-bar-border-size", "1"},
+                {"bottom-bar-border-inset", "1"},
+                {"bottom-bar-padding-size", "0"},
+                {"bottom-bar-lbl", "I am finished.  Submit the exam for grading."},
+                {"bottom-bar-lbl-show-answers", "Close"},
+                {"bottom-bar-lbl-practice", "Show the Answers"},
+
+                {"show-problem-list", "true"},
+                {"show-calculator", "true"},
+                {"run-timer", "true"},};
+
+        for (final String[] content : contents) {
             setProperty(content[0], content[1]);
         }
     }
