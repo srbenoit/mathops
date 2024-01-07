@@ -840,7 +840,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         htm.addln(" <input type='hidden' name='currentSect' value='", Integer.toString(this.currentSect), "'>");
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
-        htm.addln("<div style='padding:8px;min-height:100%;border:1px solid #b3b3b3;background:#d8e9ff;",
+        htm.addln("<div style='padding:8px;min-height:100%;border:1px solid #b3b3b3;background:#f5f5f5;",
                 "font-family:\"Times New Roman\",Times,serif;font-size:",
                 Float.toString(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE),
                 "px; max-height: calc(100vh - 145px); overflow-x:hidden; overflow-y:scroll;'>");

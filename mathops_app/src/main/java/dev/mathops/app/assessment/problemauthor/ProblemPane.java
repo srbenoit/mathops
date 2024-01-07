@@ -51,7 +51,7 @@ final class ProblemPane extends JPanel implements ActionListener {
     private static final String PROBLEM_TYPE_CMD = "PROBLEM_TYPE";
 
     /** An action command. */
-    private static final String FORCE_INTEGER_CMD = "FORCE_INETGER";
+    private static final String FORCE_INTEGER_CMD = "FORCE_INTEGER";
 
     /** An action command. */
     private static final String ADD_CHOICE_CMD = "ADD_CHOICE";

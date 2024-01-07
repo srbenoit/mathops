@@ -601,7 +601,7 @@ public final class HomeworkSession extends HtmlSessionBase {
         htm.eDiv(); // header div
 
         htm.addln("<main style='margin:3px 1px; padding:2px; border:1px solid SteelBlue;'>");
-        htm.addln("<div style='padding:6pt; border:1px solid #b3b3b3; background:#d8e9ff;font-family:serif; font-size:",
+        htm.addln("<div style='padding:6pt; border:1px solid #b3b3b3; background:#f5f5f5;font-family:serif; font-size:",
                 Float.toString(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE), "px;'>");
     }
 

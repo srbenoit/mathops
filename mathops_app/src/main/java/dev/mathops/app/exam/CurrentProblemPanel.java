@@ -531,7 +531,7 @@ public final class CurrentProblemPanel extends JPanel implements ComponentListen
             }
 
             this.panel.setBackground(Objects.requireNonNullElseGet(this.session.getExam().backgroundColor,
-                    () -> new Color(216, 233, 255)));
+                    () -> new Color(245, 245, 245)));
 
             // Lay out the panel to generate a preferred size
             this.panel.setSize(sizeForProblemPanel);

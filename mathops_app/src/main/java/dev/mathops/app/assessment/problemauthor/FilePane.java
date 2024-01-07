@@ -88,7 +88,7 @@ final class FilePane extends JPanel implements ActionListener {
 
     /** Style for HTML &lt;div&gt; to display problems. */
     private static final String DIV_STYLE =
-            "style='padding:8px; border:1px solid #b3b3b3; background:#d8e9ff; font-family:serif; font-size:24.0px;'";
+            "style='padding:8px; border:1px solid #b3b3b3; background:#f5f5f5; font-family:serif; font-size:24.0px;'";
 
     /** The file this pane presents. */
     private final File file;
