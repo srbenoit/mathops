@@ -117,7 +117,7 @@ import java.util.prefs.Preferences;
      * @param theInitialUsername the username to pre-populate (from command-line)
      * @param theInitialPassword the password to pre-populate (from command-line)
      */
-    /* default */ LoginWindow(final String theInitialUsername, final String theInitialPassword) {
+    LoginWindow(final String theInitialUsername, final String theInitialPassword) {
 
         this.initialUsername = theInitialUsername;
         this.initialPassword = theInitialPassword;
@@ -191,18 +191,15 @@ import java.util.prefs.Preferences;
             final LayoutManager box = new BoxLayout(center, BoxLayout.PAGE_AXIS);
             center.setLayout(box);
 
-            final JLabel schemaPickLbl =
-                    new JLabel(Res.get(Res.LOGIN_SCHEMA_FIELD_LBL));
+            final JLabel schemaPickLbl = new JLabel(Res.get(Res.LOGIN_SCHEMA_FIELD_LBL));
             schemaPickLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             schemaPickLbl.setFont(Skin.BOLD_12_FONT);
 
-            final JLabel usernameLbl =
-                    new JLabel(Res.get(Res.LOGIN_USER_FIELD_LBL));
+            final JLabel usernameLbl = new JLabel(Res.get(Res.LOGIN_USER_FIELD_LBL));
             usernameLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             usernameLbl.setFont(Skin.BOLD_12_FONT);
 
-            final JLabel passwordLbl =
-                    new JLabel(Res.get(Res.LOGIN_PWD_FIELD_LBL));
+            final JLabel passwordLbl = new JLabel(Res.get(Res.LOGIN_PWD_FIELD_LBL));
             passwordLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             passwordLbl.setFont(Skin.BOLD_12_FONT);
 
