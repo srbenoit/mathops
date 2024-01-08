@@ -16,12 +16,13 @@ public final class ByteRangeConstraint extends AbstractFieldConstraint<Byte> {
     /**
      * Constructs a new {@code ByteRangeConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public ByteRangeConstraint(final byte theMinValue, final byte theMaxValue) {
+    public ByteRangeConstraint(final String theName, final byte theMinValue, final byte theMaxValue) {
 
-        super();
+        super(theName);
 
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");

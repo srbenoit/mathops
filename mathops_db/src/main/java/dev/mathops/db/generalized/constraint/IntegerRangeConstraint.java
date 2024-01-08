@@ -17,12 +17,13 @@ public final class IntegerRangeConstraint extends AbstractFieldConstraint<Intege
     /**
      * Constructs a new {@code IntegerRangeConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public IntegerRangeConstraint(final int theMinValue, final int theMaxValue) {
+    public IntegerRangeConstraint(final String theName, final int theMinValue, final int theMaxValue) {
 
-        super();
+        super(theName);
 
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");

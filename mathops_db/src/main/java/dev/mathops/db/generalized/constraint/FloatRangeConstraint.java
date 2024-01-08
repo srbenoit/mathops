@@ -19,14 +19,15 @@ public final class FloatRangeConstraint extends AbstractFieldConstraint<Float> {
     /**
      * Constructs a new {@code FloatRangeConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theAllowed  the types of values allowed
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public FloatRangeConstraint(final EFloatingPointAllow theAllowed, final float theMinValue,
+    public FloatRangeConstraint(final String theName, final EFloatingPointAllow theAllowed, final float theMinValue,
                                 final float theMaxValue) {
 
-        super();
+        super(theName);
 
         if (theAllowed == null) {
             throw new IllegalArgumentException("Allowed values specification may not be null");

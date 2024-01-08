@@ -16,12 +16,13 @@ public final class StringLengthConstraint extends AbstractFieldConstraint<String
     /**
      * Constructs a new {@code StringLengthConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theMinLength the minimum length allowed
      * @param theMaxLength the maximum length allowed
      */
-    public StringLengthConstraint(final int theMinLength, final int theMaxLength) {
+    public StringLengthConstraint(final String theName, final int theMinLength, final int theMaxLength) {
 
-        super();
+        super(theName);
 
         if (theMinLength < 0) {
             throw new IllegalArgumentException("Minimum length may not be negative");

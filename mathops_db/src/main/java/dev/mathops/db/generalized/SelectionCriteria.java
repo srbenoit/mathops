@@ -8,7 +8,7 @@ import java.util.Arrays;
 /**
  * An immutable definition of query criteria to select records from a table.
  */
-public final class QueryCriteria {
+public final class SelectionCriteria {
 
     /** An empty criterion array. */
     private static final AbstractFieldCriterion[] ZERO_LEN_CRITERIA = new AbstractFieldCriterion[0];
@@ -20,12 +20,12 @@ public final class QueryCriteria {
     private final AbstractFieldCriterion[] criteria;
 
     /**
-     * Constructs a new {@code QueryCriteria}.
+     * Constructs a new {@code SelectionCriteria}.
      *
      * @param theTable the table
      * @param theCriteria the ordered list of field criteria
      */
-    public QueryCriteria(final Table theTable, final AbstractFieldCriterion... theCriteria) {
+    public SelectionCriteria(final Table theTable, final AbstractFieldCriterion... theCriteria) {
 
         if (theTable == null) {
             throw new IllegalArgumentException("Table may not be null");
@@ -84,6 +84,6 @@ public final class QueryCriteria {
 
         final String criteriaString = Arrays.toString(this.criteria);
 
-        return SimpleBuilder.concat("QueryCriteria{table=", this.table, ", criteria=", criteriaString, "}");
+        return SimpleBuilder.concat("SelectionCriteria{table=", this.table, ", criteria=", criteriaString, "}");
     }
 }

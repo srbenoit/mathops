@@ -12,7 +12,7 @@ public enum ETemporalMatchType {
     IS_NOT_NULL,
 
     /** Match values that are exactly equal to any match values.  */
-    EXACT,
+    EXACT_IN,
 
     /** Match values that are not exactly equal to any match values.  */
     EXACT_NOT_IN,

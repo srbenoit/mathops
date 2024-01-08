@@ -3,7 +3,7 @@ package dev.mathops.db.table.primary;
 import dev.mathops.db.generalized.EFieldRole;
 import dev.mathops.db.generalized.EFieldType;
 import dev.mathops.db.generalized.Field;
-import dev.mathops.db.generalized.QueryCriteria;
+import dev.mathops.db.generalized.SelectionCriteria;
 import dev.mathops.db.generalized.Table;
 import dev.mathops.db.generalized.constraint.IntegerRangeConstraint;
 import dev.mathops.db.generalized.criteria.ENumericMatchType;
@@ -69,11 +69,11 @@ public final class TermTable extends Table {
      * @param theTermId the term ID for which to query
      * @return the query criteria
      */
-    public QueryCriteria mkTermIdQuery(final int theTermId) {
+    public SelectionCriteria mkTermIdQuery(final int theTermId) {
 
         final Integer activeIndexObj = Integer.valueOf(theTermId);
 
-        return new QueryCriteria(this, new IntegerFieldCriterion(F_TERM, ENumericMatchType.EXACT_IN,
+        return new SelectionCriteria(this, new IntegerFieldCriterion(F_TERM, ENumericMatchType.EXACT_IN,
                 activeIndexObj));
     }
 
@@ -83,11 +83,11 @@ public final class TermTable extends Table {
      * @param theActiveIndex the active index for which to query
      * @return the query criteria
      */
-    public QueryCriteria mkActiveIndexQuery(final int theActiveIndex) {
+    public SelectionCriteria mkActiveIndexQuery(final int theActiveIndex) {
 
         final Integer activeIndexObj = Integer.valueOf(theActiveIndex);
 
-        return new QueryCriteria(this, new IntegerFieldCriterion(F_ACTIVE_INDEX, ENumericMatchType.EXACT_IN,
+        return new SelectionCriteria(this, new IntegerFieldCriterion(F_ACTIVE_INDEX, ENumericMatchType.EXACT_IN,
                 activeIndexObj));
     }
 }

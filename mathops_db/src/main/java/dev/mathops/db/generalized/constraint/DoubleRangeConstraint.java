@@ -19,14 +19,15 @@ public final class DoubleRangeConstraint extends AbstractFieldConstraint<Double>
     /**
      * Constructs a new {@code FloatRangeConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theAllowed  the types of values allowed
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public DoubleRangeConstraint(final EFloatingPointAllow theAllowed, final double theMinValue,
+    public DoubleRangeConstraint(final String theName, final EFloatingPointAllow theAllowed, final double theMinValue,
                                  final double theMaxValue) {
 
-        super();
+        super(theName);
 
         if (theAllowed == null) {
             throw new IllegalArgumentException("Allowed values specification may not be null");

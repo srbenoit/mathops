@@ -16,12 +16,13 @@ public final class LongRangeConstraint extends AbstractFieldConstraint<Long> {
     /**
      * Constructs a new {@code LongRangeConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theMinValue the minimum value allowed
      * @param theMaxValue the maximum value allowed
      */
-    public LongRangeConstraint(final long theMinValue, final long theMaxValue) {
+    public LongRangeConstraint(final String theName, final long theMinValue, final long theMaxValue) {
 
-        super();
+        super(theName);
 
         if (theMaxValue < theMinValue) {
             throw new IllegalArgumentException("Maximum value may not be less than minimum value");

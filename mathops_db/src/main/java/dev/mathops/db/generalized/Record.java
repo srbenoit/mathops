@@ -52,7 +52,8 @@ public final class Record {
 
             if (value == null) {
                 if (field.getRole() != EFieldRole.NULLABLE) {
-                    throw new IllegalArgumentException("Value of '" + field.getName()
+                    final String fieldName = field.getName();
+                    throw new IllegalArgumentException("Value of '" + fieldName
                             + "' field was null but this field does not allow nulls");
                 }
             } else {
@@ -60,7 +61,8 @@ public final class Record {
                 for (int j = 0; j < numConstraints; ++j) {
                     final AbstractFieldConstraint<?> constraint = field.getConstraint(j);
                     if (!constraint.isValidValue(value)) {
-                        throw new IllegalArgumentException("Value of '" + field.getName()
+                        final String fieldName = field.getName();
+                        throw new IllegalArgumentException("Value of '" + fieldName
                                 + "' field does not satisfy field constraints");
                     }
                 }
@@ -72,7 +74,7 @@ public final class Record {
      * Gets a particular field value.
      *
      * @param index the field index
-     * @return the value
+     * @return the value (could be
      */
     public Object getFieldValue(final int index) {
 

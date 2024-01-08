@@ -16,11 +16,12 @@ public final class StringEnumeratedConstraint extends AbstractFieldConstraint<St
     /**
      * Constructs a new {@code StringEnumeratedConstraint}.
      *
+     * @param theName the constraint name (must be unique within a field)
      * @param theAllowedValues the allowed values
      */
-    public StringEnumeratedConstraint(final String... theAllowedValues) {
+    public StringEnumeratedConstraint(final String theName, final String... theAllowedValues) {
 
-        super();
+        super(theName);
 
         if (theAllowedValues == null || theAllowedValues.length == 0) {
             throw new IllegalArgumentException("Allowed values array may not be null or empty");
