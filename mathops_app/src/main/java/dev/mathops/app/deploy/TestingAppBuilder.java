@@ -46,7 +46,7 @@ import java.util.zip.ZipEntry;
 final class TestingAppBuilder {
 
     /** The version number. */
-    private static final String VERSION = "1.2.010";
+    private static final String VERSION = "1.2.011";
 
     /** Directory where project is stored. */
     private final File projectDir;
@@ -306,11 +306,6 @@ final class TestingAppBuilder {
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
 
-                final File fileLoader = new File(appClasses, "AppFileLoader.class");
-                copyFile(appRoot, fileLoader, jar);
-                final File fileLoaderRes = new File(appClasses, "Res.class");
-                copyFile(appRoot, fileLoaderRes, jar);
-
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "launch"), CoreConstants.CRLF);
 
@@ -356,11 +351,6 @@ final class TestingAppBuilder {
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
-
-                final File fileLoader = new File(appClasses, "AppFileLoader.class");
-                copyFile(appRoot, fileLoader, jar);
-                final File fileLoaderRes = new File(appClasses, "Res.class");
-                copyFile(appRoot, fileLoaderRes, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "updater"), CoreConstants.CRLF);

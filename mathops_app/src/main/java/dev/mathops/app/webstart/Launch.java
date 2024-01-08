@@ -66,7 +66,7 @@ import java.util.List;
 final class Launch implements Runnable {
 
     /** Launcher version. */
-    private static final String VERSION = "1.2.010";
+    private static final String VERSION = "1.2.011";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
