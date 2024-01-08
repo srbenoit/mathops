@@ -22,37 +22,43 @@ public final class TermTable extends Table {
      * "202390" (Fall, 2023).
      */
     private static final Field F_TERM = new Field("term", EFieldType.INTEGER, EFieldRole.PARTITION_KEY,
-            new IntegerRangeConstraint(100000, 999999));
+            "The term ID - in the form YYYYNN, where NN is 30 for Spring, 60 for Summer, 90 for Fall",
+            new IntegerRangeConstraint("term_id_range", 100000, 999999));
 
     /**
      * The first day of the term.  The start/end date ranges of terms should form a collection of non-overlapping
      * intervals that include all days; there should be no days that are not part of a term.
      */
-    private static final Field F_START_DATE = new Field("start_date", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
+    private static final Field F_START_DATE = new Field("start_date", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL,
+            "The first day of the term (not the first day of classes).");
 
     /** The last day of the term. */
-    private static final Field F_END_DATE = new Field("end_date", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
+    private static final Field F_END_DATE = new Field("end_date", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL,
+            "The last day of the term (not the last day of classes).");
 
     /**
      * The academic year, which is a four-digit integer of the form "2324", which would indicate the 2023/2024 academic
      * year, which includes Fall 2023, Spring 2024, and Summer 2024.
      */
     private static final Field F_ACADEMIC_YEAR = new Field("academic_year", EFieldType.INTEGER, EFieldRole.NOT_NULL,
-            new IntegerRangeConstraint(1000, 9999));
+            "The academic year, such as '2324' to indicate the 2023-2024 academic year",
+            new IntegerRangeConstraint("academic_year_range", 1000, 9999));
 
     /**
      * The active index.  0 for the currently active term; +1 for the next term, +2 for the term after the +1 term,
      * -1 for the prior term, -2 for the term prior to the prior term, etc.  At each transition between terms, all
      * records are updated to increment their active index.
      */
-    private static final Field F_ACTIVE_INDEX = new Field("active_index", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
+    private static final Field F_ACTIVE_INDEX = new Field("active_index", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL,
+            "The active index (0 for the currently active term, +1 for the next term, -1 for the prior term, etc.)");
 
     /** The last day students may drop the course. */
-    private static final Field F_DROP_DEADLINE = new Field("drop_deadline", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL);
+    private static final Field F_DROP_DEADLINE = new Field("drop_deadline", EFieldType.LOCAL_DATE, EFieldRole.NOT_NULL,
+            "The deadline date to drop courses this term.");
 
     /** The last day students can withdraw from the course. */
     private static final Field F_WITHDRAW_DEADLINE = new Field("withdraw_deadline", EFieldType.LOCAL_DATE,
-            EFieldRole.NOT_NULL);
+            EFieldRole.NOT_NULL, "The deadline date to withdraw from courses this term.");
 
     /**
      * Constructs a new {@code TermTable}.
