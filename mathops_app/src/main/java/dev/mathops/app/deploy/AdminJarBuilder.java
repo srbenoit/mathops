@@ -35,9 +35,12 @@ final class AdminJarBuilder {
     }
 
     /**
-     * Builds the WAR file.
+     * Builds the Jar file with a specified name and specified main class to run when the file is launched.
+     *
+     * @param mainClassName the main class name
+     * @param targetFilename the target filename
      */
-    private void build() {
+    private void build(final String mainClassName, final String targetFilename) {
 
         final File core = new File(this.projectDir, "mathops_core");
         final File coreRoot = new File(core, "build/classes/java/main");
@@ -73,11 +76,11 @@ final class AdminJarBuilder {
                 assessmentClasses, sessionClasses, appClasses, jars);
 
         if (success) {
-            try (final FileOutputStream out = new FileOutputStream(new File(jars, "ADMIN.jar"));
+            try (final FileOutputStream out = new FileOutputStream(new File(jars, targetFilename));
                  final BufferedOutputStream bos = new BufferedOutputStream(out, 128 << 10);
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
-                addManifest(jar);
+                addManifest(mainClassName, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
                 addFiles(coreRoot, coreClasses, jar);
@@ -101,7 +104,7 @@ final class AdminJarBuilder {
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.JAR_DONE, "ADMIN"), CoreConstants.CRLF);
+                Log.finest(Res.fmt(Res.FILE_CREATED, targetFilename), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
@@ -221,10 +224,11 @@ final class AdminJarBuilder {
     /**
      * Adds the manifest file to a jar output stream.
      *
+     * @param mainClass the main class name
      * @param jar the {@code JarOutputStream} to which to add the manifest
      * @throws IOException if an exception occurs while writing
      */
-    private static void addManifest(final JarOutputStream jar) throws IOException {
+    private static void addManifest(final String mainClass, final JarOutputStream jar) throws IOException {
 
         jar.putNextEntry(new ZipEntry("META-INF/"));
         jar.closeEntry();
@@ -237,7 +241,7 @@ final class AdminJarBuilder {
         htm.addln("Application-Library-Allowable-Codebase: *");
         htm.addln("Caller-Allowable-Codebase: *");
         htm.addln("Created-By: AdminJarBuilder 2.00");
-        htm.addln("Main-Class: dev.mathops.app.adm.AdminApp");
+        htm.addln("Main-Class: ", mainClass);
 
         jar.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
         final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
@@ -256,7 +260,11 @@ final class AdminJarBuilder {
         final Installation installation = Installations.get().getInstallation(null, null);
         Installations.setMyInstallation(installation);
 
-        new AdminJarBuilder().build();
+        new AdminJarBuilder().build("dev.mathops.app.adm.AdminApp", "ADMIN.jar");
+        new AdminJarBuilder().build("dev.mathops.app.assessment.problemauthor.ProblemAuthor", "problem_author.jar");
+        new AdminJarBuilder().build("dev.mathops.app.assessment.localtesting.LocalTestingApp", "exam_tester.jar");
+        new AdminJarBuilder().build("dev.mathops.app.assessment.qualitycontrol.QualityControlScanner",
+                "quality_control.jar");
         Log.finest(Res.get(Res.FINISHED), CoreConstants.CRLF);
     }
 }

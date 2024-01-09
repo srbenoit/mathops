@@ -17,6 +17,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -27,6 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
@@ -37,7 +41,7 @@ import java.util.List;
 /**
  * The "Testing" pane.
  */
-public class TestingTabPane extends JPanel implements ActionListener {
+public final class TestingTabPane extends JPanel implements ActionListener {
 
     /** A button action command. */
     private static final String MAP_CMD = "MAP";
@@ -58,8 +62,8 @@ public class TestingTabPane extends JPanel implements ActionListener {
     /** The data cache. */
     private final Cache cache;
 
-    /** The client stub. */
-    private final ScramClientStub stub;
+    /** The server site URL to use when constructing a ScramClientStub. */
+    private final String serverSiteUrl;
 
     /** The center panel. */
     private final JPanel cardPane;
@@ -83,12 +87,12 @@ public class TestingTabPane extends JPanel implements ActionListener {
      * Constructs a new {@code TestingTabPane}.
      *
      * @param theCache         the data cache
-     * @param theStub          the web services client stub
+     * @param theServerSiteUrl the server site URL to use when constructing a ScramClientStub
      * @param fixed            the fixed data
      * @param theFrame         the owning frame
      */
-    public TestingTabPane(final Cache theCache, final ScramClientStub theStub,
-                          final Object theRenderingHint, final FixedData fixed, final JFrame theFrame) {
+    public TestingTabPane(final Cache theCache, final String theServerSiteUrl, final FixedData fixed,
+                          final JFrame theFrame) {
 
         // Functions:
         // [ Map ]
@@ -99,36 +103,41 @@ public class TestingTabPane extends JPanel implements ActionListener {
         setPreferredSize(AdminMainWindow.PREF_SIZE);
 
         this.cache = theCache;
-        this.stub = theStub;
+        this.serverSiteUrl = theServerSiteUrl;
 
         setBackground(Skin.OFF_WHITE_GRAY);
-        setBorder(BorderFactory.createCompoundBorder( //
-                BorderFactory.createEtchedBorder(), //
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        final Border padding = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        final Border etching = BorderFactory.createEtchedBorder();
+        final CompoundBorder newBorder = BorderFactory.createCompoundBorder(etching, padding);
+        setBorder(newBorder);
 
         final JPanel menu = new JPanel();
         menu.setBackground(Skin.OFF_WHITE_GRAY);
         menu.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
 
         if (fixed.getClearanceLevel("TST_MAP") != null) {
-            menu.add(makeTopButton("Map", MAP_CMD, Skin.LT_GREEN));
+            final JPanel mapButton = makeTopButton("Map", MAP_CMD, Skin.LT_GREEN);
+            menu.add(mapButton);
             menu.add(new JLabel(CoreConstants.SPC));
         }
 
         if (fixed.getClearanceLevel("TST_MANAG") != null) {
-            menu.add(makeTopButton("Manage", MANAGE_CMD, Skin.LT_RED));
+            final JPanel manageButton = makeTopButton("Manage", MANAGE_CMD, Skin.LT_RED);
+            menu.add(manageButton);
             menu.add(new JLabel(CoreConstants.SPC));
         }
 
         if (fixed.getClearanceLevel("TST_ISSUE") != null) {
-            menu.add(makeTopButton("Issue Exam", ISSUE_CMD, Skin.LT_CYAN));
+            final JPanel issueExamButton = makeTopButton("Issue Exam", ISSUE_CMD, Skin.LT_CYAN);
+            menu.add(issueExamButton);
             menu.add(new JLabel(CoreConstants.SPC));
 
-            menu.add(makeTopButton("Cancel Exam", CANCEL_CMD, Skin.LT_MAGENTA));
+            final JPanel cancelExamButton = makeTopButton("Cancel Exam", CANCEL_CMD, Skin.LT_MAGENTA);
+            menu.add(cancelExamButton);
             menu.add(new JLabel(CoreConstants.SPC));
         }
 
-        add(menu, BorderLayout.NORTH);
+        add(menu, BorderLayout.PAGE_START);
 
         this.cards = new CardLayout();
         this.cardPane = new JPanel(this.cards);
@@ -138,7 +147,7 @@ public class TestingTabPane extends JPanel implements ActionListener {
         this.mapCard = new TestingMapCard(theCache);
         this.cardPane.add(this.mapCard, MAP_CMD);
 
-        this.manageCard = new TestingManageCard(theCache, theStub, this);
+        this.manageCard = new TestingManageCard(theCache, theServerSiteUrl, this);
         this.cardPane.add(this.manageCard, MANAGE_CMD);
 
         this.issueCard = new TestingIssueCard(theCache, theFrame);
@@ -167,8 +176,10 @@ public class TestingTabPane extends JPanel implements ActionListener {
 
         final JPanel menuBox = new JPanel(new BorderLayout());
         menuBox.setBackground(background);
-        menuBox.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        final Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+        final Border bevel = BorderFactory.createLoweredBevelBorder();
+        final CompoundBorder newBorder = BorderFactory.createCompoundBorder(bevel, padding);
+        menuBox.setBorder(newBorder);
         menuBox.add(btn, BorderLayout.CENTER);
 
         return menuBox;
@@ -212,24 +223,22 @@ public class TestingTabPane extends JPanel implements ActionListener {
      *
      * @param stationIds the list of station IDs
      */
-    public void disableStations(final String[] stationIds) {
+    void disableStations(final String[] stationIds) {
 
-        try (final Statement s = this.cache.conn.createStatement()) {
+        try (final Statement stmt = this.cache.conn.createStatement()) {
 
             for (final String id : stationIds) {
 
                 final String sql1 = SimpleBuilder.concat(
-                        "update client_pc set pc_usage='P' where testing_center_id='1' ",
-                        "and station_nbr='", id, "' and pc_usage = 'O'");
+                        "UPDATE client_pc SET pc_usage='P' WHERE testing_center_id='1' AND station_nbr='", id,
+                        "' and pc_usage = 'O'");
 
-                final String sql2 = SimpleBuilder.concat(//
-                        "UPDATE client_pc SET current_status='5'",
-                        " WHERE testing_center_id='1'",
-                        "   AND station_nbr='", id,
+                final String sql2 = SimpleBuilder.concat(
+                        "UPDATE client_pc SET current_status='5' WHERE testing_center_id='1' AND station_nbr='", id,
                         "' AND current_status='4'");
 
-                s.executeUpdate(sql1);
-                s.executeUpdate(sql2);
+                stmt.executeUpdate(sql1);
+                stmt.executeUpdate(sql2);
             }
 
             this.cache.conn.commit();
@@ -246,24 +255,22 @@ public class TestingTabPane extends JPanel implements ActionListener {
      *
      * @param stationIds the list of station IDs
      */
-    public void enableStations(final String[] stationIds) {
+    void enableStations(final String[] stationIds) {
 
-        try (final Statement s = this.cache.conn.createStatement()) {
+        try (final Statement stmt = this.cache.conn.createStatement()) {
 
             for (final String id : stationIds) {
 
                 final String sql1 = SimpleBuilder.concat(
-                        "update client_pc set pc_usage='O' where testing_center_id='1' ",
-                        "and station_nbr='", id, "' and pc_usage = 'P'");
+                        "UPDATE client_pc SET pc_usage='O' WHERE testing_center_id='1' AND station_nbr='", id,
+                        "' AND pc_usage = 'P'");
 
-                final String sql2 = SimpleBuilder.concat( //
-                        "UPDATE client_pc SET current_status='4'",
-                        " WHERE testing_center_id='1' ",
-                        "   AND station_nbr='", id,
-                        "'  AND current_status='5'");
+                final String sql2 = SimpleBuilder.concat(
+                        "UPDATE client_pc SET current_status='4' WHERE testing_center_id='1' AND station_nbr='", id,
+                        "' AND current_status='5'");
 
-                s.executeUpdate(sql1);
-                s.executeUpdate(sql2);
+                stmt.executeUpdate(sql1);
+                stmt.executeUpdate(sql2);
             }
 
             this.cache.conn.commit();
@@ -280,101 +287,43 @@ public class TestingTabPane extends JPanel implements ActionListener {
      *
      * @param stationIds the list of station IDs
      */
-    public void powerOnStations(final String[] stationIds) {
+    void powerOnStations(final String[] stationIds) {
 
-        final int recent = TemporalUtils.secondOfDay(LocalTime.now()) - 40;
+        final LocalTime now = LocalTime.now();
+        final int recent = TemporalUtils.secondOfDay(now) - 40;
 
-        try {
-            final RawClientPc[] toPowerOn = findStations(stationIds);
+        final ScramClientStub stub = new ScramClientStub(this.serverSiteUrl);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final byte[] buffer = new byte[1024];
 
-            // Power those stations on
-            for (final RawClientPc station : toPowerOn) {
+        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        if (handshakeError == null) {
+            try {
+                final RawClientPc[] toPowerOn = findStations(stationIds);
 
-                if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
-                        && station.lastPing != null && station.lastPing.intValue() > recent) {
-                    // Station is already on and reporting - skip
-                    continue;
-                }
+                // Power those stations on
+                for (final RawClientPc station : toPowerOn) {
 
-                Log.info("Powering on ", station.stationNbr);
-
-                try {
-                    final URL url = new URL(this.stub.siteUrl //
-                            + "testing-power-station-on.ws?token=" + this.stub.getToken()
-                            + "&computer-id=" + station.computerId);
-
-                    final URLConnection conn = url.openConnection();
-                    final Object content = conn.getContent();
-                    if (content == null) {
-                        Log.warning("Server response from 'testing-power-station-on.ws' was null");
-                    } else if (content instanceof InputStream) {
-                        try (final InputStream in = (InputStream) content) {
-                            final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                            final byte[] buffer = new byte[1024];
-                            int count = in.read(buffer);
-                            while (count > 0) {
-                                baos.write(buffer, 0, count);
-                                count = in.read(buffer);
-                            }
-
-                            final String result = baos.toString();
-                            if (!"OK".equals(result)) {
-                                Log.info(result);
-                            }
-                        }
-                    } else {
-                        Log.warning("Server response from 'testing-power-station-on.ws' was ",
-                                content.getClass().getName());
+                    if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
+                            && station.lastPing != null && station.lastPing.intValue() > recent) {
+                        // Station is already on and reporting - skip
+                        continue;
                     }
-                } catch (final IOException ex) {
-                    Log.warning(ex);
-                }
 
-                try {
-                    Thread.sleep(100L);
-                } catch (final InterruptedException ex) {
-                    Log.warning(ex);
-                    Thread.currentThread().interrupt();
-                }
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query testing stations.", ex);
-        }
-
-        this.mapCard.refresh();
-        this.manageCard.refresh();
-    }
-
-    /**
-     * Powers off a list of stations by ID.
-     *
-     * @param stationIds the list of station IDs
-     */
-    public void powerOffStations(final String[] stationIds) {
-
-        try {
-            final RawClientPc[] toPowerOff = findStations(stationIds);
-
-            // Power those stations off (skip any that are currently in use)
-            for (final RawClientPc station : toPowerOff) {
-
-                if (station.currentStuId == null) {
-                    Log.info("Powering off ", station.stationNbr);
+                    Log.info("Powering on ", station.stationNbr);
 
                     try {
-                        final URL url = new URL(this.stub.siteUrl //
-                                + "testing-power-station-off.ws?token=" + this.stub.getToken()
-                                + "&computer-id=" + station.computerId);
+                        final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
+                                + stub.getToken() + "&computer-id=" + station.computerId);
+                        final URL url = uri.toURL();
 
                         final URLConnection conn = url.openConnection();
                         final Object content = conn.getContent();
                         if (content == null) {
-                            Log.warning(
-                                    "Server response from 'testing-power-station-off.ws' was null");
+                            Log.warning("Server response from 'testing-power-station-on.ws' was null");
                         } else if (content instanceof InputStream) {
                             try (final InputStream in = (InputStream) content) {
-                                final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                                final byte[] buffer = new byte[1024];
+                                baos.reset();
                                 int count = in.read(buffer);
                                 while (count > 0) {
                                     baos.write(buffer, 0, count);
@@ -387,18 +336,95 @@ public class TestingTabPane extends JPanel implements ActionListener {
                                 }
                             }
                         } else {
-                            Log.warning("Server response from 'testing-power-station-off.ws' was ",
-                                    content.getClass().getName());
+                            final Class<?> contentClass = content.getClass();
+                            final String contentClassName = contentClass.getName();
+                            Log.warning("Server response from 'testing-power-station-on.ws' was ", contentClassName);
                         }
-                    } catch (final IOException ex) {
+                    } catch (final URISyntaxException | IOException ex) {
                         Log.warning(ex);
                     }
-                } else {
-                    Log.warning("Skipping station ", station.stationNbr, " (currently in use)");
+
+                    try {
+                        Thread.sleep(100L);
+                    } catch (final InterruptedException ex) {
+                        Log.warning(ex);
+                        Thread.currentThread().interrupt();
+                    }
                 }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query testing stations.", ex);
             }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query testing stations.", ex);
+        } else {
+            Log.info("Web services handshake error: ", handshakeError);
+        }
+
+        this.mapCard.refresh();
+        this.manageCard.refresh();
+    }
+
+    /**
+     * Powers off a list of stations by ID.
+     *
+     * @param stationIds the list of station IDs
+     */
+    void powerOffStations(final String[] stationIds) {
+
+        final ScramClientStub stub = new ScramClientStub(this.serverSiteUrl);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final byte[] buffer = new byte[1024];
+
+        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        if (handshakeError == null) {
+            try {
+                final RawClientPc[] toPowerOff = findStations(stationIds);
+
+                // Power those stations off (skip any that are currently in use)
+                for (final RawClientPc station : toPowerOff) {
+
+                    if (station.currentStuId == null) {
+                        Log.info("Powering off ", station.stationNbr);
+
+                        try {
+                            final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
+                                    + stub.getToken() + "&computer-id=" + station.computerId);
+                            final URL url = uri.toURL();
+
+                            final URLConnection conn = url.openConnection();
+                            final Object content = conn.getContent();
+                            if (content == null) {
+                                Log.warning(
+                                        "Server response from 'testing-power-station-off.ws' was null");
+                            } else if (content instanceof InputStream) {
+                                try (final InputStream in = (InputStream) content) {
+                                    baos.reset();
+                                    int count = in.read(buffer);
+                                    while (count > 0) {
+                                        baos.write(buffer, 0, count);
+                                        count = in.read(buffer);
+                                    }
+
+                                    final String result = baos.toString();
+                                    if (!"OK".equals(result)) {
+                                        Log.info(result);
+                                    }
+                                }
+                            } else {
+                                final Class<?> contentClass = content.getClass();
+                                final String contentClassName = contentClass.getName();
+                                Log.warning("Server response from 'testing-power-station-off.ws' was ", contentClassName);
+                            }
+                        } catch (final URISyntaxException | IOException ex) {
+                            Log.warning(ex);
+                        }
+                    } else {
+                        Log.warning("Skipping station ", station.stationNbr, " (currently in use)");
+                    }
+                }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query testing stations.", ex);
+            }
+        } else {
+            Log.info("Web services handshake error: ", handshakeError);
         }
 
         this.mapCard.refresh();
@@ -424,8 +450,7 @@ public class TestingTabPane extends JPanel implements ActionListener {
         for (int i = 0; i < numStations; ++i) {
             for (final RawClientPc station : stations) {
                 final String center = station.testingCenterId;
-                if (station.stationNbr.equals(stationIds[i])
-                        && ("1".equals(center) || "4".equals(center))) {
+                if (station.stationNbr.equals(stationIds[i]) && ("1".equals(center) || "4".equals(center))) {
                     result[i] = station;
                     break;
                 }

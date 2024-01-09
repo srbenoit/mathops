@@ -25,10 +25,7 @@ final class Res extends ResBundle {
     static final String FILES_COPIED = key(index++);
 
     /** A resource key. */
-    static final String JAR_DONE = key(index++);
-
-    /** A resource key. */
-    static final String WAR_DONE = key(index++);
+    static final String FILE_CREATED = key(index++);
 
     /** A resource key. */
     static final String FINISHED = key(index++);
@@ -39,13 +36,12 @@ final class Res extends ResBundle {
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = { //
+    private static final String[][] EN_US = {
             {ADDING_FILES, "Adding files from [{0}] project"},
             {JAR_WRITE_FAILED, "Failed to write jar file"},
             {READ_FAILED, "Failed to read file: {0}"},
             {FILES_COPIED, "File(s) copied"},
-            {JAR_DONE, "{0}.jar created"},
-            {WAR_DONE, "{0}.war created"},
+            {FILE_CREATED, "{0} created"},
             {FINISHED, "Finished"},
 
             {DIR_NOT_FOUND, "Directory {0} not found."},

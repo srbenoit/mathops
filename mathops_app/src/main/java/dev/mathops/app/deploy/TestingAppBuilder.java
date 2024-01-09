@@ -261,7 +261,7 @@ final class TestingAppBuilder {
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.JAR_DONE, "bls8"), CoreConstants.CRLF);
+                Log.finest(Res.fmt(Res.FILE_CREATED, "bls8"), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
@@ -307,7 +307,7 @@ final class TestingAppBuilder {
                 addFiles(appRoot, wsClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.JAR_DONE, "launch"), CoreConstants.CRLF);
+                Log.finest(Res.fmt(Res.FILE_CREATED, "launch"), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
@@ -353,7 +353,7 @@ final class TestingAppBuilder {
                 addFiles(appRoot, wsClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.JAR_DONE, "updater"), CoreConstants.CRLF);
+                Log.finest(Res.fmt(Res.FILE_CREATED, "updater"), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);

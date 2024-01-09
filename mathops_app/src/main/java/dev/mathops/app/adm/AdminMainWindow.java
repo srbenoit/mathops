@@ -52,8 +52,8 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     /** The PostgreSQL data cache. */
 //    private final Cache pgCache;
 
-    /** The client stub. */
-    private final ScramClientStub stub;
+    /** The server site URL to use when constructing a ScramClientStub. */
+    private final String serverSiteUrl;
 
     /** The fixed data. */
     private final FixedData fixed;
@@ -108,20 +108,18 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         this.fixed = new FixedData(this.ifxCache, theUsername);
         this.renderingHint = theRenderingHint;
 
-        this.stub = new ScramClientStub("https://testing.math.colostate.edu/websvc/");
 
         if ("math".equals(theUsername)
                 || "pattison".equals(theUsername)
                 || "bromley".equals(theUsername)
+                || "orchard".equals(theUsername)
                 || "fadir".equals(theUsername)
                 || "spdir".equals(theUsername)
                 || "smdir".equals(theUsername)) {
-            final String handshakeError = this.stub.handshake("sbenoit",
-                    "thinflation");
-
-            if (handshakeError != null) {
-                Log.info("Web services handshake error: ", handshakeError);
-            }
+            this.serverSiteUrl = "https://testing.math.colostate.edu/websvc/";
+        } else {
+            Log.warning("User not authorized to control testing stations remotely.");
+            this.serverSiteUrl = null;
         }
     }
 
@@ -171,8 +169,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         }
 
         if (this.fixed.getClearanceLevel("TST_MENU") != null) {
-            this.testingPane = new TestingTabPane(this.ifxCache, this.stub, this.renderingHint,
-                    this.fixed, this.frame);
+            this.testingPane = new TestingTabPane(this.ifxCache, this.serverSiteUrl, this.fixed, this.frame);
             this.tabs.addTab(Res.get(Res.TESTING_TAB), this.testingPane);
         }
 

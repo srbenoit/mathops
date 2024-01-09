@@ -52,3 +52,6 @@ bin/
 /jars/app.xml
 /jars/launch.xml
 /jars/updater.xml
+/jars/quality_control.jar
+/jars/problem_author.jar
+/jars/exam_tester.jar

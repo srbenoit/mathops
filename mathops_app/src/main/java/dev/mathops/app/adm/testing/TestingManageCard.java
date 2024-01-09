@@ -12,8 +12,11 @@ import dev.mathops.session.scramsha256.ScramClientStub;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
@@ -31,7 +36,7 @@ import java.util.List;
 /**
  * A card panel that allows an administrator to turn blocks of testing machines or individual machines on and off.
  */
-class TestingManageCard extends AdminPanelBase implements ActionListener {
+final class TestingManageCard extends AdminPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -52,8 +57,8 @@ class TestingManageCard extends AdminPanelBase implements ActionListener {
     /** The list of client computers to present. */
     private final List<RawClientPc> clients;
 
-    /** The client stub. */
-    private final ScramClientStub stub;
+    /** The server site URL to use when constructing a ScramClientStub. */
+    private final String serverSiteUrl;
 
     /** The map. */
     private final TestingCenterManagePanel managePane;
@@ -62,31 +67,33 @@ class TestingManageCard extends AdminPanelBase implements ActionListener {
      * Constructs a new {@code TestingManageCard}.
      *
      * @param theCache         the data cache
-     * @param theStub          the web services client stub
+     * @param theServerSiteUrl the server site URL to use when constructing a ScramClientStub
      * @param theOwner         the owning pane
      */
-    TestingManageCard(final Cache theCache, final ScramClientStub theStub,
-                      final TestingTabPane theOwner) {
+    TestingManageCard(final Cache theCache, final String theServerSiteUrl, final TestingTabPane theOwner) {
 
         super();
 
         this.cache = theCache;
-        this.stub = theStub;
+        this.serverSiteUrl = theServerSiteUrl;
 
         final JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBackground(Skin.OFF_WHITE_RED);
-        panel.setBorder(getBorder());
+        final Border myBorder = getBorder();
+        panel.setBorder(myBorder);
 
         setBackground(Skin.LT_RED);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        final Border padding = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+        final Border bevel = BorderFactory.createLoweredBevelBorder();
+        final CompoundBorder newBorder = BorderFactory.createCompoundBorder(bevel, padding);
+        setBorder(newBorder);
         add(panel, BorderLayout.CENTER);
 
         final JPanel top = new JPanel(new StackedBorderLayout(10, 0));
         top.setBackground(Skin.OFF_WHITE_RED);
-        panel.add(top, BorderLayout.NORTH);
-        top.add(makeHeader("Manage Testing Center", false),
-                StackedBorderLayout.WEST);
+        panel.add(top, BorderLayout.PAGE_START);
+        final JLabel header = makeHeader("Manage Testing Center", false);
+        top.add(header, StackedBorderLayout.WEST);
 
         final JButton powerRoomOn = new JButton("Power Room Up");
         powerRoomOn.setFont(Skin.BIG_BUTTON_16_FONT);
@@ -145,105 +152,46 @@ class TestingManageCard extends AdminPanelBase implements ActionListener {
      */
     private void doPowerUp() {
 
-        final int recent = TemporalUtils.secondOfDay(LocalTime.now()) - 40;
+        final LocalTime now = LocalTime.now();
+        final int recent = TemporalUtils.secondOfDay(now) - 40;
+        final ScramClientStub stub = new ScramClientStub(this.serverSiteUrl);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final byte[] buffer = new byte[1024];
 
-        try {
-            final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        if (handshakeError == null) {
+            try {
+                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
 
-            for (final RawClientPc station : stations) {
+                for (final RawClientPc station : stations) {
 
-                if (RawClientPc.USAGE_PAPER.equals(station.pcUsage)) {
-                    // Skip stations with "paper" usage when powering up room
-                    continue;
-                }
-
-                if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
-                        && station.lastPing != null && station.lastPing.intValue() > recent) {
-                    // Station is already on and reporting - skip
-                    continue;
-                }
-
-                final String center = station.testingCenterId;
-                if ("1".equals(center) || "4".equals(center)) {
-                    Log.info("Powering on ", station.stationNbr);
-
-                    try {
-                        final URL url = new URL(this.stub.siteUrl //
-                                + "testing-power-station-on.ws?token=" + this.stub.getToken()
-                                + "&computer-id=" + station.computerId);
-
-                        final URLConnection conn = url.openConnection();
-                        final Object content = conn.getContent();
-                        if (content == null) {
-                            Log.warning(
-                                    "Server response from 'testing-power-station-on.ws' was null");
-                        } else if (content instanceof InputStream) {
-                            try (final InputStream in = (InputStream) content) {
-                                final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                                final byte[] buffer = new byte[1024];
-                                int count = in.read(buffer);
-                                while (count > 0) {
-                                    baos.write(buffer, 0, count);
-                                    count = in.read(buffer);
-                                }
-
-                                final String result = baos.toString();
-                                if (!"OK".equals(result)) {
-                                    Log.info(result);
-                                }
-                            }
-                        } else {
-                            Log.warning("Server response from 'testing-power-station-on.ws' was ",
-                                    content.getClass().getName());
-                        }
-                    } catch (final IOException ex) {
-                        Log.warning(ex);
+                    if (RawClientPc.USAGE_PAPER.equals(station.pcUsage)) {
+                        // Skip stations with "paper" usage when powering up room
+                        continue;
                     }
-                }
 
-                try {
-                    Thread.sleep(200L);
-                } catch (final InterruptedException ex) {
-                    Log.warning(ex);
-                    Thread.currentThread().interrupt();
-                }
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query testing stations.", ex);
-        }
-    }
+                    if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
+                            && station.lastPing != null && station.lastPing.intValue() > recent) {
+                        // Station is already on and reporting - skip
+                        continue;
+                    }
 
-    /**
-     * Power down all stations that are not currently in use.
-     */
-    private void doPowerDown() {
-
-        Log.info("POWERING DOWN!");
-
-        try {
-            final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
-
-            for (final RawClientPc station : stations) {
-                if (station.currentStuId == null) {
                     final String center = station.testingCenterId;
                     if ("1".equals(center) || "4".equals(center)) {
-                        Log.info("Powering off ", station.stationNbr);
+                        Log.info("Powering on ", station.stationNbr);
 
                         try {
-                            final URL url = new URL(this.stub.siteUrl //
-                                    + "testing-power-station-off.ws?token=" + this.stub.getToken()
-                                    + "&computer-id=" + station.computerId);
+                            final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
+                                    + stub.getToken() + "&computer-id=" + station.computerId);
+                            final URL url = uri.toURL();
 
                             final URLConnection conn = url.openConnection();
                             final Object content = conn.getContent();
                             if (content == null) {
-                                Log.warning(
-                                        "Server response from 'testing-power-station-off.ws' was null");
+                                Log.warning("Server response from 'testing-power-station-on.ws' was null");
                             } else if (content instanceof InputStream) {
                                 try (final InputStream in = (InputStream) content) {
-                                    final ByteArrayOutputStream baos =
-                                            new ByteArrayOutputStream(1024);
-                                    final byte[] buffer = new byte[1024];
+                                    baos.reset();
                                     int count = in.read(buffer);
                                     while (count > 0) {
                                         baos.write(buffer, 0, count);
@@ -256,26 +204,101 @@ class TestingManageCard extends AdminPanelBase implements ActionListener {
                                     }
                                 }
                             } else {
-                                Log.warning("Server response from 'testing-power-station-off.ws' was ",
-                                        content.getClass().getName());
+                                final Class<?> contentClass = content.getClass();
+                                final String contentClassName = contentClass.getName();
+                                Log.warning("Server response from 'testing-power-station-on.ws' was ", contentClassName);
                             }
-                        } catch (final IOException ex) {
+                        } catch (final URISyntaxException | IOException ex) {
                             Log.warning(ex);
                         }
                     }
-                } else {
-                    Log.warning("Skipping station ", station.stationNbr, " (currently in use)");
+
+                    try {
+                        Thread.sleep(200L);
+                    } catch (final InterruptedException ex) {
+                        Log.warning(ex);
+                        Thread.currentThread().interrupt();
+                    }
                 }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query testing stations.", ex);
             }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query testing stations.", ex);
+        } else {
+            Log.info("Web services handshake error: ", handshakeError);
+        }
+    }
+
+    /**
+     * Power down all stations that are not currently in use.
+     */
+    private void doPowerDown() {
+
+        Log.info("POWERING DOWN!");
+
+        final ScramClientStub stub = new ScramClientStub(this.serverSiteUrl);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final byte[] buffer = new byte[1024];
+
+        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        if (handshakeError == null) {
+            try {
+                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+
+                for (final RawClientPc station : stations) {
+                    if (station.currentStuId == null) {
+                        final String center = station.testingCenterId;
+                        if ("1".equals(center) || "4".equals(center)) {
+                            Log.info("Powering off ", station.stationNbr);
+
+                            try {
+                                final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
+                                        + stub.getToken() + "&computer-id=" + station.computerId);
+                                final URL url = uri.toURL();
+
+                                final URLConnection conn = url.openConnection();
+                                final Object content = conn.getContent();
+                                if (content == null) {
+                                    Log.warning("Server response from 'testing-power-station-off.ws' was null");
+                                } else if (content instanceof InputStream) {
+                                    try (final InputStream in = (InputStream) content) {
+                                        baos.reset();
+                                        int count = in.read(buffer);
+                                        while (count > 0) {
+                                            baos.write(buffer, 0, count);
+                                            count = in.read(buffer);
+                                        }
+
+                                        final String result = baos.toString();
+                                        if (!"OK".equals(result)) {
+                                            Log.info(result);
+                                        }
+                                    }
+                                } else {
+                                    final Class<?> contentClass = content.getClass();
+                                    final String contentClassName = contentClass.getName();
+                                    Log.warning("Server response from 'testing-power-station-off.ws' was ",
+                                            contentClassName);
+                                }
+                            } catch (final URISyntaxException | IOException ex) {
+                                Log.warning(ex);
+                            }
+                        }
+                    } else {
+                        Log.warning("Skipping station ", station.stationNbr, " (currently in use)");
+                    }
+                }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query testing stations.", ex);
+            }
+        } else {
+            Log.info("Web services handshake error: ", handshakeError);
         }
     }
 
     /**
      * Refreshes the card.
      */
-    public void refresh() {
+    void refresh() {
 
         loadClients();
         this.managePane.refresh();
