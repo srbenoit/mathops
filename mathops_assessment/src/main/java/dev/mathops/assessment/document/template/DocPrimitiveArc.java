@@ -157,6 +157,9 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     /** The ray alpha. */
     private Double rayAlpha;
 
+    /** The raw label string as provided, before substituting entities and variables. */
+    private String rawLabelString;
+
     /** The label string. */
     private String labelString;
 
@@ -625,9 +628,27 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 this.rayAlpha = parseDouble(theValue, elem, name, "arc primitive");
                 ok = this.rayAlpha != null;
             } else if ("label".equals(name)) {
-                this.labelString = unescape(theValue);
 
-                if (this.labelString != null &&  this.labelString.length() == 1) {
+                this.rawLabelString = theValue;
+
+                // Identify and replace {\tag} tags for special characters
+                String processed = unescape(theValue);
+                int index = processed.indexOf("{\\");
+                while (index != -1) {
+                    final int endIndex = processed.indexOf('}', index + 2);
+                    if (endIndex != -1) {
+                        final String cp = DocFactory.parseNamedEntity(processed.substring(index + 1, endIndex));
+
+                        if (!cp.isEmpty()) {
+                            processed = processed.substring(0, index) + cp + processed.substring(endIndex + 1);
+                        }
+                    }
+                    index = processed.indexOf("{\\", index + 1);
+                }
+
+                this.labelString = processed;
+
+                if (this.labelString.length() == 1) {
                     final char ch = this.labelString.charAt(0);
 
                     this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6'
@@ -658,7 +679,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     this.isStixMath = false;
                 }
 
-                ok = this.labelString != null;
+                ok = true;
             } else if ("label-color".equals(name)) {
                 if (ColorNames.isColorNameValid(theValue)) {
                     this.labelColor = ColorNames.getColor(theValue);
@@ -1320,7 +1341,6 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
             xml.add(" stroke-alpha=\"", this.strokeAlpha, CoreConstants.QUOTE);
         }
 
-
         if (this.fillStyle != null) {
             xml.add(" fill-style=\"", this.fillStyle, CoreConstants.QUOTE);
         }
@@ -1366,6 +1386,50 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
             xml.add(" ray-alpha=\"", this.rayAlpha, CoreConstants.QUOTE);
         }
 
+        xml.addAttribute("label", this.rawLabelString, 0);
+        xml.addAttribute("label-color", this.labelColorName, 0);
+
+        if (this.labelAlpha != null) {
+            xml.add(" label-alpha=\"", this.labelAlpha, CoreConstants.QUOTE);
+        }
+        if (this.labelOffset != null) {
+            xml.add(" label-offset=\"", this.labelOffset, CoreConstants.QUOTE);
+        }
+
+        xml.addAttribute("fontname", this.fontName, 0);
+
+        if (this.fontSize != null) {
+            xml.add(" fontsize=\"", this.fontSize, CoreConstants.QUOTE);
+        }
+
+        if (this.fontStyle != null) {
+            xml.add(" fontstyle=\"");
+
+            switch (this.fontStyle.intValue()) {
+
+                case 0:
+                    xml.add("plain");
+                    break;
+
+                case Font.BOLD:
+                    xml.add("bold");
+                    break;
+
+                case Font.ITALIC:
+                    xml.add("italic");
+                    break;
+
+                case Font.BOLD | Font.ITALIC:
+                    xml.add("bold,italic");
+                    break;
+
+                default:
+                    break;
+            }
+
+            xml.add('"');
+        }
+
         if ((this.xCoord == null || this.xCoord.getFormula() == null)
                 && (this.yCoord == null || this.yCoord.getFormula() == null)
                 && (this.width == null || this.width.getFormula() == null)
@@ -1376,7 +1440,8 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 && (this.xRadius == null || this.xRadius.getFormula() == null)
                 && (this.yRadius == null || this.yRadius.getFormula() == null)
                 && (this.startAngle == null || this.startAngle.getFormula() == null)
-                && (this.arcAngle == null || this.arcAngle.getFormula() == null)) {
+                && (this.arcAngle == null || this.arcAngle.getFormula() == null)
+                && this.labelSpan == null) {
             xml.addln("/>");
         } else {
             xml.addln(">");
@@ -1445,6 +1510,11 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 xml.add(ind2, "<arc-angle>");
                 this.arcAngle.getFormula().appendChildrenXml(xml);
                 xml.addln("</arc-angle>");
+            }
+
+            if (this.labelSpan != null) {
+                final String spanXml = this.labelSpan.toXml(0);
+                xml.addln(ind2, "<label>", spanXml, "</label>");
             }
 
             xml.addln(ind, "</arc>");

@@ -2182,6 +2182,7 @@ public enum DocFactory {
                 && p.setAttr("ray-color", e.getStringAttr("ray-color"), e, mode)
                 && p.setAttr("ray-dash", e.getStringAttr("ray-dash"), e, mode)
                 && p.setAttr("ray-alpha", e.getStringAttr("ray-alpha"), e, mode)
+                && p.setAttr("label", e.getStringAttr("label"), e, mode)
                 && p.setAttr("label-color", e.getStringAttr("label-color"), e, mode)
                 && p.setAttr("label-alpha", e.getStringAttr("label-alpha"), e, mode)
                 && p.setAttr("label-offset", e.getStringAttr("label-offset"), e, mode)
@@ -2189,29 +2190,6 @@ public enum DocFactory {
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
                 && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
         ;
-
-        String labelStr = e.getStringAttr("label");
-        if (labelStr != null) {
-            // Identify and replace {\tag} tags for special characters
-            int index = labelStr.indexOf("{\\");
-            while (index != -1) {
-                final int endIndex = labelStr.indexOf('}', index + 2);
-                if (endIndex != -1) {
-                    final String cp = parseNamedEntity(labelStr.substring(index + 1, endIndex));
-
-                    if (!cp.isEmpty()) {
-                        labelStr = labelStr.substring(0, index) + cp + labelStr.substring(endIndex + 1);
-                    }
-                }
-                index = labelStr.indexOf("{\\", index + 1);
-            }
-
-            valid = p.setAttr("label", labelStr, e, mode);
-            if (!valid) {
-                e.logError("Invalid value for 'label' attribute for arc primitive (" + labelStr + ").");
-            }
-        }
-
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -3289,7 +3267,7 @@ public enum DocFactory {
      * @param name the entity name, such as "\lll"
      * @return the entity string (a single-character string)
      */
-    private static String parseNamedEntity(final String name) {
+    public static String parseNamedEntity(final String name) {
 
         char ch = 0;
 

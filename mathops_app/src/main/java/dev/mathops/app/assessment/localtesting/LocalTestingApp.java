@@ -572,7 +572,7 @@ public final class LocalTestingApp extends ClientBase implements ExamContainerIn
      */
     public static void main(final String... args) {
 
-        FlatLightLaf.setup();
+//        FlatLightLaf.setup();
 
         // Examine command-line for "demo" flag
         boolean demo = false;
@@ -584,8 +584,7 @@ public final class LocalTestingApp extends ClientBase implements ExamContainerIn
         }
 
         try {
-            final LocalTestingApp app = //
-                    new LocalTestingApp("https", ClientBase.DEFAULT_HOST, ClientBase.DEFAULT_PORT,
+            final LocalTestingApp app = new LocalTestingApp("https", ClientBase.DEFAULT_HOST, ClientBase.DEFAULT_PORT,
                             SessionCache.ANONYMOUS_SESSION, demo);
             app.go();
 
