@@ -46,7 +46,7 @@ import java.util.zip.ZipEntry;
 final class TestingAppBuilder {
 
     /** The version number. */
-    private static final String VERSION = "1.2.011";
+    private static final String VERSION = "1.2.012";
 
     /** Directory where project is stored. */
     private final File projectDir;

@@ -84,7 +84,7 @@ import java.util.Properties;
 public final class TestStationApp extends ClientBase implements Runnable, ExamContainerInt {
 
     /** Version number for screen displays. */
-    static final String VERSION = "v2.5.8 (Jan. 7, 2024)";
+    static final String VERSION = "v2.5.9 (Jan. 12, 2024)";
 
     /** The main frame for the application. */
     private JFrame frame;
