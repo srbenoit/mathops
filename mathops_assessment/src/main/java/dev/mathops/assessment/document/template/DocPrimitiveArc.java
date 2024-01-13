@@ -444,6 +444,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
         }
         copy.rayAlpha = this.rayAlpha;
 
+        copy.rawLabelString = this.rawLabelString;
         copy.labelString = this.labelString;
         if (this.labelSpan != null) {
             copy.labelSpan = this.labelSpan.deepCopy();

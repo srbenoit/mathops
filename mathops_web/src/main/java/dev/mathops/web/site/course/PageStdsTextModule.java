@@ -323,6 +323,7 @@ enum PageStdsTextModule {
                 moduleData.thumbnailImage, moduleData.course.courseId, mode);
 
         if (!moduleData.skillsReview.exampleBlocks.isEmpty()) {
+            startSkillsReview(htm, moduleData, masteryStatus, mode);
             htm.addln("<ul>");
             boolean first = true;
             for (final ExampleBlock block : moduleData.skillsReview.exampleBlocks) {

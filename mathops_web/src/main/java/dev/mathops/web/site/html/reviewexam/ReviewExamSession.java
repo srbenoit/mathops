@@ -645,7 +645,8 @@ public final class ReviewExamSession extends HtmlSessionBase {
         appendNav(htm, true);
         startMain(htm);
 
-        final ExamSection sect = getExam().getSection(0);
+        final ExamObj exam = getExam();
+        final ExamSection sect = exam.getSection(0);
         int numAnswered = 0;
 
         final int numProblems = sect.getNumProblems();
@@ -667,10 +668,17 @@ public final class ReviewExamSession extends HtmlSessionBase {
             htm.addln("You have only answered ", Integer.toString(numAnswered), " out of ",
                     Integer.toString(numProblems), " questions.").br().br();
         }
-        htm.addln("Do you wish to submit the review exam for grading?<br><br>");
 
-        htm.add("  <input class='smallbtn' type='submit' name='Y' value='Yes - Submit the Exam'/> &nbsp;");
-        htm.add("  <input class='smallbtn' type='submit' name='N' value='No - Return to the Exam'/>");
+        if (exam.course.startsWith("MATH ")) {
+            htm.addln("Do you wish to submit the assignment for grading?<br><br>");
+            htm.add("  <input class='smallbtn' type='submit' name='Y' value='Yes - Submit the assignment'/> &nbsp;");
+            htm.add("  <input class='smallbtn' type='submit' name='N' value='No - Return to the assignment'/>");
+        } else {
+            htm.addln("Do you wish to submit the review exam for grading?<br><br>");
+            htm.add("  <input class='smallbtn' type='submit' name='Y' value='Yes - Submit the Exam'/> &nbsp;");
+            htm.add("  <input class='smallbtn' type='submit' name='N' value='No - Return to the Exam'/>");
+        }
+
         htm.eSpan().eDiv();
 
         endMain(htm);
@@ -1039,7 +1047,8 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 final ExamProblem ep = getExam().getSection(0).getPresentedProblem(this.currentItem);
                 if (ep != null) {
                     final AbstractProblemTemplate p = ep.getSelectedProblem();
-                    p.extractAnswers(req.getParameterMap());
+                    final Map<String, String[]> params = req.getParameterMap();
+                    p.extractAnswers(params);
 
                     final Object[] answers = p.getAnswer();
                     final HtmlBuilder builder = new HtmlBuilder(100);
@@ -1081,7 +1090,8 @@ public final class ReviewExamSession extends HtmlSessionBase {
             }
         }
 
-        generateHtml(cache, session.getNow(), htm);
+        final ZonedDateTime now = session.getNow();
+        generateHtml(cache, now, htm);
     }
 
     /**
@@ -1096,16 +1106,18 @@ public final class ReviewExamSession extends HtmlSessionBase {
     private void processPostSubmit(final Cache cache, final ImmutableSessionInfo session,
                                    final ServletRequest req, final HtmlBuilder htm) throws SQLException {
 
+        final ZonedDateTime now = session.getNow();
+
         if (req.getParameter("N") != null) {
             appendExamLog("Submit canceled, returning to exam");
             this.state = EReviewExamState.ITEM_NN;
         } else if (req.getParameter("Y") != null) {
             appendExamLog("Submit confirmed, scoring...");
-            this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+            this.gradingError = scoreAndRecordCompletion(cache, now);
             this.state = EReviewExamState.COMPLETED;
         }
 
-        generateHtml(cache, session.getNow(), htm);
+        generateHtml(cache, now, htm);
     }
 
     /**
@@ -1126,7 +1138,8 @@ public final class ReviewExamSession extends HtmlSessionBase {
             this.state = EReviewExamState.SOLUTION_NN;
         }
 
-        generateHtml(cache, session.getNow(), htm);
+        final ZonedDateTime now = session.getNow();
+        generateHtml(cache, now, htm);
     }
 
     /**

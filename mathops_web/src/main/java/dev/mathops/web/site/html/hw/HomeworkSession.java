@@ -48,6 +48,7 @@ import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A user session used to take homework assignments online. It takes as arguments a session ID, student name, and
@@ -290,12 +291,16 @@ public final class HomeworkSession extends HtmlSessionBase {
             } else if (theHomework.ref == null) {
                 error = "Unable to load assignment template";
             } else {
+                final int numProblems = theHomework.getNumProblems();
+
                 if (Integer.valueOf(-1).equals(this.minMoveOn)) {
-                    this.minMoveOn = Integer.valueOf(theHomework.getNumProblems());
+                    this.minMoveOn = Integer.valueOf(numProblems);
                 }
                 if (Integer.valueOf(-1).equals(this.minMastery)) {
-                    this.minMastery = Integer.valueOf(theHomework.getNumProblems());
+                    this.minMastery = Integer.valueOf(numProblems);
                 }
+                Log.info("Homework assignment has " + numProblems + " problems, minMoveOn=" + this.minMoveOn
+                                + ", minMastery=" + this.minMastery);
 
                 theHomework.realizationTime = System.currentTimeMillis();
                 theHomework.serialNumber = serial;
@@ -699,23 +704,25 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         if (req.getParameter("grade") != null) {
 
-            // Log.info(" Grading assignment question");
+             Log.info(" Grading assignment question");
 
             // Let the current problem process the POST and extract answers
-            final ExamSection sect = getExam().getSection(this.currentSection);
+            final ExamObj exam = getExam();
+            final ExamSection sect = exam.getSection(this.currentSection);
             if (sect != null) {
-                sect.getPresentedProblem(0).getSelectedProblem().extractAnswers(req.getParameterMap());
+                final Map<String, String[]> params = req.getParameterMap();
+                sect.getPresentedProblem(0).getSelectedProblem().extractAnswers(params);
 
                 boolean correct = gradeSection(this.currentSection);
                 if (correct && this.practice) {
                     correct = sect.score != null && sect.score.longValue() > 0L;
                 }
-                // Log.info(" Correct = " + correct);
+                Log.info(" Correct = " + correct);
 
                 final int score;
                 if (correct) {
                     this.incorrect = 0;
-                    if (this.currentSection + 1 == getExam().getNumSections()) {
+                    if (this.currentSection + 1 == exam.getNumSections()) {
                         this.state = this.practice ? EHomeworkState.CORRECT_NEXT : EHomeworkState.CORRECT_SUBMIT;
                     } else {
                         this.state = EHomeworkState.CORRECT_NEXT;
@@ -724,16 +731,16 @@ public final class HomeworkSession extends HtmlSessionBase {
                 } else {
                     ++this.incorrect;
                     final boolean showSolutions;
-                    if ("M 100R".equals(getExam().course)) {
+                    if ("M 100R".equals(exam.course)) {
                         showSolutions = false;
                     } else {
                         showSolutions = this.practice
-                                || RawRecordConstants.M100T.equals(getExam().course)
-                                || RawRecordConstants.M1170.equals(getExam().course)
-                                || RawRecordConstants.M1180.equals(getExam().course)
-                                || RawRecordConstants.M1240.equals(getExam().course)
-                                || RawRecordConstants.M1250.equals(getExam().course)
-                                || RawRecordConstants.M1260.equals(getExam().course);
+                                || RawRecordConstants.M100T.equals(exam.course)
+                                || RawRecordConstants.M1170.equals(exam.course)
+                                || RawRecordConstants.M1180.equals(exam.course)
+                                || RawRecordConstants.M1240.equals(exam.course)
+                                || RawRecordConstants.M1250.equals(exam.course)
+                                || RawRecordConstants.M1260.equals(exam.course);
                     }
                     score = this.currentSection;
 
@@ -742,8 +749,8 @@ public final class HomeworkSession extends HtmlSessionBase {
 
                 if (!this.practice) {
                     // Update the "sthomework" record
-                    final Long ser = getExam().serialNumber;
-                    final String ver = getExam().examVersion;
+                    final Long ser = exam.serialNumber;
+                    final String ver = exam.examVersion;
                     final String stu = session.getEffectiveUserId();
 
                     final LocalDateTime localNow = LocalDateTime.now();
@@ -916,6 +923,8 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         final boolean correct;
 
+        Log.info("Grading section ", Integer.toString(section));
+
         // Get the active section
         final ExamSection sect = getExam().getSection(section);
         if (sect == null) {
@@ -940,35 +949,37 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             // Determine the per-section move-on score, by dividing the assignment
-            int min;
+            final int actualMinMoveOn;
             if (this.minMoveOn == null) {
-                min = 0;
+                actualMinMoveOn = 0;
             } else if (this.minMoveOn.intValue() == -1) {
-                min = sect.getNumProblems();
+                actualMinMoveOn = sect.getNumProblems();
             } else {
-                min = this.minMoveOn.intValue() / getExam().getNumSections();
+                actualMinMoveOn = this.minMoveOn.intValue() / getExam().getNumSections();
             }
 
-            correct = score > 0 && score >= min;
+            correct = score > 0 && score >= actualMinMoveOn;
             if (correct) {
                 sect.passed = true;
             }
-            // Log.info(" Scopre = " + score + ", min = "
-            // + min + ", correct = " + correct);
 
             // Do the same with mastery score
+            final int actualMinMastery;
             if (this.minMastery == null) {
-                min = 0;
+                actualMinMastery = 0;
             } else if (this.minMastery.intValue() == -1) {
-                min = sect.getNumProblems();
+                actualMinMastery = sect.getNumProblems();
             } else {
-                min = this.minMastery.intValue() / getExam().getNumSections();
+                actualMinMastery = this.minMastery.intValue() / getExam().getNumSections();
             }
 
-            if (score >= min) {
+            if (score >= actualMinMastery) {
                 sect.mastered = true;
                 sect.passed = true;
             }
+
+            Log.info(" Score = " + score + ", min move-on = " + actualMinMoveOn + ", correct = " + correct +
+                    ", min mastery = ",+ actualMinMastery + ", mastered = " + sect.mastered);
         }
 
         return correct;

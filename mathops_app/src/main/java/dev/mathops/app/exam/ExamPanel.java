@@ -185,7 +185,7 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
 
             calculatorHeight = Math.min(725, this.owner.getFrame().getSize().height
                     - this.top.getPreferredSize().height - this.bottom.getPreferredSize().height);
-            calculatorWidth = calculatorHeight / 3;
+            calculatorWidth = calculatorHeight * 700 / 1450;
         }
 
         // Set up the problem list

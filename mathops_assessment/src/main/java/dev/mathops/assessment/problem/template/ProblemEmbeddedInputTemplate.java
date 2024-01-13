@@ -36,6 +36,9 @@ import dev.mathops.core.parser.xml.XmlEscaper;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -147,7 +150,11 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
         boolean ok = false;
 
         if (answers != null) {
+            Log.info("There are " + answers.length + " input values submitted");
             for (final Object answer : answers) {
+
+                Log.info("    Input value: ", answer);
+
                 if (answer instanceof final String str) {
 
                     if ("null".equals(str) || CoreConstants.EMPTY.equals(str)) {
@@ -162,6 +169,8 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
         }
 
+        Log.info("Answered = " + ok);
+
         return ok;
     }
 
@@ -174,25 +183,26 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     @Override
     public boolean isCorrect(final Object[] response) {
 
-        // Log.fine("Problem ", this.ref, " correctness evaluation");
-        // if (response == null) {
-        // Log.fine(" Responses: null");
-        // } else {
-        // for (int i = 0; i < response.length; ++i) {
-        // Log.fine(" Response " + i + ": " + response[i]);
-        // }
-        // }
-        // for (int i = 0; i < getAnswer().length; ++i) {
-        // Log.fine(" Answer " + i + ": " + getAnswer()[i]);
-        // }
+         Log.info("Problem ", this.ref, " correctness evaluation");
+         if (response == null) {
+            Log.fine(" Responses: null");
+         } else {
+             for (int i = 0; i < response.length; ++i) {
+                Log.fine(" Response " + i + ": " + response[i]);
+             }
+         }
+         for (int i = 0; i < getAnswer().length; ++i) {
+            Log.fine(" Answer " + i + ": " + getAnswer()[i]);
+         }
 
         boolean correct = false;
 
         if (this.correctness != null) {
-            // Log.fine(" Correctness:" + this.correctness.toString());
-            // for (String var : this.correctness.parameterNames()) {
-            // Log.fine(" Var [", var, "] = " + this.evalContext.getVariable(var).getValue());
-            // }
+             Log.info(" Correctness:" + this.correctness.toString());
+             for (final String varName : this.correctness.parameterNames()) {
+                 final AbstractVariable var = this.evalContext.getVariable(varName);
+                 Log.fine(" Var [", var, "] = ", (var == null ? "null" : var.getValue()));
+             }
 
             final Object obj = this.correctness.evaluate(this.evalContext);
 
@@ -201,7 +211,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
         }
 
-        // Log.fine(" Correct: " + correct);
+         Log.info(" Correct: " + correct);
 
         return correct;
     }
@@ -476,16 +486,35 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
         // In HTML, input names are prefixed with "INP_" to avoid conflicts.
 
         if (inputs != null) {
-            final String[] answers = new String[inputs.size()];
+            final int numInputs = inputs.size();
+            Log.info("Extracting answers - there are " + numInputs + " inputs in question");
+
+            // Checkboxes have multiple inputs with the same name - we want to store one value per name
+            final Map<String, AbstractDocInput> actualInputs = new HashMap<>(numInputs);
+            for (final AbstractDocInput input : inputs) {
+                final String name = input.getName();
+                if (!actualInputs.containsKey(name)) {
+                    actualInputs.put(name, input);
+                }
+            }
+
+            final List<AbstractDocInput> namedInputs = new ArrayList<>(actualInputs.values());
+            final int numNamedInputs = namedInputs.size();
+
+            final String[] answers = new String[numNamedInputs];
             int numFound = 0;
             final int ansLen = answers.length;
             for (int i = 0; i < ansLen; ++i) {
-                final AbstractDocInput input = inputs.get(i);
+                final AbstractDocInput input = namedInputs.get(i);
+                final String inputName = input.getName();
 
-                final String[] param = paramMap.get("INP_" + input.getName());
+                final String paramName = "INP_" + inputName;
+                final String[] param = paramMap.get(paramName);
+
+                Log.info("    Answer '", paramName, "' is ", Arrays.toString(param));
 
                 if (param == null) {
-                    answers[i] = "{" + input.getName() + "}=null";
+                    answers[i] = "{" + inputName + "}=null";
                 } else {
                     final int paramLen = param.length;
 
@@ -501,15 +530,10 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                                 param[i] = param[j].substring(1, len - 1);
                             }
                         }
-
-                        // HTTP submits forms in
-
                     }
 
                     if (param.length == 1) {
-                        answers[i] = "{" + input.getName() + "}=" + param[0];
-                        Log.info("Answers[" + i + "] =" + answers[i]);
-                        ++numFound;
+                        answers[i] = "{" + inputName + "}=" + param[0];
                     } else {
                         // Parameter length is greater than 1; this can occur with checkboxes, in
                         // which case all values should be integers that get added together
@@ -518,16 +542,17 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                             try {
                                 sum += Integer.parseInt(s);
                             } catch (final NumberFormatException ex) {
-                                Log.warning("Invalid array of values for ", input.getName() + " input", ex);
+                                Log.warning("Invalid array of values for ", inputName, " input", ex);
                                 sum = 0;
                                 break;
                             }
                         }
-
-                        answers[i] = "{" + input.getName() + "}=" + sum;
+                        answers[i] = "{" + inputName + "}=" + sum;
                     }
-                }
 
+                    Log.info("Answers[" + i + "] =" + answers[i]);
+                    ++numFound;
+                }
             }
 
             if (numFound > 0) {

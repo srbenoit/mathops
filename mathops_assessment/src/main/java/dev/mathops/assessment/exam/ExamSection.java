@@ -364,13 +364,11 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
         }
 
         if (this.minMoveonScore != null) {
-            xml.add(" min-moveon-score=\"", this.minMoveonScore.toString(),
-                    CoreConstants.QUOTE);
+            xml.add(" min-moveon-score=\"", this.minMoveonScore.toString(), CoreConstants.QUOTE);
         }
 
         if (this.minMasteryScore != null) {
-            xml.add(" min-mastery-score=\"", this.minMasteryScore.toString(),
-                    CoreConstants.QUOTE);
+            xml.add(" min-mastery-score=\"", this.minMasteryScore.toString(), CoreConstants.QUOTE);
         }
 
         if (!this.resources.isEmpty()) {
