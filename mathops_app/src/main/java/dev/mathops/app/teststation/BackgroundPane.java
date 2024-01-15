@@ -29,6 +29,7 @@ public final class BackgroundPane extends JDesktopPane implements MouseListener,
     @Serial
     private static final long serialVersionUID = 2678069115856307338L;
 
+
     /** Key command to view the log. */
     private static final char[] LOG_VIEW_CMD = "show the log".toCharArray();
 

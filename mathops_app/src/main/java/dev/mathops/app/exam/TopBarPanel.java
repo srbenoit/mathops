@@ -266,7 +266,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
         final BundledFontManager fonts = BundledFontManager.getInstance();
         final FontSpec spec = new FontSpec();
 
-        if (this.exam.allowedSeconds != null) {
+        if (this.exam != null && this.exam.allowedSeconds != null) {
             // Add half second to exam timeout for roundoff
             this.expiry = System.currentTimeMillis() + (this.exam.allowedSeconds.longValue() * 1000L) + 500L;
         }
@@ -286,11 +286,14 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             prop = skin.getProperty("top-bar-title");
         }
 
-        if ((prop == null) || (prop.isEmpty())) {
-            this.title = this.exam.examName;
+        if (this.exam == null) {
+            this.title = "ERROR";
         } else {
-            this.title = prop.replace("$EXAM_TITLE",
-                    this.exam.examName);
+            if ((prop == null) || (prop.isEmpty())) {
+                this.title = this.exam.examName;
+            } else {
+                this.title = prop.replace("$EXAM_TITLE", this.exam.examName);
+            }
         }
 
         if (theUsername != null) {
@@ -300,11 +303,11 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
                 prop = skin.getProperty("top-bar-username-practice");
             }
 
-            if ((prop == null) && zeroRequired) {
+            if (prop == null && zeroRequired) {
                 prop = skin.getProperty("top-bar-username-zero-req");
             }
 
-            if ((prop == null) && (this.exam.getNumSections() == 1)) {
+            if (prop == null && this.exam != null && this.exam.getNumSections() == 1) {
                 prop = skin.getProperty("top-bar-username-one-section");
             }
 
@@ -312,7 +315,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
                 prop = skin.getProperty("top-bar-username");
             }
 
-            if ((prop == null) || (prop.isEmpty())) {
+            if (prop == null || prop.isEmpty()) {
                 this.username = theUsername;
             } else {
                 this.username = prop.replace("$USERNAME", theUsername);
@@ -689,7 +692,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.timerAlignment = LEFT;
         }
 
-        if (this.exam.getNumSections() == 1) {
+        if (this.exam != null && this.exam.getNumSections() == 1) {
             prop = skin.getProperty("top-bar-show-sections-if-one");
         } else if (practice) {
             prop = skin.getProperty("top-bar-show-sections");
@@ -806,11 +809,15 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.dividerEndX = 1.0;
         }
 
-        final int numSect = this.exam.getNumSections();
-        this.sectionTitles = new String[numSect];
+        if (this.exam == null) {
+            this.sectionTitles = new String[0];
+        } else {
+            final int numSect = this.exam.getNumSections();
+            this.sectionTitles = new String[numSect];
 
-        for (int i = 0; i < numSect; i++) {
-            this.sectionTitles[i] = this.exam.getSection(i).sectionName;
+            for (int i = 0; i < numSect; i++) {
+                this.sectionTitles[i] = this.exam.getSection(i).sectionName;
+            }
         }
 
         prop = skin.getProperty("top-bar-border-color");
@@ -907,7 +914,8 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
 
             final FontMetrics fm = grx.getFontMetrics(this.sectionFont);
 
-            final int bottom = (int) ((float) this.sectionY * scale) + (fm.getHeight() * this.exam.getNumSections());
+            final int numSect = this.exam == null ? 1 : this.exam.getNumSections();
+            final int bottom = (int) ((float) this.sectionY * scale) + (fm.getHeight() * numSect);
 
             if (bottom > height) {
                 height = bottom;

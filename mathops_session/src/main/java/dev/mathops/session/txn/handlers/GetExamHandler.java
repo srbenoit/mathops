@@ -480,6 +480,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
         exam.examVersion = examRec.version;
 
         exam.instructions = new DocColumn();
+        exam.instructions.tag = "instructions";
+
         final DocParagraph instrPara1 = new DocParagraph();
         exam.instructions.add(instrPara1);
         instrPara1.setColorName("navy");

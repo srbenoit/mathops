@@ -245,6 +245,7 @@ public final class ExamPrinterApp extends ClientBase {
                 this.frame.updateStatus(20, Res.get(Res.LOADING_QUESTIONS));
 
                 if (this.exam.ref != null) {
+                    final String root = this.exam.refRoot;
 
                     final InstructionalCache cache =
                             InstructionalCache.getInstance(this.instructionDir);
@@ -262,7 +263,8 @@ public final class ExamPrinterApp extends ClientBase {
 
                             for (int i = 0; i < num; i++) {
                                 AbstractProblemTemplate prob = eprob.getProblem(i);
-                                prob = cache.retrieveProblem(prob.ref);
+                                String actualRef = prob.ref.startsWith(root) ? prob.ref : (root + "." + prob.ref);
+                                prob = cache.retrieveProblem(actualRef);
 
                                 if (prob != null) {
                                     eprob.setProblem(i, prob);

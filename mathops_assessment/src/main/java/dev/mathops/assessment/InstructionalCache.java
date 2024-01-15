@@ -266,7 +266,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
      */
     public AbstractProblemTemplate retrieveProblem(final String ref) {
 
-        // Log.info("Retrieve problem: ", ref);
+         Log.info("Retrieve problem: ", ref);
 
         synchronized (this.synch) {
             AbstractProblemTemplate problem;
