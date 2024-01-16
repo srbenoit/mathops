@@ -8,12 +8,14 @@ import dev.mathops.dbjobs.batch.daily.DeleteTestUserData;
 import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;
+import dev.mathops.dbjobs.batch.daily.ImportOdsPastCourses;
 import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;
 import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -56,31 +58,33 @@ public final class CronJobs implements ICronJob {
     public CronJobs() {
 
         final LocalDateTime now = LocalDateTime.now();
+        final LocalDate today = now.toLocalDate();
+        final LocalDate tomorrow = today.plusDays(1L);
 
         // Generate reports at 1 AM
         if (now.getHour() < 1) {
-            this.reportsNextRun = LocalDateTime.of(now.toLocalDate(), ONE_AM);
+            this.reportsNextRun = LocalDateTime.of(today, ONE_AM);
         } else {
-            this.reportsNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ONE_AM);
+            this.reportsNextRun = LocalDateTime.of(tomorrow, ONE_AM);
         }
 
         // Reset testing at 11 PM
         if (now.getHour() < 23) {
-            this.resetTestingNextRun = LocalDateTime.of(now.toLocalDate(), ELEVEN_PM);
+            this.resetTestingNextRun = LocalDateTime.of(today, ELEVEN_PM);
         } else {
-            this.resetTestingNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_PM);
+            this.resetTestingNextRun = LocalDateTime.of(tomorrow, ELEVEN_PM);
         }
 
         if (now.getHour() < 23 || now.getMinute() < 50) {
-            this.endOfDayNextRun = LocalDateTime.of(now.toLocalDate(), ELEVEN_FIFTY_PM);
+            this.endOfDayNextRun = LocalDateTime.of(today, ELEVEN_FIFTY_PM);
         } else {
-            this.endOfDayNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_FIFTY_PM);
+            this.endOfDayNextRun = LocalDateTime.of(tomorrow, ELEVEN_FIFTY_PM);
         }
 
         if (now.getHour() < 3) {
-            this.earlyMorning = LocalDateTime.of(now.toLocalDate(), THREE_AM);
+            this.earlyMorning = LocalDateTime.of(today, THREE_AM);
         } else {
-            this.earlyMorning = LocalDateTime.of(now.toLocalDate().plusDays(1L), THREE_AM);
+            this.earlyMorning = LocalDateTime.of(tomorrow, THREE_AM);
         }
     }
 
@@ -91,6 +95,7 @@ public final class CronJobs implements ICronJob {
     public void exec() {
 
         final LocalDateTime now = LocalDateTime.now();
+        final LocalDate tomorrow = now.toLocalDate().plusDays(1L);
 
         if (now.isAfter(this.reportsNextRun)) {
 
@@ -118,31 +123,32 @@ public final class CronJobs implements ICronJob {
             new PrecalcProgressReport("engineering_summary", "ENGRSTU",
                     "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
 
-            this.reportsNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ONE_AM);
+            this.reportsNextRun = LocalDateTime.of(tomorrow, ONE_AM);
         }
 
         if (now.isAfter(this.resetTestingNextRun)) {
             new CleanPending().execute();
             new PcCleanup().execute();
-            this.resetTestingNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_PM);
+            this.resetTestingNextRun = LocalDateTime.of(tomorrow, ELEVEN_PM);
         }
 
         if (now.isAfter(this.endOfDayNextRun)) {
             CloseIncompletes.execute();
             DeleteTestUserData.execute();
             SetHolds.execute();
-            this.endOfDayNextRun = LocalDateTime.of(now.toLocalDate().plusDays(1L), ELEVEN_FIFTY_PM);
+            this.endOfDayNextRun = LocalDateTime.of(tomorrow, ELEVEN_FIFTY_PM);
         }
 
         if (now.isAfter(this.earlyMorning)) {
             new ImportOdsApplicants().execute();
             new ImportOdsTransferCredit().execute();
+            new ImportOdsPastCourses().execute();
             new ImportOdsNewStus().execute();
             new ImportBannerStudentRegistrations().execute();
             new CheckStudentTerm().execute();
             new SendQueuedBannerTestScores().execute();
             new AuditBannerTestScores().execute();
-            this.earlyMorning = LocalDateTime.of(now.toLocalDate().plusDays(1L), THREE_AM);
+            this.earlyMorning = LocalDateTime.of(tomorrow, THREE_AM);
         }
     }
 }

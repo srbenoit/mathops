@@ -64,6 +64,9 @@ public enum PageDbAdminBatch {
         htm.sP().add("<a href='dbadm_batch_run.html?id=import_ods_transfer'>",
                 "Import ODS Transfer Credit</a>").eP();
 
+        htm.sP().add("<a href='dbadm_batch_run.html?id=import_ods_past'>",
+                "Import ODS Past Courses</a>").eP();
+
         htm.sP().add("<a href='dbadm_batch_run.html?id=import_banner_registrations'>",
                 "Import Banner Registrations</a>").eP();
 

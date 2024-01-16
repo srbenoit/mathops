@@ -64,49 +64,47 @@ public final class ImportOdsTransferCredit {
         } else if (this.odsCtx == null) {
             report.add("Unable to create ODS database context.");
         } else {
-            TermRec active;
-
             try {
                 final DbConnection primaryConn = this.primaryCtx.checkOutConnection();
                 final Cache cache = new Cache(this.dbProfile, primaryConn);
 
                 try {
-                    active = TermLogic.get(cache).queryActive(cache);
+                    final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+                    final DbConnection odsConn = this.odsCtx.checkOutConnection();
+
+                    try {
+                        List<TransferRecord> list = null;
+
+                        if (active == null) {
+                            report.add("Failed to query the active term.");
+                        } else if (active.term.name == ETermName.SPRING) {
+                            report.add("Processing under the SPRING term");
+                            list = queryOdsSpring(odsConn, report);
+                        } else if (active.term.name == ETermName.SUMMER) {
+                            report.add("Processing under the SUMMER term");
+                            list = queryOdsSummer(odsConn, report);
+                        } else if (active.term.name == ETermName.FALL) {
+                            report.add("Processing under the FALL term");
+                            list = queryOdsFall(odsConn, report);
+                        } else {
+                            report.add("Active term has invalid term name:" + active.term.name);
+                        }
+
+                        if (list != null) {
+                            report.add("Found " + list.size() + " rows.");
+                            processList(cache, list, report);
+                            report.add("Job completed");
+                        }
+
+                    } catch (final SQLException ex) {
+                        Log.warning(ex);
+                        report.add("Unable to perform query");
+                    } finally {
+                        this.odsCtx.checkInConnection(odsConn);
+                    }
                 } finally {
                     this.primaryCtx.checkInConnection(primaryConn);
-                }
-
-                final DbConnection odsConn = this.odsCtx.checkOutConnection();
-
-                try {
-                    List<TransferRecord> list = null;
-
-                    if (active == null) {
-                        report.add("Failed to query the active term.");
-                    } else if (active.term.name == ETermName.SPRING) {
-                        report.add("Processing under the SPRING term");
-                        list = queryOdsSpring(odsConn, report);
-                    } else if (active.term.name == ETermName.SUMMER) {
-                        report.add("Processing under the SUMMER term");
-                        list = queryOdsSummer(odsConn, report);
-                    } else if (active.term.name == ETermName.FALL) {
-                        report.add("Processing under the FALL term");
-                        list = queryOdsFall(odsConn, report);
-                    } else {
-                        report.add("Active term has invalid term name:" + active.term.name);
-                    }
-
-                    if (list != null) {
-                        report.add("Found " + list.size() + " rows.");
-                        processList(cache, list, report);
-                        report.add("Job completed");
-                    }
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    report.add("Unable to perform query");
-                } finally {
-                    this.odsCtx.checkInConnection(odsConn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

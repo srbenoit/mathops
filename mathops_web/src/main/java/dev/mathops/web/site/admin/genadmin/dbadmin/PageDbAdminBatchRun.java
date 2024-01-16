@@ -6,6 +6,7 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;
+import dev.mathops.dbjobs.batch.daily.ImportOdsPastCourses;
 import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -76,6 +77,8 @@ public enum PageDbAdminBatchRun {
             htm.sH(2).add("Import ODS Applicants").eH(2);
         } else if ("import_ods_transfer".equals(id)) {
             htm.sH(2).add("Import ODS Transfer Credit").eH(2);
+        } else if ("import_ods_past".equals(id)) {
+            htm.sH(2).add("Import ODS Past Courses").eH(2);
         } else if ("import_banner_registrations".equals(id)) {
             htm.sH(2).add("Import Banner Registrations").eH(2);
         } else if ("import_ods_new_students".equals(id)) {
@@ -129,6 +132,9 @@ public enum PageDbAdminBatchRun {
             } else if ("import_ods_transfer".equals(id)) {
                 htm.sH(2).add("Import ODS Transfer Credit").eH(2);
                 htm.add(new ImportOdsTransferCredit().execute());
+            } else if ("import_ods_past".equals(id)) {
+                htm.sH(2).add("Import ODS past Courses").eH(2);
+                htm.add(new ImportOdsPastCourses().execute());
             } else if ("import_banner_registrations".equals(id)) {
                 htm.sH(2).add("Import Banner Registrations").eH(2);
                 htm.add(new ImportBannerStudentRegistrations().execute());
