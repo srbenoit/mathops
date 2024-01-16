@@ -7,7 +7,6 @@ import dev.mathops.assessment.formula.edit.FEConstantReal;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
 
 /**
  * A constant real vector in a formula.
