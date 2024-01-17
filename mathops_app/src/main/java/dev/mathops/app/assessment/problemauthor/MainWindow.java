@@ -93,8 +93,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         this.libraryTreeModel = new DefaultTreeModel(root);
 
         this.libraryTree = new JTree(this.libraryTreeModel);
-        this.libraryTree.getSelectionModel()
-                .setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        this.libraryTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         this.libraryTree.setCellRenderer(new MyTreeCellRenderer());
         this.libraryTree.setBorder(BorderFactory.createEtchedBorder());
         this.libraryTree.setRootVisible(false);
@@ -117,7 +116,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         treeSplit.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        final int w = (screenSize.width << 2) / 5;
+        final int w = Math.min(1400, (screenSize.width << 2) / 5);
         final int h = (screenSize.height << 2) / 5;
         treeSplit.setPreferredSize(new Dimension(w, h));
 

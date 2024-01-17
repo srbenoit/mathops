@@ -373,6 +373,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     void setLabelSpan(final DocNonwrappingSpan theLabelSpan) {
 
         this.labelSpan = theLabelSpan;
+        this.labelSpan.tag = "label";
     }
 
     /**
@@ -1329,11 +1330,9 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
             final int dashlen = this.strokeDash.length;
             if (dashlen > 0) {
                 xml.add(" stroke-dash=\"", Float.toString(this.strokeDash[0]));
-
                 for (int i = 1; i < dashlen; ++i) {
                     xml.add(CoreConstants.COMMA, Float.toString(this.strokeDash[i]));
                 }
-
                 xml.add('"');
             }
         }
@@ -1515,7 +1514,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
             if (this.labelSpan != null) {
                 final String spanXml = this.labelSpan.toXml(0);
-                xml.addln(ind2, "<label>", spanXml, "</label>");
+                xml.addln(ind2, spanXml);
             }
 
             xml.addln(ind, "</arc>");

@@ -1,5 +1,6 @@
 package dev.mathops.assessment.htmlgen;
 
+import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocInput;
@@ -35,6 +36,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
+import dev.mathops.core.parser.xml.XmlEscaper;
 import dev.mathops.core.ui.HtmlImage;
 
 import java.awt.Insets;
@@ -279,23 +281,39 @@ public enum DocObjectConverter {
      */
     private static String convertDocImage(final DocImage obj, final Queue<Style> styleStack) {
 
-        String result = CoreConstants.EMPTY;
+        final HtmlBuilder result = new HtmlBuilder(100);
 
-        obj.getAltText();
+        final String alt = obj.getAltText();
 
         if (obj.getSource() == null) {
             if (obj.getImage() != null) {
                 final Style style = styleStack.peek();
                 if (style != null) {
-                    result = new HtmlImage(obj.getImage(), 0.0, (double) style.getSize(), obj.getAltText())
-                            .toImg((double) obj.getScale());
+                    result.add(new HtmlImage(obj.getImage(), 0.0, (double) style.getSize(), alt)
+                            .toImg((double) obj.getScale()));
                 }
             }
         } else {
-            result = "<img src='" + obj.getSource() + "'/>";
+            result.add("<img src='", obj.getSource(), "'");
+
+            final NumberOrFormula scaledWidth = obj.getScaledWidth();
+            if (scaledWidth != null) {
+                result.addAttribute("width", scaledWidth.toString(), 0);
+            }
+
+            final NumberOrFormula scaledHeight = obj.getScaledHeight();
+            if (scaledHeight != null) {
+                result.addAttribute("height", scaledHeight.toString(), 0);
+            }
+
+            if (alt != null) {
+                result.addAttribute("alt", alt, 0);
+                result.addAttribute("title", alt, 0);
+            }
+            result.add("/>");
         }
 
-        return result;
+        return result.toString();
     }
 
     /**

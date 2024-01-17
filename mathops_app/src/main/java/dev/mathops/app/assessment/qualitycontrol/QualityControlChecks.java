@@ -7,6 +7,7 @@ import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.AbstractDocPrimitiveContainer;
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
 import dev.mathops.assessment.document.template.DocDrawing;
+import dev.mathops.assessment.document.template.DocImage;
 import dev.mathops.assessment.document.template.DocRadical;
 import dev.mathops.assessment.document.template.DocRelativeOffset;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
@@ -657,7 +658,9 @@ enum QualityControlChecks {
                     || follows.startsWith("squared")
                     || follows.startsWith("van")
                     || follows.startsWith("wagon")
-                    || follows.startsWith("shift")) {
+                    || follows.startsWith("shift")
+                    || follows.startsWith("letter")
+                    || follows.startsWith("line")) {
                 error = false;
             } else {
                 if (index >= 2) {
@@ -723,7 +726,7 @@ enum QualityControlChecks {
     }
 
     /**
-     * Check 10 for Problems: Look for drawings or graphs that do not have 'alt' text.
+     * Check 10 for Problems: Look for drawings, graphs, or images that do not have 'alt' text.
      *
      * @param report  the report being constructed
      * @param problem the problem to check
@@ -784,6 +787,12 @@ enum QualityControlChecks {
 
             if (obj instanceof final AbstractDocPrimitiveContainer drawing) {
                 if (drawing.getAltText() == null) {
+                    final String typeName = obj.getClass().getSimpleName();
+                    report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
+                            .br().addln();
+                }
+            } else if (obj instanceof final DocImage img) {
+                if (img.getAltText() == null) {
                     final String typeName = obj.getClass().getSimpleName();
                     report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
                             .br().addln();

@@ -139,15 +139,15 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         this.scaledWidth = theScaledWidth;
     }
 
-//    /**
-//     * Gets the scaled width.
-//     *
-//     * @return the scaled width
-//     */
-//    public NumberOrFormula getScaledWidth() {
-//
-//        return this.scaledWidth;
-//    }
+    /**
+     * Gets the scaled width.
+     *
+     * @return the scaled width
+     */
+    public NumberOrFormula getScaledWidth() {
+
+        return this.scaledWidth;
+    }
 
     /**
      * Sets the scaled height.
@@ -159,15 +159,15 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         this.scaledHeight = theScaledHeight;
     }
 
-//    /**
-//     * Gets the scaled height.
-//     *
-//     * @return the scaled height
-//     */
-//    public NumberOrFormula getScaledHeight() {
-//
-//        return this.scaledHeight;
-//    }
+    /**
+     * Gets the scaled height.
+     *
+     * @return the scaled height
+     */
+    public NumberOrFormula getScaledHeight() {
+
+        return this.scaledHeight;
+    }
 
     /**
      * Get the source {@code URL} for the image.
@@ -409,12 +409,12 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         }
         if (this.source != null) {
             final String src = this.source.toExternalForm();
-            xml.add(" src=\"", XmlEscaper.escape(src), CoreConstants.QUOTE);
+            xml.addAttribute("src", src, 0);
         }
 
         final String alt = getAltText();
         if (alt != null) {
-            xml.add(" alt='", XmlEscaper.escape(alt), "'");
+            xml.addAttribute("alt", alt, 0);
         }
 
         if ((this.scaledWidth == null || this.scaledWidth.getFormula() == null) //

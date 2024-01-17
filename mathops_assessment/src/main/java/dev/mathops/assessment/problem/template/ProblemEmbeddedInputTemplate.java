@@ -183,26 +183,26 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     @Override
     public boolean isCorrect(final Object[] response) {
 
-         Log.info("Problem ", this.ref, " correctness evaluation");
-         if (response == null) {
-            Log.fine(" Responses: null");
-         } else {
-             for (int i = 0; i < response.length; ++i) {
-                Log.fine(" Response " + i + ": " + response[i]);
-             }
-         }
-         for (int i = 0; i < getAnswer().length; ++i) {
-            Log.fine(" Answer " + i + ": " + getAnswer()[i]);
-         }
+//         Log.info("Problem ", this.ref, " correctness evaluation");
+//         if (response == null) {
+//            Log.fine(" Responses: null");
+//         } else {
+//             for (int i = 0; i < response.length; ++i) {
+//                Log.fine(" Response " + i + ": " + response[i]);
+//             }
+//         }
+//         for (int i = 0; i < getAnswer().length; ++i) {
+//            Log.fine(" Answer " + i + ": " + getAnswer()[i]);
+//         }
 
         boolean correct = false;
 
         if (this.correctness != null) {
-             Log.info(" Correctness:" + this.correctness.toString());
-             for (final String varName : this.correctness.parameterNames()) {
-                 final AbstractVariable var = this.evalContext.getVariable(varName);
-                 Log.fine(" Var [", var, "] = ", (var == null ? "null" : var.getValue()));
-             }
+//             Log.info(" Correctness:" + this.correctness.toString());
+//             for (final String varName : this.correctness.parameterNames()) {
+//                 final AbstractVariable var = this.evalContext.getVariable(varName);
+//                 Log.fine(" Var [", var, "] = ", (var == null ? "null" : var.getValue()));
+//             }
 
             final Object obj = this.correctness.evaluate(this.evalContext);
 
@@ -211,7 +211,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
         }
 
-         Log.info(" Correct: " + correct);
+//         Log.info(" Correct: " + correct);
 
         return correct;
     }
