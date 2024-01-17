@@ -9,7 +9,7 @@ import java.time.LocalDate;
 /**
  * The data for one row in the deadline table.
  */
-/* default */ class DeadlineListRow implements Comparable<DeadlineListRow> {
+class DeadlineListRow implements Comparable<DeadlineListRow> {
 
     /** The course. */
     public final String course;
@@ -39,9 +39,9 @@ import java.time.LocalDate;
      * @param theWhenCompleted     the date the student completed the milestone assignment;null if not completed
      * @param theOnTime            TRUE if student completed assignment on time; FALSE if late, null if not completed
      */
-    /* default */ DeadlineListRow(final String theCourse, final RawMilestone theMilestoneRecord,
-                                  final RawStmilestone theStmilestoneRecord, final RawPaceAppeals thePaceAppealRecord,
-                                  final LocalDate theWhenCompleted, final Boolean theOnTime) {
+    DeadlineListRow(final String theCourse, final RawMilestone theMilestoneRecord,
+                    final RawStmilestone theStmilestoneRecord, final RawPaceAppeals thePaceAppealRecord,
+                    final LocalDate theWhenCompleted, final Boolean theOnTime) {
 
         this.course = theCourse;
         this.milestoneRecord = theMilestoneRecord;

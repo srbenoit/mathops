@@ -18,13 +18,13 @@ import java.sql.SQLException;
 /**
  * A panel that shows a students disciplinary history.
  */
-/* default */ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
+class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
-    /* default */ static final String ADD_CMD = "ADD";
+    static final String ADD_CMD = "ADD";
 
     /** A button action command. */
-    /* default */ private static final String SHOW_CMD = "SHOW";
+    private static final String SHOW_CMD = "SHOW";
 
     /** Version number for serialization. */
     @Serial
@@ -148,7 +148,7 @@ import java.sql.SQLException;
      * @param rec the discipline record
      * @return an error message on failure; null on success
      */
-    /* default */ String createRecord(final RawDiscipline rec) {
+    String createRecord(final RawDiscipline rec) {
 
         String error = null;
 
@@ -171,7 +171,7 @@ import java.sql.SQLException;
     /**
      * Cancels the "add" action, returning to the incidents list card.
      */
-    /* default */ void cancelAdd() {
+    void cancelAdd() {
 
         this.cards.show(this.cardPane, SHOW_CMD);
     }

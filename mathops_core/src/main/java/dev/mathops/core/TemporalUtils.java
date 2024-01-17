@@ -62,6 +62,9 @@ public enum TemporalUtils {
     public static final DateTimeFormatter FMT_MDY_HMS = DateTimeFormatter.ofPattern("MMM dd yyyy',' HH':'mm':'ss",
             Locale.US);
 
+    /** A date/time format that matches that expected by Informix. */
+    public static final DateTimeFormatter FMT_INFORMIX = DateTimeFormatter.ofPattern("MMddyy", Locale.US);
+
     /**
      * Gets a local date/time represented by a Java (long) timestamp in the system default time zone.
      *

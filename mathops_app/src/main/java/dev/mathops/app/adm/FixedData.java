@@ -21,7 +21,7 @@ import java.util.List;
 public class FixedData {
 
     /** The logged in user. */
-    /* default */ final String username;
+    public final String username;
 
     /** The active term. */
     public final TermRec activeTerm;

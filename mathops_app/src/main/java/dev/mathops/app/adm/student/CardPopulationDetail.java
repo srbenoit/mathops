@@ -147,7 +147,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         final StudentCoursesPanel coursePanel = new StudentCoursesPanel(theCache.conn);
         tabs.addTab("Courses", coursePanel);
 
-        final StudentDeadlinesPanel deadlinesPanel = new StudentDeadlinesPanel(theFixed);
+        final StudentDeadlinesPanel deadlinesPanel = new StudentDeadlinesPanel(theCache, theFixed);
         tabs.addTab("Deadlines", deadlinesPanel);
 
         final StudentActivityPanel activityPanel = new StudentActivityPanel();

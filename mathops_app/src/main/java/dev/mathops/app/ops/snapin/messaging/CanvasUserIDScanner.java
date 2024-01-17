@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A utility that connects to Canvas and loads all students in a list of courses. The Canvas IDs of each student are
@@ -182,7 +181,7 @@ final class CanvasUserIDScanner extends SwingWorker<String, ScannerStatus> {
      */
     private void scan(final Long canvasCourseId, final Map<? super String, ? super Long> csuIdToCanvasId) {
 
-        final String path = "courses/" + canvasCourseId + " /students";
+        final String path = "courses/" + canvasCourseId + "/students";
 
         final ApiResult result = this.api.paginatedApiCall(path, "GET");
 

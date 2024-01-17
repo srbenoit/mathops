@@ -134,7 +134,8 @@ public final class CanvasApi {
                 final int status = conn.getResponseCode();
                 if (status == 200 || status == 201) {
                     final StringBuilder content = new StringBuilder(500);
-                    try (final BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                    try (final BufferedReader in = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                         String inputLine = in.readLine();
                         while (inputLine != null) {
                             content.append(inputLine);
@@ -255,7 +256,7 @@ public final class CanvasApi {
                             break;
                         }
                     } else {
-                        result = new ApiResult("Server returned status " + status);
+                        result = new ApiResult("Server returned status " + status + " for " + targetUri);
                         break;
                     }
                 } catch (final IOException ex) {
