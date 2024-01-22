@@ -4,6 +4,7 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
 
 import javax.swing.JPanel;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -42,6 +43,7 @@ public final class DocColumnPanel extends JPanel implements ComponentListener, M
 
         this.column = theColumn;
         this.context = theContext;
+        setBackground(Color.WHITE);
 
         setLayout(new DocColumnLayout(theColumn, theContext));
 

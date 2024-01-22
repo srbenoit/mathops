@@ -2527,6 +2527,10 @@ public enum VariableFactory {
         final String valueTypeStr = elem.getStringAttr("value-type");
         if (valueTypeStr != null) {
             type = EType.forLabel(valueTypeStr);
+            if (type == null) {
+                elem.logError("Invalid value-type: '" + valueTypeStr + "' in {" + varName + "}");
+                valid = false;
+            }
         }
 
         final String longStr = elem.getStringAttr("long");

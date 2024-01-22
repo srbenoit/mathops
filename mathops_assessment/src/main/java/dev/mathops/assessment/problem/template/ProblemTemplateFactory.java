@@ -1222,9 +1222,7 @@ public enum ProblemTemplateFactory {
             for (final IElement child : elem.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement nonempty && "correct".equals(child.getTagName())) {
 
-                    if (nonempty.getNumChildren() == 1 //
-                            && nonempty.getChild(0) instanceof final CData cdata) {
-
+                    if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
                         problem.correctness = FormulaFactory.parseFormulaString(problem.evalContext, cdata.content,
                                 mode);
                     } else {
@@ -1266,8 +1264,7 @@ public enum ProblemTemplateFactory {
         for (final IElement child : elem.getElementChildrenAsList()) {
             if (child instanceof final NonemptyElement nonempty && "answer".equals(child.getTagName())) {
 
-                final DocColumn answer =
-                        DocFactory.parseDocColumn(problem.evalContext, nonempty, mode);
+                final DocColumn answer = DocFactory.parseDocColumn(problem.evalContext, nonempty, mode);
                 if (answer == null) {
                     valid = false;
                 } else if (problem.correctAnswer != null) {
