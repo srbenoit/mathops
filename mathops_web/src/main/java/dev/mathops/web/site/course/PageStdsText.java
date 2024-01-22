@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -77,11 +78,9 @@ enum PageStdsText {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  mode='", mode, "'");
-            PageError.doGet(cache, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
         } else if (course == null || mode == null) {
-            PageError.doGet(cache, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
         } else {
             final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
@@ -102,7 +101,9 @@ enum PageStdsText {
             if (reg == null) {
                 htm.sP("error").addln("You are not registered in this course.").eP();
             } else {
-                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg);
+                final ZonedDateTime now = session.getNow();
+                final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
+                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
 
                 if (RawRecordConstants.MATH125.equals(course)) {
                     showCourseText(session, MathCourses.MATH_125, logic, masteryStatus, mode, htm);

@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -141,7 +142,9 @@ enum PageStdsTextModule {
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg);
+            final ZonedDateTime now = ZonedDateTime.now();
+            final boolean isTutor = data.studentData.isSpecialType(now, "TUTOR");
+            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
             final SiteDataCfgCourse courseCfg = data.courseData.getCourse(courseId, reg.sect);
 
             if (RawRecordConstants.MATH125.equals(reg.course)) {
@@ -620,7 +623,7 @@ enum PageStdsTextModule {
         final boolean triedHw = assignmentStatus > 0;
         final boolean passedHw = assignmentStatus > 1;
         final boolean mastered = standardStatus > 1;
-        final boolean ineligible = srStatus < 2;
+        final boolean ineligible = srStatus < 2 && !masteryStatus.tutor;
 
         endDetailsBlock(htm);
 

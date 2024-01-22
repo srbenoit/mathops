@@ -11,8 +11,10 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.StudentCourseMasteryRec;
 import dev.mathops.db.old.reclogic.StudentCourseMasteryLogic;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
+import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -85,7 +87,9 @@ enum PageStdsCourse {
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg);
+            final boolean isTutor = logic.data.studentData.isSpecialType(ZonedDateTime.now(), "TUTOR");
+
+            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
 
             final int targetsFirstHalf = masteryStatus.getNbrMasteredInFirstHalf();
             final int targetsSecondHalf = masteryStatus.getNbrMasteredInSecondHalf();

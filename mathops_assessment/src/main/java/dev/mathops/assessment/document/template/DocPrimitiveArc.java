@@ -930,23 +930,23 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 final double lengthScale = this.rayLength == null ? 1.0 : this.rayLength.doubleValue();
                 final double halfWidth = bounds.getWidth() * 0.5;
                 final double halfHeight = bounds.getHeight() * 0.5;
-                final double cx = bounds.getX() + halfWidth;
-                final double cy = bounds.getY() + halfHeight;
+                final double cx = (bounds.getX() + halfWidth) * (double) this.scale;
+                final double cy = (bounds.getY() + halfHeight) * (double) this.scale;
 
                 final Shape rayShape;
                 if (this.raysShown == EArcRaysShown.START) {
                     final double sRadians = Math.toRadians(s);
                     final double sCos = Math.cos(sRadians);
                     final double sSin = Math.sin(sRadians);
-                    final double sdx = sCos * halfWidth * lengthScale;
-                    final double sdy = sSin * halfHeight * lengthScale;
+                    final double sdx = sCos * halfWidth * lengthScale * (double) this.scale;
+                    final double sdy = sSin * halfHeight * lengthScale * (double) this.scale;
                     rayShape = new Line2D.Double(cx, cy, cx + sdx, cy - sdy);
                 } else if (this.raysShown == EArcRaysShown.END) {
                     final double eRadians = Math.toRadians(s + a);
                     final double eCos = Math.cos(eRadians);
                     final double eSin = Math.sin(eRadians);
-                    final double edx = eCos * halfWidth * lengthScale;
-                    final double edy = eSin * halfHeight * lengthScale;
+                    final double edx = eCos * halfWidth * lengthScale * (double) this.scale;
+                    final double edy = eSin * halfHeight * lengthScale * (double) this.scale;
                     rayShape = new Line2D.Double(cx, cy, cx + edx, cy - edy);
                 } else {
                     final double sRadians = Math.toRadians(s);
@@ -955,10 +955,10 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     final double sSin = Math.sin(sRadians);
                     final double eCos = Math.cos(eRadians);
                     final double eSin = Math.sin(eRadians);
-                    final double sdx = sCos * halfWidth * lengthScale;
-                    final double sdy = sSin * halfHeight * lengthScale;
-                    final double edx = eCos * halfWidth * lengthScale;
-                    final double edy = eSin * halfHeight * lengthScale;
+                    final double sdx = sCos * halfWidth * lengthScale * (double) this.scale;
+                    final double sdy = sSin * halfHeight * lengthScale * (double) this.scale;
+                    final double edx = eCos * halfWidth * lengthScale * (double) this.scale;
+                    final double edy = eSin * halfHeight * lengthScale * (double) this.scale;
                     final Path2D path = new Path2D.Double();
                     path.moveTo(cx + sdx, cy - sdy);
                     path.lineTo(cx, cy);
@@ -1010,8 +1010,8 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
                 final double halfWidth = bounds.getWidth() * 0.5;
                 final double halfHeight = bounds.getHeight() * 0.5;
-                final double cx = bounds.getX() + halfWidth;
-                final double cy = bounds.getY() + halfHeight;
+                final double cx = (bounds.getX() + halfWidth) * this.scale;
+                final double cy = (bounds.getY() + halfHeight) * this.scale;
 
                 final double midAngleDeg = (s + a * 0.5);
                 final double midAngleRad = Math.toRadians(midAngleDeg);
@@ -1036,8 +1036,8 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     final double visW = visBounds.getWidth();
                     final double visH = visBounds.getHeight();
 
-                    double xRad = halfWidth + visW;
-                    double yRad = halfHeight + visH;
+                    double xRad = halfWidth + visW * (double) this.scale;
+                    double yRad = halfHeight + visH * (double) this.scale;
                     if (this.labelOffset != null) {
                         xRad += this.labelOffset.doubleValue();
                         yRad += this.labelOffset.doubleValue();
@@ -1055,8 +1055,8 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     final double halfVisW = (double) this.labelSpan.getWidth() * 0.5;
                     final double halfVisH = (double) this.labelSpan.getHeight() * 0.5;
 
-                    double xRad = halfWidth + halfVisW * 1.2;
-                    double yRad = halfHeight + halfVisH * 1.2;
+                    double xRad = halfWidth + halfVisW * 1.2 * (double) this.scale;
+                    double yRad = halfHeight + halfVisH * 1.2 * (double) this.scale;
                     if (this.labelOffset != null) {
                         xRad += this.labelOffset.doubleValue();
                         yRad += this.labelOffset.doubleValue();

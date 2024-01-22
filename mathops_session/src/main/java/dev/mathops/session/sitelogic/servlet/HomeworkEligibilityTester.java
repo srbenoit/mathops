@@ -89,7 +89,7 @@ public class HomeworkEligibilityTester extends EligibilityTesterBase {
         } else if (validateStudent(cache, now, reasons, holds, !practice) && checkActiveTerm(cache, now, reasons)) {
             final String course = hw.courseId;
 
-            if (practice || isSpecialStudentId()) {
+            if (practice || isSpecialStudentId() || isSpecial()) {
                 ok = true;
             } else if (RawRecordConstants.M1170.equals(course) || RawRecordConstants.M1180.equals(course) ||
                     RawRecordConstants.M1240.equals(course) || RawRecordConstants.M1250.equals(course) ||
@@ -196,7 +196,7 @@ public class HomeworkEligibilityTester extends EligibilityTesterBase {
         final boolean ok;
 
         // Guests and tutors can access all homework at any time
-        if (isSpecialStudentId()) {
+        if (isSpecialStudentId() || isSpecial()) {
             ok = gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, false);
         } else if (gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, true)) {
             ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)

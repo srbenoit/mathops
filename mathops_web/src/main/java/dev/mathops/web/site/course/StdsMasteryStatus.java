@@ -47,6 +47,9 @@ final class StdsMasteryStatus {
     /** A possible value for "standardStatus" member. */
     private static final int MASTERED_ON_TIME = 3;
 
+    /** True if the user should have tutor access to assignments. */
+    final boolean tutor;
+
     /** Status in 8 Skills Reviews (0=not tried, 1=tried, 2=passed). */
     final int[] skillsReviewStatus;
 
@@ -78,9 +81,12 @@ final class StdsMasteryStatus {
      * @param pace      the student's pace
      * @param paceTrack the student's pace track
      * @param reg       the course registration for which to generate status
+     * @param isTutor   true if the user should have TUROR access to assignments
      */
-    StdsMasteryStatus(final Cache cache, final int pace, final String paceTrack, final RawStcourse reg) {
+    StdsMasteryStatus(final Cache cache, final int pace, final String paceTrack, final RawStcourse reg,
+                      final boolean isTutor) {
 
+        this.tutor = isTutor;
         this.skillsReviewStatus = new int[NUM_UNITS];
         this.assignmentStatus = new int[NUM_STANDARDS];
         this.standardStatus = new int[NUM_STANDARDS];

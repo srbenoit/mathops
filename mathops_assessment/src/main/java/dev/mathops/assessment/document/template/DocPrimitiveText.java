@@ -2,17 +2,12 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.NumberParser;
-import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
-import dev.mathops.assessment.formula.Formula;
-import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
 import dev.mathops.core.builder.HtmlBuilder;
 import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.xml.INode;
@@ -26,6 +21,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
@@ -57,6 +53,12 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
     /** The color. */
     private Color color;
+
+    /** The highlight color name. */
+    private String highlightColorName;
+
+    /** The highlight (background) color. */
+    private Color highlightColor;
 
     /** The value. */
     private String value;
@@ -162,6 +164,16 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         return this.colorName;
     }
 
+    /**
+     * Gets the highlight color name.
+     *
+     * @return the highlight color name
+     */
+    public String getHighlightColorName() {
+
+        return this.highlightColorName;
+    }
+
 //    /**
 //     * Gets the text value.
 //     *
@@ -245,6 +257,8 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         copy.anchor = this.anchor;
         copy.colorName = this.colorName;
         copy.color = this.color;
+        copy.highlightColorName = this.highlightColorName;
+        copy.highlightColor = this.highlightColor;
         copy.value = this.value;
         copy.isStixText = this.isStixText;
         copy.isStixMath = this.isStixMath;
@@ -290,7 +304,7 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             } else {
                 elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
             }
-        }  else if ("color".equals(name)) {
+        } else if ("color".equals(name)) {
 
             if (ColorNames.isColorNameValid(theValue)) {
                 this.color = ColorNames.getColor(theValue);
@@ -298,6 +312,15 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 ok = true;
             } else {
                 elem.logError("Invalid 'color' value (" + theValue + ") on text primitive");
+            }
+        } else if ("highlight".equals(name)) {
+
+            if (ColorNames.isColorNameValid(theValue)) {
+                this.highlightColor = ColorNames.getColor(theValue);
+                this.highlightColorName = theValue;
+                ok = true;
+            } else {
+                elem.logError("Invalid 'highlight' value (" + theValue + ") on text primitive");
             }
         } else if ("value".equals(name)) {
             this.value = unescape(theValue);
@@ -464,19 +487,6 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
 
         if (x != null && y != null) {
 
-            if (this.color != null) {
-                grx.setColor(this.color);
-            } else {
-                grx.setColor(Color.BLACK);
-            }
-
-            Composite origComp = null;
-
-            if (this.alpha != null) {
-                origComp = grx.getComposite();
-                grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) this.alpha.doubleValue()));
-            }
-
             final FontSpec spec = new FontSpec();
 
             if (this.fontName != null) {
@@ -511,6 +521,9 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));
 
             final String str = generateStringContents(context);
+            final FontRenderContext frc = grx.getFontRenderContext();
+            final GlyphVector vect = grx.getFont().createGlyphVector(frc, str);
+            final Rectangle2D visBounds = vect.getVisualBounds();
 
             float actualX = 0.0f;
             float actualY = 0.0f;
@@ -518,35 +531,56 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 actualX = x.floatValue() * this.scale;
                 actualY = y.floatValue() * this.scale;
             } else {
-                final FontRenderContext frc = grx.getFontRenderContext();
-                final GlyphVector vect = grx.getFont().createGlyphVector(frc, str);
-                final Rectangle2D bounds = vect.getVisualBounds();
-
                 if (this.anchor == ETextAnchor.NW) {
                     actualX = x.floatValue() * this.scale;
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight();
                 } else if (this.anchor == ETextAnchor.W) {
                     actualX = x.floatValue() * this.scale;
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight() * 0.5f;
                 } else if (this.anchor == ETextAnchor.N) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth() * 0.5f;
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight();
                 } else if (this.anchor == ETextAnchor.C) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth() * 0.5f;
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight() * 0.5f;
                 } else if (this.anchor == ETextAnchor.S) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth() * 0.5f;
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth() * 0.5f;
                     actualY = y.floatValue() * this.scale;
                 } else if (this.anchor == ETextAnchor.NE) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight();
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth();
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight();
                 } else if (this.anchor == ETextAnchor.E) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
-                    actualY = y.floatValue() * this.scale + (float) bounds.getHeight() * 0.5f;
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth();
+                    actualY = y.floatValue() * this.scale + (float) visBounds.getHeight() * 0.5f;
                 } else if (this.anchor == ETextAnchor.SE) {
-                    actualX = x.floatValue() * this.scale - (float) bounds.getWidth();
+                    actualX = x.floatValue() * this.scale - (float) visBounds.getWidth();
                     actualY = y.floatValue() * this.scale;
                 }
+            }
+
+            Composite origComp = null;
+
+            if (this.alpha != null) {
+                origComp = grx.getComposite();
+                grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) this.alpha.doubleValue()));
+            }
+
+            Log.info("Vis bounds = " + visBounds);
+
+            if (this.highlightColor != null) {
+                final float actualWidth = (float)(visBounds.getWidth() + 4.0) * this.scale;
+                final float actualHeight = (float)(visBounds.getHeight() + 4.0) * this.scale;
+                final float topY = actualY + (float) (visBounds.getY() + 2.0) * this.scale;
+                final float leftX = actualX - 2.0f * this.scale;
+                final Shape scaledBounds = new Rectangle2D.Float(leftX, topY, actualWidth, actualHeight);
+                grx.setColor(this.highlightColor);
+                grx.fill(scaledBounds);
+            }
+
+            if (this.color != null) {
+                grx.setColor(this.color);
+            } else {
+                grx.setColor(Color.BLACK);
             }
 
             grx.drawString(str, Math.round(actualX), Math.round(actualY));
@@ -744,6 +778,8 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 + Objects.hashCode(this.anchor)
                 + Objects.hashCode(this.colorName)
                 + Objects.hashCode(this.color)
+                + Objects.hashCode(this.highlightColorName)
+                + Objects.hashCode(this.highlightColor)
                 + Objects.hashCode(this.value)
                 + Objects.hashCode(this.fontName)
                 + Objects.hashCode(this.fontSize)
@@ -767,9 +803,11 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
         } else if (obj instanceof final DocPrimitiveText text) {
             equal = Objects.equals(this.xCoord, text.xCoord)
                     && Objects.equals(this.yCoord, text.yCoord)
-                    && Objects.equals(this.anchor, text.anchor)
+                    && this.anchor == text.anchor
                     && Objects.equals(this.colorName, text.colorName)
                     && Objects.equals(this.color, text.color)
+                    && Objects.equals(this.highlightColorName, text.highlightColorName)
+                    && Objects.equals(this.highlightColor, text.highlightColor)
                     && Objects.equals(this.value, text.value)
                     && Objects.equals(this.fontName, text.fontName)
                     && Objects.equals(this.fontSize, text.fontSize)

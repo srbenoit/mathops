@@ -2665,6 +2665,7 @@ public enum DocFactory {
                 && p.setAttr("y", e.getStringAttr("y"), e, mode)
                 && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
                 && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr("highlight", e.getStringAttr("highlight"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
                 && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
