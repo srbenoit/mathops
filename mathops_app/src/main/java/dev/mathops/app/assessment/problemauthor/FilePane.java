@@ -99,6 +99,9 @@ final class FilePane extends JPanel implements ActionListener {
     /** The exam pane. */
     private ExamPane examPane;
 
+    /** The lines in the console pane. */
+    private final List<String> consoleLines;
+
     /** The console pane. */
     private final JEditorPane console;
 
@@ -129,6 +132,7 @@ final class FilePane extends JPanel implements ActionListener {
         final int consoleHeight = Math.min(100, windowSize.height / 6);
         final int mainH = windowSize.height - consoleHeight - 10;
 
+        this.consoleLines = new ArrayList<>();
         this.console = new JEditorPane();
         this.bg = this.console.getBackground();
         final Color bg2 = new Color(this.bg.getRed(), this.bg.getGreen(), Math.max(0, this.bg.getBlue() - 20));
@@ -227,6 +231,20 @@ final class FilePane extends JPanel implements ActionListener {
     }
 
     /**
+     * Updates the console.
+     */
+    private void updateConsole() {
+
+        final HtmlBuilder htm = new HtmlBuilder(1000);
+
+        for (final String line : this.consoleLines) {
+            htm.addln(line);
+        }
+
+        this.console.setText(htm.toString());
+    }
+
+    /**
      * Loads the file and populates the tabs.
      */
     private void loadFile() {
@@ -235,15 +253,15 @@ final class FilePane extends JPanel implements ActionListener {
         this.problemPane = null;
         this.examPane = null;
 
+        clearConsole();
+
         final String fileContent = FileLoader.loadFileAsString(this.file, true);
         if (fileContent == null) {
-            this.console.setText("<p color='red'>ERROR: Unable to load file.</p>");
+            this.consoleLines.add("<p color='red'>ERROR: Unable to load file.</p>");
         } else {
             // All file types get a "raw" contents panel
             final String nameLC = this.file.getName().toLowerCase(Locale.ROOT);
             final boolean isXml = nameLC.endsWith(".xml");
-
-            final HtmlBuilder messages = new HtmlBuilder(500);
 
             if (isXml) {
                 if (fileContent.contains("</exam>")) {
@@ -251,7 +269,7 @@ final class FilePane extends JPanel implements ActionListener {
                         final XmlContent source = new XmlContent(fileContent, false, false);
                         final ExamObj exam = ExamFactory.load(source, EParserMode.NORMAL);
 
-                        appendErrors(source, messages);
+                        appendErrors(source);
 
                         if (exam != null) {
                             this.examPane = new ExamPane(exam, this.bg);
@@ -268,15 +286,15 @@ final class FilePane extends JPanel implements ActionListener {
                             final String postXml = parsedFromPreXml.toXmlString(0);
 
                             if (!postXml.equals(preXml)) {
-                                messages.addln(
+                                this.consoleLines.add(
                                         "<div color='red'>ERROR: Exam not identical after pre-realize transfer.</div>");
-                                logDiff(messages, postXml, preXml);
+                                logDiff(postXml, preXml);
                             }
                         } else {
-                            messages.addln("<div color='red'>ERROR: Unable to interpret Exam file XML.</div>");
+                            this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Exam file XML.</div>");
                         }
                     } catch (final ParsingException ex) {
-                        messages.addln("<div color='red'>ERROR: Unable to interpret Exam file XML: "
+                        this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Exam file XML: "
                                 + ex.getMessage() + "</div>");
                     }
                 } else if (fileContent.contains("</problem>")) {
@@ -285,7 +303,7 @@ final class FilePane extends JPanel implements ActionListener {
                         final AbstractProblemTemplate problem =
                                 ProblemTemplateFactory.load(source, EParserMode.NORMAL);
 
-                        appendErrors(source, messages);
+                        appendErrors(source);
 
                         this.problemPane = new ProblemPane(problem, this.bg);
                         final JScrollPane problemScroll = new JScrollPane(this.problemPane);
@@ -302,23 +320,24 @@ final class FilePane extends JPanel implements ActionListener {
                         final String postXml = parsedFromPreXml.toXmlString(0);
 
                         if (!postXml.equals(preXml)) {
-                            messages.addln(
+                            this.consoleLines.add(
                                     "<div color='red'>ERROR: Problem not identical after pre-realize transfer.</div>");
-                            logDiff(messages, postXml, preXml);
+                            logDiff(postXml, preXml);
                         }
                     } catch (final ParsingException ex) {
-                        messages.addln("<div color='red'>ERROR: Unable to interpret Problem file XML: "
+                        this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Problem file XML: "
                                 + ex.getMessage() + "</div>");
                     }
                 } else {
-                    messages.addln("<div color='red'>File does not appear to be either a valid Exam or Problem.</div>");
+                    this.consoleLines.add(
+                            "<div color='red'>File does not appear to be either a valid Exam or Problem.</div>");
                 }
                 addSourceXmlTab(fileContent);
             }
 
             addGeneratedTab();
 
-            this.console.setText(messages.toString());
+            updateConsole();
             this.yetToBeGenerated = true;
         }
     }
@@ -372,23 +391,20 @@ final class FilePane extends JPanel implements ActionListener {
     }
 
     /**
-     * Gathers all errors from a {@code XmlContent} and appends them to an {@code HtmlBuilder} for display in the
-     * console.
+     * Gathers all errors from a {@code XmlContent} and appends them to the list of console lines.
      *
      * @param source   the {@code XmlContent}
-     * @param messages the {@code HtmlBuilder}
      */
-    private static void appendErrors(final XmlContent source, final HtmlBuilder messages) {
+    private void appendErrors(final XmlContent source) {
 
         final List<XmlContentError> allErrors = gatherErrors(source);
         if (!allErrors.isEmpty()) {
-            messages.addln("<div color='red'>",
-                    "Errors in parsed pre-realize XML:</div>");
-            messages.addln("<ul>");
+            this.consoleLines.add("<div color='red'>Errors in parsed pre-realize XML:</div>");
+            this.consoleLines.add("<ul>");
             for (final XmlContentError error : allErrors) {
-                messages.addln("<li>", error, "</li>");
+                this.consoleLines.add("<li>" + error + "</li>");
             }
-            messages.addln("</ul>");
+            this.consoleLines.add("</ul>");
         }
     }
 
@@ -446,18 +462,15 @@ final class FilePane extends JPanel implements ActionListener {
     /**
      * Print the difference between two strings to a log.
      *
-     * @param messages the target to which to log
      * @param after    the "after" string
      * @param before   the "before" string
      */
-    private static void logDiff(final HtmlBuilder messages, final String after,
-                                final String before) {
+    private void logDiff(final String after, final String before) {
 
-        messages
-                .addln("<div color='blue' border-top='1px solid blue' border-bottom='1px solid blue'>");
+        this.consoleLines.add("<div color='blue' border-top='1px solid blue' border-bottom='1px solid blue'>");
         if (after.length() != before.length()) {
-            messages.addln("Length from ", Integer.toString(before.length()), " to ",
-                    Integer.toString(after.length()), "<br/>");
+            this.consoleLines.add("Length from " + Integer.toString(before.length()) + " to " +
+                    Integer.toString(after.length()) + "<br/>");
         }
 
         final int len = Math.min(before.length(), after.length());
@@ -466,7 +479,7 @@ final class FilePane extends JPanel implements ActionListener {
             if (before.charAt(i) != after.charAt(i)) {
                 final int start = Math.max(0, i - 40);
 
-                messages.addln("After:<br/><pre>");
+                this.consoleLines.add("After:<br/><pre>");
                 int max = i + 100;
                 if (max > after.length()) {
                     max = after.length();
@@ -474,9 +487,9 @@ final class FilePane extends JPanel implements ActionListener {
                 final String afterRaw = after.substring(start, max);
                 final String afterLt = afterRaw.replace("<", "&lt;");
                 final String afterGt = afterLt.replace("<", "&lt;");
-                messages.addln(afterGt);
+                this.consoleLines.add(afterGt);
 
-                messages.addln("</pre><br/>Before:<br/><pre>");
+                this.consoleLines.add("</pre><br/>Before:<br/><pre>");
                 max = i + 100;
                 if (max > before.length()) {
                     max = before.length();
@@ -485,13 +498,13 @@ final class FilePane extends JPanel implements ActionListener {
                 final String beforeRaw = before.substring(start, max);
                 final String beforeLt = beforeRaw.replace("<", "&lt;");
                 final String beforeGr = beforeLt.replace("<", "&lt;");
-                messages.addln(beforeGr);
+                this.consoleLines.add(beforeGr);
 
-                messages.addln("</pre>");
+                this.consoleLines.add("</pre>");
                 break;
             }
         }
-        messages.addln("</div>");
+        this.consoleLines.add("</div>");
     }
 
     /**
@@ -612,19 +625,23 @@ final class FilePane extends JPanel implements ActionListener {
     }
 
     /**
+     * Clears the console.
+     */
+    void clearConsole() {
+
+        this.consoleLines.clear();
+        updateConsole();
+    }
+
+    /**
      * Appends a message to the console.
      *
      * @param msg the message
      */
     void logToConsole(final String msg) {
 
-        Log.info("Log to console: ", msg);
-
-        final int len = this.console.getText().length() + msg.length() + 2;
-
-        final StringBuilder text = new StringBuilder(len).append(this.console.getText());
-        text.append(CoreConstants.CRLF).append(msg);
-        this.console.setText(text.toString());
+        this.consoleLines.add(msg);
+        updateConsole();
     }
 
     /**

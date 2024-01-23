@@ -81,12 +81,13 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        final JPanel west = new JPanel(new BorderLayout());
+        final JPanel content = new JPanel(new BorderLayout());
+        setContentPane(content);
 
         final JLabel libPath = new JLabel("Problem Library: " + theLibraryDir.getAbsolutePath());
         final JPanel titleFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 3));
         titleFlow.add(libPath);
-        west.add(titleFlow, BorderLayout.PAGE_START);
+        content.add(titleFlow, BorderLayout.PAGE_START);
 
         final DefaultMutableTreeNode root = makeTreeNode(theLibraryDir);
 
@@ -100,7 +101,9 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         this.libraryTree.expandRow(0);
         this.libraryTree.addMouseListener(this);
 
+        final JPanel west = new JPanel(new BorderLayout());
         final JScrollPane treeScroll = new JScrollPane(this.libraryTree);
+        treeScroll.setMinimumSize(new Dimension(300, 300));
         west.add(treeScroll, BorderLayout.CENTER);
 
         final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -120,7 +123,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         final int h = (screenSize.height << 2) / 5;
         treeSplit.setPreferredSize(new Dimension(w, h));
 
-        setContentPane(treeSplit);
+        content.add(treeSplit, BorderLayout.CENTER);
 
         UIUtilities.packAndCenter(this);
 

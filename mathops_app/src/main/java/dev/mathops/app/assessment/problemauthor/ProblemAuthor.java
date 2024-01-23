@@ -35,9 +35,19 @@ final class ProblemAuthor implements Runnable {
         final File src2Inst = src2 == null ? null : new File(src2, "instruction");
         final File src3Inst = src3 == null ? null : new File(src3, "instruction");
 
+        final File src1Bank = src1 == null ? null : new File(src1, "assessment_bank");
+        final File src2Bank = src2 == null ? null : new File(src2, "assessment_bank");
+        final File src3Bank = src3 == null ? null : new File(src3, "assessment_bank");
+
         final File dir;
 
-        if (src1Inst != null && src1Inst.exists() && src1Inst.isDirectory()) {
+        if (src1Bank != null && src1Bank.exists() && src1Bank.isDirectory()) {
+            dir = src1Bank;
+        } else if (src2Bank != null && src2Bank.exists() && src2Bank.isDirectory()) {
+            dir = src2Bank;
+        } else if (src3Bank != null && src3Bank.exists() && src3Bank.isDirectory()) {
+            dir = src3Bank;
+        } else if (src1Inst != null && src1Inst.exists() && src1Inst.isDirectory()) {
             dir = src1Inst;
         } else if (src2Inst != null && src2Inst.exists() && src2Inst.isDirectory()) {
             dir = src2Inst;

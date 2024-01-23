@@ -14,6 +14,7 @@ import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.core.log.Log;
+import dev.mathops.core.log.LogEntry;
 import dev.mathops.core.log.LogWriter;
 import dev.mathops.core.ui.layout.StackedBorderLayout;
 
@@ -105,6 +106,7 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
         final Dimension mySize = getSize();
         final int problemWidth = (mySize.width << 2) / 5;
         this.currentProblemPane.setSize(problemWidth, mySize.height);
+        this.owner.clearConsole();
 
         this.split.setDividerLocation(problemWidth + 5);
 
@@ -149,11 +151,14 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
             this.variables.updateVariableValues();
         }
 
-        writer.stopList();
-        if (writer.getNumInList() > 0) {
-            final String errors = writer.errorMessagesAsString();
-            this.owner.logToConsole(errors);
+        final int numErrors = writer.getNumInList();
+        if (numErrors > 0) {
+            for (int i = 0; i < numErrors; ++i) {
+                final LogEntry entry = writer.getListMessage(i);
+                this.owner.logToConsole(entry.message);
+            }
         }
+        writer.stopList();
         writer.clearList();
 
         theProblem.question.addInputChangeListener(this);
