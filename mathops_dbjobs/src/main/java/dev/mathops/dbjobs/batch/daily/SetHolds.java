@@ -46,7 +46,7 @@ public enum SetHolds {
     private static final String LATE_RENTAL_CALC_HOLD = "36";
 
     /** Flag to set batch into debug mode. */
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     /** A commonly used string. */
     private static final String FOR_STUDENT = " for student ";
@@ -461,7 +461,7 @@ public enum SetHolds {
             for (final RawStcourse reg : regs) {
                 if ("Y".equals(reg.iInProgress)) {
                     for (final RawStcourse reg2 : regs) {
-                        if (reg.course.equals(reg2.course)) {
+                        if ("N".equals(reg2.iInProgress) && reg.course.equals(reg2.course)) {
                             Log.warning("Student '", stuId, "' has both an Incomplete and an active registration for ",
                                     reg.course, " - adding hold 25");
                             final RawAdminHold hold25 = new RawAdminHold(stuId, "25", "F", ZERO, today);
