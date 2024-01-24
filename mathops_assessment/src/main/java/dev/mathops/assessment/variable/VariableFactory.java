@@ -1012,9 +1012,9 @@ public enum VariableFactory {
                 var = extractVariableReal(elem, varName);
             } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
                 var = extractVariableRandomBoolean(elem, varName);
-            } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
+            } else if (VariableRandomInteger.TYPE_TAG.contentEquals(typeStr)) {
                 var = extractVariableRandomInteger(elem, varName);
-            } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
+            } else if (VariableRandomReal.TYPE_TAG.contentEquals(typeStr)) {
                 var = extractVariableRandomReal(elem, varName);
             } else if (VariableRandomPermutation.TYPE_TAG.contentEquals(typeStr)) {
                 var = extractVariableRandomPermutation(elem, varName);
@@ -1726,7 +1726,7 @@ public enum VariableFactory {
         } else {
             NumberOrFormula min = null;
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                min = new NumberOrFormula(NumberParser.parse(minStr));
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
@@ -1734,7 +1734,7 @@ public enum VariableFactory {
 
             NumberOrFormula max = null;
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                max = new NumberOrFormula(NumberParser.parse(maxStr));
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;

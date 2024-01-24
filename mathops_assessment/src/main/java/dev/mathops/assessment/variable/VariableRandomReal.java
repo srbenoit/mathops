@@ -131,8 +131,7 @@ public final class VariableRandomReal extends AbstractFormattableVariable
     @Override
     public int hashCode() {
 
-        return innerHashCode() + Objects.hashCode(this.min)
-                + Objects.hashCode(this.max);
+        return innerHashCode() + Objects.hashCode(this.min) + Objects.hashCode(this.max);
     }
 
     /**
