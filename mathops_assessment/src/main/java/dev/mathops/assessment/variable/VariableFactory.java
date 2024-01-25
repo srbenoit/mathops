@@ -184,8 +184,7 @@ public enum VariableFactory {
 
             if (var instanceof final VariableRandomInteger vRInt) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -194,8 +193,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -210,8 +208,7 @@ public enum VariableFactory {
                 }
             } else if (var instanceof final VariableRandomReal vRReal) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -220,8 +217,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -236,8 +232,7 @@ public enum VariableFactory {
                 }
             } else if (var instanceof final VariableDerived vDer) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -246,8 +241,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -275,8 +269,7 @@ public enum VariableFactory {
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
                     for (final String toParse : split) {
-                        final Formula formula =
-                                FormulaFactory.parseFormulaString(evalContext, toParse, mode);
+                        final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
                             elem.logError("Unable to parse 'exclude' formula.");
@@ -294,8 +287,7 @@ public enum VariableFactory {
                         excludeVar.setExcludes(excludeFormulae);
                     }
                 } else {
-                    elem.logError(
-                            "Only random or derived integer or choice parameter can have excludes.");
+                    elem.logError("Only random or derived integer or choice parameter can have excludes.");
                     valid = false;
                 }
             }
@@ -309,8 +301,7 @@ public enum VariableFactory {
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
                     for (final String toParse : split) {
-                        final Formula formula =
-                                FormulaFactory.parseFormulaString(evalContext, toParse, mode);
+                        final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
                             elem.logError("Unable to parse 'choose-from' formula.");
@@ -346,8 +337,7 @@ public enum VariableFactory {
             if (formulaStr != null) {
                 if (var instanceof final VariableDerived vDer) {
 
-                    final Formula formula =
-                            FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
+                    final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
                     if (formula == null) {
                         elem.logError("Unable to parse 'formula' formula.");
                         valid = false;
@@ -371,8 +361,7 @@ public enum VariableFactory {
             final String valueStr = elem.getStringAttr("value");
 
             if (valueStr == null) {
-                if (var instanceof VariableInteger || var instanceof VariableReal
-                        || var instanceof VariableBoolean) {
+                if (var instanceof VariableInteger || var instanceof VariableReal || var instanceof VariableBoolean) {
                     elem.logError("Constant parameter with no value.");
                     valid = false;
                 }
@@ -391,8 +380,7 @@ public enum VariableFactory {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError(
-                                "Can't evaluate constant value.\n" + evaluationResult);
+                        elem.logError("Can't evaluate constant value.\n" + evaluationResult);
                         valid = false;
                     } else if (var instanceof VariableInteger) {
                         if (evaluationResult instanceof Long) {
@@ -435,9 +423,8 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random integer, random real, choice or derived parameter can have generated integer" +
-                                    " value.");
+                    elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
+                                    "integer value.");
                     valid = false;
                 }
             }
@@ -455,8 +442,7 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random real, choice or derived parameter can have generated real value.");
+                    elem.logError("Only random real, choice or derived parameter can have generated real value.");
                     valid = false;
                 }
             }
@@ -474,8 +460,7 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random boolean, choice or derived parameter can have generated boolean value.");
+                    elem.logError("Only random boolean, choice or derived parameter can have generated boolean value.");
                     valid = false;
                 }
             }
@@ -615,8 +600,7 @@ public enum VariableFactory {
 
             if (var instanceof final VariableRandomInteger vRInt) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -625,8 +609,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -641,8 +624,7 @@ public enum VariableFactory {
                 }
             } else if (var instanceof final VariableRandomReal vRReal) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -651,8 +633,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -667,8 +648,7 @@ public enum VariableFactory {
                 }
             } else if (var instanceof final VariableDerived vDer) {
                 if (minStr != null) {
-                    final Formula minFormula =
-                            FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                     if (minFormula == null) {
                         elem.logError("Unable to parse 'min' formula.");
                         valid = false;
@@ -677,8 +657,7 @@ public enum VariableFactory {
                     }
                 }
                 if (maxStr != null) {
-                    final Formula maxFormula =
-                            FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                     if (maxFormula == null) {
                         elem.logError("Unable to parse 'max' formula.");
                         valid = false;
@@ -706,8 +685,7 @@ public enum VariableFactory {
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
                     for (final String toParse : split) {
-                        final Formula formula =
-                                FormulaFactory.parseFormulaString(evalContext, toParse, mode);
+                        final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
                             elem.logError("Unable to parse 'exclude' formula.");
@@ -725,8 +703,7 @@ public enum VariableFactory {
                         excludeVar.setExcludes(excludeFormulae);
                     }
                 } else {
-                    elem.logError(
-                            "Only random or derived integer or choice parameter can have excludes.");
+                    elem.logError("Only random or derived integer or choice parameter can have excludes.");
                     valid = false;
                 }
             }
@@ -740,8 +717,7 @@ public enum VariableFactory {
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
                     for (final String toParse : split) {
-                        final Formula formula =
-                                FormulaFactory.parseFormulaString(evalContext, toParse, mode);
+                        final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
                             elem.logError("Unable to parse 'choose-from' formula.");
@@ -780,8 +756,7 @@ public enum VariableFactory {
 
             if (formulaStr != null) {
                 if (var instanceof final VariableDerived vDer) {
-                    final Formula formula =
-                            FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
+                    final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
 
                     if (formula == null) {
                         elem.logError("Unable to parse 'formula' formula.");
@@ -828,8 +803,7 @@ public enum VariableFactory {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError(
-                                "Can't evaluate constant value.\n" + evaluationResult);
+                        elem.logError("Can't evaluate constant value.\n" + evaluationResult);
                         valid = false;
                     } else if (var instanceof VariableInteger
                             || var instanceof VariableInputInteger) {
@@ -873,9 +847,8 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random integer, random real, choice or derived parameter can have generated integer" +
-                                    " value.");
+                    elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
+                            "integer value.");
                     valid = false;
                 }
             }
@@ -893,8 +866,7 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random real, choice or derived parameter can have generated real value.");
+                    elem.logError("Only random real, choice or derived parameter can have generated real value.");
                     valid = false;
                 }
             }
@@ -912,8 +884,7 @@ public enum VariableFactory {
                         valid = false;
                     }
                 } else {
-                    elem.logError(
-                            "Only random boolean, choice or derived parameter can have generated boolean value.");
+                    elem.logError("Only random boolean, choice or derived parameter can have generated boolean value.");
                     valid = false;
                 }
             }
@@ -987,8 +958,8 @@ public enum VariableFactory {
      * @param comments    comments to associate with the variable
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean processEmptyVarElement(final EvalContext evalContext,
-                                                  final EmptyElement elem, final Iterable<Comment> comments) {
+    private static boolean processEmptyVarElement(final EvalContext evalContext, final EmptyElement elem,
+                                                  final Iterable<Comment> comments) {
 
         boolean valid = false;
 
@@ -1069,9 +1040,8 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean processNonemptyVarElement(final EvalContext evalContext,
-                                                     final NonemptyElement elem, final Iterable<Comment> comments,
-                                                     final EParserMode mode) {
+    private static boolean processNonemptyVarElement(final EvalContext evalContext, final NonemptyElement elem,
+                                                     final Iterable<Comment> comments, final EParserMode mode) {
 
         boolean valid = false;
 
@@ -1140,16 +1110,14 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return the parsed variable on success; null on failure
      */
-    private static VariableBoolean extractVariableBoolean(final EmptyElement elem,
-                                                          final String varName) {
+    private static VariableBoolean extractVariableBoolean(final EmptyElement elem, final String varName) {
 
         VariableBoolean result = null;
 
         final String valueStr = elem.getStringAttr("value");
 
         if (valueStr == null) {
-            elem.logError(
-                    "Boolean <var> element missing required 'value' attribute in {" + varName + "}");
+            elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
         } else if ("true".equalsIgnoreCase(valueStr)) {
             result = new VariableBoolean(varName);
             result.setValue(Boolean.TRUE);
@@ -1174,8 +1142,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return the parsed variable on success; null on failure
      */
-    private static VariableBoolean extractVariableBoolean(final NonemptyElement elem,
-                                                          final String varName) {
+    private static VariableBoolean extractVariableBoolean(final NonemptyElement elem, final String varName) {
 
         VariableBoolean result = null;
 
@@ -1184,8 +1151,7 @@ public enum VariableFactory {
             final String valueStr = elem.getStringAttr("value");
 
             if (valueStr == null) {
-                elem.logError("Boolean <var> element missing required 'value' attribute in {"
-                        + varName + "}");
+                elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
             } else if ("true".equalsIgnoreCase(valueStr)) {
                 result = new VariableBoolean(varName);
                 result.setValue(Boolean.TRUE);
@@ -1213,16 +1179,14 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return the parsed variable on success; null on failure
      */
-    private static VariableInteger extractVariableInteger(final EmptyElement elem,
-                                                          final String varName) {
+    private static VariableInteger extractVariableInteger(final EmptyElement elem, final String varName) {
 
         VariableInteger result = null;
 
         final String valueStr = elem.getStringAttr("value");
 
         if (valueStr == null) {
-            elem.logError(
-                    "Integer <var> element missing required 'value' attribute in {" + varName + "}");
+            elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
         } else {
             String formatStr = elem.getStringAttr("format");
             if (formatStr == null) {
@@ -1256,8 +1220,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return the parsed variable on success; null on failure
      */
-    private static VariableInteger extractVariableInteger(final NonemptyElement elem,
-                                                          final String varName) {
+    private static VariableInteger extractVariableInteger(final NonemptyElement elem, final String varName) {
 
         VariableInteger result = null;
 
@@ -1271,8 +1234,7 @@ public enum VariableFactory {
         if (children.isEmpty()) {
             final String valueStr = elem.getStringAttr("value");
             if (valueStr == null) {
-                elem.logError("Integer <var> element missing required 'value' attribute in {"
-                        + varName + "}");
+                elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
             } else {
                 try {
                     final Long longVal = Long.valueOf(valueStr);
@@ -1313,8 +1275,7 @@ public enum VariableFactory {
 
         final String valueStr = elem.getStringAttr("value");
         if (valueStr == null) {
-            elem.logError(
-                    "Real <var> element missing required 'value' attribute in {" + varName + "}");
+            elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
         } else {
             try {
                 final Number numberVal = NumberParser.parse(valueStr);
@@ -1358,8 +1319,7 @@ public enum VariableFactory {
             final String valueStr = elem.getStringAttr("value");
 
             if (valueStr == null) {
-                elem.logError(
-                        "Real <var> element missing required 'value' attribute in {" + varName + "}");
+                elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
             } else {
                 try {
                     final Number numberVal = NumberParser.parse(valueStr);
@@ -1392,9 +1352,8 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableSpan extractVariableSpan(final EvalContext evalContext,
-                                                    final NonemptyElement elem, final String varName,
-                                                    final EParserMode mode) {
+    private static VariableSpan extractVariableSpan(final EvalContext evalContext, final NonemptyElement elem,
+                                                    final String varName, final EParserMode mode) {
 
         final VariableSpan result;
 
@@ -1421,8 +1380,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomBoolean extractVariableRandomBoolean(final EmptyElement elem,
-                                                                      final String varName) {
+    private static VariableRandomBoolean extractVariableRandomBoolean(final EmptyElement elem, final String varName) {
 
         VariableRandomBoolean result = null;
 
@@ -1454,8 +1412,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomBoolean extractVariableRandomBoolean(final NonemptyElement elem,
-                                                                      final String varName) {
+    private static VariableRandomBoolean extractVariableRandomBoolean(final NonemptyElement elem, final String varName) {
 
         VariableRandomBoolean result = null;
 
@@ -1472,8 +1429,7 @@ public enum VariableFactory {
                 result = new VariableRandomBoolean(varName);
                 result.setValue(Boolean.FALSE);
             } else {
-                elem.logError(
-                        "Invalid random boolean value: '" + valueStr + "' in {" + varName + "}");
+                elem.logError("Invalid random boolean value: '" + valueStr + "' in {" + varName + "}");
             }
         } else {
             elem.logError("Random boolean variable may not contain child elements.");
@@ -1493,8 +1449,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomInteger extractVariableRandomInteger(final EmptyElement elem,
-                                                                      final String varName) {
+    private static VariableRandomInteger extractVariableRandomInteger(final EmptyElement elem, final String varName) {
 
         boolean valid = true;
 
@@ -1624,11 +1579,9 @@ public enum VariableFactory {
 
                     if ("min".equals(tag)) {
                         if (min == null) {
-                            final Formula minFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 min = new NumberOrFormula(minFormula);
@@ -1639,11 +1592,9 @@ public enum VariableFactory {
                         }
                     } else if ("max".equals(tag)) {
                         if (max == null) {
-                            final Formula maxFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 max = new NumberOrFormula(maxFormula);
@@ -1653,11 +1604,9 @@ public enum VariableFactory {
                             break;
                         }
                     } else if ("exclude".equals(tag)) {
-                        final Formula exclude =
-                                XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                         if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
-                                    + nonempty.print(0));
+                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                             valid = false;
                         } else {
                             excludes.add(exclude);
@@ -1699,8 +1648,7 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomReal extractVariableRandomReal(final EmptyElement elem,
-                                                                final String varName) {
+    private static VariableRandomReal extractVariableRandomReal(final EmptyElement elem, final String varName) {
 
         boolean valid = true;
 
@@ -1808,7 +1756,7 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr("max");
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(NumberParser.parse(minStr));
+                max = new NumberOrFormula(NumberParser.parse(maxStr));
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -1825,11 +1773,9 @@ public enum VariableFactory {
 
                     if ("min".equals(tag)) {
                         if (min == null) {
-                            final Formula minFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 min = new NumberOrFormula(minFormula);
@@ -1840,11 +1786,9 @@ public enum VariableFactory {
                         }
                     } else if ("max".equals(tag)) {
                         if (max == null) {
-                            final Formula maxFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 max = new NumberOrFormula(maxFormula);
@@ -1913,8 +1857,7 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr("max");
 
         if (minStr == null || maxStr == null) {
-            elem.logError(
-                    "Missing required min/max value in random permutation var {" + varName + "}");
+            elem.logError("Missing required min/max value in random permutation var {" + varName + "}");
         } else {
             NumberOrFormula min = null;
             try {
@@ -1956,9 +1899,10 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomPermutation extractVariableRandomPermutation(
-            final EvalContext evalContext, final NonemptyElement elem, final String varName,
-            final EParserMode mode) {
+    private static VariableRandomPermutation extractVariableRandomPermutation(final EvalContext evalContext,
+                                                                              final NonemptyElement elem,
+                                                                              final String varName,
+                                                                              final EParserMode mode) {
 
         boolean valid = true;
 
@@ -2007,11 +1951,9 @@ public enum VariableFactory {
 
                     if ("min".equals(tag)) {
                         if (min == null) {
-                            final Formula minFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 min = new NumberOrFormula(minFormula);
@@ -2022,11 +1964,9 @@ public enum VariableFactory {
                         }
                     } else if ("max".equals(tag)) {
                         if (max == null) {
-                            final Formula maxFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 max = new NumberOrFormula(maxFormula);
@@ -2108,8 +2048,8 @@ public enum VariableFactory {
                                 try {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
-                                    elem.logError("Invalid integer vector value: '" + intVectorStr
-                                            + "' in {" + varName + "}");
+                                    elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
+                                            + varName + "}");
                                     valid = false;
                                 }
                             }
@@ -2126,8 +2066,7 @@ public enum VariableFactory {
                         try {
                             value = NumberParser.parse(irrationalStr);
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {"
-                                    + varName + "}");
+                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName + "}");
                             valid = false;
                         }
                     }
@@ -2140,8 +2079,7 @@ public enum VariableFactory {
                     } else if ("false".equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
-                        elem.logError(
-                                "Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
+                        elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
                         valid = false;
                     }
                 }
@@ -2181,21 +2119,17 @@ public enum VariableFactory {
                     final String tag = child.getTagName();
 
                     if ("exclude".equals(tag)) {
-                        final Formula exclude =
-                                XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                         if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
-                                    + nonempty.print(0));
+                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                             valid = false;
                         } else {
                             excludes.add(exclude);
                         }
                     } else if ("choose-from".equals(tag)) {
-                        final Formula choice =
-                                XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                         if (choice == null) {
-                            elem.logError("Invalid 'choose-from' formula in {" + varName + "}: "
-                                    + nonempty.print(0));
+                            elem.logError("Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
                             valid = false;
                         } else {
                             choices.add(choice);
@@ -2207,9 +2141,7 @@ public enum VariableFactory {
                                         || (type == EType.REAL && choiceType == EType.INTEGER)) {
                                     type = EType.REAL;
                                 } else {
-                                    elem.logError(
-                                            "Inconsistent types in 'choose-from' formulas in {"
-                                                    + varName + "}");
+                                    elem.logError("Inconsistent types in 'choose-from' formulas in {" + varName + "}");
                                     valid = false;
                                 }
                             }
@@ -2221,13 +2153,11 @@ public enum VariableFactory {
                         if (span == null) {
                             span = DocFactory.parseSpan(evalContext, nonempty, mode);
                             if (span == null) {
-                                elem.logError("Invalid <span> content in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             }
                         } else {
-                            elem.logError(
-                                    "Multiple 'span' values not allowed in {" + varName + "}");
+                            elem.logError("Multiple 'span' values not allowed in {" + varName + "}");
                             break;
                         }
                     } else {
@@ -2238,8 +2168,7 @@ public enum VariableFactory {
             }
 
             if (value != null && span != null) {
-                elem.logError("Cannot have both attribute-specified value and span value in {"
-                        + varName + "}");
+                elem.logError("Cannot have both attribute-specified value and span value in {" + varName + "}");
                 valid = false;
             }
 
@@ -2355,9 +2284,10 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomSimpleAngle extractVariableRandomSimpleAngle(
-            final EvalContext evalContext, final NonemptyElement elem, final String varName,
-            final EParserMode mode) {
+    private static VariableRandomSimpleAngle extractVariableRandomSimpleAngle(final EvalContext evalContext,
+                                                                              final NonemptyElement elem,
+                                                                              final String varName,
+                                                                              final EParserMode mode) {
 
         boolean valid = true;
 
@@ -2402,8 +2332,7 @@ public enum VariableFactory {
             try {
                 maxDenom = new NumberOrFormula(Long.valueOf(maxDenomStr));
             } catch (final NumberFormatException ex) {
-                elem.logError(
-                        "Invalid max-denom value: '" + maxDenomStr + "' in {" + varName + "}");
+                elem.logError("Invalid max-denom value: '" + maxDenomStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
@@ -2420,11 +2349,9 @@ public enum VariableFactory {
 
                     if ("min".equals(tag)) {
                         if (min == null) {
-                            final Formula minFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 min = new NumberOrFormula(minFormula);
@@ -2435,11 +2362,9 @@ public enum VariableFactory {
                         }
                     } else if ("max".equals(tag)) {
                         if (max == null) {
-                            final Formula maxFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 max = new NumberOrFormula(maxFormula);
@@ -2450,11 +2375,10 @@ public enum VariableFactory {
                         }
                     } else if ("max-denom".equals(tag)) {
                         if (maxDenom == null) {
-                            final Formula maxDenomFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxDenomFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                    mode);
                             if (maxDenomFormula == null) {
-                                elem.logError("Invalid 'max-denom' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max-denom' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 maxDenom = new NumberOrFormula(maxDenomFormula);
@@ -2464,11 +2388,9 @@ public enum VariableFactory {
                             break;
                         }
                     } else if ("exclude".equals(tag)) {
-                        final Formula exclude =
-                                XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                         if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
-                                    + nonempty.print(0));
+                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                             valid = false;
                         } else {
                             excludes.add(exclude);
@@ -2515,9 +2437,8 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableDerived extractVariableDerived(final EvalContext evalContext,
-                                                          final NonemptyElement elem, final String varName,
-                                                          final EParserMode mode) {
+    private static VariableDerived extractVariableDerived(final EvalContext evalContext, final NonemptyElement elem,
+                                                          final String varName, final EParserMode mode) {
 
         boolean valid = true;
 
@@ -2551,8 +2472,8 @@ public enum VariableFactory {
                                 try {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
-                                    elem.logError("Invalid integer vector value: '" + intVectorStr
-                                            + "' in {" + varName + "}");
+                                    elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
+                                            + varName + "}");
                                     valid = false;
                                 }
                             }
@@ -2569,8 +2490,7 @@ public enum VariableFactory {
                         try {
                             value = NumberParser.parse(irrationalStr);
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {"
-                                    + varName + "}");
+                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName + "}");
                             valid = false;
                         }
                     }
@@ -2583,8 +2503,7 @@ public enum VariableFactory {
                     } else if ("false".equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
-                        elem.logError(
-                                "Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
+                        elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
                         valid = false;
                     }
                 }
@@ -2648,11 +2567,9 @@ public enum VariableFactory {
 
                     if ("min".equals(tag)) {
                         if (min == null) {
-                            final Formula minFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 min = new NumberOrFormula(minFormula);
@@ -2663,11 +2580,9 @@ public enum VariableFactory {
                         }
                     } else if ("max".equals(tag)) {
                         if (max == null) {
-                            final Formula maxFormula =
-                                    XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 max = new NumberOrFormula(maxFormula);
@@ -2677,11 +2592,9 @@ public enum VariableFactory {
                             break;
                         }
                     } else if ("exclude".equals(tag)) {
-                        final Formula exclude =
-                                XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                         if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
-                                    + nonempty.print(0));
+                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                             valid = false;
                         } else {
                             excludes.add(exclude);
@@ -2693,8 +2606,7 @@ public enum VariableFactory {
                         if (span == null) {
                             span = DocFactory.parseSpan(evalContext, nonempty, mode);
                             if (span == null) {
-                                elem.logError("Invalid <span> content in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             }
                         } else {
@@ -2705,8 +2617,7 @@ public enum VariableFactory {
                         if (formula == null) {
                             formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (formula == null) {
-                                elem.logError("Invalid 'formula' formula in {" + varName + "}: "
-                                        + nonempty.print(0));
+                                elem.logError("Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             }
                         } else {

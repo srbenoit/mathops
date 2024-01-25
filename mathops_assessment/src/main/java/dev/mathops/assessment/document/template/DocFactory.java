@@ -12,6 +12,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.core.CoreConstants;
 import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.core.log.Log;
 import dev.mathops.core.parser.ParsingException;
 import dev.mathops.core.parser.xml.AbstractAttributedElementBase;
 import dev.mathops.core.parser.xml.CData;
@@ -2201,78 +2202,89 @@ public enum DocFactory {
                         if (theX == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theX));
                         }
-                        p.setXCoord(new NumberOrFormula(theX));
                     } else if ("y".equals(tag)) {
                         final Formula theY = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theY == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theY));
                         }
-                        p.setYCoord(new NumberOrFormula(theY));
                     } else if ("width".equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
+                        } else {
+                            p.setWidth(new NumberOrFormula(theWidth));
                         }
-                        p.setWidth(new NumberOrFormula(theWidth));
                     } else if ("height".equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
+                        } else {
+                            p.setHeight(new NumberOrFormula(theHeight));
                         }
-                        p.setHeight(new NumberOrFormula(theHeight));
                     } else if ("cx".equals(tag)) {
                         final Formula theCx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theCx == null) {
                             e.logError("Invalid 'cx' formula.");
                             valid = false;
+                        } else {
+                            p.setCenterX(new NumberOrFormula(theCx));
                         }
-                        p.setCenterX(new NumberOrFormula(theCx));
                     } else if ("cy".equals(tag)) {
                         final Formula theCy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theCy == null) {
                             e.logError("Invalid 'cy' formula.");
                             valid = false;
+                        } else {
+                            p.setCenterY(new NumberOrFormula(theCy));
                         }
-                        p.setCenterY(new NumberOrFormula(theCy));
                     } else if ("r".equals(tag)) {
                         final Formula theR = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theR == null) {
                             e.logError("Invalid 'r' formula.");
                             valid = false;
+                        } else {
+                            p.setRadius(new NumberOrFormula(theR));
                         }
-                        p.setRadius(new NumberOrFormula(theR));
                     } else if ("rx".equals(tag)) {
                         final Formula theRx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theRx == null) {
                             e.logError("Invalid 'rx' formula.");
                             valid = false;
+                        } else {
+                            p.setXRadius(new NumberOrFormula(theRx));
                         }
-                        p.setCenterX(new NumberOrFormula(theRx));
                     } else if ("ry".equals(tag)) {
                         final Formula theRy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theRy == null) {
                             e.logError("Invalid 'ry' formula.");
                             valid = false;
+                        } else {
+                            p.setYRadius(new NumberOrFormula(theRy));
                         }
-                        p.setCenterY(new NumberOrFormula(theRy));
                     } else if ("start-angle".equals(tag)) {
                         final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theStartAngle == null) {
                             e.logError("Invalid 'start-angle' formula.");
                             valid = false;
+                        } else {
+                            p.setStartAngle(new NumberOrFormula(theStartAngle));
                         }
-                        p.setStartAngle(new NumberOrFormula(theStartAngle));
                     } else if ("arc-angle".equals(tag)) {
                         final Formula theArcAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theArcAngle == null) {
                             e.logError("Invalid 'arc-angle' formula.");
                             valid = false;
+                        } else {
+                            p.setArcAngle(new NumberOrFormula(theArcAngle));
                         }
-                        p.setArcAngle(new NumberOrFormula(theArcAngle));
                     } else if ("label".equals(tag)) {
                         final DocSimpleSpan innerSpan = parseSpan(evalContext, inner, mode);
                         if (innerSpan == null) {

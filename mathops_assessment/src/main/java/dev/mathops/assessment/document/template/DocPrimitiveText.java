@@ -565,8 +565,6 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
                 grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) this.alpha.doubleValue()));
             }
 
-            Log.info("Vis bounds = " + visBounds);
-
             if (this.highlightColor != null) {
                 final float actualWidth = (float)(visBounds.getWidth() + 4.0) * this.scale;
                 final float actualHeight = (float)(visBounds.getHeight() + 4.0) * this.scale;
