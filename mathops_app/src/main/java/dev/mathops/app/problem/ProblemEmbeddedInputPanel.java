@@ -6,8 +6,8 @@ import dev.mathops.assessment.document.template.DocColumnPanel;
 import dev.mathops.assessment.document.template.InputChangeListener;
 import dev.mathops.assessment.problem.template.ProblemEmbeddedInputTemplate;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import jwabbit.gui.CalculatorPanel;
 
 import javax.swing.BorderFactory;

@@ -6,7 +6,7 @@ import dev.mathops.assessment.exam.EExamSessionState;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;

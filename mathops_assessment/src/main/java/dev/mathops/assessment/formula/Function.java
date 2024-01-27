@@ -7,9 +7,9 @@ import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FEFunction;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import java.math.BigInteger;
 import java.util.Locale;

@@ -7,10 +7,10 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.xml.XmlContent;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.xml.XmlContent;
 
 /**
  * A network message that provides the client a new realized exam.

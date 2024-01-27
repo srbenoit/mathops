@@ -1,7 +1,7 @@
 package dev.mathops.font;
 
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.UIUtilities;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.UIUtilities;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;

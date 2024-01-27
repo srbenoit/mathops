@@ -29,8 +29,8 @@ import dev.mathops.assessment.variable.IRangedVariable;
 import dev.mathops.assessment.variable.VariableDerived;
 import dev.mathops.assessment.variable.VariableRandomChoice;
 import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.io.File;
 import java.util.ArrayList;

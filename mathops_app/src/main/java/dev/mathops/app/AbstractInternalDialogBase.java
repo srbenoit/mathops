@@ -1,6 +1,6 @@
 package dev.mathops.app;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;

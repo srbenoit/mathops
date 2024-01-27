@@ -1,10 +1,10 @@
 package dev.mathops.web.site;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EPath;
-import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EPath;
+import dev.mathops.commons.PathList;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbContext;

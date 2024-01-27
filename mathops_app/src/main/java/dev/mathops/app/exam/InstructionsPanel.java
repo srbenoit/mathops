@@ -5,8 +5,8 @@ import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.document.template.DocColumnPanel;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

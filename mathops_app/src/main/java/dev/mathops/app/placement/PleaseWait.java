@@ -1,8 +1,8 @@
 package dev.mathops.app.placement;
 
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.BorderFactory;

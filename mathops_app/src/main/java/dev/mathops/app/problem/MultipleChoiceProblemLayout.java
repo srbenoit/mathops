@@ -4,7 +4,7 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.problem.template.AbstractProblemMultipleChoiceTemplate;
 import dev.mathops.assessment.problem.template.ProblemChoiceTemplate;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;

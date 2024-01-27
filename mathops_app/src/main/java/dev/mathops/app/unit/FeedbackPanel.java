@@ -1,8 +1,8 @@
 package dev.mathops.app.unit;
 
 import dev.mathops.app.InternalPanelBase;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;

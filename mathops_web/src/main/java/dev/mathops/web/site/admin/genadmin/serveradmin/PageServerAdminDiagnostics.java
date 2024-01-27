@@ -1,7 +1,7 @@
 package dev.mathops.web.site.admin.genadmin.serveradmin;
 
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;

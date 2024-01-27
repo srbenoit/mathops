@@ -3,7 +3,7 @@ package dev.mathops.assessment;
 import dev.mathops.assessment.formula.AbstractFormulaObject;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 /**
  * A container for a Number and a Formula, only one of which should be present. This supports a common idiom in which

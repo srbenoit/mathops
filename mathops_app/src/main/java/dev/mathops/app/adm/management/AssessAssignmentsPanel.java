@@ -2,8 +2,8 @@ package dev.mathops.app.adm.management;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.rawrecord.RawCourse;
 
 import javax.swing.BorderFactory;

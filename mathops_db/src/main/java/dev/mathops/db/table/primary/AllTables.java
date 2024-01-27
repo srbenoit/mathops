@@ -1,6 +1,6 @@
 package dev.mathops.db.table.primary;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.generalized.Table;
 
 import java.util.ArrayList;

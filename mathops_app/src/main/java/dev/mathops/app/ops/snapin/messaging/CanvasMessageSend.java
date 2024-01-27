@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.json.JSONObject;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;

@@ -1,6 +1,6 @@
 package dev.mathops.db.old.reclogic.iface;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.EDbProduct;

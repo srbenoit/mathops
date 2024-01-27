@@ -1,6 +1,6 @@
 package dev.mathops.web.site.reporting;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.dbjobs.report.ESortOrder;
 import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;

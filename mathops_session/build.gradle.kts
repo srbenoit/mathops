@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mathops_core"))
     implementation(project(":mathops_db"))
     implementation(project(":mathops_assessment"))
+    implementation(files("lib/mathops_commons.jar"))
 
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
     compileOnly("jakarta.websocket:jakarta.websocket-api:2.1.1")

@@ -2,8 +2,8 @@ package dev.mathops.app.db;
 
 import dev.mathops.app.db.config.CodeContextPane;
 import dev.mathops.app.db.config.model.CfgDatabaseLayerModel;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.config.CfgDatabaseLayer;
 import javafx.application.Application;
 import javafx.collections.ObservableList;

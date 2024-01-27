@@ -16,8 +16,8 @@ import dev.mathops.assessment.problem.template.ProblemEmbeddedInputTemplate;
 import dev.mathops.assessment.problem.template.ProblemMultipleChoiceTemplate;
 import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 import jwabbit.gui.CalculatorPanel;
 
 import javax.swing.BorderFactory;

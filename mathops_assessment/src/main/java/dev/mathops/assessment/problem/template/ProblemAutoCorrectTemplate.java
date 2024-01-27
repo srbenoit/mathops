@@ -25,8 +25,8 @@ import dev.mathops.assessment.variable.VariableRandomReal;
 import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.PrintStream;

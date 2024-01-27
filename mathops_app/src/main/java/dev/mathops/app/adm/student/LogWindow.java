@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.core.ui.UIUtilities;
+import dev.mathops.commons.ui.UIUtilities;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

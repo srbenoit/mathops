@@ -1,6 +1,6 @@
 package dev.mathops.db.generalized;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.generalized.constraint.AbstractFieldConstraint;
 
 import java.time.LocalDate;
@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * An immutable definition of a database table field.

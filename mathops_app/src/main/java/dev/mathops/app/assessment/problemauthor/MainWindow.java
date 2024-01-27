@@ -1,8 +1,8 @@
 package dev.mathops.app.assessment.problemauthor;
 
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.UIUtilities;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.UIUtilities;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;

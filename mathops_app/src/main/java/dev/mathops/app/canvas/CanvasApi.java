@@ -1,10 +1,10 @@
 package dev.mathops.app.canvas;
 
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.json.JSONObject;
-import dev.mathops.core.parser.json.JSONParser;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.app.canvas.data.UserInfo;
 
 import java.io.BufferedReader;

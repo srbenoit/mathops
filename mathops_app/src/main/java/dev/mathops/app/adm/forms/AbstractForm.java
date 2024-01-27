@@ -6,8 +6,8 @@ import dev.mathops.app.adm.fields.ConstrainedNonNegIntField;
 import dev.mathops.app.adm.fields.ConstrainedTextField;
 import dev.mathops.app.adm.fields.DateField;
 import dev.mathops.app.adm.fields.DateTimeField;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

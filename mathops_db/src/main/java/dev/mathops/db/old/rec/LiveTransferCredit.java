@@ -1,7 +1,7 @@
 package dev.mathops.db.old.rec;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EqualityTests;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 

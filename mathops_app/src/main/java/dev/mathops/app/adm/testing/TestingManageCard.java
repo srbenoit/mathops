@@ -2,9 +2,9 @@ package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;

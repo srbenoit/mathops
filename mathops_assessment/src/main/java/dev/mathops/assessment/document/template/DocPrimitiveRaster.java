@@ -8,12 +8,12 @@ import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.xml.INode;
-import dev.mathops.core.parser.xml.XmlEscaper;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.xml.INode;
+import dev.mathops.commons.parser.xml.XmlEscaper;
 
 import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;

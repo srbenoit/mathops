@@ -2,8 +2,8 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;

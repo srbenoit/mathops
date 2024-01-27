@@ -1,6 +1,6 @@
 package dev.mathops.web.site.placement.main;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * The Math Placement site landing page, which does not require a login (but if the user is logged in, the display may

@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.cfg.DbProfile;
 
 /**

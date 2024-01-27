@@ -1,8 +1,8 @@
 package dev.mathops.app.catalog;
 
-import dev.mathops.core.ESuccessFailure;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.xml.XmlEscaper;
+import dev.mathops.commons.ESuccessFailure;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.old.rec.CatalogCourseRec;
 import dev.mathops.db.type.CatalogCourseNumber;
 

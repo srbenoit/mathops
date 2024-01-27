@@ -1,7 +1,7 @@
 package dev.mathops.db.old.rec;
 
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.enums.ECatalogCoursePrereqType;
 import dev.mathops.db.type.CatalogCourseNumber;
 

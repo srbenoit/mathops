@@ -4,9 +4,9 @@ import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.Randomizer;
 import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;

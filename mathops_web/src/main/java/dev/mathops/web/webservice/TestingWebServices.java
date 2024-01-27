@@ -1,7 +1,7 @@
 package dev.mathops.web.webservice;
 
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.HexEncoder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.HexEncoder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;

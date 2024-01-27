@@ -3,8 +3,8 @@ package dev.mathops.assessment.document.inst;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.formula.Formula;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A formula primitive (rendered as a graph of the function).

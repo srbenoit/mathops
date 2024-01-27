@@ -1,8 +1,8 @@
 package dev.mathops.web.websocket.help.queue;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
  * A container for the set of exams associated with a single course, along with the student's status.

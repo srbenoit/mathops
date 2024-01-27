@@ -1,7 +1,7 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * An instance of a run of horizontal space of specified width, in units of widths of a decimal "0" digit" (clamped to

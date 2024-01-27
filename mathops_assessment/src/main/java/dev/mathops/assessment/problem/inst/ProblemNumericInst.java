@@ -4,7 +4,7 @@ package dev.mathops.assessment.problem.inst;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.problem.ECalculatorType;
 import dev.mathops.assessment.problem.EProblemType;
-import dev.mathops.core.EqualityTests;
+import dev.mathops.commons.EqualityTests;
 
 import java.util.Objects;
 

@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.font.BundledFontManager;
 

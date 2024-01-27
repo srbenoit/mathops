@@ -17,8 +17,8 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.assessment.variable.edit.VariableEditorPanel;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

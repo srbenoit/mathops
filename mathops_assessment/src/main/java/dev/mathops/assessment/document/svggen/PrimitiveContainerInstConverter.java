@@ -20,8 +20,8 @@ import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveRectangleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveSpanInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.parser.xml.XmlEscaper;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.parser.xml.XmlEscaper;
 
 /**
  * Converts a subclasses of {@code AbstractPrimitiveContainerInst} into SVG.  "span" content of such a container is

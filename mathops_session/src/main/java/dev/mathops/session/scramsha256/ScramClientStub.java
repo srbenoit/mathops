@@ -1,6 +1,6 @@
 package dev.mathops.session.scramsha256;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -2,7 +2,7 @@ package dev.mathops.assessment.formula.edit;
 
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.formula.ConstBooleanValue;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.awt.Graphics2D;
 import java.util.EnumSet;

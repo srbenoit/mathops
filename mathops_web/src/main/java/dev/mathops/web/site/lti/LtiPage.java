@@ -1,6 +1,6 @@
 package dev.mathops.web.site.lti;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;

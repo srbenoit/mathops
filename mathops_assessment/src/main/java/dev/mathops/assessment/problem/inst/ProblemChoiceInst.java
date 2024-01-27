@@ -1,7 +1,7 @@
 package dev.mathops.assessment.problem.inst;
 
 import dev.mathops.assessment.document.inst.DocColumnInst;
-import dev.mathops.core.EqualityTests;
+import dev.mathops.commons.EqualityTests;
 
 import java.util.Objects;
 

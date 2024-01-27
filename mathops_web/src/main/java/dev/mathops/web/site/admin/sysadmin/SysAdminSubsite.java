@@ -1,6 +1,6 @@
 package dev.mathops.web.site.admin.sysadmin;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;

@@ -1,7 +1,7 @@
 package dev.mathops.app.canvas.data;
 
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.json.JSONObject;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.json.JSONObject;
 
 import java.time.DateTimeException;
 import java.time.ZoneId;

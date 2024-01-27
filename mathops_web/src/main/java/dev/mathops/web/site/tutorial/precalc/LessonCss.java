@@ -1,6 +1,6 @@
 package dev.mathops.web.site.tutorial.precalc;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.web.site.CssStylesheet;
 
 /**

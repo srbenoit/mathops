@@ -1,8 +1,7 @@
 package dev.mathops.app.db.config.model;
 
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.db.config.CfgDatabaseLayer;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 

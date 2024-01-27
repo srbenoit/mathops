@@ -1,6 +1,6 @@
 package dev.mathops.web.websocket.help.forums;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.web.websocket.help.StudentKey;
 
 import java.time.LocalDateTime;

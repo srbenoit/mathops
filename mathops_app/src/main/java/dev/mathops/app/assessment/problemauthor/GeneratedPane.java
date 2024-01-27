@@ -13,10 +13,10 @@ import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LogEntry;
-import dev.mathops.core.log.LogWriter;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogEntry;
+import dev.mathops.commons.log.LogWriter;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;

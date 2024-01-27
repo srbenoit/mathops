@@ -1,6 +1,6 @@
 package dev.mathops.app.deploy.sourcebuild;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import java.io.File;
 

@@ -5,7 +5,7 @@ import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.problem.template.ProblemChoiceTemplate;
 import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import jwabbit.gui.CalculatorPanel;
 
 import javax.swing.BorderFactory;

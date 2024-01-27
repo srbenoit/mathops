@@ -1,6 +1,6 @@
 package dev.mathops.db;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 /**
  * A container for the context definitions in the active system.

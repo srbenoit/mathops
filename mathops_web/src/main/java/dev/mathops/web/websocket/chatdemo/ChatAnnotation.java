@@ -1,6 +1,6 @@
 package dev.mathops.web.websocket.chatdemo;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import oracle.jdbc.proxy.annotation.OnError;
 
 import jakarta.websocket.OnClose;

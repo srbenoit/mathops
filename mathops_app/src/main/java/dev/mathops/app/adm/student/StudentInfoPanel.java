@@ -4,9 +4,9 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;

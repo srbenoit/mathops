@@ -1,6 +1,6 @@
 package dev.mathops.web.site.admin.testing;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

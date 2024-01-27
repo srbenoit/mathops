@@ -2,8 +2,8 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;
 

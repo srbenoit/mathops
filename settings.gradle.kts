@@ -1,5 +1,4 @@
 rootProject.name = "mathops"
-include("mathops_core")
 include("mathops_db")
 include("mathops_dbjobs")
 include("mathops_font")

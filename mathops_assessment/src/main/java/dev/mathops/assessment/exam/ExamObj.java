@@ -4,9 +4,9 @@ import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import java.awt.Color;
 import java.io.File;

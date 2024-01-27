@@ -1,9 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawStmsgLogic;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;

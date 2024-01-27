@@ -1,9 +1,9 @@
 package dev.mathops.app.adm.fields;
 
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;

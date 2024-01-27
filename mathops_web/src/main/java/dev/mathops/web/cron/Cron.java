@@ -1,6 +1,6 @@
 package dev.mathops.web.cron;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import java.util.ArrayList;
 import java.util.List;

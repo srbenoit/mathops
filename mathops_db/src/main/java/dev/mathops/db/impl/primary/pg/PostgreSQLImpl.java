@@ -1,24 +1,15 @@
 package dev.mathops.db.impl.primary.pg;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.generalized.Field;
 import dev.mathops.db.generalized.Record;
 import dev.mathops.db.generalized.Table;
 import dev.mathops.db.generalized.connection.AbstractGeneralConnection;
 import dev.mathops.db.generalized.connection.JdbcGeneralConnection;
-import dev.mathops.db.generalized.constraint.AbstractFieldConstraint;
-import dev.mathops.db.generalized.constraint.ByteRangeConstraint;
-import dev.mathops.db.generalized.constraint.DoubleRangeConstraint;
-import dev.mathops.db.generalized.constraint.EFloatingPointAllow;
-import dev.mathops.db.generalized.constraint.FloatRangeConstraint;
-import dev.mathops.db.generalized.constraint.IntegerRangeConstraint;
-import dev.mathops.db.generalized.constraint.LongRangeConstraint;
-import dev.mathops.db.generalized.constraint.StringLengthConstraint;
 import dev.mathops.db.generalized.criteria.AbstractFieldCriterion;
-import dev.mathops.db.generalized.criteria.BooleanFieldCriterion;
 
 import java.sql.Blob;
 import java.sql.Connection;

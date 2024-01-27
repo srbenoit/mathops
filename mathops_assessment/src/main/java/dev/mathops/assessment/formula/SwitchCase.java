@@ -1,7 +1,7 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A single case within a switch operation. Each case has an integer value to match, and a result value.

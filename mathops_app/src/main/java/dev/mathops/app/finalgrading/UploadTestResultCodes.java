@@ -1,6 +1,6 @@
 package dev.mathops.app.finalgrading;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;

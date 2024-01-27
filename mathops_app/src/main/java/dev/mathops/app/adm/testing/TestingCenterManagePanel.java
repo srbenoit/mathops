@@ -1,8 +1,8 @@
 package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.ImageIcon;

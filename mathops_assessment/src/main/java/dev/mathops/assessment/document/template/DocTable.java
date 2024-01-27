@@ -11,11 +11,11 @@ import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocTableInst;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 
 import java.awt.Color;
 import java.awt.Graphics;

@@ -1,6 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
  * A field constraint for Float fields that specifies a minimum and maximum value.

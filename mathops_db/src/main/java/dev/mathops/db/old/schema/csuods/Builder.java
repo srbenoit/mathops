@@ -1,6 +1,6 @@
 package dev.mathops.db.old.schema.csuods;
 
-import dev.mathops.core.ClassList;
+import dev.mathops.commons.ClassList;
 import dev.mathops.db.old.SchemaBuilder;
 
 /**

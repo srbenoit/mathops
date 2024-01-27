@@ -2,8 +2,8 @@ package dev.mathops.assessment.exam;
 
 import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;

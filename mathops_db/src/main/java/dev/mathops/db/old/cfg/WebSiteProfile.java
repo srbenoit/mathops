@@ -1,6 +1,6 @@
 package dev.mathops.db.old.cfg;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 /**
  * Represents a website (define db by host and path), with a selected database profile.

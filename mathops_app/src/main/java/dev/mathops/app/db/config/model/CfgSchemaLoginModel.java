@@ -1,6 +1,6 @@
 package dev.mathops.app.db.config.model;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.config.ESchemaType;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

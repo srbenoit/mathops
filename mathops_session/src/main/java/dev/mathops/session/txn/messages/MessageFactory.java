@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 /**
  * A factory class that takes an XML character array and builds the appropriate message object.

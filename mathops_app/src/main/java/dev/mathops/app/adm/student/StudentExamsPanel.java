@@ -5,7 +5,7 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbContext;
 

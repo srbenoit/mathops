@@ -1,6 +1,6 @@
 package dev.mathops.font;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;

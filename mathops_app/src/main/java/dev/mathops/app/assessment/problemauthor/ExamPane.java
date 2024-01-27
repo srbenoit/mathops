@@ -1,7 +1,7 @@
 package dev.mathops.app.assessment.problemauthor;
 
 import dev.mathops.assessment.exam.ExamObj;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

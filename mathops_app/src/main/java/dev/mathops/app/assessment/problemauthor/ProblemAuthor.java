@@ -1,8 +1,8 @@
 package dev.mathops.app.assessment.problemauthor;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.core.EPath;
-import dev.mathops.core.PathList;
+import dev.mathops.commons.EPath;
+import dev.mathops.commons.PathList;
 
 import javax.swing.JFileChooser;
 import java.awt.EventQueue;

@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 
 import java.util.ArrayList;

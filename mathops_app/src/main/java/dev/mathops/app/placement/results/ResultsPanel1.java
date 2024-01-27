@@ -1,6 +1,6 @@
 package dev.mathops.app.placement.results;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;

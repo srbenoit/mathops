@@ -1,10 +1,10 @@
 package dev.mathops.assessment;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.parser.CharSpan;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.xml.XmlContent;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.parser.CharSpan;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.xml.XmlContent;
 
 import java.io.File;
 

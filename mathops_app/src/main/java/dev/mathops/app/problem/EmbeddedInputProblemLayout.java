@@ -4,7 +4,7 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.document.template.DocColumnPanel;
 import dev.mathops.assessment.problem.template.ProblemEmbeddedInputTemplate;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;

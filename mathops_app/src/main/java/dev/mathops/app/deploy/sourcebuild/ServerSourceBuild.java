@@ -1,7 +1,7 @@
 package dev.mathops.app.deploy.sourcebuild;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 
 import java.io.File;
 import java.time.LocalDate;

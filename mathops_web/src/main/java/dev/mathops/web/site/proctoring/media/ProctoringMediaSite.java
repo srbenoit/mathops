@@ -1,15 +1,15 @@
 package dev.mathops.web.site.proctoring.media;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EPath;
-import dev.mathops.core.PathList;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LogBase;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.json.JSONObject;
-import dev.mathops.core.parser.json.JSONParser;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EPath;
+import dev.mathops.commons.PathList;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogBase;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.WebSiteProfile;

@@ -1,8 +1,8 @@
 package dev.mathops.app.placement;
 
 import dev.mathops.app.AbstractInternalDialogBase;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;

@@ -1,6 +1,6 @@
 package dev.mathops.db.old;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;

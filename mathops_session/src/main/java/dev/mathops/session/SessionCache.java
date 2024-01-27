@@ -1,10 +1,10 @@
 package dev.mathops.session;
 
-import dev.mathops.core.EPath;
-import dev.mathops.core.PathList;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.EPath;
+import dev.mathops.commons.PathList;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.login.LocalLoginProcessor;
 

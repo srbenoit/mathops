@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;

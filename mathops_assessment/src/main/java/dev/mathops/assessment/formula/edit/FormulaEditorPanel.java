@@ -4,8 +4,8 @@ import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

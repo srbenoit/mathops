@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.core.res.ResBundle;
+import dev.mathops.commons.res.ResBundle;
 
 import java.util.Locale;
 

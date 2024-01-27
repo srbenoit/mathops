@@ -1,6 +1,6 @@
 package dev.mathops.assessment.formula;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

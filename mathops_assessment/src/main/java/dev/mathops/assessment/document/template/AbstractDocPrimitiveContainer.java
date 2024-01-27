@@ -2,7 +2,7 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;

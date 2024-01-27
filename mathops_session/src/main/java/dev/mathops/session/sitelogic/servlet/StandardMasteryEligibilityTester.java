@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ResolvedStandardMilestones;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;

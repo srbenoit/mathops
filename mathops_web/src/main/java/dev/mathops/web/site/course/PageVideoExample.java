@@ -1,10 +1,10 @@
 package dev.mathops.web.site.course;
 
-import dev.mathops.core.PathList;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.xml.XmlEscaper;
+import dev.mathops.commons.PathList;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

@@ -1,8 +1,8 @@
 package dev.mathops.web.site.admin.sysadmin.db;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.parser.xml.IElement;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.db.EDbProduct;
 
 import java.util.Objects;

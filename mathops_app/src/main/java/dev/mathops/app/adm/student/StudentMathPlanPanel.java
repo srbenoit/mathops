@@ -2,11 +2,11 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.ui.UIUtilities;
-import dev.mathops.core.ui.layout.AlignedFlowLayout;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.ui.UIUtilities;
+import dev.mathops.commons.ui.layout.AlignedFlowLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;

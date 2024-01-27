@@ -1,6 +1,6 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 import javax.swing.JButton;
 import java.awt.Color;

@@ -1,6 +1,6 @@
 package dev.mathops.web.site.root;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Contexts;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;

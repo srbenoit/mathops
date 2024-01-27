@@ -1,8 +1,8 @@
 package dev.mathops.db.old;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.SchemaConfig;
 

@@ -1,7 +1,7 @@
 package dev.mathops.db.generalized.constraint;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A field constraint for String fields that specifies an enumeration of allowed values.  If a string field has no

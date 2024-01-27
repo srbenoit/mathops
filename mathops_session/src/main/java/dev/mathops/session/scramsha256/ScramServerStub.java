@@ -1,8 +1,8 @@
 package dev.mathops.session.scramsha256;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.HexEncoder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.HexEncoder;
 import dev.mathops.db.old.Cache;
 
 import java.nio.charset.StandardCharsets;

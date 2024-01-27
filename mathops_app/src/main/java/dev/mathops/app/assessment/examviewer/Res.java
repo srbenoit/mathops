@@ -1,6 +1,6 @@
 package dev.mathops.app.assessment.examviewer;
 
-import dev.mathops.core.res.ResBundle;
+import dev.mathops.commons.res.ResBundle;
 
 import java.util.Locale;
 

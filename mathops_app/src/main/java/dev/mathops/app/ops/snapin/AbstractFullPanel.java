@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin;
 
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JPanel;
 import java.io.Serial;

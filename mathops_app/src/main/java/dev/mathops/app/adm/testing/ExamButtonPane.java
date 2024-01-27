@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

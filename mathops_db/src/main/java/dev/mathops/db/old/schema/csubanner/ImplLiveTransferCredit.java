@@ -1,6 +1,6 @@
 package dev.mathops.db.old.schema.csubanner;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;

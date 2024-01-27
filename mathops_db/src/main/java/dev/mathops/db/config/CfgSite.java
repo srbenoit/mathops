@@ -1,8 +1,8 @@
 package dev.mathops.db.config;
 
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.xml.EmptyElement;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.xml.EmptyElement;
 
 import java.util.Map;
 

@@ -5,8 +5,8 @@ import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.formula.edit.FormulaEditorPanel;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemChoiceTemplate;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

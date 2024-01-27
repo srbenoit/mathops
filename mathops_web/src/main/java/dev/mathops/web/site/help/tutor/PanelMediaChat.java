@@ -1,6 +1,6 @@
 package dev.mathops.web.site.help.tutor;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * Generates the content of the "Chat" panel.

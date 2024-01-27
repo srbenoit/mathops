@@ -1,7 +1,7 @@
 package dev.mathops.app.exam;
 
 import dev.mathops.app.InternalPanelBase;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.SwingUtilities;
 import java.io.Serial;

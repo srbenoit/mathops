@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;

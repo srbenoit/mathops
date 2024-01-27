@@ -2,7 +2,7 @@ package dev.mathops.app.assessment.problemauthor;
 
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;

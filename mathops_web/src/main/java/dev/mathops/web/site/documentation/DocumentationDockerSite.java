@@ -18,7 +18,7 @@ package dev.mathops.web.site.documentation;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.IOException;
 import java.io.OutputStream;

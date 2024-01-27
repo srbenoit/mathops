@@ -1,6 +1,6 @@
 package dev.mathops.db.generalized;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
  * Roles within a table that a field can take on.

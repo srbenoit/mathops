@@ -1,7 +1,6 @@
 package dev.mathops.db.generalized.constraint;
 
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.db.generalized.Field;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
  * A field constraint for Integer fields that specifies a minimum and maximum value.

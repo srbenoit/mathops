@@ -2,7 +2,7 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AbstractZTable;
 import dev.mathops.app.adm.IZTableCommandListener;
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 
 import java.io.Serial;

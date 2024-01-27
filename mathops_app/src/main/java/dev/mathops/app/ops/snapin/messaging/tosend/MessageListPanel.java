@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.tosend;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingFull;
 

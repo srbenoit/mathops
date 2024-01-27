@@ -1,7 +1,7 @@
 package dev.mathops.font;
 
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;

@@ -1,7 +1,7 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EFieldStyle;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * The base class for instances of inputs. Each input has a name under which it submits its values, and may have its

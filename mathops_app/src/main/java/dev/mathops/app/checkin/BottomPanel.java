@@ -1,8 +1,8 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.JPanel;

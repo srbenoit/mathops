@@ -17,13 +17,13 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mathops_core"))
     implementation(project(":mathops_db"))
     implementation(project(":mathops_dbjobs"))
     implementation(project(":mathops_font"))
     implementation(project(":mathops_assessment"))
     implementation(project(":mathops_session"))
     implementation(files("lib/jwabbit.jar"))
+    implementation(files("lib/mathops_commons.jar"))
 
     implementation("org.openjfx:javafx:21.0.1")
     implementation("org.openjfx:javafx-controls:21.0.1")

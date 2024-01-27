@@ -1,9 +1,9 @@
 package dev.mathops.web.front;
 
-import dev.mathops.core.installation.Installation;
-import dev.mathops.core.installation.Installations;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LoggingSubsystem;
+import dev.mathops.commons.installation.Installation;
+import dev.mathops.commons.installation.Installations;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.web.cron.Cron;
 import dev.mathops.web.cron.CronJobs;
 

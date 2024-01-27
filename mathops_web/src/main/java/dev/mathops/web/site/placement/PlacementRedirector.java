@@ -1,6 +1,6 @@
 package dev.mathops.web.site.placement;
 
-import dev.mathops.core.file.FileLoader;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;

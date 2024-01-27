@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 
 import javax.swing.BorderFactory;

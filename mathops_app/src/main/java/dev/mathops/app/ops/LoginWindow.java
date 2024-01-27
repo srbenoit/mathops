@@ -1,8 +1,8 @@
 package dev.mathops.app.ops;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.ParsingException;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;

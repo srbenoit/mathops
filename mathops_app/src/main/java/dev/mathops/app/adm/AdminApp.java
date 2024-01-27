@@ -1,8 +1,8 @@
 package dev.mathops.app.adm;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LoggingSubsystem;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.db.old.DbConnection;
 
 import javax.swing.SwingUtilities;

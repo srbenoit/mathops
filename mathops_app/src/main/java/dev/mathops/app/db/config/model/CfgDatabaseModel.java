@@ -1,6 +1,6 @@
 package dev.mathops.app.db.config.model;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.config.EDbUse;
 import dev.mathops.db.config.ESchemaType;
 import javafx.beans.property.ObjectPropertyBase;

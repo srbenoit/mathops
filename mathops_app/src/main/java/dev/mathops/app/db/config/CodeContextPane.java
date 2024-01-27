@@ -1,8 +1,8 @@
 package dev.mathops.app.db.config;
 
 import dev.mathops.app.db.config.model.CfgDataProfileModel;
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import javafx.scene.control.ComboBox;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

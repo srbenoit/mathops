@@ -1,8 +1,8 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;

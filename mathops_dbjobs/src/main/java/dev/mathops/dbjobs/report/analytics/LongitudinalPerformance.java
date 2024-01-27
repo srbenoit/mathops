@@ -1,8 +1,8 @@
 package dev.mathops.dbjobs.report.analytics;
 
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.builder.SimpleBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 
 import java.io.BufferedReader;
 import java.io.File;

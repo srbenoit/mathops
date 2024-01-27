@@ -1,6 +1,6 @@
 package dev.mathops.dbjobs.batch;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.io.File;
 

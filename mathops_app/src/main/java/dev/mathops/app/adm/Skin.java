@@ -1,6 +1,6 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import java.awt.Color;
 import java.awt.Font;

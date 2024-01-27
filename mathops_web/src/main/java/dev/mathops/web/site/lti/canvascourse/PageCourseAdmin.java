@@ -1,6 +1,6 @@
 package dev.mathops.web.site.lti.canvascourse;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
 import dev.mathops.web.site.lti.LtiPage;
 

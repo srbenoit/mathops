@@ -1,6 +1,6 @@
 package dev.mathops.db.generalized;
 
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.generalized.constraint.AbstractFieldConstraint;
 
 import java.util.Arrays;

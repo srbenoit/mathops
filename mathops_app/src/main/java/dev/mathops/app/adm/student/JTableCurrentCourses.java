@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AbstractAdminTable;
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 
 import java.io.Serial;

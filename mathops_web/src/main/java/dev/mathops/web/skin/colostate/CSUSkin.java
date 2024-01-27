@@ -1,6 +1,6 @@
 package dev.mathops.web.skin.colostate;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.web.skin.IServletSkin;
 
 /**

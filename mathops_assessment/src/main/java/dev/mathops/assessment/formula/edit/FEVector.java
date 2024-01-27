@@ -9,9 +9,9 @@ import dev.mathops.assessment.formula.EUnaryOp;
 import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.IntegerFormulaVector;
 import dev.mathops.assessment.formula.RealFormulaVector;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

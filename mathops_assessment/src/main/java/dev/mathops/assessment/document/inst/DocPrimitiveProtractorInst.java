@@ -2,11 +2,9 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EAngleUnits;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.builder.SimpleBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * A protractor primitive.

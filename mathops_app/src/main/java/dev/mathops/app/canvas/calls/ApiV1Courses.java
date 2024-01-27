@@ -1,9 +1,9 @@
 package dev.mathops.app.canvas.calls;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.parser.json.JSONObject;
-import dev.mathops.core.ui.UIUtilities;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.commons.ui.UIUtilities;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
 

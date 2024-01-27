@@ -1,7 +1,7 @@
 package dev.mathops.db.type;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EqualityTests;
 
 import java.util.Objects;
 

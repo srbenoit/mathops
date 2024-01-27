@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.canvas;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 
 import javax.swing.BorderFactory;

@@ -1,10 +1,10 @@
 package dev.mathops.web.websocket.help.conversation;
 
-import dev.mathops.core.EPath;
-import dev.mathops.core.PathList;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.ParsingException;
+import dev.mathops.commons.EPath;
+import dev.mathops.commons.PathList;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.web.websocket.help.StudentKey;
 
 import java.io.File;

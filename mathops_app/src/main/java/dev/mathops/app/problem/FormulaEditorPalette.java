@@ -1,7 +1,7 @@
 package dev.mathops.app.problem;
 
 import dev.mathops.assessment.formula.edit.FormulaEditorPanel;
-import dev.mathops.core.ui.layout.StackedBorderLayout;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;

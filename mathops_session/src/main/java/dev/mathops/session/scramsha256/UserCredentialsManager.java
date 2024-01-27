@@ -1,10 +1,10 @@
 package dev.mathops.session.scramsha256;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.Base64;
-import dev.mathops.core.parser.HexEncoder;
-import dev.mathops.core.parser.ParsingException;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.Base64;
+import dev.mathops.commons.parser.HexEncoder;
+import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;

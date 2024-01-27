@@ -1,10 +1,10 @@
 package dev.mathops.app;
 
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LogEntry;
-import dev.mathops.core.log.LogWriter;
-import dev.mathops.core.log.LoggingSubsystem;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogEntry;
+import dev.mathops.commons.log.LogWriter;
+import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.db.Contexts;
 import dev.mathops.session.txn.BlsWebServiceClient;
 import dev.mathops.session.txn.IWebServiceClient;

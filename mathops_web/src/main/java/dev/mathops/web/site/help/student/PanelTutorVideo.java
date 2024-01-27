@@ -1,6 +1,6 @@
 package dev.mathops.web.site.help.student;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * Generates the content of the "Tutor Video" panel.

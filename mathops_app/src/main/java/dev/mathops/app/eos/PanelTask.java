@@ -1,6 +1,6 @@
 package dev.mathops.app.eos;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

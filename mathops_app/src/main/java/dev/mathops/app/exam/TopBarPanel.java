@@ -3,9 +3,9 @@ package dev.mathops.app.exam;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.ui.ColorNames;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.font.FontSpec;
 

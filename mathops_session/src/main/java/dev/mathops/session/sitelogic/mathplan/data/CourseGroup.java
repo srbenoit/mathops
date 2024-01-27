@@ -1,8 +1,8 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 

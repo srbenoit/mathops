@@ -1,8 +1,8 @@
 package dev.mathops.web.front;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.installation.Installation;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.installation.Installation;
 
 import java.io.File;
 import java.util.HashMap;

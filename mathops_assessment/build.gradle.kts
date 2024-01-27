@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mathops_core"))
     implementation(project(":mathops_db"))
     implementation(project(":mathops_font"))
+    implementation(files("lib/mathops_commons.jar"))
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

@@ -1,12 +1,12 @@
 package dev.mathops.web.front;
 
 import dev.mathops.assessment.InstructionalCache;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EMimeType;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.installation.Installation;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.log.LogBase;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EMimeType;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.Installation;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;

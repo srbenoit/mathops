@@ -6,12 +6,12 @@ import dev.mathops.assessment.document.template.DocFactory;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.ConstSpanValue;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.parser.ParsingException;
-import dev.mathops.core.parser.xml.IElement;
-import dev.mathops.core.parser.xml.NonemptyElement;
-import dev.mathops.core.parser.xml.XmlContent;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.xml.IElement;
+import dev.mathops.commons.parser.xml.NonemptyElement;
+import dev.mathops.commons.parser.xml.XmlContent;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

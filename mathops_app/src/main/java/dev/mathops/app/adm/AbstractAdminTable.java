@@ -1,6 +1,6 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;

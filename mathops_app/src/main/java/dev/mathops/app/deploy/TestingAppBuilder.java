@@ -1,12 +1,12 @@
 package dev.mathops.app.deploy;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.file.FileLoader;
-import dev.mathops.core.installation.Installation;
-import dev.mathops.core.installation.Installations;
-import dev.mathops.core.log.Log;
-import dev.mathops.core.parser.HexEncoder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.Installation;
+import dev.mathops.commons.installation.Installations;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.HexEncoder;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

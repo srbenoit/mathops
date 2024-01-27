@@ -1,6 +1,6 @@
 package dev.mathops.assessment.document;
 
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A bounding rectangle specified by four {@code Number} objects.

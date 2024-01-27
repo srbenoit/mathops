@@ -1,7 +1,7 @@
 package dev.mathops.session.scramsha256;
 
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.parser.HexEncoder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.parser.HexEncoder;
 
 import java.util.Arrays;
 import java.util.random.RandomGenerator;

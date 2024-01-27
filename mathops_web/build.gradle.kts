@@ -16,11 +16,11 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mathops_core"))
     implementation(project(":mathops_db"))
     implementation(project(":mathops_dbjobs"))
     implementation(project(":mathops_assessment"))
     implementation(project(":mathops_session"))
+    implementation(files("lib/mathops_commons.jar"))
 
     implementation("com.oracle.database.jdbc:ojdbc11:23.3.0.23.09")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")

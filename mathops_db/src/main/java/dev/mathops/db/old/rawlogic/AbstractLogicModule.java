@@ -1,8 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.core.TemporalUtils;
-import dev.mathops.core.builder.HtmlBuilder;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.type.TermKey;
 

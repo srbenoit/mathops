@@ -1,7 +1,7 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.TemporalUtils;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.TemporalUtils;
 
 import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;

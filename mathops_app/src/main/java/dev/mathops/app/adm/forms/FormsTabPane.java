@@ -2,7 +2,7 @@ package dev.mathops.app.adm.forms;
 
 import dev.mathops.app.adm.AdminMainWindow;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 
 import javax.swing.BorderFactory;

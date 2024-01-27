@@ -1,6 +1,6 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.core.CoreConstants;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rec.RecBase;

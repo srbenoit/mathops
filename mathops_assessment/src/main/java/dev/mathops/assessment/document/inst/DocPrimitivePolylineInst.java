@@ -2,9 +2,9 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
-import dev.mathops.core.CoreConstants;
-import dev.mathops.core.EqualityTests;
-import dev.mathops.core.builder.HtmlBuilder;
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Arrays;
 import java.util.Objects;

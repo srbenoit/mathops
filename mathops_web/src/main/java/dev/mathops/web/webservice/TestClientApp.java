@@ -1,6 +1,6 @@
 package dev.mathops.web.webservice;
 
-import dev.mathops.core.log.Log;
+import dev.mathops.commons.log.Log;
 import dev.mathops.session.scramsha256.ScramClientStub;
 
 import java.io.ByteArrayOutputStream;
