@@ -168,6 +168,11 @@ final class ServletWarBuilder {
             war.write(FileLoader.loadFileAsBytes(commonsFile, true));
             war.closeEntry();
 
+            final File persistenceFile = new File(deployDir, "mathops_persistence.jar");
+            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_persistence.jar"));
+            war.write(FileLoader.loadFileAsBytes(persistenceFile, true));
+            war.closeEntry();
+
             final File fonts3File = new File(deployDir, "minfonts3.jar");
             war.putNextEntry(new ZipEntry("WEB-INF/lib/minfonts3.jar"));
             war.write(FileLoader.loadFileAsBytes(fonts3File, true));
@@ -188,16 +193,6 @@ final class ServletWarBuilder {
         } catch (final IOException ex) {
             Log.warning(Res.get(Res.WAR_WRITE_FAILED), ex);
         }
-    }
-
-    /**
-     * Adds one or more libraries from a source directory to the "/WEB_INF/lib" folder in the jar file.
-     * @param sourceDir
-     * @param jar
-     * @param filenames
-     */
-    private void addLibraries(final File sourceDir, final JarOutputStream jar, final String... filenames) {
-
     }
 
     /**
