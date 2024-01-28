@@ -4,7 +4,7 @@ import dev.mathops.app.db.config.CodeContextPane;
 import dev.mathops.app.db.config.model.CfgDatabaseLayerModel;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.config.CfgDatabaseLayer;
+import dev.mathops.persistence.config.CfgDatabaseLayer;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;

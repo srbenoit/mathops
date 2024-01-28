@@ -1,7 +1,7 @@
 package dev.mathops.db.table.primary;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.generalized.Table;
+import dev.mathops.persistence.Table;
 
 import java.util.ArrayList;
 import java.util.List;

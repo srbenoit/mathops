@@ -1,8 +1,8 @@
 package dev.mathops.app.db.config.model;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.config.EDbUse;
-import dev.mathops.db.config.ESchemaType;
+import dev.mathops.persistence.EDbUse;
+import dev.mathops.persistence.ESchemaType;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

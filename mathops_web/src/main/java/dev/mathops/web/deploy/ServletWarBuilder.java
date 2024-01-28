@@ -67,10 +67,6 @@ final class ServletWarBuilder {
      */
     private boolean buildRootJar() {
 
-        final File core = new File(this.projectDir, "mathops_core");
-        final File coreRoot = new File(core, "build/classes/java/main");
-        final File coreClasses = new File(coreRoot, "dev/mathops/core");
-
         final File db = new File(this.projectDir, "mathops_db");
         final File dbRoot = new File(db, "build/classes/java/main");
         final File dbClasses = new File(dbRoot, "dev/mathops/db");
@@ -97,7 +93,7 @@ final class ServletWarBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbappClasses1, fontClasses, assessmentClasses,
+        boolean success = checkDirectoriesExist(dbClasses, dbappClasses1, fontClasses, assessmentClasses,
                 sessionClasses, webClasses, jars);
 
         if (success) {
@@ -106,9 +102,6 @@ final class ServletWarBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
-                addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
@@ -170,6 +163,11 @@ final class ServletWarBuilder {
             war.write(FileLoader.loadFileAsBytes(jarFile, true));
             war.closeEntry();
 
+            final File commonsFile = new File(deployDir, "mathops_commons.jar");
+            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_commons.jar"));
+            war.write(FileLoader.loadFileAsBytes(commonsFile, true));
+            war.closeEntry();
+
             final File fonts3File = new File(deployDir, "minfonts3.jar");
             war.putNextEntry(new ZipEntry("WEB-INF/lib/minfonts3.jar"));
             war.write(FileLoader.loadFileAsBytes(fonts3File, true));
@@ -190,6 +188,16 @@ final class ServletWarBuilder {
         } catch (final IOException ex) {
             Log.warning(Res.get(Res.WAR_WRITE_FAILED), ex);
         }
+    }
+
+    /**
+     * Adds one or more libraries from a source directory to the "/WEB_INF/lib" folder in the jar file.
+     * @param sourceDir
+     * @param jar
+     * @param filenames
+     */
+    private void addLibraries(final File sourceDir, final JarOutputStream jar, final String... filenames) {
+
     }
 
     /**

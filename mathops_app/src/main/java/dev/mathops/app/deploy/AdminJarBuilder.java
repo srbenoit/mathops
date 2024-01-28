@@ -42,10 +42,6 @@ final class AdminJarBuilder {
      */
     private void build(final String mainClassName, final String targetFilename) {
 
-        final File core = new File(this.projectDir, "mathops_core");
-        final File coreRoot = new File(core, "build/classes/java/main");
-        final File coreClasses = new File(coreRoot, "dev/mathops/core");
-
         final File db = new File(this.projectDir, "mathops_db");
         final File dbRoot = new File(db, "build/classes/java/main");
         final File dbClasses = new File(dbRoot, "dev/mathops/db");
@@ -72,8 +68,8 @@ final class AdminJarBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        final boolean success = checkDirectoriesExist(coreClasses, dbClasses, dbjobsClasses1, fontClasses,
-                assessmentClasses, sessionClasses, appClasses, jars);
+        final boolean success = checkDirectoriesExist(dbClasses, dbjobsClasses1, fontClasses, assessmentClasses,
+                sessionClasses, appClasses, jars);
 
         if (success) {
             try (final FileOutputStream out = new FileOutputStream(new File(jars, targetFilename));
@@ -81,9 +77,6 @@ final class AdminJarBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(mainClassName, jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
-                addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
@@ -235,12 +228,11 @@ final class AdminJarBuilder {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         htm.addln("Manifest-Version: 1.0");
-        htm.addln("Application-Name: Colorado State University Precalculus System");
+        htm.addln("Application-Name: Colorado State University Math Operations System");
         htm.addln("Permissions: all-permissions");
-        htm.addln("Codebase: https://*.colostate.edu");
+        htm.addln("Codebase: *");
         htm.addln("Application-Library-Allowable-Codebase: *");
         htm.addln("Caller-Allowable-Codebase: *");
-        htm.addln("Created-By: AdminJarBuilder 2.00");
         htm.addln("Main-Class: ", mainClass);
 
         jar.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));

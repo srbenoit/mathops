@@ -25,23 +25,6 @@ import java.util.zip.ZipEntry;
 /**
  * Creates the various '.jar' and '.xml' files for the "Testing" app (to be hosted on numan in the
  * /opt/public/apps/testing folder, and automatically downloaded by testing stations).
- *
- * <p>
- * This program assumes all projects are managed by GIT, and are stored in a directory tree of this form:
- *
- * <pre>
- * {dir}/git
- *   /{project-name}
- *     /{project-name}
- *       /bin
- *       /lib
- *       /src
- * </pre> where {project-name} is one of the following:
- * <ul>
- * <li>bls01core
- * <li>bls21db
- * <li>bls
- * </ul>
  */
 final class TestingAppBuilder {
 
@@ -91,6 +74,7 @@ final class TestingAppBuilder {
                 final File jars = new File(this.projectDir, "jars");
 
                 final File bls8Jar = new File(jars, "bls8.jar");
+                final File commonsJar = new File(jars, "mathops_commons.jar");
                 final File jwabbitJar = new File(jars, "jwabbit.jar");
                 final File appXml = new File(jars, "app.xml");
 
@@ -101,13 +85,16 @@ final class TestingAppBuilder {
                 final File updaterXml = new File(jars, "updater.xml");
 
                 createXmlDescriptor(sha256, appXml, "testing", "dev.mathops.app.teststation.TestStationApp", bls8Jar,
-                        jwabbitJar);
-                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", launchJar);
-                createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", updaterJar);
+                        commonsJar, jwabbitJar);
+                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", commonsJar,
+                        launchJar);
+                createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", commonsJar,
+                        updaterJar);
 
                 // TODO: Copy all to /opt/public/app/testing
 
                 copyFile(bls8Jar, this.targetDir);
+                copyFile(commonsJar, this.targetDir);
                 copyFile(jwabbitJar, this.targetDir);
                 copyFile(appXml, this.targetDir);
 
@@ -118,6 +105,7 @@ final class TestingAppBuilder {
                     }
                 }
 
+                copyFile(commonsJar, targetLaunch);
                 copyFile(launchJar, targetLaunch);
                 copyFile(launchXml, targetLaunch);
                 copyFile(updaterJar, targetLaunch);
@@ -205,10 +193,6 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildBls8Jar() {
 
-        final File core = new File(this.projectDir, "mathops_core");
-        final File coreRoot = new File(core, "build/classes/java/main");
-        final File coreClasses = new File(coreRoot, "dev/mathops/core");
-
         final File db = new File(this.projectDir, "mathops_db");
         final File dbRoot = new File(db, "build/classes/java/main");
         final File dbClasses = new File(dbRoot, "dev/mathops/db");
@@ -231,8 +215,8 @@ final class TestingAppBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, dbClasses, fontClasses, assessmentClasses, sessionClasses,
-                appClasses, jars);
+        boolean success = checkDirectoriesExist(dbClasses, fontClasses, assessmentClasses, sessionClasses, appClasses,
+                jars);
 
         if (success) {
 
@@ -241,9 +225,6 @@ final class TestingAppBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
-                addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
@@ -279,10 +260,6 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildLaunchJar() {
 
-        final File core = new File(this.projectDir, "mathops_core");
-        final File coreRoot = new File(core, "build/classes/java/main");
-        final File coreClasses = new File(coreRoot, "dev/mathops/core");
-
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
         final File appClasses = new File(appRoot, "dev/mathops/app");
@@ -290,7 +267,7 @@ final class TestingAppBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, appClasses, jars);
+        boolean success = checkDirectoriesExist(appClasses, jars);
 
         if (success) {
 
@@ -299,9 +276,6 @@ final class TestingAppBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
-                addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
@@ -325,10 +299,6 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildUpdaterJar() {
 
-        final File core = new File(this.projectDir, "mathops_core");
-        final File coreRoot = new File(core, "build/classes/java/main");
-        final File coreClasses = new File(coreRoot, "dev/mathops/core");
-
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
         final File appClasses = new File(appRoot, "dev/mathops/app");
@@ -336,7 +306,7 @@ final class TestingAppBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(coreClasses, appClasses, jars);
+        boolean success = checkDirectoriesExist(appClasses, jars);
 
         if (success) {
 
@@ -345,9 +315,6 @@ final class TestingAppBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, core), CoreConstants.CRLF);
-                addFiles(coreRoot, coreClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
@@ -528,12 +495,11 @@ final class TestingAppBuilder {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         htm.addln("Manifest-Version: 1.0");
-        htm.addln("Application-Name: Colorado State University Precalculus System");
+        htm.addln("Application-Name: Colorado State University Math Operations System");
         htm.addln("Permissions: all-permissions");
-        htm.addln("Codebase: https://*.colostate.edu");
+        htm.addln("Codebase: *");
         htm.addln("Application-Library-Allowable-Codebase: *");
         htm.addln("Caller-Allowable-Codebase: *");
-        htm.addln("Created-By: TestingAppBuilder 2.0");
         htm.addln("Main-Class: dev.mathops.app.teststation.TestStationApp");
 
         jar.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));

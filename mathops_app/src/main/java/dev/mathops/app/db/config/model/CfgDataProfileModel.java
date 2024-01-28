@@ -1,7 +1,7 @@
 package dev.mathops.app.db.config.model;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.config.ESchemaType;
+import dev.mathops.persistence.ESchemaType;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
 import javafx.collections.FXCollections;

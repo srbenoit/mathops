@@ -1,13 +1,13 @@
 package dev.mathops.db.table.primary;
 
-import dev.mathops.db.generalized.EFieldRole;
-import dev.mathops.db.generalized.EFieldType;
-import dev.mathops.db.generalized.Field;
-import dev.mathops.db.generalized.SelectionCriteria;
-import dev.mathops.db.generalized.Table;
-import dev.mathops.db.generalized.constraint.IntegerRangeConstraint;
-import dev.mathops.db.generalized.criteria.ENumericMatchType;
-import dev.mathops.db.generalized.criteria.IntegerFieldCriterion;
+import dev.mathops.persistence.EFieldRole;
+import dev.mathops.persistence.EFieldType;
+import dev.mathops.persistence.Field;
+import dev.mathops.persistence.SelectionCriteria;
+import dev.mathops.persistence.Table;
+import dev.mathops.persistence.constraint.IntegerRangeConstraint;
+import dev.mathops.persistence.criteria.ENumericMatchType;
+import dev.mathops.persistence.criteria.IntegerFieldCriterion;
 
 /**
  * The "Term" table specification within the "Term and Course" domain.

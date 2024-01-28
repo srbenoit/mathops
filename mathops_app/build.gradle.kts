@@ -24,6 +24,7 @@ dependencies {
     implementation(project(":mathops_session"))
     implementation(files("lib/jwabbit.jar"))
     implementation(files("lib/mathops_commons.jar"))
+    implementation(files("lib/mathops_persistence.jar"))
 
     implementation("org.openjfx:javafx:21.0.1")
     implementation("org.openjfx:javafx-controls:21.0.1")

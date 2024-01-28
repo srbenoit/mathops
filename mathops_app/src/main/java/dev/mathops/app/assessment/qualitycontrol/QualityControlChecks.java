@@ -6,7 +6,6 @@ import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.AbstractDocPrimitiveContainer;
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
-import dev.mathops.assessment.document.template.DocDrawing;
 import dev.mathops.assessment.document.template.DocImage;
 import dev.mathops.assessment.document.template.DocRadical;
 import dev.mathops.assessment.document.template.DocRelativeOffset;
@@ -660,7 +659,8 @@ enum QualityControlChecks {
                     || follows.startsWith("wagon")
                     || follows.startsWith("shift")
                     || follows.startsWith("letter")
-                    || follows.startsWith("line")) {
+                    || follows.startsWith("line")
+                    || follows.startsWith("degree")) {
                 error = false;
             } else {
                 if (index >= 2) {
