@@ -1,2 +1,0 @@
-#!/bin/bash
-/usr/local/java/bin/java -cp /usr/local/bin/ADMIN.jar:/usr/local/bin/ifxjdbc.jar:/usr/local/bin/ojdbc7.jar:/usr/local/bin/flatlaf-3.0.jar dev.mathops.app.checkin.CheckinApp
