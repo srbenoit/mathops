@@ -487,7 +487,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
 
         if (inputs != null) {
             final int numInputs = inputs.size();
-            Log.info("Extracting answers - there are " + numInputs + " inputs in question");
+//            Log.info("Extracting answers - there are " + numInputs + " inputs in question");
 
             // Checkboxes have multiple inputs with the same name - we want to store one value per name
             final Map<String, AbstractDocInput> actualInputs = new HashMap<>(numInputs);
@@ -511,7 +511,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                 final String paramName = "INP_" + inputName;
                 final String[] param = paramMap.get(paramName);
 
-                Log.info("    Answer '", paramName, "' is ", Arrays.toString(param));
+//                Log.info("    Answer '", paramName, "' is ", Arrays.toString(param));
 
                 if (param == null) {
                     answers[i] = "{" + inputName + "}=null";
@@ -550,7 +550,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                         answers[i] = "{" + inputName + "}=" + sum;
                     }
 
-                    Log.info("Answers[" + i + "] =" + answers[i]);
+//                    Log.info("Answers[" + i + "] =" + answers[i]);
                     ++numFound;
                 }
             }
@@ -605,7 +605,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                                 final int index = result.indexOf("id='INP_" + name + "' name='INP_" + name + "'");
 
                                 if (index == -1) {
-                                    Log.info("Could not find input '", name, "'");
+//                                    Log.info("Could not find input '", name, "'");
                                     Log.warning("Unable to locate field input in embedded input problem.");
                                 } else {
                                     final String escaped = XmlEscaper.escape(answer);
@@ -628,7 +628,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                                             "id='INP_" + name + "_" + value + "' name='INP_" + name + "'");
 
                                     if (index == -1) {
-                                        Log.info("Could not find input '", name, "'");
+//                                        Log.info("Could not find input '", name, "'");
                                         Log.warning("Unable to locate radio button in embedded input problem.");
                                     } else {
                                         result = result.substring(0, index) + "checked " + result.substring(index);
@@ -661,7 +661,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                                                 "id='INP_" + name + "_" + value + "' name='INP_" + name + "'");
 
                                         if (index == -1) {
-                                            Log.info("Could not find input '", name, "'");
+//                                            Log.info("Could not find input '", name, "'");
                                             Log.warning("Unable to locate checkbox in embedded input problem.");
                                         } else {
                                             result = result.substring(0, index) + "checked " + result.substring(index);

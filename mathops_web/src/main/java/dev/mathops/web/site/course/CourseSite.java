@@ -165,11 +165,16 @@ public class CourseSite extends AbstractPageSite {
                         case "video_example.html" -> PageVideoExample.doGet(this, req, resp, session);
                         case "run_homework.html" ->
                                 PageHtmlHomework.startHomework(cache, this, req, resp, session, logic);
+                        case "run_lta.html" -> PageHtmlLta.startLta(cache, this, req, resp, session, logic);
                         case "run_review.html" ->
                                 PageHtmlReviewExam.startReviewExam(cache, this, req, resp, session, logic);
                         case "update_homework.html" -> {
                             Log.warning("GET of update_homework.html");
                             PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
+                        }
+                        case "update_lta.html" -> {
+                            Log.warning("GET of update_lta.html");
+                            PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
                         }
                         case "update_review_exam.html" -> {
                             Log.warning("GET of update_review_exam.html");
@@ -249,6 +254,8 @@ public class CourseSite extends AbstractPageSite {
                     PageSchedule.doSetCourseOrder(cache, req, resp, logic);
                 } else if ("update_homework.html".equals(subpath)) {
                     PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
+                } else if ("update_lta.html".equals(subpath)) {
+                    PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
                 } else if ("update_review_exam.html".equals(subpath)) {
                     PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
                 } else if ("update_past_exam.html".equals(subpath)) {

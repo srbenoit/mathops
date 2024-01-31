@@ -366,7 +366,7 @@ public enum SetHolds {
                         hasF2FSect006 = true;
                     } else if ("007".equals(sect)) {
                         hasF2FSect007 = true;
-                    } else if ("801".equals(sect) || "809".equals(sect)) {
+                    } else if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
                         hasNormalDistance = true;
                     } else {
                         Log.warning("Unexpected ", course, " section number: ", sect);
@@ -376,7 +376,7 @@ public enum SetHolds {
                         hasNormalOnline = true;
                     } else if ("002".equals(sect)) {
                         hasLateStartOnline = true;
-                    } else if ("801".equals(sect) || "809".equals(sect)) {
+                    } else if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
                         hasNormalDistance = true;
                     } else {
                         Log.warning("Unexpected ", course, " section number: ", sect);

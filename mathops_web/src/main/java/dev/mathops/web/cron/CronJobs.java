@@ -134,7 +134,7 @@ public final class CronJobs implements ICronJob {
 
         if (now.isAfter(this.endOfDayNextRun)) {
             CloseIncompletes.execute();
-            DeleteTestUserData.execute();
+//            DeleteTestUserData.execute();
             SetHolds.execute();
             this.endOfDayNextRun = LocalDateTime.of(tomorrow, ELEVEN_FIFTY_PM);
         }
