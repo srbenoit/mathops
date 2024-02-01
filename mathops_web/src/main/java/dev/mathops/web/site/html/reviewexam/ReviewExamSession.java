@@ -366,8 +366,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     }
                 } else {
                     try {
-                        final PlacementStatus placementStat = new PlacementLogic(cache, getStudent().stuId,
-                                getStudent().aplnTerm, now).status;
+                        final RawStudent stu = getStudent();
+                        final PlacementStatus placementStat = new PlacementLogic(cache, stu.stuId, stu.aplnTerm,
+                                now).status;
 
                         eligible = placementStat.attemptsRemaining > 0;
                     } catch (final SQLException ex) {
@@ -772,7 +773,6 @@ public final class ReviewExamSession extends HtmlSessionBase {
      */
     private void appendHeader(final HtmlBuilder htm) {
 
-        // $NON-NLS-1$
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
         htm.sDiv(null, "style='flex: 1 100%; display:inline-block; background-color:AliceBlue; "

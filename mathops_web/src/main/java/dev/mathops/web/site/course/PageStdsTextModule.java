@@ -539,7 +539,7 @@ enum PageStdsTextModule {
         htm.add("<div style='font-family:prox-regular,sans-serif;",
                 "font-weight:400;font-size:15px;color:#196F43;margin:0 0 .3em 16px;'>");
 
-        htm.addln("<form style='display:inline' method='get' action='run_homework.html'>");
+        htm.addln("<form style='display:inline' method='get' action='run_lta.html'>");
         htm.addln("  <input type='hidden' name='course' value='", course, "'/>");
         htm.addln("  <input type='hidden' name='unit' value='", Integer.toString(module), "'/>");
         htm.addln("  <input type='hidden' name='lesson' value='0'/>");

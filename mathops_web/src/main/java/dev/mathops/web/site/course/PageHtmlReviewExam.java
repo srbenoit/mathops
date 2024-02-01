@@ -91,14 +91,10 @@ enum PageHtmlReviewExam {
             htm.sDiv("panelu");
 
             htm.addln("<form id='review_exam_form' action='update_review_exam.html'>");
-            htm.addln(" <input type='hidden' name='exam' value='", examId,
-                    "'>");
-            htm.addln(" <input type='hidden' name='mode' value='", mode,
-                    "'>");
-            htm.addln(" <input type='hidden' name='course' value='", course,
-                    "'>");
-            htm.addln(" <input type='hidden' name='unit' value='", unit,
-                    "'>");
+            htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
+            htm.addln(" <input type='hidden' name='mode' value='", mode, "'>");
+            htm.addln(" <input type='hidden' name='course' value='", course, "'>");
+            htm.addln(" <input type='hidden' name='unit' value='", unit, "'>");
             htm.addln(" <input type='hidden' id='review_exam_act' name='action'>");
             hs.generateHtml(cache, session.getNow(), htm);
             htm.addln("</form>");

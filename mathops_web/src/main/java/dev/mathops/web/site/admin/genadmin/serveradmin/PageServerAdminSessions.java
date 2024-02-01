@@ -16,6 +16,9 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.html.EForceTerminateState;
 import dev.mathops.web.site.html.hw.HomeworkSession;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
+import dev.mathops.web.site.html.lta.ELtaState;
+import dev.mathops.web.site.html.lta.LtaSession;
+import dev.mathops.web.site.html.lta.LtaSessionStore;
 import dev.mathops.web.site.html.pastexam.EPastExamState;
 import dev.mathops.web.site.html.pastexam.PastExamSession;
 import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
@@ -92,6 +95,7 @@ public final class PageServerAdminSessions {
         emitHtmlPlacementExamSessions(htm);
         emitHtmlUnitExamSessions(htm);
         emitHtmlReviewExamSessions(htm);
+        emitHtmlLearningTargetSessions(htm);
         emitHtmlHomeworkSessions(htm);
         emitHtmlPastExamSessions(htm);
     }
@@ -213,9 +217,8 @@ public final class PageServerAdminSessions {
             htm.sTd().add(sess.version).eTd();
             htm.sTd().add(sess.proctored ? "Yes" : "No").eTd();
             if (sess.getState() == EPlacementExamState.ITEM_NN) {
-                htm.sTd().add(sess.getState().name(), CoreConstants.DOT,
-                        Integer.toString(sess.getCurrentSect()), CoreConstants.COMMA,
-                        Integer.toString(sess.getCurrentItem())).eTd();
+                htm.sTd().add(sess.getState().name(), CoreConstants.DOT, Integer.toString(sess.getCurrentSect()),
+                        CoreConstants.COMMA, Integer.toString(sess.getCurrentItem())).eTd();
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
@@ -227,15 +230,15 @@ public final class PageServerAdminSessions {
             final EForceTerminateState force = sess.getForceTerminate();
             if (force == EForceTerminateState.NONE) {
                 htm.sTd();
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='display:inline;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='display:inline;'>");
                 htm.addln(" <input type='hidden' name='action' value='abort'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
                 htm.addln(" <input type='submit' value='Abort'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='display:inline;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='display:inline;'>");
                 htm.addln(" <input type='hidden' name='action' value='submit'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
@@ -245,15 +248,15 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Abort exam without scoring?: ");
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='abortconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
                 htm.addln(" <input type='submit' value='Yes, Abort Exam'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='abortcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
@@ -263,15 +266,15 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Force submission and scoring of exam?: ");
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='submitconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
                 htm.addln(" <input type='submit' value='Yes, Submit Exam'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#placement_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#placement_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='submitcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='placement_exam'>");
                 htm.addln(" <input type='hidden' name='student_id' value='", sess.studentId, "'>");
@@ -292,8 +295,7 @@ public final class PageServerAdminSessions {
      */
     private static void emitHtmlUnitExamSessions(final HtmlBuilder htm) {
 
-        final Map<String, Map<String, UnitExamSession>> map =
-                UnitExamSessionStore.getInstance().getUnitExamSessions();
+        final Map<String, Map<String, UnitExamSession>> map = UnitExamSessionStore.getInstance().getUnitExamSessions();
         Log.info("There are " + map.size() + " sessions with unit exams in progress.");
 
         // Create a new sorted map whose keys are based on student name (last, first)
@@ -307,8 +309,8 @@ public final class PageServerAdminSessions {
                     Log.warning("Unit exam session had null student: ", sess.studentId);
                 } else {
                     // Sort by name, but add session and exam IDs to key in case of duplicate names
-                    final String name = stu.lastName + CoreConstants.SPC + stu.firstName
-                            + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC + sess.version;
+                    final String name = stu.lastName + CoreConstants.SPC + stu.firstName + CoreConstants.SPC
+                            + sess.sessionId + CoreConstants.SPC + sess.version;
                     newmap.put(name, sess);
                 }
             }
@@ -337,8 +339,7 @@ public final class PageServerAdminSessions {
             htm.sTd().add(sess.studentId).eTd();
             htm.sTd().add(sess.getStudent().getScreenName()).eTd();
             htm.sTd().add(sess.version).eTd();
-            if ((sess.getState() == EUnitExamState.ITEM_NN)
-                    || (sess.getState() == EUnitExamState.SOLUTION_NN)) {
+            if ((sess.getState() == EUnitExamState.ITEM_NN) || (sess.getState() == EUnitExamState.SOLUTION_NN)) {
                 htm.sTd().add(sess.getState().name() + CoreConstants.DOT + sess.getCurrentItem()).eTd();
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
@@ -350,16 +351,16 @@ public final class PageServerAdminSessions {
             final EForceTerminateState force = sess.getForceTerminate();
             if (force == EForceTerminateState.NONE) {
                 htm.sTd();
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='display:inline;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='display:inline;'>");
                 htm.addln(" <input type='hidden' name='action' value='abort'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Abort'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='display:inline;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='display:inline;'>");
                 htm.addln(" <input type='hidden' name='action' value='submit'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -370,16 +371,16 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Abort exam without scoring?: ");
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='abortconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Yes, Abort Exam'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='abortcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -390,16 +391,16 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Force submission and scoring of exam?: ");
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='submitconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Yes, Submit Exam'>");
                 htm.add("</form>");
-                htm.addln("<form action='srvadm_sessions.html#unit_session_",
-                        sess.sessionId, "' method='post' style='padding:3px;'>");
+                htm.addln("<form action='srvadm_sessions.html#unit_session_", sess.sessionId,
+                        "' method='post' style='padding:3px;'>");
                 htm.addln(" <input type='hidden' name='action' value='submitcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='unit_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -427,14 +428,13 @@ public final class PageServerAdminSessions {
         final Map<String, ReviewExamSession> newmap = new TreeMap<>();
 
         synchronized (map) {
-            Log.info("There are " + map.size()
-                    + " sessions with review exams in progress.");
+            Log.info("There are " + map.size() + " sessions with review exams in progress.");
 
             // Create a new sorted map whose keys are based on student name (last, first)
             for (final Map<String, ReviewExamSession> inner : map.values()) {
                 for (final ReviewExamSession sess : inner.values()) {
-                    final String name = sess.studentId + CoreConstants.SPC + sess.sessionId
-                            + CoreConstants.SPC + sess.version;
+                    final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
+                            + sess.version;
                     newmap.put(name, sess);
                 }
             }
@@ -458,13 +458,11 @@ public final class PageServerAdminSessions {
 
         for (final ReviewExamSession sess : newmap.values()) {
 
-            htm.addln("<tr id='review_session_", sess.sessionId,
-                    "'>");
+            htm.addln("<tr id='review_session_", sess.sessionId, "'>");
             htm.sTd().add(sess.sessionId).eTd();
             htm.sTd().add(sess.studentId).eTd();
             htm.sTd().add(sess.version).eTd();
-            if ((sess.getState() == EReviewExamState.ITEM_NN)
-                    || (sess.getState() == EReviewExamState.SOLUTION_NN)) {
+            if ((sess.getState() == EReviewExamState.ITEM_NN) || (sess.getState() == EReviewExamState.SOLUTION_NN)) {
                 htm.sTd().add(sess.getState().name() + CoreConstants.DOT + sess.getItem()).eTd();
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
@@ -477,16 +475,16 @@ public final class PageServerAdminSessions {
             final EForceTerminateState force = sess.getForceTerminate();
             if (force == EForceTerminateState.NONE) {
                 htm.sTd();
-                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='abort'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Abort'>");
                 htm.add("</form>");
-                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='submit'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -497,16 +495,16 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Abort exam without scoring?: ");
-                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='abortconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Yes, Abort Exam'>");
                 htm.add("</form>");
-                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='abortcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -517,16 +515,16 @@ public final class PageServerAdminSessions {
             } else if (force == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
                 htm.sTd("red");
                 htm.add("Force submission and scoring of exam?: ");
-                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='submitconfirm'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
                 htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
                 htm.addln(" <input type='submit' value='Yes, Submit Exam'>");
                 htm.add("</form>");
-                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_",
-                        sess.sessionId, "' method='post'>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#review_session_", sess.sessionId,
+                        "' method='post'>");
                 htm.addln(" <input type='hidden' name='action' value='submitcancel'>");
                 htm.addln(" <input type='hidden' name='type' value='review_exam'>");
                 htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
@@ -540,6 +538,131 @@ public final class PageServerAdminSessions {
 
         htm.eTable();
     }
+
+    /**
+     * Appends a table of active HTML learning target sessions to an {@code HtmlBuilder}.
+     *
+     * @param htm the {@code HtmlBuilder} to which to write
+     */
+    private static void emitHtmlLearningTargetSessions(final HtmlBuilder htm) {
+
+        final HashMap<String, HashMap<String, LtaSession>> map = LtaSessionStore.getInstance().getLtaSessions();
+
+        final Map<String, LtaSession> newmap = new TreeMap<>();
+
+        synchronized (map) {
+            Log.info("There are " + map.size() + " sessions with learning target assignments in progress.");
+
+            // Create a new sorted map whose keys are based on student name (last, first)
+            for (final Map<String, LtaSession> inner : map.values()) {
+                for (final LtaSession sess : inner.values()) {
+                    final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
+                            + sess.version;
+                    newmap.put(name, sess);
+                }
+            }
+        }
+
+        htm.div("vgap0").hr().div("vgap0");
+        htm.sH(2).add("HTML Learning Target Assignment Sessions (" + newmap.size() + ")").eH(2);
+
+        htm.sTable("report");
+        htm.sTr();
+        htm.sTh().add("Session ID").eTh();
+        htm.sTh().add("Student ID").eTh();
+        htm.sTh().add("Exam").eTh();
+        htm.sTh().add("State").eTh();
+        htm.sTh().add("Started").eTh();
+        htm.sTh().add("Remaining").eTh();
+        htm.sTh().add("Redirect").eTh();
+        htm.sTh().add("Action").eTh();
+        htm.eTr();
+
+        for (final LtaSession sess : newmap.values()) {
+
+            htm.addln("<tr id='lta_session_", sess.sessionId, "'>");
+            htm.sTd().add(sess.sessionId).eTd();
+            htm.sTd().add(sess.studentId).eTd();
+            htm.sTd().add(sess.version).eTd();
+            if ((sess.getState() == ELtaState.ITEM_NN) || (sess.getState() == ELtaState.SOLUTION_NN)) {
+                htm.sTd().add(sess.getState().name() + CoreConstants.DOT + sess.getCurrentSection()
+                        + CoreConstants.DOT + sess.getCurrentItem()).eTd();
+            } else {
+                htm.sTd().add(sess.getState().name()).eTd();
+            }
+            htm.sTd().add(sess.isStarted() ? "Yes" : "No").eTd();
+            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(sess.redirectOnEnd).eTd();
+
+            final EForceTerminateState force = sess.getForceTerminate();
+            if (force == EForceTerminateState.NONE) {
+                htm.sTd();
+                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='abort'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='Abort'>");
+                htm.add("</form>");
+                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='submit'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='Submit'>");
+                htm.add("</form>");
+                htm.eTd();
+            } else if (force == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                htm.sTd("red");
+                htm.add("Abort assignment without scoring?: ");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='abortconfirm'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='Yes, Abort Assignment'>");
+                htm.add("</form>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='abortcancel'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='No, Leave Assignment Active'>");
+                htm.add("</form>");
+                htm.eTd();
+            } else if (force == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                htm.sTd("red");
+                htm.add("Force submission and scoring of assignment?: ");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='submitconfirm'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='Yes, Submit Assignment'>");
+                htm.add("</form>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#lta_session_", sess.sessionId,
+                        "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='submitcancel'>");
+                htm.addln(" <input type='hidden' name='type' value='lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='exam_id' value='", sess.version, "'>");
+                htm.addln(" <input type='submit' value='No, Leave Assignment Active'>");
+                htm.add("</form>");
+                htm.eTd();
+            }
+            htm.eTr();
+        }
+
+        htm.eTable();
+    }
+
+
+
 
     /**
      * Appends a table of active HTML homework sessions to an {@code HtmlBuilder}.
@@ -784,6 +907,20 @@ public final class PageServerAdminSessions {
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
+                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                } else {
+                    Log.warning("'abort' request for learning target session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
             } else if ("past_exam".equals(type)) {
                 final String sessionId = req.getParameter("session_id");
                 final String xml = req.getParameter("xml");
@@ -847,6 +984,22 @@ public final class PageServerAdminSessions {
                     sess.forceAbort(cache, session);
                 } else {
                     Log.warning("'abortconfirm' request for review session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
+                } else if (sess
+                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                    Log.warning("Forced abort of learning target assignment for student ", sess.studentId);
+                    sess.forceAbort(cache, session);
+                } else {
+                    Log.warning("'abortconfirm' request for learning target assignment session in termination state: ",
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
@@ -921,6 +1074,24 @@ public final class PageServerAdminSessions {
                     }
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
+                } else {
+                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+
+                        // TODO:
+                    } else {
+                        Log.warning(
+                                "'abortcancel' request for learning target assignment session in termination state: ",
+                                sess.getForceTerminate().name());
+                    }
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
             } else {
                 Log.warning("Unrecognized type for 'abortcancel' action: ", type);
             }
@@ -966,6 +1137,19 @@ public final class PageServerAdminSessions {
                     sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
                 } else {
                     Log.warning("'submit' request for review session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                    sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
+                } else {
+                    Log.warning("'submit' request for learning target assignment session in termination state: ",
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
@@ -1016,6 +1200,20 @@ public final class PageServerAdminSessions {
                     sess.forceSubmit(cache, session);
                 } else {
                     Log.warning("'submitconfirm' request for review session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                    Log.warning("Forced submit of learning target assignment exam for student ", sess.studentId);
+                    sess.forceSubmit(cache, session);
+                } else {
+                    Log.warning("'submitconfirm' request for learning target assignment session in termination state: ",
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
@@ -1071,6 +1269,22 @@ public final class PageServerAdminSessions {
                         // TODO:
                     } else {
                         Log.warning("'submitcancel' request for review session in termination state: ",
+                                sess.getForceTerminate().name());
+                    }
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                } else {
+                    if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+
+                        // TODO:
+                    } else {
+                        Log.warning("'submitcancel' request for review learning target assignment in termination state: ",
                                 sess.getForceTerminate().name());
                     }
                     sess.setForceTerminate(EForceTerminateState.NONE);

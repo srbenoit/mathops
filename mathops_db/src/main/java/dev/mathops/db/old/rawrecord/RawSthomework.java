@@ -123,7 +123,7 @@ public final class RawSthomework extends RecBase implements Comparable<RawSthome
     /**
      * Constructs a new {@code RawSthomework}.
      */
-    private RawSthomework() {
+    public RawSthomework() {
 
         super();
     }
