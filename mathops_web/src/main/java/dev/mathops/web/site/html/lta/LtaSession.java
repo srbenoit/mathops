@@ -8,6 +8,7 @@ import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.htmlgen.ExamObjConverter;
 import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
+import dev.mathops.assessment.problem.template.ProblemAutoCorrectTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.commons.CoreConstants;
@@ -28,12 +29,15 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.LtaEligibilityTester;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
+import dev.mathops.session.txn.messages.GetExamReply;
+import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
-import dev.mathops.web.site.html.reviewexam.EReviewExamState;
 import jakarta.servlet.ServletRequest;
 
 import java.sql.SQLException;
@@ -43,8 +47,10 @@ import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A user session used to take learning target assignments online. It takes as arguments a session ID, student name, and
@@ -61,6 +67,16 @@ public final class LtaSession extends HtmlSessionBase {
 
     /** The timeout duration (2 hours), in milliseconds. */
     private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+
+    /** The background color for header/footer. */
+    private static final String HEADER_BG_COLOR = "#EFEFF2";
+
+    /** The background color for main question area. */
+    private static final String MAIN_BG_COLOR = "#F5F5F5";
+
+    /** The outline color for screen areas. */
+    private static final String OUTLINE_COLOR = "#B3B3B3";
+
 
     /** The state of the assignment. */
     private ELtaState state;
@@ -290,8 +306,32 @@ public final class LtaSession extends HtmlSessionBase {
             } else if (theExamObj.ref == null) {
                 error = "Unable to load assignment template";
             } else {
-                final int numProblems = theExamObj.getNumProblems();
+                boolean alreadyPassed = false;
+                final Set<Integer> alreadyCorrect = new HashSet<>(10);
 
+                // See if the student has already passed this assignment.  If they have, they get the complete
+                // assignment as practice.  If not, they get only the questions they have not yet answered correctly.
+
+                final List<RawSthomework> allHw = RawSthomeworkLogic.queryByStudentCourseUnit(cache, this.studentId,
+                        avail.courseId, avail.unit, false);
+                for (final RawSthomework hw : allHw) {
+                    if (hw.version.equals(avail.assignmentId) && "Y".equals(hw.passed)) {
+                        alreadyPassed = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyPassed) {
+                    // Gather a list of item numbers that the student has already gotten correct
+                    final List<RawSthwqa> allQa = RawSthwqaLogic.queryByStudent(cache, this.studentId);
+                    for (final RawSthwqa qa : allQa) {
+                        if (qa.version.equals(avail.assignmentId) && "Y".equals(qa.ansCorrect)) {
+                            alreadyCorrect.add(qa.questionNbr);
+                        }
+                    }
+                }
+
+                final int numProblems = theExamObj.getNumProblems();
                 if (Integer.valueOf(-1).equals(this.minMastery)) {
                     this.minMastery = Integer.valueOf(numProblems);
                 }
@@ -302,7 +342,22 @@ public final class LtaSession extends HtmlSessionBase {
 
                 final int count = theExamObj.getNumSections();
                 if (count > 0) {
-                    theExamObj.getSection(0).enabled = true;
+                    final ExamSection sect = theExamObj.getSection(0);
+                    sect.enabled = true;
+
+                    // Replace problems the student already has correct with "auto-correct" items
+                    if (!alreadyCorrect.isEmpty()) {
+                        final int numProb = sect.getNumProblems();
+                        for (int i = 0; i < numProb; ++i) {
+                            final ExamProblem prob = sect.getProblem(i);
+
+                            if (alreadyCorrect.contains(prob.problemId)) {
+                                prob.clearProblems();
+                                prob.addProblem(new ProblemAutoCorrectTemplate());
+                            }
+                        }
+                    }
+
                     final EvalContext evalContext = theExamObj.getEvalContext();
 
                     final ExamSection examSect = theExamObj.getSection(0);
@@ -320,15 +375,28 @@ public final class LtaSession extends HtmlSessionBase {
                     theExamObj.presentationTime = System.currentTimeMillis();
                     setExam(theExamObj);
 
-                    if (theExamObj.instructions == null) {
-                        this.state = ELtaState.ITEM_NN;
-                        appendAssignmentHtml(htm);
+                    // Write the record of the exam...
+
+                    final TermRec term = TermLogic.get(cache).queryActive(cache);
+                    final GetReviewExamReply reply = new GetReviewExamReply();
+                    reply.masteryScore = this.minMastery;
+                    reply.status = GetExamReply.SUCCESS;
+                    reply.presentedExam = theExamObj;
+                    reply.studentId = this.studentId;
+
+                    if (new ExamWriter().writePresentedExam(this.studentId, term, reply.presentedExam, reply.toXml())) {
+                        if (theExamObj.instructions == null) {
+                            this.state = ELtaState.ITEM_NN;
+                            appendAssignmentHtml(htm);
+                        } else {
+                            this.state = ELtaState.INSTRUCTIONS;
+                            appendInstructionsHtml(htm);
+                        }
                     } else {
-                        this.state = ELtaState.INSTRUCTIONS;
-                        appendInstructionsHtml(htm);
+                        error = "Unable to write presented exam";
                     }
                 } else {
-                    error = "Learning target assignment has no questions";
+                    error = "Learning target assignment has no sections";
                 }
             }
         } else if (reasons.length() == 0) {
@@ -543,8 +611,8 @@ public final class LtaSession extends HtmlSessionBase {
 
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
-        htm.sDiv(null, "style='flex: 1 100%; display:inline-block; background-color:#F2F2F2; "
-                + "border:1px solid #DCDCDC; margin:1px;'");
+        htm.sDiv(null, "style='flex: 1 100%; display:inline-block; background-color:", HEADER_BG_COLOR,
+                "; border:1px solid ", OUTLINE_COLOR, "; margin:1px;'");
 
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
                 "font-weight:bold; color:#36648b; text-shadow:2px 1px #ccc; margin:0; padding:4pt;'>");
@@ -567,12 +635,12 @@ public final class LtaSession extends HtmlSessionBase {
     private void startMain(final HtmlBuilder htm) {
 
         htm.addln("<main style='flex:1 1 73%; display:block; width:75%; margin:1px; padding:2px; ",
-                "border:1px solid #DCDCDC;'>");
+                "border:1px solid ", OUTLINE_COLOR, ";'>");
 
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
-        htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid #b3b3b3; "
-                + "background:#f5f5f5; font-family:serif; font-size:"
+        htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid ", OUTLINE_COLOR, "; background:",
+                MAIN_BG_COLOR, "; font-family:serif; font-size:"
                 + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
     }
 
@@ -612,7 +680,7 @@ public final class LtaSession extends HtmlSessionBase {
     private void appendNav(final HtmlBuilder htm, final boolean disabled) {
 
         htm.addln("<nav style='flex:1 1 22%; display:block; width:25%; background-color:white; ",
-                "border:1px solid #DCDCDC; margin:1px; padding:6pt; font-size:14pt;'>");
+                "border:1px solid ", OUTLINE_COLOR, "; margin:1px; padding:6pt; font-size:14pt;'>");
 
         if ((this.state == ELtaState.INSTRUCTIONS) || (this.state == ELtaState.SOLUTION_NN && this.currentItem == -1)) {
             htm.sDiv(null, "style='background:#7FFF7F;'");
@@ -692,8 +760,9 @@ public final class LtaSession extends HtmlSessionBase {
                                        final String nextCmd,
                                        final String nextLabel) {
 
-        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:#F2F2F2; display:block; "
-                +"border:1px solid #DCDCDC; margin:1px; padding:0 12px; text-align:center;'");
+        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:", HEADER_BG_COLOR,
+                "; display:block; border:1px solid ", OUTLINE_COLOR,
+                "; margin:1px; padding:0 12px; text-align:center;'");
 
         if (prevCmd != null || nextCmd != null) {
             if (prevCmd != null) {
@@ -729,8 +798,8 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private static void appendEmptyFooter(final HtmlBuilder htm) {
 
-        htm.sDiv(null, "style='flex: 1 100%; display:block; background-color:#F2F2F2; "
-                + "border:1px solid #DCDCDC; margin:1px; padding:6pt; text-align:center;'");
+        htm.sDiv(null, "style='flex: 1 100%; display:block; background-color:", HEADER_BG_COLOR,
+                "; border:1px solid ", OUTLINE_COLOR, "; margin:1px; padding:6pt; text-align:center;'");
 
         htm.eDiv();
 

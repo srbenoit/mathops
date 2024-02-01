@@ -7,8 +7,6 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-import dev.mathops.web.site.html.hw.HomeworkSession;
-import dev.mathops.web.site.html.hw.HomeworkSessionStore;
 import dev.mathops.web.site.html.lta.LtaSession;
 import dev.mathops.web.site.html.lta.LtaSessionStore;
 import jakarta.servlet.ServletRequest;

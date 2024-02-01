@@ -18,6 +18,7 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.web.site.WebMidController;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
+import dev.mathops.web.site.html.lta.LtaSessionStore;
 import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
 import dev.mathops.web.site.html.placementexam.PlacementExamSessionStore;
 import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
@@ -193,6 +194,7 @@ public final class FrontController extends HttpServlet {
         PlacementExamSessionStore.getInstance().persist(dir);
         UnitExamSessionStore.getInstance().persist(dir);
         ReviewExamSessionStore.getInstance().persist(dir);
+        LtaSessionStore.getInstance().persist(dir);
         HomeworkSessionStore.getInstance().persist(dir);
         PastExamSessionStore.getInstance().persist(dir);
 

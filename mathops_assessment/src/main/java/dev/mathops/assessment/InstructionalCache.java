@@ -122,6 +122,8 @@ public final class InstructionalCache extends Thread implements InstructionalCac
                 Log.info("Instructional cache reading from ", file.getAbsolutePath());
 
                 instance = new InstructionalCache(file);
+//                instance.start();
+                instance.scanAssessments();
             }
 
             return instance;
@@ -435,6 +437,8 @@ public final class InstructionalCache extends Thread implements InstructionalCac
     @Override
     public void run() {
 
+        // NOTE: This is no longer used - the thread is never started.
+
         synchronized (this.synch) {
             this.nextRun = 0L;
         }
@@ -452,10 +456,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
                 }
 
                 if (now > next) {
-                    Log.info("InstructionalCache Scan Starting " + this.base.getAbsolutePath());
-                    scan(this.base);
-                    Log.info("InstructionalCache Scan Complete " + this.examFiles.size() + " exams and "
-                            + this.problemFiles.size() + " problems");
+                    scanAssessments();
 
                     // Timed to scan once per 5 minutes
                     now = System.currentTimeMillis();
@@ -480,17 +481,29 @@ public final class InstructionalCache extends Thread implements InstructionalCac
     public void rescan() {
 
         synchronized (this.synch) {
-            this.nextRun = System.currentTimeMillis();
+            scanAssessments();
         }
+    }
+
+    /**
+     * Scans assessments.
+     */
+    public void scanAssessments() {
+
+        Log.info("InstructionalCache Scan Scanning " + this.base.getAbsolutePath());
+
+        scan(this.base);
+
+        Log.info("InstructionalCache Scan Complete " + this.examFiles.size() + " exams and "
+                + this.problemFiles.size() + " problems");
     }
 
     /**
      * Scans a directory recursively, descending into subdirectories and testing each XML file we find.
      *
      * @param dir the directory to scan
-     * @throws InterruptedException if the thread is interrupted while scanning
      */
-    private void scan(final File dir) throws InterruptedException {
+    private void scan(final File dir) {
 
         final String path = dir.getAbsolutePath();
         final File[] list = dir.listFiles();

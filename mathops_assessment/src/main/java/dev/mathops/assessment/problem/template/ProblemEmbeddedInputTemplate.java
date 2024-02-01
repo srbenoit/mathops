@@ -150,10 +150,10 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
         boolean ok = false;
 
         if (answers != null) {
-            Log.info("There are " + answers.length + " input values submitted");
+//            Log.info("There are " + answers.length + " input values submitted");
             for (final Object answer : answers) {
 
-                Log.info("    Input value: ", answer);
+//                Log.info("    Input value: ", answer);
 
                 if (answer instanceof final String str) {
 
@@ -169,7 +169,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
         }
 
-        Log.info("Answered = " + ok);
+//        Log.info("Answered = " + ok);
 
         return ok;
     }

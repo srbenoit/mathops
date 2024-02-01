@@ -20,6 +20,7 @@ import dev.mathops.web.site.course.CourseSite;
 import dev.mathops.web.site.help.HelpSite;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
+import dev.mathops.web.site.html.lta.LtaSessionStore;
 import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
 import dev.mathops.web.site.html.placementexam.PlacementExamSessionStore;
 import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
@@ -184,6 +185,7 @@ public final class WebMidController implements IMidController {
         PlacementExamSessionStore.getInstance().restore(cache, sess);
         UnitExamSessionStore.getInstance().restore(cache, sess);
         ReviewExamSessionStore.getInstance().restore(cache, sess);
+        LtaSessionStore.getInstance().restore(cache, sess);
         HomeworkSessionStore.getInstance().restore(cache, sess);
         PastExamSessionStore.getInstance().restore(cache, sess);
 
