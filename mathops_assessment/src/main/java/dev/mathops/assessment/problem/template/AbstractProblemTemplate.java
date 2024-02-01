@@ -163,7 +163,6 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject
     @Override
     public void recordAnswer(final Object[] response) {
 
-
         this.studentResponse = response == null ? null : response.clone();
         this.completionTime = System.currentTimeMillis();
     }
