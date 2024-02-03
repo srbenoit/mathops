@@ -53,6 +53,9 @@ import java.util.List;
  */
 final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
 
+    /** An action command. */
+    static final String TOP_FIELD_CMD = "TopField";
+
     /** The initializing state. */
     private static final int INITIALIZING = 0;
 
@@ -129,69 +132,17 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
             final Cache cache = new Cache(this.dbProfile, conn);
 
             try {
-                // Force the person starting the checkout application to log in with a username and
-                // password before starting the application, and create the backing store connection
-                // to the database using this login information.
+                // Force the person starting the checkout application to log in with a username and password before
+                // starting the application.
                 doStartupLogin();
 
-                // Now, we create a full-screen, top-level window and activate a thread that will
-                // keep it on top of everything else on the desktop. All windows this application
-                // creates will be children of this window, so they will not be obscured, but the
-                // desktop will not be available.
-                if (!createBlockingWindow(fullScreen)) {
-                    return;
-                }
-
-                // Start the thread to keep the window on top
-                new Thread(this).start();
-
-                // Enter an infinite loop, waiting for checkouts. Each checkout consists of
-                // scanning/typing a student ID, looking up the seat assigned to that student,
-                // forcing submission of the exam if it is still in progress, then resetting the
-                // seat for the next student.
-                Log.info("Entering checkout process.");
-
-                while (this.frame.isVisible()) {
-                    this.bottom.setMessage("CHECK OUT");
-                    this.bottom.repaint();
-
-                    // Make sure we have focus, so we get keyboard & mouse events.
-                    this.top.grabFocus();
-
-                    // Prompt for the student ID
-                    this.state = AWAIT_STUDENT;
-                    this.studentId = null;
-                    this.top.setMessage("Student ID: ");
-                    this.top.setFieldValue(9, CoreConstants.EMPTY);
-                    this.top.repaint();
-
-                    this.frame.invalidate();
-                    this.frame.repaint();
-
-                    // Wait for an ID to be submitted (see <code>keyTyped</code> handler for how
-                    // this occurs)
-                    while (this.frame.isVisible() && this.state == AWAIT_STUDENT) {
-
-                        // Prevent this loop from consuming too much CPU
-                        try {
-                            Thread.sleep(50L);
-                        } catch (final InterruptedException e) {
-                            // No action
-                        }
-                    }
-
-                    if (this.state != ANALYZE_STUDENT) {
-                        if (this.state == BAD_STUDENT_ID) {
-                            PopupPanel.showPopupMessage(this, this.center, "Invalid student ID.", null, null,
-                                    PopupPanel.STYLE_OK);
-                        }
-
-                        continue;
-                    }
-
-                    // We have a 9-digit student ID, so attempt to process it.
-                    final LocalDateTime now = LocalDateTime.now();
-                    processStudentCheckout(cache, now);
+                // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
+                // everything else on the desktop. All windows this application creates will be children of this
+                // window, so they will not be obscured, but the desktop will not be available.
+                if (createBlockingWindow(fullScreen)) {
+                    // Start the thread to keep the window on top
+                    new Thread(this).start();
+                    checkoutLoop(cache);
                 }
             } finally {
                 ctx.checkInConnection(conn);
@@ -207,6 +158,64 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
     }
 
     /**
+     * The main loop, which processes checkouts until the program is terminated.
+     *
+     * @param cache the cache
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void checkoutLoop( final Cache cache) throws SQLException {
+
+
+        // Enter an infinite loop, waiting for checkouts. Each checkout consists of scanning/typing a student
+        // ID, looking up the seat assigned to that student, forcing submission of the exam if it is still in
+        // progress, then resetting the seat for the next student.
+        Log.info("Entering checkout process.");
+
+        while (this.frame.isVisible()) {
+            this.bottom.setMessage("CHECK OUT");
+            this.bottom.repaint();
+
+            // Make sure we have focus, so we get keyboard & mouse events.
+            this.top.grabFocus();
+
+            // Prompt for the student ID
+            this.state = AWAIT_STUDENT;
+            this.studentId = null;
+            this.top.setMessage("Student ID: ");
+            this.top.setFieldValue(9, CoreConstants.EMPTY);
+            this.top.repaint();
+
+            this.frame.invalidate();
+            this.frame.repaint();
+
+            // Wait for an ID to be submitted (see <code>keyTyped</code> handler for how
+            // this occurs)
+            while (this.frame.isVisible() && this.state == AWAIT_STUDENT) {
+
+                // Prevent this loop from consuming too much CPU
+                try {
+                    Thread.sleep(50L);
+                } catch (final InterruptedException e) {
+                    // No action
+                }
+            }
+
+            if (this.state != ANALYZE_STUDENT) {
+                if (this.state == BAD_STUDENT_ID) {
+                    PopupPanel.showPopupMessage(this, this.center, "Invalid student ID.", null, null,
+                            PopupPanel.STYLE_OK);
+                }
+
+                continue;
+            }
+
+            // We have a 9-digit student ID, so attempt to process it.
+            final LocalDateTime now = LocalDateTime.now();
+            processStudentCheckout(cache, now);
+        }
+    }
+
+    /**
      * Attempts to connect to the database server. This will present a dialog box with login information.
      *
      * @throws SQLException if the database connection could not be established
@@ -218,7 +227,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
         // Present a login dialog to gather username, password
         final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
 
-        for (; ; ) {
+        while (true) {
             if (dlg.gatherInformation()) {
                 final String username = dlg.getUsername();
                 final char[] passwordChars = dlg.getPassword();
@@ -310,8 +319,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
      * @param now   the date/time to consider as "now"
      * @throws SQLException if there was an error accessing the database
      */
-    private void processStudentCheckout(final Cache cache, final LocalDateTime now)
-            throws SQLException {
+    private void processStudentCheckout(final Cache cache, final LocalDateTime now) throws SQLException {
 
         RawStvisitLogic.endInProgressVisit(cache, this.studentId, now);
 
@@ -326,25 +334,21 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
         RawClientPc pc = null;
 
         for (final RawClientPc comp : comps) {
-
             if (this.studentId.equals(comp.currentStuId)) {
                 if (pc != null) {
                     final String msg1 = SimpleBuilder.concat("Student was checked in to Station ", pc.stationNbr,
                             " AND Station ", comp.stationNbr, CoreConstants.DOT);
                     PopupPanel.showPopupMessage(this, this.center, msg1, null, "Inform a director immediately!",
                             PopupPanel.STYLE_OK);
-
                     return;
                 }
-
                 pc = comp;
             }
         }
 
         if (pc == null) {
-
-            // No testing stations in this testing center have the student assigned. This is normal
-            // if the student finished the exam and received their score.
+            // No testing stations in this testing center have the student assigned. This is normal if the student
+            // finished the exam and received their score.
             if (verifyNoPending(cache)) {
 
                 // There is no pending exam, so verify that there was an exam submitted for the user within
@@ -360,67 +364,66 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
                             "Inform a director immediately!", PopupPanel.STYLE_OK);
                 }
             }
+        } else {
+            if (pc.currentStatus == null) {
+                PopupPanel.showPopupMessage(this, this.center,
+                        "Assigned testing station is configured improperly.", null,
+                        "(No current status on record for the station.)", PopupPanel.STYLE_OK);
+                return;
+            }
 
-            return;
-        }
+            final Integer theStatus = pc.currentStatus;
 
-        if (pc.currentStatus == null) {
-            PopupPanel.showPopupMessage(this, this.center,
-                    "Assigned testing station is configured improperly.", null,
-                    "(No current status on record for the station.)", PopupPanel.STYLE_OK);
-            return;
-        }
+            if (RawClientPc.STATUS_AWAIT_STUDENT.equals(theStatus)
+                    || RawClientPc.STATUS_LOGIN_NOCHECK.equals(theStatus)) {
 
-        final Integer theStatus = pc.currentStatus;
+                final String msg1 = SimpleBuilder.concat("Student never signed in at testing station ", pc.stationNbr,
+                        CoreConstants.DOT);
+                final String btn = PopupPanel.showPopupMessage(this, this.center, msg1, null,
+                        "Do you want to cancel the student's check-in?", PopupPanel.STYLE_YES_NO);
 
-        if (RawClientPc.STATUS_AWAIT_STUDENT.equals(theStatus)
-                || RawClientPc.STATUS_LOGIN_NOCHECK.equals(theStatus)) {
+                if ("Yes".equals(btn)) {
+                    // Cancel the check-in
+                    resetStation(cache, pc);
+                    verifyNoPending(cache);
+                    PopupPanel.showPopupMessage(this, this.center, "Check-in cancelled.", null, null,
+                            PopupPanel.STYLE_OK);
+                } else {
+                    final String msg2 = SimpleBuilder.concat("The student should sign-in at station ", pc.stationNbr,
+                            CoreConstants.DOT);
+                    PopupPanel.showPopupMessage(this, this.center, msg2, null, null, PopupPanel.STYLE_OK);
+                }
+            } else if (RawClientPc.STATUS_TAKING_EXAM.equals(theStatus)) {
+                final String msg3 = SimpleBuilder.concat("Student's exam is in progress at testing station ",
+                        pc.stationNbr, CoreConstants.DOT);
+                final String btn = PopupPanel.showPopupMessage(this, this.center, msg3, null,
+                        "Do you want to submit the exam for grading?", PopupPanel.STYLE_YES_NO);
 
-            final String msg1 = SimpleBuilder.concat("Student never signed in at testing station ", pc.stationNbr,
-                    CoreConstants.DOT);
-            final String btn = PopupPanel.showPopupMessage(this, this.center, msg1, null,
-                    "Do you want to cancel the student's check-in?", PopupPanel.STYLE_YES_NO);
-
-            if ("Yes".equals(btn)) {
-                // Cancel the check-in
+                if ("Yes".equals(btn)) {
+                    submitExam(cache, pc);
+                    verifyNoPending(cache);
+                } else {
+                    final String msg4 = SimpleBuilder.concat("The student should return to testing station ",
+                            pc.stationNbr, CoreConstants.COMMA);
+                    PopupPanel.showPopupMessage(this, this.center, msg4, null, " and complete the exam.",
+                            PopupPanel.STYLE_OK);
+                }
+            } else if (RawClientPc.STATUS_EXAM_RESULTS.equals(theStatus)) {
                 resetStation(cache, pc);
                 verifyNoPending(cache);
-                PopupPanel.showPopupMessage(this, this.center, "Check-in cancelled.", null, null, PopupPanel.STYLE_OK);
+                PopupPanel.showPopupMessage(this, this.center, "Student checked out.", null, null, PopupPanel.STYLE_OK);
             } else {
-                final String msg2 = SimpleBuilder.concat("The student should sign-in at station ", pc.stationNbr,
-                        CoreConstants.DOT);
-                PopupPanel.showPopupMessage(this, this.center, msg2, null, null, PopupPanel.STYLE_OK);
-            }
-        } else if (RawClientPc.STATUS_TAKING_EXAM.equals(theStatus)) {
-            final String msg3 = SimpleBuilder.concat("Student's exam is in progress at testing station ", pc.stationNbr,
-                    CoreConstants.DOT);
-            final String btn = PopupPanel.showPopupMessage(this, this.center, msg3, null,
-                    "Do you want to submit the exam for grading?", PopupPanel.STYLE_YES_NO);
-
-            if ("Yes".equals(btn)) {
-                // Submit the exam.
-                submitExam(cache, pc);
+                resetStation(cache, pc);
                 verifyNoPending(cache);
-            } else {
-                final String msg4 = SimpleBuilder.concat("The student should return to testing station ", pc.stationNbr,
-                        CoreConstants.COMMA);
-                PopupPanel.showPopupMessage(this, this.center, msg4, null, " and complete the exam.",
-                        PopupPanel.STYLE_OK);
+                final String msg5a = SimpleBuilder.concat("Testing station ", pc.stationNbr,
+                        " was in an invalid state:");
+                final String msg5b = SimpleBuilder.concat(theStatus, ".  Please inform a director.");
+                PopupPanel.showPopupMessage(this, this.center, msg5a, null, msg5b, PopupPanel.STYLE_OK);
             }
-        } else if (RawClientPc.STATUS_EXAM_RESULTS.equals(theStatus)) {
-            resetStation(cache, pc);
-            verifyNoPending(cache);
-            PopupPanel.showPopupMessage(this, this.center, "Student checked out.", null, null, PopupPanel.STYLE_OK);
-        } else {
-            resetStation(cache, pc);
-            verifyNoPending(cache);
-            final String msg5a = SimpleBuilder.concat("Testing station ", pc.stationNbr, " was in an invalid state:");
-            final String msg5b = SimpleBuilder.concat(theStatus, ".  Please inform a director.");
-            PopupPanel.showPopupMessage(this, this.center, msg5a, null, msg5b, PopupPanel.STYLE_OK);
-        }
 
-        this.bottom.setMessage(null);
-        this.bottom.repaint();
+            this.bottom.setMessage(null);
+            this.bottom.repaint();
+        }
     }
 
     /**
@@ -508,16 +511,18 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private boolean verifyNoPending(final Cache cache) throws SQLException {
 
+        boolean result = true;
+
         final List<RawPendingExam> exams = RawPendingExamLogic.queryByStudent(cache, this.studentId);
 
         if (!exams.isEmpty()) {
             PopupPanel.showPopupMessage(this, this.center, "A pending exam still exists for the student", null,
                     "Please send student to the office.", PopupPanel.STYLE_OK);
 
-            return false;
+            result = false;
         }
 
-        return true;
+        return result;
     }
 
     /**
@@ -532,7 +537,8 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
 
         if ("Login".equals(cmd)) {
             this.state = LOGGING_IN;
-        } else if ("TopField".equals(cmd)) {
+        } else
+            if (TOP_FIELD_CMD.equals(cmd)) {
             final String value = this.top.getFieldValue();
 
             if (value.length() == 9) {
@@ -657,7 +663,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the frame
      */
-    public JFrame getBuilderFrame() {
+    JFrame getBuilderFrame() {
 
         return this.builderFrame;
     }
@@ -667,7 +673,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the top panel
      */
-    public FieldPanel getTopPanel() {
+    FieldPanel getTopPanel() {
 
         return this.topPanel;
     }
@@ -677,7 +683,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the bottom panel
      */
-    public FieldPanel getBottomPanel() {
+    FieldPanel getBottomPanel() {
 
         return this.bottomPanel;
     }
@@ -687,7 +693,7 @@ final class BlockingWindowBuilder implements Runnable {
      *
      * @return the center panel
      */
-    public CenterPanel getCenterPanel() {
+    CenterPanel getCenterPanel() {
 
         return this.centerPanel;
     }
@@ -718,7 +724,7 @@ final class BlockingWindowBuilder implements Runnable {
         this.builderFrame.toFront();
         this.builderFrame.requestFocus();
 
-        this.topPanel = new FieldPanel(screen, this.listener, "TopField");
+        this.topPanel = new FieldPanel(screen, this.listener, CheckOutApp.TOP_FIELD_CMD);
         content.add(this.topPanel, BorderLayout.PAGE_START);
         this.centerPanel = new CenterPanel(this.dbProfile, this.testingCenterId);
         content.add(this.centerPanel, BorderLayout.CENTER);
