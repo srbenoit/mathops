@@ -651,7 +651,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                     final int num = eprob.getNumProblems();
 
                     if (autoPassItems.contains(Integer.valueOf(eprob.problemId))) {
-                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
                         for (int i = 0; i < num; ++i) {
                             eprob.setProblem(i, prb);
                         }

@@ -545,7 +545,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                             final ExamProblem eprob = new ExamProblem(exam);
                             eprob.problemId = id;
                             ++id;
-                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
                             eprob.addProblem(prb);
                             eprob.problemName = unitMasterySection.sectionName + " Question 1";
                             currentSection.addProblem(eprob);
@@ -562,7 +562,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                             final ExamProblem eprob = new ExamProblem(exam);
                             eprob.problemId = id;
                             ++id;
-                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
                             eprob.addProblem(prb);
                             eprob.problemName = unitMasterySection.sectionName + " Question 2";
                             currentSection.addProblem(eprob);
@@ -717,7 +717,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     final int num = eprob.getNumProblems();
 
                     if (autoPassItems.contains(Integer.valueOf(eprob.problemId))) {
-                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate();
+                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
                         for (int i = 0; i < num; ++i) {
                             eprob.setProblem(i, prb);
                         }

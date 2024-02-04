@@ -1,4 +1,4 @@
-package dev.mathops.web.site.html.pastexam;
+package dev.mathops.web.site.html.pastla;
 
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.exam.ExamObj;
@@ -15,15 +15,15 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
-
 import jakarta.servlet.ServletRequest;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,10 +39,19 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
- * A user session used to take review exams online. It takes as arguments a session ID, student name, and assignment ID
- * and presents the exam to the student.
+ * A user session used to review a submitted learning target assignment. It takes as arguments a session ID,
+ * student name, and assignment ID and retrieves the submitted assignment and presents it to the student.
  */
-public final class PastExamSession extends HtmlSessionBase {
+public final class PastLtaSession extends HtmlSessionBase {
+
+    /** The background color for header/footer. */
+    private static final String HEADER_BG_COLOR = "#EFEFF2";
+
+    /** The background color for main question area. */
+    private static final String MAIN_BG_COLOR = "#F5F5F5";
+
+    /** The outline color for screen areas. */
+    private static final String OUTLINE_COLOR = "#B3B3B3";
 
     /** The timeout duration (1 hour), in milliseconds. */
     private static final long TIMEOUT = 60L * 60L * 1000L;
@@ -50,8 +59,8 @@ public final class PastExamSession extends HtmlSessionBase {
     /** The XML filename. */
     public final String xmlFilename;
 
-    /** The state of the past exam. */
-    private EPastExamState state;
+    /** The state of the past LTA. */
+    private EPastLtaState state;
 
     /** Error message, used when exam cannot be loaded. */
     private String error;
@@ -63,8 +72,8 @@ public final class PastExamSession extends HtmlSessionBase {
     private long timeout;
 
     /**
-     * Constructs a new {@code PastExamSession}. This is called when the user clicks a button to view a past exam. It
-     * stores data but does not generate the HTML until the page is actually generated.
+     * Constructs a new {@code PastLtaSession}. This is called when the user clicks a button to view a past learning
+     * target assignment. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
      * @param theSiteProfile   the site profile
@@ -75,9 +84,9 @@ public final class PastExamSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public PastExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                           final String theSessionId, final String theExamId, final String theXmlFilename,
-                           final String theStudentId, final String theRedirectOnEnd) throws SQLException {
+    public PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+                          final String theExamId, final String theXmlFilename, final String theStudentId,
+                          final String theRedirectOnEnd) throws SQLException {
 
         super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
@@ -86,15 +95,14 @@ public final class PastExamSession extends HtmlSessionBase {
         }
 
         this.xmlFilename = theXmlFilename;
-        this.state = EPastExamState.INITIAL;
+        this.state = EPastLtaState.INITIAL;
         this.error = null;
         this.currentItem = -1;
         this.timeout = System.currentTimeMillis() + TIMEOUT;
     }
 
     /**
-     * Constructs a new {@code PastExamSession}. This is called when the user clicks a button to view a past exam. It
-     * stores data but does not generate the HTML until the page is actually generated.
+     * Constructs a new {@code PastLtaSession}. This is used when restoring the session from its persisted state.
      *
      * @param cache            the data cache
      * @param theSiteProfile   the site profile
@@ -109,14 +117,12 @@ public final class PastExamSession extends HtmlSessionBase {
      * @param theExam          the exam
      * @throws SQLException if there is an error accessing the database
      */
-    PastExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                    final String theSessionId, final String theXmlFilename, final String theStudentId,
-                    final String theRedirectOnEnd, final EPastExamState theState, final String theError,
-                    final int theCurrentItem, final long theTimeout, final ExamObj theExam)
-            throws SQLException {
+    PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+                   final String theXmlFilename, final String theStudentId, final String theRedirectOnEnd,
+                   final EPastLtaState theState, final String theError, final int theCurrentItem, final long theTimeout,
+                   final ExamObj theExam) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExam.examVersion,
-                theRedirectOnEnd);
+        super(cache, theSiteProfile, theSessionId, theStudentId, theExam.examVersion, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -135,7 +141,7 @@ public final class PastExamSession extends HtmlSessionBase {
      *
      * @return the exam state
      */
-    public EPastExamState getState() {
+    public EPastLtaState getState() {
 
         return this.state;
     }
@@ -242,41 +248,43 @@ public final class PastExamSession extends HtmlSessionBase {
             if (xmlPath.exists()) {
                 if (updPath.exists()) {
                     if (loadExam(xmlPath)) {
-                        if (loadUpdates(updPath, getExam())) {
+                        final ExamObj exam = getExam();
+
+                        if (loadUpdates(updPath, exam)) {
 
                             populateScores();
 
-                            if (getExam().instructions == null) {
+                            if (exam.instructions == null) {
                                 this.currentItem = 0;
-                                this.state = EPastExamState.ITEM_NN;
+                                this.state = EPastLtaState.ITEM_NN;
                             } else {
-                                this.state = EPastExamState.INSTRUCTIONS;
+                                this.state = EPastLtaState.INSTRUCTIONS;
                             }
                         } else {
                             this.error = "Unable to load exam answers.";
-                            this.state = EPastExamState.CANT_LOAD_EXAM;
+                            this.state = EPastLtaState.CANT_LOAD_EXAM;
                             Log.warning(this.error);
                         }
                     } else {
                         this.error = "Unable to load exam record.";
-                        this.state = EPastExamState.CANT_LOAD_EXAM;
+                        this.state = EPastLtaState.CANT_LOAD_EXAM;
                         Log.warning(this.error);
                     }
                 } else {
                     this.error = "Requested exam answers not found.";
-                    this.state = EPastExamState.CANT_LOAD_EXAM;
+                    this.state = EPastLtaState.CANT_LOAD_EXAM;
                     Log.warning(this.error);
                     Log.warning("  Missing UPD path is ", updPath);
                 }
             } else {
                 this.error = "Requested exam not found.";
-                this.state = EPastExamState.CANT_LOAD_EXAM;
+                this.state = EPastLtaState.CANT_LOAD_EXAM;
                 Log.warning(this.error);
                 Log.warning("  Missing XML path is ", xmlPath);
             }
         } else {
             this.error = "No student exam data found on server.";
-            this.state = EPastExamState.CANT_LOAD_EXAM;
+            this.state = EPastLtaState.CANT_LOAD_EXAM;
             Log.warning(this.error);
         }
 
@@ -316,7 +324,7 @@ public final class PastExamSession extends HtmlSessionBase {
      */
     private boolean loadExam(final File xmlFile) {
 
-//        Log.info("Loading completed exam");
+//        Log.info("Loading completed LTA");
 
         // Read the file and convert to a string and character array
         final byte[] buffer = new byte[1024];
@@ -354,8 +362,7 @@ public final class PastExamSession extends HtmlSessionBase {
                     Log.warning("Unable to load ", xmlFile.getAbsolutePath());
                 }
             } else {
-                Log.warning("Unrecognized past exam type: ",
-                        str.substring(0, Math.min(100, str.length())));
+                Log.warning("Unrecognized past exam type: ", str.substring(0, Math.min(100, str.length())));
                 setExam(null);
             }
         } catch (final IllegalArgumentException ex) {
@@ -554,7 +561,7 @@ public final class PastExamSession extends HtmlSessionBase {
         htm.sP("center").add(this.error).eP();
 
         endMain(htm);
-        appendFooter(htm, "close", "Close", null, null, null, null);
+        appendLtaFooter(htm, null, null, null, null);
         htm.eDiv(); // outer DIV from header
     }
 
@@ -578,7 +585,7 @@ public final class PastExamSession extends HtmlSessionBase {
         }
 
         endMain(htm);
-        appendFooter(htm, "close", "Close", null, null, "nav_0", "Review question 1");
+        appendLtaFooter(htm, null, null, "nav_0", "Review question 1");
         htm.eDiv(); // outer DIV from header
     }
 
@@ -613,8 +620,8 @@ public final class PastExamSession extends HtmlSessionBase {
         final String nextCmd = this.currentItem >= (sect.getNumProblems() - 1) ? null : "nav_" + (this.currentItem + 1);
 
         endMain(htm);
-        appendFooter(htm, "close", "Close",
-                prevCmd, "Review Question " + (this.currentItem), //
+        appendLtaFooter(htm,
+                prevCmd, "Review Question " + (this.currentItem),
                 nextCmd, "Review Question " + (this.currentItem + 2));
         htm.eDiv(); // outer DIV from header
     }
@@ -626,16 +633,17 @@ public final class PastExamSession extends HtmlSessionBase {
      */
     private void appendHeader(final HtmlBuilder htm) {
 
-        htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
+        htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 8px 6px;'");
 
-        htm.addln("<div style='flex: 1 100%; order:1; display:block; ",
-                "background-color:AliceBlue; border:1px solid SteelBlue; margin:1px;'>");
+        htm.sDiv(null, "style='flex: 1 100%; display:inline-block; background-color:", HEADER_BG_COLOR,
+                "; border:1px solid ", OUTLINE_COLOR, "; margin:1px;'");
 
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
                 "font-weight:bold; color:#36648b; text-shadow:2px 1px #ccc; margin:0; padding:4pt;'>");
 
-        if (getExam() != null) {
-            htm.add(getExam().examName);
+        final ExamObj exam = getExam();
+        if (exam != null) {
+            htm.add(exam.examName);
         }
 
         htm.eH(1);
@@ -648,13 +656,16 @@ public final class PastExamSession extends HtmlSessionBase {
      *
      * @param htm the {@code HtmlBuilder} to which to append
      */
-    private static void startMain(final HtmlBuilder htm) {
+    private void startMain(final HtmlBuilder htm) {
 
-        htm.addln("<main style='flex:1 1 73%; order:3; margin:1px; padding:2px; border:1px solid SteelBlue;'>");
+        htm.addln("<main style='flex:1 1 73%; display:block; width:75%; margin:1px; padding:2px; border:1px solid ",
+                OUTLINE_COLOR, ";'>");
 
-        htm.addln("<div style='padding:8px; min-height:100%; border:1px solid #b3b3b3; ",
-                "background:#f5f5f5; font-family:serif; font-size:",
-                Float.toString(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE), "px;'>");
+        htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
+
+        htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid ", OUTLINE_COLOR, "; background:",
+                MAIN_BG_COLOR, "; font-family:serif; font-size:" + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE
+                        + "px;'");
     }
 
     /**
@@ -676,46 +687,40 @@ public final class PastExamSession extends HtmlSessionBase {
 
         htm.addln("<script>");
         htm.addln("function invokeAct(action) {");
-        htm.addln("  document.getElementById(\"past_exam_act\").value = action;");
-        htm.addln("  document.getElementById(\"past_exam_form\").submit();");
+        htm.addln("  document.getElementById(\"past_lta_act\").value = action;");
+        htm.addln("  document.getElementById(\"past_lta_form\").submit();");
         htm.addln("}");
         htm.addln("</script>");
 
-        // htm.addln("<nav style='grid-area:navigation; display:block;
-        // background-color:AliceBlue;",
-        // "border:1px solid SteelBlue; margin:1px; padding:6pt; font-size:14pt;'>");
+        htm.addln("<nav style='flex:1 1 22%; display:block; width:25%; background-color:white; ",
+                "border:1px solid ", OUTLINE_COLOR, "; margin:1px; padding:6pt; font-size:14pt;'>");
 
-        htm.addln("<nav style='flex:1 1 22%; order:2; display:block; background-color:AliceBlue; ",
-                "border:1px solid SteelBlue; margin:1px; padding:6pt; font-size:14pt;'>");
-
-        if (this.state == EPastExamState.INSTRUCTIONS) {
-            htm.addln("<div style='background:#7FFF7F;'>");
+        if (this.state == EPastLtaState.INSTRUCTIONS) {
+            htm.sDiv(null, "style='background:#7FFF7F;'");
         } else {
             htm.sDiv();
         }
 
-        htm.add("<a style='font-family:serif;' href='javascript:invokeAct(\"instruct\");'>Instructions</a>");
-        htm.eDiv();
+        final ExamObj exam = getExam();
 
-        final ExamSection sect = getExam().getSection(0);
-        if (sect.shortName == null) {
-            htm.addln("<h2 style='padding:6pt 0 3pt 0;color:SteelBlue'>", sect.sectionName).eH(2);
-        } else {
-            htm.addln("<h2 style='padding:6pt 0 3pt 0;color:SteelBlue'>", sect.shortName).eH(2);
+        if (exam.instructions != null) {
+            htm.add("<a style='font-family:serif;' href='javascript:invokeAct(\"instruct\");'>Instructions</a>");
+            htm.eDiv();
         }
 
+        final ExamSection sect = exam.getSection(0);
         final int numProblems = sect.getNumProblems();
 
         for (int p = 0; p < numProblems; ++p) {
             final ExamProblem ep = sect.getPresentedProblem(p);
 
-            if (this.currentItem == p && this.state == EPastExamState.ITEM_NN) {
+            if (this.currentItem == p && this.state == EPastLtaState.ITEM_NN) {
                 htm.addln("<div style='background:#7FFF7F;'>");
             } else {
                 htm.sDiv();
             }
 
-            if (this.state == EPastExamState.ITEM_NN || this.state == EPastExamState.INSTRUCTIONS) {
+            if (this.state == EPastLtaState.ITEM_NN || this.state == EPastLtaState.INSTRUCTIONS) {
                 // When interacting or instructions, mark the ones that were correct
                 if (ep.getSelectedProblem().score == (double) 0) {
                     htm.add("<img src='images/redx.png'> ");
@@ -724,17 +729,50 @@ public final class PastExamSession extends HtmlSessionBase {
                 }
             }
 
-            htm.add("<a style='font-family:serif;' href='javascript:invokeAct(\"nav_", Integer.toString(p), "\");'>");
-            if (ep.problemName == null) {
-                htm.add(Integer.valueOf(p + 1));
-            } else {
-                htm.add(ep.problemName);
-            }
-            htm.addln("</a>");
+            htm.addln("<a style='font-family:serif;' href='javascript:invokeAct(\"nav_", Integer.toString(p),
+                      "\");'> Question ", Integer.valueOf(p + 1), "</a>");
             htm.eDiv();
         }
 
         htm.addln("</nav>");
+    }
+
+    /**
+     * Appends the footer.
+     *
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param prevCmd   the button name (command) for the "previous" button, null if not present
+     * @param prevLabel the button label for the "previous" button
+     * @param nextCmd   the button name (command) for the "next" button, null if not present
+     * @param nextLabel the button label for the "next" button
+     */
+    private static void appendLtaFooter(final HtmlBuilder htm, final String prevCmd, final String prevLabel,
+                                        final String nextCmd, final String nextLabel) {
+
+        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:", HEADER_BG_COLOR,
+                "; display:block; border:1px solid ", OUTLINE_COLOR,
+                "; margin:1px; padding:0 12px; text-align:center;'");
+
+        if (prevCmd != null || nextCmd != null) {
+            if (prevCmd != null) {
+                htm.sDiv("left");
+                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", prevCmd, "\");'");
+                htm.add(">", prevLabel, "</a>");
+                htm.eDiv();
+            }
+            if (nextCmd != null) {
+                htm.sDiv("right");
+                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", nextCmd, "\");'");
+                htm.add(">", nextLabel, "</a>");
+                htm.eDiv();
+            }
+
+            htm.div("clear");
+        }
+
+        htm.add(" <input class='btn' type='submit' name='close' value='Close'/>");
+
+        htm.eDiv();
     }
 
     /**
@@ -787,8 +825,8 @@ public final class PastExamSession extends HtmlSessionBase {
         // Log.info("req.getParameter(\"close\") = " + req.getParameter("close"));
 
         if (req.getParameter("close") != null) {
-            final PastExamSessionStore store = PastExamSessionStore.getInstance();
-            store.removePastExamSession(session.loginSessionId, this.xmlFilename);
+            final PastLtaSessionStore store = PastLtaSessionStore.getInstance();
+            store.removePastLtaSession(session.loginSessionId, this.xmlFilename);
 
             setExam(null);
 
@@ -802,7 +840,7 @@ public final class PastExamSession extends HtmlSessionBase {
             for (int i = 0; i < numProblems; ++i) {
                 if (("nav_" + i).equals(act)) {
                     this.currentItem = i;
-                    this.state = EPastExamState.ITEM_NN;
+                    this.state = EPastLtaState.ITEM_NN;
                     break;
                 }
             }
@@ -829,8 +867,8 @@ public final class PastExamSession extends HtmlSessionBase {
         // Log.info("req.getParameter(\"close\") = " + req.getParameter("close"));
 
         if (req.getParameter("close") != null) {
-            final PastExamSessionStore store = PastExamSessionStore.getInstance();
-            store.removePastExamSession(session.loginSessionId, this.xmlFilename);
+            final PastLtaSessionStore store = PastLtaSessionStore.getInstance();
+            store.removePastLtaSession(session.loginSessionId, this.xmlFilename);
 
             setExam(null);
 
@@ -839,7 +877,7 @@ public final class PastExamSession extends HtmlSessionBase {
             final String act = req.getParameter("action");
 
             if ("instruct".equals(act)) {
-                this.state = EPastExamState.INSTRUCTIONS;
+                this.state = EPastLtaState.INSTRUCTIONS;
             } else {
                 // Navigation ...
                 final ExamSection sect = getExam().getSection(0);
@@ -866,16 +904,16 @@ public final class PastExamSession extends HtmlSessionBase {
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a string to which to redirect; null if no redirection should occur
      */
-    private String processPostError(final ImmutableSessionInfo session,
-                                    final ServletRequest req, final HtmlBuilder htm) {
+    private String processPostError(final ImmutableSessionInfo session, final ServletRequest req,
+                                    final HtmlBuilder htm) {
 
         String redirect = null;
 
         // Log.info("req.getParameter(\"close\") = " + req.getParameter("close"));
 
         if (req.getParameter("close") != null) {
-            final PastExamSessionStore store = PastExamSessionStore.getInstance();
-            store.removePastExamSession(session.loginSessionId, this.xmlFilename);
+            final PastLtaSessionStore store = PastLtaSessionStore.getInstance();
+            store.removePastLtaSession(session.loginSessionId, this.xmlFilename);
 
             if (getExam() != null) {
                 setExam(null);
@@ -897,7 +935,7 @@ public final class PastExamSession extends HtmlSessionBase {
     void appendXml(final HtmlBuilder xml) {
 
         if (getExam() != null) {
-            xml.addln("<past-exam-session>");
+            xml.addln("<past-lta-session>");
             xml.addln(" <host>", getSiteProfile().host, "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
@@ -929,7 +967,7 @@ public final class PastExamSession extends HtmlSessionBase {
                     }
                 }
             }
-            xml.addln("</past-exam-session>");
+            xml.addln("</past-lta-session>");
         }
     }
 
@@ -942,8 +980,8 @@ public final class PastExamSession extends HtmlSessionBase {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced abort requested");
-            final PastExamSessionStore store = PastExamSessionStore.getInstance();
-            store.removePastExamSession(this.sessionId, this.xmlFilename);
+            final PastLtaSessionStore store = PastLtaSessionStore.getInstance();
+            store.removePastLtaSession(this.sessionId, this.xmlFilename);
 
             if (getExam() != null) {
                 setExam(null);

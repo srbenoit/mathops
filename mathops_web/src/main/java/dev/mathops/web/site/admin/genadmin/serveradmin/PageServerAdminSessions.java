@@ -1,5 +1,6 @@
 package dev.mathops.web.site.admin.genadmin.serveradmin;
 
+import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
@@ -22,6 +23,9 @@ import dev.mathops.web.site.html.lta.LtaSessionStore;
 import dev.mathops.web.site.html.pastexam.EPastExamState;
 import dev.mathops.web.site.html.pastexam.PastExamSession;
 import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
+import dev.mathops.web.site.html.pastla.EPastLtaState;
+import dev.mathops.web.site.html.pastla.PastLtaSession;
+import dev.mathops.web.site.html.pastla.PastLtaSessionStore;
 import dev.mathops.web.site.html.placementexam.EPlacementExamState;
 import dev.mathops.web.site.html.placementexam.PlacementExamSession;
 import dev.mathops.web.site.html.placementexam.PlacementExamSessionStore;
@@ -98,6 +102,7 @@ public final class PageServerAdminSessions {
         emitHtmlLearningTargetSessions(htm);
         emitHtmlHomeworkSessions(htm);
         emitHtmlPastExamSessions(htm);
+        emitHtmlPastLtaSessions(htm);
     }
 
     /**
@@ -847,6 +852,98 @@ public final class PageServerAdminSessions {
     }
 
     /**
+     * Appends a table of active HTML past LTA sessions to an {@code HtmlBuilder}.
+     *
+     * @param htm the {@code HtmlBuilder} to which to write
+     */
+    private static void emitHtmlPastLtaSessions(final HtmlBuilder htm) {
+
+        final Map<String, Map<String, PastLtaSession>> map = PastLtaSessionStore.getInstance().getPastLtaSessions();
+        Log.info("There are " + map.size() + " sessions viewing past learning target assignments.");
+
+        // Create a new sorted map whose keys are based on student name (last, first)
+        final Map<String, PastLtaSession> newmap = new TreeMap<>();
+        for (final Map<String, PastLtaSession> inner : map.values()) {
+
+            for (final PastLtaSession sess : inner.values()) {
+                final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
+                        + sess.xmlFilename;
+                newmap.put(name, sess);
+            }
+        }
+
+        htm.div("vgap0").hr().div("vgap0");
+        htm.sH(2).add("HTML Past Learning Target Assignment Sessions (" + newmap.size() + ")").eH(2);
+
+        htm.sTable("report");
+        htm.sTr();
+        htm.sTh().add("Session ID").eTh();
+        htm.sTh().add("XML").eTh();
+        htm.sTh().add("Student ID").eTh();
+        htm.sTh().add("Exam ID").eTh();
+        htm.sTh().add("State").eTh();
+        htm.sTh().add("Remaining").eTh();
+        htm.sTh().add("Redirect").eTh();
+        htm.sTh().add("Action").eTh();
+        htm.eTr();
+
+        for (final PastLtaSession sess : newmap.values()) {
+
+            htm.addln("<tr id='past_lta_session_", sess.sessionId, "'>");
+            htm.sTd().add(sess.sessionId).eTd();
+            htm.sTd().add(sess.xmlFilename).eTd();
+            htm.sTd().add(sess.studentId).eTd();
+            final ExamObj exam = sess.getExam();
+            htm.sTd().add(exam == null ? "(null)" : exam.examVersion).eTd();
+            if (sess.getState() == EPastLtaState.ITEM_NN) {
+                htm.sTd().add(sess.getState().name() + CoreConstants.DOT + sess.getItem()).eTd();
+            } else {
+                htm.sTd().add(sess.getState().name()).eTd();
+            }
+            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(sess.redirectOnEnd).eTd();
+
+            final EForceTerminateState force = sess.getForceTerminate();
+            if (force == EForceTerminateState.NONE) {
+                htm.sTd();
+                htm.addln("<form style='display:inline;' action='srvadm_sessions.html#past_lta_session_",
+                        sess.sessionId, "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='terminate'>");
+                htm.addln(" <input type='hidden' name='type' value='past_lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='xml' value='", sess.xmlFilename, "'>");
+                htm.addln(" <input type='submit' value='Abort'>");
+                htm.add("</form>");
+                htm.eTd();
+            } else if (force == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                htm.sTd("red");
+                htm.add("Abort exam without scoring?: ");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#past_lta_session_",
+                        sess.sessionId, "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='terminateconfirm'>");
+                htm.addln(" <input type='hidden' name='type' value='past_lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='xml' value='", sess.xmlFilename, "'>");
+                htm.addln(" <input type='submit' value='Yes, Abort Session'>");
+                htm.add("</form>");
+                htm.addln("<form style='padding:3px;' action='srvadm_sessions.html#past_lta_session_",
+                        sess.sessionId, "' method='post'>");
+                htm.addln(" <input type='hidden' name='action' value='terminatecancel'>");
+                htm.addln(" <input type='hidden' name='type' value='past_lta'>");
+                htm.addln(" <input type='hidden' name='session_id' value='", sess.sessionId, "'>");
+                htm.addln(" <input type='hidden' name='xml' value='", sess.xmlFilename, "'>");
+                htm.addln(" <input type='submit' value='No, Leave Session Active'>");
+                htm.add("</form>");
+                htm.eTd();
+            }
+
+            htm.eTr();
+        }
+
+        htm.eTable();
+    }
+
+    /**
      * Handles a POST request to the sessions page.
      *
      * @param cache   the data cache
@@ -934,6 +1031,19 @@ public final class PageServerAdminSessions {
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String xml = req.getParameter("xml");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                } else {
+                    Log.warning("'abort' request for past exam session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
             } else {
                 Log.warning("Unrecognized type for 'abort' action: ", type);
             }
@@ -1009,8 +1119,21 @@ public final class PageServerAdminSessions {
                 final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
                 if (sess == null) {
                     Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess
-                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                    Log.warning("Forced abort of past exam exam for student ", sess.studentId);
+                    sess.forceAbort(session);
+                } else {
+                    Log.warning("'abortconfirm' request for past exam session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String xml = req.getParameter("xml");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                     Log.warning("Forced abort of past exam exam for student ", sess.studentId);
                     sess.forceAbort(session);
                 } else {
@@ -1083,11 +1206,40 @@ public final class PageServerAdminSessions {
                             ", ", examId);
                 } else {
                     if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
                         // TODO:
                     } else {
                         Log.warning(
                                 "'abortcancel' request for learning target assignment session in termination state: ",
+                                sess.getForceTerminate().name());
+                    }
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("past_exam".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for past exam session: ", sessionId, ", ", examId);
+                } else {
+                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        // TODO:
+                    } else {
+                        Log.warning("'abortcancel' request for past exam session in termination state: ",
+                                sess.getForceTerminate().name());
+                    }
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String examId = req.getParameter("exam_id");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, examId);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/exam for past LTA session: ", sessionId, ", ", examId);
+                } else {
+                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        // TODO:
+                    } else {
+                        Log.warning("'abortcancel' request for past LTA session in termination state: ",
                                 sess.getForceTerminate().name());
                     }
                     sess.setForceTerminate(EForceTerminateState.NONE);
@@ -1324,7 +1476,6 @@ public final class PageServerAdminSessions {
                         }
                     }
                 }
-
             } else if ("past_exam".equals(type)) {
                 final String sessionId = req.getParameter("session_id");
                 final String xml = req.getParameter("xml");
@@ -1335,6 +1486,19 @@ public final class PageServerAdminSessions {
                     sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
                 } else {
                     Log.warning("'terminate' request for past exam in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String xml = req.getParameter("xml");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                if (sess == null) {
+                    Log.warning("Unrecognized past LTA session/XML path: ", sessionId, ", ", xml);
+                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                } else {
+                    Log.warning("'terminate' request for past LTA in termination state: ",
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
@@ -1379,6 +1543,20 @@ public final class PageServerAdminSessions {
                             sess.getForceTerminate().name());
                     sess.setForceTerminate(EForceTerminateState.NONE);
                 }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String xml = req.getParameter("xml");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
+                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                    Log.warning("Forced abort of past LTA for student ", sess.studentId);
+                    sess.forceAbort(session);
+                } else {
+                    Log.warning("'terminateconfirm' request for past LTA session in termination state: ",
+                            sess.getForceTerminate().name());
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
             } else {
                 Log.warning("Unrecognized type for 'terminateconfirm' action: ", type);
             }
@@ -1412,11 +1590,24 @@ public final class PageServerAdminSessions {
                     Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
                 } else {
                     if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
                         // TODO:
-
                     } else {
                         Log.warning("'terminatecancel' request for past exam session in termination state: ",
+                                sess.getForceTerminate().name());
+                    }
+                    sess.setForceTerminate(EForceTerminateState.NONE);
+                }
+            } else if ("past_lta".equals(type)) {
+                final String sessionId = req.getParameter("session_id");
+                final String xml = req.getParameter("xml");
+                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                if (sess == null) {
+                    Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
+                } else {
+                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        // TODO:
+                    } else {
+                        Log.warning("'terminatecancel' request for past LTA session in termination state: ",
                                 sess.getForceTerminate().name());
                     }
                     sess.setForceTerminate(EForceTerminateState.NONE);

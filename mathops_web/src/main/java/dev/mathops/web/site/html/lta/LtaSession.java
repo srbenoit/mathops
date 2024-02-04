@@ -46,8 +46,10 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -267,7 +269,7 @@ public final class LtaSession extends HtmlSessionBase {
             default:
                 appendHeader(htm);
                 htm.addln("<div style='text-align:center; color:navy;'>").add("Unsupported state.").eDiv();
-                appendFooter(htm, "close", "Close", null, null, null, null);
+                appendLtaFooter(htm, "close", "Close", null, null, null, null);
                 htm.eDiv(); // outer DIV from header
                 break;
         }
@@ -352,7 +354,7 @@ public final class LtaSession extends HtmlSessionBase {
 
                             if (alreadyCorrect.contains(prob.problemId)) {
                                 prob.clearProblems();
-                                prob.addProblem(new ProblemAutoCorrectTemplate());
+                                prob.addProblem(new ProblemAutoCorrectTemplate(1));
                             }
                         }
                     }
@@ -433,10 +435,10 @@ public final class LtaSession extends HtmlSessionBase {
         endMain(htm);
 
         if (this.started) {
-            appendFooter(htm, "score", "I am finished.  Submit the assignment for grading.", null, null, "nav_0",
+            appendLtaFooter(htm, "score", "I am finished.  Submit the assignment for grading.", null, null, "nav_0",
                     "Go to question 1");
         } else {
-            appendFooter(htm, "nav_0", "Begin the assignment...", null, null, null, null);
+            appendLtaFooter(htm, "nav_0", "Begin the assignment...", null, null, null, null);
         }
         htm.eDiv(); // outer DIV from header
     }
@@ -472,7 +474,7 @@ public final class LtaSession extends HtmlSessionBase {
         final String nextCmd = this.currentItem >= (sect.getNumProblems() - 1) ? null : "nav_" + (this.currentItem + 1);
 
         endMain(htm);
-        appendFooter(htm, "score", "I am finished.  Submit the assignment for grading.",
+        appendLtaFooter(htm, "score", "I am finished.  Submit the assignment for grading.",
                 prevCmd, "Go to Question " + (this.currentItem),
                 nextCmd, "Go to Question " + (this.currentItem + 2));
         htm.eDiv(); // outer DIV from header
@@ -554,7 +556,7 @@ public final class LtaSession extends HtmlSessionBase {
         htm.eSpan().eDiv();
 
         endMain(htm);
-        appendFooter(htm, "solutions", "View the assignment solutions.", null, null, null, null);
+        appendLtaFooter(htm, "solutions", "View the assignment solutions.", null, null, null, null);
         htm.eDiv(); // outer DIV from header
     }
 
@@ -596,7 +598,7 @@ public final class LtaSession extends HtmlSessionBase {
         final String nextCmd = this.currentItem >= (sect.getNumProblems() - 1) ? null : "nav_" + (this.currentItem + 1);
 
         endMain(htm);
-        appendFooter(htm, "close", "Close",
+        appendLtaFooter(htm, "close", "Close",
                 prevCmd, "Review Question " + (this.currentItem),
                 nextCmd, "Review Question " + (this.currentItem + 2));
         htm.eDiv(); // outer DIV from header
@@ -640,9 +642,8 @@ public final class LtaSession extends HtmlSessionBase {
 
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
-        htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid ", OUTLINE_COLOR, "; background:",
-                MAIN_BG_COLOR, "; font-family:serif; font-size:" + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE
-                        + "px;'");
+        htm.sDiv(null, "style='padding:8px; min-height:100%; background:", MAIN_BG_COLOR,
+                "; font-family:serif; font-size:" + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
     }
 
     /**
@@ -652,8 +653,7 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private static void endMain(final HtmlBuilder htm) {
 
-        htm.eDiv();
-        htm.addln("</main>");
+        htm.eDiv().addln("</main>");
 
         // Put this here so clicks can't call this until the page is loaded (and presumably item
         // answers have been installed in fields so this submit won't lose answers)
@@ -754,10 +754,11 @@ public final class LtaSession extends HtmlSessionBase {
      * @param nextCmd   the button name (command) for the "next" button, null if not present
      * @param nextLabel the button label for the "next" button
      */
-    protected static void appendFooter(final HtmlBuilder htm, final String command,
-                                       final String label, final String prevCmd, final String prevLabel,
-                                       final String nextCmd,
-                                       final String nextLabel) {
+    private static void appendLtaFooter(final HtmlBuilder htm, final String command,
+                                        final String label, final String prevCmd, final String prevLabel,
+                                        final String nextCmd,
+                                        final String nextLabel) {
+
 
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:", HEADER_BG_COLOR,
                 "; display:block; border:1px solid ", OUTLINE_COLOR,
@@ -1067,6 +1068,8 @@ public final class LtaSession extends HtmlSessionBase {
 
         final String error;
 
+        Log.info("Scoring learning target assignment");
+
         final String stuId = this.studentId;
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
@@ -1127,6 +1130,8 @@ public final class LtaSession extends HtmlSessionBase {
 
             // Set the completion time
             exam.finalizeExam();
+        } else {
+            Log.warning("Answers[0] was not length 4: ", Arrays.toString(answers[0]));
         }
 
         // See if the exam has already been inserted
@@ -1136,8 +1141,8 @@ public final class LtaSession extends HtmlSessionBase {
 
         final List<RawSthomework> existing = RawSthomeworkLogic.getHomeworks(cache, this.studentId, crsId, false, "ST");
         for (final RawSthomework test : existing) {
-            if (test.serialNbr.equals(ser) && test.getStartDateTime().equals(start)) {
-                return "This assignment has already been submitted.";
+            if (test.serialNbr.equals(ser)) {
+                return "This assignment has already been recorded.";
             }
         }
 
@@ -1154,18 +1159,16 @@ public final class LtaSession extends HtmlSessionBase {
             return "Learning target assignment " + this.version + " not found!";
         }
 
-        final String exType = assignmentRec.assignmentType;
-
         // Begin preparing the database object to store exam results
         final RawSthomework sthw = new RawSthomework();
         sthw.serialNbr = exam.serialNumber;
         sthw.version = exam.examVersion;
         sthw.stuId = this.studentId;
-        sthw.hwDt = LocalDate.now();
+        sthw.hwDt = finish.toLocalDate();
         sthw.startTime = Integer.valueOf(TemporalUtils.minuteOfDay(start.toLocalTime()));
         sthw.finishTime = Integer.valueOf(TemporalUtils.minuteOfDay(finish.toLocalTime()));
         sthw.timeOk = "Y";
-        sthw.hwType = exType;
+        sthw.hwType = assignmentRec.assignmentType;
         sthw.course = exam.course;
         sthw.unit = assignmentRec.unit;
         sthw.objective = assignmentRec.objective;
@@ -1182,18 +1185,15 @@ public final class LtaSession extends HtmlSessionBase {
             sthw.sect = stcourse.sect;
         }
 
-        // Compute the score
-        int score = 0;
-        final int numSect = getExam().getNumSections();
-        for (int i = 0; i < numSect; i++) {
-            final Long value = getExam().getSection(i).score;
-            if (value != null) {
-                score += value.intValue();
-            }
+        // Score items
+        final int totalScore = scoreItems();
+        final ExamSection sect0 = getExam().getSection(0);
+        if (sect0 != null) {
+            sect0.score = Long.valueOf((long) totalScore);
         }
 
-        sthw.hwScore = Integer.valueOf(score);
-        if (this.minMastery == null || score >= this.minMastery.intValue()) {
+        sthw.hwScore = Integer.valueOf(totalScore);
+        if (this.minMastery == null || totalScore >= this.minMastery.intValue()) {
             sthw.passed = "Y";
         } else {
             sthw.passed = "N";
@@ -1206,6 +1206,36 @@ public final class LtaSession extends HtmlSessionBase {
         }
 
         return error;
+    }
+
+    /**
+     * Scores the items and stores a score of 1.0 or 0.0 for each.
+     */
+    private int scoreItems() {
+
+        int totalScore = 0;
+        final Object[][] answers = getExam().exportState();
+
+        // answers[0] is time stamps, so we start at 1
+        final int numAns = answers.length;
+        for (int i = 1; i < numAns; ++i) {
+
+            final ExamProblem prob = getExam().getProblem(i);
+            if (prob == null) {
+                continue;
+            }
+
+            final AbstractProblemTemplate selected = prob.getSelectedProblem();
+            if (selected == null) {
+                continue;
+            }
+
+            final boolean isCorrect = selected.isCorrect(answers[i]);
+            selected.score = isCorrect ? 1.0 : 0.0;
+            totalScore += isCorrect ? 1 : 0;
+        }
+
+        return totalScore;
     }
 
     /**
@@ -1259,9 +1289,12 @@ public final class LtaSession extends HtmlSessionBase {
             final LocalDateTime fin = TemporalUtils.toLocalDateTime(getExam().completionTime);
             final int finTime = TemporalUtils.minuteOfDay(fin);
 
+            final boolean isCorrect = selected.isCorrect(answers[i]);
+            selected.score = isCorrect ? 1.0 : 0.0;
+
             final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i), Integer.valueOf(1), obj,
-                    new String(ans), this.studentId, hw.assignmentId, selected.isCorrect(answers[i]) ? "Y" : "N",
-                    fin.toLocalDate(), Integer.valueOf(finTime));
+                    new String(ans), this.studentId, hw.assignmentId, isCorrect ? "Y" : "N", fin.toLocalDate(),
+                    Integer.valueOf(finTime));
 
             if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {
                 error = "There was an error recording the assignment score.";
@@ -1270,7 +1303,6 @@ public final class LtaSession extends HtmlSessionBase {
         }
 
         return error;
-
     }
 
     /**

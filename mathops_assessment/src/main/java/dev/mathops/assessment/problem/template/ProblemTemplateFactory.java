@@ -435,7 +435,7 @@ public enum ProblemTemplateFactory {
      */
     private static AbstractProblemTemplate parseAutocorrectProblem() {
 
-        return new ProblemAutoCorrectTemplate();
+        return new ProblemAutoCorrectTemplate(2);
     }
 
     /**

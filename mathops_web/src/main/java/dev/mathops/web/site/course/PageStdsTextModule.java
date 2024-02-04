@@ -1,12 +1,18 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
@@ -26,6 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -148,9 +155,9 @@ enum PageStdsTextModule {
             final SiteDataCfgCourse courseCfg = data.courseData.getCourse(courseId, reg.sect);
 
             if (RawRecordConstants.MATH125.equals(reg.course)) {
-                doModule(MathCourses.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);
+                doModule(cache, reg.stuId, MathCourses.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);
             } else if (RawRecordConstants.MATH126.equals(reg.course)) {
-                doModule(MathCourses.MATH_126, moduleNumber, courseCfg, masteryStatus, mode, htm);
+                doModule(cache, reg.stuId, MathCourses.MATH_126, moduleNumber, courseCfg, masteryStatus, mode, htm);
             }
         }
     }
@@ -158,6 +165,8 @@ enum PageStdsTextModule {
     /**
      * Generates module content.
      *
+     * @param cache         the cache
+     * @param stuId         the student ID
      * @param courseData    the course data
      * @param courseCfg     the course configuration data
      * @param masteryStatus the mastery status
@@ -165,7 +174,8 @@ enum PageStdsTextModule {
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final CourseData courseData, final int moduleNumber, final SiteDataCfgCourse courseCfg,
+    private static void doModule(final Cache cache, final String stuId, final CourseData courseData,
+                                 final int moduleNumber, final SiteDataCfgCourse courseCfg,
                                  final StdsMasteryStatus masteryStatus, final String mode, final HtmlBuilder htm) {
 
         if (moduleNumber == 0) {
@@ -173,7 +183,7 @@ enum PageStdsTextModule {
         } else if (moduleNumber >= 1 && moduleNumber <= 8) {
             final ModuleData moduleData = courseData.modules.get(moduleNumber - 1);
 
-            doModule(moduleData, courseCfg, masteryStatus, mode, htm);
+            doModule(cache, stuId, moduleData, courseCfg, masteryStatus, mode, htm);
         } else {
             htm.sP().add("ERROR: Invalid module number.").eP();
         }
@@ -312,13 +322,16 @@ enum PageStdsTextModule {
     /**
      * Generates a module outline.
      *
+     * @param cache         the cache
+     * @param stuId         the student ID
      * @param moduleData    the module data
      * @param courseCfg     the course configuration data
      * @param masteryStatus the mastery status
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final ModuleData moduleData, final SiteDataCfgCourse courseCfg,
+    private static void doModule(final Cache cache, final String stuId, final ModuleData moduleData,
+                                 final SiteDataCfgCourse courseCfg,
                                  final StdsMasteryStatus masteryStatus, final String mode,
                                  final HtmlBuilder htm) {
 
@@ -326,7 +339,7 @@ enum PageStdsTextModule {
                 moduleData.thumbnailImage, moduleData.course.courseId, mode);
 
         if (!moduleData.skillsReview.exampleBlocks.isEmpty()) {
-            startSkillsReview(htm, moduleData, masteryStatus, mode);
+            startSkillsReview(cache, stuId, htm, moduleData, masteryStatus, mode);
             htm.addln("<ul>");
             boolean first = true;
             for (final ExampleBlock block : moduleData.skillsReview.exampleBlocks) {
@@ -348,7 +361,7 @@ enum PageStdsTextModule {
                 }
                 htm.addln("</ul>");
             }
-            endLearningTarget(htm, learningTarget, mode, masteryStatus);
+            endLearningTarget(cache, stuId, htm, learningTarget, mode, masteryStatus);
         }
     }
 
@@ -403,15 +416,17 @@ enum PageStdsTextModule {
      * Emits a "Skills Review" title and text that depends on whether the student has attempted (or passed) the skills
      * review assignment.
      *
+     * @param cache         the cache
+     * @param stuId         the student ID
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      * @param moduleData    the module data
      * @param masteryStatus the mastery status
      * @param mode          the page mode
      * @return true if the student has not passed the Skills Review, and is not yet eligible for standard assignments
      */
-    private static boolean startSkillsReview(final HtmlBuilder htm, final ModuleData moduleData,
-                                             final StdsMasteryStatus masteryStatus, final String mode) {
-
+    private static boolean startSkillsReview(final Cache cache, final String stuId, final HtmlBuilder htm,
+                                             final ModuleData moduleData, final StdsMasteryStatus masteryStatus,
+                                             final String mode) {
 
         htm.sH(3).add("Skills Review").eH(3);
 
@@ -419,21 +434,26 @@ enum PageStdsTextModule {
         final boolean tried = srStatus >= 1;
         final boolean passed = srStatus >= 2;
 
+        final String title;
         if (tried) {
             if (passed) {
                 htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                        .add("You have passed this assignment - you may access the three module learning targets.")
+                        .add("You have passed this assignment - you may access the module learning targets.")
                         .eP();
+                title = "Practice Skills Review Problems";
+            } else {
+                title = "Skills Review Assignment";
             }
         } else {
             htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
                     .add("We recommend that you try the Skills Review assignment first, and only work through any ",
                             "review materials you need after that attempt.")
                     .eP();
+            title = "Skills Review Assignment";
         }
 
-        emitStandardAssignment(htm, moduleData.course.courseId, moduleData.moduleNumber, "Skills Review Assignment",
-                moduleData.skillsReview.assignmentId, mode, false, tried, passed);
+        emitStandardAssignment(cache, stuId, htm, moduleData.course.courseId, moduleData.moduleNumber, 0,
+                title, moduleData.skillsReview.assignmentId, mode, false, tried, passed);
 
         startDetailsBlock(htm, REVIEW_MATERIALS);
 
@@ -521,18 +541,23 @@ enum PageStdsTextModule {
     /**
      * Emits the title for a standard and the link to its assessment.
      *
-     * @param htm        the {@code HtmlBuilder} to which to append the HTML
-     * @param course     the course
-     * @param module     the unit
-     * @param title      the title for the block
-     * @param assignment the assignment ID
-     * @param mode       the mode
-     * @param ineligible true if the student has not yet passed the Skills Review to become eligible for the assignment
-     * @param attempted  true if the assessment has been attempted
-     * @param mastered   true if the assessment has been mastered
+     * @param cache        the cache
+     * @param stuId        the student ID
+     * @param htm          the {@code HtmlBuilder} to which to append the HTML
+     * @param course       the course
+     * @param module       the unit
+     * @param objective    the objective
+     * @param title        the title for the block
+     * @param assignmentId the assignment ID
+     * @param mode         the mode
+     * @param ineligible   true if the student has not yet passed the Skills Review to become eligible for the
+     *                     assignment
+     * @param attempted    true if the assessment has been attempted
+     * @param mastered     true if the assessment has been mastered
      */
-    private static void emitStandardAssignment(final HtmlBuilder htm, final String course, final int module,
-                                               final String title, final String assignment, final String mode,
+    private static void emitStandardAssignment(final Cache cache, final String stuId, final HtmlBuilder htm,
+                                               final String course, final int module, final int objective,
+                                               final String title, final String assignmentId, final String mode,
                                                final boolean ineligible, final boolean attempted,
                                                final boolean mastered) {
 
@@ -545,7 +570,7 @@ enum PageStdsTextModule {
         htm.addln("  <input type='hidden' name='lesson' value='0'/>");
         htm.addln("  <input type='hidden' name='coursemode' value='", mode, "'/>");
         htm.addln("  <input type='hidden' name='mode' value='", mode, "'/>");
-        htm.addln("  <input type='hidden' name='assign' value='", assignment, "'/>");
+        htm.addln("  <input type='hidden' name='assign' value='", assignmentId, "'/>");
         if (ineligible) {
             htm.addln("  <input class='smallbtndim' type='submit' value='", title, "' disabled />");
         } else {
@@ -570,6 +595,56 @@ enum PageStdsTextModule {
                     "margin-left:16px;'>Not Yet Attempted</span>");
         }
         htm.eDiv();
+
+        try {
+            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final List<RawSthomework> attempts = RawSthomeworkLogic.queryByStudentCourseUnitObjective(cache, stuId,
+                    course, Integer.valueOf(module), Integer.valueOf(objective), false);
+
+            if (active != null && !attempts.isEmpty()) {
+                htm.sDiv("indent2");
+
+                if (attempts.size() > 5) {
+                    htm.addln("<details>");
+                    htm.addln("<summary>Review your submitted assignments and solutions</summary>");
+                }
+
+                for (final RawSthomework attempt : attempts) {
+                    final LocalDateTime whenFinished = attempt.getFinishDateTime();
+
+                    if (whenFinished != null) {
+                        final String path = ExamWriter.makeWebExamPath(active.term.shortString, stuId,
+                                attempt.serialNbr.longValue());
+                        final String sanitized = course.replace(CoreConstants.SPC, "%20");
+
+                        final String when = TemporalUtils.FMT_MDY_AT_HM_A.format(whenFinished);
+
+                        htm.sDiv("indent1");
+                        htm.addln(" <a class='ulink' href='see_past_lta.html?course=", sanitized,
+                                "&unit=", Integer.toString(module),
+                                "&mode=", mode,
+                                "&exam=", attempt.version,
+                                "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
+                                "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
+                                "'>Review the Skills Review Assignment submitted ", when, "</a>");
+
+                        htm.eDiv();
+                    }
+                }
+
+                if (attempts.size() > 5) {
+                    htm.addln("</details>");
+                }
+                htm.eDiv();
+                htm.div("vgap");
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            htm.sDiv("indent2");
+            htm.addln("(There was an error looking up your submitted assignments)");
+            htm.eDiv();
+            htm.div("vgap");
+        }
     }
 
     /**
@@ -582,8 +657,8 @@ enum PageStdsTextModule {
 
         htm.addln("<details style='padding-left:20px;'>");
 
-        htm.addln("<summary style='font-family:prox-regular,sans-serif;margin-bottom:6px;'>",
-                text, " (expand with arrow on the left)</summary>");
+        htm.addln("<summary style='font-family:prox-regular,sans-serif;margin-bottom:6px;'>", text,
+                " (expand with arrow on the left)</summary>");
 
         htm.sDiv(null, "style='padding-left:20px;line-height:1.1em;'");
         htm.sDiv(null, "style='font-family:prox-regular,sans-serif;color:black;",
@@ -605,13 +680,16 @@ enum PageStdsTextModule {
     /**
      * Emits the student's status with respect to demonstrating mastery of a learning target.
      *
+     * @param cache          the cache
+     * @param stuId          the student ID
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
      * @param learningTarget the learning target data
      * @param mode           the page mode
      * @param masteryStatus  the mastery status
      */
-    private static void endLearningTarget(final HtmlBuilder htm, final LearningTargetData learningTarget,
-                                          final String mode, final StdsMasteryStatus masteryStatus) {
+    private static void endLearningTarget(final Cache cache, final String stuId, final HtmlBuilder htm,
+                                          final LearningTargetData learningTarget, final String mode,
+                                          final StdsMasteryStatus masteryStatus) {
 
         final int unitIndex = learningTarget.unit - 1;
         final int objIndex = learningTarget.objective - 1;
@@ -628,8 +706,8 @@ enum PageStdsTextModule {
         endDetailsBlock(htm);
 
         final String title = "Learning Target " + learningTarget.targetNumber + " Assignment";
-        emitStandardAssignment(htm, learningTarget.module.course.courseId, learningTarget.unit, title,
-                learningTarget.assignmentId, mode, ineligible, triedHw, passedHw);
+        emitStandardAssignment(cache, stuId, htm, learningTarget.module.course.courseId, learningTarget.unit,
+                learningTarget.objective, title, learningTarget.assignmentId, mode, ineligible, triedHw, passedHw);
 
         if (ineligible) {
             htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")

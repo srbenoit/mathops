@@ -168,29 +168,22 @@ public class CourseSite extends AbstractPageSite {
                         case "run_lta.html" -> PageHtmlLta.startLta(cache, this, req, resp, session, logic);
                         case "run_review.html" ->
                                 PageHtmlReviewExam.startReviewExam(cache, this, req, resp, session, logic);
-                        case "update_homework.html" -> {
-                            Log.warning("GET of update_homework.html");
-                            PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
-                        }
-                        case "update_lta.html" -> {
-                            Log.warning("GET of update_lta.html");
-                            PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
-                        }
-                        case "update_review_exam.html" -> {
-                            Log.warning("GET of update_review_exam.html");
-                            PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
-                        }
-                        case "update_past_exam.html" -> {
-                            Log.warning("GET of update_past_exam.html");
-                            PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
-                        }
-                        case "update_unit_exam.html" -> {
-                            Log.warning("GET of update_unit_exam.html");
-                            PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
-                        }
+                        case "update_homework.html" ->
+                                PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
+                        case "update_lta.html" -> PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
+                        case "update_review_exam.html" ->
+                                PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
+                        case "update_past_exam.html" ->
+                                PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
+                        case "update_past_lta.html" ->
+                                PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
+                        case "update_unit_exam.html" ->
+                                PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
                         case "run_unit.html" -> PageHtmlUnitExam.startUnitExam(cache, this, req, resp, session, logic);
                         case "see_past_exam.html" ->
                                 PageHtmlPastExam.startPastExam(cache, this, req, resp, session, logic);
+                        case "see_past_lta.html" ->
+                                PageHtmlPastLta.startPastLta(cache, this, req, resp, session, logic);
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String path = this.siteProfile.path;
@@ -260,6 +253,8 @@ public class CourseSite extends AbstractPageSite {
                     PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
                 } else if ("update_past_exam.html".equals(subpath)) {
                     PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
+                } else if ("update_past_lta.html".equals(subpath)) {
+                    PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
                 } else if ("update_unit_exam.html".equals(subpath)) {
                     PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
                 } else {

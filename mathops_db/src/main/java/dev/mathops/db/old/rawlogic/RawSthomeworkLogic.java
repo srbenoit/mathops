@@ -264,6 +264,36 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
     }
 
     /**
+     * Gets all homework records for a student in a particular course. Results are sorted by homework date, then finish
+     * time.
+     *
+     * @param cache     the data cache
+     * @param stuId     the student for which to query homeworks
+     * @param course    the course for which to query homeworks
+     * @param unit      the unit for which to query homeworks
+     * @param objective the objective for which to query homeworks
+     * @param all       {@code true} to include all homeworks, {@code false} to include only those with passing status
+     *                  of "Y" or "N"
+     * @return the list of records that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawSthomework> queryByStudentCourseUnitObjective(final Cache cache, final String stuId,
+                                                                        final String course, final Integer unit,
+                                                                        final Integer objective,
+                                                                        final boolean all) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("SELECT * FROM sthomework ",
+                " WHERE stu_id=", sqlStringValue(stuId),
+                "   AND course=", sqlStringValue(course),
+                "   AND unit=", sqlIntegerValue(unit),
+                "   AND objective=", sqlIntegerValue(objective),
+                (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
+                " ORDER BY hw_dt,finish_time");
+
+        return executeQuery(cache.conn, sql);
+    }
+
+    /**
      * Gets all homeworks within a certain course of a specified type.
      *
      * @param cache         the data cache

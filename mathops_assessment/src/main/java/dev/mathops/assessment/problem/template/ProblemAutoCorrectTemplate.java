@@ -39,11 +39,22 @@ import java.util.Map;
 public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
 
     /**
-     * Constructs a new {@code ProblemAutoCorrect}.
+     * The number of times the user has already answered this item correctly (the reason they are getting this
+     * autocorrect question instead).
      */
-    public ProblemAutoCorrectTemplate() {
+    private final int numAlreadyCorrect;
+
+    /**
+     * Constructs a new {@code ProblemAutoCorrect}.
+     *
+     * @param theNumAlreadyCorrect the number of times the user has already answered this item correctly (the reason
+     *                          they are getting this autocorrect question instead).
+     */
+    public ProblemAutoCorrectTemplate(final int theNumAlreadyCorrect) {
 
         super();
+
+        this.numAlreadyCorrect = theNumAlreadyCorrect;
 
         this.ref = "autocorrect";
 
@@ -69,17 +80,31 @@ public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
         para.add(new DocWhitespace());
         para.add(new DocText("on"));
         para.add(new DocWhitespace());
-        para.add(new DocText("two"));
+        if (theNumAlreadyCorrect == 1) {
+            para.add(new DocText("an"));
+        } else if (theNumAlreadyCorrect == 2) {
+            para.add(new DocText("two"));
+        } else {
+            para.add(new DocText(Integer.toString(theNumAlreadyCorrect)));
+        }
         para.add(new DocWhitespace());
         para.add(new DocText("earlier"));
         para.add(new DocWhitespace());
-        para.add(new DocText("attempts"));
+        if (theNumAlreadyCorrect == 1) {
+            para.add(new DocText("attempt"));
+        } else {
+            para.add(new DocText("attempts"));
+        }
         para.add(new DocWhitespace());
         para.add(new DocText("on"));
         para.add(new DocWhitespace());
         para.add(new DocText("this"));
         para.add(new DocWhitespace());
-        para.add(new DocText("exam,"));
+        if (theNumAlreadyCorrect == 1) {
+            para.add(new DocText("assignment,"));
+        } else {
+            para.add(new DocText("exam,"));
+        }
         para.add(new DocWhitespace());
         para.add(new DocText("so"));
         para.add(new DocWhitespace());
@@ -137,7 +162,7 @@ public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
     @Override
     public ProblemAutoCorrectTemplate deepCopy() {
 
-        final ProblemAutoCorrectTemplate copy = new ProblemAutoCorrectTemplate();
+        final ProblemAutoCorrectTemplate copy = new ProblemAutoCorrectTemplate(this.numAlreadyCorrect);
 
         innerDeepCopy(copy);
 
