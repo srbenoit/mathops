@@ -43,10 +43,10 @@ public final class ExamProblem extends AbstractXmlObject {
     public String problemName;
 
     /** Flag indicating the problem must be answered by the student. */
-    /* default */ boolean mandatory;
+    boolean mandatory;
 
     /** The number of points the problem is worth in the exam. */
-    /* default */ Double numPoints;
+    Double numPoints;
 
     /** A list of the possible problems to use. */
     private final ArrayList<AbstractProblemTemplate> problems;

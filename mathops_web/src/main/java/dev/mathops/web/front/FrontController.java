@@ -184,8 +184,6 @@ public final class FrontController extends HttpServlet {
     @Override
     public void destroy() {
 
-        InstructionalCache.getInstance().die();
-
         final Installation installation = getInstallation();
         final File dir = new File(installation.baseDir, "sessions");
 

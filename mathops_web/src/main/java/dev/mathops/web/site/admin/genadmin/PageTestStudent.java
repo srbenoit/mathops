@@ -5,6 +5,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rec.MasteryAttemptQaRec;
+import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
@@ -2420,7 +2422,6 @@ enum PageTestStudent {
 
             RawSttermLogic.INSTANCE.insert(cache, stTerm);
         }
-
     }
 
     /**
@@ -2449,10 +2450,18 @@ enum PageTestStudent {
         final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
 
         final MasteryAttemptLogic attemptLogic = MasteryAttemptLogic.get(cache);
+        final MasteryAttemptQaLogic attemptQaLogic = MasteryAttemptQaLogic.get(cache);
         for (final MasteryExamRec exam : masteryExams) {
             final List<MasteryAttemptRec> attempts = attemptLogic.queryByStudentExam(cache, RawStudent.TEST_STUDENT_ID,
                     exam.examId, false);
             for (final MasteryAttemptRec attempt : attempts) {
+
+                final List<MasteryAttemptQaRec> qas = attemptQaLogic.queryByAttempt(cache, attempt.serialNbr,
+                        attempt.examId);
+                for (final MasteryAttemptQaRec qa : qas) {
+                    attemptQaLogic.delete(cache, qa);
+                }
+
                 attemptLogic.delete(cache, attempt);
             }
         }

@@ -24,16 +24,7 @@ public enum BulkConvert {
     private static void convert() {
 
         final InstructionalCache cache = InstructionalCache.getInstance();
-        cache.start();
-
-        // Let the cache finish scanning
-        while (cache.getNextRun() == 0L) {
-            try {
-                Thread.sleep(1000L);
-            } catch (final InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-        }
+        cache.rescan();
 
         final int[] id = {1};
         final HtmlBuilder htm = new HtmlBuilder(4050000);
@@ -129,8 +120,6 @@ public enum BulkConvert {
         } catch (final IOException ex) {
             Log.warning(ex);
         }
-
-        cache.die();
     }
 
     /**

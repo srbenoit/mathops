@@ -171,17 +171,7 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
                     sqlIntegerValue(record.questionNbr), ",",
                     sqlStringValue(record.correct), ")");
 
-            try (final Statement s = cache.conn.createStatement()) {
-                final boolean result = s.executeUpdate(sql) == 1;
-
-                if (result) {
-                    cache.conn.commit();
-                } else {
-                    cache.conn.rollback();
-                }
-
-                return result;
-            }
+            return doUpdateOneRow(cache, sql);
         }
 
         /**
@@ -216,9 +206,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public boolean updateCorrect(final Cache cache, final MasteryAttemptQaRec record,
                                      final String newCorrect) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(
-                    "UPDATE mastery_attempt_qa SET correct=", sqlStringValue(newCorrect),
-                    " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
+            final String sql = SimpleBuilder.concat("UPDATE mastery_attempt_qa SET correct=",
+                    sqlStringValue(newCorrect), " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId),
                     " AND question_nbr=", sqlIntegerValue(record.questionNbr));
 

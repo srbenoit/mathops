@@ -2,6 +2,7 @@ package dev.mathops.db.old.reclogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
@@ -242,6 +243,8 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
 
             final String sql = SimpleBuilder.concat("DELETE FROM mastery_attempt WHERE serial_nbr=",
                     sqlIntegerValue(record.serialNbr), " AND exam_id=", sqlStringValue(record.examId));
+
+            Log.info(sql);
 
             return doUpdateOneRow(cache, sql);
         }

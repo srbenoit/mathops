@@ -30,7 +30,7 @@ import java.util.Map;
  * caches them for later retrievals. A background thread scans a directory and caches any exam, problem and homework
  * files found, and periodically rescans that directory for files that have changed since the last scan.
  */
-public final class InstructionalCache extends Thread implements InstructionalCacheInt {
+public final class InstructionalCache implements InstructionalCacheInt {
 
     /** The singleton instance. */
     private static InstructionalCache instance;
@@ -56,20 +56,12 @@ public final class InstructionalCache extends Thread implements InstructionalCac
     /** A cache of timestamps on files that have been loaded. */
     private final Map<String, Long> fileTimestamps;
 
-    /** The time when the next scan of the data directory is scheduled. */
-    private long nextRun;
-
-    /** Flag indicating the instructional cache should die. */
-    private boolean shouldDie;
-
     /**
      * Constructs a new {@code InstructionalCache}.
      *
      * @param theBase the file under which to search for instructional data files
      */
     private InstructionalCache(final File theBase) {
-
-        super("InstructionalCache");
 
         this.base = theBase;
         this.synch = new Object();
@@ -80,7 +72,6 @@ public final class InstructionalCache extends Thread implements InstructionalCac
         this.examCache = new HashMap<>(100);
         this.problemCache = new HashMap<>(500);
         this.fileTimestamps = new HashMap<>(600);
-        this.shouldDie = false;
     }
 
     /**
@@ -122,8 +113,7 @@ public final class InstructionalCache extends Thread implements InstructionalCac
                 Log.info("Instructional cache reading from ", file.getAbsolutePath());
 
                 instance = new InstructionalCache(file);
-//                instance.start();
-                instance.scanAssessments();
+//                instance.rescan();
             }
 
             return instance;
@@ -398,104 +388,19 @@ public final class InstructionalCache extends Thread implements InstructionalCac
     }
 
     /**
-     * Tells the instructional cache that it should exit immediately.
-     */
-    public void die() {
-
-        synchronized (this.synch) {
-            this.nextRun = System.currentTimeMillis() - 1L;
-            this.shouldDie = true;
-        }
-
-        // Try to wait until the thread exits
-        for (int i = 0; isAlive() && i < 50; ++i) {
-
-            try {
-                Thread.sleep(200L);
-            } catch (final InterruptedException e) {
-                Log.warning(e);
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    /**
-     * Gets the next run time.
-     *
-     * @return the next time a scan will run
-     */
-    public long getNextRun() {
-
-        synchronized (this.synch) {
-            return this.nextRun;
-        }
-    }
-
-    /**
-     * Caches all instructional material found on the disk.
-     */
-    @Override
-    public void run() {
-
-        // NOTE: This is no longer used - the thread is never started.
-
-        synchronized (this.synch) {
-            this.nextRun = 0L;
-        }
-
-        // Ensure this background thread does not slow down request processing
-        Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
-
-        try {
-            while (!this.shouldDie) {
-                long now = System.currentTimeMillis();
-                final long next;
-
-                synchronized (this.synch) {
-                    next = this.nextRun;
-                }
-
-                if (now > next) {
-                    scanAssessments();
-
-                    // Timed to scan once per 5 minutes
-                    now = System.currentTimeMillis();
-
-                    synchronized (this.synch) {
-                        this.nextRun = now + 300000L;
-                    }
-                }
-
-                Thread.sleep(250L);
-            }
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-        Log.info("InstructionCache exiting");
-    }
-
-    /**
      * Indicates that the cache should rescan its data directory for updated files.
      */
     @Override
     public void rescan() {
 
         synchronized (this.synch) {
-            scanAssessments();
+            Log.info("InstructionalCache Scan Scanning " + this.base.getAbsolutePath());
+
+            scan(this.base);
+
+            Log.info("InstructionalCache Scan Complete " + this.examFiles.size() + " exams and "
+                    + this.problemFiles.size() + " problems");
         }
-    }
-
-    /**
-     * Scans assessments.
-     */
-    public void scanAssessments() {
-
-        Log.info("InstructionalCache Scan Scanning " + this.base.getAbsolutePath());
-
-        scan(this.base);
-
-        Log.info("InstructionalCache Scan Complete " + this.examFiles.size() + " exams and "
-                + this.problemFiles.size() + " problems");
     }
 
     /**
@@ -512,10 +417,6 @@ public final class InstructionalCache extends Thread implements InstructionalCac
             Arrays.sort(list);
 
             for (final File file : list) {
-                if (this.shouldDie) {
-                    break;
-                }
-
                 if (file.isDirectory()) {
                     scan(file);
                 }
@@ -668,22 +569,11 @@ public final class InstructionalCache extends Thread implements InstructionalCac
 
         final long start = rt.totalMemory() - rt.freeMemory();
 
-        new Thread(cache).start();
-
-        // Wait for the first scan to complete
-        while (cache.getNextRun() == 0L) {
-
-            try {
-                Thread.sleep(500L);
-            } catch (final InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-        }
+        cache.rescan();
 
         final long end = rt.totalMemory() - rt.freeMemory();
 
-        Log.info("Detected that first scan is complete... (",
-                df.format(end - start), ")");
+        Log.info("Detected that first scan is complete... (", df.format(end - start), ")");
 
         // for (String ref : cache.getExamFileRefs()) {
         // Log.info("Exam file at: ", ref);
@@ -692,7 +582,5 @@ public final class InstructionalCache extends Thread implements InstructionalCac
         // for (String ref : cache.getProblemFileRefs()) {
         // Log.info("Problem file at: ", ref);
         // }
-
-        cache.die();
     }
 }

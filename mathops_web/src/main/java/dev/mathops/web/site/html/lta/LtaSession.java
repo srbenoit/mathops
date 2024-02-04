@@ -59,9 +59,9 @@ import java.util.Set;
  *
  * <p>
  * A learning target assignment is stored in the "homework" table with a homework type of "ST".  However, it will be
- * presented in a manner similar to a Review Exam.  Students can switch between items and can submit the assignment as
- * a whole rather than having to proceed linearly.  Also, once they get a question correct, they do not have to redo
- * that question (although they can practice that item as much as they like).
+ * presented in a manner similar to a Review Exam.  Students can switch between items and can submit the assignment as a
+ * whole rather than having to proceed linearly.  Also, once they get a question correct, they do not have to redo that
+ * question (although they can practice that item as much as they like).
  */
 public final class LtaSession extends HtmlSessionBase {
 
@@ -76,7 +76,6 @@ public final class LtaSession extends HtmlSessionBase {
 
     /** The outline color for screen areas. */
     private static final String OUTLINE_COLOR = "#B3B3B3";
-
 
     /** The state of the assignment. */
     private ELtaState state;
@@ -110,15 +109,15 @@ public final class LtaSession extends HtmlSessionBase {
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
-     * @param theAssignmentId  the assignment ID being worked on
+     * @param theExamId        the assignment ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
     public LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-                      final String theStudentId, final String theAssignmentId, final String theRedirectOnEnd)
+                      final String theStudentId, final String theExamId, final String theRedirectOnEnd)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theAssignmentId, theRedirectOnEnd);
+        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = ELtaState.INITIAL;
         this.currentSection = -1;
@@ -135,7 +134,7 @@ public final class LtaSession extends HtmlSessionBase {
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
-     * @param theAssignmentId  the assignment ID being worked on
+     * @param theExamId        the assignment ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @param theState         the session state
      * @param theMinMastery    the minimum mastery score
@@ -147,13 +146,13 @@ public final class LtaSession extends HtmlSessionBase {
      * @throws SQLException if there is an error accessing the database
      */
     LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-               final String theStudentId, final String theAssignmentId, final String theRedirectOnEnd,
+               final String theStudentId, final String theExamId, final String theRedirectOnEnd,
                final ELtaState theState, final int theSection, final int theItem, final Integer theMinMastery,
                final long theTimeout, final boolean theStarted, final Integer theScore, final String theError,
                final ExamObj theHomework)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theAssignmentId, theRedirectOnEnd);
+        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.currentSection = theSection;
@@ -570,10 +569,11 @@ public final class LtaSession extends HtmlSessionBase {
         appendNav(htm, false);
         startMain(htm);
 
-        final ExamSection sect = getExam().getSection(0);
+        final ExamObj exam = getExam();
+        final ExamSection sect = exam.getSection(0);
         if (this.currentItem == -1) {
-            if (getExam().instructionsHtml != null) {
-                htm.addln(getExam().instructionsHtml);
+            if (exam.instructionsHtml != null) {
+                htm.addln(exam.instructionsHtml);
             }
         } else {
             final ExamProblem ep = sect.getPresentedProblem(this.currentItem);
@@ -597,7 +597,7 @@ public final class LtaSession extends HtmlSessionBase {
 
         endMain(htm);
         appendFooter(htm, "close", "Close",
-                prevCmd, "Review Question " + (this.currentItem), //
+                prevCmd, "Review Question " + (this.currentItem),
                 nextCmd, "Review Question " + (this.currentItem + 2));
         htm.eDiv(); // outer DIV from header
     }
@@ -609,7 +609,7 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private void appendHeader(final HtmlBuilder htm) {
 
-        htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
+        htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 8px 6px;'");
 
         htm.sDiv(null, "style='flex: 1 100%; display:inline-block; background-color:", HEADER_BG_COLOR,
                 "; border:1px solid ", OUTLINE_COLOR, "; margin:1px;'");
@@ -617,10 +617,11 @@ public final class LtaSession extends HtmlSessionBase {
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
                 "font-weight:bold; color:#36648b; text-shadow:2px 1px #ccc; margin:0; padding:4pt;'>");
 
+        final ExamObj exam = getExam();
         if (this.state == ELtaState.SOLUTION_NN) {
-            htm.add(getExam().examName + " Solutions");
+            htm.add(exam.examName + " Solutions");
         } else {
-            htm.add(getExam().examName);
+            htm.add(exam.examName);
         }
         htm.eH(1);
 
@@ -634,14 +635,14 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private void startMain(final HtmlBuilder htm) {
 
-        htm.addln("<main style='flex:1 1 73%; display:block; width:75%; margin:1px; padding:2px; ",
-                "border:1px solid ", OUTLINE_COLOR, ";'>");
+        htm.addln("<main style='flex:1 1 73%; display:block; width:75%; margin:1px; padding:2px; border:1px solid ",
+                OUTLINE_COLOR, ";'>");
 
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
         htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid ", OUTLINE_COLOR, "; background:",
-                MAIN_BG_COLOR, "; font-family:serif; font-size:"
-                + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
+                MAIN_BG_COLOR, "; font-family:serif; font-size:" + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE
+                        + "px;'");
     }
 
     /**
@@ -688,14 +689,18 @@ public final class LtaSession extends HtmlSessionBase {
             htm.sDiv();
         }
 
-        htm.add("<a style='font-family:serif;'");
-        if (!disabled) {
-            htm.addln(" href='javascript:invokeAct(\"instruct\");'");
-        }
-        htm.addln(">Instructions</a>");
-        htm.eDiv();
+        final ExamObj exam = getExam();
 
-        final ExamSection sect = getExam().getSection(0);
+        if (exam.instructions != null) {
+            htm.add("<a style='font-family:serif;'");
+            if (!disabled) {
+                htm.addln(" href='javascript:invokeAct(\"instruct\");'");
+            }
+            htm.addln(">Instructions</a>");
+            htm.eDiv();
+        }
+
+        final ExamSection sect = exam.getSection(0);
         final int numProblems = sect.getNumProblems();
 
         for (int p = 0; p < numProblems; ++p) {
@@ -711,11 +716,12 @@ public final class LtaSession extends HtmlSessionBase {
                     || this.state == ELtaState.SUBMIT_NN || this.state == ELtaState.COMPLETED) {
                 // When interacting or instructions, mark the ones that have been answered
 
+                htm.add("<input type='checkbox' onclick='return false;' ",
+                        "style='height:17px; width:17px; position:relative; top:2px;'");
                 if (ep.getSelectedProblem().isAnswered()) {
-                    htm.add("<input type='checkbox' disabled checked> ");
-                } else {
-                    htm.add("<input type='checkbox' disabled> ");
+                    htm.add(" checked");
                 }
+                htm.add("> ");
             } else if (this.state == ELtaState.SOLUTION_NN) {
                 // When interacting or instructions, mark the ones that were correct
 
@@ -730,19 +736,12 @@ public final class LtaSession extends HtmlSessionBase {
             if (!disabled) {
                 htm.add(" href='javascript:invokeAct(\"nav_", Integer.toString(p), "\");'");
             }
-            htm.add(">");
-            if (ep.problemName == null) {
-                htm.add(Integer.valueOf(p + 1));
-            } else {
-                htm.add(ep.problemName);
-            }
-            htm.addln("</a>");
+            htm.addln("> Question ", Integer.valueOf(p + 1), "</a>");
             htm.eDiv();
         }
 
         htm.addln("</nav>");
     }
-
 
     /**
      * Appends the footer.
@@ -1193,7 +1192,7 @@ public final class LtaSession extends HtmlSessionBase {
             }
         }
 
-        sthw.hwScore =Integer.valueOf(score);
+        sthw.hwScore = Integer.valueOf(score);
         if (this.minMastery == null || score >= this.minMastery.intValue()) {
             sthw.passed = "Y";
         } else {
