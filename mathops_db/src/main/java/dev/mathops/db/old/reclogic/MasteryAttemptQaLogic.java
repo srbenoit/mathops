@@ -157,23 +157,21 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean insert(final Cache cache, final MasteryAttemptQaRec record)
-                throws SQLException {
+        public boolean insert(final Cache cache, final MasteryAttemptQaRec record) throws SQLException {
 
             if (record.serialNbr == null || record.examId == null || record.questionNbr == null
                     || record.correct == null) {
                 throw new SQLException("Null value in required field.");
             }
 
-            final String sql = SimpleBuilder.concat( //
-                    "INSERT INTO mastery_attempt_qa (serial_nbr,exam_id,question_nbr,",
-                    "correct) VALUES (",
+            final String sql = SimpleBuilder.concat(
+                    "INSERT INTO mastery_attempt_qa (serial_nbr,exam_id,question_nbr,correct) VALUES (",
                     sqlIntegerValue(record.serialNbr), ",",
                     sqlStringValue(record.examId), ",",
                     sqlIntegerValue(record.questionNbr), ",",
                     sqlStringValue(record.correct), ")");
 
-            try (final Statement s = cache.conn.createStatement()) { //
+            try (final Statement s = cache.conn.createStatement()) {
                 final boolean result = s.executeUpdate(sql) == 1;
 
                 if (result) {
@@ -195,11 +193,9 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final MasteryAttemptQaRec record)
-                throws SQLException {
+        public boolean delete(final Cache cache, final MasteryAttemptQaRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
-                    "DELETE FROM mastery_attempt_qa WHERE serial_nbr=",
+            final String sql = SimpleBuilder.concat("DELETE FROM mastery_attempt_qa WHERE serial_nbr=",
                     sqlIntegerValue(record.serialNbr), " AND exam_id=",
                     sqlStringValue(record.examId), " AND question_nbr=",
                     sqlIntegerValue(record.questionNbr));
@@ -220,7 +216,7 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public boolean updateCorrect(final Cache cache, final MasteryAttemptQaRec record,
                                      final String newCorrect) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "UPDATE mastery_attempt_qa SET correct=", sqlStringValue(newCorrect),
                     " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId),
@@ -255,10 +251,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public List<MasteryAttemptQaRec> queryByAttempt(final Cache cache, final Integer serialNbr,
                                                         final String examId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
-                    "SELECT * FROM mastery_attempt_qa ",
-                    "WHERE serial_nbr=", sqlIntegerValue(serialNbr),
-                    " AND exam_id=", sqlStringValue(examId));
+            final String sql = SimpleBuilder.concat("SELECT * FROM mastery_attempt_qa WHERE serial_nbr=",
+                    sqlIntegerValue(serialNbr), " AND exam_id=", sqlStringValue(examId));
 
             return doListQuery(cache, sql);
         }
@@ -277,10 +271,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public MasteryAttemptQaRec query(final Cache cache, final Integer serialNbr,
                                          final String examId, final Integer questionNbr) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
-                    "SELECT * FROM mastery_attempt_qa ",
-                    "WHERE serial_nbr=", sqlIntegerValue(serialNbr),
-                    " AND exam_id=", sqlStringValue(examId),
+            final String sql = SimpleBuilder.concat("SELECT * FROM mastery_attempt_qa WHERE serial_nbr=",
+                    sqlIntegerValue(serialNbr), " AND exam_id=", sqlStringValue(examId),
                     " AND question_nbr=", sqlIntegerValue(questionNbr));
 
             return doSingleQuery(cache, sql);
@@ -366,16 +358,15 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
                 throw new SQLException("Null value in required field.");
             }
 
-            final String sql = SimpleBuilder.concat("INSERT INTO ",
-                    cache.termSchemaName, ".mastery_attempt_qa ",
-                    "(serial_nbr,exam_id,question_nbr,correct) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", cache.termSchemaName,
+                    ".mastery_attempt_qa (serial_nbr,exam_id,question_nbr,correct) VALUES (",
                     sqlIntegerValue(record.serialNbr), ",",
                     sqlStringValue(record.examId), ",",
                     sqlIntegerValue(record.questionNbr), ",",
                     sqlStringValue(record.correct), ")");
 
-            try (final Statement s = cache.conn.createStatement()) { //
-                final boolean result = s.executeUpdate(sql) == 1;
+            try (final Statement stmt = cache.conn.createStatement()) {
+                final boolean result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
                     cache.conn.commit();
@@ -399,9 +390,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public boolean delete(final Cache cache, final MasteryAttemptQaRec record)
                 throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ",
-                    cache.termSchemaName, ".mastery_attempt_qa ",
-                    "WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
+            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.termSchemaName,
+                    ".mastery_attempt_qa WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId),
                     " AND question_nbr=", sqlIntegerValue(record.questionNbr));
 
@@ -421,9 +411,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public boolean updateCorrect(final Cache cache, final MasteryAttemptQaRec record,
                                      final String newCorrect) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".mastery_attempt_qa ",
-                    "SET correct=", sqlStringValue(newCorrect),
+            final String sql = SimpleBuilder.concat("UPDATE ", cache.termSchemaName,
+                    ".mastery_attempt_qa SET correct=", sqlStringValue(newCorrect),
                     " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId),
                     " AND question_nbr=", sqlIntegerValue(record.questionNbr));
@@ -441,8 +430,7 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         @Override
         public List<MasteryAttemptQaRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".mastery_attempt_qa");
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".mastery_attempt_qa");
 
             return doListQuery(cache, sql);
         }
@@ -460,9 +448,8 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
         public List<MasteryAttemptQaRec> queryByAttempt(final Cache cache, final Integer serialNbr,
                                                         final String examId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".mastery_attempt_qa ",
-                    "WHERE serial_nbr=", sqlIntegerValue(serialNbr),
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+                    ".mastery_attempt_qa WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND exam_id=", sqlStringValue(examId));
 
             return doListQuery(cache, sql);
@@ -479,12 +466,11 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public MasteryAttemptQaRec query(final Cache cache, final Integer serialNbr,
-                                         final String examId, final Integer questionNbr) throws SQLException {
+        public MasteryAttemptQaRec query(final Cache cache, final Integer serialNbr, final String examId,
+                                         final Integer questionNbr) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".mastery_attempt_qa ",
-                    "WHERE serial_nbr=", sqlIntegerValue(serialNbr),
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+                    ".mastery_attempt_qa WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND exam_id=", sqlStringValue(examId),
                     " AND question_nbr=", sqlIntegerValue(questionNbr));
 

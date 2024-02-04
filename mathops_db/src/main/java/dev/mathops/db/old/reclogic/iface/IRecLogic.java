@@ -364,7 +364,7 @@ public interface IRecLogic<T extends RecBase> {
      */
     default boolean doUpdateOneRow(final Cache cache, final String sql) throws SQLException {
 
-        try (final Statement stmt = cache.conn.createStatement()) { //
+        try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
@@ -389,7 +389,7 @@ public interface IRecLogic<T extends RecBase> {
 
         T result = null;
 
-        try (final Statement stmt = cache.conn.createStatement(); //
+        try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
@@ -412,7 +412,7 @@ public interface IRecLogic<T extends RecBase> {
 
         final List<T> result = new ArrayList<>(10);
 
-        try (final Statement stmt = cache.conn.createStatement(); //
+        try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
