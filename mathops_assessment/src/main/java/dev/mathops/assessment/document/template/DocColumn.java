@@ -532,22 +532,25 @@ public final class DocColumn extends AbstractDocContainer {
                                     if ((check.value & value) == value) {
                                         str = "{" + theTag + "}=" + valueStr;
                                         if (!in.setValue(str)) {
-                                            // Log.warning(" Failed to set value ", str);
+                                            Log.warning(" Failed to set value ", str);
                                             result = false;
                                             break;
                                         }
                                     }
                                 } catch (final NumberFormatException ex) {
                                     if (!in.setValue(str)) {
-                                        // Log.warning(" Failed to set value ", str);
+                                        Log.warning(" Failed to set value ", str);
                                         result = false;
                                         break;
                                     }
                                 }
-                            } else if (!in.setValue(str)) {
-                                // Log.warning(" Failed to set value ", str);
-                                result = false;
-                                break;
+                            } else {
+//                                Log.info("Setting input '", in.getName(), "' value to '", str, "'");
+                                if (!in.setValue(str)) {
+                                    Log.warning(" Failed to set value ", str);
+                                    result = false;
+                                    break;
+                                }
                             }
 
                             searching = false;

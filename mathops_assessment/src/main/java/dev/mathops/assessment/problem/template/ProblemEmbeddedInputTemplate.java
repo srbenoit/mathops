@@ -191,8 +191,10 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
 //                Log.fine(" Response " + i + ": " + response[i]);
 //             }
 //         }
-//         for (int i = 0; i < getAnswer().length; ++i) {
-//            Log.fine(" Answer " + i + ": " + getAnswer()[i]);
+//         if (getAnswer() != null) {
+//             for (int i = 0; i < getAnswer().length; ++i) {
+//                 Log.fine(" Answer " + i + ": " + getAnswer()[i]);
+//             }
 //         }
 
         boolean correct = false;

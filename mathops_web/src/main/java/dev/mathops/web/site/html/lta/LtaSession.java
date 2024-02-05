@@ -5,6 +5,8 @@ import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
+import dev.mathops.assessment.exam.ExamSubtest;
+import dev.mathops.assessment.exam.ExamSubtestProblem;
 import dev.mathops.assessment.htmlgen.ExamObjConverter;
 import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
@@ -336,7 +338,7 @@ public final class LtaSession extends HtmlSessionBase {
                 if (Integer.valueOf(-1).equals(this.minMastery)) {
                     this.minMastery = Integer.valueOf(numProblems);
                 }
-                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this.minMastery);
+//                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this.minMastery);
 
                 theExamObj.realizationTime = System.currentTimeMillis();
                 theExamObj.serialNumber = serial;
@@ -716,12 +718,16 @@ public final class LtaSession extends HtmlSessionBase {
                     || this.state == ELtaState.SUBMIT_NN || this.state == ELtaState.COMPLETED) {
                 // When interacting or instructions, mark the ones that have been answered
 
-                htm.add("<input type='checkbox' onclick='return false;' ",
-                        "style='height:17px; width:17px; position:relative; top:2px;'");
-                if (ep.getSelectedProblem().isAnswered()) {
-                    htm.add(" checked");
+                if (ep.getSelectedProblem() instanceof ProblemAutoCorrectTemplate) {
+                    htm.add("<img src='images/check.png'> ");
+                } else {
+                    htm.add("<input type='checkbox' onclick='return false;' ",
+                            "style='height:17px; width:17px; position:relative; top:2px;'");
+                    if (ep.getSelectedProblem().isAnswered()) {
+                        htm.add(" checked");
+                    }
+                    htm.add("> ");
                 }
-                htm.add("> ");
             } else if (this.state == ELtaState.SOLUTION_NN) {
                 // When interacting or instructions, mark the ones that were correct
 
@@ -1068,7 +1074,7 @@ public final class LtaSession extends HtmlSessionBase {
 
         final String error;
 
-        Log.info("Scoring learning target assignment");
+//        Log.info("Scoring learning target assignment");
 
         final String stuId = this.studentId;
 
@@ -1077,7 +1083,7 @@ public final class LtaSession extends HtmlSessionBase {
         } else if (stuId.startsWith("99")) {
             error = "Test student assignments will not be recorded.";
         } else {
-            Log.info("Writing updated assignment state");
+            Log.info("Writing updated learning target assignment state");
 
             final Object[][] answers = getExam().exportState();
             loadStudentInfo(cache);
@@ -1186,7 +1192,7 @@ public final class LtaSession extends HtmlSessionBase {
         }
 
         // Score items
-        final int totalScore = scoreItems();
+        final int totalScore = buildAnswerList(answers);
         final ExamSection sect0 = getExam().getSection(0);
         if (sect0 != null) {
             sect0.score = Long.valueOf((long) totalScore);
@@ -1209,30 +1215,56 @@ public final class LtaSession extends HtmlSessionBase {
     }
 
     /**
-     * Scores the items and stores a score of 1.0 or 0.0 for each.
+     * Populates the selected problem with submitted answers.
+     *
+     * @param answers the list of the student's answers
      */
-    private int scoreItems() {
+    private int buildAnswerList(final Object[][] answers) {
 
         int totalScore = 0;
-        final Object[][] answers = getExam().exportState();
 
-        // answers[0] is time stamps, so we start at 1
-        final int numAns = answers.length;
-        for (int i = 1; i < numAns; ++i) {
+        final Iterator<ExamSubtest> subtests = getExam().subtests();
 
-            final ExamProblem prob = getExam().getProblem(i);
-            if (prob == null) {
-                continue;
+        while (subtests.hasNext()) {
+            final ExamSubtest subtest = subtests.next();
+            final Iterator<ExamSubtestProblem> problems = subtest.getSubtestProblems();
+
+            while (problems.hasNext()) {
+                final ExamSubtestProblem subtestprob = problems.next();
+                final int id = subtestprob.problemId;
+
+                final ExamProblem problem = getExam().getProblem(id);
+                final AbstractProblemTemplate selected = problem == null ? null : problem.getSelectedProblem();
+
+                if (selected != null && selected.ref != null) {
+
+                    if (answers[id] != null) {
+                        selected.recordAnswer(answers[id]);
+                        final char[] answerStr = "     ".toCharArray();
+
+                        final int rowLen = answers[id].length;
+                        for (int i = 0; i < rowLen; ++i) {
+
+                            if (answers[id][i] instanceof Long) {
+                                final int index = ((Long) answers[id][i]).intValue();
+
+                                if (index >= 1 && index <= 5) {
+                                    answerStr[index - 1] = (char) ('A' + index - 1);
+                                }
+                            }
+                        }
+
+                        final boolean correct = selected.isCorrect(answers[id]);
+
+                        if (correct) {
+                            selected.score = 1.0;
+                            ++totalScore;
+                        } else {
+                            selected.score = 0.0;
+                        }
+                    }
+                }
             }
-
-            final AbstractProblemTemplate selected = prob.getSelectedProblem();
-            if (selected == null) {
-                continue;
-            }
-
-            final boolean isCorrect = selected.isCorrect(answers[i]);
-            selected.score = isCorrect ? 1.0 : 0.0;
-            totalScore += isCorrect ? 1 : 0;
         }
 
         return totalScore;

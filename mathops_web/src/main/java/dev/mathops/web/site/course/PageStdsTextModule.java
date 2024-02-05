@@ -705,7 +705,13 @@ enum PageStdsTextModule {
 
         endDetailsBlock(htm);
 
-        final String title = "Learning Target " + learningTarget.targetNumber + " Assignment";
+        final String title;
+        if (passedHw) {
+            title = "Practice Learning Target " + learningTarget.targetNumber + " Assignment";
+        } else {
+            title = "Learning Target " + learningTarget.targetNumber + " Assignment";
+        }
+
         emitStandardAssignment(cache, stuId, htm, learningTarget.module.course.courseId, learningTarget.unit,
                 learningTarget.objective, title, learningTarget.assignmentId, mode, ineligible, triedHw, passedHw);
 

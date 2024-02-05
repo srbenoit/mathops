@@ -10,7 +10,6 @@ import dev.mathops.assessment.problem.inst.AbstractProblemInst;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 

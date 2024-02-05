@@ -87,23 +87,23 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
             result = false;
         } else {
             // Adjust serial number if needed to avoid collision with existing record
-            Long ser = record.serialNbr;
-            for (int i = 0; i < 1000; ++i) {
-                final Integer existing = executeSimpleIntQuery(cache.conn,
-                        "SELECT COUNT(*) FROM sthomework WHERE serial_nbr=" + ser);
-
-                if (existing == null || existing.longValue() == 0L) {
-                    break;
-                }
-                ser = Long.valueOf(ser.longValue() + 1L);
-            }
+//            Long ser = record.serialNbr;
+//            for (int i = 0; i < 1000; ++i) {
+//                final Integer existing = executeSimpleIntQuery(cache.conn,
+//                        "SELECT COUNT(*) FROM sthomework WHERE serial_nbr=" + ser);
+//
+//                if (existing == null || existing.longValue() == 0L) {
+//                    break;
+//                }
+//                ser = Long.valueOf(ser.longValue() + 1L);
+//            }
 
             final String obj = record.objective == null ? null : record.objective.toString();
 
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO sthomework (serial_nbr,version,stu_id,hw_dt,hw_score,start_time,finish_time,time_ok,",
                     "passed,hw_type,course,sect,unit,objective,hw_coupon,used_dt,used_serial_nbr) VALUES (",
-                    sqlLongValue(ser), ",",
+                    sqlLongValue(record.serialNbr), ",",
                     sqlStringValue(record.version), ",",
                     sqlStringValue(record.stuId), ",",
                     sqlDateValue(record.hwDt), ",",

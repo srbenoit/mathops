@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.inst.DocInputDoubleFieldInst;
@@ -9,7 +10,6 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -122,6 +122,9 @@ public final class DocInputDoubleField extends AbstractDocInputField {
 
         final String oldVal = getTextValue();
 
+//        Log.info("setTextValue called on '", getName(), "' with ", theText, ", oldVal = ", oldVal,
+//                ", value = ", this.value);
+
         final String oldCleaned = cleanValue(oldVal);
         final String cleaned = cleanValue(theText);
 
@@ -150,7 +153,6 @@ public final class DocInputDoubleField extends AbstractDocInputField {
                 this.caret = 0;
                 this.value = this.defaultValue;
             } else {
-                innerSetTextValue(cleaned);
 
                 this.caret = cleaned.length();
 
@@ -160,33 +162,13 @@ public final class DocInputDoubleField extends AbstractDocInputField {
                 // 123.45/67.89 (with minus sign allowed on either numerator or denominator)
                 // Any number can be followed by a "PI" or "E" symbol, like 360/2PI or 5PI/6
 
-                // See if a fraction was entered and is allowed
-                final int pos = cleaned.indexOf('/');
-
-                if (pos == -1) {
-                    this.value = parseNumericString(cleaned);
-                    ok = this.value != null;
-                } else if (cleaned.indexOf('/', pos + 1) == -1) { // Test for two slashes
-                    try {
-                        final String denomStr = cleaned.substring(pos + 1);
-                        final Double denom = parseNumericString(denomStr);
-                        if (denom == null) {
-                            ok = false;
-                        } else if (denom.doubleValue() == 0.0) {
-                            ok = false;
-                        } else {
-                            final String numerStr = cleaned.substring(0, pos);
-                            final Double numer = parseNumericString(numerStr);
-                            if (numer == null) {
-                                ok = false;
-                            } else {
-                                this.value =  Double.valueOf(numer.doubleValue() / denom.doubleValue());
-                            }
-                        }
-                    } catch (final NumberFormatException e) {
-                        ok = false;
-                    }
-                } else {
+                try {
+                    final Number parsedNumber = NumberParser.parse(cleaned);
+                    final double d = parsedNumber.doubleValue();
+                    this.value = Double.valueOf(d);
+                    innerSetTextValue(cleaned);
+                } catch (final NumberFormatException ex) {
+                    Log.warning("Unable tp parse '", cleaned, "' as a number");
                     ok = false;
                 }
             }
@@ -636,13 +618,16 @@ public final class DocInputDoubleField extends AbstractDocInputField {
 
         final String theTag = "{" + getName() + "}=";
 
+        final boolean result;
+
         if (theValue.startsWith(theTag)) {
-            return setTextValue(theValue.substring(theTag.length()));
+            result = setTextValue(theValue.substring(theTag.length()));
+        } else {
+            Log.warning(Res.fmt(Res.BAD_ATTEMPT_TO_SET, getName(), theValue));
+            result = false;
         }
 
-        Log.info(Res.fmt(Res.BAD_ATTEMPT_TO_SET, getName(), theValue));
-
-        return false;
+        return result;
     }
 
     /**

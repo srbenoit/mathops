@@ -6,8 +6,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputInteger;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.assessment.variable.VariableInputString;
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
@@ -315,6 +313,8 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
      */
     final void storeValue(final Object value) {
 
+//        Log.info("storeValue called with '", value, "' for name '", this.name, "'");
+
         if (this.evalContext != null) {
             AbstractVariable var = this.evalContext.getVariable(this.name);
 
@@ -336,21 +336,27 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
 
                 if (value instanceof Long) {
                     if (!(var instanceof VariableInputInteger)) {
+                        Log.warning("Attempt to store Long in ", var.getClass().getSimpleName());
                         throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                     }
                 } else if (value instanceof Double) {
                     if (!(var instanceof VariableInputReal)) {
+                        Log.warning("Attempt to store Double in ", var.getClass().getSimpleName());
                         throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                     }
                 } else if (value instanceof String) {
                     if (!(var instanceof VariableInputString)) {
+                        Log.warning("Attempt to store String in ", var.getClass().getSimpleName());
                         throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                     }
                 } else {
+                    Log.warning("Attempt to store ", value.getClass().getSimpleName(), " in ",
+                            var.getClass().getSimpleName());
                     throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                 }
 
                 if (!value.equals(var.getValue())) {
+//                    Log.info("Storing value '", value, "' in EvalContext variable '", var.name, "'");
                     var.setValue(value);
                 }
             } else if (var.getValue() != null) {

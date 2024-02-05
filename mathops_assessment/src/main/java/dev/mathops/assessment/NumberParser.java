@@ -1,5 +1,7 @@
 package dev.mathops.assessment;
 
+import dev.mathops.commons.log.Log;
+
 /**
  * A utility class that can parse a number from a string, and that supports the {@code Irrational} numeric type.
  *
@@ -40,7 +42,9 @@ public enum NumberParser {
             try {
                 result = Double.valueOf(str);
             } catch (final NumberFormatException ex2) {
-                result = Irrational.valueOf(str);
+                final String toParse = str.replace("\u03C0", "PI");
+                Log.info("Attempting to parse [", toParse, "] as irrational");
+                result = Irrational.valueOf(toParse);
             }
         }
 
