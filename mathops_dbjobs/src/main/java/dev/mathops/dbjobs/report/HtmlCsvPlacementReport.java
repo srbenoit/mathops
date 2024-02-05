@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -127,6 +126,8 @@ public final class HtmlCsvPlacementReport {
 
                     csv.add("Name," //
                             + "Student ID," //
+                            + "Applic. Term," //
+                            + "Applic. Year," //
                             + "MPT Attempts," //
                             + "First Attempt," //
                             + "Last Attempt," //
@@ -356,8 +357,13 @@ public final class HtmlCsvPlacementReport {
 
         final HtmlBuilder csvLine = new HtmlBuilder(200);
 
-        csvLine.add("\"", stu.lastName, ", ", stu.firstName, "\",", stu.stuId, CoreConstants.COMMA);
-
+        csvLine.add("\"", stu.lastName, ", ", stu.firstName, "\",");
+        csvLine.add(stu.stuId);
+        csvLine.add(CoreConstants.COMMA_CHAR);
+        csvLine.add(stu.aplnTerm.termCode);
+        csvLine.add(CoreConstants.COMMA_CHAR);
+        csvLine.add(stu.aplnTerm.year);
+        csvLine.add(CoreConstants.COMMA_CHAR);
         csvLine.add(numAttempts);
         csvLine.add(CoreConstants.COMMA_CHAR);
         csvLine.add(firstTryDate);

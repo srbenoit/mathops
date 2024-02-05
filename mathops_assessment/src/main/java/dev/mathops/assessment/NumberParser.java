@@ -36,12 +36,44 @@ public enum NumberParser {
 
         Number result;
 
-        try {
-            result = Long.valueOf(str);
-        } catch (final NumberFormatException ex1) {
+        final int slash = str.indexOf('/');
+        if (slash == -1) {
             try {
-                result = Double.valueOf(str);
+                result = Long.valueOf(str);
+            } catch (final NumberFormatException ex1) {
+                try {
+                    result = Double.valueOf(str);
+                } catch (final NumberFormatException ex2) {
+                    final String toParse = str.replace("\u03C0", "PI");
+                    Log.info("Attempting to parse [", toParse, "] as irrational");
+                    result = Irrational.valueOf(toParse);
+                }
+            }
+        } else {
+            final String left = str.substring(0, slash).trim();
+            final String right = str.substring(slash + 1).trim();
+
+            boolean isRational;
+            long numer = 0L;
+            long denom = 0L;
+            try {
+                numer = Long.parseLong(left);
+                denom = Long.parseLong(right);
+                isRational = true;
             } catch (final NumberFormatException ex2) {
+                isRational = false;
+            }
+
+            if (isRational) {
+                if (denom == 0L) {
+                    throw new NumberFormatException("Division by zero");
+                }
+                if (denom == 1L) {
+                    result = Long.valueOf(numer);
+                } else {
+                    result = Double.valueOf((double) numer / (double) denom);
+                }
+            } else {
                 final String toParse = str.replace("\u03C0", "PI");
                 Log.info("Attempting to parse [", toParse, "] as irrational");
                 result = Irrational.valueOf(toParse);
