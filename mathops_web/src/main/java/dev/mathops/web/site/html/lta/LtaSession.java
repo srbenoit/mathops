@@ -639,8 +639,8 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private void startMain(final HtmlBuilder htm) {
 
-        htm.addln("<main style='flex:1 1 73%; display:block; width:75%; margin:1px; padding:2px; border:1px solid ",
-                OUTLINE_COLOR, ";'>");
+        htm.addln("<main style='flex:1 1 73%; flex-grow: 4; display:block; width:75%; margin:1px; padding:2px; ",
+                "border:1px solid ", OUTLINE_COLOR, ";'>");
 
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
@@ -682,7 +682,7 @@ public final class LtaSession extends HtmlSessionBase {
      */
     private void appendNav(final HtmlBuilder htm, final boolean disabled) {
 
-        htm.addln("<nav style='flex:1 1 22%; display:block; width:25%; background-color:white; ",
+        htm.addln("<nav style='flex:1 1 140px; display:block; width:25%; background-color:white; ",
                 "border:1px solid ", OUTLINE_COLOR, "; margin:1px; padding:6pt; font-size:14pt;'>");
 
         if ((this.state == ELtaState.INSTRUCTIONS) || (this.state == ELtaState.SOLUTION_NN && this.currentItem == -1)) {

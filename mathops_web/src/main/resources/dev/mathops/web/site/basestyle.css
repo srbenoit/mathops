@@ -347,64 +347,87 @@ div#maincontent {
 @media (min-width: 1050px) { 
   .layermax { max-width: 1010px; }
 } 
-@media (min-width: 1100px) { 
+@media (min-width: 1100px) {
+  .container { max-width: 1000px; }
+  .layer, .layeru { max-width: 1000px; }
   .layermax { max-width: 1060px; }
 } 
 @media (min-width: 1150px) { 
   .layermax { max-width: 1110px; }
 }
 @media (min-width: 1200px) {
-  .container { max-width: 1100px; }
-  .layer, .layeru { max-width: 1100px; }
+  .container { max-width: 1160px; }
+  .layer, .layeru { max-width: 1160px; }
   .layermax { max-width: 1160px; }
 }
 @media (min-width: 1250px) { 
   .layermax { max-width: 1210px; }
 }
 @media (min-width: 1300px) { 
+  .container { max-width: 1260px; }
+  .layer, .layeru { max-width: 1260px; }
   .layermax { max-width: 1260px; }
 }
 @media (min-width: 1350px) { 
   .layermax { max-width: 1310px; }
 }
 @media (min-width: 1400px) { 
+  .container { max-width: 1360px; }
+  .layer, .layeru { max-width: 1360px; }
   .layermax { max-width: 1360px; }
 }
 @media (min-width: 1450px) { 
   .layermax { max-width: 1410px; }
 }
 @media (min-width: 1500px) { 
+  .container { max-width: 1460px; }
+  .layer, .layeru { max-width: 1460px; }
   .layermax { max-width: 1460px; }
 }
 @media (min-width: 1550px) { 
   .layermax { max-width: 1510px; }
 }
-@media (min-width: 1600px) { 
+@media (min-width: 1600px) {
+  .container { max-width: 1560px; }
+  .layer, .layeru { max-width: 1560px; }
   .layermax { max-width: 1560px; }
 }
 @media (min-width: 1650px) { 
   .layermax { max-width: 1610px; }
 }
-@media (min-width: 1700px) { 
+@media (min-width: 1700px) {
+  .container { max-width: 1660px; }
+  .layer, .layeru { max-width: 1660px; }
   .layermax { max-width: 1660px; }
 }
 @media (min-width: 1750px) { 
   .layermax { max-width: 1710px; }
 }
 @media (min-width: 1800px) { 
+  .container { max-width: 1760px; }
+  .layer, .layeru { max-width: 1760px; }
   .layermax { max-width: 1760px; }
 }
 @media (min-width: 1850px) { 
   .layermax { max-width: 1810px; }
 }
 @media (min-width: 1900px) { 
+  .container { max-width: 1860px; }
+  .layer, .layeru { max-width: 1860px; }
   .layermax { max-width: 1860px; }
 }
 @media (min-width: 1950px) { 
   .layermax { max-width: 1910px; }
 }
 @media (min-width: 2000px) { 
+  .container { max-width: 1960px; }
+  .layer, .layeru { max-width: 1960px; }
   .layermax { max-width: 1960px; }
+}
+@media (min-width: 2200px) {
+  .container { max-width: 2160px; }
+  .layer, .layeru { max-width: 2160px; }
+  .layermax { max-width: 2160px; }
 }
 
 #BrandLogo {
