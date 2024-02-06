@@ -325,8 +325,9 @@ public enum ProblemConverter {
 
         content.addln(questionHtml);
         content.addln("<div style='text-align:center;'>");
-        content.addln("<input type='text' data-lpignore='true' autocomplete='off' size='6' style='font-size:",
-                Float.toString(floatFontSize), "px;' name='ANSWER' id='ANSWER'>");
+        content.addln("<input type='text' data-lpignore='true' autocomplete='off' size='6' ",
+                "oninput=\"this.value = this.value.replace(/[^0-9./\\-\u03c0]/g, '');\" ",
+                "style='font-size:", Float.toString(floatFontSize), "px;' name='ANSWER' id='ANSWER'>");
         content.eDiv();
         problem.questionHtml = content.toString();
         content.reset();
