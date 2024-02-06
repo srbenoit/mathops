@@ -148,7 +148,7 @@ public final class DocInputDoubleField extends AbstractDocInputField {
             this.selectEnd = -1;
             this.caret = 0;
 
-            if (cleaned == null) {
+            if (cleaned == null || "null".equals(cleaned)) {
                 innerSetTextValue(CoreConstants.EMPTY);
                 this.caret = 0;
                 this.value = this.defaultValue;
