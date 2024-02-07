@@ -68,6 +68,12 @@ final class StdsMasteryStatus {
     /** The number of standards that are "pending" (assignment passed but not mastered). */
     int numStandardsPending;
 
+    /** The number of standards that are "pending" in the first half of the course. */
+    int numStandardsPendingFirstHalf;
+
+    /** The number of standards that are "pending" in the second half of the course. */
+    int numStandardsPendingSecondHalf;
+
     /** The student's total score. */
     int score;
 
@@ -81,7 +87,7 @@ final class StdsMasteryStatus {
      * @param pace      the student's pace
      * @param paceTrack the student's pace track
      * @param reg       the course registration for which to generate status
-     * @param isTutor   true if the user should have TUROR access to assignments
+     * @param isTutor   true if the user should have TUTOR access to assignments
      */
     StdsMasteryStatus(final Cache cache, final int pace, final String paceTrack, final RawStcourse reg,
                       final boolean isTutor) {
@@ -242,10 +248,16 @@ final class StdsMasteryStatus {
         }
 
         // Count the number of standards "pending" (assignment passed, standard not yet mastered)
+        final int max = NUM_STANDARDS >> 1;
         final int count = this.standardStatus.length;
         for (int i = 0; i < count; ++i) {
             if (this.assignmentStatus[i] == 2 && this.standardStatus[i] < 2) {
                 ++this.numStandardsPending;
+                if (i < max) {
+                    ++this.numStandardsPendingFirstHalf;
+                } else {
+                    ++this.numStandardsPendingSecondHalf;
+                }
             }
         }
     }
@@ -259,7 +271,7 @@ final class StdsMasteryStatus {
 
         int count = 0;
 
-        final int max = NUM_STANDARDS >> 2;
+        final int max = NUM_STANDARDS >> 1;
         for (int i = 0; i < max; ++i) {
             if (this.standardStatus[i] > 1) {
                 ++count;
@@ -278,7 +290,7 @@ final class StdsMasteryStatus {
 
         int count = 0;
 
-        final int min = NUM_STANDARDS >> 2;
+        final int min = NUM_STANDARDS >> 1;
         for (int i = min; i < NUM_STANDARDS; ++i) {
             if (this.standardStatus[i] > 1) {
                 ++count;

@@ -110,7 +110,7 @@ enum PageStdsCourse {
             // 3 pixel border all around, 16 pixels per standard plus 1-pixel dividing line
             // 6 + (12)(16) + 11 = 209 pixels total, 26-pixel gap, so 444 overall, second box starts at 235
 
-            htm.addln("<svg width='445' height='37'>");
+            htm.addln("<svg width='445' height='62'>");
             htm.addln("<defs>");
             htm.addln(" <linearGradient id='grad1' x1='0%' y1='0%' x2='0%' y2='100%'>");
             htm.addln("  <stop offset='0%' style='stop-color:rgb(217, 120, 45)'/>");
@@ -119,24 +119,53 @@ enum PageStdsCourse {
             htm.addln(" </linearGradient>");
             htm.addln("</defs>");
 
+            // Background
+            htm.addln("  <rect x='2' y='2' width='205' height='14' ",
+                    "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
+            htm.addln("  <rect x='237' y='2' width='205' height='14' ",
+                    "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
+
             // Fill the last two with green to show that as the target
             // 3 + (10)(16) + 10 = 173
-            htm.addln("  <rect x='173' y='3' width='34' height='13' style='fill:rgb(120,255,120);stroke-width:0px;'/>");
-            htm.addln("  <rect x='408' y='3' width='34' height='13' style='fill:rgb(120,255,120);stroke-width:0px;'/>");
+            htm.addln("  <rect x='173' y='3' width='34' height='12' style='fill:rgb(120,255,120);stroke-width:0px;'/>");
+            htm.addln("  <rect x='408' y='3' width='34' height='12' style='fill:rgb(120,255,120);stroke-width:0px;'/>");
 
-            // Paint the number of targets achieved in each half
-            if (targetsFirstHalf > 0) {
-                final int w = 17 * targetsFirstHalf;
-                final String wStr = Integer.toString(w);
-                htm.addln("  <rect x='3' y='3' width='", wStr,
-                        "' height='13' style='fill:url(#grad1);stroke-width:0px;'/>");
+            // Paint the number of targets achieved and pending in each half
+            if (targetsFirstHalf + masteryStatus.numStandardsPendingFirstHalf > 0) {
+                int left = 3;
+                if (targetsFirstHalf > 0) {
+                    final int w = 17 * targetsFirstHalf;
+                    final String xStr = Integer.toString(left);
+                    final String wStr = Integer.toString(w);
+                    htm.addln("  <rect x='", xStr, "' y='3' width='", wStr,
+                            "' height='12' style='fill:url(#grad1);stroke-width:0px;'/>");
+                    left += w;
+                }
+                if (masteryStatus.numStandardsPendingFirstHalf > 0) {
+                    final int w = 17 * masteryStatus.numStandardsPendingFirstHalf;
+                    final String xStr = Integer.toString(left);
+                    final String wStr = Integer.toString(w);
+                    htm.addln("  <rect x='", xStr, "' y='3' width='", wStr,
+                            "' height='12' style='fill:#F0E68C;stroke-width:0px;'/>");
+                }
             }
-
-            if (targetsSecondHalf > 0) {
-                final int w = 17 * targetsSecondHalf;
-                final String wStr = Integer.toString(w);
-                htm.addln("  <rect x='238' y='3' width='", wStr,
-                        "' height='13' style='fill:url(#grad1);stroke-width:0px;'/>");
+            if (targetsSecondHalf + masteryStatus.numStandardsPendingSecondHalf > 0) {
+                int left = 238;
+                if (targetsSecondHalf > 0) {
+                    final int w = 17 * targetsSecondHalf;
+                    final String xStr = Integer.toString(left);
+                    final String wStr = Integer.toString(w);
+                    htm.addln("  <rect x='", xStr, "' y='3' width='", wStr,
+                            "' height='12' style='fill:url(#grad1);stroke-width:0px;'/>");
+                    left += w;
+                }
+                if (masteryStatus.numStandardsPendingSecondHalf > 0) {
+                    final int w = 17 * masteryStatus.numStandardsPendingSecondHalf;
+                    final String xStr = Integer.toString(left);
+                    final String wStr = Integer.toString(w);
+                    htm.addln("  <rect x='", xStr, "' y='3' width='", wStr,
+                            "' height='12' style='fill:#F0E68C;stroke-width:0px;'/>");
+                }
             }
 
             // Recessed bevel border on both boxes...
@@ -144,15 +173,11 @@ enum PageStdsCourse {
                     "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
             htm.addln("  <rect x='1' y='1' width='207' height='16' ",
                     "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-            htm.addln("  <rect x='2' y='2' width='205' height='14' ",
-                    "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
 
             htm.addln("  <rect x='235' y='0' width='209' height='17' ",
                     "style='fill:none;stroke-width:1px;stroke:rgb(230,230,230);'/>");
             htm.addln("  <rect x='236' y='1' width='207' height='16' ",
                     "style='fill:none;stroke-width:1px;stroke:rgb(200,200,200);'/>");
-            htm.addln("  <rect x='237' y='2' width='205' height='14' ",
-                    "style='fill:rgb(250,250,235);stroke-width:1px;stroke:black;'/>");
 
             // Dividing lines
             for (int i = 1; i < 12; ++i) {
@@ -176,10 +201,21 @@ enum PageStdsCourse {
             }
 
             final String firstHalfStr = Integer.toString(targetsFirstHalf);
-            htm.addln("  <text x='12' y='34' style='font-size:16px;'>", firstHalfStr, " in first half</text>");
+            htm.addln("  <text x='6' y='34' style='font-size:16px;'>", firstHalfStr,
+                    " mastered in first half</text>");
 
             final String secondHalfStr = Integer.toString(targetsSecondHalf);
-            htm.addln("  <text x='247' y='34' style='font-size:16px;'>", secondHalfStr, " in second half</text>");
+            htm.addln("  <text x='241' y='34' style='font-size:16px;'>", secondHalfStr,
+                    " mastered in second half</text>");
+
+
+            final String firstHalfStr2 = Integer.toString(masteryStatus.numStandardsPendingFirstHalf);
+            htm.addln("  <text x='6' y='55' style='font-size:16px;'>Eligible for ", firstHalfStr2,
+                    " in first half</text>");
+
+            final String secondHalfStr2 = Integer.toString(masteryStatus.numStandardsPendingSecondHalf);
+            htm.addln("  <text x='241' y='55' style='font-size:16px;'>Eligible for ", secondHalfStr2,
+                    " in second half</text>");
 
             htm.addln("</svg>");
             htm.eP();
@@ -274,12 +310,12 @@ enum PageStdsCourse {
                 htm.sP().addln("<strong>You are currently eligible to master ", countStr,
                         " standards in the testing center.</strong>").eP();
 
-                if (count >= 6 && masteryStatus.maxUnit < 8) {
-                    final String nextUnitStr = Integer.toString(masteryStatus.maxUnit + 1);
-                    htm.sP().addln("<strong>You will not be able to access unit ", nextUnitStr,
-                                    " until you master standards in the testing center to get this total below six.",
-                                    "</strong>").eP();
-                }
+//                if (count >= 6 && masteryStatus.maxUnit < 8) {
+//                    final String nextUnitStr = Integer.toString(masteryStatus.maxUnit + 1);
+//                    htm.sP().addln("<strong>You will not be able to access unit ", nextUnitStr,
+//                                    " until you master standards in the testing center to get this total below six.",
+//                                    "</strong>").eP();
+//                }
             }
 
             htm.div("vgap0");
