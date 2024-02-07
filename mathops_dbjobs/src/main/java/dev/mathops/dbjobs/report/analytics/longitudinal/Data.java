@@ -1,6 +1,5 @@
-package dev.mathops.dbjobs.report.analytics;
+package dev.mathops.dbjobs.report.analytics.longitudinal;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -17,12 +16,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * An examination of longitudinal performance of students based on placement results, precalculus course outcomes.
+ * A loader for longitudinal data based on a file extract supplied by IRPE, and storage of the loaded data.
  */
-final class LongitudinalPerformance {
+final class Data {
 
     /** A line delimiter character. */
-    private static final int QUOTE = '"';
+    private static final int QUOTE = (int) '"';
 
     /** The expected number of fields in each line. */
     private static final int EXPECTED_FIELD_COUNT = 45;
@@ -31,48 +30,27 @@ final class LongitudinalPerformance {
     private static final int EXPECTED_NUM_STUDENTS = 60000;
 
     /** A character used to indicate "TRUE" in a flag field. */
-    private static final int FLAG_TRUE_CHAR = '1';
+    private static final int FLAG_TRUE_CHAR = (int) '1';
 
     /** A character used to indicate "FALSE" in a flag field. */
-    private static final int FLAG_FALSE_CHAR = '0';
+    private static final int FLAG_FALSE_CHAR = (int) '0';
 
     /** A container for fields as they are parsed from the data file. */
     private final List<String> fields;
 
     /** A map from PID to cohort data. */
-    private final Map<String, StudentCohortData> cohortData;
+    private final Map<String, StudentCohortRecord> cohortData;
 
     /** A map from PID to a (sorted) map from term sequence to term data. */
-    private final Map<String, Map<Integer, TermData>> termData;
+    private final Map<String, Map<Integer, TermRecord>> termData;
 
-    /** A map from PID to a (sorted) map from term sequence to term data. */
-    private final Map<String, Map<Integer, List<RegData>>> regData;
-
-    /** A container for the data about a student that does not change between lines in the data file. */
-    private record StudentCohortData(String pid, String fallTerm, String term, String applyType, String fullTime,
-                                     String collegeName, String deptName, String programDesc, boolean female,
-                                     boolean rm, boolean firstGen, boolean pell, boolean resident, Float hsGpa,
-                                     boolean srsFlag, boolean struggledMathHs, boolean lowMathTestScore,
-                                     boolean dfGradeMath, boolean mathFlags, boolean lowGpa) {
-    }
-
-    /** A container for the data about a single term for a student. */
-    private record TermData(String pid, Integer termSeq, String termCalc, String masterTerm, boolean censusFlag,
-                            boolean deceased, String censusCollege, String censusDept, String censusProgram,
-                            String censusClass, boolean eotFlag, Float eotTermGpa, Float eotCsuGpa,
-                            Boolean eotProbation, Boolean persisted, Boolean graduated) {
-    }
-
-    /** A container for the data about a single course registration. */
-    private record RegData(String pid, Integer termSeq, String course, String section, String instructionType,
-                           String college, String collegeCode, String dept, String deptCode, String gradeGroup,
-                           Float gradePoints, String grade) {
-    }
+    /** A map from PID to a (sorted) map from term sequence to registration data. */
+    private final Map<String, Map<Integer, List<RegRecord>>> regData;
 
     /**
      * Constructs a new {@code LongitudinalPerformance}.
      */
-    private LongitudinalPerformance() {
+    Data() {
 
         this.fields = new ArrayList<>(EXPECTED_FIELD_COUNT);
         this.cohortData = new HashMap<>(EXPECTED_NUM_STUDENTS);
@@ -81,15 +59,41 @@ final class LongitudinalPerformance {
     }
 
     /**
-     * Executes the job.
-     *
-     * @return a report
+     * Gets a map from PID to cohort data.
      */
-    private String execute() {
-        final File sourceDir = new File("F:\\OneDrive - Colostate\\Desktop\\SSI\\analysis\\");
-        final File sourceData = new File(sourceDir, "export.txt");
+    Map<String, StudentCohortRecord> getCohortData() {
 
-        final Collection<String> report = new ArrayList<>(50);
+        return this.cohortData;
+    }
+
+    /**
+     * Gets a map from PID to a (sorted) map from term sequence to term data.
+     */
+    Map<String, Map<Integer, TermRecord>> getTermData() {
+
+        return this.termData;
+    }
+
+    /**
+     * Gets a map from PID to a (sorted) map from term sequence to registration data.
+     */
+    Map<String, Map<Integer, List<RegRecord>>> getRegData() {
+
+        return this.regData;
+    }
+
+    /**
+     * Loads the data from the extract file.
+     *
+     * @param report a collection to which to add report lines
+     * @return true if loading succeeded; false if loading failed
+     */
+    boolean isLoadSuccessful(final Collection<? super String> report) {
+
+        boolean ok = true;
+
+        final File sourceDir = new File("D:\\OneDrive - Colostate\\Desktop\\SSI\\analysis\\");
+        final File sourceData = new File(sourceDir, "export.txt");
 
         if (sourceData.exists()) {
             if (isSourceDataLoaded(sourceData, report)) {
@@ -100,29 +104,24 @@ final class LongitudinalPerformance {
                 report.add(numStudentsMsg);
 
                 int numTerms = 0;
-                for (final Map<Integer, TermData> map : this.termData.values()) {
+                for (final Map<Integer, TermRecord> map : this.termData.values()) {
                     numTerms += map.size();
                 }
 
                 final String numTermsStr = Integer.toString(numTerms);
                 final String numTermsMsg = Res.fmt(Res.NUM_TERMS_FOUND, numTermsStr);
                 report.add(numTermsMsg);
-
-                // TODO:
+            } else {
+                ok = false;
             }
         } else {
             final String absPath = sourceData.getAbsolutePath();
             final String notFoundMsg = Res.fmt(Res.SOURCE_FILE_NOT_FOUND, absPath);
             report.add(notFoundMsg);
+            ok = false;
         }
 
-        final int numReportLines = report.size();
-        final HtmlBuilder htm = new HtmlBuilder(numReportLines * 40);
-        for (final String rep : report) {
-            htm.addln(rep);
-        }
-
-        return htm.toString();
+        return ok;
     }
 
     /**
@@ -232,11 +231,11 @@ final class LongitudinalPerformance {
         final boolean isMathFlags = isFlagTrue(18, lineNumber, report);
         final boolean isLowGpa = isFlagTrue(19, lineNumber, report);
 
-        final StudentCohortData row = new StudentCohortData(pid, fallTerm, term, applyType, fullTime, collegeName,
+        final StudentCohortRecord row = new StudentCohortRecord(pid, fallTerm, term, applyType, fullTime, collegeName,
                 deptName, programDesc, isFemale, isRm, isFirstGen, isPell, isResident, hsGpaFloat, isSrsFlag,
                 isStruggledMathHs, isLowMathTestScore, isDfGradeMath, isMathFlags, isLowGpa);
 
-        final StudentCohortData existing = this.cohortData.get(pid);
+        final StudentCohortRecord existing = this.cohortData.get(pid);
         if (existing == null) {
             this.cohortData.put(pid, row);
         } else if (!existing.equals(row)) {
@@ -254,7 +253,7 @@ final class LongitudinalPerformance {
      */
     private void processTermFields(final int lineNumber, final Collection<? super String> report) {
 
-        final String pid = this.fields.get(0);
+        final String pid = this.fields.getFirst();
         final Integer termSeq = parseTermSeq(lineNumber, report);
         final String termCalc = this.fields.get(21);
         final String masterTerm = this.fields.get(22);
@@ -271,13 +270,13 @@ final class LongitudinalPerformance {
         final Boolean isPersisted = parseBoolean(33, lineNumber, report);
         final Boolean isGraduated = parseBoolean(34, lineNumber, report);
 
-        final TermData termRow = new TermData(pid, termSeq, termCalc, masterTerm, isCensusFlag, isDeceased,
+        final TermRecord termRow = new TermRecord(pid, termSeq, termCalc, masterTerm, isCensusFlag, isDeceased,
                 censusCollege, censusDept, censusProgram, censusClass, isEotFlag, termGpaFloat, csuGpaFloat,
                 eotProbation, isPersisted, isGraduated);
 
-        final Map<Integer, TermData> inner = this.termData.computeIfAbsent(pid, s -> new TreeMap<>());
+        final Map<Integer, TermRecord> inner = this.termData.computeIfAbsent(pid, s -> new TreeMap<>());
 
-        final TermData existing = inner.get(termSeq);
+        final TermRecord existing = inner.get(termSeq);
         if (existing == null) {
             inner.put(termSeq, termRow);
         } else if (!existing.equals(termRow)) {
@@ -295,7 +294,7 @@ final class LongitudinalPerformance {
      */
     private void processRegFields(final int lineNumber, final Collection<? super String> report) {
 
-        final String pid = this.fields.get(0);
+        final String pid = this.fields.getFirst();
         final Integer termSeq = parseTermSeq(lineNumber, report);
         final String course = this.fields.get(35);
         final String section = this.fields.get(36);
@@ -308,11 +307,11 @@ final class LongitudinalPerformance {
         final Float gradePoints = parseGpa(43, lineNumber, report);
         final String grade = this.fields.get(44);
 
-        final RegData regRow = new RegData(pid, termSeq, course, section, instructionType, college, collegeCode,
+        final RegRecord regRow = new RegRecord(pid, termSeq, course, section, instructionType, college, collegeCode,
                 dept, deptCode, gradeGroup, gradePoints, grade);
 
-        final Map<Integer, List<RegData>> inner = this.regData.computeIfAbsent(pid, s -> new TreeMap<>());
-        final List<RegData> innerList = inner.computeIfAbsent(termSeq, k -> new ArrayList<>(6));
+        final Map<Integer, List<RegRecord>> inner = this.regData.computeIfAbsent(pid, s -> new TreeMap<>());
+        final List<RegRecord> innerList = inner.computeIfAbsent(termSeq, k -> new ArrayList<>(6));
         innerList.add(regRow);
     }
 
@@ -330,7 +329,7 @@ final class LongitudinalPerformance {
 
         final String flagString = this.fields.get(fieldIndex);
         if (flagString.length() == 1) {
-            final int flagChar = flagString.charAt(0);
+            final int flagChar = (int) flagString.charAt(0);
             if (flagChar == FLAG_TRUE_CHAR) {
                 result = true;
             } else {
@@ -392,7 +391,7 @@ final class LongitudinalPerformance {
         final String toParse = this.fields.get(fieldIndex);
         if (!toParse.isBlank()) {
             if (toParse.length() == 1) {
-                final int flagChar = toParse.charAt(0);
+                final int flagChar = (int) toParse.charAt(0);
                 if (flagChar == FLAG_TRUE_CHAR) {
                     result = Boolean.TRUE;
                 } else if (flagChar == FLAG_FALSE_CHAR) {
@@ -443,21 +442,6 @@ final class LongitudinalPerformance {
     @Override
     public String toString() {
 
-        return "LongitudinalPerformance{fields size=" + this.fields.size() + " cohortData size="
-                + this.cohortData.size() + "}";
-    }
-
-    /**
-     * Main method to run the job.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(final String... args) {
-
-        final LongitudinalPerformance job = new LongitudinalPerformance();
-
-        final String report = job.execute();
-
-        Log.info(report);
+        return "Data";
     }
 }

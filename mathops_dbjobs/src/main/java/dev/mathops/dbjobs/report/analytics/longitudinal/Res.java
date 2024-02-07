@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.analytics;
+package dev.mathops.dbjobs.report.analytics.longitudinal;
 
 import dev.mathops.commons.res.ResBundle;
 
