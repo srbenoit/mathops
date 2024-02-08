@@ -109,6 +109,9 @@ final class Res extends ResBundle {
     static final String RAMREADY_SVC = key(index++);
 
     /** A resource key. */
+    static final String RAMSTART_SVC = key(index++);
+
+    /** A resource key. */
     static final String MISSING_XFER_HEADING = key(index++);
 
     //
@@ -156,6 +159,7 @@ final class Res extends ResBundle {
                     + "so you can take those courses during {1}."},
 
             {RAMREADY_SVC, "RamReady Mathematics Plan and Placement Status Service"},
+            {RAMSTART_SVC, "RamStart Mathematics Plan and Placement Status Service"},
 
             {MISSING_XFER_HEADING,
                     "If my <span class='hidebelow500'>Mathematics</span> Transfer Credit is not up to date:"},

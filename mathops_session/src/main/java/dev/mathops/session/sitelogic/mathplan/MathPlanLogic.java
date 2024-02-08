@@ -14,12 +14,14 @@ import dev.mathops.db.old.ifaces.ILiveCsuCredit;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
+import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -4306,12 +4308,25 @@ public final class MathPlanLogic {
      *
      * @param cache     the data cache
      * @param studentId the student ID
-     * @return {@code true} if the student has taken a placement exam
+     * @return the date/time the student first completed the placement tool; null if they have not yet done so
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean hasTakenPlacement(final Cache cache, final String studentId) throws SQLException {
+    public static LocalDateTime hasTakenPlacement(final Cache cache, final String studentId) throws SQLException {
 
-        return !RawStmpeLogic.queryLegalByStudent(cache, studentId).isEmpty();
+        LocalDateTime result = null;
+
+        final List<RawStmpe> legal = RawStmpeLogic.queryLegalByStudent(cache, studentId);
+        for (final RawStmpe row : legal) {
+            if (row.examDt != null && row.finishTime != null) {
+                final LocalDateTime timestamp = TemporalUtils.toLocalDateTime(row.examDt, row.finishTime);
+
+                if (result == null || result.isAfter(timestamp)) {
+                    result = timestamp;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -4337,59 +4352,123 @@ public final class MathPlanLogic {
     }
 
     /**
-     * Tests whether the student identified by a PIDM has completed the Math Placement process.
+     * Determines the date/time the student completed the Math Plan.
      *
      * @param cache the data cache
      * @param pidm  the PIDM
+     * @return the date/time the student completed the math plan, {@code null} if they have not yet done so
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static LocalDateTime getMathPlanWhenCompleted(final Cache cache, final int pidm) throws SQLException {
+
+        final Integer pidmObj = Integer.valueOf(pidm);
+
+        final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, pidmObj,
+                INTENTIONS_PROFILE);
+
+        final LocalDateTime when;
+        if (responses.isEmpty()) {
+            when = null;
+        } else {
+            final RawStmathplan row = responses.getFirst();
+            when = TemporalUtils.toLocalDateTime(row.examDt, row.finishTime);
+        }
+
+        return when;
+    }
+
+    /**
+     * Tests whether the student identified by a PIDM has completed the Math Placement process.
+     *
+     * @param cache the data cache
+     * @param studentId  the student ID
      * @return 0 if the student's Math Plan indicates they do not need to complete placement; 1 if the student should
      *         complete math placement but has not yet done so; 2 is math placement has been completed
      * @throws SQLException if there is an error accessing the database
      */
-    public int getMathPlacementStatus(final Cache cache, final int pidm) throws SQLException {
+    public static MathPlanPlacementStatus getMathPlacementStatus(final Cache cache, final String studentId) throws SQLException {
 
-        int result;
+        boolean satisfiedByPlacement = false;
+        boolean satisfiedByTransfer = false;
+        boolean satisfiedByCourse = false;
 
-        final String studentId = getMathPlanStatus(cache, pidm);
+        final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
+        if (!attempts.isEmpty()) {
+            satisfiedByPlacement = true;
+        }
 
-        if (studentId == null) {
-            // Question is not yet relevant for this student until Math Plan has been completed
-            result = 0;
-        } else {
-            final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
-
-            final RawStmathplan record = responses.get(Integer.valueOf(2));
-            final String response = record == null ? null : record.stuAnswer;
-
-            final boolean shouldDoPlacement = "Y".equals(response);
-
-            if (shouldDoPlacement) {
-                // Clear flag if placement has been attempted
-                final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
-
-                result = attempts.isEmpty() ? 1 : 2;
-
-                if (result == 1) {
-                    // Also check for new transfer credit in any Precalculus course
-                    getStudentTransferCredit(cache, studentId, true);
-
-                    final List<RawFfrTrns> xfers = RawFfrTrnsLogic.queryByStudent(cache, studentId);
-                    for (final RawFfrTrns xfer : xfers) {
-                        if (RawRecordConstants.M117.equals(xfer.course)
-                                || RawRecordConstants.M118.equals(xfer.course)
-                                || RawRecordConstants.M124.equals(xfer.course)
-                                || RawRecordConstants.M125.equals(xfer.course)
-                                || RawRecordConstants.M126.equals(xfer.course)
-                                || RawRecordConstants.M002.equals(xfer.course)) {
-                            // M 002 is a community college course that clears prereqs for 117
-                            result = 2;
-                            break;
-                        }
-                    }
+        if (!satisfiedByPlacement) {
+            final List<RawFfrTrns> xfers = RawFfrTrnsLogic.queryByStudent(cache, studentId);
+            for (final RawFfrTrns xfer : xfers) {
+                if (RawRecordConstants.M117.equals(xfer.course)
+                        || RawRecordConstants.M118.equals(xfer.course)
+                        || RawRecordConstants.M124.equals(xfer.course)
+                        || RawRecordConstants.M125.equals(xfer.course)
+                        || RawRecordConstants.M126.equals(xfer.course)
+                        || "M 160".equals(xfer.course)
+                        || "M 155".equals(xfer.course)
+                        || "M 141".equals(xfer.course)
+                        || "M 120".equals(xfer.course)
+                        || "M 127".equals(xfer.course)
+                        || "M 161".equals(xfer.course)
+                        || RawRecordConstants.M002.equals(xfer.course)) {
+                    // M 002 is a community college course that clears prereqs for 117
+                    satisfiedByTransfer = true;
+                    break;
                 }
-            } else {
-                result = 0;
             }
         }
+
+        if (!satisfiedByTransfer) {
+            final List<RawStcourse> regs = RawStcourseLogic.queryByStudent(cache, studentId, false, false);
+            for (final RawStcourse reg : regs) {
+                if ("Y".equals(reg.completed)) {
+                    if (RawRecordConstants.M117.equals(reg.course)
+                            || RawRecordConstants.M118.equals(reg.course)
+                            || RawRecordConstants.M124.equals(reg.course)
+                            || RawRecordConstants.M125.equals(reg.course)
+                            || RawRecordConstants.M126.equals(reg.course)) {
+                        satisfiedByCourse = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        MathPlanPlacementStatus result;
+
+        if (satisfiedByPlacement) {
+
+        }
+
+
+
+
+
+
+//        final String studentId = getMathPlanStatus(cache, pidm);
+//
+//        if (studentId == null) {
+//            // Question is not yet relevant for this student until Math Plan has been completed
+//            result = 0;
+//        } else {
+//            final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
+//
+//            final RawStmathplan record = responses.get(Integer.valueOf(2));
+//            final String response = record == null ? null : record.stuAnswer;
+//
+//            final boolean shouldDoPlacement = "Y".equals(response);
+//
+//            if (shouldDoPlacement) {
+//                // Clear flag if placement has been attempted
+//                final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
+//
+//                result = attempts.isEmpty() ? 1 : 2;
+//
+//            } else {
+//                result = 0;
+//            }
+//        }
 
         return result;
     }

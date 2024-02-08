@@ -33,7 +33,6 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
 
     /** Correct passwords - note that ProctorU does not allow tildes. */
     private static final String[] CORRECT = {"AfumwaviLiz7", "UpqoujziAki6", "EvjiosgoAwoq"};
-    // Older, retired passwords:  "Racibetu", "Big7oge7", "Hetebife"};
 
     /**
      * Constructs a new {@code PrecalcTutorialSite}.
@@ -41,8 +40,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
      * @param theSiteProfile the website profile
      * @param theSessions    the singleton user session repository
      */
-    public PrecalcTutorialSite(final WebSiteProfile theSiteProfile,
-                               final ISessionManager theSessions) {
+    public PrecalcTutorialSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
 
         super(theSiteProfile, theSessions);
     }
