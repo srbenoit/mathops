@@ -12,12 +12,15 @@ import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawUsers;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -942,6 +945,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             verified = lookForRecentLicensingExam(licensings);
         }
 
+        if (!verified) {
+            final List<MasteryAttemptRec> masteries = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
+            verified = lookForRecentMasteryAttempt(masteries, minutes);
+        }
+
         return verified;
     }
 
@@ -1031,6 +1039,37 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
 
         return found;
     }
+
+    /**
+     * Looks for a mastery exam attempt in a list of student mastery attempts whose finish time is greater than some
+     * target value.
+     *
+     * @param list the list to search
+     * @param minutes the finish time
+     * @return {@code true} if the list contained any exams with finish time greater than or equal to the target minute
+     */
+    private static boolean lookForRecentMasteryAttempt(final Iterable<MasteryAttemptRec> list, final int minutes) {
+
+        boolean found = false;
+        final LocalDate today = LocalDate.now();
+
+        for (final MasteryAttemptRec exam : list) {
+            final LocalDateTime whenFinished = exam.whenFinished;
+
+            if (whenFinished.toLocalDate().isEqual(today)) {
+                final int finishMinute = TemporalUtils.minuteOfDay(whenFinished);
+
+                if (finishMinute >= minutes) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        return found;
+    }
+
+
 
     /**
      * Executes a query that returns a list of records.

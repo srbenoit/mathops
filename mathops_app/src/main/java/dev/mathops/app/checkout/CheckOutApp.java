@@ -22,6 +22,7 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 
 import javax.swing.JFrame;
