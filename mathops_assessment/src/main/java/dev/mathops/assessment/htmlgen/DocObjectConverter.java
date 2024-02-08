@@ -231,7 +231,7 @@ public enum DocObjectConverter {
             htm.add(convertDocNonwrappingSpan(column, obj.getNumerator(), styleStack, enabled, id, context, inMath));
         }
         htm.eTd().eTr();
-        htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center; padding:.2em; ",
+        htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center; padding:0 .2em; ",
                 "line-height:1em;'>");
         htm.addln("<span class='sr-only'> and whose denominator is </span>");
         if (obj.getDenominator() != null) {
