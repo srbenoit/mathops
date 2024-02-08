@@ -62,13 +62,16 @@ final class AnalyzeLongitudinalPerformance {
 
         final Map<String, Map<Integer, TermRecord>> termData = this.data.getTermData();
 
-        final Set<String> distinctTrajectories = new HashSet<>(12000);
+        final Set<String> distinctTrajectories = new HashSet<>(100);
 
         for (final Map.Entry<String, Map<Integer, TermRecord>> entry : termData.entrySet()) {
             final Map<Integer, TermRecord> termRecords = entry.getValue();
             final String trajectoryString = makeTrajectoryString(termRecords);
 
-            distinctTrajectories.add(trajectoryString);
+            if (!distinctTrajectories.contains(trajectoryString)) {
+                Log.fine(trajectoryString);
+                distinctTrajectories.add(trajectoryString);
+            }
         }
 
         report.add("Discovered " + distinctTrajectories.size() + " distinct trajectories");
@@ -86,11 +89,7 @@ final class AnalyzeLongitudinalPerformance {
 
         for (final TermRecord rec : termRecords.values()) {
             htm.add(rec.termSeq());
-            htm.add(rec.censusClass());
-            htm.add(rec.censusFlag() ? "1" : "0");
-            htm.add(rec.deceased() ? "1" : "0");
-            htm.add(rec.eotFlag() ? "1" : "0");
-            htm.add(Boolean.TRUE.equals(rec.graduated()) ? "1" : "0");
+            htm.add(Boolean.TRUE.equals(rec.graduated()) ? "Y" : "N");
         }
         return htm.toString();
     }

@@ -11,6 +11,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
+import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,14 +56,13 @@ enum PageSecureLanding {
         boolean placementRequired = true;
         boolean placementCompleted = false;
         boolean attemptsRemain = true;
-        final int placementStatus;
         if (stu != null && stu.pidm != null) {
             if (planCompleted) {
-                final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
-                placementStatus = logic.getMathPlacementStatus(cache, stu.pidm.intValue());
-                if (placementStatus == 0) {
+                final MathPlanPlacementStatus placementStatus = MathPlanLogic.getMathPlacementStatus(cache, stu.stuId);
+
+                if (!placementStatus.isPlacementNeeded) {
                     placementRequired = false;
-                } else if (placementStatus == 2) {
+                } else if (placementStatus.isPlacementComplete) {
                     placementCompleted = true;
                 }
             } else {

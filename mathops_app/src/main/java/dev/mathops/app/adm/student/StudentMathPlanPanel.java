@@ -13,6 +13,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -250,25 +251,24 @@ import java.util.List;
                                 "Orientation."));
                     } else {
                         this.checkMathPlanStatus.setText("COMPLETED");
-                        this.checkMathPlanMessage
-                                .setText(SimpleBuilder.concat("Review my Mathematics Plan."));
+                        this.checkMathPlanMessage.setText(SimpleBuilder.concat("Review my Mathematics Plan."));
                     }
 
                     final MathPlanLogic logic = new MathPlanLogic(cache.dbProfile);
-                    final int status = logic.getMathPlacementStatus(cache, pidm.intValue());
+                    final MathPlanPlacementStatus status = logic.getMathPlacementStatus(cache, studentId);
 
-                    if (status == 0) {
-                        this.checkMathPlacementStatus.setText("(empty)");
-                        this.checkMathPlacementMessage.setText("(empty)");
-                    } else if (status == 2) {
+                    if (status.isPlacementComplete) {
                         this.checkMathPlacementStatus.setText("COMPLETED");
                         this.checkMathPlacementMessage.setText("Review my Math Placement results");
-                    } else {
+                    } else if (status.isPlacementNeeded) {
                         this.checkMathPlacementStatus.setText("NOT STARTED");
-                        this.checkMathPlacementMessage.setText(SimpleBuilder.concat( //
-                                "Complete the Math Placement Process\r\n", //
+                        this.checkMathPlacementMessage.setText(SimpleBuilder.concat(
+                                "Complete the Math Placement Process\r\n",
                                 "Based on your personalized Mathematics Plan, you should complete ",
                                 "the Math Placement process before Ram Orientation."));
+                    } else {
+                        this.checkMathPlacementStatus.setText("(empty)");
+                        this.checkMathPlacementMessage.setText("(empty)");
                     }
                 }
             }

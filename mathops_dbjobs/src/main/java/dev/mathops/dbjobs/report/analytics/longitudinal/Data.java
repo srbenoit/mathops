@@ -92,7 +92,7 @@ final class Data {
 
         boolean ok = true;
 
-        final File sourceDir = new File("D:\\OneDrive - Colostate\\Desktop\\SSI\\analysis\\");
+        final File sourceDir = new File("F:\\OneDrive - Colostate\\Desktop\\SSI\\analysis\\");
         final File sourceData = new File(sourceDir, "export.txt");
 
         if (sourceData.exists()) {

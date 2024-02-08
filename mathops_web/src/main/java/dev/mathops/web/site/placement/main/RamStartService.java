@@ -6,6 +6,7 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
@@ -341,11 +342,7 @@ enum RamStartService {
 
         final LocalDateTime whenMathPlanCompleted = MathPlanLogic.getMathPlanWhenCompleted(cache, pidm);
         final LocalDateTime whenPlacementCompleted = MathPlanLogic.hasTakenPlacement(cache, student.stuId);
-
-        // 0 = Placement not needed; 1 = placement needed but not yet completed; 2 = placement completed or
-        // requirements satisfied
-        final int status = MathPlanLogic.getMathPlacementStatus(cache, pidm);
-
+        final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, student.stuId);
 
         if (whenMathPlanCompleted == null || whenPlacementCompleted == null) {
 

@@ -28,15 +28,18 @@ import java.util.Map;
  *
  * Column name          Type                      Nulls   Key
  * -------------------  ------------------------  ------  -----
- * stu_id               char(9)                   no      PK
- * etext_id             char(6)                   no      PK
- * active_dt            date                      no      PK
- * etext_key            char(20)                  yes
- * expiration_dt        date                      yes
- * refund_deadline_dt   date                      yes
- * refund_dt            date                      yes
- * refund_reason        char(60)                  yes
+ * stu_id               char(9)                   no
+ * pidm                 integer                   no
+ * apln_term            char(4)                   yes
+ * version              char(5)                   no
+ * exam_dt              date                      no
+ * survey_nbr           smallint                  no
+ * stu_answer           char(50)                  yes
+ * finish_time          integer                   no
+ * session              bigint                    yes
  * </pre>
+ *
+ *
  */
 public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
 

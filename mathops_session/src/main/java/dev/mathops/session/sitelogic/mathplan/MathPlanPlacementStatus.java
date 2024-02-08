@@ -5,7 +5,7 @@ package dev.mathops.session.sitelogic.mathplan;
  */
 public class MathPlanPlacementStatus {
 
-    /** True if placement is needed based on Math Plan responses. */
+    /** True if student has completed the Math Plan and plan indicates placement is needed. */
     public final boolean isPlacementNeeded;
 
     /** True if placement requirement has been satisfied (even if Math Plan indicates placement is not needed). */
@@ -25,7 +25,7 @@ public class MathPlanPlacementStatus {
     /**
      * Constructs a new {@code MathPlanPlacementStatus}
      *
-     * @param placementNeeded    true if placement is needed based on Math Plan responses
+     * @param placementNeeded    true if student has completed the Math Plan and plan indicates placement is needed
      * @param placementSatisfied true if placement requirement has been satisfied (even if Math Plan indicates placement
      *                           is not needed)
      * @param how                f placement requirement has been satisfied, how.  One of the following

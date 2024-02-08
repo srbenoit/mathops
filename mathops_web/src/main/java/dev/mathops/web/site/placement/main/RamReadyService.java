@@ -3,7 +3,10 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -370,17 +373,22 @@ enum RamReadyService {
         final String pidmStr = subpath.substring(CHECK_MATH_PLACEMENT.length());
 
         try {
-            final int pidm = Integer.parseInt(pidmStr);
+            final Integer pidmObj = Integer.valueOf(pidmStr);
+            final RawStudent student = RawStudentLogic.queryByInternalId(cache, pidmObj);
 
-            final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
-            final int status = logic.getMathPlacementStatus(cache, pidm);
-
-            if (status == 0) {
-                sendEmptyMessage(req, resp);
-            } else if (status == 2) {
-                sendCompletedPlacementMessage(req, resp);
+            if (student == null) {
+                Log.warning("Invalid PIDM string: ", pidmStr);
+                sendErrorMessage(req, resp, "Math Placement status not available.");
             } else {
-                sendMathPlacementNotCompletedMessage(req, resp);
+                final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, student.stuId);
+
+                if (status.isPlacementComplete) {
+                    sendCompletedPlacementMessage(req, resp);
+                } else if (status.isPlacementNeeded) {
+                    sendMathPlacementNotCompletedMessage(req, resp);
+                } else {
+                    sendEmptyMessage(req, resp);
+                }
             }
         } catch (final NumberFormatException ex) {
             Log.warning("Invalid PIDM string: ", pidmStr, ex);

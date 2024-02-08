@@ -16,6 +16,7 @@ import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.enums.ERole;
@@ -1185,7 +1186,8 @@ public final class LtaSession extends HtmlSessionBase {
             if (RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(), "TUTOR", "M384", "ADMIN")) {
                 sthw.sect = "001";
             } else {
-                return "Unable to look up course registration.";
+                return SimpleBuilder.concat("Unable to look up course registration for ", this.studentId, " in ",
+                        exam.course);
             }
         } else {
             sthw.sect = stcourse.sect;

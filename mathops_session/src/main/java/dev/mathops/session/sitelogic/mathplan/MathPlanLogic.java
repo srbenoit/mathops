@@ -4386,11 +4386,19 @@ public final class MathPlanLogic {
      *         complete math placement but has not yet done so; 2 is math placement has been completed
      * @throws SQLException if there is an error accessing the database
      */
-    public static MathPlanPlacementStatus getMathPlacementStatus(final Cache cache, final String studentId) throws SQLException {
+    public static MathPlanPlacementStatus getMathPlacementStatus(final Cache cache, final String studentId)
+            throws SQLException {
 
+        boolean planSaysPlacementNeeded = false;
         boolean satisfiedByPlacement = false;
         boolean satisfiedByTransfer = false;
         boolean satisfiedByCourse = false;
+
+        final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
+        final RawStmathplan record = responses.get(Integer.valueOf(2));
+        if (record != null && "Y".equals(record.stuAnswer)) {
+            planSaysPlacementNeeded = true;
+        }
 
         final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
         if (!attempts.isEmpty()) {
@@ -4435,40 +4443,19 @@ public final class MathPlanLogic {
             }
         }
 
+
         MathPlanPlacementStatus result;
 
         if (satisfiedByPlacement) {
-
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true,
+                    EHowSatisfiedPlacement.MATH_PLACEMENT_COMPLETED);
+        } else if (satisfiedByTransfer) {
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.TRANSFER_CREDIT);
+        } else if (satisfiedByCourse) {
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.COURSE_CREDIT);
+        } else {
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, false, null);
         }
-
-
-
-
-
-
-//        final String studentId = getMathPlanStatus(cache, pidm);
-//
-//        if (studentId == null) {
-//            // Question is not yet relevant for this student until Math Plan has been completed
-//            result = 0;
-//        } else {
-//            final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
-//
-//            final RawStmathplan record = responses.get(Integer.valueOf(2));
-//            final String response = record == null ? null : record.stuAnswer;
-//
-//            final boolean shouldDoPlacement = "Y".equals(response);
-//
-//            if (shouldDoPlacement) {
-//                // Clear flag if placement has been attempted
-//                final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
-//
-//                result = attempts.isEmpty() ? 1 : 2;
-//
-//            } else {
-//                result = 0;
-//            }
-//        }
 
         return result;
     }
@@ -4594,8 +4581,8 @@ public final class MathPlanLogic {
                 final String status1 = getMathPlanStatus(cache, 10567708);
                 Log.info("Student 823251213 plan status: " + status1);
 
-                final int status2 = logic.getMathPlacementStatus(cache, 11862174);
-                Log.info("Student 823251213 placement status: " + status2);
+                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "823251213");
+                Log.info("Student 823251213 placement status: ", status2);
             } finally {
                 ctx.checkInConnection(conn);
             }
