@@ -17,6 +17,14 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.rec.StandardMilestoneRec;
+import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
+import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
+import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
@@ -34,6 +42,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
@@ -182,17 +191,22 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final Cache cache, final SiteData data,
                                             final String studentId, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-
-        final String key = active.term.shortString;
-
         final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
+        boolean newCourses = false;
 
         // Make sure each course has a pace order
         int max = 0;
         int numMissing = 0;
         if (regs != null) {
             for (final RawStcourse sc : regs) {
+                final String courseId = sc.course;
+                if (RawRecordConstants.MATH117.equals(courseId)
+                        || RawRecordConstants.MATH118.equals(courseId)
+                        || RawRecordConstants.MATH124.equals(courseId)
+                        || RawRecordConstants.MATH125.equals(courseId)
+                        || RawRecordConstants.MATH126.equals(courseId)) {
+                    newCourses = true;
+                }
                 if (sc.paceOrder == null) {
                     ++numMissing;
                 } else {
@@ -217,6 +231,28 @@ enum PageStudentSchedule {
             }
         }
 
+        if (newCourses) {
+            emitStudentScheduleNew(cache, data, studentId, max, htm);
+        } else {
+            emitStudentScheduleOld(cache, data, studentId, max, htm);
+        }
+    }
+
+    /**
+     * Emits the student's schedule for an "old" course.
+     *
+     * @param cache     the data cache
+     * @param data      the site data
+     * @param studentId the student ID
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitStudentScheduleOld(final Cache cache, final SiteData data, final String studentId,
+                                               final int max, final HtmlBuilder htm) throws SQLException {
+
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final String key = active.term.shortString;
+
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
         if (stterm == null || stterm.paceTrack == null) {
             htm.sH(4).add(Integer.toString(max), "-course pace").eH(4);
@@ -238,6 +274,7 @@ enum PageStudentSchedule {
 
         final LocalDate today = LocalDate.now();
 
+        final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
         for (int order = 1; order <= max; ++order) {
             RawStcourse reg = null;
             for (final RawStcourse sc : regs) {
@@ -471,6 +508,156 @@ enum PageStudentSchedule {
                 htm.sP().addln("</details>").eP();
             }
         }
+    }
+
+    /**
+     * Emits the student's schedule for a "new" course.
+     *
+     * @param cache     the data cache
+     * @param data      the site data
+     * @param studentId the student ID
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitStudentScheduleNew(final Cache cache, final SiteData data, final String studentId,
+                                               final int max, final HtmlBuilder htm) throws SQLException {
+
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final String key = active.term.shortString;
+
+        final RawStterm stterm = data.milestoneData.getStudentTerm(key);
+        if (stterm == null) {
+            htm.sP().add("No STTERM record found").eP();
+        } else {
+            final List<StandardMilestoneRec>  milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
+                    stterm.paceTrack, stterm.pace);
+            milestones.sort(null);
+
+            final List<StudentStandardMilestoneRec>  overrides =
+                    StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
+                    stterm.paceTrack, stterm.pace);
+
+            final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
+            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
+
+            htm.sTable("report");
+            htm.sTr().sTh().add("Course").eTh()
+                    .sTh().add("Pace Index").eTh()
+                    .sTh().add("Module").eTh()
+                    .sTh().add("Objective").eTh()
+                    .sTh().add("Milestone").eTh()
+                    .sTh().add("Orig. Date").eTh()
+                    .sTh().add("Adjusted Date").eTh()
+                    .sTh().add("Status").eTh()
+                    .sTh().add("Actions").eTh().eTr();
+
+            StudentStandardMilestoneRec override = null;
+            for (final StandardMilestoneRec ms : milestones) {
+
+                final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";
+
+                override = null;
+                for (final StudentStandardMilestoneRec test : overrides) {
+                    if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
+                            && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
+                        override = test;
+                        break;
+                    }
+                }
+
+                final RawStcourse reg = getCourseForIndex(data, ms.paceIndex);
+                final String courseLabel = reg == null ? "Course " + ms.paceIndex : reg.course;
+
+                final String msDateStr = TemporalUtils.FMT_MDY.format(ms.msDate);
+                final String overrideDateStr = override == null ? CoreConstants.EMPTY
+                        : TemporalUtils.FMT_MDY.format(override.msDate);
+
+                String statusStr = "Unknown";
+                if (reg != null && "MA".equals(ms.msType)) {
+                    MasteryExamRec masteryExam = null;
+                    for (final MasteryExamRec rec : allMastery) {
+                        if (rec.courseId.equals(reg.course) && rec.unit.equals(ms.unit)
+                                && rec.objective.equals(ms.objective)) {
+                            masteryExam = rec;
+                            break;
+                        }
+                    }
+
+                    if (masteryExam != null) {
+                        LocalDateTime whenPassed = null;
+                        LocalDateTime whenAttempted = null;
+
+                        for (final MasteryAttemptRec attempt : allAttempts) {
+                            if (attempt.examId.equals(masteryExam.examId) && attempt.whenFinished != null) {
+                                if (whenAttempted == null || whenAttempted.isAfter(attempt.whenFinished)) {
+                                    whenAttempted = attempt.whenFinished;
+                                }
+                                if ("Y".equals(attempt.passed) &&
+                                        (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
+                                    whenPassed = attempt.whenFinished;
+                                }
+                            }
+                        }
+
+                        if (whenPassed != null) {
+                            statusStr = "Mastered on " + TemporalUtils.FMT_MDY.format(whenPassed);
+                        } else if (whenAttempted != null) {
+                            statusStr = "Attempted on " + TemporalUtils.FMT_MDY.format(whenAttempted);
+                        } else {
+                            statusStr = "Not Yet Attempted";
+                        }
+                    }
+                }
+
+                htm.sTr().sTd(cls).add(courseLabel).eTd()
+                        .sTd(cls).add(ms.paceIndex).eTd()
+                        .sTd(cls).add(ms.unit).eTd()
+                        .sTd(cls).add(ms.objective).eTd()
+                        .sTd(cls).add(ms.msType).eTd()
+                        .sTd(cls).add(msDateStr).eTd()
+                        .sTd(cls).add(overrideDateStr).eTd()
+                        .sTd(cls).add(statusStr).eTd();
+
+                htm.sTd(cls).add("<form action='student_schedule.html' method='POST' style='display:inline;' >",
+                        "<input type='hidden' name='act' value='stdappealform'/>",
+                        "<input type='hidden' name='stu' value='", studentId, "'/>",
+                        "<input type='hidden' name='crs' value='", reg.course, "'/>",
+                        "<input type='hidden' name='pac' value='", stterm.pace, "'/>",
+                        "<input type='hidden' name='trk' value='", stterm.paceTrack, "'/>",
+                        "<input type='hidden' name='idx' value='", ms.paceIndex, "'/>",
+                        "<input type='hidden' name='unt' value='", ms.unit, "'/>",
+                        "<input type='hidden' name='obj' value='", ms.objective, "'/>",
+                        "<input type='hidden' name='typ' value='", ms.msType, "'/>",
+                        "<input type='hidden' name='dat' value='",TemporalUtils.FMT_MDY.format(ms.msDate), "'/>",
+                        "<input type='submit' value='Appeal'/>",
+                        "</form>").eTd().eTr();
+            }
+
+            htm.eTable();
+        }
+    }
+
+    /**
+     * Gets the course ID having a specified pace index.
+     * @param data the site data
+     * @param paceIndex the pace index (1 for first course)
+     * @return the registration record
+     */
+    private static RawStcourse getCourseForIndex(final SiteData data, final Integer paceIndex) {
+
+        RawStcourse result = null;
+
+        final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
+        if (regs != null) {
+            for (final RawStcourse reg : regs) {
+                if (paceIndex.equals(reg.paceOrder)) {
+                    result = reg;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

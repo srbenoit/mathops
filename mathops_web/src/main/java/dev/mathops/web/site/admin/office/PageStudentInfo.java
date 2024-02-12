@@ -10,14 +10,24 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.rec.StandardMilestoneRec;
+import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
+import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
+import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
+import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -29,10 +39,12 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -160,8 +172,8 @@ enum PageStudentInfo {
             htm.addln("ERROR: unable to query active term");
         } else {
             // This query returns Forfeit and placement credit rows, but not Dropped rows
-            final List<RawStcourse> allPastAndCurrent =
-                    RawStcourseLogic.queryByStudent(cache, student.stuId, true, true);
+            final List<RawStcourse> allPastAndCurrent = RawStcourseLogic.queryByStudent(cache, student.stuId, true,
+                    true);
             Collections.sort(allPastAndCurrent);
 
             int numCurrent = 0;
@@ -190,16 +202,14 @@ enum PageStudentInfo {
                     if ("OT".equals(reg.instrnType) || "AP".equals(reg.instrnType)) {
 
                         htm.sP(null, "style='margin-left:20px;'");
-                        htm.add("<strong>", reg.course.replace("M ", "MATH "),
-                                "</strong> - [Placement Credit]");
+                        htm.add("<strong>", reg.course.replace("M ", "MATH "), "</strong> - [Placement Credit]");
                         htm.eP();
                     } else {
                         final String open = reg.openStatus;
                         final String fullCourse = reg.course.replace("M ", "MATH ");
                         if ("D".equals(open)) {
                             htm.sDiv();
-                            htm.add("<strong>", fullCourse,
-                                    "</strong> (", reg.sect, ") - dropped");
+                            htm.add("<strong>", fullCourse, "</strong> (", reg.sect, ") - dropped");
                             htm.eDiv();
                         } else {
                             final boolean compl = "Y".equals(reg.completed);
@@ -207,8 +217,7 @@ enum PageStudentInfo {
                             htm.add("<details open>");
 
                             htm.add("<summary style='min-width:688px;'><strong>");
-                            htm.add(reg.course.replace("M ", "MATH "),
-                                    "</strong> (", reg.sect, ")");
+                            htm.add(reg.course.replace("M ", "MATH "), "</strong> (", reg.sect, ")");
 
                             final boolean inc = "Y".equals(reg.iInProgress);
                             if (inc) {
@@ -239,16 +248,13 @@ enum PageStudentInfo {
                                 htm.add(" - [", open == null ? "Not started" : open, "]");
                             }
 
-                            htm.add(" &nbsp; Pace Order: ",
-                                    reg.paceOrder == null ? CoreConstants.DASH : reg.paceOrder);
+                            htm.add(" &nbsp; Pace Order: ", reg.paceOrder == null ? CoreConstants.DASH : reg.paceOrder);
 
                             htm.addln("</summary>");
 
-                            htm.sDiv(null,
-                                    "style='background:#ffffe4;margin:0 0 15px 0;line-height:140%;"
-                                            + "padding:3px;border-width:0 1px 1px 1px;border-color:#888;"
-                                            + "border-style:solid;font-size:13px;text-align:left;"
-                                            + "min-width:688px;'");
+                            htm.sDiv(null, "style='background:#ffffe4;margin:0 0 15px 0;line-height:140%;"
+                                    + "padding:3px;border-width:0 1px 1px 1px;border-color:#888;"
+                                    + "border-style:solid;font-size:13px;text-align:left;min-width:688px;'");
 
                             final String pre = reg.prereqSatis;
                             boolean status = false;
@@ -256,7 +262,11 @@ enum PageStudentInfo {
                                 htm.addln("<strong>Prerequisite not satisfied.</strong>").br();
                                 status = true;
                                 if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
-                                    emitCourseDeadlines(htm, stat);
+                                    if (reg.course.startsWith("MATH ")) {
+                                        emitNewCourseDeadlines(cache, htm, reg);
+                                    } else {
+                                        emitOldCourseDeadlines(htm, stat);
+                                    }
                                 }
                             }
 
@@ -268,14 +278,22 @@ enum PageStudentInfo {
                                 if (!status) {
                                     htm.addln("<strong>Course not started.</strong>").br();
                                     if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
-                                        emitCourseDeadlines(htm, stat);
+                                        if (reg.course.startsWith("MATH ")) {
+                                            emitNewCourseDeadlines(cache, htm, reg);
+                                        } else {
+                                            emitOldCourseDeadlines(htm, stat);
+                                        }
                                     }
                                 }
                             } else if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
 
-                                emitCourseProgress(cache, htm, stat, reg, compl);
-                                htm.div("vgap");
-                                emitCourseDeadlines(htm, stat);
+                                if (reg.course.startsWith("MATH ")) {
+                                    emitNewCourseDeadlines(cache, htm, reg);
+                                } else {
+                                    emitOldCourseProgress(cache, htm, stat, reg, compl);
+                                    htm.div("vgap");
+                                    emitOldCourseDeadlines(htm, stat);
+                                }
                             }
 
                             htm.eDiv().addln("</details>");
@@ -325,9 +343,8 @@ enum PageStudentInfo {
      * @param completed true if course is completed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseProgress(final Cache cache, final HtmlBuilder htm,
-                                           final StudentCourseStatus stat, final RawStcourse reg,
-                                           final boolean completed) throws SQLException {
+    private static void emitOldCourseProgress(final Cache cache, final HtmlBuilder htm, final StudentCourseStatus stat,
+                                              final RawStcourse reg, final boolean completed) throws SQLException {
 
         final int maxUnit = stat.getMaxUnit();
         final RawCsection csect = stat.getCourseSection();
@@ -639,7 +656,7 @@ enum PageStudentInfo {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param stat the course status data container
      */
-    private static void emitCourseDeadlines(final HtmlBuilder htm, final StudentCourseStatus stat) {
+    private static void emitOldCourseDeadlines(final HtmlBuilder htm, final StudentCourseStatus stat) {
 
         // Show student progress in the class
         htm.sTable("report", "style='margin:0;line-height:1;'");
@@ -730,6 +747,111 @@ enum PageStudentInfo {
             } else {
                 htm.sTd("pad").add(hence + " days from now").eTd();
             }
+        }
+    }
+
+    /**
+     * Emits a table that shows deadlines for the course (with overrides, if any).
+     *
+     * @param cache the cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param reg   the student registration record
+     */
+    private static void emitNewCourseDeadlines(final Cache cache, final HtmlBuilder htm,
+                                               final RawStcourse reg) throws SQLException {
+
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
+
+        if (stterm == null) {
+            htm.sP().add("No STTERM record found").eP();
+        } else {
+            htm.sTable("report", "style='margin:0;line-height:1;'");
+
+            htm.sTr();
+            htm.sTh().add("Milestone").eTh();
+            htm.sTh().add("Deadline").eTh();
+            htm.sTh().add("Notes").eTh();
+            htm.eTr();
+
+            final List<StandardMilestoneRec> milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
+                    stterm.paceTrack, stterm.pace);
+            milestones.sort(null);
+
+            final List<StudentStandardMilestoneRec> overrides =
+                    StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, reg.stuId,
+                            stterm.paceTrack, stterm.pace);
+
+            final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
+            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
+
+            StudentStandardMilestoneRec override = null;
+            for (final StandardMilestoneRec ms : milestones) {
+
+                final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";
+
+                override = null;
+                for (final StudentStandardMilestoneRec test : overrides) {
+                    if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
+                            && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
+                        override = test;
+                        break;
+                    }
+                }
+
+                final String msDateStr = TemporalUtils.FMT_MDY.format(ms.msDate);
+                final String overrideDateStr = override == null ? CoreConstants.EMPTY
+                        : TemporalUtils.FMT_MDY.format(override.msDate);
+
+                String statusStr = "Unknown";
+                if (reg != null && "MA".equals(ms.msType)) {
+                    MasteryExamRec masteryExam = null;
+                    for (final MasteryExamRec rec : allMastery) {
+                        if (rec.courseId.equals(reg.course) && rec.unit.equals(ms.unit)
+                                && rec.objective.equals(ms.objective)) {
+                            masteryExam = rec;
+                            break;
+                        }
+                    }
+
+                    if (masteryExam != null) {
+                        LocalDateTime whenPassed = null;
+                        LocalDateTime whenAttempted = null;
+
+                        for (final MasteryAttemptRec attempt : allAttempts) {
+                            if (attempt.examId.equals(masteryExam.examId) && attempt.whenFinished != null) {
+                                if (whenAttempted == null || whenAttempted.isAfter(attempt.whenFinished)) {
+                                    whenAttempted = attempt.whenFinished;
+                                }
+                                if ("Y".equals(attempt.passed) &&
+                                        (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
+                                    whenPassed = attempt.whenFinished;
+                                }
+                            }
+                        }
+
+                        if (whenPassed != null) {
+                            statusStr = "Mastered on " + TemporalUtils.FMT_MDY.format(whenPassed);
+                        } else if (whenAttempted != null) {
+                            statusStr = "Attempted on " + TemporalUtils.FMT_MDY.format(whenAttempted);
+                        } else {
+                            statusStr = "Not Yet Attempted";
+                        }
+                    }
+                }
+
+                if ("MA".equals(ms.msType)) {
+                    final String msLabel = "Target " + ms.unit + "." + ms.objective + " Mastery";
+                    final String dtLabel = overrideDateStr.isBlank() ? msDateStr :
+                            (msDateStr + " (" + overrideDateStr + ")");
+
+                    htm.sTr().sTd(cls).add(msLabel).eTd()
+                            .sTd(cls).add(dtLabel).eTd()
+                            .sTd(cls).add(statusStr).eTd().eTr();
+                }
+            }
+
+            htm.eTable();
         }
     }
 }
