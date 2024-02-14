@@ -153,23 +153,32 @@ public final class DocInputDoubleField extends AbstractDocInputField {
                 this.caret = 0;
                 this.value = this.defaultValue;
             } else {
-
+                innerSetTextValue(cleaned);
                 this.caret = cleaned.length();
 
-                // Allowed formats:
-                // 123.456
-                // -123.456
-                // 123.45/67.89 (with minus sign allowed on either numerator or denominator)
-                // Any number can be followed by a "PI" or "E" symbol, like 360/2PI or 5PI/6
+                if (CoreConstants.DASH.equals(cleaned)) {
+                    if (this.minusAs == null) {
+                        ok = false;
+                    } else {
+                        this.value = this.minusAs;
+                    }
+                } else {
+                    this.caret = cleaned.length();
 
-                try {
-                    final Number parsedNumber = NumberParser.parse(cleaned);
-                    final double d = parsedNumber.doubleValue();
-                    this.value = Double.valueOf(d);
-                    innerSetTextValue(cleaned);
-                } catch (final NumberFormatException ex) {
-                    Log.warning("Unable tp parse '", cleaned, "' as a number");
-                    ok = false;
+                    // Allowed formats:
+                    // 123.456
+                    // -123.456
+                    // 123.45/67.89 (with minus sign allowed on either numerator or denominator)
+                    // Any number can be followed by a "PI" or "E" symbol, like 360/2PI or 5PI/6
+
+                    try {
+                        final Number parsedNumber = NumberParser.parse(cleaned);
+                        final double d = parsedNumber.doubleValue();
+                        this.value = Double.valueOf(d);
+                    } catch (final NumberFormatException ex) {
+                        Log.warning("Unable tp parse '", cleaned, "' as a number");
+                        ok = false;
+                    }
                 }
             }
 
