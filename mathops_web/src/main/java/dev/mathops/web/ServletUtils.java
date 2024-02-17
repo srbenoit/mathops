@@ -1,4 +1,4 @@
-package dev.mathops.web.front;
+package dev.mathops.web;
 
 import dev.mathops.commons.CoreConstants;
 
@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * Utilities that help extract information from HTTP Servlet requests.
  */
-/* default */  enum ServletUtils {
+public enum ServletUtils {
     ;
 
     /**
@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
      * @param req the servlet request
      * @return the host
      */
-    static String getHost(final ServletRequest req) {
+    public static String getHost(final ServletRequest req) {
 
         final String server = req.getServerName();
         final String host;
@@ -65,7 +65,7 @@ import jakarta.servlet.http.HttpServletRequest;
      * @param req the servlet request
      * @return the path
      */
-    static String getPath(final HttpServletRequest req) {
+    public static String getPath(final HttpServletRequest req) {
 
         final String sPath = req.getServletPath();
         final String iPath = req.getPathInfo();
