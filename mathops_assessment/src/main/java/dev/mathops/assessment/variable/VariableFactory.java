@@ -2446,7 +2446,9 @@ public enum VariableFactory {
 
         EType type = EType.ERROR;
         final String valueTypeStr = elem.getStringAttr("value-type");
-        if (valueTypeStr != null) {
+        if (valueTypeStr == null) {
+            elem.logError("Derived variable {" + varName + "} does not specify value type");
+        } else {
             type = EType.forLabel(valueTypeStr);
             if (type == null) {
                 elem.logError("Invalid value-type: '" + valueTypeStr + "' in {" + varName + "}");
@@ -2540,8 +2542,12 @@ public enum VariableFactory {
             try {
                 min = new NumberOrFormula(Long.valueOf(minStr));
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
-                valid = false;
+                try {
+                    min = new NumberOrFormula(Double.valueOf(minStr));
+                } catch (final NumberFormatException ex2) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                    valid = false;
+                }
             }
         }
 
@@ -2550,8 +2556,12 @@ public enum VariableFactory {
             try {
                 max = new NumberOrFormula(Long.valueOf(maxStr));
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
-                valid = false;
+                try {
+                    max = new NumberOrFormula(Double.valueOf(maxStr));
+                } catch (final NumberFormatException ex2) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                    valid = false;
+                }
             }
         }
 
@@ -2631,7 +2641,10 @@ public enum VariableFactory {
                 }
             }
 
-            if (value != null && span != null) {
+            if (valid && formula == null) {
+                elem.logError("Derived value does not include formula.");
+                valid = false;
+            } else if (value != null && span != null) {
                 elem.logError("Cannot have both attribute-specified value and span value.");
                 valid = false;
             }
@@ -2670,8 +2683,8 @@ public enum VariableFactory {
 
         if (len == 1) {
             final char chr = str.charAt(0);
-            if (TRUE_CHARS.indexOf(chr) == -1) {
-                if (FALSE_CHARS.indexOf(chr) == -1) {
+            if (TRUE_CHARS.indexOf((int) chr) == -1) {
+                if (FALSE_CHARS.indexOf((int) chr) == -1) {
                     throw new IllegalArgumentException("Invalid boolean format '" + str + "'");
                 }
                 result = Boolean.FALSE;
