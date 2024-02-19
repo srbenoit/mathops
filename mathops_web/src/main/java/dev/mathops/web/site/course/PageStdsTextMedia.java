@@ -25,7 +25,7 @@ enum PageStdsTextMedia {
     private static final String M125 = "M125";
 
 //    /** A server directory. */
-//    private static final String M126 = "M126";
+    private static final String M126 = "M126";
 
     /** A reason string. */
     private static final String NOT_DONE = "NOT YET DONE";
@@ -110,8 +110,8 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR01_SR5_02", "TR01_SR5_02");
 
         htm.add("<strong>Learning Target 1.1</strong>").br().addln();
-        emitExample(htm, M125, "Example TR01_ST1A_01", "TR01_ST1A_01");
-        emitExample(htm, M125, "Example TR01_ST1A_02", "TR01_ST1A_02");
+        emitExample(htm, M125, "Example TR01_ST1A_01 (not yet done)", "TR01_ST1A_01");
+        emitExample(htm, M125, "Example TR01_ST1A_02 (not yet done)", "TR01_ST1A_02");
         emitExample(htm, M125, "Example TR01_ST1A_03", "TR01_ST1A_03");
         emitExample(htm, M125, "Example TR01_ST1C_01", "TR01_ST1C_01");
         emitExample(htm, M125, "Example TR01_ST1C_02", "TR01_ST1C_02");
@@ -124,8 +124,9 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR01_ST2A_02", "TR01_ST2A_02");
         emitExample(htm, M125, "Example TR01_ST2B_01", "TR01_ST2B_01");
         emitExample(htm, M125, "Example TR01_ST2C_01", "TR01_ST2C_01");
-        emitExample(htm, M125, "Example TR01_ST2E_01", "TR01_ST2E_01");
-        emitExample(htm, M125, "Example TR01_ST2F_01", "TR01_ST2F_01");
+        emitExample(htm, M125, "Example TR01_ST2E_01 (not yet done)", "TR01_ST2E_01");
+        emitExample(htm, M125, "Example TR01_ST2F_01a", "TR01_ST2F_01a");
+        emitExample(htm, M125, "Example TR01_ST2G_01", "TR01_ST2G_01");
 
         htm.add("<strong>Learning Target 1.3</strong>").br().addln();
         emitExample(htm, M125, "Example TR01_ST3A_01", "TR01_ST3A_01");
@@ -152,7 +153,7 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR02_SR2_01", "TR02_SR2_01");
         emitExample(htm, M125, "Example TR02_SR3_01", "TR02_SR3_01");
         emitExample(htm, M125, "Example TR02_SR4_01a", "TR02_SR4_01a");
-        emitExample(htm, M125, "Example TR02_SR5_01a", "TR02_SR5_01a");
+        emitExample(htm, M125, "Example TR02_SR4_01b", "TR02_SR4_01b");
 
         htm.add("<strong>Learning Target 2.1</strong>").br().addln();
         emitExample(htm, M125, "Example TR02_ST1A_01", "TR02_ST1A_01");
@@ -217,9 +218,9 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR03_ST2B_01", "TR03_ST2B_01");
         emitExample(htm, M125, "Example TR03_ST2B_02", "TR03_ST2B_02");
         emitExample(htm, M125, "Example TR03_ST2D_01", "TR03_ST2D_01");
+        emitExample(htm, M125, "Example TR03_ST2E_01", "TR03_ST2E_01");
         emitExample(htm, M125, "Example TR03_ST2F_01", "TR03_ST2F_01");
         emitExample(htm, M125, "Example TR03_ST2F_02", "TR03_ST2F_02");
-        emitExample(htm, M125, "Example TR03_ST2F_03", "TR03_ST2F_03");
         emitExample(htm, M125, "Example TR03_ST2G_01", "TR03_ST2G_01");
         emitExample(htm, M125, "Example TR03_ST2H_01", "TR03_ST2H_01");
 
@@ -310,8 +311,8 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR04_ST2B_02", "TR04_ST2B_02");
         emitExample(htm, M125, "Example TR04_ST2B_03", "TR04_ST2B_03");
         emitExample(htm, M125, "Example TR04_ST2B_04", "TR04_ST2B_04");
-        emitExample(htm, M125, "Example TR04_ST2B_05", "TR04_ST2B_05");
         emitExample(htm, M125, "Example TR04_ST2C_01", "TR04_ST2C_01");
+        emitExample(htm, M125, "Example TR04_ST2C_02", "TR04_ST2C_02");
 
         htm.add("<strong>Learning Target 4.3</strong>").br().addln();
         emitExample(htm, M125, "Example TR04_ST3A_01", "TR04_ST3A_01");
@@ -486,7 +487,7 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR08_SR5_01", "TR08_SR5_01");
         emitExample(htm, M125, "Example TR08_SR6_01", "TR08_SR6_01");
 
-        htm.add("<strong>Learning Target 9.1</strong>").br().addln();
+        htm.add("<strong>Learning Target 8.1</strong>").br().addln();
         emitExample(htm, M125, "Example TR08_ST1A_01", "TR08_ST1A_01");
         emitExample(htm, M125, "Example TR08_ST1B_01", "TR08_ST1B_01");
         emitExample(htm, M125, "Application TR08_ST1B_APP_01", "TR08_ST1B_APP_01");
@@ -494,13 +495,13 @@ enum PageStdsTextMedia {
         emitExample(htm, M125, "Example TR08_ST1D_01", "TR08_ST1D_01");
         emitExample(htm, M125, "Exploration TR08_ST1D_EXP_01", "TR08_ST1D_EXP_01");
 
-        htm.add("<strong>Learning Target 9.2</strong>").br().addln();
+        htm.add("<strong>Learning Target 8.2</strong>").br().addln();
         emitExample(htm, M125, "Example TR08_ST2A_01", "TR08_ST2A_01");
         emitExample(htm, M125, "Example TR08_ST2A_02", "TR08_ST2A_02");
         emitExample(htm, M125, "Example TR08_ST2B_02", "TR08_ST2B_02");
         emitExample(htm, M125, "Example TR08_ST2C_01", "TR08_ST2C_01");
 
-        htm.add("<strong>Learning Target 9.3</strong>").br().addln();
+        htm.add("<strong>Learning Target 8.3</strong>").br().addln();
         emitExample(htm, M125, "Example TR08_ST3A_01", "TR08_ST3A_01");
         emitExample(htm, M125, "Example TR08_ST3B_01", "TR08_ST3B_01");
         emitExample(htm, M125, "Example TR08_ST3C_01", "TR08_ST3C_01");
@@ -522,14 +523,99 @@ enum PageStdsTextMedia {
         htm.sH(4).add("Module 1: Fundamental Trigonometric Identities").eH(4);
 
         htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
+        htm.add("<strong>Skills Review</strong>").br().addln();
+        emitExample(htm, M126, "Example TR09_SR1_01", "TR09_SR1_01");
+        emitExample(htm, M126, "Example TR09_SR2_01", "TR09_SR2_01");
+        emitExample(htm, M126, "Example TR09_SR3_01", "TR09_SR3_01");
+        emitExample(htm, M126, "Example TR09_SR4_01", "TR09_SR4_01");
+        emitExample(htm, M126, "Example TR09_SR5_01", "TR09_SR5_01");
+
+        htm.add("<strong>Learning Target 1.1</strong>").br().addln();
+        emitExample(htm, M126, "Example TR09_ST1A_01", "TR09_ST1A_01");
+        emitExample(htm, M126, "Example TR09_ST1A_02", "TR09_ST1A_02");
+        emitExample(htm, M126, "Example TR09_ST1B_01", "TR09_ST1B_01");
+        emitExample(htm, M126, "Example TR09_ST1B_02a", "TR09_ST1B_02a");
+        emitExample(htm, M126, "Example TR09_ST1B_02b", "TR09_ST1B_02b");
+        emitExample(htm, M126, "Example TR09_ST1B_03", "TR09_ST1B_03");
+        emitExample(htm, M126, "Example TR09_ST1B_04a", "TR09_ST1B_04a");
+        emitExample(htm, M126, "Example TR09_ST1B_04b", "TR09_ST1B_04b");
+        emitExample(htm, M126, "Example TR09_ST1C_01a", "TR09_ST1C_01a");
+        emitExample(htm, M126, "Example TR09_ST1C_01b", "TR09_ST1C_01b");
+        emitExample(htm, M126, "Example TR09_ST1C_02a", "TR09_ST1C_02a");
+        emitExample(htm, M126, "Example TR09_ST1C_02b", "TR09_ST1C_02b");
+
+        htm.add("<strong>Learning Target 1.2</strong>").br().addln();
+        emitExample(htm, M126, "Example TR09_ST2A_01", "TR09_ST2A_01");
+        emitExample(htm, M126, "Example TR09_ST2A_02", "TR09_ST2A_02");
+        emitExample(htm, M126, "Example TR09_ST2A_03", "TR09_ST2A_03");
+        emitExample(htm, M126, "Example TR09_ST2A_04", "TR09_ST2A_04");
+        emitExample(htm, M126, "Example TR09_ST2B_01", "TR09_ST2B_01");
+        emitExample(htm, M126, "Example TR09_ST2B_02", "TR09_ST2B_02");
+        emitExample(htm, M126, "Example TR09_ST2B_03", "TR09_ST2B_03");
+        emitExample(htm, M126, "Example TR09_ST2C_01", "TR09_ST2C_01");
+        emitExample(htm, M126, "Example TR09_ST2C_02", "TR09_ST2C_02");
+        emitExample(htm, M126, "Example TR09_ST2C_03", "TR09_ST2C_03");
+        emitExample(htm, M126, "Example TR09_ST2D_01", "TR09_ST2D_01");
+        emitExample(htm, M126, "Example TR09_ST2D_02", "TR09_ST2D_02");
+        emitExample(htm, M126, "Example TR09_ST2D_03", "TR09_ST2D_03");
+
+        htm.add("<strong>Learning Target 1.3</strong>").br().addln();
+        emitExample(htm, M126, "Example TR09_ST3A_01", "TR09_ST3A_01");
+        emitExample(htm, M126, "Example TR09_ST3A_02", "TR09_ST3A_02");
+        emitExample(htm, M126, "Example TR09_ST3B_01", "TR09_ST3B_01");
+        emitExample(htm, M126, "Example TR09_ST3B_02", "TR09_ST3B_02");
+        emitExample(htm, M126, "Example TR09_ST3B_03", "TR09_ST3B_03");
+        emitExample(htm, M126, "Example TR09_ST3B_04", "TR09_ST3B_04");
+        emitExample(htm, M126, "Example TR09_ST3B_05", "TR09_ST3B_05");
+        emitExample(htm, M126, "Example TR09_ST3B_06", "TR09_ST3B_06");
+        emitExample(htm, M126, "Example TR09_ST3C_01", "TR09_ST3C_01");
+        emitExample(htm, M126, "Example TR09_ST3C_02", "TR09_ST3C_02");
+        emitExample(htm, M126, "Example TR09_ST3C_03", "TR09_ST3C_03");
+        emitExample(htm, M126, "Example TR09_ST3C_04", "TR09_ST3C_04");
+        emitExample(htm, M126, "Example TR09_ST3C_05", "TR09_ST3C_05");
+        emitExample(htm, M126, "Example TR09_ST3C_06", "TR09_ST3C_06");
+        emitExample(htm, M126, "Example TR09_ST3D_01", "TR09_ST3D_01");
+        emitExample(htm, M126, "Example TR09_ST3D_02", "TR09_ST3D_02");
+        emitExample(htm, M126, "Example TR09_ST3D_03", "TR09_ST3D_03");
         htm.eDiv();
 
         htm.div("vgap");
         htm.sH(4).add("Module 2: Sum and Difference Identities").eH(4);
 
         htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
+        htm.add("<strong>Skills Review</strong>").br().addln();
+        emitExample(htm, M126, "Example TR10_SR1_01", "TR10_SR1_01");
+        emitExample(htm, M126, "Example TR10_SR2_01", "TR10_SR2_01");
+        emitExample(htm, M126, "Example TR10_SR3_01", "TR10_SR3_01");
+        emitExample(htm, M126, "Example TR10_SR4_01", "TR10_SR4_01");
+        emitExample(htm, M126, "Example TR10_SR5_01", "TR10_SR5_01");
+
+        htm.add("<strong>Learning Target 2.1</strong>").br().addln();
+        emitExample(htm, M126, "Example TR10_ST1A_01", "TR10_ST1A_01");
+        emitExample(htm, M126, "Example TR10_ST1A_02", "TR10_ST1A_02");
+        emitExample(htm, M126, "Example TR10_ST1B_01", "TR10_ST1B_01");
+        emitExample(htm, M126, "Example TR10_ST1B_02", "TR10_ST1B_02");
+        emitExample(htm, M126, "Example TR10_ST1C_01", "TR10_ST1C_01");
+        emitExample(htm, M126, "Example TR10_ST1C_02", "TR10_ST1C_02");
+        emitExample(htm, M126, "Example TR10_ST1D_01", "TR10_ST1D_01");
+        emitExample(htm, M126, "Example TR10_ST1D_02", "TR10_ST1D_02");
+
+        htm.add("<strong>Learning Target 2.2</strong>").br().addln();
+        emitExample(htm, M126, "Example TR10_ST2A_01", "TR10_ST2A_01");
+        emitExample(htm, M126, "Example TR10_ST2A_02", "TR10_ST2A_02");
+        emitExample(htm, M126, "Example TR10_ST2A_03", "TR10_ST2A_03");
+        emitExample(htm, M126, "Example TR10_ST2B_01", "TR10_ST2B_01");
+        emitExample(htm, M126, "Example TR10_ST2C_01", "TR10_ST2C_01");
+
+        htm.add("<strong>Learning Target 2.3</strong>").br().addln();
+        emitExample(htm, M126, "Example TR10_ST3A_01a", "TR10_ST3A_01a");
+        emitExample(htm, M126, "Example TR10_ST3A_01b", "TR10_ST3A_01b");
+        emitExample(htm, M126, "Example TR10_ST3A_01c", "TR10_ST3A_01c");
+        emitExample(htm, M126, "Example TR10_ST3A_02a", "TR10_ST3A_02a");
+        emitExample(htm, M126, "Example TR10_ST3A_02b", "TR10_ST3A_02b");
+        emitExample(htm, M126, "Example TR10_ST3B_01", "TR10_ST3B_01");
+        emitExample(htm, M126, "Example TR10_ST3C_01a", "TR10_ST3C_01a");
+        emitExample(htm, M126, "Example TR10_ST3C_01b", "TR10_ST3C_01b");
         htm.eDiv();
 
         htm.div("vgap");
@@ -586,12 +672,13 @@ enum PageStdsTextMedia {
     private static void emitExample(final HtmlBuilder htm, final String courseDir, final String title,
                                     final String id) {
 
-        htm.addln("<details>");
+        htm.addln("<details style='margin-left:10pt;margin-bottom:3pt;'>");
 
         htm.addln("<summary>", title, ": &nbsp; ");
         htm.addln("<a href='https://nibbler.math.colostate.edu/media/", courseDir, "/pdf/", id,
-                ".pdf' target='_blank'>Writeup (PDF)</a>");
+                ".pdf' target='_blank'>PDF Document (opens new tab)</a>");
         htm.addln("</summary>");
+        htm.addln("<div style='padding-left:20pt;'>");
 
         htm.addln("<video width='960' height='540' controls style='border:2px #777 solid;'>");
         htm.addln("  <source src='https://nibbler.math.colostate.edu/media/", courseDir, "/mp4/", id,
@@ -602,8 +689,9 @@ enum PageStdsTextMedia {
         htm.addln("</video>").br();
 
         htm.addln("<a href='/www/math/", courseDir, "/transcripts/", id,
-                ".txt' target='_blank'>Plain-text transcript</a>");
+                ".txt' target='_blank'>Plain-text transcript (opens new tab)</a>");
 
+        htm.eDiv();
         htm.addln("</details>");
     }
 
