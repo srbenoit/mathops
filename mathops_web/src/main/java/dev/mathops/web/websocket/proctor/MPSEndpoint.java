@@ -44,6 +44,7 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -727,10 +728,9 @@ public final class MPSEndpoint {
             this.ps.state = EProctoringSessionState.AWAITING_STUDENT_ID;
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
-            Log.info("Updating timeout on session ", this.ps, " to ",
-                    TemporalUtils.FMT_MDY_HMS.format(newTimeout));
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
+            Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
         }
@@ -754,10 +754,9 @@ public final class MPSEndpoint {
 
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
-            Log.info("Updating timeout on session ", this.ps, " to ",
-                    TemporalUtils.FMT_MDY_HMS.format(newTimeout));
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
+            Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
         }
@@ -778,10 +777,9 @@ public final class MPSEndpoint {
             this.ps.state = EProctoringSessionState.SHOWING_INSTRUCTIONS;
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
-            Log.info("Updating timeout on session ", this.ps, " to ",
-                    TemporalUtils.FMT_MDY_HMS.format(newTimeout));
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
+            Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
         }
@@ -803,10 +801,9 @@ public final class MPSEndpoint {
             this.ps.state = EProctoringSessionState.ASSESSMENT;
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
-            Log.info("Updating timeout on session ", this.ps, " to ",
-                    TemporalUtils.FMT_MDY_HMS.format(newTimeout));
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
+            Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
         }
@@ -874,8 +871,8 @@ public final class MPSEndpoint {
 
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
             Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
@@ -892,8 +889,8 @@ public final class MPSEndpoint {
         if (this.ps != null) {
             this.ps.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-            final LocalDateTime newTimeout = LocalDateTime
-                    .ofInstant(Instant.ofEpochMilli(this.ps.timeout), ZoneId.systemDefault());
+            final LocalDateTime newTimeout = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.ps.timeout),
+                    ZoneId.systemDefault());
             Log.info("Updating timeout on session ", this.ps, " to ", TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
             sendSessionInfo();
@@ -925,47 +922,45 @@ public final class MPSEndpoint {
         Log.warning(LOG_PREFIX, "websocket Error: " + t.toString(), t);
     }
 
-    // /**
-    // * Main method to test logic.
-    // *
-    // * @param args command-line arguments
-    // */
-    // public static void main(final String... args) {
-    //
-    // final ContextMap map = ContextMap.getDefaultInstance();
-    //
-    // final WebSiteProfile webProfile =
-    // map.getWebSiteProfile(Contexts.COURSE_HOST, Contexts.MPS_PATH);
-    // final DbContext dbCtx = webProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-    //
-    // try {
-    // final DbConnection conn = dbCtx.checkOutConnection();
-    // final Cache cache = new Cache(webProfile.dbProfile, conn);
-    //
-    // final MPSEndpoint end = new MPSEndpoint();
-    //
-    // end.student = RawStudentLogic.query(cache, webProfile.dbProfile, //
-    // "888888888", false);
-    //
-    // final LiveSessionInfo live = new LiveSessionInfo("ABCDEFG",
-    // "eid", ERole.STUDENT);
-    // live.setUserInfo("888888888", "STEVE",
-    // "TEST-PROD", "STEVE TEST-PROD");
-    //
-    // final ImmutableSessionInfo sess = new ImmutableSessionInfo(live);
-    //
-    // final List<ExamCategory> avail = end.findAvailableExams(cache, sess);
-    //
-    // for (final ExamCategory category : avail) {
-    // Log.info("Category: ", category.name);
-    // for (final ExamEntry exam : category.exams) {
-    // Log.info(" Exam: ", exam.examId);
-    // }
-    // }
-    // } catch (SQLException ex) {
-    // Log.warning(ex);
-    // }
-    // }
+//    /**
+//     * Main method to test logic.
+//     *
+//     * @param args command-line arguments
+//     */
+//    public static void main(final String... args) {
+//
+//        final ContextMap map = ContextMap.getDefaultInstance();
+//
+//        final WebSiteProfile webProfile = map.getWebSiteProfile(Contexts.COURSE_HOST, Contexts.MPS_PATH);
+//        if (webProfile != null) {
+//            final DbContext dbCtx = webProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+//
+//            try {
+//                final DbConnection conn = dbCtx.checkOutConnection();
+//                final Cache cache = new Cache(webProfile.dbProfile, conn);
+//
+//                final MPSEndpoint end = new MPSEndpoint();
+//
+//                end.student = RawStudentLogic.query(cache, "836825053", false);
+//
+//                final LiveSessionInfo live = new LiveSessionInfo("ABCDEFG", "eid", ERole.STUDENT);
+//                live.setUserInfo("836825053", "STEVE", "TEST-PROD", "STEVE TEST-PROD");
+//
+//                final ImmutableSessionInfo sess = new ImmutableSessionInfo(live);
+//
+//                final List<ExamCategory> avail = end.findAvailableExams(cache, sess);
+//
+//                for (final ExamCategory category : avail) {
+//                    Log.info("Category: ", category.name);
+//                    for (final ExamEntry exam : category.exams) {
+//                        Log.info(" Exam: ", exam.examId);
+//                    }
+//                }
+//            } catch (final SQLException ex) {
+//                Log.warning(ex);
+//            }
+//        }
+//    }
 
     /**
      * An entry in the list of exams for which the student is eligible.

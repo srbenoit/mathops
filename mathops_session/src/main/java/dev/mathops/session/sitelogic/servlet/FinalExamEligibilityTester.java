@@ -143,8 +143,7 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return true if student is eligible for the exam after this test; false otherwise
      */
-    private boolean checkIncompleteDeadline(final ImmutableSessionInfo session,
-                                            final HtmlBuilder reasons) {
+    private boolean checkIncompleteDeadline(final ImmutableSessionInfo session, final HtmlBuilder reasons) {
 
         boolean ok = false;
 
@@ -171,21 +170,19 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkPassedUnit(final Cache cache, final ImmutableSessionInfo session,
-                                    final HtmlBuilder reasons, final FinalExamAvailability avail) throws SQLException {
+    private boolean checkPassedUnit(final Cache cache, final ImmutableSessionInfo session, final HtmlBuilder reasons,
+                                    final FinalExamAvailability avail) throws SQLException {
 
         final boolean ok;
 
         final ERole role = session.getEffectiveRole();
 
-        if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR)
-                || role.canActAs(ERole.TUTOR)) {
+        if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR) || role.canActAs(ERole.TUTOR)) {
             ok = true;
         } else {
             // Check for passing unit exam in the prior unit
-            final List<RawStexam> passedrev = RawStexamLogic.getExams(cache, this.student.stuId,
-                    avail.course, Integer.valueOf(avail.unit.intValue() - 1), true, //
-                    "U");
+            final List<RawStexam> passedrev = RawStexamLogic.getExams(cache, this.student.stuId, avail.course,
+                    Integer.valueOf(avail.unit.intValue() - 1), true, "U");
 
             if (passedrev.isEmpty()) {
                 reasons.add("Unit " + (avail.unit.intValue() - 1) + " exam not yet passed.");
@@ -209,27 +206,25 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkNumAttempts(final Cache cache, final ImmutableSessionInfo session,
-                                     final HtmlBuilder reasons, final FinalExamAvailability avail) throws SQLException {
+    private boolean checkNumAttempts(final Cache cache, final ImmutableSessionInfo session, final HtmlBuilder reasons,
+                                     final FinalExamAvailability avail) throws SQLException {
 
         boolean ok = true;
 
         final ERole role = session.getEffectiveRole();
 
-        if (!(role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR)
-                || role.canActAs(ERole.TUTOR))) {
+        if (!(role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR) || role.canActAs(ERole.TUTOR))) {
             int maxAttempts = 0;
             if (this.courseSectionUnit.nbrAtmptsAllow != null) {
                 maxAttempts = this.courseSectionUnit.nbrAtmptsAllow.intValue();
             }
 
             if (maxAttempts > 0) {
-                // There is a limit on total attempts, so determine total attempts so far, including
-                // possible ungraded (batch) attempts, and test that value against the maximum
-                // allowed attempts.
+                // There is a limit on total attempts, so determine total attempts so far, including possible ungraded
+                // (batch) attempts, and test that value against the maximum allowed attempts.
 
-                final List<RawStexam> examList = RawStexamLogic.getExams(cache, this.studentId,
-                        avail.course, avail.unit, false, "U");
+                final List<RawStexam> examList = RawStexamLogic.getExams(cache, this.studentId, avail.course,
+                        avail.unit, false, "U");
 
                 if (examList.size() >= maxAttempts) {
                     reasons.add("Maximum number of attempts exceeded.");
@@ -275,22 +270,17 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
 
         final ERole role = session.getEffectiveRole();
 
-        if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR)
-                || role.canActAs(ERole.TUTOR)) {
+        if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR) || role.canActAs(ERole.TUTOR)) {
             ok = true;
         } else {
             final LocalDate today = session.getNow().toLocalDate();
 
-            if (this.courseSectionUnit.firstTestDt != null
-                    && this.courseSectionUnit.firstTestDt.isAfter(today)) {
-                Log.info("Before start of testing window "
-                        + this.courseSectionUnit.firstTestDt);
+            if (this.courseSectionUnit.firstTestDt != null && this.courseSectionUnit.firstTestDt.isAfter(today)) {
+                Log.info("Before start of testing window ", this.courseSectionUnit.firstTestDt);
                 reasons.add("Outside testing window.");
                 ok = false;
-            } else if (this.courseSectionUnit.lastTestDt != null
-                    && this.courseSectionUnit.lastTestDt.isBefore(today)) {
-                Log.info("After end of testing window "
-                        + this.courseSectionUnit.lastTestDt);
+            } else if (this.courseSectionUnit.lastTestDt != null && this.courseSectionUnit.lastTestDt.isBefore(today)) {
+                Log.info("After end of testing window ", this.courseSectionUnit.lastTestDt);
                 reasons.add("Outside testing window.");
                 ok = false;
             } else {

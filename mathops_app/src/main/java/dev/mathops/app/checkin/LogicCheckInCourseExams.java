@@ -731,7 +731,12 @@ final class LogicCheckInCourseExams {
             final LocalDate f1Deadline = courseDeadlines.f1Deadline();
 
             if (Objects.nonNull(f1Deadline) && f1Deadline.isBefore(this.today)) {
-                indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
+
+                // It could be that the FE deadline has been moved but not the F1
+                final LocalDate feDeadline = courseDeadlines.feDeadline();
+                if (feDeadline == null || feDeadline.isBefore(this.today)) {
+                    indicateCourseUnavailable(data, PAST_DEADLINE, enforceEligibility);
+                }
             } else {
                 final LocalDate feDeadline = courseDeadlines.feDeadline();
 
