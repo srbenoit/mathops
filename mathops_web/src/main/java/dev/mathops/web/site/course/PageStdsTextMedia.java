@@ -622,7 +622,37 @@ enum PageStdsTextMedia {
         htm.sH(4).add("Module 3: Multiple- and Half-Angle Identities").eH(4);
 
         htm.sDiv("indent22");
-        htm.add("(Not yet designed.)");
+        htm.add("<strong>Skills Review</strong>").br().addln();
+        emitExample(htm, M126, "Example TR11_SR1_01", "TR11_SR1_01");
+        emitExample(htm, M126, "Example TR11_SR2_01", "TR11_SR2_01");
+        emitExample(htm, M126, "Example TR11_SR3_01", "TR11_SR3_01");
+        emitExample(htm, M126, "Example TR11_SR4_01", "TR11_SR4_01");
+        emitExample(htm, M126, "Example TR11_SR5_01", "TR11_SR5_01");
+
+        htm.add("<strong>Learning Target 2.1</strong>").br().addln();
+        emitExample(htm, M126, "Example TR11_ST1A_01", "TR11_ST1A_01");
+        emitExample(htm, M126, "Example TR11_ST1A_02", "TR11_ST1A_02");
+        emitExample(htm, M126, "Example TR11_ST1B_01", "TR11_ST1B_01");
+        emitExample(htm, M126, "Example TR11_ST1B_02", "TR11_ST1B_02");
+        emitExample(htm, M126, "Example TR11_ST1B_03", "TR11_ST1B_03");
+        emitExample(htm, M126, "Example TR11_ST1B_04", "TR11_ST1B_04");
+        emitExample(htm, M126, "Example TR11_ST1C_01", "TR11_ST1C_01");
+
+        htm.add("<strong>Learning Target 2.2</strong>").br().addln();
+        emitExample(htm, M126, "Example TR11_ST2A_01", "TR11_ST2A_01");
+        emitExample(htm, M126, "Example TR11_ST2B_01", "TR11_ST2B_01");
+        emitExample(htm, M126, "Example TR11_ST2B_02", "TR11_ST2B_02");
+        emitExample(htm, M126, "Example TR11_ST2C_01", "TR11_ST2C_01");
+        emitExample(htm, M126, "Example TR11_ST2C_02", "TR11_ST2C_02");
+
+        htm.add("<strong>Learning Target 2.3</strong>").br().addln();
+        emitExample(htm, M126, "Example TR11_ST3A_01a", "TR11_ST3A_01a");
+        emitExample(htm, M126, "Example TR11_ST3A_01b", "TR11_ST3A_01b");
+        emitExample(htm, M126, "Example TR11_ST3A_02a", "TR11_ST3A_02a");
+        emitExample(htm, M126, "Example TR11_ST3A_02b", "TR11_ST3A_02b");
+        emitExample(htm, M126, "Example TR11_ST3B_01", "TR11_ST3B_01");
+        emitExample(htm, M126, "Example TR11_ST3C_01", "TR11_ST3C_01");
+        emitExample(htm, M126, "Example TR11_ST3C_02", "TR11_ST3C_02");
         htm.eDiv();
 
         htm.div("vgap");
