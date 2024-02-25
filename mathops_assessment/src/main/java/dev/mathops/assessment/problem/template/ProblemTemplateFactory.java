@@ -273,11 +273,35 @@ public enum ProblemTemplateFactory {
         final IElement top = content.getToplevel();
 
         if (top instanceof final NonemptyElement nonempty && "problem".equals(top.getTagName())) {
+            problem = parseFromElement(nonempty, mode);
+        } else {
+            content.logError(Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1)),
+                    "Problem must have nonempty top-level &lt;problem&gt; element.");
+        }
 
-            final String problemType = top.getStringAttr("type");
+        return problem;
+    }
+
+    /**
+     * Generates the {@code Problem} object from a nonempty "problem" element. Any errors encountered are logged in the
+     * element.
+     *
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @param mode    the parser mode
+     * @return the loaded {@code Problem}, or null on any error
+     */
+    public static AbstractProblemTemplate parseFromElement(final NonemptyElement nonempty, final EParserMode mode) {
+
+        AbstractProblemTemplate problem = null;
+
+        final String tagName = nonempty.getTagName();
+
+        if ("problem".equals(tagName)) {
+
+            final String problemType = nonempty.getStringAttr("type");
 
             if (problemType == null) {
-                content.logError(nonempty, "&lt;problem&gt; element missing required 'type' attribute..");
+                nonempty.logError("&lt;problem&gt; element missing required 'type' attribute..");
             } else if ("numeric".equalsIgnoreCase(problemType)) {
                 problem = parseNumericProblem(nonempty, mode);
             } else if ("multiplechoice".equalsIgnoreCase(problemType)) {
@@ -289,18 +313,18 @@ public enum ProblemTemplateFactory {
             } else if ("autocorrect".equalsIgnoreCase(problemType)) {
                 problem = parseAutocorrectProblem();
             } else {
-                content.logError(nonempty, "Invalid 'type' attribute on &lt;problem&gt; element: " + problemType);
+                nonempty.logError("Invalid 'type' attribute on &lt;problem&gt; element: " + problemType);
             }
 
             if (problem != null) {
-                final String calculator = top.getStringAttr("calculator");
+                final String calculator = nonempty.getStringAttr("calculator");
 
                 if (calculator == null) {
                     problem.calculator = ECalculatorType.FULL_CALC;
                 } else {
                     problem.calculator = ECalculatorType.forLabel(calculator);
                     if (problem.calculator == null) {
-                        content.logError(nonempty, "Calculator attribute on problem tag must be one of 'none', "
+                        nonempty.logError("Calculator attribute on problem tag must be one of 'none', "
                                 + "'basic', 'scientific', 'graphing', or 'full'.");
                         problem = null;
                     }
@@ -308,24 +332,24 @@ public enum ProblemTemplateFactory {
             }
 
             if (problem != null) {
-                final String completedStr = top.getStringAttr("completed");
+                final String completedStr = nonempty.getStringAttr("completed");
 
                 if (completedStr != null) {
                     try {
                         problem.completionTime = Long.parseLong(completedStr);
                     } catch (final NumberFormatException ex) {
-                        content.logError(nonempty, "Completed attribute on problem tag must be valid timestamp");
+                        nonempty.logError("Completed attribute on problem tag must be valid timestamp");
                         problem = null;
                     }
                 }
             }
         } else {
-            content.logError(Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1)),
-                    "Problem must have nonempty top-level &lt;problem&gt; element.");
+            nonempty.logError("Attempt to extract problem from '" + tagName + "' element (expected 'problem' element)");
         }
 
         return problem;
     }
+
 
     /**
      * Generates a {@code ProblemNumeric} object from the source XML. Any errors encountered are logged in the
