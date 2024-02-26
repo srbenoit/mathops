@@ -23,8 +23,6 @@ public final class ItemSession {
     /** The timeout duration (2 hours), in milliseconds. */
     private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
 
-    /** The session ID. */
-    public final String sessionId;
 
     /** The ID of the student doing the homework. */
     public final String studentId;
@@ -45,20 +43,15 @@ public final class ItemSession {
     private long timeout;
 
     /**
-     * Constructs a new {@code ItemSession}. This is called when the user clicks a button to start an assignment. It
+     * Constructs a new {@code ItemSession}. This is called when the user loads a page with an embedded item. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param theSessionId the session ID (unique among all active item sessions)
      * @param theStudentId the student ID
      * @param theGuid      the GUID of the item placement
      * @param theTreeRef   the tree reference of the item
      */
-    public ItemSession(final String theSessionId, final String theStudentId, final String theGuid,
-                       final String theTreeRef) {
+    public ItemSession(final String theStudentId, final String theGuid, final String theTreeRef) {
 
-        if (theSessionId == null) {
-            throw new IllegalArgumentException("Session ID may not be null");
-        }
         if (theStudentId == null) {
             throw new IllegalArgumentException("Student ID may not be null");
         }
@@ -69,20 +62,28 @@ public final class ItemSession {
             throw new IllegalArgumentException("Item tree reference may not be null");
         }
 
-        this.sessionId = theSessionId;
         this.studentId = theStudentId;
         this.guid = theGuid;
         this.treeRef = theTreeRef;
 
-        this.state = EItemState.INITIAL;
+        this.state = EItemState.INTERACTING;
         this.timeout = System.currentTimeMillis() + TIMEOUT;
+
+        final AbstractProblemTemplate theItem = InstructionalCache.getProblem(this.treeRef);
+
+        if (theItem == null) {
+            Log.warning("Unable to load item for ", this.treeRef);
+        } else if (theItem.realize(theItem.evalContext)) {
+            this.item = theItem;
+        } else {
+            Log.warning("Unable to generate item for ", this.treeRef);
+        }
     }
 
     /**
      * Constructs a new {@code ItemSession}. This is called when the user clicks a button to start an assignment. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param theSessionId the session ID (unique among all active item sessions)
      * @param theStudentId the student ID
      * @param theGuid      the GUID of the item placement
      * @param theTreeRef   the tree reference of the item
@@ -90,60 +91,14 @@ public final class ItemSession {
      * @param theTimeout   the timeout
      * @param theItem      the assessment item
      */
-    ItemSession(final String theSessionId, final String theStudentId, final String theGuid, final String theTreeRef,
-                final EItemState theState, final long theTimeout, final AbstractProblemTemplate theItem) {
+    ItemSession(final String theStudentId, final String theGuid, final String theTreeRef, final EItemState theState,
+                final long theTimeout, final AbstractProblemTemplate theItem) {
 
-        this(theSessionId, theStudentId, theGuid, theTreeRef);
+        this(theStudentId, theGuid, theTreeRef);
 
         this.state = theState;
         this.timeout = theTimeout;
         this.item = theItem;
-    }
-
-    /**
-     * Appends the footer.
-     *
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param command   the submit button name (command)
-     * @param label     the button label
-     * @param prevCmd   the button name (command) for the "previous" button, null if not present
-     * @param prevLabel the button label for the "previous" button
-     * @param nextCmd   the button name (command) for the "next" button, null if not present
-     * @param nextLabel the button label for the "next" button
-     */
-    private static void appendFooter(final HtmlBuilder htm, final String command, final String label,
-                                     final String prevCmd, final String prevLabel, final String nextCmd,
-                                     final String nextLabel) {
-
-        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:AliceBlue; "
-                + "display:block; border:1px solid SteelBlue; margin:1px; "
-                + "padding:0 12px; text-align:center;'");
-
-        if (prevCmd != null || nextCmd != null) {
-            if (prevCmd != null) {
-                htm.sDiv("left");
-                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", prevCmd, "\");'");
-                htm.add(">", prevLabel, "</a>");
-                htm.eDiv();
-            }
-            if (nextCmd != null) {
-                htm.sDiv("right");
-                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", nextCmd, "\");'");
-                htm.add(">", nextLabel, "</a>");
-                htm.eDiv();
-            }
-
-            htm.div("clear");
-        }
-
-        if (command != null && command.startsWith("nav")) {
-            htm.add("<a class='btn' href='javascript:invokeAct(\"", command, "\");'");
-            htm.add(">", label, "</a>");
-        } else {
-            htm.add(" <input class='btn' type='submit' name='", command, "' value='", label, "'/>");
-        }
-
-        htm.eDiv();
     }
 
     /**
@@ -154,6 +109,26 @@ public final class ItemSession {
     public EItemState getState() {
 
         return this.state;
+    }
+
+    /**
+     * Tests whether the session has a valid item.
+     *
+     * @return true if there is a valid item
+     */
+    public boolean hasItem() {
+
+        return this.item != null;
+    }
+
+    /**
+     * Gets the realized item.
+     *
+     * @return the realized item
+     */
+    public AbstractProblemTemplate getItem() {
+
+        return this.item;
     }
 
     /**
@@ -199,10 +174,6 @@ public final class ItemSession {
         this.timeout = System.currentTimeMillis() + TIMEOUT;
 
         switch (this.state) {
-            case INITIAL:
-                doInitial();
-                break;
-
             case INTERACTING:
             case INTERACTING_HINTS:
                 appendItemHtml(htm);
@@ -239,23 +210,6 @@ public final class ItemSession {
                 htm.addln("</div>");
                 appendFooter(htm, "close", "Close");
                 break;
-        }
-    }
-
-    /**
-     * Processes a request for the page while in the INITIAL state, which generates the assignment, then sends its
-     * HTML.
-     */
-    private void doInitial() {
-
-        final AbstractProblemTemplate theItem = InstructionalCache.getProblem(this.treeRef);
-
-        if (theItem == null) {
-            Log.warning("Unable to load item for ", this.treeRef);
-        } else if (theItem.realize(theItem.evalContext)) {
-            this.item = theItem;
-        } else {
-            Log.warning("Unable to generate item for ", this.treeRef);
         }
     }
 
@@ -410,7 +364,6 @@ public final class ItemSession {
 
         if (this.item != null) {
             xml.addln("<item-session>");
-            xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");
             xml.addln(" <guid>", this.guid, "</guid>");
             xml.addln(" <tree-ref>", this.treeRef, "</tree-ref>");
@@ -431,7 +384,7 @@ public final class ItemSession {
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             this.item = null;
             final ItemSessionStore store = ItemSessionStore.getInstance();
-            store.removeItemSession(this.sessionId, this.guid);
+            store.removeItemSession(this.studentId, this.guid);
         }
     }
 }

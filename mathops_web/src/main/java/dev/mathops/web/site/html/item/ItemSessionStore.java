@@ -35,7 +35,7 @@ public final class ItemSessionStore {
     /** The singleton instance. */
     private static final ItemSessionStore INSTANCE = new ItemSessionStore();
 
-    /** Map from session ID to that session's map from GUID to item session. */
+    /** Map from item student ID to a map from GUID to item session. */
     private final HashMap<String, HashMap<String, ItemSession>> activeItems;
 
     /**
@@ -59,7 +59,7 @@ public final class ItemSessionStore {
     /**
      * Retrieves a copy of the map of active item sessions.
      *
-     * @return the item session map (outer key is session ID, inner key is GUID)
+     * @return the item session map (key is item session ID)
      */
     public Map<String, Map<String, ItemSession>> getItemSessions() {
 
@@ -69,18 +69,16 @@ public final class ItemSessionStore {
     }
 
     /**
-     * Gets the active homework session for an assignment ID, if any.
+     * Gets the active item session for a student and GUID, if any
      *
-     * @param sessionId the session ID
+     * @param studentId the student ID
      * @param guid      the GUID
-     * @return the homework session; {@code null} if none
+     * @return the item session; {@code null} if none
      */
-    public ItemSession getItemSession(final String sessionId, final String guid) {
-
-        // Called by pages in course sites that present items
+    public ItemSession getItemSession(final String studentId, final String guid) {
 
         synchronized (this.activeItems) {
-            final Map<String, ItemSession> sessionMap = this.activeItems.get(sessionId);
+            final Map<String, ItemSession> sessionMap = this.activeItems.get(studentId);
 
             return sessionMap == null ? null : sessionMap.get(guid);
         }
@@ -91,14 +89,14 @@ public final class ItemSessionStore {
      *
      * @param theSession the session
      */
-    private void setItemSession(final ItemSession theSession) {
+    public void setItemSession(final ItemSession theSession) {
 
         // Called by pages in course sites that present homework
 
         synchronized (this.activeItems) {
             if (!theSession.isTimedOut()) {
                 final Map<String, ItemSession> sessionMap =
-                        this.activeItems.computeIfAbsent(theSession.sessionId, s -> new HashMap<>(2));
+                        this.activeItems.computeIfAbsent(theSession.studentId, s -> new HashMap<>(2));
 
                 sessionMap.put(theSession.guid, theSession);
             }
@@ -106,21 +104,21 @@ public final class ItemSessionStore {
     }
 
     /**
-     * Removes the active item session for a GUID.
+     * Removes the active item student for a GUID.
      *
-     * @param sessionId the session ID
+     * @param studentId the student ID
      * @param guid      the GUID
      */
-    void removeItemSession(final String sessionId, final String guid) {
+    void removeItemSession(final String studentId, final String guid) {
 
         // Called by the homework session when the session ends
 
         synchronized (this.activeItems) {
-            final Map<String, ItemSession> sessionMap = this.activeItems.get(sessionId);
+            final Map<String, ItemSession> sessionMap = this.activeItems.get(studentId);
             if (sessionMap != null) {
                 sessionMap.remove(guid);
                 if (sessionMap.isEmpty()) {
-                    this.activeItems.remove(sessionId);
+                    this.activeItems.remove(studentId);
                 }
             }
         }
@@ -146,10 +144,10 @@ public final class ItemSessionStore {
                 for (final Map<String, ItemSession> maps : this.activeItems.values()) {
                     for (final ItemSession session : maps.values()) {
                         if (session.isTimedOut()) {
-                            Log.info("  Skipping timed out session ", session.sessionId);
+                            Log.info("  Skipping timed out session for ", session.studentId);
                             continue;
                         }
-                        Log.info("  Appending session ", session.sessionId);
+                        Log.info("  Appending session for ", session.studentId);
                         session.appendXml(xml);
                     }
                 }
@@ -182,7 +180,7 @@ public final class ItemSessionStore {
      * session idle timeout will be discarded. If the server has been down for longer than the idle timeout, this means
      * all sessions will be discarded.
      *
-     * @param dir   the directory from which to load the active sessions
+     * @param dir the directory from which to load the active sessions
      * @throws SQLException if there is an error accessing the database
      */
     public void restore(final File dir) throws SQLException {
@@ -242,7 +240,6 @@ public final class ItemSessionStore {
      */
     private static ItemSession parseSession(final NonemptyElement elem) throws IllegalArgumentException {
 
-        String sessionId = null;
         String studentId = null;
         String guid = null;
         String treeRef = null;
@@ -254,15 +251,13 @@ public final class ItemSessionStore {
 
         if ("item-session".equals(tagName)) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof NonemptyElement child) {
+                if (node instanceof final NonemptyElement child) {
                     final String tag = child.getTagName();
 
                     if (child.getNumChildren() == 1 && child.getChild(0) instanceof CData) {
                         final String content = ((CData) child.getChild(0)).content;
 
-                        if ("session".equals(tag)) {
-                            sessionId = content;
-                        } else if ("student".equals(tag)) {
+                        if ("student".equals(tag)) {
                             studentId = content;
                         } else if ("guid".equals(tag)) {
                             guid = content;
@@ -282,9 +277,6 @@ public final class ItemSessionStore {
             throw new IllegalArgumentException("Expected 'item-session', found '" + tagName + "'");
         }
 
-        if (sessionId == null) {
-            throw new IllegalArgumentException("'item-session' was missing 'session' attribute");
-        }
         if (studentId == null) {
             throw new IllegalArgumentException("'item-session' was missing 'student' attribute");
         }
@@ -307,7 +299,7 @@ public final class ItemSessionStore {
         final EItemState stateObj = EItemState.valueOf(state);
         final long timeoutVal = Long.parseLong(timeout);
 
-        final ItemSession session = new ItemSession(sessionId, studentId, guid, treeRef, stateObj, timeoutVal, item);
+        final ItemSession session = new ItemSession(studentId, guid, treeRef, stateObj, timeoutVal, item);
 
         Log.info("Restoring item session for ", studentId, CoreConstants.SLASH, guid, CoreConstants.SLASH, state);
 
@@ -333,7 +325,7 @@ public final class ItemSessionStore {
                 while (innerIter.hasNext()) {
                     final ItemSession sess = innerIter.next().getValue();
                     if (sess.isTimedOut()) {
-                        Log.info("Purging expired HTML item session " + sess.sessionId);
+                        Log.info("Purging expired HTML item session for " + sess.studentId);
                         innerIter.remove();
                     }
                 }

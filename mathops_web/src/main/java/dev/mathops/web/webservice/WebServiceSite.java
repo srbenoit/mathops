@@ -106,6 +106,7 @@ public final class WebServiceSite extends AbstractSite {
             final String reply;
 
             if (token == null) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             } else {
                 final UserCredentials credentials;
                 synchronized (this.sync) {
@@ -135,6 +136,8 @@ public final class WebServiceSite extends AbstractSite {
      */
     private static String processValidatedRequest(final Cache cache, final String subpath,
                                                   final UserCredentials credentials, final ServletRequest request) {
+
+        // https://testing.math.colostate.edu/websvc/*.ws
 
         final String reply;
 
@@ -167,6 +170,7 @@ public final class WebServiceSite extends AbstractSite {
         // Log.info("POST Request to WebServiceSite, subpath=", subpath);
 
         Log.warning(req.getRequestURI(), " (", subpath, ") not found");
+
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
@@ -197,8 +201,7 @@ public final class WebServiceSite extends AbstractSite {
             }
         }
 
-        sendReply(request, response, "text/plain",
-                reply.getBytes(StandardCharsets.UTF_8));
+        sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -223,7 +226,6 @@ public final class WebServiceSite extends AbstractSite {
             }
         }
 
-        sendReply(request, response, "text/plain",
-                reply.getBytes(StandardCharsets.UTF_8));
+        sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
     }
 }

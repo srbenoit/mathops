@@ -5,9 +5,6 @@ package dev.mathops.web.site.html.item;
  */
 public enum EItemState {
 
-    /** Initial - not yet generated. */
-    INITIAL,
-
     /** Interacting - generated, but not yet completed - inputs and submit button are enabled. */
     INTERACTING,
 

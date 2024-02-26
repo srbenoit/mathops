@@ -45,7 +45,7 @@ public abstract class AbstractSite {
     public static final String MAINT_FILE = "maintenence.properties";
 
     /** The MIME type text/plain. */
-    protected static final String MIME_TEXT_PLAIN = "text/plain";
+    public static final String MIME_TEXT_PLAIN = "text/plain";
 
     /** The MIME type text/html. */
     public static final String MIME_TEXT_HTML = "text/html";
@@ -102,19 +102,16 @@ public abstract class AbstractSite {
         this.imgDir = new File("/opt/public/www/images");
         this.lessonsDir = new File(baseDir, "lessons");
 
-        String datetime;
+        String datetime = null;
 
         try (final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("date.txt")) {
-            if (in == null) {
-                datetime = null;
-            } else {
+            if (in != null) {
                 final byte[] data = new byte[50];
                 final int size = in.read(data);
                 datetime = new String(data, 0, size, StandardCharsets.UTF_8).trim();
             }
         } catch (final IOException ex) {
             Log.warning(ex);
-            datetime = null;
         }
 
         this.buildDatetime = datetime;
@@ -147,16 +144,6 @@ public abstract class AbstractSite {
      */
     protected abstract boolean doLiveRegQueries();
 
-//    /**
-//     * Gets the live database context under which this site should be accessed.
-//     *
-//     * @return the live database context
-//     */
-//    public final DbContext getLiveDbContext() {
-//
-//        return this.siteProfile.dbProfile.getDbContext(ESchemaUse.LIVE);
-//    }
-
     /**
      * Generates the site title.
      *
@@ -185,9 +172,8 @@ public abstract class AbstractSite {
      * @throws SQLException     if there is an error accessing the database
      * @throws ServletException if there is an exception processing the request
      */
-    public abstract void doGet(final Cache cache, String subpath, ESiteType type,
-                               HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, SQLException, ServletException;
+    public abstract void doGet(final Cache cache, String subpath, ESiteType type, HttpServletRequest req,
+                               HttpServletResponse resp) throws IOException, SQLException, ServletException;
 
     /**
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
@@ -215,8 +201,8 @@ public abstract class AbstractSite {
      * @param reply       the reply content
      * @throws IOException if there was an exception writing the response
      */
-    public static void sendReply(final ServletRequest req, final HttpServletResponse resp,
-                                 final String contentType, final byte[] reply) throws IOException {
+    public static void sendReply(final ServletRequest req, final HttpServletResponse resp, final String contentType,
+                                 final byte[] reply) throws IOException {
 
         resp.setContentType(contentType);
         resp.setCharacterEncoding("UTF-8");
@@ -245,8 +231,8 @@ public abstract class AbstractSite {
      * @throws IOException if there was an exception writing the response
      */
     protected static void sendRangedReply(final ServletRequest req, final HttpServletResponse resp,
-                                          final String contentType, final byte[] reply, final long start, final long total)
-            throws IOException {
+                                          final String contentType, final byte[] reply, final long start,
+                                          final long total) throws IOException {
 
         resp.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
         resp.setContentType(contentType);
@@ -344,8 +330,8 @@ public abstract class AbstractSite {
      * @return the created session
      * @throws SQLException if there was an error accessing the database
      */
-    protected final ImmutableSessionInfo processShibbolethLogin(final Cache cache,
-                                                                final HttpServletRequest req) throws SQLException {
+    protected final ImmutableSessionInfo processShibbolethLogin(final Cache cache, final HttpServletRequest req)
+            throws SQLException {
 
         ImmutableSessionInfo session = null;
 
@@ -398,8 +384,8 @@ public abstract class AbstractSite {
      * @param resp    the response
      * @throws IOException if there is an error writing the response
      */
-    public final void serveImage(final String imgName, final HttpServletRequest req,
-                                 final HttpServletResponse resp) throws IOException {
+    public final void serveImage(final String imgName, final HttpServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final long total = new File(this.imgDir, imgName).length();
         long start = 0L;
@@ -497,8 +483,8 @@ public abstract class AbstractSite {
      * @param resp    the response
      * @throws IOException if there is an error writing the response
      */
-    protected final void serveVtt(final String vttName, final ServletRequest req,
-                                  final HttpServletResponse resp) throws IOException {
+    protected final void serveVtt(final String vttName, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final File vttFile = new File(this.vttDir, vttName);
         final byte[] data = FileLoader.loadFileAsBytes(vttFile, true);
@@ -519,8 +505,8 @@ public abstract class AbstractSite {
      * @param resp     the response
      * @throws IOException if there is an error writing the response
      */
-    protected void serveMedia(final String filename, final HttpServletRequest req,
-                              final HttpServletResponse resp) throws IOException {
+    protected void serveMedia(final String filename, final HttpServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final byte[] data = FileLoader.loadFileAsBytes(new File(this.vttDir, filename), true);
 
@@ -540,8 +526,8 @@ public abstract class AbstractSite {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    protected final void serveLesson(final String file, final ServletRequest req,
-                                     final HttpServletResponse resp) throws IOException {
+    protected final void serveLesson(final String file, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final byte[] data = FileLoader.loadFileAsBytes(new File(this.lessonsDir, file), true);
 
