@@ -526,25 +526,32 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                         final ExamProblem eprob = sect.getProblem(j);
                         if (eprob != null) {
                             final AbstractProblemTemplate prob = eprob.getSelectedProblem();
-                            prob.recordAnswer(answers[answerId]);
-
-                            final MasteryAttemptQaRec attemptQa = new MasteryAttemptQaRec();
-                            attemptQa.serialNbr = serialInt;
-                            attemptQa.examId = masteryExam.examId;
-                            attemptQa.questionNbr = Integer.valueOf(j + 1);
-                            final boolean correct = prob.isCorrect(answers[answerId]);
-                            attemptQa.correct = correct ? "Y" : "N";
-
-                            if (correct) {
-                                ++score;
-                            }
-
-                            if (!MasteryAttemptQaLogic.get(cache).insert(cache, attemptQa)) {
+                            if (answers[answerId] == null) {
                                 final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ",
                                         unitInt, ".", objInt);
-                                Log.warning("Failed to insert mastery attempt QA for ", courseTargetStr, ": ",
-                                        attemptQa);
-                                ok = false;
+                                Log.warning("Answers array for problem " + answerId + " on mastery attempt for ",
+                                        courseTargetStr, " was null");
+                            } else {
+                                prob.recordAnswer(answers[answerId]);
+
+                                final MasteryAttemptQaRec attemptQa = new MasteryAttemptQaRec();
+                                attemptQa.serialNbr = serialInt;
+                                attemptQa.examId = masteryExam.examId;
+                                attemptQa.questionNbr = Integer.valueOf(j + 1);
+                                final boolean correct = prob.isCorrect(answers[answerId]);
+                                attemptQa.correct = correct ? "Y" : "N";
+
+                                if (correct) {
+                                    ++score;
+                                }
+
+                                if (!MasteryAttemptQaLogic.get(cache).insert(cache, attemptQa)) {
+                                    final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ",
+                                            unitInt, ".", objInt);
+                                    Log.warning("Failed to insert mastery attempt QA for ", courseTargetStr, ": ",
+                                            attemptQa);
+                                    ok = false;
+                                }
                             }
 
                             ++answerId;
