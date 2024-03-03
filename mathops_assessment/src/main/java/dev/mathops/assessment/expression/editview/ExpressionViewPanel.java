@@ -13,9 +13,9 @@ import java.awt.Dimension;
  *
  * <p>
  * This panel will dynamically update its preferred size based on the rendered expression, and on some minimum size
- * provided to its constructor.  It will invalidate itself if the rendered expression requires a new size.  If the
- * panel size is smaller than the expression requires, the expression will be elided with an ellipsis where clipped,
- * but the cursor position will always be visible.
+ * provided to its constructor.  It will invalidate itself if the rendered expression requires a new size.  If the panel
+ * size is smaller than the expression requires, the expression will be elided with an ellipsis where clipped, but the
+ * cursor position will always be visible.
  */
 public final class ExpressionViewPanel extends JPanel implements IExpressionModelListener {
 
@@ -31,8 +31,9 @@ public final class ExpressionViewPanel extends JPanel implements IExpressionMode
     /**
      * Constructs a new {@code ExpressionViewPanel}.
      *
-     * @param theModel the model this panel will display
-     * @param theMinSize the minimum size for the panel
+     * @param theModel           the model this panel will display
+     * @param theMinSize         the minimum size for the panel
+     * @param theInitialFontSize the initial font size
      */
     public ExpressionViewPanel(final ExpressionModel theModel, final Dimension theMinSize,
                                final float theInitialFontSize) {
