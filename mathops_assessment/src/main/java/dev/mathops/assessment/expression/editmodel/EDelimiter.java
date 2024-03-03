@@ -11,12 +11,6 @@ public enum EDelimiter {
     /** Comma. */
     COMMA,
 
-    /** Left Brace. */
-    LEFT_BRACE,
-
-    /** Right Brace. */
-    RIGHT_BRACE,
-
     /** Left Bracket. */
     LEFT_BRACKET,
 
@@ -29,9 +23,6 @@ public enum EDelimiter {
     /** Right Parenthesis. */
     RIGHT_PAREN,
 
-    /** Left Quote. */
-    LEFT_QUOTE,
-
-    /** Right Quote. */
-    RIGHT_QUOTE;
+    /** Double Quote. */
+    DBL_QUOTE,
 }

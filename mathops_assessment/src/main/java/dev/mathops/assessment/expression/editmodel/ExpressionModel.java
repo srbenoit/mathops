@@ -10,13 +10,7 @@ import java.util.List;
 public final class ExpressionModel {
 
     /** The top-level glyph sequence. */
-    private final ExprGlyphSequence sequence;
-
-    /** The cursor position. */
-    private int cursorPos;
-
-    /** The selection anchor (equal to the cursor position if no glyphs are selected). */
-    private int selectionAnchor;
+    private final Expr sequence;
 
     /** Listeners to notify when the model changes. */
     private final List<IExpressionModelListener> listeners;
@@ -26,9 +20,7 @@ public final class ExpressionModel {
      */
     public ExpressionModel() {
 
-        this.sequence = new ExprGlyphSequence();
-        this.cursorPos = 0;
-        this.selectionAnchor = 0;
+        this.sequence = new Expr();
 
         this.listeners = new ArrayList<>(3);
     }

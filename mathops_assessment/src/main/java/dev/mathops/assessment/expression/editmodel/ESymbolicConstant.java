@@ -1,13 +1,16 @@
 package dev.mathops.assessment.expression.editmodel;
 
 /**
- * Symbolic real values.
+ * Symbolic constant values.
  */
-public enum ESymbolicReal {
+public enum ESymbolicConstant {
 
     /** Pi. */
     PI,
 
     /** E. */
-    E;
+    E,
+
+    /** I. */
+    I,
 }
