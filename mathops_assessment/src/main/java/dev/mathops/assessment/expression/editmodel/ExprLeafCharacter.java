@@ -19,6 +19,5 @@ public final class ExprLeafCharacter extends AbstractExprLeaf {
         super(theParent);
 
         this.character = theCharacter;
-        innerSetNumCursorPositions(1);
     }
 }

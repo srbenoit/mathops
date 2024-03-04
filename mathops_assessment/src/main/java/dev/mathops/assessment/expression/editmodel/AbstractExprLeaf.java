@@ -13,6 +13,8 @@ abstract class AbstractExprLeaf extends AbstractExprObject {
     AbstractExprLeaf(final AbstractExprObject theParent) {
 
         super(theParent);
+
+        innerSetNumCursorPositions(1);
     }
 
     /**

@@ -25,6 +25,5 @@ public final class ExprLeafDigit extends AbstractExprLeaf {
         }
 
         this.digit = theDigit;
-        innerSetNumCursorPositions(1);
     }
 }

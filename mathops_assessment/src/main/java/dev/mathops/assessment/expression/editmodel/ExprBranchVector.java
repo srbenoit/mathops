@@ -21,8 +21,8 @@ public final class ExprBranchVector extends AbstractExprBranch {
      * @param numComponents the number of components (can be changed)
      * @param theBrackets the type of brackets
      */
-    public ExprBranchVector(final AbstractExprObject theParent, final int numComponents,
-                            final EVectorMatrixBrackets theBrackets) {
+    public ExprBranchVector(final AbstractExprObject theParent, final EVectorMatrixBrackets theBrackets,
+                            final int numComponents) {
 
         super(theParent);
 
@@ -34,7 +34,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
         this.components = new Expr[numComponents];
 
         for (int i = 0; i < numComponents; ++i) {
-            final Expr expr = new Expr();
+            final Expr expr = new Expr(this);
             this.components[i] = expr;
             expr.innerSetFirstCursorPosition(i + 1);
         }
@@ -50,7 +50,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
      * count.  If this results in a change to this object's cursor position count, the call is propagated upward to the
      * parent (if any).
      */
-    void recalculuate(final int theFirstCursorPosition) {
+    void recalculate(final int theFirstCursorPosition) {
 
         final int origCount = getNumCursorPositions();
 
@@ -66,7 +66,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
             innerSetNumCursorPositions(pos);
             if (getParent() instanceof final AbstractExprBranch parentBranch) {
                 final int parentFirst = parentBranch.getFirstCursorPosition();
-                parentBranch.recalculuate(parentFirst);
+                parentBranch.recalculate(parentFirst);
             }
         }
     }

@@ -21,6 +21,5 @@ public final class ExprLeafBoolean extends AbstractExprLeaf {
         super(theParent);
 
         this.value = theValue;
-        innerSetNumCursorPositions(1);
     }
 }

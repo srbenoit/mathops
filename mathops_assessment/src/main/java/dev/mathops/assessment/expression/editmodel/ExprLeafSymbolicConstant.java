@@ -19,6 +19,5 @@ public final class ExprLeafSymbolicConstant extends AbstractExprLeaf {
         super(theParent);
 
         this.value = theValue;
-        innerSetNumCursorPositions(1);
     }
 }

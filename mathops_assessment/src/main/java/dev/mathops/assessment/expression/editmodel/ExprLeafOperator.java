@@ -19,6 +19,5 @@ public final class ExprLeafOperator extends AbstractExprLeaf {
         super(theParent);
 
         this.operator = theOperator;
-        innerSetNumCursorPositions(1);
     }
 }

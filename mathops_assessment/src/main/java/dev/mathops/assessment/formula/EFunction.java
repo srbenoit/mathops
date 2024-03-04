@@ -87,7 +87,10 @@ public enum EFunction {
     RAD_DEN("radDen", '\u2737'),
 
     /** Least common multiple (Maps Integer Vector to Integer). */
-    LCM("lcm", '\u2738');
+    LCM("lcm", '\u2738'),
+
+    /** Approximately equal to (Maps Number, Number, Number to Boolean). */
+    APPROX("approx", '\u2739');
 
     /** The function name. */
     public final String name;

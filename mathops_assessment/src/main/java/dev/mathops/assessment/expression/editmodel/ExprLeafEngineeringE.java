@@ -13,7 +13,5 @@ public final class ExprLeafEngineeringE extends AbstractExprLeaf {
     public ExprLeafEngineeringE(final AbstractExprObject theParent) {
 
         super(theParent);
-
-        innerSetNumCursorPositions(1);
     }
 }

@@ -6,7 +6,7 @@ package dev.mathops.assessment.expression.editmodel;
  * <p>
  * These are enumerated actions in addition to actions indicated by UTF-16 character values:
  * <ul>
- *     <li>All characters, when used in a string, insert that character.</li>
+ *     <li>All characters, when used in a String, insert that character.</li>
  *     <li>'0' through '9' insert decimal digits</li>
  *     <li>'.' inserts a decimal point</li>
  *     <li>'(' inserts a matched pair of parentheses containing a sub-expression</li>
@@ -17,7 +17,6 @@ package dev.mathops.assessment.expression.editmodel;
  *     <li>The U+2147 character inserts an E (base of natural logarithm) constant</li>
  *     <li>The U+2148 character inserts an I (imaginary unit) constant</li>
  *     <li>ASCII and Greek letters interpreted as variable names, where '_' indicates the start of a subscript.</li>
- *     <lI></lI>
  * </ul>
  */
 public enum EExprAction {
@@ -57,15 +56,6 @@ public enum EExprAction {
 
     /** Insert a radical with root. */
     INSERT_RADICAL_WITH_ROOT(0x0001000C),
-
-    /** Insert an IF-THEN construction. */
-    INSERT_IF_THEN(0x0001000D),
-
-    /** Insert an IF-THEN-ELSE construction. */
-    INSERT_IF_THEN_ELSE(0x0001000E),
-
-    /** Insert a SWITCH construction. */
-    INSERT_SWITCH(0x0001000F),
 
     /** Inserts an Absolute value function. */
     INSERT_FXN_ABS(0x00020000),

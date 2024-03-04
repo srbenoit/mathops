@@ -19,6 +19,5 @@ public final class ExprLeafDelimiter extends AbstractExprLeaf {
         super(theParent);
 
         this.delimiter = theDelimiter;
-        innerSetNumCursorPositions(1);
     }
 }

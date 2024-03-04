@@ -42,7 +42,9 @@ public final class ExprBranchFunction extends AbstractExprBranch {
      *
      * @param theFirstCursorPosition the new first cursor position
      */
-    void recalculuate(final int theFirstCursorPosition) {
+    void recalculate(final int theFirstCursorPosition) {
+
+        final int origCount = getNumCursorPositions();
 
         innerSetFirstCursorPosition(theFirstCursorPosition);
 
@@ -52,7 +54,15 @@ public final class ExprBranchFunction extends AbstractExprBranch {
             pos += arg.getNumCursorPositions();
         }
 
-        innerSetNumCursorPositions(pos + 1);
+        ++pos;
+
+        if (pos != origCount) {
+            innerSetNumCursorPositions(pos);
+            if (getParent() instanceof final AbstractExprBranch parentBranch) {
+                final int parentFirst = parentBranch.getFirstCursorPosition();
+                parentBranch.recalculate(parentFirst);
+            }
+        }
     }
 
     /**

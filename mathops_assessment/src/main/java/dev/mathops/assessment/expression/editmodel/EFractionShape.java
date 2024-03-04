@@ -12,5 +12,5 @@ public enum EFractionShape {
     SLANT,
 
     /** Inline (numerator, then a slash, then the denominator). */
-    INLINE;
+    HORIZONTAL;
 }

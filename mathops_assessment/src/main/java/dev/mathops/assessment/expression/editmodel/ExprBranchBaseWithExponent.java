@@ -25,8 +25,8 @@ public final class ExprBranchBaseWithExponent extends AbstractExprBranch {
 
         super(theParent);
 
-        this.base = new Expr();
-        this.exponent = new Expr();
+        this.base = new Expr(this);
+        this.exponent = new Expr(this);
 
         this.base.innerSetFirstCursorPosition(1);
         this.exponent.innerSetFirstCursorPosition(2);
@@ -43,7 +43,9 @@ public final class ExprBranchBaseWithExponent extends AbstractExprBranch {
      *
      * @param theFirstCursorPosition the new first cursor position
      */
-    void recalculuate(final int theFirstCursorPosition) {
+    void recalculate(final int theFirstCursorPosition) {
+
+        final int origCount = getNumCursorPositions();
 
         innerSetFirstCursorPosition(theFirstCursorPosition);
 
@@ -53,7 +55,14 @@ public final class ExprBranchBaseWithExponent extends AbstractExprBranch {
         this.exponent.innerSetFirstCursorPosition(pos);
 
         pos += 1 + this.exponent.getNumCursorPositions();
-        innerSetNumCursorPositions(pos);
+
+        if (pos != origCount) {
+            innerSetNumCursorPositions(pos);
+            if (getParent() instanceof final AbstractExprBranch parentBranch) {
+                final int parentFirst = parentBranch.getFirstCursorPosition();
+                parentBranch.recalculate(parentFirst);
+            }
+        }
     }
 
     /**

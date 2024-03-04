@@ -17,7 +17,7 @@ public final class ExprBranchRadical extends AbstractExprBranch {
 
         super(theParent);
 
-        this.base = new Expr();
+        this.base = new Expr(this);
 
         this.base.innerSetFirstCursorPosition(1);
 
@@ -32,14 +32,23 @@ public final class ExprBranchRadical extends AbstractExprBranch {
      *
      * @param theFirstCursorPosition the new first cursor position
      */
-    void recalculuate(final int theFirstCursorPosition) {
+    void recalculate(final int theFirstCursorPosition) {
+
+        final int origCount = getNumCursorPositions();
 
         innerSetFirstCursorPosition(theFirstCursorPosition);
 
         this.base.innerSetFirstCursorPosition(theFirstCursorPosition + 1);
 
         final int pos = 1 + this.base.getNumCursorPositions();
-        innerSetNumCursorPositions(pos);
+
+        if (pos != origCount) {
+            innerSetNumCursorPositions(pos);
+            if (getParent() instanceof final AbstractExprBranch parentBranch) {
+                final int parentFirst = parentBranch.getFirstCursorPosition();
+                parentBranch.recalculate(parentFirst);
+            }
+        }
     }
 
     /**

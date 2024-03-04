@@ -14,6 +14,9 @@ public enum EOperatorSymbol {
     /** Times. */
     TIMES,
 
+    /** Divided by. */
+    DIVIDED_BY,
+
     /** Remainder. */
     REMAINDER,
 

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public final class ExpressionModel {
 
-    /** The top-level glyph sequence. */
+    /** The top-level object sequence. */
     private final Expr sequence;
 
     /** Listeners to notify when the model changes. */
@@ -20,7 +20,7 @@ public final class ExpressionModel {
      */
     public ExpressionModel() {
 
-        this.sequence = new Expr();
+        this.sequence = new Expr(null);
 
         this.listeners = new ArrayList<>(3);
     }

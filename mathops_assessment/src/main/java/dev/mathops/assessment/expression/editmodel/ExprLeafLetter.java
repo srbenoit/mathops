@@ -23,6 +23,5 @@ public final class ExprLeafLetter extends AbstractExprLeaf {
         }
 
         this.character = theCharacter;
-        innerSetNumCursorPositions(1);
     }
 }

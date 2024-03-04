@@ -22,7 +22,7 @@ abstract class AbstractExprBranch extends AbstractExprObject {
      *
      * @param theFirstCursorPosition the new first cursor position
      */
-    abstract void recalculuate(int theFirstCursorPosition);
+    abstract void recalculate(int theFirstCursorPosition);
 
     /**
      * Processes an action represented by an integer.  If the action code is 0xFFFF or smaller, it is interpreted

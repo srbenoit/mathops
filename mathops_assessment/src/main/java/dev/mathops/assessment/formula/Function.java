@@ -7,9 +7,7 @@ import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FEFunction;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 import java.math.BigInteger;
 import java.util.Locale;
@@ -209,6 +207,7 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
                 case UCASE -> ucase(arg);
                 case RAD_NUM -> radNum(arg);
                 case RAD_DEN -> radDen(arg);
+                default -> new ErrorValue("Unsupported function");
             };
         }
 
