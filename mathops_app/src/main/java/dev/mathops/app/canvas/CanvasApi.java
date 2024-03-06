@@ -31,6 +31,9 @@ public final class CanvasApi {
     /** A request method. */
     public static final String POST = "POST";
 
+    /** A commonly used character. */
+    private static final char SLASH_CHAR = '/';
+
     /** The hostname of the Canvas installation. */
     private final String canvasHost;
 
@@ -45,8 +48,10 @@ public final class CanvasApi {
      */
     public CanvasApi(final String theCanvasHost, final String theAccessToken) {
 
-        if (!theCanvasHost.isEmpty() && theCanvasHost.charAt(theCanvasHost.length() - 1) == '/') {
-            this.canvasHost = theCanvasHost.substring(theCanvasHost.length() - 1);
+        final int hostLen = theCanvasHost.length();
+
+        if (!theCanvasHost.isEmpty() && (int) theCanvasHost.charAt(hostLen - 1) == (int) SLASH_CHAR) {
+            this.canvasHost = theCanvasHost.substring(hostLen - 1);
         } else {
             this.canvasHost = theCanvasHost;
         }
@@ -73,7 +78,7 @@ public final class CanvasApi {
 
         UserInfo info = null;
 
-        final ApiResult result = apiCall("users/self", "GET", null);
+        final ApiResult result = apiCall("users/self", GET, null);
 
         if (result.response != null) {
             info = new UserInfo(result.response);
@@ -162,7 +167,7 @@ public final class CanvasApi {
                                 }
                                 result = new ApiResult(list);
                             } else {
-                                result = new ApiResult("Unable to interpret response from server");
+                                result = new ApiResult("Unable to interpret response from server (" + obj + ")");
                             }
                         } catch (final ParsingException ex) {
                             result = new ApiResult("Unable to parse response from server");

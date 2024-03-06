@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.border.Border;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -55,7 +56,8 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
 
         super();
 
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        setBorder(padding);
 
         this.synchronize = new JButton("Synchronize");
         this.synchronize.setActionCommand(CMD_SYNCH);
@@ -68,7 +70,8 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
         south.add(southCenter, StackedBorderLayout.CENTER);
 
         this.progress = new JProgressBar(0, 1000);
-        this.progress.setBorder(BorderFactory.createLoweredBevelBorder());
+        final Border bevel = BorderFactory.createLoweredBevelBorder();
+        this.progress.setBorder(bevel);
         this.progress.setStringPainted(true);
         this.progress.setFont(TITLE_FONT);
         this.progress.setString(CoreConstants.EMPTY);
@@ -76,7 +79,8 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
 
         this.statusBarLabel = new JLabel("Status");
         this.statusBarLabel.setFont(LABEL_FONT);
-        this.statusBarLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        final Border statusPad = BorderFactory.createEmptyBorder(0, 0, 4, 0);
+        this.statusBarLabel.setBorder(statusPad);
         southCenter.add(this.statusBarLabel, StackedBorderLayout.SOUTH);
 
         add(south, StackedBorderLayout.SOUTH);
@@ -124,9 +128,21 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
         // Anita Pattison:
 //        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
 
-        final CanvasSyncher syncher = new CanvasSyncher(canvasHost, accessToken, this.progress, this.synchronize,
-                this.statusBarLabel);
-        syncher.execute();
+        final String[] codesOfInterest = {"MATH-117", "MATH-118", "MATH-124", "MATH-125", "MATH-126"};
+
+        final ModelReader reader = new ModelReader(canvasHost, accessToken,codesOfInterest, this.progress,
+                this.synchronize, this.statusBarLabel);
+        reader.execute();
     }
 
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return "CanvasFull";
+    }
 }
