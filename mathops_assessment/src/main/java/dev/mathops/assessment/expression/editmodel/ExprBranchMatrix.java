@@ -1,12 +1,15 @@
 package dev.mathops.assessment.expression.editmodel;
 
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+
 /**
- * A glyph that represents a matrix.
+ * An expression object that represents a matrix with subexpressions for each entry.
  */
 public final class ExprBranchMatrix extends AbstractExprBranch {
 
     /** The type of brackets. */
-    public final EVectorMatrixBrackets brackets;
+    private EVectorMatrixBrackets brackets;
 
     /** The number of rows. */
     private final int numRows;
@@ -18,7 +21,7 @@ public final class ExprBranchMatrix extends AbstractExprBranch {
     public final Expr[] components;
 
     /**
-     * Constructs a new {@code ExprGlyphMatrix}.
+     * Constructs a new {@code ExprBranchMatrix}.
      *
      * @param theParent the parent object ({@code null} only for the root node)
      * @param theBrackets the type of brackets
@@ -40,63 +43,97 @@ public final class ExprBranchMatrix extends AbstractExprBranch {
         for (int i = 0; i < numComponents; ++i) {
             final Expr expr = new Expr(this);
             this.components[i] = expr;
-            expr.innerSetFirstCursorPosition(i + 1);
-        }
-
-        // Initially, there is one cursor position for the opening bracket, one cursor position for each transition
-        // from one component to the next, and one for the closing bracket
-        innerSetNumCursorPositions(numComponents + 1);
-    }
-
-    /**
-     * Called when something potentially changes the number of cursor positions in a child.  This method recalculates
-     * the starting cursor positions for each child of this object, and updates this objects total cursor position
-     * count.  If this results in a change to this object's cursor position count, the call is propagated upward to the
-     * parent (if any).
-     */
-    void recalculate(final int theFirstCursorPosition) {
-
-        final int origCount = getNumCursorPositions();
-
-        int pos = theFirstCursorPosition + 1;
-        for (final Expr expr : this.components) {
-            expr.innerSetFirstCursorPosition(pos);
-            pos += expr.getNumCursorPositions() + 1;
-        }
-
-        ++pos;
-
-        if (pos != origCount) {
-            innerSetNumCursorPositions(pos);
-            if (getParent() instanceof final AbstractExprBranch parentBranch) {
-                final int parentFirst = parentBranch.getFirstCursorPosition();
-                parentBranch.recalculate(parentFirst);
-            }
         }
     }
 
     /**
-     * Processes an action represented by an integer.  If the action code is 0xFFFF or smaller, it is interpreted
-     * as a Unicode character;  otherwise, it is interpreted as an enumerated code.
+     * Gets the type of brackets.
      *
-     * <p>
-     * If there is a selection and an action is performed that would result in the deletion of that selection, the
-     * deletion is done before this method is called.  Actions on objects are called only when there is no selection
-     * region.  Actions like CUT/COPY/PASTE/DELETE (and undo/redo) are handled by other mechanisms.
-     *
-     * @param action the action code
-     * @param cursorPosition the cursor position
+     * @return the type of brackets
      */
-    void processAction(final int action, final int cursorPosition) {
+    public EVectorMatrixBrackets getBrackets() {
 
-        for (final Expr expr : this.components) {
-            final int start = expr.getFirstCursorPosition();
-            final int count = expr.getNumCursorPositions();
-            final int end = start + count;
-            if (cursorPosition >= start && cursorPosition < end) {
-                expr.processAction(action, cursorPosition);
-                break;
+        return this.brackets;
+    }
+
+    /**
+     * Sets the type of brackets.
+     *
+     * @param theBrackets the new type of brackets
+     */
+    public void setBrackets(final EVectorMatrixBrackets theBrackets) {
+
+        if (theBrackets == null) {
+            throw new IllegalArgumentException("Bracket type may not be null");
+        }
+
+        this.brackets = theBrackets;
+    }
+
+    /**
+     * Gets the number of rows in the matrix.
+     *
+     * @return the number of rows
+     */
+    public int getNumRows() {
+
+        return this.numRows;
+    }
+
+    /**
+     * Gets the number of columns in the matrix.
+     *
+     * @return the number of columns
+     */
+    public int getNumCols() {
+
+        return this.numCols;
+    }
+
+    /**
+     * Gets the expression at a specified row and column.
+     *
+     * @param row the row (0-based)
+     * @param col the column (0-based)
+     * @return the entry expression
+     */
+    public Expr getComponent(final int row, final int col) {
+
+        return this.components[row * this.numCols + col];
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final HtmlBuilder htm = new HtmlBuilder(20 + this.numRows * this.numCols * 20);
+
+        htm.add("ExprBranchMatrix{brackets=", this.brackets, ",entries=[");
+
+        int index = 0;
+        if (this.numRows > 0 && this.numCols > 0) {
+            for (int row = 0; row < this.numRows; ++row) {
+                final AbstractExprObject child0 = this.components[index];
+                final String child0Str = child0.toString();
+                htm.add(child0Str);
+                ++index;
+
+                for (int i = 1; i < this.numCols; ++i) {
+                    htm.add(CoreConstants.COMMA);
+                    final AbstractExprObject child = this.components[index];
+                    final String childStr = child.toString();
+                    htm.add(childStr);
+                    ++index;
+                }
             }
         }
+
+        htm.add("]}");
+
+        return htm.toString();
     }
 }

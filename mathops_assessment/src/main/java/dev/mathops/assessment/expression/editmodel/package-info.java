@@ -18,12 +18,15 @@
  *     <li>Vectors with expression components</li>
  *     <li>Matrices with expression entries</li>
  *     <li>Function invocations, with one or more expressions as arguments</li>
+ *     <li>IF-THEN constructions</li>
+ *     <li>IF-THEN-ELSE constructions</li>
+ *     <li>SWITCH constructions</li>
  * </ul>
  *
  * <p>
- * Every object either represents a single "cursor step" in an expression, or is a compound object with sub-expressions,
- * where one cursor step moves into the object, one cursor step moves from one child sub-expression to the next, and
- * one cursor step moves out of the object.
+ * Every object is either a "leaf", which represents a single "cursor step" in an expression, or is a "branch", or
+ * compound object with subordinate content, where one cursor step moves into the object, one cursor step moves from
+ * one child sub-expression to the next, and one cursor step moves out of the object.
  *
  * <p>
  * Expression models support the following types of action:

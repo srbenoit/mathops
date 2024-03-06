@@ -1,7 +1,7 @@
 package dev.mathops.assessment.expression.editmodel;
 
 /**
- * A glyph that represents a fraction with subexpression numerator and subexpression denominator.
+ * An expression object that represents a fraction with subexpression numerator and subexpression denominator.
  */
 public final class ExprBranchFraction extends AbstractExprBranch {
 
@@ -15,7 +15,7 @@ public final class ExprBranchFraction extends AbstractExprBranch {
     public final Expr denominator;
 
     /**
-     * Constructs a new {@code ExprGlyphFraction}.
+     * Constructs a new {@code ExprBranchFraction}.
      *
      * @param theParent the parent object ({@code null} only for the root node)
      * @param theShape the shape
@@ -27,72 +27,26 @@ public final class ExprBranchFraction extends AbstractExprBranch {
         this.shape = theShape;
         this.numerator = new Expr(this);
         this.denominator = new Expr(this);
-
-        this.numerator.innerSetFirstCursorPosition(1);
-        this.denominator.innerSetFirstCursorPosition(2);
-
-        // Initially, there is one cursor position for the step into the numerator, one for the step from numerator
-        // to denominator, and one for the step out of the denominator
-        innerSetNumCursorPositions(3);
     }
 
     /**
-     * Called when something potentially changes the number of cursor positions in a child.  This method recalculates
-     * the starting cursor positions for each child of this object, and if this results in a change to this object's
-     * cursor position count, the call is  propagated upward to the parent (if any).
+     * Gets the fraction's shape.
      *
-     * @param theFirstCursorPosition the new first cursor position
+     * @return the shape
      */
-    void recalculate(final int theFirstCursorPosition) {
+    public EFractionShape getShape() {
 
-        final int origCount = getNumCursorPositions();
-
-        innerSetFirstCursorPosition(theFirstCursorPosition);
-
-        this.numerator.innerSetFirstCursorPosition(theFirstCursorPosition + 1);
-
-        int pos = 2 + this.numerator.getNumCursorPositions();
-        this.denominator.innerSetFirstCursorPosition(pos);
-
-        pos += 1 + this.denominator.getNumCursorPositions();
-
-        if (pos != origCount) {
-            innerSetNumCursorPositions(pos);
-            if (getParent() instanceof final AbstractExprBranch parentBranch) {
-                final int parentFirst = parentBranch.getFirstCursorPosition();
-                parentBranch.recalculate(parentFirst);
-            }
-        }
+        return this.shape;
     }
 
     /**
-     * Processes an action represented by an integer.  If the action code is 0xFFFF or smaller, it is interpreted
-     * as a Unicode character;  otherwise, it is interpreted as an enumerated code.
+     * Sets the fraction's shape.
      *
-     * <p>
-     * If there is a selection and an action is performed that would result in the deletion of that selection, the
-     * deletion is done before this method is called.  Actions on objects are called only when there is no selection
-     * region.  Actions like CUT/COPY/PASTE/DELETE (and undo/redo) are handled by other mechanisms.
-     *
-     * @param action the action code
-     * @param cursorPosition the cursor position
+     * @param theShape the shape
      */
-    void processAction(final int action, final int cursorPosition) {
+    public void setShape(final  EFractionShape theShape) {
 
-        final int rootStart = this.numerator.getFirstCursorPosition();
-        final int rootCount = this.numerator.getNumCursorPositions();
-        final int rootEnd = rootStart + rootCount;
-
-        if (cursorPosition >= rootStart && cursorPosition < rootEnd) {
-            this.numerator.processAction(action, cursorPosition);
-        } else {
-            final int baseStart = this.denominator.getFirstCursorPosition();
-            final int baseCount = this.denominator.getNumCursorPositions();
-            final int baseEnd = baseStart + baseCount;
-            if (cursorPosition >= baseStart && cursorPosition < baseEnd) {
-                this.denominator.processAction(action, cursorPosition);
-            }
-        }
+        this.shape = theShape;
     }
 }
 

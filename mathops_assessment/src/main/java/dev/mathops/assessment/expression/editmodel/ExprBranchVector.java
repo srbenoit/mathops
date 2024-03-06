@@ -1,7 +1,13 @@
 package dev.mathops.assessment.expression.editmodel;
 
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * An expression object that represents a vector.
+ * An expression object that represents a vector with a subexpression for each component.
  */
 public final class ExprBranchVector extends AbstractExprBranch {
 
@@ -9,10 +15,10 @@ public final class ExprBranchVector extends AbstractExprBranch {
     private static final int MAX_COMPONENTS = 999;
 
     /** The type of brackets. */
-    public final EVectorMatrixBrackets brackets;
+    private EVectorMatrixBrackets brackets;
 
     /** The components. */
-    public final Expr[] components;
+    public final List<Expr> components;
 
     /**
      * Constructs a new {@code ExprBranchVector}.
@@ -26,73 +32,125 @@ public final class ExprBranchVector extends AbstractExprBranch {
 
         super(theParent);
 
+        if (theBrackets == null) {
+            throw new IllegalArgumentException("Bracket type may not be null");
+        }
+
         if (numComponents < 1 || numComponents > MAX_COMPONENTS) {
             throw new IllegalArgumentException("Invalid number of components");
         }
 
         this.brackets = theBrackets;
-        this.components = new Expr[numComponents];
+        this.components = new ArrayList<>(numComponents);
 
         for (int i = 0; i < numComponents; ++i) {
-            final Expr expr = new Expr(this);
-            this.components[i] = expr;
-            expr.innerSetFirstCursorPosition(i + 1);
-        }
-
-        // Initially, there is one cursor position for the opening bracket, one cursor position for each transition
-        // from one component to the next, and one for the closing bracket
-        innerSetNumCursorPositions(numComponents + 1);
-    }
-
-    /**
-     * Called when something potentially changes the number of cursor positions in a child.  This method recalculates
-     * the starting cursor positions for each child of this object, and updates this objects total cursor position
-     * count.  If this results in a change to this object's cursor position count, the call is propagated upward to the
-     * parent (if any).
-     */
-    void recalculate(final int theFirstCursorPosition) {
-
-        final int origCount = getNumCursorPositions();
-
-        int pos = theFirstCursorPosition + 1;
-        for (final Expr expr : this.components) {
-            expr.innerSetFirstCursorPosition(pos);
-            pos += expr.getNumCursorPositions() + 1;
-        }
-
-        ++pos;
-
-        if (pos != origCount) {
-            innerSetNumCursorPositions(pos);
-            if (getParent() instanceof final AbstractExprBranch parentBranch) {
-                final int parentFirst = parentBranch.getFirstCursorPosition();
-                parentBranch.recalculate(parentFirst);
-            }
+            this.components.add(new Expr(this));
         }
     }
 
     /**
-     * Processes an action represented by an integer.  If the action code is 0xFFFF or smaller, it is interpreted
-     * as a Unicode character;  otherwise, it is interpreted as an enumerated code.
+     * Gets the type of brackets.
      *
-     * <p>
-     * If there is a selection and an action is performed that would result in the deletion of that selection, the
-     * deletion is done before this method is called.  Actions on objects are called only when there is no selection
-     * region.  Actions like CUT/COPY/PASTE/DELETE (and undo/redo) are handled by other mechanisms.
-     *
-     * @param action the action code
-     * @param cursorPosition the cursor position
+     * @return the type of brackets
      */
-    void processAction(final int action, final int cursorPosition) {
+    public EVectorMatrixBrackets getBrackets() {
 
-        for (final Expr expr : this.components) {
-            final int start = expr.getFirstCursorPosition();
-            final int count = expr.getNumCursorPositions();
-            final int end = start + count;
-            if (cursorPosition >= start && cursorPosition < end) {
-                expr.processAction(action, cursorPosition);
-                break;
+        return this.brackets;
+    }
+
+    /**
+     * Sets the type of brackets.
+     *
+     * @param theBrackets the new type of brackets
+     */
+    public void setBrackets(final EVectorMatrixBrackets theBrackets) {
+
+        if (theBrackets == null) {
+            throw new IllegalArgumentException("Bracket type may not be null");
+        }
+
+        this.brackets = theBrackets;
+    }
+
+    /**
+     * Gets the number of components in the vector.
+     *
+     * @return the number of components
+     */
+    public int size() {
+
+        return this.components.size();
+    }
+
+    /**
+     * Gets the component expression at a specified index.
+     *
+     * @param index the index
+     * @return the child object
+     */
+    public Expr getComponent(final int index) {
+
+        return this.components.get(index);
+    }
+
+    /**
+     * Adds a new component expression to the end of the vector.
+     *
+     * @return the newly added component expression
+     */
+    public Expr addComponent() {
+
+        final Expr expr = new Expr(this);
+
+        this.components.add(expr);
+
+        return expr;
+    }
+
+    /**
+     * Adds a new component expression at a specified position in the vector.
+     *
+     * @param index the index at which to add the new component
+     * @return the newly added component expression
+     */
+    public Expr addComponent(final int index) {
+
+        final Expr expr = new Expr(this);
+
+        this.components.add(index, expr);
+
+        return expr;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final int count = this.components.size();
+
+        final HtmlBuilder htm = new HtmlBuilder(20 + count * 20);
+
+        htm.add("ExprBranchVector{brackets=", this.brackets, ",components=[");
+
+        if (count > 0) {
+            final AbstractExprObject child0 = this.components.getFirst();
+            final String child0Str = child0.toString();
+            htm.add(child0Str);
+
+            for (int i = 1; i < count; ++i) {
+                htm.add(CoreConstants.COMMA);
+                final AbstractExprObject child = this.components.get(i);
+                final String childStr = child.toString();
+                htm.add(childStr);
             }
         }
+
+        htm.add("]}");
+
+        return htm.toString();
     }
 }
