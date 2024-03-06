@@ -5,6 +5,7 @@ import dev.mathops.commons.parser.HexEncoder;
 import dev.mathops.commons.parser.xml.IElement;
 
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 
 /**
  * A descriptor of a single file that makes up an application.
@@ -12,10 +13,10 @@ import java.time.format.DateTimeParseException;
 final class FileDescriptor {
 
     /** The filename. */
-    public final String name;
+    final String name;
 
     /** The file size, in bytes. */
-    public final long size;
+    final long size;
 
     /** The SHA-256 hash. */
     private final byte[] sha256;
@@ -40,9 +41,9 @@ final class FileDescriptor {
      * @param elem the 'file' element
      * @return the parsed {@code FileDescriptor}; {@code null} if data could not be parsed
      */
-    public static FileDescriptor extract(final IElement elem) {
+    static FileDescriptor extract(final IElement elem) {
 
-        FileDescriptor result;
+        FileDescriptor result = null;
 
         final String name = elem.getStringAttr("name");
         final String size = elem.getStringAttr("size");
@@ -50,19 +51,15 @@ final class FileDescriptor {
 
         if (name == null) {
             Log.warning("Missing 'name' attribute on <file> element");
-            result = null;
         } else if (size == null) {
             Log.warning("Missing 'size' attribute on <file> element");
-            result = null;
         } else if (sha256 == null) {
             Log.warning("Missing 'sha256' attribute on <file> element");
-            result = null;
         } else {
             try {
                 final long sz = Long.parseLong(size);
                 if (sz <= 0L) {
                     Log.warning("Invalid 'size' attribute on <file> element");
-                    result = null;
                 } else if (sha256.length() != 64) {
                     Log.warning("Invalid 'sha256' attribute on <file> element");
                     final byte[] hash = new byte[0];
@@ -72,14 +69,11 @@ final class FileDescriptor {
                         final byte[] hash = HexEncoder.decode(sha256);
                         result = new FileDescriptor(name, sz, hash);
                     } catch (final IllegalArgumentException ex) {
-                        Log.warning("Invalid 'sha256' attribute on <file> element",
-                                ex);
-                        result = null;
+                        Log.warning("Invalid 'sha256' attribute on <file> element", ex);
                     }
                 }
             } catch (final DateTimeParseException ex) {
                 Log.warning("Invalid 'size' attribute on <file> element", ex);
-                result = null;
             }
         }
 
@@ -91,7 +85,7 @@ final class FileDescriptor {
      *
      * @return the hash
      */
-    public byte[] getSHA256() {
+    byte[] getSHA256() {
 
         return this.sha256.clone();
     }
@@ -104,7 +98,7 @@ final class FileDescriptor {
     @Override
     public int hashCode() {
 
-        return this.name.hashCode() + Long.hashCode(this.size) + this.sha256.hashCode();
+        return this.name.hashCode() + Long.hashCode(this.size) + Arrays.hashCode(this.sha256);
     }
 
     /**
@@ -118,7 +112,7 @@ final class FileDescriptor {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final FileDescriptor fd) {
-            equal = fd.name.equals(this.name) && fd.size == this.size && fd.sha256.equals(this.sha256);
+            equal = fd.name.equals(this.name) && fd.size == this.size && Arrays.equals(fd.sha256, this.sha256);
         } else {
             equal = false;
         }

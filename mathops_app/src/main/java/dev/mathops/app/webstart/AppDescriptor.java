@@ -38,16 +38,16 @@ import java.util.Objects;
 final class AppDescriptor {
 
     /** The application name. */
-    public final String name;
+    final String name;
 
     /** The application version. */
-    public final String version;
+    final String version;
 
     /** The application release date. */
-    public final ZonedDateTime releaseDate;
+    final ZonedDateTime releaseDate;
 
     /** The main class name. */
-    public final String mainClass;
+    final String mainClass;
 
     /** Descriptors of the files that make up the application. */
     private final List<FileDescriptor> files;
@@ -60,8 +60,8 @@ final class AppDescriptor {
      * @param theReleaseDate the release date
      * @param theMainClass   the main class
      */
-    private AppDescriptor(final String theName, final String theVersion,
-                          final ZonedDateTime theReleaseDate, final String theMainClass) {
+    private AppDescriptor(final String theName, final String theVersion, final ZonedDateTime theReleaseDate,
+                          final String theMainClass) {
 
         this.name = theName;
         this.version = theVersion;
@@ -76,29 +76,28 @@ final class AppDescriptor {
      * @param xmlFile the XML file
      * @return the parsed {@code AppDescriptor}; {@code null} if file could not be loaded and parsed
      */
-    public static AppDescriptor parse(final File xmlFile) {
+    static AppDescriptor parse(final File xmlFile) {
 
-        AppDescriptor result;
+        AppDescriptor result = null;
 
         final String raw = FileLoader.loadFileAsString(xmlFile, false);
+        final String xmlPath = xmlFile.getAbsolutePath();
+
         if (raw == null) {
-            Log.warning("Unable to load ", xmlFile.getAbsolutePath());
-            result = null;
+            Log.warning("Unable to load ", xmlPath);
         } else {
             try {
                 final XmlContent content = new XmlContent(raw, false, false);
                 final IElement top = content.getToplevel();
 
-                if ("app".equals(top.getTagName())) {
+                final String tagName = top.getTagName();
+                if ("app".equals(tagName)) {
                     result = extractDescriptors(top);
                 } else {
-                    Log.warning("Missing 'app' top-level element in ",
-                            xmlFile.getAbsolutePath());
-                    result = null;
+                    Log.warning("Missing 'app' top-level element in ", xmlPath);
                 }
             } catch (final ParsingException ex) {
-                Log.warning("Unable to parse ", xmlFile.getAbsolutePath(), ex);
-                result = null;
+                Log.warning("Unable to parse ", xmlPath, ex);
             }
         }
 
@@ -111,7 +110,7 @@ final class AppDescriptor {
      * @param in the input stream
      * @return the parsed {@code AppDescriptor}; {@code null} if stream could not be read and parsed
      */
-    public static AppDescriptor parse(final InputStream in) {
+    static AppDescriptor parse(final InputStream in) {
 
         AppDescriptor result = null;
 
@@ -127,11 +126,11 @@ final class AppDescriptor {
                     final XmlContent content = new XmlContent(preStr, false, false);
                     final IElement top = content.getToplevel();
 
-                    if ("app".equals(top.getTagName())) {
+                    final String tagName = top.getTagName();
+                    if ("app".equals(tagName)) {
                         result = extractDescriptors(top);
                     } else {
-                        Log.warning(//
-                                "Missing 'app' top-level element in input stream");
+                        Log.warning("Missing 'app' top-level element in input stream");
                     }
                 } catch (final ParsingException ex2) {
                     Log.warning("Unable to parse input stream", ex2);
@@ -152,7 +151,7 @@ final class AppDescriptor {
      */
     private static AppDescriptor extractDescriptors(final IElement top) {
 
-        AppDescriptor result;
+        AppDescriptor result = null;
 
         final String name = top.getStringAttr("name");
         final String ver = top.getStringAttr("version");
@@ -161,16 +160,12 @@ final class AppDescriptor {
 
         if (name == null) {
             Log.warning("Missing 'name' attribute on <app> element");
-            result = null;
         } else if (ver == null) {
             Log.warning("Missing 'version' attribute on <app> element");
-            result = null;
         } else if (date == null) {
             Log.warning("Missing 'releaseDate' attribute on <app> element");
-            result = null;
         } else if (main == null) {
             Log.warning("Missing 'mainClass' attribute on <app> element");
-            result = null;
         } else {
             try {
                 final ZonedDateTime parsedDate = ZonedDateTime.parse(date);
@@ -181,14 +176,14 @@ final class AppDescriptor {
                     for (final INode child : non.getChildrenAsList()) {
                         if (child instanceof final IElement childElem) {
 
-                            if ("file".equals(childElem.getTagName())) {
+                            final String tagName = childElem.getTagName();
+                            if ("file".equals(tagName)) {
                                 final FileDescriptor fd = FileDescriptor.extract(childElem);
                                 if (fd != null) {
                                     result.addFile(fd);
                                 }
                             } else {
-                                Log.warning("Unexpected child element of top-level <app> element: ",
-                                        childElem.getTagName());
+                                Log.warning("Unexpected child element of top-level <app> element: ", tagName);
                             }
                         }
                     }

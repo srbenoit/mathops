@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -64,7 +63,7 @@ import java.lang.reflect.InvocationTargetException;
 final class Updater implements Runnable {
 
     /** Updater version. */
-    private static final String VERSION = "1.2.016";
+    private static final String VERSION = "1.2.017";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
@@ -77,12 +76,6 @@ final class Updater implements Runnable {
 
     /** Name of the "launch.xml" file. */
     private static final String LAUNCH_XML = "launch.xml";
-
-    /** Name of the "launch.jar" file. */
-    public static final String LAUNCH_JAR = "launch.jar";
-
-    /** Name of the "app.xml" file. */
-    public static final String APP_XML = "app.xml";
 
     /** Background color. */
     private static final Color BACKGROUND = new Color(30, 77, 43);
@@ -163,8 +156,7 @@ final class Updater implements Runnable {
         FileUtils.log(this.logFile, CoreConstants.EMPTY);
 
         Font theFont;
-        try (final InputStream in = FileLoader.openInputStream(Updater.class, "ProximaNova-Reg-webfont.ttf",
-                false)) {
+        try (final InputStream in = FileLoader.openInputStream(Updater.class, "ProximaNova-Reg-webfont.ttf", false)) {
             theFont = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (final IOException | FontFormatException ex) {
             FileUtils.log(this.logFile, Res.get(Res.CANT_LOAD_FONT), ex);
@@ -198,11 +190,11 @@ final class Updater implements Runnable {
         top.setHorizontalAlignment(SwingConstants.CENTER);
         top.setFont(this.font.deriveFont(30.0f));
         topFlow.add(top);
-        content.add(topFlow, BorderLayout.NORTH);
+        content.add(topFlow, StackedBorderLayout.NORTH);
 
         final JSeparator sep = new JSeparator();
         sep.setForeground(Color.white);
-        content.add(sep, BorderLayout.NORTH);
+        content.add(sep, StackedBorderLayout.NORTH);
 
         final Font boldFont = this.font.deriveFont(Font.BOLD, 18.0f);
         final Font plainFont = this.font.deriveFont(18.0f);
@@ -242,9 +234,9 @@ final class Updater implements Runnable {
         flow1.add(lbl1);
         flow2.add(lbl2);
         flow3.add(lbl3);
-        content.add(flow1, BorderLayout.NORTH);
-        content.add(flow2, BorderLayout.NORTH);
-        content.add(flow3, BorderLayout.NORTH);
+        content.add(flow1, StackedBorderLayout.NORTH);
+        content.add(flow2, StackedBorderLayout.NORTH);
+        content.add(flow3, StackedBorderLayout.NORTH);
 
         this.installedVersion = new JLabel(CoreConstants.SPC);
         this.installedVersion.setFont(plainFont);
@@ -300,8 +292,7 @@ final class Updater implements Runnable {
                     FileUtils.log(this.logFile, Res.get(Res.UPDATE_LAUNCH_XML_BAD));
                 } else {
                     this.availableVersion.setText(updateLaunchApp.version);
-                    this.availableDate
-                            .setText(TemporalUtils.FMT_MDY.format(updateLaunchApp.releaseDate));
+                    this.availableDate.setText(TemporalUtils.FMT_MDY.format(updateLaunchApp.releaseDate));
 
                     final File launchXml = new File(this.launchDir, LAUNCH_XML);
 
@@ -310,27 +301,18 @@ final class Updater implements Runnable {
 
                         if (launchApp == null) {
                             // launch.xml bad - try to copy it over
-                            valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir,
-                                    this.launchDir, this.logFile, LAUNCH_XML);
-                            if (valid) {
-                                this.status.setText("Finished");
-                            } else {
-                                this.status.setText("Update failed");
-                            }
+                            valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
+                                    this.logFile, LAUNCH_XML);
+                            this.status.setText(valid ? "Finished" : "Update failed");
                         } else {
                             this.installedVersion.setText(updateLaunchApp.version);
-                            this.installedDate
-                                    .setText(TemporalUtils.FMT_MDY.format(updateLaunchApp.releaseDate));
+                            this.installedDate.setText(TemporalUtils.FMT_MDY.format(updateLaunchApp.releaseDate));
 
                             if (updateLaunchApp.releaseDate.isAfter(launchApp.releaseDate)) {
                                 // Update is more recent - copy into place
-                                valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir,
-                                        this.launchDir, this.logFile, LAUNCH_XML);
-                                if (valid) {
-                                    this.status.setText("Finished");
-                                } else {
-                                    this.status.setText("Update failed");
-                                }
+                                valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
+                                        this.logFile, LAUNCH_XML);
+                                this.status.setText(valid ? "Finished" : "Update failed");
                             } else {
                                 this.status.setText(Res.get(Res.NO_LAUNCH_UPD_NEEDED));
                                 FileUtils.log(this.logFile, Res.get(Res.NO_LAUNCH_UPD_NEEDED));
@@ -338,13 +320,9 @@ final class Updater implements Runnable {
                         }
                     } else {
                         // launch.xml missing - try to copy it over
-                        valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir,
-                                this.launchDir, this.logFile, LAUNCH_XML);
-                        if (valid) {
-                            this.status.setText("Finished");
-                        } else {
-                            this.status.setText("Update failed");
-                        }
+                        valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
+                                this.logFile, LAUNCH_XML);
+                        this.status.setText(valid ? "Finished" : "Update failed");
                     }
                 }
             } else {
@@ -385,9 +363,8 @@ final class Updater implements Runnable {
             Thread.sleep(200L);
 
             if (!updater.doUpdate()) {
-                // If there are no updates or the update failed, that means this program was
-                // launched in error, and it will probably happen again and again, so pause a little
-                // to prevent fast spin
+                // If there are no updates or the update failed, that means this program was launched in error, and it
+                // will probably happen again and again, so pause a little to prevent fast spin
                 Thread.sleep(4000L);
             }
         } catch (final InvocationTargetException | InterruptedException ex) {

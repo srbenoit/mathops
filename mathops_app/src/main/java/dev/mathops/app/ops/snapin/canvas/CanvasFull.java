@@ -119,10 +119,10 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
         final String canvasHost = "https://colostate.instructure.com";
 
         // Steve Benoit:
-        // final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
+         final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
 
         // Anita Pattison:
-        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
+//        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
 
         final CanvasSyncher syncher = new CanvasSyncher(canvasHost, accessToken, this.progress, this.synchronize,
                 this.statusBarLabel);

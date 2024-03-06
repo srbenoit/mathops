@@ -15,7 +15,7 @@ import java.util.Arrays;
 /**
  * An updater that tests the presence and integrity of an update, and if valid (and newer than the current version),
  * installs the update by copying files from a source directory to a target directory. The source is typically under
- * ./appdir/update, and the targer is under ./appdir.
+ * ./appdir/update, and the target is under ./appdir.
  */
 enum FileUpdater {
     ;
@@ -37,8 +37,8 @@ enum FileUpdater {
      * @param descriptorFilename the filename of the descriptor
      * @return true if successful; false if unsuccessful
      */
-    static boolean updateApp(final AppDescriptor descriptor, final File sourceDir,
-                             final File targetDir, final File logFile, final String descriptorFilename) {
+    static boolean updateApp(final AppDescriptor descriptor, final File sourceDir, final File targetDir,
+                             final File logFile, final String descriptorFilename) {
 
         boolean success = true;
 
@@ -61,18 +61,15 @@ enum FileUpdater {
                         final byte[] expected = file.getSHA256();
 
                         if (!Arrays.equals(hash, expected)) {
-                            FileUtils.log(logFile, "  File '", src.getAbsolutePath(),
-                                    "' has hash ", HexEncoder.encodeUppercase(hash),
-                                    " but descriptor in XML shows ",
+                            FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has hash ",
+                                    HexEncoder.encodeUppercase(hash), " but descriptor in XML shows ",
                                     HexEncoder.encodeUppercase(expected));
                             success = false;
                         }
                     }
                 } else {
-                    FileUtils.log(logFile, "  File '", src.getAbsolutePath(),
-                            "' has size ", Long.toString(src.length()),
-                            " but descriptor in XML shows ", Long.toString(file.size));
-
+                    FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has size ",
+                            Long.toString(src.length()), " but descriptor in XML shows ", Long.toString(file.size));
                     success = false;
                 }
             }
@@ -93,9 +90,8 @@ enum FileUpdater {
                     if (FileUtils.copyFile(src, dst)) {
                         src.delete();
                     } else {
-                        FileUtils.log(logFile, "  Failed to copy '",
-                                src.getAbsolutePath(), "' to '", dst.getAbsolutePath(),
-                                "'");
+                        FileUtils.log(logFile, "  Failed to copy '", src.getAbsolutePath(), "' to '",
+                                dst.getAbsolutePath(), "'");
                         success = false;
                         break;
                     }
@@ -131,8 +127,8 @@ enum FileUpdater {
      * @param logFile  the log file
      * @return true if successful; false if not
      */
-    private static boolean writeAppDescriptorXml(final AppDescriptor desc, final String filename,
-                                                 final File dst, final File logFile) {
+    private static boolean writeAppDescriptorXml(final AppDescriptor desc, final String filename, final File dst,
+                                                 final File logFile) {
 
         boolean success = false;
 
@@ -149,19 +145,18 @@ enum FileUpdater {
     /**
      * Attempts to compute the SHA256 hash of a file.
      *
-     * @param f       the file
+     * @param file    the file
      * @param sha256  the message digest
      * @param logFile the log file
      * @return the hash; null if unable to read file
      */
-    private static byte[] computeSHA256(final File f, final MessageDigest sha256,
-                                        final File logFile) {
+    private static byte[] computeSHA256(final File file, final MessageDigest sha256, final File logFile) {
 
         final byte[] buffer = new byte[64 * 1024];
         byte[] result = null;
 
         if (sha256 != null) {
-            try (final InputStream in = new FileInputStream(f)) {
+            try (final InputStream in = new FileInputStream(file)) {
                 int numRead = in.read(buffer);
                 while (numRead > 0) {
                     sha256.update(buffer, 0, numRead);
@@ -170,8 +165,7 @@ enum FileUpdater {
 
                 result = sha256.digest();
             } catch (final IOException ex) {
-                FileUtils.log(logFile, "  Exception computing hash of '",
-                        f.getAbsolutePath(), "'", ex);
+                FileUtils.log(logFile, "  Exception computing hash of '", file.getAbsolutePath(), "'", ex);
             }
         }
 

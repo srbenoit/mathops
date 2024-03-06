@@ -66,7 +66,7 @@ import java.util.List;
 final class Launch implements Runnable {
 
     /** Launcher version. */
-    private static final String VERSION = "1.2.016";
+    private static final String VERSION = "1.2.017";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
@@ -80,14 +80,8 @@ final class Launch implements Runnable {
     /** Name of the "launch.xml" file. */
     private static final String LAUNCH_XML = "launch.xml";
 
-    /** Name of the "launch.jar" file. */
-    public static final String LAUNCH_JAR = "launch.jar";
-
     /** Name of the "updater.xml" file. */
     private static final String UPDATER_XML = "updater.xml";
-
-    /** Name of the "updater.jar" file. */
-    public static final String UPDATER_JAR = "updater.jar";
 
     /** Name of the "app.xml" file. */
     private static final String APP_XML = "app.xml";
@@ -153,7 +147,8 @@ final class Launch implements Runnable {
         try (final InputStream in = FileLoader.openInputStream(Launch.class, "ProximaNova-Reg-webfont.ttf", false)) {
             theFont = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (final IOException | FontFormatException ex) {
-            FileUtils.log(this.logFile, Res.get(Res.CANT_LOAD_FONT), ex);
+            final String msg = Res.get(Res.CANT_LOAD_FONT);
+            FileUtils.log(this.logFile, msg, ex);
             theFont = new Font(Font.SANS_SERIF, Font.PLAIN, 1);
         }
 
@@ -175,7 +170,8 @@ final class Launch implements Runnable {
         content.setPreferredSize(new Dimension(400, 100));
         this.splash.setContentPane(content);
 
-        final JLabel top = new JLabel(Res.get(Res.LAUNCH_TITLE));
+        final String title = Res.get(Res.LAUNCH_TITLE);
+        final JLabel top = new JLabel(title);
         top.setForeground(Color.white);
         top.setHorizontalAlignment(SwingConstants.CENTER);
         top.setFont(this.font.deriveFont(30.0f));
@@ -203,10 +199,10 @@ final class Launch implements Runnable {
             box.add(error);
         } else {
             // We have an application and a launcher
-            final JLabel title = new JLabel(this.app.name);
-            title.setForeground(Color.white);
-            title.setFont(this.font.deriveFont(20.0f));
-            box.add(title);
+            final JLabel titleLbl = new JLabel(this.app.name);
+            titleLbl.setForeground(Color.white);
+            titleLbl.setFont(this.font.deriveFont(20.0f));
+            box.add(titleLbl);
         }
 
         final JLabel info;
@@ -231,7 +227,7 @@ final class Launch implements Runnable {
      *
      * @return true if successful; false if not
      */
-    private boolean doLaunch() {
+    private boolean isLaunched() {
 
         // Download the latest XML file descriptors from the server, compare release dates against
         // current versions, and if a new release is indicated, download all files referenced in
@@ -288,8 +284,8 @@ final class Launch implements Runnable {
             final AppDescriptor newApp = downloadAppDescriptor(appUrl);
 
             if (newUpdater != null && newUpdater.releaseDate.isAfter(this.updater.releaseDate)) {
-                final File dst = new File(this.downloadDir, "launch");
-                final File updateDst = new File(this.updateDir, "launch");
+                final File dst = new File(this.downloadDir, LAUNCH);
+                final File updateDst = new File(this.updateDir, LAUNCH);
                 if (!dst.exists()) {
                     dst.mkdirs();
                 }
@@ -302,8 +298,8 @@ final class Launch implements Runnable {
             }
 
             if (newLaunch != null && newLaunch.releaseDate.isAfter(this.launch.releaseDate)) {
-                final File dst = new File(this.downloadDir, "launch");
-                final File updateDst = new File(this.updateDir, "launch");
+                final File dst = new File(this.downloadDir, LAUNCH);
+                final File updateDst = new File(this.updateDir, LAUNCH);
                 if (!dst.exists()) {
                     dst.mkdirs();
                 }
@@ -339,12 +335,10 @@ final class Launch implements Runnable {
             result = AppDescriptor.parse(in);
 
             if (result != null) {
-                FileUtils.log(this.logFile, "  Downloaded descriptor '", result.name, "' version ",
-                        result.version);
+                FileUtils.log(this.logFile, "  Downloaded descriptor '", result.name, "' version ", result.version);
             }
         } catch (final IOException ex) {
-            FileUtils.log(this.logFile, //
-                    "  Unable to download application descriptor", ex);
+            FileUtils.log(this.logFile, "  Unable to download application descriptor", ex);
         }
 
         return result;
@@ -388,20 +382,18 @@ final class Launch implements Runnable {
                         final byte[] computedDigest = computeSHA256(f, sha256);
 
                         if (Arrays.equals(computedDigest, hash)) {
-                            FileUtils.log(this.logFile, "  Downloaded ", file.name, " to '",
-                                    downloadDst.getName(), "' folder and verified.");
+                            FileUtils.log(this.logFile, "  Downloaded ", file.name, " to '", downloadDst.getName(),
+                                    "' folder and verified.");
                         } else {
-                            FileUtils.log(this.logFile, //
-                                    "  Downloaded file has SHA256 "
-                                            + HexEncoder.encodeUppercase(computedDigest) //
-                                            + ", XML descriptor says "
+                            FileUtils.log(this.logFile, "  Downloaded file has SHA256 "
+                                            + HexEncoder.encodeUppercase(computedDigest) + ", XML descriptor says "
                                             + HexEncoder.encodeUppercase(hash));
                             allValid = false;
                             break;
                         }
                     } else {
-                        FileUtils.log(this.logFile, "  Downloaded file has size "
-                                + f.length() + ", XML descriptor says " + file.size);
+                        FileUtils.log(this.logFile, "  Downloaded file has size " + f.length()
+                                + ", XML descriptor says " + file.size);
                         allValid = false;
                         break;
                     }
@@ -413,8 +405,7 @@ final class Launch implements Runnable {
             }
 
             if (allValid) {
-                FileUtils.log(this.logFile, //
-                        "  All application files downloaded and verified.");
+                FileUtils.log(this.logFile, "  All application files downloaded and verified.");
 
                 // All the files now exist in the download directory with valid hashes - move them
                 // into the update directory (we make no effort to clean out unused files from the
@@ -422,8 +413,7 @@ final class Launch implements Runnable {
 
                 for (final FileDescriptor file : descriptor.getFiles()) {
 
-                    FileUtils.log(this.logFile, "  Moving ", file.name, " to '",
-                            updateDst.getName(), "' directory.");
+                    FileUtils.log(this.logFile, "  Moving ", file.name, " to '", updateDst.getName(), "' directory.");
 
                     final File src = new File(downloadDst, file.name);
                     final File upd = new File(updateDst, file.name);
@@ -457,8 +447,7 @@ final class Launch implements Runnable {
                     descr.delete();
                 }
             } else {
-                FileUtils.log(this.logFile,
-                        "  Unable to downloaded and verify application files - skipping update.");
+                FileUtils.log(this.logFile, "  Unable to downloaded and verify application files - skipping update.");
             }
         } catch (final NoSuchAlgorithmException ex) {
             FileUtils.log(this.logFile, "  Unable to obtain SHA256 digest", ex);
@@ -469,19 +458,19 @@ final class Launch implements Runnable {
      * Attempts to download the contents of a URL and store it to a file.
      *
      * @param url the URL
-     * @param f   the file
+     * @param file   the file
      * @throws IOException if there is an error reading from the URl or writing to the file
      */
-    private static void downloadFile(final URL url, final File f) throws IOException {
+    private static void downloadFile(final URL url, final File file) throws IOException {
 
-        if (f.exists()) {
-            f.delete();
+        if (file.exists()) {
+            file.delete();
         }
 
         final byte[] buffer = new byte[64 * 1024];
 
         try (final InputStream in = (InputStream) url.getContent();
-             final OutputStream out = new FileOutputStream(f)) {
+             final OutputStream out = new FileOutputStream(file)) {
 
             int numRead = in.read(buffer);
             while (numRead > 0) {
@@ -513,8 +502,7 @@ final class Launch implements Runnable {
 
                 result = sha256.digest();
             } catch (final IOException ex) {
-                FileUtils.log(this.logFile, "  Exception computing hash of '",
-                        f.getAbsolutePath(), "'", ex);
+                FileUtils.log(this.logFile, "  Exception computing hash of '", f.getAbsolutePath(), "'", ex);
             }
         }
 
@@ -529,8 +517,7 @@ final class Launch implements Runnable {
      * @param dst      the file to which to write
      * @return true if successful; false if not
      */
-    private boolean writeAppDescriptorXml(final AppDescriptor desc, final String filename,
-                                          final File dst) {
+    private boolean writeAppDescriptorXml(final AppDescriptor desc, final String filename, final File dst) {
 
         boolean success = false;
 
@@ -567,12 +554,10 @@ final class Launch implements Runnable {
                 final AppDescriptor newUpdater = AppDescriptor.parse(newUpdaterXml);
 
                 if (newUpdater == null) {
-                    FileUtils.log(this.logFile, "  Unable to parse ",
-                            newUpdaterXml.getAbsolutePath());
+                    FileUtils.log(this.logFile, "  Unable to parse ", newUpdaterXml.getAbsolutePath());
                 } else if (newUpdater.releaseDate.isAfter(this.updater.releaseDate)) {
                     FileUtils.log(this.logFile, "  Updater ready for update");
-                    ok = FileUpdater.updateApp(newUpdater, launchUpd, this.launchDir, this.logFile,
-                            UPDATER_XML);
+                    ok = FileUpdater.updateApp(newUpdater, launchUpd, this.launchDir, this.logFile, UPDATER_XML);
                     if (ok) {
                         this.updater = newUpdater;
                     }
@@ -588,8 +573,7 @@ final class Launch implements Runnable {
                 final AppDescriptor newLaunch = AppDescriptor.parse(newLaunchXml);
 
                 if (newLaunch == null) {
-                    FileUtils.log(this.logFile, "  Unable to parse ",
-                            newLaunchXml.getAbsolutePath());
+                    FileUtils.log(this.logFile, "  Unable to parse ", newLaunchXml.getAbsolutePath());
                 } else if (newLaunch.releaseDate.isAfter(this.launch.releaseDate)) {
                     FileUtils.log(this.logFile, "  Launch ready for update");
                     updateLauncher[0] = true;
@@ -597,7 +581,6 @@ final class Launch implements Runnable {
                     FileUtils.log(this.logFile, "  Release date in launch is earlier than current");
                 }
             }
-
         } else {
             FileUtils.log(this.logFile, Res.get(Res.LAUNCH_UPD_DIR_NOEXIST));
         }
@@ -614,8 +597,7 @@ final class Launch implements Runnable {
                     FileUtils.log(this.logFile, "  Unable to parse ", newAppXml.getAbsolutePath());
                 } else if (newApp.releaseDate.isAfter(this.app.releaseDate)) {
                     FileUtils.log(this.logFile, "  App ready for update");
-                    ok = FileUpdater.updateApp(newApp, this.updateDir, this.appDir, this.logFile,
-                            APP_XML);
+                    ok = FileUpdater.updateApp(newApp, this.updateDir, this.appDir, this.logFile, APP_XML);
                     if (ok) {
                         this.app = newApp;
                     }
@@ -799,7 +781,7 @@ final class Launch implements Runnable {
             SwingUtilities.invokeAndWait(launch);
             Thread.sleep(200L);
 
-            if (!launch.doLaunch()) {
+            if (!launch.isLaunched()) {
                 // In case the app exits immediately, pause to prevent a fast spin
                 Thread.sleep(1800L);
             }

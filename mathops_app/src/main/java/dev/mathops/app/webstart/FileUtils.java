@@ -118,43 +118,44 @@ enum FileUtils {
      */
     static void log(final File logFile, final Object... msg) {
 
-        final StringBuilder str = new StringBuilder(100);
+        final StringBuilder builder = new StringBuilder(100);
 
         for (final Object o : msg) {
             if (o instanceof Throwable thrown) {
 
                 while (thrown != null) {
-                    str.append(CoreConstants.CRLF);
-                    str.append(INDENT).append(thrown.getClass().getSimpleName());
+                    builder.append(CoreConstants.CRLF);
+                    builder.append(INDENT).append(thrown.getClass().getSimpleName());
 
                     if (thrown.getLocalizedMessage() != null) {
-                        str.append(": ").append(thrown.getLocalizedMessage());
+                        builder.append(": ").append(thrown.getLocalizedMessage());
                     }
 
                     final StackTraceElement[] stack = thrown.getStackTrace();
 
                     for (final StackTraceElement stackTraceElement : stack) {
-                        str.append(CoreConstants.CRLF);
-                        str.append(INDENT).append(stackTraceElement.toString());
+                        builder.append(CoreConstants.CRLF);
+                        builder.append(INDENT).append(stackTraceElement.toString());
                     }
 
                     thrown = thrown.getCause();
 
                     if (thrown != null) {
-                        str.append(CoreConstants.CRLF);
-                        str.append(INDENT).append("CAUSED BY:");
+                        builder.append(CoreConstants.CRLF);
+                        builder.append(INDENT).append("CAUSED BY:");
                     }
                 }
 
             } else {
-                str.append(o.toString());
+                builder.append(o.toString());
             }
         }
 
-        Log.info(str.toString());
+        final String str = builder.toString();
+        Log.info(str);
 
         try (final FileWriter w = new FileWriter(logFile, true)) {
-            w.write(str.toString());
+            w.write(str);
             w.write(CoreConstants.CRLF);
         } catch (final IOException ex) {
             Log.warning(ex);

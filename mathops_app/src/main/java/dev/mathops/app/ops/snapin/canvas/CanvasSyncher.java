@@ -3,21 +3,15 @@ package dev.mathops.app.ops.snapin.canvas;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
-import dev.mathops.app.canvas.data.Assignment;
 import dev.mathops.app.canvas.data.UserInfo;
-import dev.mathops.app.ops.snapin.CanvasCourseIdMap;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -97,131 +91,197 @@ final class CanvasSyncher extends SwingWorker<String, SyncherStatus> {
      */
     private void scanCourses() {
 
-        // Fifteen sections (after cross-listing)
+//        publish(new SyncherStatus(0, 20, "Retrieving Users"));
+//
+//        // GET /api/v1/courses/:course_id/users
+//
+//        final ApiResult r1 = this.api.paginatedApiCall("courses/57154/users?enrollment_type[]=student", "GET");
+//
+//        if (r1.arrayResponse == null) {
+//            Log.warning(r1.error);
+//        } else {
+//            final int count = r1.arrayResponse.size();
+//            Log.info("Found " + count + " enrolled students");
+//
+//            for (final JSONObject obj : r1.arrayResponse) {
+//                Log.info("ID=", obj.getProperty("id"));
+//                Log.info("  name=", obj.getProperty("name"));
+//                Log.info("  sortable_name=", obj.getProperty("sortable_name"));
+//                Log.info("  sis_user_id=", obj.getProperty("sis_user_id"));
+//                Log.info("  integration_id=", obj.getProperty("integration_id"));
+//                Log.info("  login_id=", obj.getProperty("login_id"));
+//                Log.info("  email=", obj.getProperty("email"));
+//            }
+//        }
 
-        publish(new SyncherStatus(0, 20, "Retrieving Canvas course IDs"));
-        final CanvasCourseIdMap courseMap = new CanvasCourseIdMap();
+        // List external tools and create the "Learning Target Assessment" external tool if needed.
 
-        final Map<Long, List<Assignment>> assignmentsMap = scanCanvasAssignments(courseMap);
+        // GET /api/v1/courses/:course_id/external_tools
 
-        // TODO: Load "Assignment Extension" data from Canvas
-
-        publish(new SyncherStatus(16, 20, "Gathering Student Enrollments"));
-
-        // TODO: Load "STCOURSE" data from Database and organize each registration by pace,
-        // track,index within pace to get default due dates group, and gather "stmilestones"
-
-        publish(new SyncherStatus(17, 20, "Making Updates to Canvas Due Dates"));
-
-        // TODO: Update all Canvas due dates as needed
-
-        publish(new SyncherStatus(18, 20, "Generating Report"));
-
-        // TODO: Generate a report and populate the UI
-    }
-
-    /**
-     * Scans Canvas assignments in the indicated courses. This loads all "Assignment" objects from the course map and
-     * their associated "AssignmentOverride" objects.
-     *
-     * @param courseMap the map from course/section to canvas ID
-     * @return a map from course ID to the list of parsed Assignment objects to populate (on success, this map will have
-     *         a new entry for the specified course ID with the list of assignments found)
-     */
-    private Map<Long, List<Assignment>> scanCanvasAssignments(final CanvasCourseIdMap courseMap) {
-
-        final Map<Long, List<Assignment>> assignmentsMap = new HashMap<>(10);
-
-        publish(new SyncherStatus(1, 20, "Scanning Canvas Assignments - MATH 117 (001)"));
-        // final Long c117001 = courseMap.getCanvasId(RawRecordConstants.M117, "001");
-        // queryAssignments(c117001, assignmentsMap);
-
-        publish(new SyncherStatus(2, 20, "Scanning Canvas Assignments - MATH 117 (002)"));
-        // final Long c117002 = courseMap.getCanvasId(RawRecordConstants.M117, "002");
-        // queryAssignments(c117002, assignmentsMap);
-
-        publish(new SyncherStatus(3, 20, "Scanning Canvas Assignments - MATH 117 (80x)"));
-        final Long c117801 = courseMap.getCanvasId(RawRecordConstants.M117, "801");
-        queryAssignments(c117801, assignmentsMap);
-
-        publish(new SyncherStatus(4, 20, "Scanning Canvas Assignments - MATH 118 (001)"));
-        // final Long c118001 = courseMap.getCanvasId(RawRecordConstants.M118, "001");
-        // queryAssignments(c118001, assignmentsMap);
-
-        publish(new SyncherStatus(5, 20, "Scanning Canvas Assignments - MATH 118 (002)"));
-        // final Long c118002 = courseMap.getCanvasId(RawRecordConstants.M118, "002");
-        // queryAssignments(c118002, assignmentsMap);
-
-        publish(new SyncherStatus(6, 20, "Scanning Canvas Assignments - MATH 118 (80x)"));
-        final Long c118801 = courseMap.getCanvasId(RawRecordConstants.M118, "801");
-        queryAssignments(c118801, assignmentsMap);
-
-        publish(new SyncherStatus(7, 20, "Scanning Canvas Assignments - MATH 124 (001)"));
-        // final Long c124001 = courseMap.getCanvasId(RawRecordConstants.M124, "001");
-        // queryAssignments(c124001, assignmentsMap);
-
-        publish(new SyncherStatus(8, 20, "Scanning Canvas Assignments - MATH 124 (002)"));
-        // final Long c124002 = courseMap.getCanvasId(RawRecordConstants.M124, "002");
-        // queryAssignments(c124002, assignmentsMap);
-
-        publish(new SyncherStatus(9, 20, "Scanning Canvas Assignments - MATH 124 (80x)"));
-        final Long c124801 = courseMap.getCanvasId(RawRecordConstants.M124, "801");
-        queryAssignments(c124801, assignmentsMap);
-
-        publish(new SyncherStatus(10, 20, "Scanning Canvas Assignments - MATH 125 (001)"));
-        // final Long c125001 = courseMap.getCanvasId(RawRecordConstants.M125, "001");
-        // queryAssignments(c125001, assignmentsMap);
-
-        publish(new SyncherStatus(11, 20, "Scanning Canvas Assignments - MATH 125 (002)"));
-        // final Long c125002 = courseMap.getCanvasId(RawRecordConstants.M125, "002");
-        // queryAssignments(c125002, assignmentsMap);
-
-        publish(new SyncherStatus(12, 20, "Scanning Canvas Assignments - MATH 125 (801)"));
-        final Long c125801 = courseMap.getCanvasId(RawRecordConstants.M125, "801");
-        queryAssignments(c125801, assignmentsMap);
-
-        publish(new SyncherStatus(13, 20, "Scanning Canvas Assignments - MATH 126 (001)"));
-        // final Long c126001 = courseMap.getCanvasId(RawRecordConstants.M126, "001");
-        // queryAssignments(c126001, assignmentsMap);
-
-        publish(new SyncherStatus(14, 20, "Scanning Canvas Assignments - MATH 126 (002)"));
-        // final Long c126002 = courseMap.getCanvasId(RawRecordConstants.M126, "002");
-        // queryAssignments(c126002, assignmentsMap);
-
-        publish(new SyncherStatus(15, 20, "Scanning Canvas Assignments - MATH 126 (80x)"));
-        final Long c126801 = courseMap.getCanvasId(RawRecordConstants.M126, "801");
-        queryAssignments(c126801, assignmentsMap);
-
-        return assignmentsMap;
-    }
-
-    /**
-     * Performs an assignments query from Canvas, then extracts the resulting array of {@code Assignment} objects from
-     * the reply and adds them to a map.
-     *
-     * @param courseId       the course ID to query
-     * @param assignmentsMap a map from course ID to the list of parsed Assignment objects to populate (on success, this
-     *                       map will have a new entry for the specified course ID with the list of assignments found)
-     */
-    private void queryAssignments(final Long courseId,
-                                  final Map<? super Long, ? super List<Assignment>> assignmentsMap) {
-
-        // GET /api/v1/courses/:course_id/assignments?include[]=overrides
-
-        final ApiResult result = this.api.paginatedApiCall("courses/"
-                + courseId + "/assignments?include[]=overrides", "GET");
-
-        if (result.arrayResponse == null) {
-            Log.warning(result.error);
+        final ApiResult r0 = this.api.paginatedApiCall("courses/57154/external_tools", "GET");
+        if (r0.arrayResponse == null) {
+            Log.warning(r0.error);
         } else {
-            final List<Assignment> list = new ArrayList<>(result.arrayResponse.size());
+            final int count = r0.arrayResponse.size();
+            Log.info("Found " + count + " external tools");
+            boolean foundLTExternal = false;
 
-            for (final JSONObject obj : result.arrayResponse) {
-                list.add(new Assignment(obj));
+            for (final JSONObject obj : r0.arrayResponse) {
+                final Object name = obj.getProperty("name");
+                if ("Learning Target Assignment Tool".equals(name)) {
+                    foundLTExternal = true;
+                }
+
+                Log.info("ID=", obj.getProperty("id"));
+                Log.info("  domain=", obj.getProperty("domain"));
+                Log.info("  name=", name);
+                Log.info("  url=", obj.getProperty("url"));
+                Log.info("  consumer_key=", obj.getProperty("consumer_key"));
             }
 
-            assignmentsMap.put(courseId, list);
+            if (!foundLTExternal) {
+                // POST /api/v1/courses/:course_id/external_tools
+                Log.info("Attempting to create external tool...");
+
+                final ApiResult x1 = this.api.paginatedApiCall("courses/57154/external_tools"
+                        + "?name=Learning%20Target%20Assignment%20Tool"
+                        + "&privacy_level=public"
+                        + "&consumer_key=asdfg"
+                        + "&shared_secret=dlsdf"
+                        + "&url=https://testing.math.colostate.edu/lta/lta.html", "POST");
+
+                if (x1.response instanceof JSONObject obj) {
+                    Log.info("ID=", obj.getProperty("id"));
+                    Log.info("  domain=", obj.getProperty("domain"));
+                    Log.info("  name=", obj.getProperty("name"));
+                    Log.info("  url=", obj.getProperty("url"));
+                    Log.info("  consumer_key=", obj.getProperty("consumer_key"));
+                } else {
+                    Log.warning(x1.error);
+                }
+            }
         }
+
+
+
+
+        // List assignment groups, if there is not one called "Learning Target Assignments", create it...
+
+        // GET /api/v1/courses/:course_id/assignment_groups
+
+//        final ApiResult r2 = this.api.paginatedApiCall("courses/57154/assignment_groups", "GET");
+//        Object foundLTid = null;
+//
+//        if (r2.arrayResponse == null) {
+//            Log.warning(r2.error);
+//        } else {
+//            final int count = r2.arrayResponse.size();
+//            Log.info("Found " + count + " assignment groups");
+//
+//            for (final JSONObject obj : r2.arrayResponse) {
+//                final Object name = obj.getProperty("name");
+//                if ("Learning Target Assignments".equals(name)) {
+//                    foundLTid = obj.getProperty("id");
+//                }
+//
+//                Log.info("ID=", obj.getProperty("id"));
+//                Log.info("  name=", name);
+//                Log.info("  position=", obj.getProperty("position"));
+//            }
+//
+//            if (foundLTid == null) {
+//                // POST /api/v1/courses/:course_id/assignment_groups
+//
+//                final ApiResult x1 = this.api.paginatedApiCall("courses/57154/assignment_groups"
+//                        + "?name=Learning%20Target%20Assignments", "POST");
+//
+//                if (x1.response instanceof JSONObject obj) {
+//                    foundLTid = obj.getProperty("id");
+//                }
+//            }
+//        }
+
+        // GET /api/v1/courses/:course_id/assignments
+
+//        final ApiResult r3 = this.api.paginatedApiCall("courses/57154/assignments", "GET");
+//
+//        if (r3.arrayResponse == null) {
+//            Log.warning(r3.error);
+//        } else {
+//            final int count = r3.arrayResponse.size();
+//            Log.info("Found " + count + " assignments");
+//
+//            boolean foundLT11 = false;
+//            boolean foundLT12 = false;
+//            boolean foundLT13 = false;
+//
+//            for (final JSONObject obj : r3.arrayResponse) {
+//                final Object name = obj.getProperty("name");
+//                if ("Learning Target Assignment 1.1".equals(name)) {
+//                    foundLT11 = true;
+//                } else if ("Learning Target Assignment 1.2".equals(name)) {
+//                    foundLT12 = true;
+//                } else if ("Learning Target Assignment 1.3".equals(name)) {
+//                    foundLT13 = true;
+//                }
+//
+//                Log.info("ID=", obj.getProperty("id"));
+//                Log.info("  name=", name);
+//                Log.info("  html_url=", obj.getProperty("html_url"));
+//                Log.info("  assignment_group_id=", obj.getProperty("assignment_group_id"));
+//                Log.info("  position=", obj.getProperty("position"));
+//                Log.info("  points_possible=", obj.getProperty("points_possible"));
+//                Log.info("  submission_types=", obj.getProperty("submission_types"));
+//                Log.info("  quiz_id=", obj.getProperty("quiz_id"));
+//                Log.info("  discussion_topic=", obj.getProperty("discussion_topic"));
+//                Log.info("  assignment_visibility=", obj.getProperty("assignment_visibility"));
+//                Log.info("  overrides=", obj.getProperty("overrides"));
+//                Log.info("  omit_from_final_grade=", obj.getProperty("omit_from_final_grade"));
+//                Log.info("  hide_in_gradebook=", obj.getProperty("hide_in_gradebook"));
+//                Log.info("  important_dates=", obj.getProperty("important_dates"));
+//                Log.info("  is_quiz_assignment=", obj.getProperty("is_quiz_assignment"));
+//                Log.info("  workflow_state=", obj.getProperty("workflow_state"));
+//            }
+//
+//            if (foundLTid != null) {
+//                if (!foundLT11) {
+//                    // POST /api/v1/courses/:course_id/assignments
+//
+//                    final ApiResult x1 = this.api.paginatedApiCall("courses/57154/assignments"
+//                            + "?assignment[name]=Learning%20Target%20Assignment%201.1"
+//                            + "&assignment[submission_types][]=external_tool"
+//                            + "&assignment[grading_type]=pass_fail"
+//                            + "&assignment[assignment_group_id]=" + foundLTid
+//                            + "&assignment[published]=true"
+//                            + "&assignment[omit_from_final_grade]=true"
+//                            + "&assignment[allowed_attempts]=-1", "POST");
+//                }
+//                if (!foundLT12) {
+//                    // POST /api/v1/courses/:course_id/assignments
+//
+//                    final ApiResult x1 = this.api.paginatedApiCall("courses/57154/assignments"
+//                            + "?assignment[name]=Learning%20Target%20Assignment%201.2"
+//                            + "&assignment[submission_types][]=external_tool"
+//                            + "&assignment[grading_type]=pass_fail"
+//                            + "&assignment[assignment_group_id]=" + foundLTid
+//                            + "&assignment[published]=true"
+//                            + "&assignment[omit_from_final_grade]=true"
+//                            + "&assignment[allowed_attempts]=-1", "POST");
+//                }
+//                if (!foundLT13) {
+//                    // POST /api/v1/courses/:course_id/assignments
+//
+//                    final ApiResult x1 = this.api.paginatedApiCall("courses/57154/assignments"
+//                            + "?assignment[name]=Learning%20Target%20Assignment%201.3"
+//                            + "&assignment[submission_types][]=external_tool"
+//                            + "&assignment[grading_type]=pass_fail"
+//                            + "&assignment[assignment_group_id]=" + foundLTid
+//                            + "&assignment[published]=true"
+//                            + "&assignment[omit_from_final_grade]=true"
+//                            + "&assignment[allowed_attempts]=-1", "POST");
+//                }
+//            }
+//        }
     }
 
     /**
