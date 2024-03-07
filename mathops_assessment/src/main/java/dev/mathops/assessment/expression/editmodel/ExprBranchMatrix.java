@@ -6,7 +6,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 /**
  * An expression object that represents a matrix with subexpressions for each entry.
  */
-public final class ExprBranchMatrix extends AbstractExprBranch {
+public final class ExprBranchMatrix extends ExprObjectBranch {
 
     /** The type of brackets. */
     private EVectorMatrixBrackets brackets;
@@ -23,15 +23,13 @@ public final class ExprBranchMatrix extends AbstractExprBranch {
     /**
      * Constructs a new {@code ExprBranchMatrix}.
      *
-     * @param theParent the parent object ({@code null} only for the root node)
      * @param theBrackets the type of brackets
      * @param theNumRows the number of rows
      * @param theNumCols the number of columns
      */
-    public ExprBranchMatrix(final AbstractExprObject theParent, final EVectorMatrixBrackets theBrackets,
-                            final int theNumRows, final int theNumCols) {
+    public ExprBranchMatrix(final EVectorMatrixBrackets theBrackets, final int theNumRows, final int theNumCols) {
 
-        super(theParent);
+        super();
 
         this.brackets = theBrackets;
         this.numRows = theNumRows;
@@ -41,7 +39,7 @@ public final class ExprBranchMatrix extends AbstractExprBranch {
         this.components = new Expr[numComponents];
 
         for (int i = 0; i < numComponents; ++i) {
-            final Expr expr = new Expr(this);
+            final Expr expr = new Expr();
             this.components[i] = expr;
         }
     }
@@ -117,16 +115,14 @@ public final class ExprBranchMatrix extends AbstractExprBranch {
         int index = 0;
         if (this.numRows > 0 && this.numCols > 0) {
             for (int row = 0; row < this.numRows; ++row) {
-                final AbstractExprObject child0 = this.components[index];
-                final String child0Str = child0.toString();
-                htm.add(child0Str);
+                final ExprObject child0 = this.components[index];
+                htm.add(child0);
                 ++index;
 
                 for (int i = 1; i < this.numCols; ++i) {
                     htm.add(CoreConstants.COMMA);
-                    final AbstractExprObject child = this.components[index];
-                    final String childStr = child.toString();
-                    htm.add(childStr);
+                    final ExprObject child = this.components[index];
+                    htm.add(child);
                     ++index;
                 }
             }

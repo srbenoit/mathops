@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * An expression object that represents a vector with a subexpression for each component.
  */
-public final class ExprBranchVector extends AbstractExprBranch {
+public final class ExprBranchVector extends ExprObjectBranch {
 
     /** The maximum number of components supported. */
     private static final int MAX_COMPONENTS = 999;
@@ -23,14 +23,12 @@ public final class ExprBranchVector extends AbstractExprBranch {
     /**
      * Constructs a new {@code ExprBranchVector}.
      *
-     * @param theParent the parent object ({@code null} only for the root node)
      * @param numComponents the number of components (can be changed)
      * @param theBrackets the type of brackets
      */
-    public ExprBranchVector(final AbstractExprObject theParent, final EVectorMatrixBrackets theBrackets,
-                            final int numComponents) {
+    public ExprBranchVector(final EVectorMatrixBrackets theBrackets, final int numComponents) {
 
-        super(theParent);
+        super();
 
         if (theBrackets == null) {
             throw new IllegalArgumentException("Bracket type may not be null");
@@ -44,7 +42,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
         this.components = new ArrayList<>(numComponents);
 
         for (int i = 0; i < numComponents; ++i) {
-            this.components.add(new Expr(this));
+            this.components.add(new Expr());
         }
     }
 
@@ -100,7 +98,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
      */
     public Expr addComponent() {
 
-        final Expr expr = new Expr(this);
+        final Expr expr = new Expr();
 
         this.components.add(expr);
 
@@ -115,7 +113,7 @@ public final class ExprBranchVector extends AbstractExprBranch {
      */
     public Expr addComponent(final int index) {
 
-        final Expr expr = new Expr(this);
+        final Expr expr = new Expr();
 
         this.components.add(index, expr);
 
@@ -137,15 +135,13 @@ public final class ExprBranchVector extends AbstractExprBranch {
         htm.add("ExprBranchVector{brackets=", this.brackets, ",components=[");
 
         if (count > 0) {
-            final AbstractExprObject child0 = this.components.getFirst();
-            final String child0Str = child0.toString();
-            htm.add(child0Str);
+            final ExprObject child0 = this.components.getFirst();
+            htm.add(child0);
 
             for (int i = 1; i < count; ++i) {
                 htm.add(CoreConstants.COMMA);
-                final AbstractExprObject child = this.components.get(i);
-                final String childStr = child.toString();
-                htm.add(childStr);
+                final ExprObject child = this.components.get(i);
+                htm.add(child);
             }
         }
 

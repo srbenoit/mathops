@@ -3,15 +3,24 @@ package dev.mathops.assessment.expression.editmodel;
 /**
  * An expression object that represents a decimal point.
  */
-public final class ExprLeafDecimalPoint extends AbstractExprLeaf {
+public final class ExprLeafDecimalPoint extends ExprObjectLeaf {
 
     /**
      * Constructs a new {@code ExprLeafDecimalPoint}.
-     *
-     * @param theParent the parent object ({@code null} only for the root node)
      */
-    public ExprLeafDecimalPoint(final AbstractExprObject theParent) {
+    public ExprLeafDecimalPoint() {
 
-        super(theParent);
+        super();
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return "ExprLeafDecimalPoint";
     }
 }

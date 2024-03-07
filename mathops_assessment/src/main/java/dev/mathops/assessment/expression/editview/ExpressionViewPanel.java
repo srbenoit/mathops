@@ -1,7 +1,6 @@
 package dev.mathops.assessment.expression.editview;
 
-import dev.mathops.assessment.expression.editmodel.ExpressionModel;
-import dev.mathops.assessment.expression.editmodel.IExpressionModelListener;
+import dev.mathops.assessment.expression.editmodel.Expr;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
@@ -17,10 +16,10 @@ import java.awt.Dimension;
  * size is smaller than the expression requires, the expression will be elided with an ellipsis where clipped, but the
  * cursor position will always be visible.
  */
-public final class ExpressionViewPanel extends JPanel implements IExpressionModelListener {
+public final class ExpressionViewPanel extends JPanel {
 
-    /** The model this panel will display. */
-    private final ExpressionModel model;
+    /** The expression this panel will display. */
+    private Expr expr;
 
     /** The minimum size for the panel. */
     private final Dimension minSize;
@@ -28,41 +27,37 @@ public final class ExpressionViewPanel extends JPanel implements IExpressionMode
     /** The initial font size. */
     private final float initialFontSize;
 
+    /** The laid out view. */
+    private ExprObjectView view;
+
     /**
      * Constructs a new {@code ExpressionViewPanel}.
      *
-     * @param theModel           the model this panel will display
+     * @param theExpr            the model this panel will display
      * @param theMinSize         the minimum size for the panel
      * @param theInitialFontSize the initial font size
      */
-    public ExpressionViewPanel(final ExpressionModel theModel, final Dimension theMinSize,
-                               final float theInitialFontSize) {
+    public ExpressionViewPanel(final Expr theExpr, final Dimension theMinSize, final float theInitialFontSize) {
 
         super();
 
-        this.model = theModel;
         this.minSize = new Dimension(theMinSize);
         this.initialFontSize = theInitialFontSize;
 
-        theModel.addListener(this);
+        updateExpression(theExpr);
     }
 
     /**
-     * Called when the panel will no longer be used.
-     */
-    public void close() {
-
-        this.model.removeListener(this);
-    }
-
-    /**
-     * Called when the model changes.
+     * Updates the expression.
      *
-     * @param theModel the model that has changed
+     * @param theExpr the expression
      */
-    @Override
-    public void modelChanged(final ExpressionModel theModel) {
+    void updateExpression(final Expr theExpr) {
 
-        // TODO:
+        this.expr = theExpr;
+
+        final float minFontSize = Math.max(7.0f, this.initialFontSize * 25.0f / 100.0f);
+
+        this.view = LayoutEngine.layoutExpr(this.initialFontSize, minFontSize, this.expr);
     }
 }

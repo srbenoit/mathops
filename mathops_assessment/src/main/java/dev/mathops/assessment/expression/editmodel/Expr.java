@@ -9,19 +9,17 @@ import java.util.List;
 /**
  * An expression (or sub-expression) modeled as a sequence of expression objects.
  */
-public final class Expr extends AbstractExprBranch {
+public final class Expr extends ExprObjectBranch {
 
     /** The list of objects in the sequence. */
-    private final List<AbstractExprObject> children;
+    private final List<ExprObject> children;
 
     /**
      * Constructs a new {@code Expr}.
-     *
-     * @param theParent the parent object ({@code null} only for the root node)
      */
-    Expr(final AbstractExprObject theParent) {
+    Expr() {
 
-        super(theParent);
+        super();
 
         this.children = new ArrayList<>(10);
     }
@@ -42,7 +40,7 @@ public final class Expr extends AbstractExprBranch {
      * @param index the index
      * @return the child object
      */
-    public AbstractExprObject get(final int index) {
+    public ExprObject get(final int index) {
 
         return this.children.get(index);
     }
@@ -53,7 +51,7 @@ public final class Expr extends AbstractExprBranch {
      * @param index the index at which to insert the object
      * @param object the object to insert
      */
-    public void insert(final int index, final AbstractExprObject object) {
+    public void insert(final int index, final ExprObject object) {
 
         this.children.add(index, object);
     }
@@ -83,13 +81,13 @@ public final class Expr extends AbstractExprBranch {
         htm.add("Expr{children=[");
 
         if (count > 0) {
-            final AbstractExprObject child0 = this.children.getFirst();
+            final ExprObject child0 = this.children.getFirst();
             final String child0Str = child0.toString();
             htm.add(child0Str);
 
             for (int i = 1; i < count; ++i) {
                 htm.add(CoreConstants.COMMA);
-                final AbstractExprObject child = this.children.get(i);
+                final ExprObject child = this.children.get(i);
                 final String childStr = child.toString();
                 htm.add(childStr);
             }

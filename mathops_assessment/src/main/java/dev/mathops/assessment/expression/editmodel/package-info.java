@@ -25,8 +25,8 @@
  *
  * <p>
  * Every object is either a "leaf", which represents a single "cursor step" in an expression, or is a "branch", or
- * compound object with subordinate content, where one cursor step moves into the object, one cursor step moves from
- * one child sub-expression to the next, and one cursor step moves out of the object.
+ * compound object with subordinate content (either sub-expressions or integers or strings), where one cursor step
+ * moves into the object, one cursor step moves from one child to the next, and one cursor step moves out of the object.
  *
  * <p>
  * Expression models support the following types of action:

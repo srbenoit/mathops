@@ -1,9 +1,11 @@
 package dev.mathops.assessment.expression.editmodel;
 
+import dev.mathops.commons.builder.HtmlBuilder;
+
 /**
  * A glyph that represents a radical with a subexpression under the radical and a subexpression as the root.
  */
-public final class ExprBranchRadicalWithRoot extends AbstractExprBranch {
+public final class ExprBranchRadicalWithRoot extends ExprObjectBranch {
 
     /** The root. */
     public final Expr root;
@@ -13,15 +15,32 @@ public final class ExprBranchRadicalWithRoot extends AbstractExprBranch {
 
     /**
      * Constructs a new {@code ExprBranchRadicalWithRoot}.
-     *
-     * @param theParent the parent object ({@code null} only for the root node)
      */
-    public ExprBranchRadicalWithRoot(final AbstractExprObject theParent) {
+    public ExprBranchRadicalWithRoot() {
 
-        super(theParent);
+        super();
 
-        this.root = new Expr(this);
-        this.base = new Expr(this);
+        this.root = new Expr();
+        this.base = new Expr();
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final HtmlBuilder htm = new HtmlBuilder(100);
+
+        htm.add("ExprBranchRadicalWithRoot{root=");
+        htm.add(this.root);
+        htm.add(",base=");
+        htm.add(this.base);
+        htm.add("}");
+
+        return htm.toString();
     }
 }
 

@@ -1,23 +1,55 @@
 package dev.mathops.assessment.expression.editmodel;
 
+import dev.mathops.commons.builder.HtmlBuilder;
+
 /**
  * A glyph that represents an operator.
  */
-public final class ExprLeafOperator extends AbstractExprLeaf {
+public final class ExprLeafOperator extends ExprObjectLeaf {
 
     /** The operator. */
-    public final EOperatorSymbol operator;
+    private final EOperatorSymbol operator;
 
     /**
      * Constructs a new {@code ExprLeafOperator}.
      *
-     * @param theParent the parent object ({@code null} only for the root node)
      * @param theOperator the operator
      */
-    public ExprLeafOperator(final AbstractExprObject theParent, final EOperatorSymbol theOperator) {
+    public ExprLeafOperator(final EOperatorSymbol theOperator) {
 
-        super(theParent);
+        super();
+
+        if (theOperator == null) {
+            throw new IllegalArgumentException("Operator may not be null");
+        }
 
         this.operator = theOperator;
+    }
+
+    /**
+     * Gets the operator.
+     *
+     * @return the operator
+     */
+    public EOperatorSymbol getOperator() {
+
+        return this.operator;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        final HtmlBuilder htm = new HtmlBuilder(100);
+
+        htm.add("ExprLeafOperator{operator='");
+        htm.add(this.operator);
+        htm.add("}");
+
+        return htm.toString();
     }
 }
