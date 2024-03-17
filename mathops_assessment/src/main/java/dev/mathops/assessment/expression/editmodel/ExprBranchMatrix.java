@@ -11,6 +11,9 @@ public final class ExprBranchMatrix extends ExprObjectBranch {
     /** The type of brackets. */
     private EVectorMatrixBrackets brackets;
 
+    /** The justification. */
+    private EEntryJustification justification;
+
     /** The number of rows. */
     private final int numRows;
 

@@ -20,8 +20,17 @@ class ObjectBox {
     /** The (negative) offset relative to the baseline of the bottom of the box (height = top - bottom). */
     int bottom;
 
-    /** The (positive) offset relative to the baseline of the mathematical center-line of the box. */
-    int center;
+    /**
+     * The (positive) offset relative to the baseline of the typographic center-line of the box (this is the midpoint
+     * between the top and bottom of full-height uppercase Latin letters like M, N, H, and X in the font).
+     */
+    int typoCenter;
+
+    /**
+     * The (positive) offset relative to the baseline of the mathematical center-line of the box (this is the midpoint
+     * between the top and bottom of mathematical operators like + and - in the font).
+     */
+    int mathCenter;
 
     /**
      * Constructs a new {@code ObjectBox}.

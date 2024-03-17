@@ -29,7 +29,7 @@ public final class ExprBranchVariableName extends ExprObjectBranch {
     private int subscriptLen;
 
     /**
-     * Constructs a new {@code ExprBranchString}.
+     * Constructs a new {@code ExprBranchVariableName}.
      */
     public ExprBranchVariableName() {
 

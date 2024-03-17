@@ -17,6 +17,9 @@ public final class ExprBranchVector extends ExprObjectBranch {
     /** The type of brackets. */
     private EVectorMatrixBrackets brackets;
 
+    /** The justification. */
+    private EEntryJustification justification;
+
     /** The components. */
     public final List<Expr> components;
 

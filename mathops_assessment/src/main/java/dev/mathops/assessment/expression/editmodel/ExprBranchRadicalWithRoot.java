@@ -3,7 +3,8 @@ package dev.mathops.assessment.expression.editmodel;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
- * A glyph that represents a radical with a subexpression under the radical and a subexpression as the root.
+ * A glyph that represents a radical with a subexpression under the radical and a subexpression (consisting of only
+ * digits or only a single variable reference) as the root.
  */
 public final class ExprBranchRadicalWithRoot extends ExprObjectBranch {
 

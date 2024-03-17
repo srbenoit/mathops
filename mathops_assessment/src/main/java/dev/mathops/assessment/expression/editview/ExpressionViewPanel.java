@@ -25,10 +25,10 @@ public final class ExpressionViewPanel extends JPanel {
     private final Dimension minSize;
 
     /** The initial font size. */
-    private final float initialFontSize;
+    private final double initialFontSize;
 
-    /** The laid out view. */
-    private ExprObjectView view;
+    /** The laid out expression. */
+    private ExprBox laidOutExpression;
 
     /**
      * Constructs a new {@code ExpressionViewPanel}.
@@ -37,7 +37,7 @@ public final class ExpressionViewPanel extends JPanel {
      * @param theMinSize         the minimum size for the panel
      * @param theInitialFontSize the initial font size
      */
-    public ExpressionViewPanel(final Expr theExpr, final Dimension theMinSize, final float theInitialFontSize) {
+    public ExpressionViewPanel(final Expr theExpr, final Dimension theMinSize, final double theInitialFontSize) {
 
         super();
 
@@ -56,8 +56,8 @@ public final class ExpressionViewPanel extends JPanel {
 
         this.expr = theExpr;
 
-        final float minFontSize = Math.max(7.0f, this.initialFontSize * 25.0f / 100.0f);
+        final double minFontSize = Math.max(7.0, this.initialFontSize * 0.25);
 
-        this.view = LayoutEngine.layoutExpr(this.initialFontSize, minFontSize, this.expr);
+        this.laidOutExpression = new ExprBox(this.expr, this.initialFontSize, minFontSize);
     }
 }

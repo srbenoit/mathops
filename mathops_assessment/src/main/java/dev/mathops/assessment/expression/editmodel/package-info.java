@@ -13,7 +13,7 @@
  *     <li>Fractions (with expressions as numerator and denominator)</li>
  *     <li>Base/Exponent constructions (with expressions as base and exponent)</li>
  *     <li>Radical constructions (with an expression under a radical)</li>
- *     <li>N-th Root Constructions (with an integer root and an expression under a radical)</li>
+ *     <li>N-th root constructions (with an integer root and an expression under a radical)</li>
  *     <li>Parenthesized expressions</li>
  *     <li>Vectors with expression components</li>
  *     <li>Matrices with expression entries</li>
