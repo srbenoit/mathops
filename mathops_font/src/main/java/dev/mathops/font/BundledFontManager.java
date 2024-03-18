@@ -228,6 +228,24 @@ public final class BundledFontManager {
     }
 
     /**
+     * Retrieves a one-point Plain version of a particular font.
+     *
+     * @param name  the name of the font face to retrieve
+     * @return the font, or {@code null} if the name is not valid
+     */
+    public Font getOnePointFont(final String name) {
+
+        final String actual = actualFontName(name);
+        Font onePoint = this.fonts.get(actual);
+
+        if (onePoint == null) {
+            onePoint = new Font(SANS, Font.PLAIN, 1);
+        }
+
+        return onePoint;
+    }
+
+    /**
      * Retrieves a particular font, in a particular size and style.
      *
      * @param name  the name of the font face to retrieve

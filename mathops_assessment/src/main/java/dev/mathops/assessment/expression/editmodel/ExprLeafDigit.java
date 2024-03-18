@@ -13,7 +13,7 @@ public final class ExprLeafDigit extends ExprObjectLeaf {
     /**
      * Constructs a new {@code ExprLeafDigit}.
      *
-     * @param theDigit the digit
+     * @param theDigit the digit (0 to 9, inclusive)
      */
     public ExprLeafDigit(final int theDigit) {
 

@@ -6,35 +6,48 @@ package dev.mathops.assessment.expression.editmodel;
 public enum EOperatorSymbol {
 
     /** Plus. */
-    PLUS,
+    PLUS("+"),
 
     /** Minus. */
-    MINUS,
+    MINUS("\u2212"),
 
     /** Times. */
-    TIMES,
+    TIMES("\u00D7"),
 
     /** Divided by. */
-    DIVIDED_BY,
+    DIVIDED_BY("\u00F7"),
 
     /** Remainder. */
-    REMAINDER,
+    REMAINDER("%"),
 
     /** Or. */
-    OR,
+    OR("|"),
 
     /** And. */
-    AND,
+    AND("&"),
 
     /** Not. */
-    NOT,
+    NOT("!"),
 
     /** Equals. */
-    EQUALS,
+    EQUALS("="),
 
     /** Less Than. */
-    LESS_THAN,
+    LESS_THAN("<"),
 
     /** Greater Than. */
-    GREATER_THAN;
+    GREATER_THAN(">");
+
+    /** The string that represents the operator. */
+    public final String str;
+
+    /**
+     * Constructs a new {@code EOperatorSymbol}.
+     *
+     * @param theStr the character that represents the operator
+     */
+    EOperatorSymbol(final String theStr) {
+
+        this.str = theStr;
+    }
 }

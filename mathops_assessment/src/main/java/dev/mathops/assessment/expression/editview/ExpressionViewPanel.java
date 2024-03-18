@@ -4,6 +4,9 @@ import dev.mathops.assessment.expression.editmodel.Expr;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * A panel that displays an expression and updates itself as the expression is changed.  This class displays the
@@ -25,7 +28,10 @@ public final class ExpressionViewPanel extends JPanel {
     private final Dimension minSize;
 
     /** The initial font size. */
-    private final double initialFontSize;
+    private final float initialFontSize;
+
+    /** The minimum font size. */
+    private final float minFontSize;
 
     /** The laid out expression. */
     private ExprBox laidOutExpression;
@@ -37,27 +43,47 @@ public final class ExpressionViewPanel extends JPanel {
      * @param theMinSize         the minimum size for the panel
      * @param theInitialFontSize the initial font size
      */
-    public ExpressionViewPanel(final Expr theExpr, final Dimension theMinSize, final double theInitialFontSize) {
+    public ExpressionViewPanel(final Expr theExpr, final Dimension theMinSize, final float theInitialFontSize,
+                               final float theMinFontSize) {
 
         super();
 
-        this.minSize = new Dimension(theMinSize);
-        this.initialFontSize = theInitialFontSize;
+        this.expr = theExpr;
 
-        updateExpression(theExpr);
+        this.minSize = new Dimension(theMinSize);
+        setPreferredSize(theMinSize);
+
+        this.initialFontSize = theInitialFontSize;
+        this.minFontSize = theMinFontSize;
+
+        updateExpression();
     }
 
     /**
      * Updates the expression.
-     *
-     * @param theExpr the expression
      */
-    void updateExpression(final Expr theExpr) {
+    public void updateExpression() {
 
-        this.expr = theExpr;
+        this.laidOutExpression = new ExprBox(this.expr, this.initialFontSize, this.minFontSize);
+        this.laidOutExpression.x = 0;
+        this.laidOutExpression.y = this.laidOutExpression.top;
+        repaint();
+    }
 
-        final double minFontSize = Math.max(7.0, this.initialFontSize * 0.25);
+    /**
+     * Paints the component.
+     *
+     * @param g the {@code Graphics} to which to draw
+     */
+    public void paintComponent(final Graphics g) {
 
-        this.laidOutExpression = new ExprBox(this.expr, this.initialFontSize, minFontSize);
+        super.paintComponent(g);
+
+        if (g instanceof final Graphics2D g2d && this.laidOutExpression != null) {
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+
+            this.laidOutExpression.paint(g2d);
+        }
     }
 }

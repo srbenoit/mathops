@@ -17,7 +17,7 @@ public final class Expr extends ExprObjectBranch {
     /**
      * Constructs a new {@code Expr}.
      */
-    Expr() {
+    public Expr() {
 
         super();
 
