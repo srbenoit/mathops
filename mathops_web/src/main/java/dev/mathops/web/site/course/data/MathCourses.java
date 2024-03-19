@@ -1896,16 +1896,16 @@ public enum MathCourses {
 
         final ModuleData m126m1 = m126.addModule(1, "Fundamental Trigonometric Identities", "SR51_HW", "c51-thumb.png");
         m126m1.skillsReview.addExampleBlock("Multiplying binomials")
-                .addEx("SR51_01_01", "Multiply three binomials");
+                .addEx("TR09_SR1_01", "Multiply three binomials");
         m126m1.skillsReview.addExampleBlock("Properties of roots")
-                .addEx("SR51_02_01", "Expand a product of factors that involve roots and powers");
+                .addEx("TR09_SR2_01", "Expand a product of factors that involve roots and powers");
         m126m1.skillsReview.addExampleBlock("Imaginary numbers")
-                .addEx("SR51_03_01", "Perform arithmetic with the imaginary unit <i>i</i>");
+                .addEx("TR09_SR3_01", "Perform arithmetic with the imaginary unit <i>i</i>");
         m126m1.skillsReview.addExampleBlock("Definition of the trigonometric functions")
-                .addEx("SR51_04_01", "Write definitions of the trigonometric functions, and identify angles for "
+                .addEx("TR09_SR4_01", "Write definitions of the trigonometric functions, and identify angles for "
                         + "which they are undefined");
         m126m1.skillsReview.addExampleBlock("Pythagorean theorem")
-                .addEx("SR51_05_01", "Solve for side lengths using the Pythagorean theorem");
+                .addEx("TR09_SR5_01", "Solve for side lengths using the Pythagorean theorem");
 
         final LearningTargetData m126m1t1 = m126m1.addLearningTarget(1, 1, "1.1", "ST51_1_HW",
                 "I can work with general identities, including:",
@@ -1913,29 +1913,29 @@ public enum MathCourses {
                 "verify identities", "identify the domain of validity of an identity",
                 "apply an identity to change the form of an expression");
         m126m1t1.addExBlock("Definition of an identity")
-                .addEx("ST51_1_F01_01", "Indicate which statements are true about identities");
+                .addEx("TR09_ST1A_01a", "Indicate which statements are true about identities");
         m126m1t1.addExBlock("Graphical representation of an identity")
-                .addEx("ST51_1_F02_01", "Explain what makes an equation an identity, algebraically and graphically");
+                .addEx("TR09_ST1A_02a", "Explain what makes an equation an identity, algebraically and graphically");
         m126m1t1.addExBlock("Verifying identities")
-                .addEx("ST51_1_F03_01", "Verify a difference of squares identity and infer its domain of validity");
+                .addEx("TR09_ST1B_01a", "Verify a difference of squares identity and infer its domain of validity");
         m126m1t1.addExBlock("Verifying identities")
-                .addEx("ST51_1_F04_01",
+                .addEx("TR09_ST1B_02a",
                         "Verify an identity for products of sums of squares and infer its domain of validity")
-                .addEx("ST51_1_F04_02",
+                .addEx("TR09_ST1B_02b",
                         "Verify an identity for sums of fourth powers and infer its domain of validity");
         m126m1t1.addExBlock("Find domain of validity with square roots")
-                .addEx("ST51_1_F05_01", "Verify identities involving <i>i</i> and find their domains of validity");
+                .addEx("TR09_ST1B_03a", "Verify identities involving <i>i</i> and find their domains of validity");
         m126m1t1.addExBlock("Find domain of validity with imaginary numbers")
-                .addEx("ST51_1_F06_01",
+                .addEx("TR09_ST1B_04a",
                         "Verify an identity involving roots of products and find its domain of validity")
-                .addEx("ST51_1_F06_02",
+                .addEx("TR09_ST1B_04b",
                         "Verify an identity involving roots of quotients and find its domain of validity");
         m126m1t1.addExBlock("Apply identities to change the form of an expression")
-                .addEx("ST51_1_F07_01", "Apply an identity to rewrite an expression")
-                .addEx("ST51_1_F07_02", "Apply an identity to rewrite an expression");
+                .addEx("TR09_ST1C_01a", "Apply an identity to rewrite an expression")
+                .addEx("TR09_ST1C_01b", "Apply an identity to rewrite an expression");
         m126m1t1.addExBlock("Apply identities to factorize an expression")
-                .addEx("ST51_1_F08_01", "Apply an identity to factorize an expression and find its roots")
-                .addEx("ST51_1_F08_02", "Apply an identity to factorize an expression and find its roots");
+                .addEx("TR09_ST1C_02a", "Apply an identity to factorize an expression and find its roots")
+                .addEx("TR09_ST1C_02b", "Apply an identity to factorize an expression and find its roots");
 
         final LearningTargetData m126m1t2 = m126m1.addLearningTarget(1, 2, "1.2", "ST51_2_HW",
                 "I can recall the various forms of the fundamental trigonometric identities, including:",
@@ -1945,44 +1945,44 @@ public enum MathCourses {
                 "the Pythagorean identities for the trigonometric functions, and their relationships with right "
                         + "triangles");
         m126m1t2.addExBlock("Definitions of trig functions as identities")
-                .addEx("ST51_2_F01_01",
+                .addEx("TR09_ST2A_01a",
                         "Interpret the definition of tangent as an identity and find its domain of validity")
-                .addEx("ST51_2_F01_02",
+                .addEx("TR09_ST2A_02a",
                         "Interpret the definition of cotangent as an identity and find its domain of validity")
-                .addEx("ST51_2_F01_03",
+                .addEx("TR09_ST2A_03a",
                         "Interpret the definition of secant as an identity and find its domain of validity")
-                .addEx("ST51_2_F01_04",
+                .addEx("TR09_ST2A_04a",
                         "Interpret the definition of cosecant as an identity and find its domain of validity");
         m126m1t2.addExBlock("Even/odd identities for sine and cosine")
-                .addEx("ST51_2_F02_01",
+                .addEx("TR09_ST2B_01a",
                         "Discover the even/odd identities for sine and cosine, and find their domains of validity");
         m126m1t2.addExBlock("Even/odd identities for tangent and cotangent")
-                .addEx("ST51_2_F03_01",
+                .addEx("TR09_ST2B_02a",
                         "Discover the even/odd identities for tangent and cotangent, and find their domains of "
                                 + "validity");
         m126m1t2.addExBlock("Even/odd identities for secant and cosecant")
-                .addEx("ST51_2_F04_01",
+                .addEx("TR09_ST2B_03a",
                         "Discover the even/odd identities for secant and cosecant, and find their domains of validity");
         m126m1t2.addExBlock("Cofunction identities for sine and cosine")
-                .addEx("ST51_2_F05_01",
+                .addEx("TR09_ST2C_01a",
                         "Write cofunction identities for sine and cosine, describe them in terms of graphs, and find "
                                 + "domains of validity");
         m126m1t2.addExBlock("Cofunction identities for tangent and cotangent")
-                .addEx("ST51_2_F06_01",
+                .addEx("TR09_ST2C_02a",
                         "Write cofunction identities for tangent and cotangent, describe them in terms of graphs, and "
                                 + "find domains of validity");
         m126m1t2.addExBlock("Cofunction identities for secant and cosecant")
-                .addEx("ST51_2_F07_01",
+                .addEx("TR09_ST2C_03a",
                         "Write cofunction identities for secant and cosecant, describe them in terms of graphs, and "
                                 + "find domains of validity");
         m126m1t2.addExBlock("Pythagorean identity with sine and cosine")
-                .addEx("ST51_2_F08_01",
+                .addEx("TR09_ST2D_01a",
                         "Write the Pythagorean identity for sine and cosine, and find its domain of validity");
         m126m1t2.addExBlock("Pythagorean identity with tangent and secant")
-                .addEx("ST51_2_F09_01",
+                .addEx("TR09_ST2D_02a",
                         "Write the Pythagorean identity for tangent and secant, and find its domain of validity");
         m126m1t2.addExBlock("Pythagorean identity with cotangent and cosecant")
-                .addEx("ST51_2_F10_01",
+                .addEx("TR09_ST2D_03a",
                         "Write the Pythagorean identity for cotangent and cosecant, and find its domain of validity");
 
         final LearningTargetData m126m1t3 = m126m1.addLearningTarget(1, 3, "1.3", "ST51_3_HW",
@@ -1991,44 +1991,44 @@ public enum MathCourses {
                 "simplifying using even/odd identities",
                 "simplifying using Pythagorean identities");
         m126m1t3.addExBlock("Simplifications using definitions")
-                .addEx("ST51_3_F01_01",
+                .addEx("TR09_ST3A_01a",
                         "Use definitions of trigonometric functions as identities to simplify expressions")
-                .addEx("ST51_3_F01_02",
+                .addEx("TR09_ST3A_02a",
                         "Use definitions of trigonometric functions as identities to simplify expressions");
         m126m1t3.addExBlock("Applying even/odd identities")
-                .addEx("ST51_3_F02_01", "Use even/odd identities to simplify expressions - sine")
-                .addEx("ST51_3_F02_02", "Use even/odd identities to simplify expressions - cosine")
-                .addEx("ST51_3_F02_03", "Use even/odd identities to simplify expressions - tangent")
-                .addEx("ST51_3_F02_04", "Use even/odd identities to simplify expressions - cotangent")
-                .addEx("ST51_3_F02_05", "Use even/odd identities to simplify expressions - secant")
-                .addEx("ST51_3_F02_06", "Use even/odd identities to simplify expressions - cosecant");
+                .addEx("TR09_ST3B_01a", "Use even/odd identities to simplify expressions - sine")
+                .addEx("TR09_ST3B_02a", "Use even/odd identities to simplify expressions - cosine")
+                .addEx("TR09_ST3B_03a", "Use even/odd identities to simplify expressions - tangent")
+                .addEx("TR09_ST3B_04a", "Use even/odd identities to simplify expressions - cotangent")
+                .addEx("TR09_ST3B_05a", "Use even/odd identities to simplify expressions - secant")
+                .addEx("TR09_ST3B_06a", "Use even/odd identities to simplify expressions - cosecant");
         m126m1t3.addExBlock("Applying cofunction identities")
-                .addEx("ST51_3_F03_01", "Use cofunction identities to simplify expressions - sine")
-                .addEx("ST51_3_F03_02", "Use cofunction identities to simplify expressions - cosine")
-                .addEx("ST51_3_F03_03", "Use cofunction identities to simplify expressions - tangent")
-                .addEx("ST51_3_F03_04", "Use cofunction identities to simplify expressions - cotangent")
-                .addEx("ST51_3_F03_05", "Use cofunction identities to simplify expressions - secant")
-                .addEx("ST51_3_F03_06", "Use cofunction identities to simplify expressions - cosecant");
+                .addEx("TR09_ST3C_01a", "Use cofunction identities to simplify expressions - sine")
+                .addEx("TR09_ST3C_02a", "Use cofunction identities to simplify expressions - cosine")
+                .addEx("TR09_ST3C_03a", "Use cofunction identities to simplify expressions - tangent")
+                .addEx("TR09_ST3C_04a", "Use cofunction identities to simplify expressions - cotangent")
+                .addEx("TR09_ST3C_05a", "Use cofunction identities to simplify expressions - secant")
+                .addEx("TR09_ST3C_06a", "Use cofunction identities to simplify expressions - cosecant");
         m126m1t3.addExBlock("Applying the Pythagorean identity with sine and cosine")
-                .addEx("ST51_3_F04_01", "Use Pythagorean identity for sine and cosine to simplify an expression");
+                .addEx("TR09_ST3D_01a", "Use Pythagorean identity for sine and cosine to simplify an expression");
         m126m1t3.addExBlock("Applying the Pythagorean identity with tangent and secant")
-                .addEx("ST51_3_F05_01", "Use Pythagorean identities to simplify an expression");
+                .addEx("TR09_ST3D_02a", "Use Pythagorean identities to simplify an expression");
 
         // Module 2
 
         final ModuleData m126m2 = m126.addModule(2, "Sum and Difference Identities", "SR52_HW", "c52-thumb.png");
 
         m126m2.skillsReview.addExampleBlock("Shapes of graphs of the trigonometric functions")
-                .addEx("SR52_01_01", "Match graphs to trigonometric functions and recall domain and range of each");
+                .addEx("TR10_SR1_01", "Match graphs to trigonometric functions and recall domain and range of each");
         m126m2.skillsReview.addExampleBlock("Trigonometric functions related to point where angle's terminal ray "
                         + "meets unit circle, and SOH-CAH-TOA relationships")
-                .addEx("SR52_02_01", "Given drawing, label quantities represented by each trigonometric function");
+                .addEx("TR10_SR2_01", "Given drawing, label quantities represented by each trigonometric function");
         m126m2.skillsReview.addExampleBlock("Add or subtract two rational expressions by finding a common denominator")
-                .addEx("SR52_03_01", "Add and subtract rational expressions");
+                .addEx("TR10_SR3_01", "Add and subtract rational expressions");
         m126m2.skillsReview.addExampleBlock("Recall values of sine and cosine for common angles")
-                .addEx("SR52_04_01", "Recall exact values of sine and cosine for common Quadrant I angles");
+                .addEx("TR10_SR4_01", "Recall exact values of sine and cosine for common Quadrant I angles");
         m126m2.skillsReview.addExampleBlock("The distance formula")
-                .addEx("SR52_05_01", "Calculate the distance between two points");
+                .addEx("TR10_SR5_01", "Calculate the distance between two points");
 
         final LearningTargetData m126m2t1 = m126m2.addLearningTarget(2, 1, "2.1", "ST52_1_HW",
                 "I can interpret and apply the sum and difference identities, including:",
@@ -2038,20 +2038,20 @@ public enum MathCourses {
                 "use the sum or difference identities to verify identities",
                 "derive the cofunction and similar identities using the sum and difference identities");
         m126m2t1.addExBlock("Interpret sums and differences of angles graphically")
-                .addEx("ST52_1_F01_01", "Given a graph of sine with two angles marked, interpret sums and differences "
+                .addEx("TR10_ST1A_01", "Given a graph of sine with two angles marked, interpret sums and differences "
                         + "of angles, and describe how values of sine changes in response to changes in either");
         m126m2t1.addExBlock("Application: Right triangles in non-standard positions")
-                .addEx("ST52_1_F02_01", "Find lengths in a right triangle in non-standard position");
+                .addEx("TR10_ST1A_02", "Find lengths in a right triangle in non-standard position");
         m126m2t1.addExBlock("Simplify expression using the sine difference identity")
-                .addEx("ST52_1_F03_01", "Use the sine difference of angles identity to simplify an expression");
+                .addEx("TR10_ST1B_01", "Use the sine difference of angles identity to simplify an expression");
         m126m2t1.addExBlock("Simplify expression using the cosine sum identity")
-                .addEx("ST52_1_F04_01", "Use the cosine sum of angles identity to simplify an expression");
+                .addEx("TR10_ST1B_02", "Use the cosine sum of angles identity to simplify an expression");
         m126m2t1.addExBlock("Verify identities using the sine and cosine sum and difference identities")
-                .addEx("ST52_1_F05_01", "Use the sine sum and difference of angles identities to verify an identity")
-                .addEx("ST52_1_F05_02", "Use the sine difference of angles identity to verify an identity");
+                .addEx("TR10_ST1C_01", "Use the sine sum and difference of angles identities to verify an identity")
+                .addEx("TR10_ST1C_02", "Use the sine difference of angles identity to verify an identity");
         m126m2t1.addExBlock("Derive cofunction-like identities")
-                .addEx("ST52_1_F06_01", "Use the sine sum of angles identity to derive an identity")
-                .addEx("ST52_1_F06_02", "Use the cosine difference of angles identity to derive an identity");
+                .addEx("TR10_ST1D_01", "Use the sine sum of angles identity to derive an identity")
+                .addEx("TR10_ST1D_02", "Use the cosine difference of angles identity to derive an identity");
 
         final LearningTargetData m126m2t2 = m126m2.addLearningTarget(2, 2, "2.2", "ST52_2_HW",
                 "I can use sum and difference identities to evaluate expressions, including:",
@@ -2060,19 +2060,19 @@ public enum MathCourses {
                 "difference quotients involving trigonometric functions",
                 "solve application problems using sum and difference identities");
         m126m2t2.addExBlock("Evaluate expressions using sum and difference identities for sine and cosine")
-                .addEx("ST52_2_F01_01",
+                .addEx("TR10_ST2A_01",
                         "Compute sine of a value that can be expressed as a difference of common angles")
-                .addEx("ST52_2_F01_02",
+                .addEx("TR10_ST2A_02",
                         "Compute cosine of a value that can be expressed as a difference of common angles");
         m126m2t2.addExBlock(
                         "Evaluate expressions using sum and difference identities for other trigonometric functions")
-                .addEx("ST52_2_F02_01",
+                .addEx("TR10_ST2A_03",
                         "Compute tangent of a value that can be expressed as a sum of common angles");
         m126m2t2.addExBlock("Analyze a difference quotient")
-                .addEx("ST52_2_F03_01", "Evaluate a difference quotient for several values of its denominator that "
+                .addEx("TR10_ST2B_01", "Evaluate a difference quotient for several values of its denominator that "
                         + "approach zero and interpret behavior");
         m126m2t2.addExBlock("Solve application problems")
-                .addEx("ST52_2_F04_01", "Find distance between tips of two arms that move on a central pivot");
+                .addEx("TR10_ST2C_01", "Find distance between tips of two arms that move on a central pivot");
 
         final LearningTargetData m126m2t3 = m126m2.addLearningTarget(2, 3, "2.3", "ST52_3_HW",
                 "I can apply product-to-sum and sum-to-product identities, including:",
@@ -2080,18 +2080,18 @@ public enum MathCourses {
                 "use them to verify identities",
                 "solve trigonometric equations using sum to product identities");
         m126m2t3.addExBlock("Product to sum identities")
-                .addEx("ST52_3_F01_01", "Rewrite an expression containing a product of sines as a sum")
-                .addEx("ST52_3_F01_02", "Rewrite an expression containing a product of cosines as a sum")
-                .addEx("ST52_3_F01_03", "Rewrite an expression containing a product of a sine and a cosine as a sum");
+                .addEx("TR10_ST3A_01a", "Rewrite an expression containing a product of sines as a sum")
+                .addEx("TR10_ST3A_01b", "Rewrite an expression containing a product of cosines as a sum")
+                .addEx("TR10_ST3A_01c", "Rewrite an expression containing a product of a sine and a cosine as a sum");
         m126m2t3.addExBlock("Sum to product identities")
-                .addEx("ST52_3_F02_01", "Rewrite an expression with a sum of sines as a product")
-                .addEx("ST52_3_F02_02", "Rewrite an expression with a sum of cosines as a product");
+                .addEx("TR10_ST3A_02a", "Rewrite an expression with a sum of sines as a product")
+                .addEx("TR10_ST3A_02b", "Rewrite an expression with a sum of cosines as a product");
         m126m2t3.addExBlock("Verifying identities using product to sum and sum to product identities")
-                .addEx("ST52_3_F03_01", "Verify an identity involving sums of sines and cosines");
+                .addEx("TR10_ST3B_01", "Verify an identity involving sums of sines and cosines");
         m126m2t3.addExBlock("Factorizing equations using sum to product identities")
-                .addEx("ST52_3_F04_01", "Find solutions to an equation involving a sum of sines by converting to a "
+                .addEx("TR10_ST3C_01a", "Find solutions to an equation involving a sum of sines by converting to a "
                         + "product and factorizing")
-                .addEx("ST52_3_F04_02", "Find solutions to an equation involving a sum of cosines by converting to a "
+                .addEx("TR10_ST3C_01b", "Find solutions to an equation involving a sum of cosines by converting to a "
                         + "product and factorizing");
 
         // Module 3
@@ -2100,16 +2100,16 @@ public enum MathCourses {
                 "c53-thumb.png");
 
         m126m3.skillsReview.addExampleBlock("Piecewise Functions")
-                .addEx("SR53_01_01", "Graph a piecewise function and evaluate.");
+                .addEx("TR11_SR1_01", "Graph a piecewise function and evaluate.");
         m126m3.skillsReview.addExampleBlock("Squares of square roots")
-                .addEx("SR53_02_01",
+                .addEx("TR11_SR2_01",
                         "Graph square root functions, then their square, and explore relationships between them");
         m126m3.skillsReview.addExampleBlock("Cosine, Sine, and coordinates on circles")
-                .addEx("SR53_03_01", "Find coordinates of points on circles using cosine and sine");
+                .addEx("TR11_SR3_01", "Find coordinates of points on circles using cosine and sine");
         m126m3.skillsReview.addExampleBlock("Pythagorean identity for sine and cosine")
-                .addEx("SR53_04_01", "Use the Pythagorean identity to simplify an expression");
+                .addEx("TR11_SR4_01", "Use the Pythagorean identity to simplify an expression");
         m126m3.skillsReview.addExampleBlock("Definitions of trigonometric functions")
-                .addEx("SR53_05_01", "Use definitions of trigonometric functions to expand and simplify an expression");
+                .addEx("TR11_SR5_01", "Use definitions of trigonometric functions to expand and simplify an expression");
 
         final LearningTargetData m126m3t1 = m126m3.addLearningTarget(3, 1, "3.1", "ST53_1_HW",
                 "I can interpret and apply double- and multiple-angle identities, including:",
@@ -2118,19 +2118,19 @@ public enum MathCourses {
                 "apply the double- and multiple-angle identities to rewrite and simplify expressions",
                 "use the double- and multiple-angle identities to verify identities");
         m126m3t1.addExBlock("Interpret double-angle and multiple-angle quantities graphically")
-                .addEx("ST53_1_F01_01", "Examine doubled and multiple angles and how they change as angle changes");
+                .addEx("TR11_ST1A_01", "Examine doubled and multiple angles and how they change as angle changes");
         m126m3t1.addExBlock("Application: arrays of equal angles")
-                .addEx("ST53_1_F02_01", "Find point coordinates on a circle in terms of multiples of angles");
+                .addEx("TR11_ST1A_02", "Find point coordinates on a circle in terms of multiples of angles");
         m126m3t1.addExBlock("Using the double-angle identity for sine")
-                .addEx("ST53_1_F03_01", "Simplify an expression using the double-angle identity for sine");
+                .addEx("TR11_ST1B_01", "Simplify an expression using the double-angle identity for sine");
         m126m3t1.addExBlock("Using the double-angle identity for cosine")
-                .addEx("ST53_1_F04_01", "Simplify an expression using the double-angle identity for cosine");
+                .addEx("TR11_ST1B_02", "Simplify an expression using the double-angle identity for cosine");
         m126m3t1.addExBlock("Using the triple-angle identity for cosine")
-                .addEx("ST53_1_F05_01", "Simplify an expression using the triple-angle identity for cosine");
+                .addEx("TR11_ST1B_03", "Simplify an expression using the triple-angle identity for cosine");
         m126m3t1.addExBlock("Using the quadruple-angle identity for sine")
-                .addEx("ST53_1_F06_01", "Simplify an expression using the quadruple-angle identity for sine");
+                .addEx("TR11_ST1B_04", "Simplify an expression using the quadruple-angle identity for sine");
         m126m3t1.addExBlock("Using double-and multiple-angle identities to verify identities")
-                .addEx("ST53_1_F07_01", "Given appropriate double-angle identities, verify another identity");
+                .addEx("TR11_ST1C_01", "Given appropriate double-angle identities, verify another identity");
 
         final LearningTargetData m126m3t2 = m126m3.addLearningTarget(3, 2, "3.2", "ST53_2_HW",
                 "I can use half-angle identities, including:",
@@ -2138,13 +2138,13 @@ public enum MathCourses {
                 "apply the half-angle identities to rewrite and simplify expressions",
                 "use the half-angle identities to verify identities");
         m126m3t2.addExBlock("Interpret half-angle quantities graphically")
-                .addEx("ST53_2_F01_01", "Find point coordinates on a circle in terms halved angles");
+                .addEx("TR11_ST2A_01", "Find point coordinates on a circle in terms halved angles");
         m126m3t2.addExBlock("Using the half-angle identity for sine")
-                .addEx("ST53_2_F02_01", "Simplify an expression using the half-angle identity for sine");
+                .addEx("TR11_ST2B_01", "Simplify an expression using the half-angle identity for sine");
         m126m3t2.addExBlock("Using the half-angle identity for cosine")
-                .addEx("ST53_2_F03_01", "Simplify an expression using the half-angle identity for cosine");
+                .addEx("TR11_ST2C_01", "Simplify an expression using the half-angle identity for cosine");
         m126m3t2.addExBlock("Using half-angle identities to verify identities")
-                .addEx("ST53_2_F04_01", "Given appropriate half-angle identities, verify another identity");
+                .addEx("TR11_ST2C_02", "Given appropriate half-angle identities, verify another identity");
 
         final LearningTargetData m126m3t3 = m126m3.addLearningTarget(3, 3, "3.3", "ST53_3_HW",
                 "I can apply double-, multiple-, and half-angle identities, including:",
@@ -2152,20 +2152,17 @@ public enum MathCourses {
                 "perform power reduction",
                 "solve applied problems involving arrays of equal angles");
         m126m3t3.addExBlock("Evaluate sine and cosine at fractions of angles")
-                .addEx("ST53_3_F01_01", "Find exact values of sines of fractions of common angles")
-                .addEx("ST53_3_F01_02", "Find exact values of cosines of fractions of common angles");
+                .addEx("TR11_ST3A_01a", "Find exact values of sines of fractions of common angles")
+                .addEx("TR11_ST3A_01b", "Find exact values of cosines of fractions of common angles");
         m126m3t3.addExBlock("Evaluate sine and cosine at 3/2 of an angle")
-                .addEx("ST53_3_F02_01", "Find the exact value for the sine of 3/2 of a common angle")
-                .addEx("ST53_3_F02_02", "Find the exact value for the cosine of 3/2 of a common angle");
-        m126m3t3.addExBlock("Verify power reduction formulas")
-                .addEx("ST53_3_F03_01",
-                        "Use half-angle and sum of angle identities to verify the power reduction identities");
+                .addEx("TR11_ST3A_02a", "Find the exact value for the sine of 3/2 of a common angle")
+                .addEx("TR11_ST3A_02b", "Find the exact value for the cosine of 3/2 of a common angle");
         m126m3t3.addExBlock("Perform power reduction")
-                .addEx("ST53_3_F04_01", "Rewrite expressions with powers of sine and cosine to reduce exponents");
+                .addEx("TR11_ST3B_01", "Rewrite expressions with powers of sine and cosine to reduce exponents");
         m126m3t3.addExBlock("Application: Gear train")
-                .addEx("ST53_3_F05_01", "Solve application problem involving gear rotation");
+                .addEx("TR11_ST3C_01", "Solve application problem involving gear rotation");
         m126m3t3.addExBlock("Application: Spiral staircase")
-                .addEx("ST53_3_F06_01", "Solve application problem involving design of a spiral staircase");
+                .addEx("TR11_ST3C_02", "Solve application problem involving design of a spiral staircase");
 
         // Module 4
 
