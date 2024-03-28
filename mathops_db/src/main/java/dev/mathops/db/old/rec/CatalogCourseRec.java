@@ -1,13 +1,14 @@
 package dev.mathops.db.old.rec;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.enums.EGradeMode;
+import dev.mathops.db.enums.EOfferingTermName;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.type.CatalogCourseNumber;
 
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -96,6 +97,9 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
     /** The 'description' field value, with the catalog course description. */
     public String description;
 
+    /** The 'prerequisite' field value. */
+    public String prerequisite;
+
     /** The 'registration_info' field value from the catalog. */
     public String registrationInfo;
 
@@ -103,7 +107,7 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
     public String restriction;
 
     /** The 'terms_offered' field value, with the terms in which the course is offered. */
-    private EnumSet<ETermName> termsOffered;
+    private EnumSet<EOfferingTermName> termsOffered;
 
     /** The 'grade_mode' field value from the catalog. */
     private EGradeMode gradeMode;
@@ -148,6 +152,72 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
     }
 
     /**
+     * Sets the terms during which the catalog says the course is offered.
+     *
+     * @param offeringString the string representation from the catalog, such as "Fall, Spring."
+     */
+    public void setTermsOffered(final String offeringString) {
+
+        final EnumSet<EOfferingTermName> set = EnumSet.noneOf(EOfferingTermName.class);
+
+        final String[] list = offeringString.split(CoreConstants.COMMA);
+        for (final String item : list) {
+            final String trimmed = item.trim().replace(".", "").toLowerCase(Locale.ROOT);
+
+            if (trimmed.startsWith("fall")) {
+                if ("fall".equals(trimmed)) {
+                    set.add(EOfferingTermName.EVERY_FALL);
+                } else if ("fall (even years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.FALL_EVEN_YEARS);
+                } else if ("fall (odd years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.FALL_ODD_YEARS);
+                } else if ("fall (every third year)".equals(trimmed)) {
+                    set.add(EOfferingTermName.FALL_THIRD_YEARS);
+                } else if ("fall (as needed)".equals(trimmed) || "fall offered as needed".equals(trimmed)) {
+                    set.add(EOfferingTermName.FALL_AS_NEEDED);
+                } else if ("fall spring".equals(trimmed)) {
+                    set.add(EOfferingTermName.EVERY_FALL);
+                    set.add(EOfferingTermName.EVERY_SPRING);
+                } else {
+                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                }
+            } else if (trimmed.startsWith("spring")) {
+                if (trimmed.equals("spring")) {
+                    set.add(EOfferingTermName.EVERY_SPRING);
+                } else if ("spring (even years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SPRING_EVEN_YEARS);
+                } else if ("spring (odd years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SPRING_ODD_YEARS);
+                } else if ("spring (every third year)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SPRING_THIRD_YEARS);
+                } else if ("spring (as needed)".equals(trimmed) || "spring offered as needed".equals(trimmed)) {
+                    set.add(EOfferingTermName.SPRING_AS_NEEDED);
+                } else {
+                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                }
+            } else if (trimmed.startsWith("summer")) {
+                if (trimmed.equals("summer")) {
+                    set.add(EOfferingTermName.EVERY_SUMMER);
+                } else if ("summer (even years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SUMMER_EVEN_YEARS);
+                } else if ("summer (odd years)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SUMMER_ODD_YEARS);
+                } else if ("summer (every third year)".equals(trimmed)) {
+                    set.add(EOfferingTermName.SUMMER_THIRD_YEARS);
+                } else if ("summer (as needed)".equals(trimmed) || "summer offered as needed".equals(trimmed)) {
+                    set.add(EOfferingTermName.SUMMER_AS_NEEDED);
+                } else {
+                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+            }
+        }
+
+        this.termsOffered = set;
+    }
+
+    /**
      * Sets a field based on its name and the string representation of its value.
      *
      * <p>
@@ -176,16 +246,7 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
         } else if (FLD_RESTRICTION.equals(name)) {
             this.restriction = value;
         } else if (FLD_TERMS_OFFERED.equals(name)) {
-            final EnumSet<ETermName> set = EnumSet.noneOf(ETermName.class);
-            final String[] list = value.split(CoreConstants.SPC);
-            for (final String item : list) {
-                final ETermName parsed = ETermName.forName(item.trim());
-                if (parsed == null) {
-                    throw new IllegalArgumentException("Invalid term name in list");
-                }
-                set.add(parsed);
-            }
-            this.termsOffered = set;
+            setTermsOffered(value);
         } else if (FLD_GRADE_MODE.equals(name)) {
             final int intCode = Integer.parseInt(value);
             this.gradeMode = EGradeMode.forCode(intCode);
@@ -220,7 +281,7 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
      */
     public CatalogCourseRec(final CatalogCourseNumber theCourseNumber, final String theTitle,
                             final String theDescription, final String theRegistrationInfo, final String theRestriction,
-                            final EnumSet<ETermName> theTermsOffered, final EGradeMode theGradeMode,
+                            final EnumSet<EOfferingTermName> theTermsOffered, final EGradeMode theGradeMode,
                             final String theSpecialCourseFee, final String theAdditionalInfo,
                             final String theGtCode, final Integer theMinCredits, final Integer theMaxCredits) {
 
@@ -279,11 +340,11 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
         } else {
             htm.add(FLD_TERMS_OFFERED, "=");
             boolean comma = false;
-            for (final ETermName offerTerm : this.termsOffered) {
+            for (final EOfferingTermName offerTerm : this.termsOffered) {
                 if (comma) {
                     htm.add(',');
                 }
-                htm.add(offerTerm.termName);
+                htm.add(offerTerm.label);
                 comma = true;
             }
         }

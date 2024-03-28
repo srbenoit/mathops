@@ -311,17 +311,13 @@ enum CourseImporter {
 
                         switch (fieldName) {
                             case "Course Description:" -> record.description = value;
-                            case "Prerequisite:" -> {
-                                if (!"None.".equals(value)) {
-//                                record.prerequisite = PrerequisiteFactory.parsePrerequisite(value);
-                                }
-                            }
+                            case "Prerequisite:" -> record.prerequisite = value;
                             case "Restriction:", "Restrictions:" -> record.restriction = value;
                             case "Registration Information:" -> record.registrationInfo = value;
-                            case "Term Offered:", "Terms Offered:", "Grade Mode:", "Grade Modes:" -> {
+                            case "Term Offered:", "Terms Offered:"  -> record.setTermsOffered(value);
+                            case "Grade Mode:", "Grade Modes:" -> {
+                                // TODO: Parse into grade mode
                             }
-                            // TODO: Parse into set of terms
-                            // TODO: Parse into grade mode
                             case "Special Course Fee:", "Special Course Fees:" -> record.specialCourseFee = value;
                             case "Additional Information:" -> record.additionalInfo = value;
                             default -> Log.warning("Unexpected field name: ", fieldName);
