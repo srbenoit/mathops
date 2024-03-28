@@ -68,9 +68,11 @@ enum PagePrecalcStatusBySections {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.NO_BARS, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, session, false, Page.NO_BARS, null, false, true);
 
-        htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
+        final String heading = Res.get(Res.HOME_HEADING);
+        htm.sH(2).add(heading).eH(2);
         htm.sDiv().add("<a href='home.html'>Home</a>").eDiv();
         htm.hr();
 
@@ -82,7 +84,7 @@ enum PagePrecalcStatusBySections {
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
         final List<RawCsection> courseSections = RawCsectionLogic.queryByTerm(cache, activeKey);
-        courseSections.removeIf(pred -> pred.instrnType == null || "OT".equals(pred.instrnType));
+        courseSections.removeIf(row -> row.instrnType == null || "OT".equals(row.instrnType));
         courseSections.sort(null);
 
         if (courseSections.isEmpty()) {
@@ -90,18 +92,18 @@ enum PagePrecalcStatusBySections {
         } else {
             htm.sP().add("Select all course sections to include in report:").eP();
             final Collection<String> courseIds = new TreeSet<>();
-            for (final RawCsection csect : courseSections) {
-                courseIds.add(csect.course);
+            for (final RawCsection courseSect : courseSections) {
+                courseIds.add(courseSect.course);
             }
 
             for (final String courseId : courseIds) {
                 htm.sP("indent").add("<strong>", courseId, "</strong>: ");
 
-                for (final RawCsection csect : courseSections) {
-                    if (csect.course.equals(courseId)) {
-                        final String id = courseId + "_" + csect.sect;
-                        htm.add("<input type='checkbox' id='", id, "' name='", id, "' value='", csect.sect, "'/>");
-                        htm.add("<label for='", id, "'> ", csect.sect, "</label>");
+                for (final RawCsection courseSect : courseSections) {
+                    if (courseSect.course.equals(courseId)) {
+                        final String id = courseId + "_" + courseSect.sect;
+                        htm.add("<input type='checkbox' id='", id, "' name='", id, "' value='", courseSect.sect, "'/>");
+                        htm.add("<label for='", id, "'> ", courseSect.sect, "</label>");
                     }
                 }
                 htm.eP();
@@ -120,7 +122,8 @@ enum PagePrecalcStatusBySections {
             final List<RawCsection> included = new ArrayList<>(10);
             for (final RawCsection row : courseSections) {
                 final String id = row.course + "_" + row.sect;
-                if (row.sect.equals(req.getParameter(id))) {
+                final String value = req.getParameter(id);
+                if (row.sect.equals(value)) {
                     included.add(row);
                 }
             }
@@ -139,7 +142,9 @@ enum PagePrecalcStatusBySections {
         }
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final String str = htm.toString();
+        final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
     /**
      * Generates a CSV file with report data.
@@ -156,13 +161,14 @@ enum PagePrecalcStatusBySections {
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
         final List<RawCsection> courseSections = RawCsectionLogic.queryByTerm(cache, activeKey);
-        courseSections.removeIf(pred -> pred.instrnType == null || "OT".equals(pred.instrnType));
+        courseSections.removeIf(row -> row.instrnType == null || "OT".equals(row.instrnType));
         courseSections.sort(null);
 
         final List<RawCsection> included = new ArrayList<>(10);
         for (final RawCsection row : courseSections) {
             final String id = row.course + "_" + row.sect;
-            if (row.sect.equals(req.getParameter(id))) {
+            final String value = req.getParameter(id);
+            if (row.sect.equals(value)) {
                 included.add(row);
             }
         }
@@ -182,8 +188,9 @@ enum PagePrecalcStatusBySections {
             }
 
             resp.setHeader("Content-Disposition", "attachment;filename=placement_data.csv;");
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV,
-                    csvData.toString().getBytes(StandardCharsets.UTF_8));
+            final String str = csvData.toString();
+            final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV, bytes);
         }
     }
 }

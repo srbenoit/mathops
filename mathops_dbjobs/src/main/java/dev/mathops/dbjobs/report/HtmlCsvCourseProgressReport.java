@@ -62,14 +62,14 @@ public final class HtmlCsvCourseProgressReport {
      * @param theStudentIds the student IDs to include in the report (if null, all students are included)
      * @param theSections   the course/sections to include (only course ID and section number are used; null includes
      *                      all)
-     * @param theSubheader  the subheader text for the report
+     * @param theSubhead  the sub-header text for the report
      */
     public HtmlCsvCourseProgressReport(final List<String> theStudentIds, final List<RawCsection> theSections,
-                                       final String theSubheader) {
+                                       final String theSubhead) {
 
         this.studentIds = theStudentIds == null ? null : new ArrayList<>(theStudentIds);
         this.sections = theSections == null ? null : new ArrayList<>(theSections);
-        this.subheader = theSubheader;
+        this.subheader = theSubhead;
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
@@ -99,7 +99,8 @@ public final class HtmlCsvCourseProgressReport {
                     this.primaryCtx.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
-                report.add("EXCEPTION: " + ex.getMessage());
+                final String msg = ex.getMessage();
+                report.add("EXCEPTION: " + msg);
             }
         }
     }
@@ -146,7 +147,8 @@ public final class HtmlCsvCourseProgressReport {
         if (this.subheader != null) {
             html.add(this.subheader + "<br/>");
         }
-        html.add("Report Date: " + TemporalUtils.FMT_MDY.format(now) + "<br/>");
+        final String nowStr = TemporalUtils.FMT_MDY.format(now);
+        html.add("Report Date: " + nowStr + "<br/>");
         html.add("</p>");
 
         html.add("<table class='result-table'>");
@@ -307,12 +309,13 @@ public final class HtmlCsvCourseProgressReport {
                     RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track, stu.stuId);
 
             // Generate report
-            html.add(SimpleBuilder.concat("<tr onClick='toggleRow(this)'>",
+            final String rowHtml = SimpleBuilder.concat("<tr onClick='toggleRow(this)'>",
                     "<td>", stu.lastName, ", ", stu.firstName, "</td>",
                     "<td>", stu.stuId, "</td>",
                     "<td>", (stu.programCode == null ? CoreConstants.EMPTY : stu.programCode), "</td>",
                     "<td>", (stu.stuEmail == null ? CoreConstants.EMPTY : stu.stuEmail), "</td>",
-                    "<td class='expanded-row-content hide-row'>"));
+                    "<td class='expanded-row-content hide-row'>");
+            html.add(rowHtml);
 
             html.add("<table class='inner-table'>");
             html.add(" <tr><th>Pace</th> <th>Order</th> <th>Course</th> <th>Sect</th> <th>Unit</th> "
@@ -373,15 +376,19 @@ public final class HtmlCsvCourseProgressReport {
                         lateMsg = "OK";
                     }
 
+                    final String paceStr = Integer.toString(pace);
+                    final String orderStr = Integer.toString(order);
+                    final String unitStr = Integer.toString(unit);
+                    final String dueStr = due == null ? "Unknown" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(due);
+                    final String doneStr = done == null ? CoreConstants.EMPTY : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(done);
+
                     html.add(SimpleBuilder.concat(
-                            " <tr><td>", (i == 0 && unit == 1 ? Integer.toString(pace) : CoreConstants.EMPTY),
-                            "</td> <td>", (unit == 1 ? Integer.toString(order) : CoreConstants.EMPTY),
-                            "</td> <td>", (unit == 1 ? reg.course : CoreConstants.EMPTY),
-                            "</td> <td>", (unit == 1 ? reg.sect : CoreConstants.EMPTY),
-                            "</td> <td>", Integer.toString(unit), "</td> <td>RE</td> <td>",
-                            (due == null ? "Unknown" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(due)), "</td> <td>",
-                            (done == null ? CoreConstants.EMPTY : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(done)),
-                            "</td> <td>", lateMsg, "</td></tr>"));
+                            " <tr><td>", (i == 0 && unit == 1 ? paceStr : CoreConstants.EMPTY), "</td> <td>",
+                            (unit == 1 ? orderStr : CoreConstants.EMPTY), "</td> <td>",
+                            (unit == 1 ? reg.course : CoreConstants.EMPTY), "</td> <td>",
+                            (unit == 1 ? reg.sect : CoreConstants.EMPTY), "</td> <td>", unitStr,
+                            "</td> <td>RE</td> <td>", dueStr, "</td> <td>", doneStr, "</td> <td>", lateMsg,
+                            "</td></tr>"));
                 }
 
                 // Final exam
@@ -422,11 +429,11 @@ public final class HtmlCsvCourseProgressReport {
                     lateMsg = "retesting";
                 }
 
-//                html.add(SimpleBuilder.concat(
-//                        " <tr><td></td> <td></td> <td></td> <td></td> <td>5</td> <td>FE</td> <td>",
-//                        (due == null ? "Unknown" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(due)), "</td> <td>",
-//                        (done == null ? CoreConstants.EMPTY : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(done)),
-//                        "</td> <td>", lateMsg, "</td></tr>"));
+                html.add(SimpleBuilder.concat(
+                        " <tr><td></td> <td></td> <td></td> <td></td> <td>5</td> <td>FE</td> <td>",
+                        (due == null ? "Unknown" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(due)), "</td> <td>",
+                        (done == null ? CoreConstants.EMPTY : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(done)),
+                        "</td> <td>", lateMsg, "</td></tr>"));
 
                 html.add("</table>");
             }
