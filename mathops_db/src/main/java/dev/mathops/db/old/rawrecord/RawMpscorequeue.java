@@ -1,7 +1,7 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.rec.RecBase;
 
 import java.sql.ResultSet;
@@ -188,5 +188,17 @@ public final class RawMpscorequeue extends RecBase {
         }
 
         return equal;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return SimpleBuilder.concat("RawMpscorequeue{pidm=", this.pidm, ", testCode='", this.testCode, "', testDate=",
+                this.testDate, ", testScore='", this.testScore, "'}");
     }
 }

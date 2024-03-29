@@ -67,8 +67,7 @@ public final class SendQueuedBannerTestScores {
                     final DbConnection liveConn = this.liveCtx.checkOutConnection();
 
                     try {
-                        final List<RawMpscorequeue> queued =
-                                RawMpscorequeueLogic.INSTANCE.queryAll(cache);
+                        final List<RawMpscorequeue> queued = RawMpscorequeueLogic.INSTANCE.queryAll(cache);
                         report.add("Number of queued test scores: " + queued.size());
 
                         for (final RawMpscorequeue toProcess : queued) {
@@ -87,8 +86,7 @@ public final class SendQueuedBannerTestScores {
                     this.primaryCtx.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
-                report
-                        .add("*** Exception while sending queued scores to Banner: " + ex.getMessage());
+                report.add("*** Exception while sending queued scores to Banner: " + ex.getMessage());
             }
         }
 

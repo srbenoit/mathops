@@ -600,7 +600,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
         if (!AbstractLogicModule.isBannerDown()) {
             final String sql = SimpleBuilder.concat("SELECT * FROM SORTEST",
                     " WHERE SORTEST_PIDM=", pidm,
-                    " AND SORTEST_TESC_CODE IN ('MC00','MC17','MC18','MC24','MC25','MC26')");
+                    " AND SORTEST_TESC_CODE IN ('MPL','MC00','MC17','MC18','MC24','MC25','MC26')");
 
             try (final Statement stmt = liveConn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
@@ -719,7 +719,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      */
     private static RawMpscorequeue constructFromSORTESTResultSet(final ResultSet rset) throws SQLException {
 
-        // Want: test codes 'MC00', 'MC17', 'MC18', 'MC24', 'MC25', 'MC26'
+        // Want: test codes 'MPL', 'MC00', 'MC17', 'MC18', 'MC24', 'MC25', 'MC26'
 
         // Log.info("SORTEST Record:");
         // Log.fine(" SORTEST_PIDM = " + getInteger(rset, "SORTEST_PIDM"));

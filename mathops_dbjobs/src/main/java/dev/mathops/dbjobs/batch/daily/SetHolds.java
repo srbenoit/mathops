@@ -46,7 +46,7 @@ public enum SetHolds {
     private static final String LATE_RENTAL_CALC_HOLD = "36";
 
     /** Flag to set batch into debug mode. */
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** A commonly used string. */
     private static final String FOR_STUDENT = " for student ";
