@@ -3,49 +3,33 @@ package dev.mathops.dbjobs.report.analytics;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
+import dev.mathops.db.old.rawlogic.RawHighSchoolsLogic;
+import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawHighSchools;
+import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -86,164 +70,424 @@ final class DataByHighSchool {
     }
 
     /**
-     * Executes the job.
+     * Writes a log record to the console and the report log.
      *
-     * @param highSchoolCodes list of high school codes to scan
+     * @param reportLog the report log
+     * @param data      the data to write
      */
-    private void calculate(final List<String> highSchoolCodes) {
+    private static void log(final HtmlBuilder reportLog, final Object... data) {
 
-        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning
-        // students.
+        final String concatenation = SimpleBuilder.concat(data);
+        Log.fine(concatenation);
 
-        final File desktop = new File("/Users/benoit/Desktop");
-
-        final List<StudentReportRow> stuReportRows = new ArrayList<>(2400);
-
-        this.canceled.set(false);
-
-        try {
-            final Map<String, List<RawStudent>> students = gatherStudents(highSchoolCodes);
-
-            for (final Map.Entry<String, List<RawStudent>> entry : students.entrySet()) {
-                final String hsCode = entry.getKey();
-                final List<RawStudent> studentsFromHs = entry.getValue();
-
-                processHighSchool(hsCode, studentsFromHs, stuReportRows);
-            }
-
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-        }
-
-        final int numDays = stuReportRows.get(0).pace.length;
-        final int numStudents = stuReportRows.size();
-        final float[] average = new float[numDays];
-
-        final HtmlBuilder htm = new HtmlBuilder(200 * stuReportRows.size());
-
-        // REPORT 1: student pace by day
-
-        // startReport(htm, numDays);
-        // for (final StudentReportRow row : stuReportRows) {
-        // htm.add(row.stuId);
-        // for (int i = 0; i < numDays; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(row.pace[i]);
-        // average[i] += row.pace[i];
-        // }
-        // htm.addln();
-        // }
-        // htm.add("AVERAGE");
-        // for (int i = 0; i < numDays; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(average[i] / numStudents);
-        // }
-        // htm.addln();
-        // writeReport(new File(desktop, prefix + "_pace_by_day.csv"), htm.toString());
-        // for (int i = 0; i < numDays; ++i) {
-        // average[i] = 0.0f;
-        // }
-
-        // REPORT 2: number of RE passed on-time by day
-
-        // startReport(htm, numDays);
-        // for (final StudentReportRow row : stuReportRows) {
-        // htm.add(row.stuId);
-        // for (int i = 0; i < row.pace.length; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(row.reviewsPassedOnTime[i]);
-        // }
-        // htm.addln();
-        // }
-        // writeReport(new File(desktop, prefix + "_re_passed_ontime_by_day.csv"), htm.toString());
-        // for (int i = 0; i < numDays; ++i) {
-        // average[i] = 0.0f;
-        // }
-
-        // startReport(htm, numDays);
-        // for (final StudentReportRow row : stuReportRows) {
-        // htm.add(row.stuId);
-        // for (int i = 0; i < row.pace.length; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(row.reviewsPassedLate[i]);
-        // }
-        // htm.addln();
-        // }
-        // writeReport(new File(desktop, prefix + "_re_passed_late_by_day.csv"), htm.toString());
-        // for (int i = 0; i < numDays; ++i) {
-        // average[i] = 0.0f;
-        // }
-
-        // startReport(htm, numDays);
-        // for (final StudentReportRow row : stuReportRows) {
-        // htm.add(row.stuId);
-        // for (int i = 0; i < row.pace.length; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(row.reviewsPassedOnTime[i] + row.reviewsPassedLate[i]);
-        // }
-        // htm.addln();
-        // }
-        // writeReport(new File(desktop, prefix + "_re_passed_by_day.csv"), htm.toString());
-        // for (int i = 0; i < numDays; ++i) {
-        // average[i] = 0.0f;
-        // }
-
-        // startReport(htm, numDays);
-        // for (final StudentReportRow row : stuReportRows) {
-        // htm.add(row.stuId);
-        // for (int i = 0; i < row.pace.length; ++i) {
-        // htm.add(CoreConstants.COMMA);
-        // htm.add(row.reviewsDueNotPassed[i]);
-        // }
-        // htm.addln();
-        // }
-        // writeReport(new File(desktop, prefix + "_re_missed_by_day.csv"), htm.toString());
-        // for (int i = 0; i < numDays; ++i) {
-        // average[i] = 0.0f;
-        // }
-
-        startReport(htm, numDays);
-        for (final StudentReportRow row : stuReportRows) {
-
-            htm.add(row.stuId);
-            for (int i = 0; i < numDays; ++i) {
-                final float passed = (float) (row.reviewsPassedOnTime[i] + row.reviewsPassedLate[i]);
-                final float missed = (float) row.reviewsDueNotPassed[i];
-                final float due = passed + missed;
-                final float rate = due <= 0.0f ? 1.0f : (passed / due);
-
-                htm.add(CoreConstants.COMMA);
-                htm.add(rate);
-
-                average[i] += rate;
-            }
-            htm.addln();
-
-        }
-        htm.add("AVERAGE");
-        for (int i = 0; i < numDays; ++i) {
-            htm.add(CoreConstants.COMMA);
-            htm.add(average[i] / (float) numStudents);
-        }
-        htm.addln();
-        writeReport(new File(desktop, prefix + "_performance_by_high_school.csv"), htm.toString());
+        reportLog.addln(concatenation);
     }
 
     /**
-     * Starts a report.
+     * Executes the job.
      *
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param numDays the number of days
+     * @param highSchoolCodes list of high school codes to include in the report
      */
-    private static void startReport(final HtmlBuilder htm, final int numDays) {
+    private void calculate(final Collection<String> highSchoolCodes) {
 
-        htm.reset();
-        htm.add("Student");
-        for (int i = 0; i < numDays; ++i) {
-            htm.add(CoreConstants.COMMA);
-            htm.add("Day " + (i + 1));
+        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning students.
+
+        final HtmlBuilder reportLog = new HtmlBuilder(1000);
+
+        final File reports = new File("/opt/zircon/reports");
+        this.canceled.set(false);
+
+        try {
+            log(reportLog, "Querying all students");
+            final List<RawStudent> allStudents = RawStudentLogic.INSTANCE.queryAll(this.cache);
+            final int numStudents = allStudents.size();
+            final String numStudentsStr = Integer.toString(numStudents);
+            log(reportLog, "    Loaded ", numStudentsStr, " student records.");
+            log(reportLog, CoreConstants.EMPTY);
+
+            log(reportLog, "Querying all high schools");
+            final List<RawHighSchools> allHs = RawHighSchoolsLogic.INSTANCE.queryAll(this.cache);
+            final int numHs = allHs.size();
+            final String numHsStr = Integer.toString(numHs);
+            log(reportLog, "    Loaded ", numHsStr, " high school.");
+            log(reportLog, CoreConstants.EMPTY);
+
+            // Gather performance data for all students (!) so we can get global averages
+            final List<StudentPerformanceData> performanceData = calculatePerformance(allStudents, reportLog);
+
+            // Compute the average placement performance over all students
+            final AveragePerformance global = calculateAveragePerformance(performanceData, reportLog);
+
+            // Categorize students in the list of high schools of interest
+            final Map<String, List<StudentPerformanceData>> hsStudents = categorizeStudents(performanceData,
+                    highSchoolCodes);
+
+            final int numHighSchools = hsStudents.size();
+            final Map<String, AveragePerformance> averages = new HashMap<>(numHighSchools);
+
+            for (final Map.Entry<String, List<StudentPerformanceData>> entry : hsStudents.entrySet()) {
+                final String hsCode = entry.getKey();
+                final List<StudentPerformanceData> studentsFromHs = entry.getValue();
+
+                final AveragePerformance hsAverage = processHighSchool(hsCode, studentsFromHs, reportLog);
+                averages.put(hsCode, hsAverage);
+            }
+
+            final String reportLogStr = reportLog.toString();
+            writeReport(new File(reports, "performance_by_high_school.log"), reportLogStr);
+
+            generateCsv(reports, global, allHs, averages);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
         }
-        htm.addln();
+    }
+
+    /**
+     * Generates the CSV file report output.
+     *
+     * @param dir           the directory in which to write the file
+     * @param globalAverage the global average performance
+     * @param allHs         the list of all high school records
+     * @param hsAverages    the per-high school averages
+     */
+    private static void generateCsv(final File dir, final AveragePerformance globalAverage,
+                                    final Iterable<RawHighSchools> allHs,
+                                    final Map<String, AveragePerformance> hsAverages) {
+
+        final HtmlBuilder reportCsv = new HtmlBuilder(1000);
+
+        reportCsv.addln("HS Code,HS Name,N,Raw Elem,Raw Alg I,Raw Alg II,Raw Logs & Exp,Raw Trig I,Raw Trig II,",
+                "Rel Elem,Rel Alg I,Rel Alg II,Rel Logs & Exp,Rel Trig I,Rel Trig II,Rating");
+
+        for (final Map.Entry<String, AveragePerformance> hsEntry : hsAverages.entrySet()) {
+            final String hsCode = hsEntry.getKey();
+
+            String hsName = CoreConstants.EMPTY;
+            for (final RawHighSchools test : allHs) {
+                if (test.hsCode.equals(hsCode)) {
+                    hsName = test.hsName;
+                    break;
+                }
+            }
+
+            if (hsName == null) {
+                Log.warning("No high school found with code '", hsCode, "'");
+            }
+
+            reportCsv.add(hsCode, CoreConstants.COMMA, hsName, CoreConstants.COMMA);
+
+            final AveragePerformance perf = hsEntry.getValue();
+            final int n = perf.n();
+            if (n > 0) {
+                final String nStr = Integer.toString(n);
+                final float stsA = perf.stsA();
+                final String staAStr = Float.toString(stsA);
+                final float sts117 = perf.sts117();
+                final String sta117Str = Float.toString(sts117);
+                final float sts118 = perf.sts118();
+                final String sta118Str = Float.toString(sts118);
+                final float sts124 = perf.sts124();
+                final String sta124Str = Float.toString(sts124);
+                final float sts125 = perf.sts125();
+                final String sta125Str = Float.toString(sts125);
+                final float sts126 = perf.sts126();
+                final String sta126Str = Float.toString(sts126);
+
+                final float relA = globalAverage.stsA() - perf.stsA();
+                final String relAStr = Float.toString(relA);
+                final float rel117 = globalAverage.sts117() - perf.sts117();
+                final String rel117Str = Float.toString(rel117);
+                final float rel118 = globalAverage.sts118() - perf.sts118();
+                final String rel118Str = Float.toString(rel118);
+                final float rel124 = globalAverage.sts124() - perf.sts124();
+                final String rel124Str = Float.toString(rel124);
+                final float rel125 = globalAverage.sts125() - perf.sts125();
+                final String rel125Str = Float.toString(rel125);
+                final float rel126 = globalAverage.sts126() - perf.sts126();
+                final String rel126Str = Float.toString(rel126);
+
+                final float rating = (relA + rel117 + rel118 + rel124 + rel125 + rel126) / 6.0f;
+                final String ratingStr = Float.toString(rating);
+
+                reportCsv.addln(nStr, CoreConstants.COMMA, staAStr, CoreConstants.COMMA, sta117Str,
+                        CoreConstants.COMMA, sta118Str, CoreConstants.COMMA, sta124Str, CoreConstants.COMMA,
+                        sta125Str, CoreConstants.COMMA, sta126Str, CoreConstants.COMMA, relAStr, CoreConstants.COMMA,
+                        rel117Str, CoreConstants.COMMA, rel118Str, CoreConstants.COMMA, rel124Str, CoreConstants.COMMA,
+                        rel125Str, CoreConstants.COMMA, rel126Str, CoreConstants.COMMA, ratingStr);
+            } else {
+                reportCsv.addln("0,,,,,,,,,,,,,");
+            }
+        }
+
+        final int n = globalAverage.n();
+        final String nStr = Integer.toString(n);
+        final float stsA = globalAverage.stsA();
+        final String staAStr = Float.toString(stsA);
+        final float sts117 = globalAverage.sts117();
+        final String sta117Str = Float.toString(sts117);
+        final float sts118 = globalAverage.sts118();
+        final String sta118Str = Float.toString(sts118);
+        final float sts124 = globalAverage.sts124();
+        final String sta124Str = Float.toString(sts124);
+        final float sts125 = globalAverage.sts125();
+        final String sta125Str = Float.toString(sts125);
+        final float sts126 = globalAverage.sts126();
+        final String sta126Str = Float.toString(sts126);
+
+        reportCsv.addln(",Overall", CoreConstants.COMMA, nStr, CoreConstants.COMMA, staAStr, CoreConstants.COMMA,
+                sta117Str, CoreConstants.COMMA, sta118Str, CoreConstants.COMMA, sta124Str, CoreConstants.COMMA,
+                sta125Str, CoreConstants.COMMA, sta126Str, ",,,,,,,");
+
+        final String reportCsvStr = reportCsv.toString();
+        writeReport(new File(dir, "performance_by_high_school.csv"), reportCsvStr);
+    }
+
+    /**
+     * Calculates placement performance data for all students who have completed math placement.
+     *
+     * @param allStudents the list of all students
+     * @param reportLog   a {@code HtmlBuilder} to which to write messages to the report log
+     * @return performance data for all students for whom we have placement data
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<StudentPerformanceData> calculatePerformance(final Iterable<RawStudent> allStudents,
+                                                              final HtmlBuilder reportLog) throws SQLException {
+
+        log(reportLog, "Querying all placement attempt records");
+        final List<RawStmpe> allStmpe = RawStmpeLogic.INSTANCE.queryAll(this.cache);
+        final int numPlacementAttempts = allStmpe.size();
+        final String numPlacementAttemptsStr = Integer.toString(numPlacementAttempts);
+        log(reportLog, "    Loaded ", numPlacementAttemptsStr, " placement attempts records.");
+        log(reportLog, CoreConstants.EMPTY);
+
+        log(reportLog, "Scanning for distinct students who have attempted placement");
+        final Collection<String> studentsWithPlacement = new HashSet<>(numPlacementAttempts * 2 / 3);
+        for (final RawStmpe stmpe : allStmpe) {
+            studentsWithPlacement.add(stmpe.stuId);
+        }
+        final int numWithPlacement = studentsWithPlacement.size();
+        final String numWithPlacementStr = Integer.toString(numWithPlacement);
+        log(reportLog, "    Found ", numWithPlacementStr, " students with placement attempts.");
+        log(reportLog, CoreConstants.EMPTY);
+
+        final List<StudentPerformanceData> result = new ArrayList<>(numWithPlacement);
+        final Collection<RawStmpe> stuAttempts = new ArrayList<>(5);
+
+        log(reportLog, "Compiling placement results for all students.");
+        for (final String stuId : studentsWithPlacement) {
+            RawStudent stu = null;
+            for (final RawStudent test : allStudents) {
+                if (test.stuId.equals(stuId)) {
+                    stu = test;
+                    break;
+                }
+            }
+
+            if (stu != null) {
+                stuAttempts.clear();
+                for (final RawStmpe stmpe : allStmpe) {
+                    if (stmpe.stuId.equals(stuId)) {
+                        final String placed = stmpe.placed;
+                        if ("Y".equals(placed) || "N".equals(placed)) {
+                            stuAttempts.add(stmpe);
+                        }
+                    }
+                }
+
+                if (!stuAttempts.isEmpty()) {
+                    final StudentPerformanceData row = getStudentPerformanceData(stuAttempts, stu);
+                    result.add(row);
+                }
+            }
+        }
+        final int numResults = result.size();
+        final String numResultsStr = Integer.toString(numResults);
+        log(reportLog, "    Computed placement performance for ", numResultsStr, " students.");
+        log(reportLog, CoreConstants.EMPTY);
+
+        return result;
+    }
+
+    /**
+     * Generates a single row of performance data.
+     *
+     * @param attempts the set of student placement attempts
+     * @param student  the student record
+     * @return the performance data row
+     */
+    private static StudentPerformanceData getStudentPerformanceData(final Collection<RawStmpe> attempts,
+                                                                    final RawStudent student) {
+
+        int totalStsA = 0;
+        int totalSts117 = 0;
+        int totalSts118 = 0;
+        int totalSts124 = 0;
+        int totalSts125 = 0;
+        int totalSts126 = 0;
+
+        for (final RawStmpe stmpe : attempts) {
+            totalStsA += stmpe.stsA.intValue();
+            totalSts117 += stmpe.sts117.intValue();
+            totalSts118 += stmpe.sts118.intValue();
+            totalSts124 += stmpe.sts124.intValue();
+            totalSts125 += stmpe.sts125.intValue();
+            totalSts126 += stmpe.sts126.intValue();
+        }
+
+        final int numAttempts = attempts.size();
+        final int stsA = (totalStsA + numAttempts / 2) / numAttempts;
+        final int sts117 = (totalSts117 + numAttempts / 2) / numAttempts;
+        final int sts118 = (totalSts118 + numAttempts / 2) / numAttempts;
+        final int sts124 = (totalSts124 + numAttempts / 2) / numAttempts;
+        final int sts125 = (totalSts125 + numAttempts / 2) / numAttempts;
+        final int sts126 = (totalSts126 + numAttempts / 2) / numAttempts;
+
+        return new StudentPerformanceData(student, numAttempts, stsA, sts117, sts118, sts124, sts125, sts126);
+    }
+
+    /**
+     * Calculates the average performance over all students.
+     *
+     * @param stuPerformances the performance of all students for whom we have placement data
+     * @param reportLog       a {@code HtmlBuilder} to which to write messages to the report log
+     * @return the average performance
+     */
+    private static AveragePerformance calculateAveragePerformance(
+            final Collection<StudentPerformanceData> stuPerformances, final HtmlBuilder reportLog) {
+
+        log(reportLog, "Computing average placement scores for all students");
+
+        int totalA = 0;
+        int total117 = 0;
+        int total118 = 0;
+        int total124 = 0;
+        int total125 = 0;
+        int total126 = 0;
+
+        for (final StudentPerformanceData row : stuPerformances) {
+            totalA += row.stsA();
+            total117 += row.sts117();
+            total118 += row.sts118();
+            total124 += row.sts124();
+            total125 += row.sts125();
+            total126 += row.sts126();
+        }
+
+        final int n = stuPerformances.size();
+        final float avgA = (float) totalA / (float) n;
+        final float avg117 = (float) total117 / (float) n;
+        final float avg118 = (float) total118 / (float) n;
+        final float avg124 = (float) total124 / (float) n;
+        final float avg125 = (float) total125 / (float) n;
+        final float avg126 = (float) total126 / (float) n;
+
+        final String nStr = Integer.toString(n);
+        final String avgAStr = Float.toString(avgA);
+        final String avg117Str = Float.toString(avg117);
+        final String avg118Str = Float.toString(avg118);
+        final String avg124Str = Float.toString(avg124);
+        final String avg125Str = Float.toString(avg125);
+        final String avg126Str = Float.toString(avg126);
+        log(reportLog, "    Average over ", nStr, " students: A=", avgAStr, ", 117=", avg117Str, ", 118=", avg118Str,
+                ", 124=", avg124Str, ", 125=", avg125Str, ", 126=", avg126Str);
+
+        return new AveragePerformance(n, avgA, avg117, avg118, avg124, avg125, avg126);
+    }
+
+    /**
+     * Gathers the set of students who graduated from a specified high school.
+     *
+     * @param allStudents     the list of all students
+     * @param highSchoolCodes the list of high school codes
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static Map<String, List<StudentPerformanceData>> categorizeStudents(
+            final Iterable<StudentPerformanceData> allStudents, final Collection<String> highSchoolCodes)
+            throws SQLException {
+
+        final int numHs = highSchoolCodes.size();
+        final Map<String, List<StudentPerformanceData>> result = new HashMap<>(numHs);
+
+        for (final String code : highSchoolCodes) {
+            final List<StudentPerformanceData> list = new ArrayList<>(100);
+            result.put(code, list);
+        }
+
+        for (final StudentPerformanceData studentPerformance : allStudents) {
+            final String hsCode = studentPerformance.student().hsCode;
+
+            if (hsCode == null) {
+                continue;
+            }
+
+            if (highSchoolCodes.contains(hsCode)) {
+                final List<StudentPerformanceData> list = result.get(hsCode);
+                list.add(studentPerformance);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Processes the data for a single high school.
+     *
+     * @param hsCode    the high school code
+     * @param students  the list of students who attended the high school
+     * @param reportLog a {@code HtmlBuilder} to which to write messages to the report log
+     * @return the average performance over the high school
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static AveragePerformance processHighSchool(final String hsCode,
+                                                        final Collection<StudentPerformanceData> students,
+                                                        final HtmlBuilder reportLog) throws SQLException {
+
+        log(reportLog, "Computing average placement performance for high school ", hsCode);
+
+        final AveragePerformance result;
+
+        final int n = students.size();
+
+        if (n == 0) {
+            result = new AveragePerformance(0, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN);
+        } else {
+            int totalA = 0;
+            int total117 = 0;
+            int total118 = 0;
+            int total124 = 0;
+            int total125 = 0;
+            int total126 = 0;
+
+            for (final StudentPerformanceData row : students) {
+                totalA += row.stsA();
+                total117 += row.sts117();
+                total118 += row.sts118();
+                total124 += row.sts124();
+                total125 += row.sts125();
+                total126 += row.sts126();
+            }
+
+            final float avgA = (float) totalA / (float) n;
+            final float avg117 = (float) total117 / (float) n;
+            final float avg118 = (float) total118 / (float) n;
+            final float avg124 = (float) total124 / (float) n;
+            final float avg125 = (float) total125 / (float) n;
+            final float avg126 = (float) total126 / (float) n;
+
+            final String nStr = Integer.toString(n);
+            final String avgAStr = Float.toString(avgA);
+            final String avg117Str = Float.toString(avg117);
+            final String avg118Str = Float.toString(avg118);
+            final String avg124Str = Float.toString(avg124);
+            final String avg125Str = Float.toString(avg125);
+            final String avg126Str = Float.toString(avg126);
+            log(reportLog, "    Average over ", nStr, " students: A=", avgAStr, ", 117=", avg117Str, ", 118=",
+                    avg118Str, ", 124=", avg124Str, ", 125=", avg125Str, ", 126=", avg126Str);
+
+            result = new AveragePerformance(n, avgA, avg117, avg118, avg124, avg125, avg126);
+        }
+
+        return result;
     }
 
     /**
@@ -262,424 +506,6 @@ final class DataByHighSchool {
     }
 
     /**
-     * Collects "one-time" information, including all student registrations, all milestones, and the active term row for
-     * each term database.
-     *
-     * @throws SQLException if there is an error accessing the database
-     */
-    private void gatherOneTimeInformation() throws SQLException {
-
-        fireProgress("Querying active term", 1);
-        this.active = TermLogic.get(this.cache).queryActive(this.cache);
-        Log.info("    Active term is ", this.active.term);
-
-        fireProgress("Querying registrations term", 2);
-        this.registrations = RawStcourseLogic.queryByTerm(this.cache, this.active.term, false, false);
-        Log.info("    Queried ", Integer.toString(this.registrations.size()), " registrations");
-
-        for (final RawStcourse reg : this.registrations) {
-            if ("D".equals(reg.openStatus)) {
-                Log.info("Dropped after " + reg.lastClassRollDt);
-            }
-        }
-
-        fireProgress("Querying milestones", 4);
-        this.milestones = RawMilestoneLogic.getAllMilestones(this.cache, this.active.term);
-        Log.info("    Queried ", Integer.toString(this.milestones.size()), " milstones");
-    }
-
-    /**
-     * Gathers the set of students who graduated from a specified high school.
-     *
-     * @param highSchoolCodes the list of high school codes
-     * @throws SQLException if there is an error accessing the database
-     */
-    private Map<String, List<RawStudent>> gatherStudents(final Collection<String> highSchoolCodes) throws SQLException {
-
-        final int numHs = highSchoolCodes.size();
-        final Map<String, List<RawStudent>> result = new HashMap<>(numHs);
-
-        for (final String code : highSchoolCodes) {
-            final List<RawStudent> list = new ArrayList<>(100);
-            result.put(code, list);
-        }
-
-        RawStudentLogic.queryAll(this.cache);
-
-        // Organize by student, filtering out registrations that are not in "included" list
-        for (final RawStcourse reg : this.registrations) {
-            final List<String> sections = incCourseSections.get(reg.course);
-
-            if (sections != null && sections.contains(reg.sect)) {
-                final List<RawStcourse> list = this.studentRegs.computeIfAbsent(reg.stuId, s -> new ArrayList<>(5));
-                list.add(reg);
-            }
-        }
-
-        // Filter. If a non-dropped reg exist, remove all dropped for that course. If there are
-        // multiple dropped keep only the one with the latest date
-        final Map<String, RawStcourse> latestDropped = new HashMap<>(incCourseSections.size());
-        final Map<String, RawStcourse> notDropped = new HashMap<>(incCourseSections.size());
-
-        for (final Map.Entry<String, List<RawStcourse>> entry : this.studentRegs.entrySet()) {
-            final List<RawStcourse> stuRegs = entry.getValue();
-
-            for (final RawStcourse row : stuRegs) {
-                if (row.iDeadlineDt != null) {
-                    continue;
-                }
-
-                final String course = row.course;
-
-                if ("D".equals(row.openStatus) || "G".equals(row.openStatus)) {
-                    final RawStcourse latest = latestDropped.get(course);
-                    if (latest == null || latest.lastClassRollDt.isAfter(row.lastClassRollDt)) {
-                        latestDropped.put(course, row);
-                    }
-                } else {
-                    if (notDropped.get(course) != null) {
-                        Log.warning("Multiple active rows for ", row.stuId, " in ", course, "/", row.sect);
-                    }
-                    notDropped.put(course, row);
-                }
-            }
-
-            for (final String course : incCourseSections.keySet()) {
-                if (notDropped.containsKey(course)) {
-                    latestDropped.remove(course);
-                }
-            }
-
-            stuRegs.clear();
-            stuRegs.addAll(notDropped.values());
-            stuRegs.addAll(latestDropped.values());
-
-            latestDropped.clear();
-            notDropped.clear();
-        }
-
-        return result;
-    }
-
-    /**
-     * Processes a single student. This generates a single report row with entries for each day.
-     *
-     * @param stuId      the student ID
-     * @param students   the list of students who attended the high school
-     * @param reportRows the list to which to add report rows
-     * @throws SQLException if there is an error accessing the database
-     */
-    private void processHighSchool(final String stuId, final Iterable<RawStudent> students,
-                                   final Collection<? super StudentReportRow> reportRows) throws SQLException {
-
-        final List<RawSemesterCalendar> weeks = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
-        Collections.sort(weeks);
-
-        final List<RawStexam> stexams = RawStexamLogic.queryByStudent(this.cache, stuId, true);
-        final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(this.cache,
-                this.active.term, stuId);
-
-        final int maxWeek = this.active.term.name == ETermName.SUMMER ? 12 : 15;
-        final StudentReportRow studentRow = new StudentReportRow(stuId, maxWeek * 5);
-        reportRows.add(studentRow);
-
-        final List<RawCampusCalendar> holidayRows = RawCampusCalendarLogic.queryByType(this.cache, "holiday");
-        final Collection<LocalDate> holidays = new ArrayList<>(holidayRows.size());
-        for (final RawCampusCalendar holidayRow : holidayRows) {
-            holidays.add(holidayRow.campusDt);
-        }
-
-        int dayIndex = 0;
-        for (final RawSemesterCalendar week : weeks) {
-            final int weekNumber = week.weekNbr.intValue();
-            if (weekNumber == 0 || weekNumber > maxWeek) {
-                continue;
-            }
-
-            LocalDate day = week.startDt;
-            while (!day.isAfter(week.endDt)) {
-                if (day.getDayOfWeek() == DayOfWeek.SUNDAY
-                        || day.getDayOfWeek() == DayOfWeek.SATURDAY || holidays.contains(day)) {
-                    day = day.plusDays(1L);
-                    continue;
-                }
-
-                // Log.info("Week " + weekNumber + " day index "
-                // + dayIndex+ " is " + TemporalUtils.FMT_WMDY.format(day));
-
-                processStudentDay(stuRegs, day, dayIndex, studentRow, stexams, stmilestones);
-                ++dayIndex;
-
-                day = day.plusDays(1L);
-            }
-        }
-    }
-
-    /**
-     * Processes a student's status on a single day
-     *
-     * @param stuRegs          the list of student registrations
-     * @param day              the day
-     * @param studentReportRow the student report row
-     * @param dayIndex         the day index
-     * @param stexams          the list of student exams
-     * @param stmilestones     the list of student milestones
-     */
-    private void processStudentDay(final Iterable<RawStcourse> stuRegs, final LocalDate day, final int dayIndex,
-                                   final StudentReportRow studentReportRow, final Iterable<RawStexam> stexams,
-                                   final Iterable<RawStmilestone> stmilestones) {
-
-        // As the "day" passes the last roll date on stcourse rows, we remove those rows
-        final Iterator<RawStcourse> iter = stuRegs.iterator();
-        while (iter.hasNext()) {
-            final RawStcourse row = iter.next();
-            if ("G".equals(row.openStatus)) {
-                iter.remove();
-            }
-            if ("D".equals(row.openStatus) && row.lastClassRollDt != null
-                    && row.lastClassRollDt.isBefore(day)) {
-                iter.remove();
-            }
-            row.paceOrder = null;
-        }
-
-        // The "RawStcourse" records that remain represent the user's pace at this point
-        // Assign them a pace order based on the order in which work was performed (we only need to
-        // check "stexam" since first course activity is a SR exam
-        LocalDate first117 = null;
-        LocalDate first118 = null;
-        LocalDate first124 = null;
-        LocalDate first125 = null;
-        LocalDate first126 = null;
-        for (final RawStexam stexam : stexams) {
-            if (RawRecordConstants.M117.equals(stexam.course)
-                    || RawRecordConstants.MATH117.equals(stexam.course)) {
-                if (first117 == null || first117.isAfter(stexam.examDt)) {
-                    first117 = stexam.examDt;
-                }
-            } else if (RawRecordConstants.M118.equals(stexam.course)
-                    || RawRecordConstants.MATH118.equals(stexam.course)) {
-                if (first118 == null || first118.isAfter(stexam.examDt)) {
-                    first118 = stexam.examDt;
-                }
-            } else if (RawRecordConstants.M124.equals(stexam.course)
-                    || RawRecordConstants.MATH124.equals(stexam.course)) {
-                if (first124 == null || first124.isAfter(stexam.examDt)) {
-                    first124 = stexam.examDt;
-                }
-            } else if (RawRecordConstants.M125.equals(stexam.course)
-                    || RawRecordConstants.MATH125.equals(stexam.course)) {
-                if (first125 == null || first125.isAfter(stexam.examDt)) {
-                    first125 = stexam.examDt;
-                }
-            } else if (RawRecordConstants.M126.equals(stexam.course)
-                    || RawRecordConstants.MATH126.equals(stexam.course)
-                    && (first126 == null || first126.isAfter(stexam.examDt))) {
-                first126 = stexam.examDt;
-            }
-        }
-
-        // Sort course numbers based on first activity date
-        final Map<LocalDate, String> sortedCourses = new TreeMap<>();
-        if (first117 != null) {
-            sortedCourses.put(first117, RawRecordConstants.M117);
-        }
-        if (first118 != null) {
-            sortedCourses.put(first118, RawRecordConstants.M118);
-        }
-        if (first124 != null) {
-            sortedCourses.put(first124, RawRecordConstants.M124);
-        }
-        if (first125 != null) {
-            sortedCourses.put(first125, RawRecordConstants.M125);
-        }
-        if (first126 != null) {
-            sortedCourses.put(first126, RawRecordConstants.M126);
-        }
-
-        int paceOrder = 1;
-        // Assign pace orders in courses where work was performed, in work order
-        for (final String courseId : sortedCourses.values()) {
-            for (final RawStcourse reg : stuRegs) {
-                if (reg.course.equals(courseId)) {
-                    reg.paceOrder = Integer.valueOf(paceOrder);
-                    ++paceOrder;
-                    break;
-                }
-            }
-        }
-        // Assign pace orders to rest of courses in course number order
-        for (final RawStcourse reg : stuRegs) {
-            if (reg.paceOrder == null) {
-                reg.paceOrder = Integer.valueOf(paceOrder);
-                ++paceOrder;
-            }
-        }
-
-        // We now have our best guess for the set of courses, and pace order settings, that the
-        // student would have been working under on the day in question
-
-        final int pace = PaceTrackLogic.determinePace(stuRegs);
-        studentReportRow.pace[dayIndex] = pace;
-        studentReportRow.date[dayIndex] = day;
-
-        final String track = PaceTrackLogic.determinePaceTrack(stuRegs, pace);
-
-        final Collection<RawStmilestone> effStMilestones = new ArrayList<>(10);
-        for (final RawStmilestone row : stmilestones) {
-            if (row.getPace() == pace && row.paceTrack.equals(track)) {
-                effStMilestones.add(row);
-            }
-        }
-
-        int passedOnTime = 0;
-        int passedLate = 0;
-        int dueNotPassed = 0;
-
-        for (int index = 1; index <= pace; ++index) {
-            final LocalDate r1 = getREDueDate(pace, track, index, effStMilestones, 1);
-            final LocalDate r2 = getREDueDate(pace, track, index, effStMilestones, 2);
-            final LocalDate r3 = getREDueDate(pace, track, index, effStMilestones, 3);
-            final LocalDate r4 = getREDueDate(pace, track, index, effStMilestones, 4);
-
-            RawStcourse currentReg = null;
-            for (final RawStcourse reg : stuRegs) {
-                if (reg.paceOrder != null && reg.paceOrder.intValue() == index) {
-                    currentReg = reg;
-                    break;
-                }
-            }
-
-            if (currentReg == null) {
-                Log.warning("No current reg - should not happen");
-                // Course not opened - no exams
-                if (r1.isBefore(day)) {
-                    ++dueNotPassed;
-                }
-                if (r2.isBefore(day)) {
-                    ++dueNotPassed;
-                }
-                if (r3.isBefore(day)) {
-                    ++dueNotPassed;
-                }
-                if (r4.isBefore(day)) {
-                    ++dueNotPassed;
-                }
-            } else {
-                if (r1.isBefore(day)) {
-                    if (passedRE(currentReg, stexams, 1, r1)) {
-                        ++passedOnTime;
-                    } else if (passedRE(currentReg, stexams, 1, day)) {
-                        ++passedLate;
-                    } else {
-                        ++dueNotPassed;
-                    }
-                }
-                if (r2.isBefore(day)) {
-                    if (passedRE(currentReg, stexams, 2, r2)) {
-                        ++passedOnTime;
-                    } else if (passedRE(currentReg, stexams, 2, day)) {
-                        ++passedLate;
-                    } else {
-                        ++dueNotPassed;
-                    }
-                }
-                if (r3.isBefore(day)) {
-                    if (passedRE(currentReg, stexams, 3, r3)) {
-                        ++passedOnTime;
-                    } else if (passedRE(currentReg, stexams, 3, day)) {
-                        ++passedLate;
-                    } else {
-                        ++dueNotPassed;
-                    }
-                }
-                if (r4.isBefore(day)) {
-                    if (passedRE(currentReg, stexams, 4, r4)) {
-                        ++passedOnTime;
-                    } else if (passedRE(currentReg, stexams, 4, day)) {
-                        ++passedLate;
-                    } else {
-                        ++dueNotPassed;
-                    }
-                }
-            }
-        }
-
-        studentReportRow.reviewsPassedOnTime[dayIndex] = passedOnTime;
-        studentReportRow.reviewsPassedLate[dayIndex] = passedLate;
-        studentReportRow.reviewsDueNotPassed[dayIndex] = dueNotPassed;
-
-    }
-
-    /**
-     * Tests whether the student had passed a review exam on or before a given date
-     *
-     * @param reg     the course registration
-     * @param stexams the list of exams student has submitted
-     * @param unit    the unit number
-     * @param date    the date
-     * @return true if a review exam in the unit was passed on or before the date
-     */
-    private static boolean passedRE(final RawStcourse reg, final Iterable<RawStexam> stexams,
-                                    final int unit, final ChronoLocalDate date) {
-
-        boolean passedByDate = false;
-
-        for (final RawStexam row : stexams) {
-            if (row.stuId.equals(reg.stuId) && row.course.equals(reg.course)
-                    && row.unit.intValue() == unit && "R".equals(row.examType)
-                    && "Y".equals(row.passed) && !row.examDt.isAfter(date)) {
-
-                passedByDate = true;
-                break;
-            }
-        }
-
-        return passedByDate;
-    }
-
-    /**
-     * Attempts to find a Review exam due date.
-     *
-     * @param pace            the pace
-     * @param track           the pace track
-     * @param index           the index
-     * @param effStMilestones the effective student milestones
-     * @param unit            the unit number
-     * @return the review exam due date
-     */
-    private LocalDate getREDueDate(final int pace, final String track, final int index,
-                                   final Iterable<RawStmilestone> effStMilestones, final int unit) {
-
-        LocalDate result = null;
-
-        final int msNbr = pace * 100 + index * 10 + unit;
-
-        for (final RawMilestone test : this.milestones) {
-            if (test.pace.intValue() == pace && test.paceTrack.equals(track)
-                    && test.msNbr.intValue() == msNbr && "RE".equals(test.msType)) {
-                result = test.msDate;
-                break;
-            }
-        }
-
-        if (result == null) {
-            Log.warning("Cannot find due date for RE " + unit + " for course " + index + " in pace " + pace
-                    + " track" + track);
-        } else {
-            for (final RawStmilestone test : effStMilestones) {
-                if (test.paceTrack.equals(track) && test.msNbr.intValue() == msNbr
-                        && "RE".equals(test.msType) && test.msDate.isAfter(result)) {
-                    result = test.msDate;
-                    break;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Fires a progress notification if there is a listener installed.
      *
      * @param description a description of the current step
@@ -694,76 +520,19 @@ final class DataByHighSchool {
     }
 
     /**
-     * A single student row in the report.
+     * A container for performance data for a single student.
      */
-    static final class StudentReportRow {
-
-        /** The student ID. */
-        final String stuId;
-
-        /** The student pace. */
-        final int[] pace;
-
-        /** The date. */
-        final LocalDate[] date;
-
-        /** Number of reviews passed on time. */
-        final int[] reviewsPassedOnTime;
-
-        /** Number of reviews passed late. */
-        final int[] reviewsPassedLate;
-
-        /** Number of reviews due but not yet passed. */
-        final int[] reviewsDueNotPassed;
-
-        /**
-         * Constructs a new {@code StudentReportRow}.
-         *
-         * @param theStuId   the student ID
-         * @param theNumDays the number of days
-         */
-        StudentReportRow(final String theStuId, final int theNumDays) {
-
-            this.stuId = theStuId;
-            this.pace = new int[theNumDays];
-            this.date = new LocalDate[theNumDays];
-            this.reviewsPassedOnTime = new int[theNumDays];
-            this.reviewsPassedLate = new int[theNumDays];
-            this.reviewsDueNotPassed = new int[theNumDays];
-        }
+    record StudentPerformanceData(RawStudent student, int numAttempts, int stsA, int sts117, int sts118, int sts124,
+                                  int sts125, int sts126) {
     }
 
     /**
-     * Executes the analysis for a specified term.
-     *
-     * @param profile         the profile
-     * @param highSchoolCodes list of high school codes to scan
+     * A container for global average performance data.
      */
-    private static void executeWithProfile(final DbProfile profile, final List<String> highSchoolCodes) {
-
-        if (profile == null) {
-            Log.warning("Unable to create production context.");
-        } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
-
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
-
-                    Log.info("Connected to " + profile.id);
-
-                    final DataByHighSchool obj = new DataByHighSchool(cache, null);
-                    obj.calculate(cache, highSchoolCodes);
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            }
-        }
+    record AveragePerformance(int n, float stsA, float sts117, float sts118, float sts124, float sts125, float sts126) {
     }
+
+    ;
 
     /**
      * Main method to execute the batch job.
@@ -782,6 +551,30 @@ final class DataByHighSchool {
         final ContextMap map = ContextMap.getDefaultInstance();
 
         final DbProfile profile = map.getCodeProfile("batch");
-        executeWithProfile(profile, highSchoolCodes);
+
+        if (profile == null) {
+            Log.warning("Unable to create production context.");
+        } else {
+            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+
+            if (dbCtx == null) {
+                Log.warning("Unable to create database context.");
+            } else {
+                try {
+                    final DbConnection conn = dbCtx.checkOutConnection();
+                    try {
+                        final Cache cache = new Cache(profile, conn);
+                        Log.info("Connected to " + profile.id);
+
+                        final DataByHighSchool obj = new DataByHighSchool(cache, null);
+                        obj.calculate(highSchoolCodes);
+                    } finally {
+                        dbCtx.checkInConnection(conn);
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                }
+            }
+        }
     }
 }
