@@ -23,7 +23,8 @@ import dev.mathops.web.site.course.data.CourseData;
 import dev.mathops.web.site.course.data.ExampleBlock;
 import dev.mathops.web.site.course.data.ExampleData;
 import dev.mathops.web.site.course.data.LearningTargetData;
-import dev.mathops.web.site.course.data.MathCourses;
+import dev.mathops.web.site.course.data.Math125;
+import dev.mathops.web.site.course.data.Math126;
 import dev.mathops.web.site.course.data.ModuleData;
 
 import jakarta.servlet.ServletRequest;
@@ -155,9 +156,9 @@ enum PageStdsTextModule {
             final SiteDataCfgCourse courseCfg = data.courseData.getCourse(courseId, reg.sect);
 
             if (RawRecordConstants.MATH125.equals(reg.course)) {
-                doModule(cache, reg.stuId, MathCourses.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);
+                doModule(cache, reg.stuId, Math125.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);
             } else if (RawRecordConstants.MATH126.equals(reg.course)) {
-                doModule(cache, reg.stuId, MathCourses.MATH_126, moduleNumber, courseCfg, masteryStatus, mode, htm);
+                doModule(cache, reg.stuId, Math126.MATH_126, moduleNumber, courseCfg, masteryStatus, mode, htm);
             }
         }
     }

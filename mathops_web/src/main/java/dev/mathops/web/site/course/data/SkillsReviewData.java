@@ -42,7 +42,7 @@ public final class SkillsReviewData {
      * @param theTitle the title
      * @return the created example block
      */
-    ExampleBlock addExampleBlock(final String theTitle) {
+    ExampleBlock addExBlock(final String theTitle) {
 
         final ExampleBlock block = new ExampleBlock(this.course, theTitle);
         this.exampleBlocks.add(block);

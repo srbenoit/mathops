@@ -15,7 +15,8 @@ import dev.mathops.session.sitelogic.data.SiteData;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.data.CourseData;
-import dev.mathops.web.site.course.data.MathCourses;
+import dev.mathops.web.site.course.data.Math125;
+import dev.mathops.web.site.course.data.Math126;
 import dev.mathops.web.site.course.data.ModuleData;
 
 import jakarta.servlet.ServletRequest;
@@ -106,9 +107,9 @@ enum PageStdsText {
                 final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
 
                 if (RawRecordConstants.MATH125.equals(course)) {
-                    showCourseText(session, MathCourses.MATH_125, logic, masteryStatus, mode, htm);
+                    showCourseText(session, Math125.MATH_125, logic, masteryStatus, mode, htm);
                 } else if (RawRecordConstants.MATH126.equals(course)) {
-                    showCourseText(session, MathCourses.MATH_126, logic, masteryStatus, mode, htm);
+                    showCourseText(session, Math126.MATH_126, logic, masteryStatus, mode, htm);
                 } else {
                     htm.sP("error").addln("Invalid course ID").eP();
                 }
