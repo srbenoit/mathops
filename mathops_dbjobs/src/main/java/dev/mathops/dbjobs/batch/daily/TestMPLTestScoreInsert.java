@@ -57,10 +57,14 @@ public final class TestMPLTestScoreInsert {
             try {
                 final DbConnection liveConn = this.liveCtx.checkOutConnection();
                 final LocalDateTime now = LocalDateTime.now();
-                final Integer pidm = Integer.valueOf(10567708);
+                final Integer pidm = Integer.valueOf(12366515);
+                final String score = "2";
+
+//                    837311273   12421243   1
+//                    836927778   12366515   2
 
                 try {
-//                    final RawMpscorequeue toInsert = new RawMpscorequeue(pidm, "MPL", now, "2");
+//                    final RawMpscorequeue toInsert = new RawMpscorequeue(pidm, "MPL", now, score);
 //                    if (RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
 //                        report.add("Insert of test score succeeded.");
 
@@ -75,9 +79,9 @@ public final class TestMPLTestScoreInsert {
                             if ("MPL".equals(row.testCode)) {
                                 ++count;
 
-                                if (!"2".equals(row.testScore)) {
+                                if (!score.equals(row.testScore)) {
                                     report.add("ERROR: Found a 'MPL' test score row but status was '" + row.testScore
-                                            + "' rather than '2'.");
+                                            + "' rather than '" + score + "'.");
                                     success = false;
                                 }
                             }
@@ -93,6 +97,7 @@ public final class TestMPLTestScoreInsert {
                         if (success) {
                             report.add("Insert of test score succeeded.");
                         }
+
 //                    } else {
 //                        report.add("Insert of test score FAILED.");
 //                    }

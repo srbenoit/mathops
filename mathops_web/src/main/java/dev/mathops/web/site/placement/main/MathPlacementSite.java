@@ -119,10 +119,6 @@ public final class MathPlacementSite extends AbstractPageSite {
             resp.sendRedirect("placement.html");
         } else if (subpath.startsWith("ramready.svc")) {
             RamReadyService.process(cache, this, subpath, req, resp);
-        } else if ("ramstart.html".equals(subpath)) {
-            RamStartService.sendDescription(cache, this, req, resp);
-        } else if ("ramstart".equals(subpath)) {
-            RamStartService.process(cache, this, req, resp);
         } else {
             ImmutableSessionInfo session = validateSession(req, resp, null);
 

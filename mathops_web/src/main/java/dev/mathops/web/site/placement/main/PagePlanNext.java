@@ -3,7 +3,11 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
+import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -18,6 +22,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -1029,14 +1034,16 @@ enum PagePlanNext {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile profile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(profile);
 
         final boolean aff1 = req.getParameter("affirm1") != null;
         final boolean aff2 = req.getParameter("affirm2") != null;
 
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
-            final StudentData data = logic.getStudentData(cache, session.getEffectiveUserId(), session);
+            final String effectiveId = session.getEffectiveUserId();
+            final StudentData data = logic.getStudentData(cache, effectiveId, session);
 
             logic.deleteMathPlanResponses(cache, data.student, MathPlanLogic.INTENTIONS_PROFILE, session);
 
@@ -1051,6 +1058,24 @@ enum PagePlanNext {
 
             logic.storeMathPlanResponses(cache, data.student, MathPlanLogic.INTENTIONS_PROFILE, questions, answers,
                     session);
+
+            // TODO: Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
+            //  based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that
+            //  indicates placement is needed.  If there a row with survey_nbr=1 and stu_answer='Y', that indicates
+            //  the math plan has been completed and placement is not needed.
+            //  The MPL test score is '1' if placement is not needed, and '2' if placement is needed.
+
+            if (aff1) {
+                final String desiredMPLTestScore = aff2 ? "2" : "1";
+
+                Log.info("MPL Test score of ", desiredMPLTestScore, " should be inserted for student ",
+                        data.student.stuId);
+
+                // TODO: We should query that test score, see if this update represents a change, and only insert a
+                //  new test score row if the result has changed...  People may do the math plan several times with
+                //  the same outcome, and we don't need to insert the same result each time.
+
+            }
         }
 
         resp.sendRedirect("plan_start.html");
