@@ -1,12 +1,14 @@
 package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rec.RecBase;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -90,6 +92,17 @@ public final class RawStmathplan extends RecBase implements Comparable<RawStmath
         result.parseString(toParse);
 
         return result;
+    }
+
+    /**
+     * Gets the submission date/time.
+     *
+     * @return the submission date/time
+     */
+    public LocalDateTime getWhen() {
+
+        return this.examDt == null || this.finishTime == null ? null :
+                TemporalUtils.toLocalDateTime(this.examDt, this.finishTime);
     }
 
     /**

@@ -5,7 +5,10 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.type.TermKey;
@@ -26,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +40,12 @@ import java.util.Map;
  */
 enum PagePlanNext {
     ;
+
+    /** A commonly used integer. */
+    private static final Integer ONE = Integer.valueOf(1);
+
+    /** A commonly used integer. */
+    private static final Integer TWO = Integer.valueOf(2);
 
     /** A class. */
     private static final String CENTER = "center";
@@ -82,7 +92,7 @@ enum PagePlanNext {
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
                     session.getEffectiveUserId(), MathPlanLogic.ONLY_RECOM_PROFILE);
 
-            if (existing.containsKey(Integer.valueOf(1))) {
+            if (existing.containsKey(ONE)) {
                 showPlan(cache, session, htm, logic);
             } else {
                 PagePlanView.doGet(cache, site, req, resp, session, logic);
@@ -139,13 +149,13 @@ enum PagePlanNext {
 
         htm.add("Read and affirm each statement to complete your Math Plan...");
 
-        final boolean check1 = intentions.containsKey(Integer.valueOf(1));
+        final boolean check1 = intentions.containsKey(ONE);
         htm.sP().add("<input type='checkbox' name='affirm1' id='affirm1'");
         if (check1) {
             htm.add(" checked");
         }
 
-        final boolean check2 = intentions.containsKey(Integer.valueOf(2));
+        final boolean check2 = intentions.containsKey(TWO);
         htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm1'>",
                 "I understand that this plan is only a recommendation.  The math requirements for ",
                 "each degree program can change over time, and should be verified with the ",
@@ -1050,31 +1060,61 @@ enum PagePlanNext {
             final List<Integer> questions = new ArrayList<>(2);
             final List<String> answers = new ArrayList<>(2);
 
-            questions.add(Integer.valueOf(1));
+            questions.add(ONE);
             answers.add(aff1 ? "Y" : "N");
 
-            questions.add(Integer.valueOf(2));
+            questions.add(TWO);
             answers.add(aff2 ? "Y" : "N");
 
             logic.storeMathPlanResponses(cache, data.student, MathPlanLogic.INTENTIONS_PROFILE, questions, answers,
                     session);
 
-            // TODO: Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
-            //  based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that
-            //  indicates placement is needed.  If there a row with survey_nbr=1 and stu_answer='Y', that indicates
-            //  the math plan has been completed and placement is not needed.
-            //  The MPL test score is '1' if placement is not needed, and '2' if placement is needed.
+            // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
+            // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that
+            // indicates placement is needed.  If there a row with survey_nbr=1 and stu_answer='Y', that indicates
+            // the math plan has been completed and placement is not needed. The MPL test score is '1' if placement
+            // is not needed, and '2' if placement is needed.
 
             if (aff1) {
                 final String desiredMPLTestScore = aff2 ? "2" : "1";
 
-                Log.info("MPL Test score of ", desiredMPLTestScore, " should be inserted for student ",
-                        data.student.stuId);
+                final DbContext liveCtx = profile.getDbContext(ESchemaUse.LIVE);
+                final DbConnection liveConn = liveCtx.checkOutConnection();
+                try {
+                    // Query the test score, see if this update represents a change, and only insert a new test score
+                    // row if the result has changed...  People may do the math plan several times with the same
+                    // outcome, and we don't need to insert the same result each time.
+                    final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
+                            data.student.pidm);
 
-                // TODO: We should query that test score, see if this update represents a change, and only insert a
-                //  new test score row if the result has changed...  People may do the math plan several times with
-                //  the same outcome, and we don't need to insert the same result each time.
+                    RawMpscorequeue mostRecent = null;
+                    for (final RawMpscorequeue test : existing) {
 
+                        // Log.info("Found '", test.testCode, "' test score of '", test.testScore, "' for student ",
+                        //         data.student.stuId, " with PIDM ", data.student.pidm);
+
+                        if ("MPL".equals(test.testCode)) {
+                            if (mostRecent == null || mostRecent.testDate.isBefore(test.testDate)) {
+                                mostRecent = test;
+                            }
+                        }
+                    }
+
+                    if (mostRecent == null || !desiredMPLTestScore.equals(mostRecent.testScore)) {
+                        final LocalDateTime now = LocalDateTime.now();
+                        final RawMpscorequeue newRow = new RawMpscorequeue(data.student.pidm, "MPL", now,
+                                desiredMPLTestScore);
+
+                        Log.info("Inserting MPL test score of ", desiredMPLTestScore, " for student ",
+                                data.student.stuId, " with PIDM ", data.student.pidm);
+
+                        if (!RawMpscorequeueLogic.insertSORTEST(liveConn, newRow)) {
+                            Log.warning("Failed to insert 'MPL' test score for ", data.student.stuId);
+                        }
+                    }
+                } finally {
+                    liveCtx.checkInConnection(liveConn);
+                }
             }
         }
 

@@ -27,18 +27,21 @@ public enum MessageFactory {
 
             if (start == -1) {
                 Log.info(Res.fmt(Res.MSG_NO_START_OPEN, value));
+                Log.info(new String(xml));
                 msg = null;
             } else {
                 final int end = value.indexOf('>', start + 1);
 
                 if (end == -1) {
                     Log.info(Res.fmt(Res.MSG_NO_START_CLOSE, value));
+                    Log.info(new String(xml));
                     msg = null;
                 } else {
                     final String tag = value.substring(start + 1, end);
 
                     if (tag.isEmpty()) {
                         Log.info(Res.fmt(Res.MSG_EMPTY_START_TAG, value));
+                        Log.info(new String(xml));
                         msg = null;
                     } else {
                         msg = doParseMessage(tag, xml);

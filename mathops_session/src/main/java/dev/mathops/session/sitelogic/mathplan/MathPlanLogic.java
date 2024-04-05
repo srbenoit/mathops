@@ -326,6 +326,24 @@ public final class MathPlanLogic {
     /** A college ID. */
     private static final String VM = "VM";
 
+    /** A commonly used integer. */
+    private static final Integer NEG_ONE = Integer.valueOf(-1);
+
+    /** A commonly used integer. */
+    private static final Integer ZERO = Integer.valueOf(0);
+
+    /** A commonly used integer. */
+    private static Integer ONE = Integer.valueOf(1);
+
+    /** A commonly used integer. */
+    private static Integer TWO = Integer.valueOf(2);
+
+    /** A commonly used integer. */
+    private static Integer THREE = Integer.valueOf(3);
+
+    /** A commonly used integer. */
+    private static Integer FOUR = Integer.valueOf(4);
+
     /** The profile ID used to store the "majors of interest" response. */
     public static final String MAJORS_PROFILE = "WLCM1";
 
@@ -408,274 +426,274 @@ public final class MathPlanLogic {
 
                 // No-prereq AUCC-1B courses
 
-                this.courses.put(M_101, new RawCourse(M_101, Integer.valueOf(0), //
+                this.courses.put(M_101, new RawCourse(M_101, ZERO,
                         "Math in the Social Sciences (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 101", null,
+                        THREE, "N", "MATH 101", null,
                         "N", "N"));
-                this.courses.put(M_105, new RawCourse(M_105, Integer.valueOf(0), //
+                this.courses.put(M_105, new RawCourse(M_105, ZERO,
                         "Patterns of Phenomena (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 105", null,
+                        THREE, "N", "MATH 105", null,
                         "N", "N"));
-                this.courses.put(S_100, new RawCourse(S_100, Integer.valueOf(0), //
+                this.courses.put(S_100, new RawCourse(S_100, ZERO,
                         "Statistical Literacy (3 credits)",
-                        Integer.valueOf(3), "N", "STAT 100", null,
+                        THREE, "N", "STAT 100", null,
                         "N", "N"));
-                this.courses.put(S_201, new RawCourse(S_201, Integer.valueOf(0), //
+                this.courses.put(S_201, new RawCourse(S_201, ZERO,
                         "General Statistics (3 credits)",
-                        Integer.valueOf(3), "N", "STAT 201", null,
+                        THREE, "N", "STAT 201", null,
                         "N", "N"));
-                this.courses.put(S_204, new RawCourse(S_204, Integer.valueOf(0), //
+                this.courses.put(S_204, new RawCourse(S_204, ZERO,
                         "Statistics With Business Applications (3 credits)",
-                        Integer.valueOf(3), "N", "STAT 204", null,
+                        THREE, "N", "STAT 204", null,
                         "N", "N"));
 
                 // Precalculus
 
                 this.courses.put(RawRecordConstants.M117,
-                        new RawCourse(RawRecordConstants.M117, Integer.valueOf(4), //
+                        new RawCourse(RawRecordConstants.M117, FOUR,
                                 "College Algebra in Context I (1 credit)",
-                                Integer.valueOf(1), "Y", "MATH 117", null,
+                                ONE, "Y", "MATH 117", null,
                                 "N", "Y"));
                 this.courses.put(RawRecordConstants.M118,
-                        new RawCourse(RawRecordConstants.M118, Integer.valueOf(4), //
+                        new RawCourse(RawRecordConstants.M118, FOUR,
                                 "College Algebra in Context II (1 credit)",
-                                Integer.valueOf(1), "Y", "MATH 118", null,
+                                ONE, "Y", "MATH 118", null,
                                 "N", "Y"));
                 this.courses.put(RawRecordConstants.M124,
-                        new RawCourse(RawRecordConstants.M124, Integer.valueOf(4), //
+                        new RawCourse(RawRecordConstants.M124, FOUR,
                                 "Logarithmic and Exponential Functions (1 credit)",
-                                Integer.valueOf(1), "Y", "MATH 124", null,
+                                ONE, "Y", "MATH 124", null,
                                 "N", "Y"));
                 this.courses.put(RawRecordConstants.M125,
-                        new RawCourse(RawRecordConstants.M125, Integer.valueOf(4), //
+                        new RawCourse(RawRecordConstants.M125, FOUR,
                                 "Numerical Trigonometry (1 credit)",
-                                Integer.valueOf(1), "Y", "MATH 125", null,
+                                ONE, "Y", "MATH 125", null,
                                 "N", "Y"));
                 this.courses.put(RawRecordConstants.M126,
-                        new RawCourse(RawRecordConstants.M126, Integer.valueOf(4), //
+                        new RawCourse(RawRecordConstants.M126, FOUR,
                                 "Analytic Trigonometry (1 credit)",
-                                Integer.valueOf(1), "Y", "MATH 126", null,
+                                ONE, "Y", "MATH 126", null,
                                 "N", "Y"));
                 this.courses.put(RawRecordConstants.M127,
-                        new RawCourse(RawRecordConstants.M127, Integer.valueOf(0), //
+                        new RawCourse(RawRecordConstants.M127, ZERO,
                                 "Precalculus (4 credit)",
-                                Integer.valueOf(4), "Y", "MATH 127", null,
+                                FOUR, "Y", "MATH 127", null,
                                 "N", "N"));
 
                 // Other Math courses
 
-                this.courses.put(M_141, new RawCourse(M_141, Integer.valueOf(0), //
+                this.courses.put(M_141, new RawCourse(M_141, ZERO,
                         "Calculus in Management Sciences (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 141", null,
+                        THREE, "N", "MATH 141", null,
                         "N", "N"));
-                this.courses.put(M_151, new RawCourse(M_151, Integer.valueOf(0), //
+                this.courses.put(M_151, new RawCourse(M_151, ZERO,
                         "Mathematical Algorithms in Matlab I (1 credit)",
-                        Integer.valueOf(1), "N", "MATH 151", null,
+                        ONE, "N", "MATH 151", null,
                         "N", "N"));
-                this.courses.put(M_152, new RawCourse(M_152, Integer.valueOf(0), //
+                this.courses.put(M_152, new RawCourse(M_152, ZERO,
                         "Mathematical Algorithms in Maple (1 credit)",
-                        Integer.valueOf(1), "N", "MATH 152", null,
+                        ONE, "N", "MATH 152", null,
                         "N", "N"));
-                this.courses.put(M_155, new RawCourse(M_155, Integer.valueOf(0), //
+                this.courses.put(M_155, new RawCourse(M_155, ZERO,
                         "Calculus for Biological Scientists I (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 155", null,
+                        FOUR, "N", "MATH 155", null,
                         "N", "N"));
-                this.courses.put(M_156, new RawCourse(M_156, Integer.valueOf(0), //
+                this.courses.put(M_156, new RawCourse(M_156, ZERO,
                         "Mathematics for Computational Science I (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 156", null,
+                        FOUR, "N", "MATH 156", null,
                         "N", "N"));
-                this.courses.put(M_157, new RawCourse(M_157, Integer.valueOf(0), //
+                this.courses.put(M_157, new RawCourse(M_157, ZERO,
                         "One Year Calculus IA (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 157", null,
+                        THREE, "N", "MATH 157", null,
                         "N", "N"));
-                this.courses.put(M_158, new RawCourse(M_158, Integer.valueOf(0), //
+                this.courses.put(M_158, new RawCourse(M_158, ZERO,
                         "Mathematical Algorithms in C (1 credit)",
-                        Integer.valueOf(1), "N", "MATH 158", null,
+                        ONE, "N", "MATH 158", null,
                         "N", "N"));
-                this.courses.put(M_159, new RawCourse(M_159, Integer.valueOf(0), //
+                this.courses.put(M_159, new RawCourse(M_159, ZERO,
                         "One Year Calculus IB (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 159", null,
+                        THREE, "N", "MATH 159", null,
                         "N", "N"));
-                this.courses.put(M_160, new RawCourse(M_160, Integer.valueOf(0), //
+                this.courses.put(M_160, new RawCourse(M_160, ZERO,
                         "Calculus for Physical Scientists I (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 160", null,
+                        FOUR, "N", "MATH 160", null,
                         "N", "N"));
-                this.courses.put(M_161, new RawCourse(M_161, Integer.valueOf(0), //
+                this.courses.put(M_161, new RawCourse(M_161, ZERO,
                         "Calculus for Physical Scientists II (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 161", null,
+                        FOUR, "N", "MATH 161", null,
                         "N", "N"));
-                this.courses.put(M_192, new RawCourse(M_192, Integer.valueOf(0), //
+                this.courses.put(M_192, new RawCourse(M_192, ZERO,
                         "First Year Seminar in Mathematical Sciences (1 credit)",
-                        Integer.valueOf(1), "N", "MATH 192", null,
+                        ONE, "N", "MATH 192", null,
                         "N", "N"));
-                this.courses.put(M_229, new RawCourse(M_229, Integer.valueOf(0), //
+                this.courses.put(M_229, new RawCourse(M_229, ZERO,
                         "Matrices and Linear Equations (2 credits)",
-                        Integer.valueOf(2), "N", "MATH 229", null,
+                        TWO, "N", "MATH 229", null,
                         "N", "N"));
-                this.courses.put(M_230, new RawCourse(M_230, Integer.valueOf(0), //
+                this.courses.put(M_230, new RawCourse(M_230, ZERO,
                         "Discrete Mathematics for Educators (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 230", null,
+                        THREE, "N", "MATH 230", null,
                         "N", "N"));
-                this.courses.put(M_235, new RawCourse(M_235, Integer.valueOf(0), //
+                this.courses.put(M_235, new RawCourse(M_235, ZERO,
                         "Introduction to Mathematical Reasoning (2 credits)",
-                        Integer.valueOf(2), "N", "MATH 235", null,
+                        TWO, "N", "MATH 235", null,
                         "N", "N"));
-                this.courses.put(M_255, new RawCourse(M_255, Integer.valueOf(0), //
+                this.courses.put(M_255, new RawCourse(M_255, ZERO,
                         "Calculus for Biological Scientists II (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 255", null,
+                        FOUR, "N", "MATH 255", null,
                         "N", "N"));
-                this.courses.put(M_256, new RawCourse(M_256, Integer.valueOf(0), //
+                this.courses.put(M_256, new RawCourse(M_256, ZERO,
                         "Mathematics for Computational Science II (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 256", null,
+                        FOUR, "N", "MATH 256", null,
                         "N", "N"));
-                this.courses.put(M_261, new RawCourse(M_261, Integer.valueOf(0), //
+                this.courses.put(M_261, new RawCourse(M_261, ZERO,
                         "Calculus for Physical Scientists III (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 261", null,
+                        FOUR, "N", "MATH 261", null,
                         "N", "N"));
-                this.courses.put(M_271, new RawCourse(M_271, Integer.valueOf(0), //
+                this.courses.put(M_271, new RawCourse(M_271, ZERO,
                         "Applied Mathematics for Chemists I (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 271", null,
+                        FOUR, "N", "MATH 271", null,
                         "N", "N"));
-                this.courses.put(M_272, new RawCourse(M_272, Integer.valueOf(0), //
+                this.courses.put(M_272, new RawCourse(M_272, ZERO,
                         "Applied Mathematics for Chemists II (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 272", null,
+                        FOUR, "N", "MATH 272", null,
                         "N", "N"));
-                this.courses.put(M_301, new RawCourse(M_301, Integer.valueOf(0), //
+                this.courses.put(M_301, new RawCourse(M_301, ZERO,
                         "Introduction to Combinatorial Theory (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 301", null,
+                        THREE, "N", "MATH 301", null,
                         "N", "N"));
 
-                this.courses.put(M_317, new RawCourse(M_317, Integer.valueOf(0), //
+                this.courses.put(M_317, new RawCourse(M_317, ZERO,
                         "Advanced Calculus of One Variable (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 317", null,
+                        THREE, "N", "MATH 317", null,
                         "N", "N"));
-                this.courses.put(M_331, new RawCourse(M_331, Integer.valueOf(0), //
+                this.courses.put(M_331, new RawCourse(M_331, ZERO,
                         "Introduction to Mathematical Modeling (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 331", null,
+                        THREE, "N", "MATH 331", null,
                         "N", "N"));
-                this.courses.put(M_332, new RawCourse(M_332, Integer.valueOf(0), //
+                this.courses.put(M_332, new RawCourse(M_332, ZERO,
                         "Partial Differential Equations  Credits (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 332", null,
+                        THREE, "N", "MATH 332", null,
                         "N", "N"));
-                this.courses.put(M_340, new RawCourse(M_340, Integer.valueOf(0), //
+                this.courses.put(M_340, new RawCourse(M_340, ZERO,
                         "Intro to Ordinary Differential Equations (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 340", null,
+                        FOUR, "N", "MATH 340", null,
                         "N", "N"));
-                this.courses.put(M_345, new RawCourse(M_345, Integer.valueOf(0), //
+                this.courses.put(M_345, new RawCourse(M_345, ZERO,
                         "Differential Equations (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 345", null,
+                        FOUR, "N", "MATH 345", null,
                         "N", "N"));
-                this.courses.put(M_348, new RawCourse(M_348, Integer.valueOf(0), //
+                this.courses.put(M_348, new RawCourse(M_348, ZERO,
                         "Theory of Population and Evolutionary Ecology (4 credits)",
-                        Integer.valueOf(4), "N", "MATH 348", null,
+                        FOUR, "N", "MATH 348", null,
                         "N", "N"));
-                this.courses.put(M_360, new RawCourse(M_360, Integer.valueOf(0), //
+                this.courses.put(M_360, new RawCourse(M_360, ZERO,
                         "Mathematics of Information Security (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 360", null,
+                        THREE, "N", "MATH 360", null,
                         "N", "N"));
-                this.courses.put(M_366, new RawCourse(M_366, Integer.valueOf(0), //
+                this.courses.put(M_366, new RawCourse(M_366, ZERO,
                         "Introduction to Abstract Algebra (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 366", null,
+                        THREE, "N", "MATH 366", null,
                         "N", "N"));
-                this.courses.put(M_369, new RawCourse(M_369, Integer.valueOf(0), //
+                this.courses.put(M_369, new RawCourse(M_369, ZERO,
                         "Linear Algebra I (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 369", null,
+                        THREE, "N", "MATH 369", null,
                         "N", "N"));
-                this.courses.put(D_369, new RawCourse(D_369, Integer.valueOf(0), //
+                this.courses.put(D_369, new RawCourse(D_369, ZERO,
                         "Linear Algebra for Data Science (3 credits)",
-                        Integer.valueOf(3), "N", "DSCI 369", null,
+                        THREE, "N", "DSCI 369", null,
                         "N", "N"));
-                this.courses.put(M_384, new RawCourse(M_384, Integer.valueOf(0), //
+                this.courses.put(M_384, new RawCourse(M_384, ZERO,
                         "Supervised College Teaching (1 credit)",
-                        Integer.valueOf(1), "N", "MATH 384", null,
+                        ONE, "N", "MATH 384", null,
                         "N", "N"));
-                this.courses.put(M_405, new RawCourse(M_405, Integer.valueOf(0), //
+                this.courses.put(M_405, new RawCourse(M_405, ZERO,
                         "Introduction to Number Theory (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 405", null,
+                        THREE, "N", "MATH 405", null,
                         "N", "N"));
-                this.courses.put(M_417, new RawCourse(M_417, Integer.valueOf(0), //
+                this.courses.put(M_417, new RawCourse(M_417, ZERO,
                         "Advanced Calculus I (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 417", null,
+                        THREE, "N", "MATH 417", null,
                         "N", "N"));
-                this.courses.put(M_418, new RawCourse(M_418, Integer.valueOf(0), //
+                this.courses.put(M_418, new RawCourse(M_418, ZERO,
                         "Advanced Calculus II (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 418", null,
+                        THREE, "N", "MATH 418", null,
                         "N", "N"));
-                this.courses.put(M_419, new RawCourse(M_419, Integer.valueOf(0), //
+                this.courses.put(M_419, new RawCourse(M_419, ZERO,
                         "Introduction to Complex Variables (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 419", null,
+                        THREE, "N", "MATH 419", null,
                         "N", "N"));
-                this.courses.put(M_425, new RawCourse(M_425, Integer.valueOf(0), //
+                this.courses.put(M_425, new RawCourse(M_425, ZERO,
                         "History of Mathematics (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 425", null,
+                        THREE, "N", "MATH 425", null,
                         "N", "N"));
-                this.courses.put(M_430, new RawCourse(M_430, Integer.valueOf(0), //
+                this.courses.put(M_430, new RawCourse(M_430, ZERO,
                         "Fourier and Wavelet Analysis with Apps (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 430", null,
+                        THREE, "N", "MATH 430", null,
                         "N", "N"));
-                this.courses.put(M_435, new RawCourse(M_435, Integer.valueOf(0), //
+                this.courses.put(M_435, new RawCourse(M_435, ZERO,
                         "Projects in Applied Mathematics (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 435", null,
+                        THREE, "N", "MATH 435", null,
                         "N", "N"));
-                this.courses.put(M_450, new RawCourse(M_450, Integer.valueOf(0), //
+                this.courses.put(M_450, new RawCourse(M_450, ZERO,
                         "Introduction to Numerical Analysis I (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 450", null,
+                        THREE, "N", "MATH 450", null,
                         "N", "N"));
-                this.courses.put(M_451, new RawCourse(M_451, Integer.valueOf(0), //
+                this.courses.put(M_451, new RawCourse(M_451, ZERO,
                         "Introduction to Numerical Analysis II (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 451", null,
+                        THREE, "N", "MATH 451", null,
                         "N", "N"));
-                this.courses.put(M_455, new RawCourse(M_455, Integer.valueOf(0), //
+                this.courses.put(M_455, new RawCourse(M_455, ZERO,
                         "Mathematics in Biology and Medicine (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 455", null,
+                        THREE, "N", "MATH 455", null,
                         "N", "N"));
-                this.courses.put(M_460, new RawCourse(M_460, Integer.valueOf(0), //
+                this.courses.put(M_460, new RawCourse(M_460, ZERO,
                         "Information and Coding Theory (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 460", null,
+                        THREE, "N", "MATH 460", null,
                         "N", "N"));
-                this.courses.put(M_466, new RawCourse(M_466, Integer.valueOf(0), //
+                this.courses.put(M_466, new RawCourse(M_466, ZERO,
                         "Abstract Algebra I (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 466", null,
+                        THREE, "N", "MATH 466", null,
                         "N", "N"));
-                this.courses.put(M_467, new RawCourse(M_467, Integer.valueOf(0), //
+                this.courses.put(M_467, new RawCourse(M_467, ZERO,
                         "Abstract Algebra II (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 467", null,
+                        THREE, "N", "MATH 467", null,
                         "N", "N"));
-                this.courses.put(M_469, new RawCourse(M_469, Integer.valueOf(0), //
+                this.courses.put(M_469, new RawCourse(M_469, ZERO,
                         "Linear Algebra II (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 469", null,
+                        THREE, "N", "MATH 469", null,
                         "N", "N"));
-                this.courses.put(M_470, new RawCourse(M_470, Integer.valueOf(0), //
+                this.courses.put(M_470, new RawCourse(M_470, ZERO,
                         "Euclidean and Non-Euclidean Geometry (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 470", null,
+                        THREE, "N", "MATH 470", null,
                         "N", "N"));
-                this.courses.put(M_472, new RawCourse(M_472, Integer.valueOf(0), //
+                this.courses.put(M_472, new RawCourse(M_472, ZERO,
                         "Introduction to Topology (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 472", null,
+                        THREE, "N", "MATH 472", null,
                         "N", "N"));
-                this.courses.put(M_474, new RawCourse(M_474, Integer.valueOf(0), //
+                this.courses.put(M_474, new RawCourse(M_474, ZERO,
                         "Introduction to Differential Geometry (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 474", null,
+                        THREE, "N", "MATH 474", null,
                         "N", "N"));
-                this.courses.put(M_476, new RawCourse(M_476, Integer.valueOf(0), //
+                this.courses.put(M_476, new RawCourse(M_476, ZERO,
                         "Topics in Mathematics (3 credits)",
-                        Integer.valueOf(3), "N", "MATH 476", null,
+                        THREE, "N", "MATH 476", null,
                         "N", "N"));
-                this.courses.put(M_484, new RawCourse(M_484, Integer.valueOf(0), //
+                this.courses.put(M_484, new RawCourse(M_484, ZERO,
                         "Supervised College Teaching (1-3 credits)",
-                        Integer.valueOf(-1), "N", "MATH 484", null,
+                        NEG_ONE, "N", "MATH 484", null,
                         "N", "N"));
-                this.courses.put(M_487, new RawCourse(M_487, Integer.valueOf(0), //
+                this.courses.put(M_487, new RawCourse(M_487, ZERO,
                         "Internship (1-16 credits)",
-                        Integer.valueOf(-1), "N", "MATH 487", null,
+                        NEG_ONE, "N", "MATH 487", null,
                         "N", "N"));
-                this.courses.put(M_495, new RawCourse(M_495, Integer.valueOf(0), //
+                this.courses.put(M_495, new RawCourse(M_495, ZERO,
                         "Independent Study (1-18 credits)",
-                        Integer.valueOf(-1), "N", "MATH 495", null,
+                        NEG_ONE, "N", "MATH 495", null,
                         "N", "N"));
-                this.courses.put(M_498, new RawCourse(M_498, Integer.valueOf(0), //
+                this.courses.put(M_498, new RawCourse(M_498, ZERO,
                         "Undergraduate Research in Mathematics (1-3 credits)",
-                        Integer.valueOf(-1), "N", "MATH 498", null,
+                        NEG_ONE, "N", "MATH 498", null,
                         "N", "N"));
             }
         }
@@ -778,36 +796,36 @@ public final class MathPlanLogic {
                 this.courseGroups.put(M_470, new CourseGroup(M_470, null, M_470, M_470));
                 this.courseGroups.put(M_495, new CourseGroup(M_495, null, M_495, M_495));
 
-                this.courseGroups.put(AGED3, new CourseGroup(AGED3, Integer.valueOf(3), RawRecordConstants.M124,
+                this.courseGroups.put(AGED3, new CourseGroup(AGED3, THREE, RawRecordConstants.M124,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         M_141, M_155, M_160));
 
-                this.courseGroups.put(ANIM3, new CourseGroup(ANIM3, Integer.valueOf(3), RawRecordConstants.M124,
+                this.courseGroups.put(ANIM3, new CourseGroup(ANIM3, THREE, RawRecordConstants.M124,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         RawRecordConstants.M125, RawRecordConstants.M126, M_141, M_155));
 
-                this.courseGroups.put(BIOL3, new CourseGroup(BIOL3, Integer.valueOf(3), RawRecordConstants.M124,
+                this.courseGroups.put(BIOL3, new CourseGroup(BIOL3, THREE, RawRecordConstants.M124,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         RawRecordConstants.M125, RawRecordConstants.M126, M_155, M_160));
 
-                this.courseGroups.put(BUSA3, new CourseGroup(BUSA3, Integer.valueOf(3), RawRecordConstants.M124,
+                this.courseGroups.put(BUSA3, new CourseGroup(BUSA3, THREE, RawRecordConstants.M124,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         RawRecordConstants.M125, RawRecordConstants.M126, M_141));
 
-                this.courseGroups.put(AUCC3, new CourseGroup(AUCC3, Integer.valueOf(3), M_101, M_101, S_100, M_105,
+                this.courseGroups.put(AUCC3, new CourseGroup(AUCC3, THREE, M_101, M_101, S_100, M_105,
                         S_201, S_204, RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                         RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.M127, M_141, M_155, M_160,
                         M_161, M_255));
 
-                this.courseGroups.put(FRRS3, new CourseGroup(FRRS3, Integer.valueOf(3), RawRecordConstants.M125,
+                this.courseGroups.put(FRRS3, new CourseGroup(FRRS3, THREE, RawRecordConstants.M125,
                         RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M125, M_141));
 
-                this.courseGroups.put(AUCC3SOC, new CourseGroup(AUCC3SOC, Integer.valueOf(3), M_101, M_101, S_100,
+                this.courseGroups.put(AUCC3SOC, new CourseGroup(AUCC3SOC, THREE, M_101, M_101, S_100,
                         M_105, S_201, S_204, RawRecordConstants.M117, RawRecordConstants.M118,
                         RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126,
                         RawRecordConstants.M127, M_141, M_155, M_160, M_161, M_255));
 
-                this.courseGroups.put(AUCC2, new CourseGroup(AUCC2, Integer.valueOf(2), M_101, M_101, S_100, M_105,
+                this.courseGroups.put(AUCC2, new CourseGroup(AUCC2, TWO, M_101, M_101, S_100, M_105,
                         M_105, S_201, S_204, RawRecordConstants.M117, RawRecordConstants.M118,
                         RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126,
                         RawRecordConstants.M127, M_141, M_155, M_160, M_161, M_255));
@@ -899,7 +917,7 @@ public final class MathPlanLogic {
                         "Entomology",
                         CAT + "agricultural-sciences/agricultural-biology/"
                                 + "agricultural-biology-major-entomology-concentration/");
-                final MajorMathRequirement rAGBIENTZ = //
+                final MajorMathRequirement rAGBIENTZ =
                         new MajorMathRequirement("AGBI-ENTZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!,M 125!", null, M_155);
                 map.put(mAGBIENTZ, rAGBIENTZ);
@@ -909,7 +927,7 @@ public final class MathPlanLogic {
                         "Plant Pathology",
                         CAT + "agricultural-sciences/agricultural-biology/"
                                 + "agricultural-biology-major-plant-pathology-concentration/");
-                final MajorMathRequirement rAGBIPLPZ = //
+                final MajorMathRequirement rAGBIPLPZ =
                         new MajorMathRequirement("AGBI-PLPZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!,M 125!", null, M_155);
                 map.put(mAGBIPLPZ, rAGBIPLPZ);
@@ -919,7 +937,7 @@ public final class MathPlanLogic {
                         "Weed Science",
                         CAT + "agricultural-sciences/agricultural-biology/"
                                 + "agricultural-biology-major-weed-science-concentration/");
-                final MajorMathRequirement rAGBIWEEZ = //
+                final MajorMathRequirement rAGBIWEEZ =
                         new MajorMathRequirement("AGBI-WEEZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!,M 125!", null, M_155);
                 map.put(mAGBIWEEZ, rAGBIWEEZ);
@@ -939,7 +957,7 @@ public final class MathPlanLogic {
                         "Agricultural Economics",
                         CAT + "agricultural-sciences/agricultural-resource-economics/"
                                 + "business-agricultural-economics-concentration/");
-                final MajorMathRequirement rAGBUAECZ = //
+                final MajorMathRequirement rAGBUAECZ =
                         new MajorMathRequirement("AGBU-AECZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124", null, M_141);
                 map.put(mAGBUAECZ, rAGBUAECZ);
@@ -949,7 +967,7 @@ public final class MathPlanLogic {
                         "Farm and Ranch Management",
                         CAT + "agricultural-sciences/agricultural-resource-economics/"
                                 + "business-farm-ranch-management-concentration/");
-                final MajorMathRequirement rAGBUFRCZ = //
+                final MajorMathRequirement rAGBUFRCZ =
                         new MajorMathRequirement("AGBU-FRCZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124", null, M_141);
                 map.put(mAGBUFRCZ, rAGBUFRCZ);
@@ -959,7 +977,7 @@ public final class MathPlanLogic {
                         "Food Systems",
                         CAT + "agricultural-sciences/agricultural-resource-economics/"
                                 + "business-major/food-systems-concentration/");
-                final MajorMathRequirement rAGBUFSSZ = //
+                final MajorMathRequirement rAGBUFSSZ =
                         new MajorMathRequirement("AGBU-FSSZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124", null, M_141);
                 map.put(mAGBUFSSZ, rAGBUFSSZ);
@@ -979,7 +997,7 @@ public final class MathPlanLogic {
                         "Agricultural Literacy",
                         CAT + "agricultural-sciences/agricultural-resource-economics/"
                                 + "education-literacy-concentration/");
-                final MajorMathRequirement rAGEDAGLZ = //
+                final MajorMathRequirement rAGEDAGLZ =
                         new MajorMathRequirement("AGED-AGLZ-BS")
                                 .setSemesterCourses("M 117,M 118,M 124", null, null);
                 map.put(mAGEDAGLZ, rAGEDAGLZ);
@@ -989,7 +1007,7 @@ public final class MathPlanLogic {
                         "Teacher Development",
                         CAT + "agricultural-sciences/agricultural-resource-economics/"
                                 + "education-teacher-development-concentration/");
-                final MajorMathRequirement rAGEDTDLZ = //
+                final MajorMathRequirement rAGEDTDLZ =
                         new MajorMathRequirement("AGED-TDLZ-BS")
                                 .setSemesterCourses(null, "AGED3!", null);
                 map.put(mAGEDTDLZ, rAGEDTDLZ);
@@ -1031,7 +1049,7 @@ public final class MathPlanLogic {
                 // "Landscape Business", 
                 // CAT + "agricultural-sciences/horticulture-landscape-architecture/" 
                 // + "environmental-major-business-concentration/"); 
-                // final MajorMathRequirement rENHRLDAZ = //
+                // final MajorMathRequirement rENHRLDAZ =
                 // new MajorMathRequirement("ENHR-LNBZ-BS") 
                 // .setSemesterCourses("M 117!,M 118!,M 125!", null, null); 
                 // map.put(mENHRLNBZ, rENHRLDAZ);
@@ -1041,7 +1059,7 @@ public final class MathPlanLogic {
                         "Landscape Design and Contracting",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "environmental-major-design-contracting-concentration/");
-                final MajorMathRequirement rENHRLNBZ = //
+                final MajorMathRequirement rENHRLNBZ =
                         new MajorMathRequirement("ENHR-LDAZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 125!", null, null);
                 map.put(mENHRLDAZ, rENHRLNBZ);
@@ -1051,7 +1069,7 @@ public final class MathPlanLogic {
                         "Nursery and Landscape Management",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "environmental-major-nursery-management-concentration/");
-                final MajorMathRequirement rENHRNALZ = //
+                final MajorMathRequirement rENHRNALZ =
                         new MajorMathRequirement("ENHR-NALZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mENHRNALZ, rENHRNALZ);
@@ -1061,7 +1079,7 @@ public final class MathPlanLogic {
                         "Turf Management",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "environmental-major-turf-management-concentration/");
-                final MajorMathRequirement rENHRTURZ = //
+                final MajorMathRequirement rENHRTURZ =
                         new MajorMathRequirement("ENHR-TURZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mENHRTURZ, rENHRTURZ);
@@ -1091,7 +1109,7 @@ public final class MathPlanLogic {
                         "Controlled Environmental Horticulture",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "horticulture-major-controlled-environment-horticulture-concentration/");
-                final MajorMathRequirement rHORTCEHZ = //
+                final MajorMathRequirement rHORTCEHZ =
                         new MajorMathRequirement("HORT-CEHZ-BS")
                                 .setSemesterCourses("M 117!,M 118,M 124", null, null);
                 map.put(mHORTCEHZ, rHORTCEHZ);
@@ -1103,7 +1121,7 @@ public final class MathPlanLogic {
                 // "Floriculture", 
                 // CAT + "agricultural-sciences/horticulture-landscape-architecture/" 
                 // + "horticulture-major-floriculture-concentration/"); 
-                // final MajorMathRequirement rHORTFLOZ = //
+                // final MajorMathRequirement rHORTFLOZ =
                 // new MajorMathRequirement("HORT-FLOZ-BS") 
                 // .setSemesterCourses("M 117!,M 118,M 124", null, null); 
                 // map.put(mHORTFLOZ, rHORTFLOZ);
@@ -1113,7 +1131,7 @@ public final class MathPlanLogic {
                         "Horticultural Business Management",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "horticulture-major-business-management-concentration/");
-                final MajorMathRequirement rHORTHBMZ = //
+                final MajorMathRequirement rHORTHBMZ =
                         new MajorMathRequirement("HORT-HBMZ-BS")
                                 .setSemesterCourses("M 117!,M 118,M 124", null, null);
                 map.put(mHORTHBMZ, rHORTHBMZ);
@@ -1123,7 +1141,7 @@ public final class MathPlanLogic {
                         "Horticultural Food Crops",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "horticulture-major-food-crops-concentration/");
-                final MajorMathRequirement rHORTHFCZ = //
+                final MajorMathRequirement rHORTHFCZ =
                         new MajorMathRequirement("HORT-HFCZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mHORTHFCZ, rHORTHFCZ);
@@ -1133,7 +1151,7 @@ public final class MathPlanLogic {
                         "Horticultural Science",
                         CAT + "agricultural-sciences/horticulture-landscape-architecture/"
                                 + "horticulture-major-science-concentration/");
-                final MajorMathRequirement rHORTHOSZ = //
+                final MajorMathRequirement rHORTHOSZ =
                         new MajorMathRequirement("HORT-HOSZ-BS")
                                 .setSemesterCourses("M 124,M 125", RawRecordConstants.M126, M_155);
                 map.put(mHORTHOSZ, rHORTHOSZ);
@@ -1145,7 +1163,7 @@ public final class MathPlanLogic {
                 // "Horticultural Therapy", 
                 // CAT + "agricultural-sciences/horticulture-landscape-architecture/" 
                 // + "horticulture-major-therapy-concentration/"); 
-                // final MajorMathRequirement rHORTHTHZ = //
+                // final MajorMathRequirement rHORTHTHZ =
                 // new MajorMathRequirement("HORT-HTHZ-BS") 
                 // .setSemesterCourses("M 117!,M 118,M 124", null, null); 
                 // map.put(mHORTHTHZ, rHORTHTHZ);
@@ -1178,7 +1196,7 @@ public final class MathPlanLogic {
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-major-agronomic-production-" 
                 // + "management-concentration/"); 
-                // final MajorMathRequirement rSOCRAPMZ = //
+                // final MajorMathRequirement rSOCRAPMZ =
                 // new MajorMathRequirement("SOCR-APMZ-BS") 
                 // .setSemesterCourses("M 117!,M 118!,M 124!", null, null); 
                 // map.put(mSOCRAPMZ, rSOCRAPMZ);
@@ -1191,7 +1209,7 @@ public final class MathPlanLogic {
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-major-applied-information-" 
                 // + "technology-concentration/"); 
-                // final MajorMathRequirement rSOCRAPIZ = //
+                // final MajorMathRequirement rSOCRAPIZ =
                 // new MajorMathRequirement("SOCR-APIZ-BS") 
                 // .setSemesterCourses("M 117!,M 118!,M 124!", null, 
                 // M_141);
@@ -1204,7 +1222,7 @@ public final class MathPlanLogic {
                 // "International Soil and Crop Sciences", 
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-international-concentration/"); 
-                // final MajorMathRequirement rSOCRISCZ = //
+                // final MajorMathRequirement rSOCRISCZ =
                 // new MajorMathRequirement("SOCR-ISCZ-BS") 
                 // .setSemesterCourses("M 117!,M 118!,M 124!", null, null); 
                 // map.put(mSOCRISCZ, rSOCRISCZ);
@@ -1217,7 +1235,7 @@ public final class MathPlanLogic {
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-major-plant-biotechnology-" 
                 // + "genetics-breeding-concentration/"); 
-                // final MajorMathRequirement rSOCRPBGZ = //
+                // final MajorMathRequirement rSOCRPBGZ =
                 // new MajorMathRequirement("SOCR-PBGZ-BS") 
                 // .setSemesterCourses("M 124!,M 125!", 
                 // "M 126,M 155", null); 
@@ -1230,7 +1248,7 @@ public final class MathPlanLogic {
                 // "Soil Ecology", 
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-major-ecology-concentration/"); 
-                // final MajorMathRequirement rSOCRSOEZ = //
+                // final MajorMathRequirement rSOCRSOEZ =
                 // new MajorMathRequirement("SOCR-SOEZ-BS") 
                 // .setSemesterCourses("M 155!", null, null); 
                 // map.put(mSOCRSOEZ, rSOCRSOEZ);
@@ -1243,7 +1261,7 @@ public final class MathPlanLogic {
                 // CAT + "agricultural-sciences/soil-crop-sciences/" 
                 // + "soil-crop-sciences-major-restoration-conservation-" 
                 // + "concentration/"); 
-                // final MajorMathRequirement rSOCRSRNZ = //
+                // final MajorMathRequirement rSOCRSRNZ =
                 // new MajorMathRequirement("SOCR-SRNZ-BS") 
                 // .setSemesterCourses("M 117!,M 118!,M 124!", null, null); 
                 // map.put(mSOCRSRNZ, rSOCRSRNZ);
@@ -1253,7 +1271,7 @@ public final class MathPlanLogic {
                         "Plant Biotechnology",
                         CAT + "agricultural-sciences/soil-crop-sciences/"
                                 + "soil-crop-sciences-major-plant-biotechnology-concentration/");
-                final MajorMathRequirement rSOCRPBTZ = //
+                final MajorMathRequirement rSOCRPBTZ =
                         new MajorMathRequirement("SOCR-PBTZ-BS")
                                 .setSemesterCourses("M 117,M 118", RawRecordConstants.M124,
                                         RawRecordConstants.M125);
@@ -1264,7 +1282,7 @@ public final class MathPlanLogic {
                         "Soil Science and Environmental Solutions",
                         CAT + "agricultural-sciences/soil-crop-sciences/"
                                 + "soil-crop-sciences-major-science-environmental-solutions-concentration/");
-                final MajorMathRequirement rSOCRSESZ = //
+                final MajorMathRequirement rSOCRSESZ =
                         new MajorMathRequirement("SOCR-SESZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mSOCRSESZ, rSOCRSESZ);
@@ -1274,7 +1292,7 @@ public final class MathPlanLogic {
                         "Sustainable Agricultural Management",
                         CAT + "agricultural-sciences/soil-crop-sciences/"
                                 + "soil-crop-sciences-major-sustainable-agricultural-management-concentration/");
-                final MajorMathRequirement rSOCRSAMZ = //
+                final MajorMathRequirement rSOCRSAMZ =
                         new MajorMathRequirement("SOCR-SAMZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mSOCRSAMZ, rSOCRSAMZ);
@@ -1298,7 +1316,7 @@ public final class MathPlanLogic {
                         "Accounting",
                         CAT + "business/accounting/business-administration-major-"
                                 + "accounting-concentration/");
-                final MajorMathRequirement rBUSAACCZ = //
+                final MajorMathRequirement rBUSAACCZ =
                         new MajorMathRequirement("BUSA-ACCZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAACCZ, rBUSAACCZ);
@@ -1307,7 +1325,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Business Administration", "Finance",
                         CAT + "business/finance-real-estate/business-administration-"
                                 + "major-finance-concentration/");
-                final MajorMathRequirement rBUSAFINZ = //
+                final MajorMathRequirement rBUSAFINZ =
                         new MajorMathRequirement("BUSA-FINZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAFINZ, rBUSAFINZ);
@@ -1317,7 +1335,7 @@ public final class MathPlanLogic {
                         "Financial Planning",
                         CAT + "business/finance-real-estate/business-administration-"
                                 + "major-financial-planning-concentration/#text");
-                final MajorMathRequirement rBUSAFPLZ = //
+                final MajorMathRequirement rBUSAFPLZ =
                         new MajorMathRequirement("BUSA-FPLZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAFPLZ, rBUSAFPLZ);
@@ -1327,7 +1345,7 @@ public final class MathPlanLogic {
                         "Human Resource Management",
                         CAT + "business/management/business-administration-major-human-"
                                 + "resource-management-concentration/");
-                final MajorMathRequirement rBUSAHRMZ = //
+                final MajorMathRequirement rBUSAHRMZ =
                         new MajorMathRequirement("BUSA-HRMZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAHRMZ, rBUSAHRMZ);
@@ -1337,7 +1355,7 @@ public final class MathPlanLogic {
                         "Information Systems",
                         CAT + "business/computer-information-systems/business-"
                                 + "administration-major-information-systems-concentration/");
-                final MajorMathRequirement rBUSAINSZ = //
+                final MajorMathRequirement rBUSAINSZ =
                         new MajorMathRequirement("BUSA-INSZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAINSZ, rBUSAINSZ);
@@ -1347,7 +1365,7 @@ public final class MathPlanLogic {
                         "Management and Innovation",
                         CAT + "business/management/business-administration-major"
                                 + "-management-innovation-concentration/");
-                final MajorMathRequirement rBUSAMINZ = //
+                final MajorMathRequirement rBUSAMINZ =
                         new MajorMathRequirement("BUSA-MINZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAMINZ, rBUSAMINZ);
@@ -1357,7 +1375,7 @@ public final class MathPlanLogic {
                         "Marketing",
                         CAT + "business/marketing/business-administration-major-"
                                 + "marketing-concentration/");
-                final MajorMathRequirement rBUSAMKTZ = //
+                final MajorMathRequirement rBUSAMKTZ =
                         new MajorMathRequirement("BUSA-MKTZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAMKTZ, rBUSAMKTZ);
@@ -1369,7 +1387,7 @@ public final class MathPlanLogic {
                 // "Organization and Innovation Management", 
                 // CAT + "business/management/business-administration-major-" 
                 // + "organization-innovation-management-concentration/"); 
-                // final MajorMathRequirement rBUSAOIMZ = //
+                // final MajorMathRequirement rBUSAOIMZ =
                 // new MajorMathRequirement("BUSA-OIMZ-BS") 
                 // .setSemesterCourses(BUSA3, null, null);
                 // map.put(mBUSAOIMZ, rBUSAOIMZ);
@@ -1379,7 +1397,7 @@ public final class MathPlanLogic {
                         "Real Estate",
                         CAT + "business/finance-real-estate/business-administration-"
                                 + "major-real-estate-concentration/");
-                final MajorMathRequirement rBUSAREAZ = //
+                final MajorMathRequirement rBUSAREAZ =
                         new MajorMathRequirement("BUSA-REAZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAREAZ, rBUSAREAZ);
@@ -1389,7 +1407,7 @@ public final class MathPlanLogic {
                         "Supply Chain Management",
                         CAT + "business/management/business-administration-major-"
                                 + "supply-chain-management-concentration/");
-                final MajorMathRequirement rBUSASCMZ = //
+                final MajorMathRequirement rBUSASCMZ =
                         new MajorMathRequirement("BUSA-SCMZ-BS")
                                 .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSASCMZ, rBUSASCMZ);
@@ -1403,7 +1421,7 @@ public final class MathPlanLogic {
                 final Major mCBEGDUAL = new Major(3000, "CBEG-DUAL",
                         Boolean.FALSE, "Biomedical Engineering, Dual Degree",
                         CAT + "engineering/biomedical/");
-                final MajorMathRequirement rCBEGDUAL = //
+                final MajorMathRequirement rCBEGDUAL =
                         new MajorMathRequirement("CBEG-DUAL")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1414,7 +1432,7 @@ public final class MathPlanLogic {
                         "With Chemical and Biological Engineering",
                         CAT + "engineering/biomedical/"
                                 + "chemical-biological-dual-degree-program/");
-                final MajorMathRequirement rCBEGBMEC = //
+                final MajorMathRequirement rCBEGBMEC =
                         new MajorMathRequirement("CBEG-BMEC-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1424,7 +1442,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biomedical Engineering, Dual Degree",
                         "With Computer Engineering",
                         CAT + "engineering/biomedical/computer-dual-degree-program/");
-                final MajorMathRequirement rCPEGBMEP = //
+                final MajorMathRequirement rCPEGBMEP =
                         new MajorMathRequirement("CPEG-BMEP-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1434,7 +1452,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biomedical Engineering, Dual Degree",
                         "With Electrical Engineering (Electrical Engineering)",
                         CAT + "engineering/biomedical/electrical-dual-degree-program/");
-                final MajorMathRequirement rELEGBMEE = //
+                final MajorMathRequirement rELEGBMEE =
                         new MajorMathRequirement("ELEG-BMEE-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1445,7 +1463,7 @@ public final class MathPlanLogic {
                         "With Electrical Engineering (Lasers and Optical)",
                         CAT + "engineering/biomedical/electrical-lasers-optical-"
                                 + "concentration-dual-degree-program/");
-                final MajorMathRequirement rELEGBMEL = //
+                final MajorMathRequirement rELEGBMEL =
                         new MajorMathRequirement("ELEG-BMEL-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1455,7 +1473,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biomedical Engineering, Dual Degree",
                         "With Mechanical Engineering",
                         CAT + "engineering/biomedical/mechanical-dual-degree-program/");
-                final MajorMathRequirement rMECHBMEM = //
+                final MajorMathRequirement rMECHBMEM =
                         new MajorMathRequirement("MECH-BMEM-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1498,7 +1516,7 @@ public final class MathPlanLogic {
                         "Aerospace Systems",
                         CAT + "engineering/electrical-computer/computer-"
                                 + "engineering-major-aerospace-systems-concentration/");
-                final MajorMathRequirement rCPEGAESZ = //
+                final MajorMathRequirement rCPEGAESZ =
                         new MajorMathRequirement("CPEG-AESZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1509,7 +1527,7 @@ public final class MathPlanLogic {
                         "Embedded and IoT Systems",
                         CAT + "engineering/electrical-computer/computer-"
                                 + "engineering-major-embedded-iot-systems-concentration/");
-                final MajorMathRequirement rCPEGEISZ = //
+                final MajorMathRequirement rCPEGEISZ =
                         new MajorMathRequirement("CPEG-EISZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1520,7 +1538,7 @@ public final class MathPlanLogic {
                         "Networks and Data",
                         CAT + "engineering/electrical-computer/computer-"
                                 + "engineering-major-networks-data-concentration/");
-                final MajorMathRequirement rCPEGNDTZ = //
+                final MajorMathRequirement rCPEGNDTZ =
                         new MajorMathRequirement("CPEG-NDTZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1531,7 +1549,7 @@ public final class MathPlanLogic {
                         "VLSI and Integrated Circuits",
                         CAT + "engineering/electrical-computer/computer-"
                                 + "engineering-major-vlsi-integrated-circuits-concentration/");
-                final MajorMathRequirement rCPEGVICZ = //
+                final MajorMathRequirement rCPEGVICZ =
                         new MajorMathRequirement("CPEG-VICZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1553,7 +1571,7 @@ public final class MathPlanLogic {
                         "Electrical Engineering",
                         CAT + "engineering/electrical-computer/electrical-engineering-"
                                 + "major-electrical-engineering-concentration/");
-                final MajorMathRequirement rELEGELEZ = //
+                final MajorMathRequirement rELEGELEZ =
                         new MajorMathRequirement("ELEG-ELEZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1564,7 +1582,7 @@ public final class MathPlanLogic {
                         "Lasers and Optical Engineering",
                         CAT + "engineering/electrical-computer/electrical-engineering-"
                                 + "major-lasers-optical-concentration/");
-                final MajorMathRequirement rELEGLOEZ = //
+                final MajorMathRequirement rELEGLOEZ =
                         new MajorMathRequirement("ELEG-LOEZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1575,7 +1593,7 @@ public final class MathPlanLogic {
                         "Aerospace",
                         CAT + "engineering/electrical-computer/electrical-engineering-"
                                 + "major-aerospace-systems-concentration/");
-                final MajorMathRequirement rELEGASPZ = //
+                final MajorMathRequirement rELEGASPZ =
                         new MajorMathRequirement("ELEG-ASPZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1601,7 +1619,7 @@ public final class MathPlanLogic {
                 // "Engineering Physics", 
                 // CAT + "engineering/engineering-science-major-physics-" 
                 // + "concentration/"); 
-                // final MajorMathRequirement rEGSCEGPZ = //
+                // final MajorMathRequirement rEGSCEGPZ =
                 // new MajorMathRequirement("EGSC-EGPZ-BS") 
                 // .setSemesterCourses("M 160!", "M 161!",  
                 // "M 261,M 340"); 
@@ -1614,7 +1632,7 @@ public final class MathPlanLogic {
                 // "Space Engineering", 
                 // CAT + "engineering/engineering-science-major-space-" 
                 // + "concentration/"); 
-                // final MajorMathRequirement rEGSCSPEZ = //
+                // final MajorMathRequirement rEGSCSPEZ =
                 // new MajorMathRequirement("EGSC-SPEZ-BS") 
                 // .setSemesterCourses("M 160!", "M 161!",  
                 // "M 261,M 340"); 
@@ -1627,7 +1645,7 @@ public final class MathPlanLogic {
                 // "Teacher Education", 
                 // CAT + "engineering/engineering-science-major-teacher-" 
                 // + "education-concentration/"); 
-                // final MajorMathRequirement rEGSCTCEZ = //
+                // final MajorMathRequirement rEGSCTCEZ =
                 // new MajorMathRequirement("EGSC-TCEZ-BS") 
                 // .setSemesterCourses("M 160!", "M 161!",  
                 // "M 261,M 340"); 
@@ -1639,7 +1657,7 @@ public final class MathPlanLogic {
 
                 // final Major mEGISDUAL = new Major( 3060, "EGIS-DUAL", 
                 // Boolean.FALSE, "Engineering Science Dual Degree", null); 
-                // final MajorMathRequirement rEGISDUAL = //
+                // final MajorMathRequirement rEGISDUAL =
                 // new MajorMathRequirement("EGIS-DUAL") 
                 // .setSemesterCourses("M 160!", "M 161!",  
                 // "M 261,M 340"); 
@@ -1697,7 +1715,7 @@ public final class MathPlanLogic {
                         "Aerospace Engineering",
                         CAT + "engineering/mechanical/mechanical-engineering-major-"
                                 + "aerospace-engineering-concentration/");
-                final MajorMathRequirement rMECHACEZ = //
+                final MajorMathRequirement rMECHACEZ =
                         new MajorMathRequirement("MECH-ACEZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1708,7 +1726,7 @@ public final class MathPlanLogic {
                         "Aerospace Engineering",
                         CAT + "engineering/mechanical/mechanical-engineering-major-"
                                 + "advanced-manufacturing-concentration/");
-                final MajorMathRequirement rMECHADMZ = //
+                final MajorMathRequirement rMECHADMZ =
                         new MajorMathRequirement("MECH-ADMZ-BS")
                                 .setSemesterCourses("M 160!", "M 161!",
                                         "M 261,M 340");
@@ -1734,7 +1752,7 @@ public final class MathPlanLogic {
                         "Apparel Design and Production",
                         CAT + "health-human-sciences/design-merchandising/apparel-"
                                 + "merchandising-major-design-production-concentration/");
-                final MajorMathRequirement rAPAMADAZ = //
+                final MajorMathRequirement rAPAMADAZ =
                         new MajorMathRequirement("APAM-ADAZ-BS")
                                 .setSemesterCourses("M 117!,M 118!", RawRecordConstants.M124,
                                         null);
@@ -1745,7 +1763,7 @@ public final class MathPlanLogic {
                         "Merchandising",
                         CAT + "health-human-sciences/design-merchandising/apparel-"
                                 + "merchandising-major-merchandising-concentration/");
-                final MajorMathRequirement rAPAMMDSZ = //
+                final MajorMathRequirement rAPAMMDSZ =
                         new MajorMathRequirement("APAM-MDSZ-BS")
                                 .setSemesterCourses("M 117!,M 118!", RawRecordConstants.M124,
                                         null);
@@ -1756,7 +1774,7 @@ public final class MathPlanLogic {
                         "Product Development",
                         CAT + "health-human-sciences/design-merchandising/apparel-"
                                 + "merchandising-major-product-development-concentration/");
-                final MajorMathRequirement rAPAMPDVZ = //
+                final MajorMathRequirement rAPAMPDVZ =
                         new MajorMathRequirement("APAM-PDVZ-BS")
                                 .setSemesterCourses("M 117!,M 118!", RawRecordConstants.M124,
                                         null);
@@ -1797,7 +1815,7 @@ public final class MathPlanLogic {
                         "Family and Consumer Sciences",
                         CAT + "health-human-sciences/education/family-consumer-"
                                 + "sciences-major-family-consumer-sciences-concentration/");
-                final MajorMathRequirement rFACSFACZ = //
+                final MajorMathRequirement rFACSFACZ =
                         new MajorMathRequirement("FACS-FACZ-BS")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mFACSFACZ, rFACSFACZ);
@@ -1807,7 +1825,7 @@ public final class MathPlanLogic {
                         "Family and Consumer Sciences Education",
                         CAT + "health-human-sciences/education/family-consumer-"
                                 + "sciences-major-education-concentration/");
-                final MajorMathRequirement rFACSFCSZ = //
+                final MajorMathRequirement rFACSFCSZ =
                         new MajorMathRequirement("FACS-FCSZ-BS")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mFACSFCSZ, rFACSFCSZ);
@@ -1839,7 +1857,7 @@ public final class MathPlanLogic {
                         "Health Promotion",
                         CAT + "health-human-sciences/health-exercise-science/"
                                 + "health-exercise-science-major-promotion-concentration/");
-                final MajorMathRequirement rHAESHPRZ = //
+                final MajorMathRequirement rHAESHPRZ =
                         new MajorMathRequirement("HAES-HPRZ-BS")
                                 .setSemesterCourses("M 118.,M 124.", "M 125!",
                                         null);
@@ -1851,7 +1869,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/health-exercise-science/"
                                 + "health-exercise-science-major-sports-medicine-"
                                 + "concentration/");
-                final MajorMathRequirement rHAESSPMZ = //
+                final MajorMathRequirement rHAESSPMZ =
                         new MajorMathRequirement("HAES-SPMZ-BS")
                                 .setSemesterCourses("M 118.,M 124.", "M 125!",
                                         null);
@@ -1883,7 +1901,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/human-development-family-studies/"
                                 + "human-development-family-studies-major-early-childhood-"
                                 + "professions-concentration/");
-                final MajorMathRequirement rHDFSECPZ = //
+                final MajorMathRequirement rHDFSECPZ =
                         new MajorMathRequirement("HDFS-ECPZ-BS")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHDFSECPZ, rHDFSECPZ);
@@ -1894,7 +1912,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/human-development-family-studies/"
                                 + "human-development-family-studies-major-human-development-"
                                 + "family-studies-concentration/");
-                final MajorMathRequirement rHDFSHDEZ = //
+                final MajorMathRequirement rHDFSHDEZ =
                         new MajorMathRequirement("HDFS-HDEZ-BS")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHDFSHDEZ, rHDFSHDEZ);
@@ -1905,7 +1923,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/human-development-family-studies/"
                                 + "human-development-family-studies-major-leadership-"
                                 + "advocacy-concentration/");
-                final MajorMathRequirement rHDFSLADZ = //
+                final MajorMathRequirement rHDFSLADZ =
                         new MajorMathRequirement("HDFS-LADZ-BS")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHDFSLADZ, rHDFSLADZ);
@@ -1918,7 +1936,7 @@ public final class MathPlanLogic {
                 // CAT + "health-human-sciences/human-development-family-studies/" 
                 // + "human-development-family-studies-major-leadership-" 
                 // + "entrepreneurial-professions-concentration/"); 
-                // final MajorMathRequirement rHDFSPHPZ = //
+                // final MajorMathRequirement rHDFSPHPZ =
                 // new MajorMathRequirement("HDFS-PHPZ-BS") 
                 // .setSemesterCourses(AUCC3, null, null);
                 // map.put(mHDFSPHPZ, rHDFSPHPZ);
@@ -1929,7 +1947,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/human-development-family-studies/"
                                 + "human-development-family-studies-major-pre-health-"
                                 + "professions-concentration/");
-                final MajorMathRequirement rHDFSPHPZ = //
+                final MajorMathRequirement rHDFSPHPZ =
                         new MajorMathRequirement("HDFS-PHPZ-BS")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHDFSPHPZ, rHDFSPHPZ);
@@ -1940,7 +1958,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/human-development-family-studies/" +
                                 "human-development-family-studies-major-prevention-"
                                 + "intervention-sciences-concentration/");
-                final MajorMathRequirement rHDFSPISZ = //
+                final MajorMathRequirement rHDFSPISZ =
                         new MajorMathRequirement("HDFS-PISZ-BS")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHDFSPISZ, rHDFSPISZ);
@@ -1982,7 +2000,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/food-science-human-nutrition/"
                                 + "nutrition-food-science-major-dietetics-management-"
                                 + "concentration/");
-                final MajorMathRequirement rNAFSDNMZ = //
+                final MajorMathRequirement rNAFSDNMZ =
                         new MajorMathRequirement("NAFS-DNMZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mNAFSDNMZ, rNAFSDNMZ);
@@ -1992,7 +2010,7 @@ public final class MathPlanLogic {
                         "Food Safety and Nutrition",
                         CAT + "health-human-sciences/food-science-human-nutrition/"
                                 + "nutrition-food-science-major-safety-concentration/");
-                final MajorMathRequirement rNAFSFSNZ = //
+                final MajorMathRequirement rNAFSFSNZ =
                         new MajorMathRequirement("NAFS-FSNZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
                 map.put(mNAFSFSNZ, rNAFSFSNZ);
@@ -2002,7 +2020,7 @@ public final class MathPlanLogic {
                         "Food Systems",
                         CAT + "health-human-sciences/food-science-human-nutrition/"
                                 + "nutrition-food-science-major-food-systems-concentration/index.html");
-                final MajorMathRequirement rNAFSFSYZ = //
+                final MajorMathRequirement rNAFSFSYZ =
                         new MajorMathRequirement("NAFS-FSYZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 125", null, null);
                 map.put(mNAFSFSYZ, rNAFSFSYZ);
@@ -2012,7 +2030,7 @@ public final class MathPlanLogic {
                         "Nutrition and Fitness",
                         CAT + "health-human-sciences/food-science-human-nutrition/"
                                 + "nutrition-food-science-major-fitness-concentration/");
-                final MajorMathRequirement rNAFSNFTZ = //
+                final MajorMathRequirement rNAFSNFTZ =
                         new MajorMathRequirement("NAFS-NFTZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 125", null, null);
                 map.put(mNAFSNFTZ, rNAFSNFTZ);
@@ -2023,7 +2041,7 @@ public final class MathPlanLogic {
                         CAT + "health-human-sciences/food-science-human-nutrition/"
                                 + "nutrition-food-science-major-nutritional-sciences-"
                                 + "concentration/");
-                final MajorMathRequirement rNAFSNUSZ = //
+                final MajorMathRequirement rNAFSNUSZ =
                         new MajorMathRequirement("NAFS-NUSZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!",
                                         "M 125!", M_155);
@@ -2035,7 +2053,7 @@ public final class MathPlanLogic {
                         "Social Work",
                         CAT + "health-human-sciences/school-of-social-work/"
                                 + "social-work-major/");
-                final MajorMathRequirement rSOWK = //
+                final MajorMathRequirement rSOWK =
                         new MajorMathRequirement("SOWK-BSW")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mSOWK, rSOWK);
@@ -2045,7 +2063,7 @@ public final class MathPlanLogic {
                         "Addictions Counceling",
                         CAT + "health-human-sciences/school-of-social-work/"
                                 + "social-work-major/addictions-counseling-concentration/");
-                final MajorMathRequirement rSOWKADSZ = //
+                final MajorMathRequirement rSOWKADSZ =
                         new MajorMathRequirement("SOWK-ADSZ-BS")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mSOWKADSZ, rSOWKADSZ);
@@ -2067,7 +2085,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Anthropology", "Archaeology",
                         CAT + "liberal-arts/anthropology/"
                                 + "anthropology-major-archaeology-concentration/");
-                final MajorMathRequirement rANTHARCZ = //
+                final MajorMathRequirement rANTHARCZ =
                         new MajorMathRequirement("ANTH-ARCZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mANTHARCZ, rANTHARCZ);
@@ -2077,7 +2095,7 @@ public final class MathPlanLogic {
                         "Biological Anthropology",
                         CAT + "liberal-arts/anthropology/"
                                 + "anthropology-major-biological-concentration/");
-                final MajorMathRequirement rANTHBIOZ = //
+                final MajorMathRequirement rANTHBIOZ =
                         new MajorMathRequirement("ANTH-BIOZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mANTHBIOZ, rANTHBIOZ);
@@ -2087,7 +2105,7 @@ public final class MathPlanLogic {
                         "Cultural Anthropology",
                         CAT + "liberal-arts/anthropology/anthropology-major-"
                                 + "cultural-concentration/");
-                final MajorMathRequirement rANTHCLTZ = //
+                final MajorMathRequirement rANTHCLTZ =
                         new MajorMathRequirement("ANTH-CLTZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mANTHCLTZ, rANTHCLTZ);
@@ -2105,7 +2123,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.A.", "Art History",
                         CAT + "liberal-arts/art-history/art-major-ba/art-major-art-"
                                 + "history/");
-                final MajorMathRequirement rARTMARTZ = //
+                final MajorMathRequirement rARTMARTZ =
                         new MajorMathRequirement("ARTI-ARTZ-BA")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTIARTZ, rARTMARTZ);
@@ -2115,7 +2133,7 @@ public final class MathPlanLogic {
                         "Integrated Visual Studies",
                         CAT + "liberal-arts/art-history/"
                                 + "art-major-ba/art-major-integrated-visual-studies/");
-                final MajorMathRequirement rARTMIVSZ = //
+                final MajorMathRequirement rARTMIVSZ =
                         new MajorMathRequirement("ARTI-IVSZ-BA")
                                 .setSemesterCourses(null, "AUCC3.", null);
                 map.put(mARTIIVSZ, rARTMIVSZ);
@@ -2125,7 +2143,7 @@ public final class MathPlanLogic {
                 final Major mARTM = new Major(5020, "ARTM-BFA", Boolean.FALSE,
                         "Art, B.F.A.",
                         CAT + "liberal-arts/art-history/art-major-bfa/");
-                final MajorMathRequirement rARTM = //
+                final MajorMathRequirement rARTM =
                         new MajorMathRequirement("ARTM-BFA")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTM, rARTM);
@@ -2134,7 +2152,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Drawing",
                         CAT + "liberal-arts/art-history/art-major-drawing-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMDRAZ = //
+                final MajorMathRequirement rARTMDRAZ =
                         new MajorMathRequirement("ARTM-DRAZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMDRAZ, rARTMDRAZ);
@@ -2143,7 +2161,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Electronic Art",
                         CAT + "liberal-arts/art-history/art-major-electronic-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMELAZ = //
+                final MajorMathRequirement rARTMELAZ =
                         new MajorMathRequirement("ARTM-ELAZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMELAZ, rARTMELAZ);
@@ -2152,7 +2170,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Fibers",
                         CAT + "liberal-arts/art-history/art-major-fibers-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMFIBZ = //
+                final MajorMathRequirement rARTMFIBZ =
                         new MajorMathRequirement("ARTM-FIBZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMFIBZ, rARTMFIBZ);
@@ -2161,7 +2179,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Graphic Design",
                         CAT + "liberal-arts/art-history/art-major-graphic-design-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMGRDZ = //
+                final MajorMathRequirement rARTMGRDZ =
                         new MajorMathRequirement("ARTM-GRDZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMGRDZ, rARTMGRDZ);
@@ -2170,7 +2188,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Metalsmithing",
                         CAT + "liberal-arts/art-history/art-major-metalsmithing-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMMETZ = //
+                final MajorMathRequirement rARTMMETZ =
                         new MajorMathRequirement("ARTM-METZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMMETZ, rARTMMETZ);
@@ -2179,7 +2197,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Painting",
                         CAT + "liberal-arts/art-history/art-major-painting-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMPNTZ = //
+                final MajorMathRequirement rARTMPNTZ =
                         new MajorMathRequirement("ARTM-PNTZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMPNTZ, rARTMPNTZ);
@@ -2188,7 +2206,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Photo Image Making",
                         CAT + "liberal-arts/art-history/art-major-photo-image-making-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMPHIZ = //
+                final MajorMathRequirement rARTMPHIZ =
                         new MajorMathRequirement("ARTM-PHIZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMPHIZ, rARTMPHIZ);
@@ -2197,7 +2215,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Pottery",
                         CAT + "liberal-arts/art-history/art-major-pottery-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMPOTZ = //
+                final MajorMathRequirement rARTMPOTZ =
                         new MajorMathRequirement("ARTM-POTZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMPOTZ, rARTMPOTZ);
@@ -2206,7 +2224,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Printmaking",
                         CAT + "liberal-arts/art-history/art-major-printmaking-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMPRTZ = //
+                final MajorMathRequirement rARTMPRTZ =
                         new MajorMathRequirement("ARTM-PRTZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMPRTZ, rARTMPRTZ);
@@ -2215,7 +2233,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Art, B.F.A.", "Sculpture",
                         CAT + "liberal-arts/art-history/art-major-sculpture-"
                                 + "concentration/");
-                final MajorMathRequirement rARTMSCLZ = //
+                final MajorMathRequirement rARTMSCLZ =
                         new MajorMathRequirement("ARTM-SCLZ-BF")
                                 .setSemesterCourses(null, AUCC3, null);
                 map.put(mARTMSCLZ, rARTMSCLZ);
@@ -2223,7 +2241,7 @@ public final class MathPlanLogic {
                 final Major mARTIAREZ = new Major(5031, "ARTM-AREZ-BF",
                         Boolean.TRUE, "Art, B.F.A.", "Art Education",
                         CAT + "liberal-arts/art-history/art-major-art-education-concentration/");
-                final MajorMathRequirement rARTMAREZ = //
+                final MajorMathRequirement rARTMAREZ =
                         new MajorMathRequirement("ARTM-AREZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mARTIAREZ, rARTMAREZ);
@@ -2243,7 +2261,7 @@ public final class MathPlanLogic {
                         "Speech Teacher Licensure",
                         CAT + "liberal-arts/communication-studies/communication-studies-"
                                 + "major-speech-teacher-licensure-concentration/");
-                final MajorMathRequirement rCMSTTCLZ = //
+                final MajorMathRequirement rCMSTTCLZ =
                         new MajorMathRequirement("CMST-TCLZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mCMSTTCLZ, rCMSTTCLZ);
@@ -2288,7 +2306,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "English", "Creative Writing",
                         CAT + "liberal-arts/english/english-major-creative-writing-"
                                 + "concentration/");
-                final MajorMathRequirement rENGLCRWZ = //
+                final MajorMathRequirement rENGLCRWZ =
                         new MajorMathRequirement("ENGL-CRWZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mENGLCRWZ, rENGLCRWZ);
@@ -2297,7 +2315,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "English", "English Education",
                         CAT + "liberal-arts/english/english-major-education-"
                                 + "concentration/");
-                final MajorMathRequirement rENGLENEZ = //
+                final MajorMathRequirement rENGLENEZ =
                         new MajorMathRequirement("ENGL-ENEZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mENGLENEZ, rENGLENEZ);
@@ -2308,7 +2326,7 @@ public final class MathPlanLogic {
                 // Boolean.TRUE, "English", "Language",  
                 // CAT + "liberal-arts/english/english-major-language-" 
                 // + "concentration/"); 
-                // final MajorMathRequirement rENGLLANZ = //
+                // final MajorMathRequirement rENGLLANZ =
                 // new MajorMathRequirement("ENGL-LANZ-BA") 
                 // .setSemesterCourses("AUCC3.", null, null); 
                 // map.put(mENGLLANZ, rENGLLANZ);
@@ -2318,7 +2336,7 @@ public final class MathPlanLogic {
                         "Linguistics",
                         CAT + "liberal-arts/english/english-major-"
                                 + "linguistics-concentration/");
-                final MajorMathRequirement rENGLLINZ = //
+                final MajorMathRequirement rENGLLINZ =
                         new MajorMathRequirement("ENGL-LINZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mENGLLINZ, rENGLLINZ);
@@ -2327,7 +2345,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "English", "Literature",
                         CAT + "liberal-arts/english/english-major-literature-"
                                 + "concentration/");
-                final MajorMathRequirement rENGLLITZ = //
+                final MajorMathRequirement rENGLLITZ =
                         new MajorMathRequirement("ENGL-LITZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mENGLLITZ, rENGLLITZ);
@@ -2337,7 +2355,7 @@ public final class MathPlanLogic {
                         "Writing, Rhetoric and Literacy",
                         CAT + "liberal-arts/english/english-major-writing-rhetoric-"
                                 + "literacy-concentration/");
-                final MajorMathRequirement rENGLWRLZ = //
+                final MajorMathRequirement rENGLWRLZ =
                         new MajorMathRequirement("ENGL-WRLZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mENGLWRLZ, rENGLWRLZ);
@@ -2356,7 +2374,7 @@ public final class MathPlanLogic {
                         "Community Organizing and Institutional Change",
                         CAT + "liberal-arts/ethnic-studies/ethnic-studies-major"
                                 + "-social-studies-teaching-concentration/");
-                final MajorMathRequirement rETSTCOIZ = //
+                final MajorMathRequirement rETSTCOIZ =
                         new MajorMathRequirement("ETST-COIZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mETSTCOIZ, rETSTCOIZ);
@@ -2366,7 +2384,7 @@ public final class MathPlanLogic {
                         "Global Race, Power, and Resistance",
                         CAT + "liberal-arts/ethnic-studies/ethnic-studies-major-"
                                 + "global-race-power-resistance-concentration/");
-                final MajorMathRequirement rETSTRPRZ = //
+                final MajorMathRequirement rETSTRPRZ =
                         new MajorMathRequirement("ETST-RPRZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mETSTRPRZ, rETSTRPRZ);
@@ -2376,7 +2394,7 @@ public final class MathPlanLogic {
                         "Social Studies Teaching",
                         CAT + "liberal-arts/ethnic-studies/ethnic-studies-major"
                                 + "-social-studies-teaching-concentration/");
-                final MajorMathRequirement rETSTSOTZ = //
+                final MajorMathRequirement rETSTSOTZ =
                         new MajorMathRequirement("ETST-SOTZ-BA")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mETSTSOTZ, rETSTSOTZ);
@@ -2403,7 +2421,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "History", "General History",
                         CAT + "liberal-arts/history/history-major-general-"
                                 + "concentration/");
-                final MajorMathRequirement rHISTGENZ = //
+                final MajorMathRequirement rHISTGENZ =
                         new MajorMathRequirement("HIST-GENZ-BA")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHISTGENZ, rHISTGENZ);
@@ -2412,7 +2430,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "History", "Language",
                         CAT + "liberal-arts/history/history-major-language-"
                                 + "concentration/");
-                final MajorMathRequirement rHISTLNGZ = //
+                final MajorMathRequirement rHISTLNGZ =
                         new MajorMathRequirement("HIST-LNGZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mHISTLNGZ, rHISTLNGZ);
@@ -2422,7 +2440,7 @@ public final class MathPlanLogic {
                         "Social and Behavioral Sciences",
                         CAT + "liberal-arts/history/history-major-social-behavioral-"
                                 + "sciences-concentration/");
-                final MajorMathRequirement rHISTSBSZ = //
+                final MajorMathRequirement rHISTSBSZ =
                         new MajorMathRequirement("HIST-SBSZ-BA")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHISTSBSZ, rHISTSBSZ);
@@ -2431,7 +2449,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "History", "Social Studies Teaching",
                         CAT + "liberal-arts/history/history-major-social-studies-"
                                 + "teaching-concentration/");
-                final MajorMathRequirement rHISTSSTZ = //
+                final MajorMathRequirement rHISTSSTZ =
                         new MajorMathRequirement("HIST-SSTZ-BA")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHISTSSTZ, rHISTSSTZ);
@@ -2440,7 +2458,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "History", "Digital and Public History",
                         CAT + "liberal-arts/history/history-major-digital-public-"
                                 + "history-concentration/");
-                final MajorMathRequirement rHISTDPUZ = //
+                final MajorMathRequirement rHISTDPUZ =
                         new MajorMathRequirement("HIST-DPUZ-BA")
                                 .setSemesterCourses(AUCC3, null, null);
                 map.put(mHISTDPUZ, rHISTDPUZ);
@@ -2469,7 +2487,7 @@ public final class MathPlanLogic {
                         "French",
                         CAT + "liberal-arts/foreign-languages-literatures/languages-"
                                 + "literature-cultures-major-french-concentration/");
-                final MajorMathRequirement rLLACLFRZ = //
+                final MajorMathRequirement rLLACLFRZ =
                         new MajorMathRequirement("LLAC-LFRZ-BA")
                                 .setSemesterCourses(null, null, AUCC3);
                 map.put(mLLACLFRZ, rLLACLFRZ);
@@ -2479,7 +2497,7 @@ public final class MathPlanLogic {
                         "German",
                         CAT + "liberal-arts/foreign-languages-literatures/languages-"
                                 + "literature-cultures-major-german-concentration/");
-                final MajorMathRequirement rLLACLGEZ = //
+                final MajorMathRequirement rLLACLGEZ =
                         new MajorMathRequirement("LLAC-LGEZ-BA")
                                 .setSemesterCourses(null, null, AUCC3);
                 map.put(mLLACLGEZ, rLLACLGEZ);
@@ -2489,7 +2507,7 @@ public final class MathPlanLogic {
                         "Spanish",
                         CAT + "liberal-arts/foreign-languages-literatures/languages-"
                                 + "literature-cultures-major-spanish-concentration/");
-                final MajorMathRequirement rLLACLSPZ = //
+                final MajorMathRequirement rLLACLSPZ =
                         new MajorMathRequirement("LLAC-LSPZ-BA")
                                 .setSemesterCourses(null, null, AUCC3);
                 map.put(mLLACLSPZ, rLLACLSPZ);
@@ -2500,7 +2518,7 @@ public final class MathPlanLogic {
                         CAT + "liberal-arts/foreign-languages-literatures/languages-"
                                 + "literature-cultures-major-spanish-for-professions-"
                                 + "concentration/");
-                final MajorMathRequirement rLLACSPPZ = //
+                final MajorMathRequirement rLLACSPPZ =
                         new MajorMathRequirement("LLAC-SPPZ-BA")
                                 .setSemesterCourses(null, null, AUCC3);
                 map.put(mLLACSPPZ, rLLACSPPZ);
@@ -2527,7 +2545,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Music (B.M.)", "Composition",
                         CAT + "liberal-arts/music-theatre-dance/music-bm-composition-"
                                 + "concentration/");
-                final MajorMathRequirement rMUSCCOMZ = //
+                final MajorMathRequirement rMUSCCOMZ =
                         new MajorMathRequirement("MUSC-COMZ-BM")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mMUSCCOMZ, rMUSCCOMZ);
@@ -2536,7 +2554,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Music (B.M.)", "Music Education",
                         CAT + "liberal-arts/music-theatre-dance/music-bm-education-"
                                 + "concentration/");
-                final MajorMathRequirement rMUSCMUEZ = //
+                final MajorMathRequirement rMUSCMUEZ =
                         new MajorMathRequirement("MUSC-MUEZ-BM")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mMUSCMUEZ, rMUSCMUEZ);
@@ -2545,7 +2563,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Music (B.M.)", "Music Therapy",
                         CAT + "liberal-arts/music-theatre-dance/music-bm-therapy-"
                                 + "concentration/");
-                final MajorMathRequirement rMUSCMUTZ = //
+                final MajorMathRequirement rMUSCMUTZ =
                         new MajorMathRequirement("MUSC-MUTZ-BM")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mMUSCMUTZ, rMUSCMUTZ);
@@ -2554,7 +2572,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Music (B.M.)", "Performance",
                         CAT + "liberal-arts/music-theatre-dance/music-bm-performance-"
                                 + "concentration/");
-                final MajorMathRequirement rMUSCPERZ = //
+                final MajorMathRequirement rMUSCPERZ =
                         new MajorMathRequirement("MUSC-PERZ-BM")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mMUSCPERZ, rMUSCPERZ);
@@ -2572,7 +2590,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Philosophy", "General Philosophy",
                         CAT + "liberal-arts/philosophy/philosophy-major-general-"
                                 + "concentration/");
-                final MajorMathRequirement rPHILGNPZ = //
+                final MajorMathRequirement rPHILGNPZ =
                         new MajorMathRequirement("PHIL-GNPZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mPHILGNPZ, rPHILGNPZ);
@@ -2582,7 +2600,7 @@ public final class MathPlanLogic {
                         "Global Philosophies and Religions",
                         CAT + "liberal-arts/philosophy/philosophy-major-global-"
                                 + "philosophies-religions-concentration/");
-                final MajorMathRequirement rPHILGPRZ = //
+                final MajorMathRequirement rPHILGPRZ =
                         new MajorMathRequirement("PHIL-GPRZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mPHILGPRZ, rPHILGPRZ);
@@ -2592,7 +2610,7 @@ public final class MathPlanLogic {
                         "Philosophy, Science, and Technology",
                         CAT + "liberal-arts/philosophy/philosophy-major-science-"
                                 + "technology-concentration/");
-                final MajorMathRequirement rPHILPSAZ = //
+                final MajorMathRequirement rPHILPSAZ =
                         new MajorMathRequirement("PHIL-PSAZ-BA")
                                 .setSemesterCourses("AUCC3.", null, null);
                 map.put(mPHILPSAZ, rPHILPSAZ);
@@ -2611,7 +2629,7 @@ public final class MathPlanLogic {
                         "Environmental Politics and Policy",
                         CAT + "liberal-arts/political-science/political-science-major-"
                                 + "environmental-politics-policy-concentration/");
-                final MajorMathRequirement rPOLSEPAZ = //
+                final MajorMathRequirement rPOLSEPAZ =
                         new MajorMathRequirement("POLS-EPAZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mPOLSEPAZ, rPOLSEPAZ);
@@ -2621,7 +2639,7 @@ public final class MathPlanLogic {
                         "Global Politics and Policy",
                         CAT + "liberal-arts/political-science/political-science-major-"
                                 + "global-politics-policy-concentration/");
-                final MajorMathRequirement rPOLSGPPZ = //
+                final MajorMathRequirement rPOLSGPPZ =
                         new MajorMathRequirement("POLS-GPPZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mPOLSGPPZ, rPOLSGPPZ);
@@ -2631,7 +2649,7 @@ public final class MathPlanLogic {
                         "U.S. Government, Law, and Policy",
                         CAT + "liberal-arts/political-science/political-science-major-"
                                 + "us-government-law-policy-concentration/");
-                final MajorMathRequirement rPOLSULPZ = //
+                final MajorMathRequirement rPOLSULPZ =
                         new MajorMathRequirement("POLS-ULPZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mPOLSULPZ, rPOLSULPZ);
@@ -2650,7 +2668,7 @@ public final class MathPlanLogic {
                         "Criminology and Criminal Justice",
                         CAT + "liberal-arts/sociology/sociology-major-criminology-"
                                 + "criminal-justice-concentration/");
-                final MajorMathRequirement rSOCICRCZ = //
+                final MajorMathRequirement rSOCICRCZ =
                         new MajorMathRequirement("SOCI-CRCZ-BA")
                                 .setSemesterCourses(null, "AUCC3SOC!", null);
                 map.put(mSOCICRCZ, rSOCICRCZ);
@@ -2660,7 +2678,7 @@ public final class MathPlanLogic {
                         "Environmental Sociology",
                         CAT + "liberal-arts/sociology/sociology-major-environmental-"
                                 + "concentration/");
-                final MajorMathRequirement rSOCIENSZ = //
+                final MajorMathRequirement rSOCIENSZ =
                         new MajorMathRequirement("SOCI-ENSZ-BA")
                                 .setSemesterCourses(null, "AUCC3SOC!", null);
                 map.put(mSOCIENSZ, rSOCIENSZ);
@@ -2669,7 +2687,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Sociology", "General Sociology",
                         CAT + "liberal-arts/sociology/sociology-major-general-"
                                 + "concentration/");
-                final MajorMathRequirement rSOCIGNSZ = //
+                final MajorMathRequirement rSOCIGNSZ =
                         new MajorMathRequirement("SOCI-GNSZ-BA")
                                 .setSemesterCourses(null, "AUCC3SOC!", null);
                 map.put(mSOCIGNSZ, rSOCIGNSZ);
@@ -2689,7 +2707,7 @@ public final class MathPlanLogic {
                 // Boolean.TRUE, "Theatre", "Design and Technology",  
                 // CAT + "liberal-arts/music-theatre-dance/theatre-design-" 
                 // + "technology-concentration/"); 
-                // final MajorMathRequirement rTHTRDTHZ = //
+                // final MajorMathRequirement rTHTRDTHZ =
                 // new MajorMathRequirement("THTR-DTHZ-BA") 
                 // .setSemesterCourses(null, "AUCC3!", null); 
                 // map.put(mTHTRDTHZ, rTHTRDTHZ);
@@ -2700,7 +2718,7 @@ public final class MathPlanLogic {
                 // Boolean.TRUE, "Theatre", "General Theatre",  
                 // CAT + "liberal-arts/music-theatre-dance/theatre-general-" 
                 // + "theatre-concentration/"); 
-                // final MajorMathRequirement rTHTRGTRZ = //
+                // final MajorMathRequirement rTHTRGTRZ =
                 // new MajorMathRequirement("THTR-GTRZ-BA") 
                 // .setSemesterCourses(null, "AUCC3!", null); 
                 // map.put(mTHTRGTRZ, rTHTRGTRZ);
@@ -2709,7 +2727,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Theatre", "Performance",
                         CAT + "liberal-arts/music-theatre-dance/theatre-performance-"
                                 + "concentration/");
-                final MajorMathRequirement rTHTRPRFZ = //
+                final MajorMathRequirement rTHTRPRFZ =
                         new MajorMathRequirement("THTR-PRFZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mTHTRPRFZ, rTHTRPRFZ);
@@ -2719,7 +2737,7 @@ public final class MathPlanLogic {
                         "Lighting Design and Technology",
                         CAT + "liberal-arts/music-theatre-dance/theatre-lighting-"
                                 + "design-technology-concentration/");
-                final MajorMathRequirement rTHTRLDTZ = //
+                final MajorMathRequirement rTHTRLDTZ =
                         new MajorMathRequirement("THTR-LDTZ-BA")
                                 .setSemesterCourses(null, "AUCC3.", null);
                 map.put(mTHTRLDTZ, rTHTRLDTZ);
@@ -2729,7 +2747,7 @@ public final class MathPlanLogic {
                         "Lighting Design and Technology",
                         CAT + "liberal-arts/music-theatre-dance/theatre-musical-"
                                 + "theatre-concentration/");
-                final MajorMathRequirement rTHTRMUSZ = //
+                final MajorMathRequirement rTHTRMUSZ =
                         new MajorMathRequirement("THTR-MUSZ-BA")
                                 .setSemesterCourses(null, "AUCC3.", null);
                 map.put(mTHTRMUSZ, rTHTRMUSZ);
@@ -2739,7 +2757,7 @@ public final class MathPlanLogic {
                         "Projection Design and Technology",
                         CAT + "liberal-arts/music-theatre-dance/theatre-projection-"
                                 + "design-technology-concentration/");
-                final MajorMathRequirement rTHTRPDTZ = //
+                final MajorMathRequirement rTHTRPDTZ =
                         new MajorMathRequirement("THTR-PDTZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mTHTRPDTZ, rTHTRPDTZ);
@@ -2749,7 +2767,7 @@ public final class MathPlanLogic {
                         "Set Design",
                         CAT + "liberal-arts/music-theatre-dance/theatre-set-design-"
                                 + "technology-concentration/");
-                final MajorMathRequirement rTHTRSDSZ = //
+                final MajorMathRequirement rTHTRSDSZ =
                         new MajorMathRequirement("THTR-SDSZ-BA")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mTHTRSDSZ, rTHTRSDSZ);
@@ -2759,7 +2777,7 @@ public final class MathPlanLogic {
                         "Sound Design and Technology",
                         CAT + "liberal-arts/music-theatre-dance/theatre-sound-design-"
                                 + "technology-concentration/");
-                final MajorMathRequirement rTHTRSDTZ = //
+                final MajorMathRequirement rTHTRSDTZ =
                         new MajorMathRequirement("THTR-SDTZ-BA")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mTHTRSDTZ, rTHTRSDTZ);
@@ -2787,7 +2805,7 @@ public final class MathPlanLogic {
                         "Asian Studies",
                         CAT + "liberal-arts/international-studies-major-asian-"
                                 + "concentration/");
-                final MajorMathRequirement rINSTASTZ = //
+                final MajorMathRequirement rINSTASTZ =
                         new MajorMathRequirement("INST-ASTZ-BS")
                                 .setSemesterCourses(null, "AUCC3", null);
                 map.put(mINSTASTZ, rINSTASTZ);
@@ -2797,7 +2815,7 @@ public final class MathPlanLogic {
                         "European Studies",
                         CAT + "liberal-arts/international-studies-major-european-"
                                 + "concentration/");
-                final MajorMathRequirement rINSTEUSZ = //
+                final MajorMathRequirement rINSTEUSZ =
                         new MajorMathRequirement("INST-EUSZ-BS")
                                 .setSemesterCourses(null, "AUCC3.", null);
                 map.put(mINSTEUSZ, rINSTEUSZ);
@@ -2807,7 +2825,7 @@ public final class MathPlanLogic {
                         "Latin American Studies",
                         CAT + "liberal-arts/international-studies-major-latin-american-"
                                 + "concentration/");
-                final MajorMathRequirement rINSTLTSZ = //
+                final MajorMathRequirement rINSTLTSZ =
                         new MajorMathRequirement("INST-LTSZ-BS")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTLTSZ, rINSTLTSZ);
@@ -2817,7 +2835,7 @@ public final class MathPlanLogic {
                         "Middle East and North African Studies",
                         CAT + "liberal-arts/international-studies-major-middle-east-"
                                 + "north-african-concentration/");
-                final MajorMathRequirement rINSTMEAZ = //
+                final MajorMathRequirement rINSTMEAZ =
                         new MajorMathRequirement("INST-MEAZ-BS")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTMEAZ, rINSTMEAZ);
@@ -2827,7 +2845,7 @@ public final class MathPlanLogic {
                         "Global Studies",
                         CAT + "liberal-arts/international-studies-major-global-"
                                 + "studies-concentration/");
-                final MajorMathRequirement rINSTGBLZ = //
+                final MajorMathRequirement rINSTGBLZ =
                         new MajorMathRequirement("INST-GBLZ-BS")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTGBLZ, rINSTGBLZ);
@@ -2872,7 +2890,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/fish-wildlife-conservation-biology/"
                                 + "fish-wildlife-conservation-biology-major-conservation-"
                                 + "concentration/");
-                final MajorMathRequirement rFWCBCNVZ = //
+                final MajorMathRequirement rFWCBCNVZ =
                         new MajorMathRequirement("FWCB-CNVZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!",
                                         "M 125!", CALC1BIO);
@@ -2884,7 +2902,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/fish-wildlife-conservation-biology/"
                                 + "fish-wildlife-conservation-biology-major-fisheries-"
                                 + "aquatic-sciences-concentration/");
-                final MajorMathRequirement rFWCBFASZ = //
+                final MajorMathRequirement rFWCBFASZ =
                         new MajorMathRequirement("FWCB-FASZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!",
                                         "M 125!", CALC1BIO);
@@ -2896,7 +2914,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/fish-wildlife-conservation-biology/"
                                 + "fish-wildlife-conservation-biology-major-wildlife-"
                                 + "concentration/");
-                final MajorMathRequirement rFWCBWDBZ = //
+                final MajorMathRequirement rFWCBWDBZ =
                         new MajorMathRequirement("FWCB-WDBZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!",
                                         "M 125!", CALC1BIO);
@@ -2918,7 +2936,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/forest-rangeland-stewardship/"
                                 + "forest-rangeland-stewardship-major/"
                                 + "forest-biology-concentration/");
-                final MajorMathRequirement rFRRSFRBZ = //
+                final MajorMathRequirement rFRRSFRBZ =
                         new MajorMathRequirement("FRRS-FRBZ-BS")
                                 .setSemesterCourses("M 124!,M 125!", "M 155!",
                                         null);
@@ -2930,7 +2948,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/forest-rangeland-stewardship/"
                                 + "forest-rangeland-stewardship-major/"
                                 + "forest-fire-science-concentration/");
-                final MajorMathRequirement rFRRSFRFZ = //
+                final MajorMathRequirement rFRRSFRFZ =
                         new MajorMathRequirement("FRRS-FRFZ-BS")
                                 .setSemesterCourses("M 141!", null, null);
                 map.put(mFRRSFRFZ, rFRRSFRFZ);
@@ -2941,7 +2959,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/forest-rangeland-stewardship/"
                                 + "forest-rangeland-stewardship-major/"
                                 + "forest-management-concentration/");
-                final MajorMathRequirement rFRRSFMGZ = //
+                final MajorMathRequirement rFRRSFMGZ =
                         new MajorMathRequirement("FRRS-FMGZ-BS")
                                 .setSemesterCourses("M 117!,M 118!", "M 141!",
                                         null);
@@ -2953,7 +2971,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/forest-rangeland-stewardship/"
                                 + "forest-rangeland-stewardship-major/"
                                 + "rangeland-forest-management-concentration/");
-                final MajorMathRequirement rFRRSRFMZ = //
+                final MajorMathRequirement rFRRSRFMZ =
                         new MajorMathRequirement("FRRS-RFMZ-BS")
                                 .setSemesterCourses("M 141!", null, null);
                 map.put(mFRRSRFMZ, rFRRSRFMZ);
@@ -2964,7 +2982,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/forest-rangeland-stewardship/"
                                 + "forest-rangeland-stewardship-major/"
                                 + "rangeland-conservation-management-concentration/");
-                final MajorMathRequirement rFRRSRCMZ = //
+                final MajorMathRequirement rFRRSRCMZ =
                         new MajorMathRequirement("FRRS-RCMZ-BS")
                                 .setSemesterCourses(FRRS3, null, null);
                 map.put(mFRRSRCMZ, rFRRSRCMZ);
@@ -2983,7 +3001,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Geology", "Environmental Geology",
                         CAT + "natural-resources/geosciences/geology-major-"
                                 + "environmental-concentration/");
-                final MajorMathRequirement rGEOLEVGZ = //
+                final MajorMathRequirement rGEOLEVGZ =
                         new MajorMathRequirement("GEOL-EVGZ-BS")
                                 .setSemesterCourses("M 160.", null, M_161);
                 map.put(mGEOLEVGZ, rGEOLEVGZ);
@@ -2992,7 +3010,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Geology", "Geology",
                         CAT + "natural-resources/geosciences/geology-major-"
                                 + "geology-concentration/");
-                final MajorMathRequirement rGEOLGEOZ = //
+                final MajorMathRequirement rGEOLGEOZ =
                         new MajorMathRequirement("GEOL-GEOZ-BS")
                                 .setSemesterCourses("M 124!,M 125!,M 126.",
                                         "M 160.", M_161);
@@ -3002,7 +3020,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Geology", "Geophysics",
                         CAT + "natural-resources/geosciences/geology-major-"
                                 + "geophysics-concentration/");
-                final MajorMathRequirement rGEOLGPYZ = //
+                final MajorMathRequirement rGEOLGPYZ =
                         new MajorMathRequirement("GEOL-GPYZ-BS")
                                 .setSemesterCourses(null, "M 160.",
                                         "M 151,M 161,M 261,M 340");
@@ -3012,7 +3030,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Geology", "Hydrogeology",
                         CAT + "natural-resources/geosciences/geology-major-"
                                 + "hydrogeology-concentration/");
-                final MajorMathRequirement rGEOLHYDZ = //
+                final MajorMathRequirement rGEOLHYDZ =
                         new MajorMathRequirement("GEOL-HYDZ-BS")
                                 .setSemesterCourses("M 124!,M 125!,M 126.",
                                         "M 160!", "M 161,M 261,M 340");
@@ -3043,7 +3061,7 @@ public final class MathPlanLogic {
                         "Global Tourism",
                         CAT + "natural-resources/human-dimensions-natural-resources/"
                                 + "natural-resource-tourism-major-global-concentration/");
-                final MajorMathRequirement rNRRTGLTZ = //
+                final MajorMathRequirement rNRRTGLTZ =
                         new MajorMathRequirement("NRRT-GLTZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124.", null, null);
                 map.put(mNRRTGLTZ, rNRRTGLTZ);
@@ -3054,7 +3072,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/human-dimensions-natural-resources/"
                                 + "natural-resource-tourism-major-natural-resource-tourism-"
                                 + "concentration/");
-                final MajorMathRequirement rNRRTNRTZ = //
+                final MajorMathRequirement rNRRTNRTZ =
                         new MajorMathRequirement("NRRT-NRTZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124.", null, null);
                 map.put(mNRRTNRTZ, rNRRTNRTZ);
@@ -3095,7 +3113,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/ecosystem-science-sustainability/"
                                 + "watershed-science-sustainability-major-watershed-"
                                 + "data-concentration/");
-                final MajorMathRequirement rWRSCWSDZ = //
+                final MajorMathRequirement rWRSCWSDZ =
                         new MajorMathRequirement("WRSC-WSDZ-BS")
                                 .setSemesterCourses("CALC1BIO!", null, null);
                 map.put(mWRSCWSDZ, rWRSCWSDZ);
@@ -3106,7 +3124,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/ecosystem-science-sustainability/"
                                 + "watershed-science-sustainability-major-watershed-"
                                 + "science-concentration/");
-                final MajorMathRequirement rWRSCWSSZ = //
+                final MajorMathRequirement rWRSCWSSZ =
                         new MajorMathRequirement("WRSC-WSSZ-BS")
                                 .setSemesterCourses(null, null, CALC1BIO);
                 map.put(mWRSCWSSZ, rWRSCWSSZ);
@@ -3117,7 +3135,7 @@ public final class MathPlanLogic {
                         CAT + "natural-resources/ecosystem-science-sustainability/"
                                 + "watershed-science-sustainability-major-watershed-"
                                 + "sustainability-concentration/");
-                final MajorMathRequirement rWRSCWSUZ = //
+                final MajorMathRequirement rWRSCWSUZ =
                         new MajorMathRequirement("WRSC-WSUZ-BS")
                                 .setSemesterCourses(null, null, CALC);
                 map.put(mWRSCWSUZ, rWRSCWSUZ);
@@ -3140,7 +3158,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biochemistry", "ASBMB",
                         CAT + "natural-sciences/biochemistry-molecular-biology/"
                                 + "biochemistry-major-asbmb-concentration/");
-                final MajorMathRequirement rBCHMASBZ = //
+                final MajorMathRequirement rBCHMASBZ =
                         new MajorMathRequirement("BCHM-ASBZ-BS")
                                 .setSemesterCourses("CALC1BIO!", "CALC2BIO!",
                                         null);
@@ -3150,7 +3168,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biochemistry", "Data Science",
                         CAT + "natural-sciences/biochemistry-molecular-biology/"
                                 + "biochemistry-major-data-science-concentration/");
-                final MajorMathRequirement rBCHMDTSZ = //
+                final MajorMathRequirement rBCHMDTSZ =
                         new MajorMathRequirement("BCHM-DTSZ-BS")
                                 .setSemesterCourses("M 155!", "M 255!", null);
                 map.put(mBCHMDTSZ, rBCHMDTSZ);
@@ -3161,7 +3179,7 @@ public final class MathPlanLogic {
                         CAT + "natural-sciences/biochemistry-molecular-biology/"
                                 + "biochemistry-major-health-medical-sciences-"
                                 + "concentration/");
-                final MajorMathRequirement rBCHMHMSZ = //
+                final MajorMathRequirement rBCHMHMSZ =
                         new MajorMathRequirement("BCHM-HMSZ-BS")
                                 .setSemesterCourses("CALC1BIO!", "CALC2BIO!",
                                         null);
@@ -3171,7 +3189,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biochemistry", "Pre-Pharmacy",
                         CAT + "natural-sciences/biochemistry-molecular-biology/"
                                 + "biochemistry-major-prepharmacy-concentration/");
-                final MajorMathRequirement rBCHMPPHZ = //
+                final MajorMathRequirement rBCHMPPHZ =
                         new MajorMathRequirement("BCHM-PPHZ-BS")
                                 .setSemesterCourses("CALC1BIO!", "CALC2BIO!",
                                         null);
@@ -3192,7 +3210,7 @@ public final class MathPlanLogic {
                         "Biological Science",
                         CAT + "natural-sciences/biology/biological-science-major-"
                                 + "biological-science-concentration/");
-                final MajorMathRequirement rBLSCBLSZ = //
+                final MajorMathRequirement rBLSCBLSZ =
                         new MajorMathRequirement("BLSC-BLSZ-BS")
                                 .setSemesterCourses("M 117.,M 118.",
                                         "M 124!,M 125!,CALC1BIO.", null);
@@ -3202,7 +3220,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Biological Science", "Botany",
                         CAT + "natural-sciences/biology/biological-science-major-"
                                 + "botany-concentration/");
-                final MajorMathRequirement rBLSCBTNZ = //
+                final MajorMathRequirement rBLSCBTNZ =
                         new MajorMathRequirement("BLSC-BTNZ-BS")
                                 .setSemesterCourses("M 117.,M 118.",
                                         "M 124!,M 125!,CALC1BIO", null);
@@ -3224,7 +3242,7 @@ public final class MathPlanLogic {
                 // Boolean.TRUE, "Chemistry", "ACS Certified",  
                 // CAT + "natural-sciences/chemistry/chemistry-major-acs-" 
                 // + "certified-concentration/"); 
-                // final MajorMathRequirement rCHEMACSZ = //
+                // final MajorMathRequirement rCHEMACSZ =
                 // new MajorMathRequirement("CHEM-ACSZ-BS") 
                 // .setSemesterCourses("M 160!", null, 
                 // "CALC2CHM,CALC3CHM"); 
@@ -3236,7 +3254,7 @@ public final class MathPlanLogic {
                 // Boolean.TRUE, "Chemistry", "Non-ACS Certified",  
                 // CAT + "natural-sciences/chemistry/chemistry-major-non-acs-" 
                 // + "certified-concentration/"); 
-                // final MajorMathRequirement rCHEMNACZ = //
+                // final MajorMathRequirement rCHEMNACZ =
                 // new MajorMathRequirement("CHEM-NACZ-BS") 
                 // .setSemesterCourses("M 160!", null, 
                 // "CALC2CHM,CALC3CHM"); 
@@ -3247,7 +3265,7 @@ public final class MathPlanLogic {
                         "Environmental Chemistry",
                         CAT + "natural-sciences/chemistry/chemistry-major/"
                                 + "environmental-chemistry-concentration/");
-                final MajorMathRequirement rCHEMECHZ = //
+                final MajorMathRequirement rCHEMECHZ =
                         new MajorMathRequirement("CHEM-ECHZ-BS")
                                 .setSemesterCourses(null, "CALC1BIO!",
                                         "CALC2CHM,CALC3CHM");
@@ -3258,7 +3276,7 @@ public final class MathPlanLogic {
                         "Forensic Chemistry",
                         CAT + "natural-sciences/chemistry/chemistry-major/"
                                 + "forensic-chemistry-concentration/");
-                final MajorMathRequirement rCHEMFCHZ = //
+                final MajorMathRequirement rCHEMFCHZ =
                         new MajorMathRequirement("CHEM-FCHZ-BS")
                                 .setSemesterCourses(null, "CALC1BIO!",
                                         "CALC2CHM,CALC3CHM");
@@ -3268,7 +3286,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Chemistry", "Health Sciences",
                         CAT + "natural-sciences/chemistry/chemistry-major/"
                                 + "health-sciences-concentration/");
-                final MajorMathRequirement rCHEMHSCZ = //
+                final MajorMathRequirement rCHEMHSCZ =
                         new MajorMathRequirement("CHEM-HSCZ-BS")
                                 .setSemesterCourses(null, "CALC1BIO!",
                                         "CALC2CHM,CALC3CHM");
@@ -3278,7 +3296,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Chemistry", "Sustainable Chemistry",
                         CAT + "natural-sciences/chemistry/chemistry-major/"
                                 + "sustainable-chemistry-concentration/");
-                final MajorMathRequirement rCHEMSCHZ = //
+                final MajorMathRequirement rCHEMSCHZ =
                         new MajorMathRequirement("CHEM-SCHZ-BS")
                                 .setSemesterCourses(null, "CALC1BIO!",
                                         "CALC2CHM,CALC3CHM");
@@ -3300,7 +3318,7 @@ public final class MathPlanLogic {
                         "Computer Science",
                         CAT + "natural-sciences/computer-science/computer-science-major/"
                                 + "computer-science-concentration/");
-                final MajorMathRequirement rCPSCCPSZ = //
+                final MajorMathRequirement rCPSCCPSZ =
                         new MajorMathRequirement("CPSC-CPSZ-BS")
                                 .setSemesterCourses("M 124!,M 126!",
                                         CALC1CS, LINALG369);
@@ -3311,7 +3329,7 @@ public final class MathPlanLogic {
                         "Human-Centered Computing",
                         CAT + "natural-sciences/computer-science/computer-science-major/"
                                 + "human-centered-computing-concentration/");
-                final MajorMathRequirement rCPSCHCCZ = //
+                final MajorMathRequirement rCPSCHCCZ =
                         new MajorMathRequirement("CPSC-HCCZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 124!",
                                         "M 125!,M 126!", "CALC1CS,LINALG369");
@@ -3323,7 +3341,7 @@ public final class MathPlanLogic {
                         CAT + "natural-sciences/computer-science/"
                                 + "computer-science-major-artificial-intelligence-"
                                 + "machine-learning-concentration/");
-                final MajorMathRequirement rCPSCAIMZ = //
+                final MajorMathRequirement rCPSCAIMZ =
                         new MajorMathRequirement("CPSC-AIMZ-BS")
                                 .setSemesterCourses("M 124!,M 126!", CALC1CS,
                                         LINALG369);
@@ -3334,7 +3352,7 @@ public final class MathPlanLogic {
                         "Computing Systems",
                         CAT + "natural-sciences/computer-science/"
                                 + "computer-science-major-computing-systems-concentration/");
-                final MajorMathRequirement rCPSCCSYZ = //
+                final MajorMathRequirement rCPSCCSYZ =
                         new MajorMathRequirement("CPSC-CSYZ-BS")
                                 .setSemesterCourses("M 124!,M 126!", CALC1CS,
                                         LINALG369);
@@ -3345,7 +3363,7 @@ public final class MathPlanLogic {
                         "Networks and Security",
                         CAT + "natural-sciences/computer-science/"
                                 + "computer-science-major-networks-security-concentration/");
-                final MajorMathRequirement rCPSCNSCZ = //
+                final MajorMathRequirement rCPSCNSCZ =
                         new MajorMathRequirement("CPSC-NSCZ-BS")
                                 .setSemesterCourses("M 124!,M 126!", CALC1CS,
                                         LINALG369);
@@ -3356,7 +3374,7 @@ public final class MathPlanLogic {
                         "Software Engineering",
                         CAT + "natural-sciences/computer-science/"
                                 + "computer-science-major-software-engineering-concentration/");
-                final MajorMathRequirement rCPSCSEGZ = //
+                final MajorMathRequirement rCPSCSEGZ =
                         new MajorMathRequirement("CPSC-SEGZ-BS")
                                 .setSemesterCourses("M 124!,M 126!", CALC1CS,
                                         LINALG369);
@@ -3367,7 +3385,7 @@ public final class MathPlanLogic {
                         "Computer Science Education",
                         CAT + "natural-sciences/computer-science/computer-science-major/"
                                 + "computer-science-education-concentration/");
-                final MajorMathRequirement rCPSCCSEZ = //
+                final MajorMathRequirement rCPSCCSEZ =
                         new MajorMathRequirement("CPSC-CSEZ-BS")
                                 .setSemesterCourses("M 124!,M 126!", CALC1CS,
                                         LINALG369);
@@ -3386,7 +3404,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Data Science", "Computer Science",
                         CAT + "natural-sciences/data-science-major/computer-science-"
                                 + "concentration/");
-                final MajorMathRequirement rDSCICSCZ = //
+                final MajorMathRequirement rDSCICSCZ =
                         new MajorMathRequirement("DSCI-CSCZ-BS")
                                 .setSemesterCourses(M_160, M_161, "M 151,M 261");
                 map.put(mDSCICSCZ, rDSCICSCZ);
@@ -3395,7 +3413,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Data Science", "Economics",
                         CAT + "natural-sciences/data-science-major/economics-"
                                 + "concentration/");
-                final MajorMathRequirement rDSCIECNZ = //
+                final MajorMathRequirement rDSCIECNZ =
                         new MajorMathRequirement("DSCI-ECNZ-BS")
                                 .setSemesterCourses(M_160, M_161, "M 151,M 261");
                 map.put(mDSCIECNZ, rDSCIECNZ);
@@ -3404,7 +3422,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Data Science", "Mathematics",
                         CAT + "natural-sciences/data-science-major/mathematics-"
                                 + "concentration/");
-                final MajorMathRequirement rDSCIMATZ = //
+                final MajorMathRequirement rDSCIMATZ =
                         new MajorMathRequirement("DSCI-MATZ-BS")
                                 .setSemesterCourses(M_160, M_161, "M 151,M 261");
                 map.put(mDSCIMATZ, rDSCIMATZ);
@@ -3413,7 +3431,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Data Science", "Statistics",
                         CAT + "natural-sciences/data-science-major/statistics-"
                                 + "concentration/");
-                final MajorMathRequirement rDSCISTSZ = //
+                final MajorMathRequirement rDSCISTSZ =
                         new MajorMathRequirement("DSCI-STSZ-BS")
                                 .setSemesterCourses(M_160, M_161, "M 151,M 261");
                 map.put(mDSCISTSZ, rDSCISTSZ);
@@ -3422,7 +3440,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Data Science", "Neuroscience",
                         CAT + "natural-sciences/data-science-major/"
                                 + "neuroscience-concentration/");
-                final MajorMathRequirement rDSCINEUZ = //
+                final MajorMathRequirement rDSCINEUZ =
                         new MajorMathRequirement("DSCI-NEUZ-BS")
                                 .setSemesterCourses(M_160, M_161, "M 151,M 261");
                 map.put(mDSCINEUZ, rDSCINEUZ);
@@ -3441,7 +3459,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Mathematics", "Actuarial Sciences",
                         CAT + "natural-sciences/mathematics/mathematics-major-actuarial-"
                                 + "science-concentration/");
-                final MajorMathRequirement rMATHALSZ = //
+                final MajorMathRequirement rMATHALSZ =
                         new MajorMathRequirement("MATH-ALSZ-BS")
                                 .setSemesterCourses("M 160!,M 192", "M 161.",
                                         "M 235,M 261,M 317,ODE,M 369,M 495");
@@ -3451,7 +3469,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Mathematics", "Applied Mathematics",
                         CAT + "natural-sciences/mathematics/mathematics-major-applied-"
                                 + "concentration/");
-                final MajorMathRequirement rMATHAMTZ = //
+                final MajorMathRequirement rMATHAMTZ =
                         new MajorMathRequirement("MATH-AMTZ-BS")
                                 .setSemesterCourses("M 124!,M 126!,M 160.,M 192",
                                         "M 161.",
@@ -3462,7 +3480,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Mathematics", "General Mathematics",
                         CAT + "natural-sciences/mathematics/mathematics-major-"
                                 + "general-concentration/");
-                final MajorMathRequirement rMATHGNMZ = //
+                final MajorMathRequirement rMATHGNMZ =
                         new MajorMathRequirement("MATH-GNMZ-BS")
                                 .setSemesterCourses("M 124!,M 126!,M 160.,M 192",
                                         "M 161.",
@@ -3474,7 +3492,7 @@ public final class MathPlanLogic {
                         "Mathematics Education",
                         CAT + "natural-sciences/mathematics/mathematics-major-"
                                 + "education-concentration/");
-                final MajorMathRequirement rMATHMTEZ = //
+                final MajorMathRequirement rMATHMTEZ =
                         new MajorMathRequirement("MATH-MTEZ-BS")
                                 .setSemesterCourses("M 124!,M 126!,M 160.,M 192",
                                         "M 161.",
@@ -3496,7 +3514,7 @@ public final class MathPlanLogic {
                         "Biology Education",
                         CAT + "natural-sciences/natural-sciences-major-biology-"
                                 + "education-concentration/");
-                final MajorMathRequirement rNSCIBLEZ = //
+                final MajorMathRequirement rNSCIBLEZ =
                         new MajorMathRequirement("NSCI-BLEZ-BS")
                                 .setSemesterCourses("M 117!,M 118!",
                                         "CALC1BIO.", null);
@@ -3507,7 +3525,7 @@ public final class MathPlanLogic {
                         "Chemistry Education",
                         CAT + "natural-sciences/natural-sciences-major-chemistry-"
                                 + "education-concentration/");
-                final MajorMathRequirement rNSCICHEZ = //
+                final MajorMathRequirement rNSCICHEZ =
                         new MajorMathRequirement("NSCI-CHEZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,CALC1BIO.",
                                         "CALC2BIO.", null);
@@ -3518,7 +3536,7 @@ public final class MathPlanLogic {
                         "Geology Education",
                         CAT + "natural-sciences/natural-sciences-major-geology-"
                                 + "education-concentration/");
-                final MajorMathRequirement rNSCIGLEZ = //
+                final MajorMathRequirement rNSCIGLEZ =
                         new MajorMathRequirement("NSCI-GLEZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,CALC1BIO.",
                                         "CALC2BIO.", null);
@@ -3529,7 +3547,7 @@ public final class MathPlanLogic {
                         "Physical Science",
                         CAT + "natural-sciences/natural-sciences-major-physical-"
                                 + "science-concentration/");
-                final MajorMathRequirement rNSCIPHSZ = //
+                final MajorMathRequirement rNSCIPHSZ =
                         new MajorMathRequirement("NSCI-PHSZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,CALC1BIO.",
                                         "CALC2BIO.", null);
@@ -3540,7 +3558,7 @@ public final class MathPlanLogic {
                         "Physics Education",
                         CAT + "natural-sciences/natural-sciences-major-physics-"
                                 + "education-concentration/");
-                final MajorMathRequirement rNSCIPHEZ = //
+                final MajorMathRequirement rNSCIPHEZ =
                         new MajorMathRequirement("NSCI-PHEZ-BS")
                                 .setSemesterCourses("M 117!,M 118!,M 160.",
                                         "M 161.", M_261);
@@ -3560,7 +3578,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Physics", "Applied Physics",
                         CAT + "natural-sciences/physics/physics-major-applied-"
                                 + "concentration/");
-                final MajorMathRequirement rPHYSAPPZ = //
+                final MajorMathRequirement rPHYSAPPZ =
                         new MajorMathRequirement("PHYS-APPZ-BS")
                                 .setSemesterCourses("M 160.", "M 161.",
                                         "M 261,ODE");
@@ -3570,7 +3588,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Physics", "Physics",
                         CAT + "natural-sciences/physics/physics-major-physics-"
                                 + "concentration/");
-                final MajorMathRequirement rPHYSPHYZ = //
+                final MajorMathRequirement rPHYSPHYZ =
                         new MajorMathRequirement("PHYS-PHYZ-BS")
                                 .setSemesterCourses("M 160.", "M 161.",
                                         "M 261,ODE");
@@ -3590,7 +3608,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Psychology", "Addictions Counseling",
                         CAT + "natural-sciences/psychology/psychology-major-"
                                 + "addictions-counseling-concentration/");
-                final MajorMathRequirement rPSYCADCZ = //
+                final MajorMathRequirement rPSYCADCZ =
                         new MajorMathRequirement("PSYC-ADCZ-BS")
                                 .setSemesterCourses("M 117!", "M 118!,M 124!",
                                         null);
@@ -3601,7 +3619,7 @@ public final class MathPlanLogic {
                         "Clinical/Counseling Psychology",
                         CAT + "natural-sciences/psychology/psychology-major-"
                                 + "clinical-counseling-concentration/index.html");
-                final MajorMathRequirement rPSYCCCPZ = //
+                final MajorMathRequirement rPSYCCCPZ =
                         new MajorMathRequirement("PSYC-CCPZ-BS")
                                 .setSemesterCourses("M 117!", "M 118!,M 124!",
                                         null);
@@ -3611,7 +3629,7 @@ public final class MathPlanLogic {
                         Boolean.TRUE, "Psychology", "General Psychology",
                         CAT + "natural-sciences/psychology/psychology-major-"
                                 + "general-concentration/");
-                final MajorMathRequirement rPSYCGPSZ = //
+                final MajorMathRequirement rPSYCGPSZ =
                         new MajorMathRequirement("PSYC-GPSZ-BS")
                                 .setSemesterCourses("M 117!", "M 118!,M 124!",
                                         null);
@@ -3622,7 +3640,7 @@ public final class MathPlanLogic {
                         "Industrial/Organizational",
                         CAT + "natural-sciences/psychology/psychology-major-"
                                 + "industrial-organizational-concentration/");
-                final MajorMathRequirement rPSYCIOPZ = //
+                final MajorMathRequirement rPSYCIOPZ =
                         new MajorMathRequirement("PSYC-IOPZ-BS")
                                 .setSemesterCourses("M 117!", "M 118!,M 124!",
                                         null);
@@ -3633,7 +3651,7 @@ public final class MathPlanLogic {
                         "Mind, Brain, and Behavior",
                         CAT + "natural-sciences/psychology/psychology-major-"
                                 + "mind-brain-behavior-concentration/");
-                final MajorMathRequirement rPSYCMBBZ = //
+                final MajorMathRequirement rPSYCMBBZ =
                         new MajorMathRequirement("PSYC-MBBZ-BS")
                                 .setSemesterCourses("M 117!", "M 118!,M 124!",
                                         null);
@@ -3656,7 +3674,7 @@ public final class MathPlanLogic {
                 // "General Statistics", 
                 // CAT + "natural-sciences/statistics/statistics-major/" 
                 // + "general-statistics-concentration/"); 
-                // final MajorMathRequirement rSTATGSTZ = //
+                // final MajorMathRequirement rSTATGSTZ =
                 // new MajorMathRequirement("STAT-GSTZ-BS") 
                 // .setSemesterCourses("M 160!", "M 161!",  
                 // "M 261,M 235,M 369,STAT1"); 
@@ -3669,7 +3687,7 @@ public final class MathPlanLogic {
                 // "Mathematical Statistics", 
                 // CAT + "natural-sciences/statistics/statistics-major/" 
                 // + "mathematical-statistics-concentration/"); 
-                // final MajorMathRequirement rSTATMSTZ = //
+                // final MajorMathRequirement rSTATMSTZ =
                 // new MajorMathRequirement("STAT-MSTZ-BS") 
                 // .setSemesterCourses("M 160.", "M 161.",  
                 // "M 261,M 235,M 317,M 345,M 369,M 417,STAT2"); 
@@ -3704,7 +3722,7 @@ public final class MathPlanLogic {
                         CAT + "veterinary-medicine-biomedical-sciences/"
                                 + "biomedical-sciences/"
                                 + "biomedical-sciences-major-anatomy-physiology-concentration/");
-                final MajorMathRequirement rBIOMAPHZ = //
+                final MajorMathRequirement rBIOMAPHZ =
                         new MajorMathRequirement("BIOM-APHZ-BS")
                                 .setSemesterCourses("M 124,M 125,M 126", CALC1BIO, null);
                 map.put(mBIOMAPHZ, rBIOMAPHZ);
@@ -3715,7 +3733,7 @@ public final class MathPlanLogic {
                         CAT + "veterinary-medicine-biomedical-sciences/"
                                 + "environmental-radiological-health-sciences/"
                                 + "biomedical-sciences-major-environmental-public-health-concentration/");
-                final MajorMathRequirement rBIOMEPHZ = //
+                final MajorMathRequirement rBIOMEPHZ =
                         new MajorMathRequirement("BIOM-EPHZ-BS")
                                 .setSemesterCourses("M 117,M 118,M 124", CALC1BIO, null);
                 map.put(mBIOMEPHZ, rBIOMEPHZ);
@@ -3726,7 +3744,7 @@ public final class MathPlanLogic {
                         CAT + "veterinary-medicine-biomedical-sciences/"
                                 + "microbiology-immunology-pathology/"
                                 + "biomedical-sciences-major-microbiology-infectious-disease-concentration/");
-                final MajorMathRequirement rBIOMMIDZ = //
+                final MajorMathRequirement rBIOMMIDZ =
                         new MajorMathRequirement("BIOM-MIDZ-BS")
                                 .setSemesterCourses("M 117,M 118,M 124", CALC1BIO, null);
                 map.put(mBIOMMIDZ, rBIOMMIDZ);
@@ -3752,10 +3770,10 @@ public final class MathPlanLogic {
                 // final Major mMICR = new Major(8020, "MICR-BS", Boolean.TRUE, 
                 // "Microbiology", 
                 // CAT + "veterinary-medicine-biomedical-sciences/microbiology-" 
-                // + "immunology-pathology/microbiology-major/"); 
+                // + "immunology-pathology/microbiology-major/");
                 // final MajorMathRequirement rMICR = new MajorMathRequirement("MICR-BS")
-                // 
-                // .setSemesterCourses("BIOL3", null, null); 
+                //
+                // .setSemesterCourses("BIOL3", null, null);
                 // map.put(mMICR, rMICR);
 
                 // *** Major in Neuroscience (with two concentrations)
@@ -3775,7 +3793,7 @@ public final class MathPlanLogic {
                         CAT + "veterinary-medicine-biomedical-sciences/biomedical-"
                                 + "sciences/neuroscience-major-behavioral-cognitive-"
                                 + "concentration/");
-                final MajorMathRequirement rNEROBCNZ = //
+                final MajorMathRequirement rNEROBCNZ =
                         new MajorMathRequirement("NERO-BCNZ-BS")
                                 .setSemesterCourses("M 124!,M 125!,M 126!",
                                         M_155, null);
@@ -3787,7 +3805,7 @@ public final class MathPlanLogic {
                         CAT + "veterinary-medicine-biomedical-sciences/biomedical-"
                                 + "sciences/neuroscience-major-cell-molecular-"
                                 + "concentration/");
-                final MajorMathRequirement rNEROCMNZ = //
+                final MajorMathRequirement rNEROCMNZ =
                         new MajorMathRequirement("NERO-CMNZ-BS")
                                 .setSemesterCourses("M 124!,M 125!,M 126!",
                                         M_155, M_255);
@@ -3885,15 +3903,16 @@ public final class MathPlanLogic {
 
                 for (final Map.Entry<Major, MajorMathRequirement> entry : allMajors.entrySet()) {
                     final MajorMathRequirement req = entry.getValue();
+                    final Major key = entry.getKey();
 
                     if (req.isOnlyAUCC3()) {
-                        this.majorsNeedingAUCC.add(entry.getKey());
+                        this.majorsNeedingAUCC.add(key);
                     } else if (req.isNothingBeyondPrecalc()) {
-                        this.majorsNeedingPrecalc.add(entry.getKey());
+                        this.majorsNeedingPrecalc.add(key);
                     } else if (req.isNothingBeyondCalc1()) {
-                        this.majorsNeedingCalc1.add(entry.getKey());
+                        this.majorsNeedingCalc1.add(key);
                     } else {
-                        this.majorsNeedingMore.add(entry.getKey());
+                        this.majorsNeedingMore.add(key);
                     }
                 }
 
@@ -4211,7 +4230,8 @@ public final class MathPlanLogic {
 
             // The following will return test data - convert to "live" data.
             final List<RawFfrTrns> list = RawFfrTrnsLogic.queryByStudent(cache, studentId);
-            result = new ArrayList<>(list.size());
+            final int size = list.size();
+            result = new ArrayList<>(size);
 
             for (final RawFfrTrns tc : list) {
                 final LiveTransferCredit ltc = new LiveTransferCredit(studentId, null, tc.course, null, null);
@@ -4339,13 +4359,14 @@ public final class MathPlanLogic {
      */
     public static String getMathPlanStatus(final Cache cache, final int pidm) throws SQLException {
 
-        final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                Integer.valueOf(pidm), INTENTIONS_PROFILE);
+        final Integer pidmObj = Integer.valueOf(pidm);
+        final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, pidmObj,
+                INTENTIONS_PROFILE);
 
         String studentId = null;
 
         if (!responses.isEmpty()) {
-            studentId = responses.get(0).stuId;
+            studentId = responses.getFirst().stuId;
         }
 
         return studentId;
@@ -4380,8 +4401,8 @@ public final class MathPlanLogic {
     /**
      * Tests whether the student identified by a PIDM has completed the Math Placement process.
      *
-     * @param cache the data cache
-     * @param studentId  the student ID
+     * @param cache     the data cache
+     * @param studentId the student ID
      * @return 0 if the student's Math Plan indicates they do not need to complete placement; 1 if the student should
      *         complete math placement but has not yet done so; 2 is math placement has been completed
      * @throws SQLException if there is an error accessing the database
@@ -4395,7 +4416,7 @@ public final class MathPlanLogic {
         boolean satisfiedByCourse = false;
 
         final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
-        final RawStmathplan record = responses.get(Integer.valueOf(2));
+        final RawStmathplan record = responses.get(TWO);
         if (record != null && "Y".equals(record.stuAnswer)) {
             planSaysPlacementNeeded = true;
         }
@@ -4442,7 +4463,6 @@ public final class MathPlanLogic {
                 }
             }
         }
-
 
         MathPlanPlacementStatus result;
 
@@ -4509,7 +4529,7 @@ public final class MathPlanLogic {
 
         // Dummy record to test for existing
         RawStmathplan resp = new RawStmathplan(student.stuId, student.pidm, aplnTermStr, pageId, when.toLocalDate(),
-                Integer.valueOf(0), CoreConstants.EMPTY, finishTime, Long.valueOf(session.loginSessionTag));
+                ZERO, CoreConstants.EMPTY, finishTime, Long.valueOf(session.loginSessionTag));
 
         // Query for any existing answers with the same date and finish time
         final List<RawStmathplan> latest =
