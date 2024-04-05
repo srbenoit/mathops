@@ -137,6 +137,8 @@ public enum BulkUpdateMPLTestScores {
 
                 if (student == null) {
                     Log.fine("   ERROR: Student ", stuId, " not found!");
+                } else if (student.pidm == null) {
+                    Log.fine("   ERROR: Student ", stuId, " has no PIDM!");
                 } else {
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
                             student.pidm);
@@ -153,13 +155,39 @@ public enum BulkUpdateMPLTestScores {
                     if (latest2.containsKey(stuId)) {
                         // Student should have a "2" MPL score
                         if (mostRecent == null || !"2".equals(mostRecent.testScore)) {
-                            Log.fine("   Need to insert MPL=2 test score for ", stuId);
+
+                            final RawStmathplan submission = latest2.get(stuId);
+                            final LocalDateTime when = submission.getWhen();
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, "MPL", when, "2");
+
+                            if (DEBUG) {
+                                Log.fine("   Need to insert MPL=2 test score for ", stuId);
+                            } else if (RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                Log.fine("   Inserting MPL=2 test score for ", stuId);
+                            } else {
+                                Log.fine("   ERROR: Failed to inserting MPL=2 test score for ", stuId);
+                            }
+
                             ++count2;
                         }
                     } else if (latest1.containsKey(stuId)) {
                         // Student should have a "1" MPL score
                         if (mostRecent == null || !"1".equals(mostRecent.testScore)) {
                             Log.fine("   Need to insert MPL=1 test score for ", stuId);
+
+                            final RawStmathplan submission = latest1.get(stuId);
+                            final LocalDateTime when = submission.getWhen();
+
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, "MPL", when, "1");
+
+                            if (DEBUG) {
+                                Log.fine("   Need to insert MPL=1 test score for ", stuId);
+                            } else if (RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                Log.fine("   Inserting MPL=1 test score for ", stuId);
+                            } else {
+                                Log.fine("   ERROR: Failed to inserting MPL=1 test score for ", stuId);
+                            }
+
                             ++count1;
                         }
                     }
