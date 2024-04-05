@@ -135,7 +135,7 @@ public class PlacementLogic {
      * Flag indicating DCE/DCEN special student types are allowed unproctored attempts as if they were incoming
      * first-year students.
      */
-    private static final boolean IS_DCE_ALLOWED_UNPROCTORED = false;
+    private static final boolean IS_DCE_ALLOWED_UNPROCTORED = true;
 
     //
 
