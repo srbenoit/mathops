@@ -13,6 +13,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -214,13 +215,40 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
                 conn.setRequestProperty("Content-Type", "text/xml");
                 conn.connect();
 
+//                Log.info("Writing TXN request of length ", Integer.toString(bytes.length));
+
                 try (final OutputStream out = conn.getOutputStream()) {
                     out.write(bytes);
                 }
 
                 final int len = conn.getContentLength();
 
-                if (len > 0) {
+                if (len == -1) {
+//                    Log.info("Reading immediate TXN response of indeterminant length");
+
+                    final ByteArrayOutputStream baos = new ByteArrayOutputStream(300);
+
+                    final byte[] inBytes = new byte[300];
+                    int total = 0;
+
+                    try (final InputStream in = conn.getInputStream()) {
+                        int numRead = in.read(inBytes);
+                        while (numRead > 0) {
+                            total += numRead;
+                            baos.write(inBytes, 0, numRead);
+                            numRead = in.read(inBytes);
+                        }
+                    }
+
+                    if (total > 0) {
+                        final String reply = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+                        this.inputData.add(reply.toCharArray());
+                    } else {
+                        Log.warning("Zero bytes were read");
+                    }
+                } else if (len > 0) {
+//                    Log.info("Reading immediate TXN response of length ", Integer.toString(len));
+
                     final byte[] inBytes = new byte[len];
                     int total = 0;
 
@@ -238,6 +266,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
 
                     this.inputData.add(new String(inBytes, StandardCharsets.UTF_8).toCharArray());
                 } else {
+//                    Log.info("There was no immediate response");
                     this.inputData.add(EMPTY_CHAR_ARRAY);
                 }
 

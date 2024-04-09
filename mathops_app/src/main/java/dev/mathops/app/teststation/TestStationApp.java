@@ -1923,6 +1923,8 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
             final char[] xml = getServerConnection().readObject(name + " reply");
 
             if (xml != null) {
+//                Log.info("Response to ", request.getClass().getName(), " is length ", Integer.toString(xml.length));
+
                 final AbstractMessageBase msg = MessageFactory.parseMessage(xml);
 
                 if (msg == null) {

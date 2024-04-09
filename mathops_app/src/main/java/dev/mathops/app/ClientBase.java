@@ -418,6 +418,7 @@ public class ClientBase {
                 disconnectFromServer();
             }
         } else {
+            Log.warning("Unable to open connection to server.");
             reply = null;
         }
 
@@ -440,7 +441,9 @@ public class ClientBase {
         if (this.serverConnection.writeObject(requestXml)) {
             final char[] xml = this.serverConnection.readObject(name + " reply");
 
-            if (xml != null) {
+            if (xml == null) {
+                Log.warning("Received message is null.");
+            } else {
                 final AbstractMessageBase msg = MessageFactory.parseMessage(xml);
 
                 if (msg instanceof AbstractReplyBase) {

@@ -146,7 +146,7 @@ public final class TxnSite extends AbstractSite {
                 }
 
                 final String reqStr = new String(bytes, StandardCharsets.UTF_8);
-                // Log.info("REQ = " + reqStr);
+//                Log.info("REQ = ", reqStr);
 
                 final byte[] reply;
 
@@ -156,7 +156,7 @@ public final class TxnSite extends AbstractSite {
                     Log.warning(ex);
                     throw new IOException("Exception processing request", ex);
                 }
-                // Log.info("REPLY = " + new String(reply));
+//                Log.info("REPLY = ", new String(reply));
 
                 if (reply == null) {
                     Log.warning("Processing generated null reply: ", reqStr);
