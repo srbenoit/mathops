@@ -51,6 +51,9 @@ public enum BulkUpdateMPLTestScores {
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
     private static final boolean DEBUG = true;
 
+    /** The test code. */
+    private static final String TEST_CODE = "MPL";
+
     /** A commonly used integer. */
     private static final Integer ONE = Integer.valueOf(1);
 
@@ -132,8 +135,14 @@ public enum BulkUpdateMPLTestScores {
         try {
             int count1 = 0;
             int count2 = 0;
+            int already1 = 0;
+            int already2 = 0;
             for (final String stuId : stuIds) {
-                final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+                RawStudent student = RawStudentLogic.query(cache, stuId, false);
+                if (student == null) {
+                    Log.fine("   WARNING: Student ", stuId, " needed to be retrieved");
+                    student = RawStudentLogic.query(cache, stuId, true);
+                }
 
                 if (student == null) {
                     Log.fine("   ERROR: Student ", stuId, " not found!");
@@ -145,7 +154,7 @@ public enum BulkUpdateMPLTestScores {
 
                     RawMpscorequeue mostRecent = null;
                     for (final RawMpscorequeue test : existing) {
-                        if ("MPL".equals(test.testCode)) {
+                        if (TEST_CODE.equals(test.testCode)) {
                             if (mostRecent == null || mostRecent.testDate.isBefore(test.testDate)) {
                                 mostRecent = test;
                             }
@@ -154,38 +163,59 @@ public enum BulkUpdateMPLTestScores {
 
                     if (latest2.containsKey(stuId)) {
                         // Student should have a "2" MPL score
-                        if (mostRecent == null || !"2".equals(mostRecent.testScore)) {
+                        boolean doInsert = false;
 
+                        if (mostRecent == null) {
+                            doInsert = true;
+                        } else if ("2".equals(mostRecent.testScore)) {
+                            ++already2;
+                        } else {
+                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '2'");
+                            doInsert = true;
+                        }
+
+                        if (doInsert) {
                             final RawStmathplan submission = latest2.get(stuId);
                             final LocalDateTime when = submission.getWhen();
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, "MPL", when, "2");
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "2");
 
                             if (DEBUG) {
                                 Log.fine("   Need to insert MPL=2 test score for ", stuId);
-                            } else if (RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                Log.fine("   Inserting MPL=2 test score for ", stuId);
                             } else {
-                                Log.fine("   ERROR: Failed to inserting MPL=2 test score for ", stuId);
+                                Log.fine("   Inserting MPL=2 test score for ", stuId);
+                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                    Log.fine("   ERROR: Failed to inserting MPL=2 test score for ", stuId);
+                                }
                             }
 
                             ++count2;
                         }
                     } else if (latest1.containsKey(stuId)) {
                         // Student should have a "1" MPL score
-                        if (mostRecent == null || !"1".equals(mostRecent.testScore)) {
-                            Log.fine("   Need to insert MPL=1 test score for ", stuId);
+                        boolean doInsert = false;
 
+                        if (mostRecent == null) {
+                            doInsert = true;
+                        } else if ("1".equals(mostRecent.testScore)) {
+                            ++already1;
+                        } else {
+                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '1'");
+                            doInsert = true;
+                        }
+
+                        if (doInsert) {
                             final RawStmathplan submission = latest1.get(stuId);
                             final LocalDateTime when = submission.getWhen();
 
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, "MPL", when, "1");
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "1");
 
                             if (DEBUG) {
                                 Log.fine("   Need to insert MPL=1 test score for ", stuId);
-                            } else if (RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                Log.fine("   Inserting MPL=1 test score for ", stuId);
                             } else {
-                                Log.fine("   ERROR: Failed to inserting MPL=1 test score for ", stuId);
+                                Log.fine("   Inserting MPL=1 test score for ", stuId);
+                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                    Log.fine("   ERROR: Failed to inserting MPL=1 test score for ", stuId);
+                                }
                             }
 
                             ++count1;
@@ -194,8 +224,17 @@ public enum BulkUpdateMPLTestScores {
                 }
             }
 
-            Log.fine("    Found", Integer.toString(count1), " to update to score 1");
-            Log.fine("    Found", Integer.toString(count2), " to update to score 2");
+            final String count1Str = Integer.toString(count1);
+            Log.fine("    Found ", count1Str, " to update to score 1");
+
+            final String count2Str = Integer.toString(count2);
+            Log.fine("    Found ", count2Str, " to update to score 2");
+
+            final String already1Str = Integer.toString(already1);
+            Log.fine("    Found ", already1Str, " already with score 1");
+
+            final String already2Str = Integer.toString(already2);
+            Log.fine("    Found ", already2Str, " already with score 2");
         } finally {
             liveCtx.checkInConnection(liveConn);
         }
