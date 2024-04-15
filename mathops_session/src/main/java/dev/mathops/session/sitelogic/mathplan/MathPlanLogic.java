@@ -132,6 +132,9 @@ public final class MathPlanLogic {
     private static final String M_261 = "M 261";
 
     /** A course ID. */
+    private static final String M_269 = "M 269";
+
+    /** A course ID. */
     private static final String M_271 = "M 271";
 
     /** A course ID. */
@@ -205,6 +208,9 @@ public final class MathPlanLogic {
 
     /** A course ID. */
     private static final String M_460 = "M 460";
+
+    /** A course ID. */
+    private static final String M_463 = "M 463";
 
     /** A course ID. */
     private static final String M_466 = "M 466";
@@ -449,6 +455,11 @@ public final class MathPlanLogic {
 
                 // Precalculus
 
+                this.courses.put(RawRecordConstants.M116,
+                        new RawCourse(RawRecordConstants.M116, ZERO,
+                                "Precalculus Supplement for Success in Math (1 credit)",
+                                ONE, "N", "MATH 116", null,
+                                "N", "Y"));
                 this.courses.put(RawRecordConstants.M117,
                         new RawCourse(RawRecordConstants.M117, FOUR,
                                 "College Algebra in Context I (1 credit)",
@@ -459,6 +470,11 @@ public final class MathPlanLogic {
                                 "College Algebra in Context II (1 credit)",
                                 ONE, "Y", "MATH 118", null,
                                 "N", "Y"));
+                this.courses.put(RawRecordConstants.M120,
+                        new RawCourse(RawRecordConstants.M120, ZERO,
+                                "College Algebra (4 credit)",
+                                THREE, "Y", "MATH 120", null,
+                                "N", "N"));
                 this.courses.put(RawRecordConstants.M124,
                         new RawCourse(RawRecordConstants.M124, FOUR,
                                 "Logarithmic and Exponential Functions (1 credit)",
@@ -550,6 +566,10 @@ public final class MathPlanLogic {
                         "Calculus for Physical Scientists III (4 credits)",
                         FOUR, "N", "MATH 261", null,
                         "N", "N"));
+                this.courses.put(M_269, new RawCourse(M_269, ZERO,
+                        " Geometric Introduction to Linear Algebra (2 credits)",
+                        TWO, "N", "MATH 269", null,
+                        "N", "N"));
                 this.courses.put(M_271, new RawCourse(M_271, ZERO,
                         "Applied Mathematics for Chemists I (4 credits)",
                         FOUR, "N", "MATH 271", null,
@@ -558,11 +578,11 @@ public final class MathPlanLogic {
                         "Applied Mathematics for Chemists II (4 credits)",
                         FOUR, "N", "MATH 272", null,
                         "N", "N"));
+
                 this.courses.put(M_301, new RawCourse(M_301, ZERO,
                         "Introduction to Combinatorial Theory (3 credits)",
                         THREE, "N", "MATH 301", null,
                         "N", "N"));
-
                 this.courses.put(M_317, new RawCourse(M_317, ZERO,
                         "Advanced Calculus of One Variable (3 credits)",
                         THREE, "N", "MATH 317", null,
@@ -650,6 +670,10 @@ public final class MathPlanLogic {
                 this.courses.put(M_460, new RawCourse(M_460, ZERO,
                         "Information and Coding Theory (3 credits)",
                         THREE, "N", "MATH 460", null,
+                        "N", "N"));
+                this.courses.put(M_463, new RawCourse(M_463, ZERO,
+                        "Post-Quantum Cryptography (3 credits)",
+                        THREE, "N", "MATH 463", null,
                         "N", "N"));
                 this.courses.put(M_466, new RawCourse(M_466, ZERO,
                         "Abstract Algebra I (3 credits)",
@@ -775,6 +799,7 @@ public final class MathPlanLogic {
                 this.courseGroups.put(M_255, new CourseGroup(M_255, null, M_255, M_255));
                 this.courseGroups.put(M_256, new CourseGroup(M_256, null, M_256, M_256));
                 this.courseGroups.put(M_261, new CourseGroup(M_261, null, M_261, M_261));
+                this.courseGroups.put(M_269, new CourseGroup(M_269, null, M_269, M_269));
                 this.courseGroups.put(M_271, new CourseGroup(M_271, null, M_271, M_271));
                 this.courseGroups.put(M_272, new CourseGroup(M_272, null, M_272, M_272));
                 this.courseGroups.put(M_301, new CourseGroup(M_301, null, M_301, M_301));
