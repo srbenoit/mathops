@@ -9,7 +9,10 @@ import javax.swing.WindowConstants;
 /**
  * The main application.
  */
-public class JAdmin implements Runnable{
+public final class JAdmin implements Runnable{
+
+    /** The console. */
+    private Console console = null;
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -28,8 +31,13 @@ public class JAdmin implements Runnable{
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
 
-        final Console console = new Console(120, 60);
-        frame.setContentPane(console);
+        this.console = new Console(100, 40);
+        frame.setContentPane(this.console);
+
+        this.console.clear();
+        this.console.print("MAIN ADMIN", 0, 0);
+        this.console.reverse(5, 0, 5);
+        this.console.commit();
 
         UIUtilities.packAndCenter(frame);
         frame.setVisible(true);

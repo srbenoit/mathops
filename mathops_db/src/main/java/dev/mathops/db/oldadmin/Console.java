@@ -1,18 +1,17 @@
 package dev.mathops.db.oldadmin;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
+import java.awt.GridLayout;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -27,113 +26,145 @@ public final class Console extends JPanel {
     /** Margin on top and bottom. */
     private static final int TOP_BOTTOM_MARGIN = 5;
 
-    /** The font. */
-    private final Font font;
+    /** The number of columns. */
+    private final int numColumns;
 
-    /** The off-screen image. */
-    private final BufferedImage offscreen;
+    /** The number of lines. */
+    private final int numLines;
 
-    /** A {@code Graphics2D} that draws to the off-screen image. */
-    private final Graphics2D g2d;
+    /** The labels that display the characters in [y][x] order. */
+    private final JLabel[][] labels;
 
-    /** The character width. */
-    private final int charWidth;
+    /** The characters in [y][x] order. */
+    private final char[][] characters;
 
-    /** The character height. */
-    private final int charHeight;
-
-    /** The character ascent. */
-    private final int ascent;
+    /** A flag indicating whether each character is reversed. */
+    private final boolean[][] reversed;
 
     /**
      * Constructs a new {@code Console}.
      *
-     * @param numColumns the number of columns of text
-     * @param numLines the number of lines of text
+     * @param theNumColumns the number of columns of text
+     * @param theNumLines   the number of lines of text
      */
-    Console(final int numColumns, final int numLines) {
+    Console(final int theNumColumns, final int theNumLines) {
 
-        super();
+        super(new GridLayout(theNumLines, theNumColumns));
+
+        this.numColumns = theNumColumns;
+        this.numLines = theNumLines;
 
         setBackground(Color.BLACK);
+        final Border edgeBorder = BorderFactory.createEmptyBorder(TOP_BOTTOM_MARGIN, LEFT_RIGHT_MARGIN,
+                TOP_BOTTOM_MARGIN, LEFT_RIGHT_MARGIN);
+        setBorder(edgeBorder);
 
         final byte[] fontBytes = FileLoader.loadFileAsBytes(Console.class, "Consolas.ttf", true);
-        Font loadedFont = null;
+        Font font;
         if (fontBytes == null) {
-            loadedFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+            font = new Font(Font.MONOSPACED, Font.PLAIN, 13);
         } else {
             try (final ByteArrayInputStream in = new ByteArrayInputStream(fontBytes)) {
                 final Font onePoint = Font.createFont(Font.TRUETYPE_FONT, in);
-                loadedFont = onePoint.deriveFont(13f);
+                font = onePoint.deriveFont(14f);
                 Log.info("Loaded the Consolas font.");
             } catch (final IOException | FontFormatException ex) {
-                loadedFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+                font = new Font(Font.MONOSPACED, Font.PLAIN, 13);
             }
         }
-        this.font = loadedFont;
 
-        final BufferedImage temp = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-        final Graphics2D g = temp.createGraphics();
-        g.setFont(this.font);
-        final FontMetrics metr = g.getFontMetrics();
-        this.charWidth = metr.stringWidth("0");
-        this.charHeight = metr.getHeight();
-        this.ascent = metr.getAscent();
-        g.dispose();
+        final Border labelBorder = BorderFactory.createEmptyBorder(1, 0, 0, 1);
 
-        final int windowWidth = 2 + LEFT_RIGHT_MARGIN + this.charWidth * numColumns;
-        final int windowHeight = 2 + TOP_BOTTOM_MARGIN + this.charHeight * numLines;
+        this.labels = new JLabel[theNumLines][theNumColumns];
+        for (int line = 0; line < theNumLines; ++line) {
+            for (int col = 0; col < theNumColumns; ++col) {
+                final JLabel lbl = new JLabel(CoreConstants.SPC);
+                lbl.setBackground(Color.BLACK);
+                lbl.setForeground(Color.LIGHT_GRAY);
+                lbl.setFont(font);
+                lbl.setBorder(labelBorder);
+                lbl.setOpaque(true);
+                add(lbl);
+                this.labels[line][col] = lbl;
+            }
+        }
 
-        setPreferredSize(new Dimension(windowWidth, windowHeight));
-
-        this.offscreen = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
-        this.g2d = this.offscreen.createGraphics();
-        this.g2d.setFont(this.font);
-        this.g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-        buildScreenImage();
+        this.characters = new char[theNumLines][theNumColumns];
+        this.reversed = new boolean[theNumLines][theNumColumns];
     }
 
     /**
-     * Builds the off-screen image.
+     * Clears all characters to spaces.
      */
-    private void buildScreenImage() {
-
-        synchronized (this.offscreen) {
-            final int w = this.offscreen.getWidth();
-            final int h = this.offscreen.getHeight();
-
-            this.g2d.setColor(Color.BLACK);
-            this.g2d.fillRect(0, 0, w, h);
-
-            this.g2d.setColor(Color.WHITE);
-            int x = LEFT_RIGHT_MARGIN;
-            int y = TOP_BOTTOM_MARGIN + this.ascent;
-
-            this.g2d.drawString("M", x, y);
-            x += this.charWidth;
-            this.g2d.drawString("A", x, y);
-            x += this.charWidth;
-            this.g2d.drawString("I", x, y);
-            x += this.charWidth;
-            this.g2d.drawString("N", x, y);
-            x += this.charWidth;
-            x += this.charWidth;
-            this.g2d.drawString("ADMIN", x, y);
+    public void clear() {
+        for (int line = 0; line < this.numLines; ++line) {
+            for (int col = 0; col < this.numColumns; ++col) {
+                this.characters[line][col] = ' ';
+                this.reversed[line][col] = false;
+            }
         }
     }
 
     /**
-     * Paints the component.
+     * Prints a string at a position.
      *
-     * @param g the {@code Graphics} object to protect
+     * @param str the string to print
+     * @param x   the x coordinate
+     * @param y   the y coordinate
      */
-    public void paintComponent(final Graphics g) {
+    public void print(final String str, final int x, final int y) {
 
-        super.paintComponent(g);
+        if (y >= 0 && y < this.numLines) {
+            final char[] row = this.characters[y];
+            final char[] chars = str.toCharArray();
+            for (int i = 0; i < chars.length; ++i) {
+                final int pos = x + i;
+                if (pos >= 0 && pos < this.numColumns) {
+                    row[pos] = chars[i];
+                }
+            }
+        }
+    }
 
-        synchronized (this.offscreen) {
-            g.drawImage(this.offscreen, 0, 0, null);
+    /**
+     * Reverses some number of characters starting at a given position.
+     *
+     * @param x   the x coordinate
+     * @param y   the y coordinate
+     * @param len the number of characters to reverse
+     */
+    public void reverse(final int x, final int y, final int len) {
+
+        if (y >= 0 && y < this.numLines) {
+            final boolean[] row = this.reversed[y];
+            for (int i = 0; i < len; ++i) {
+                final int pos = x + i;
+                if (pos >= 0 && pos < this.numColumns) {
+                    row[pos] = true;
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates all labels with the appropriate characters.
+     */
+    public void commit() {
+        for (int line = 0; line < this.numLines; ++line) {
+            for (int col = 0; col < this.numColumns; ++col) {
+                final JLabel lbl = this.labels[line][col];
+
+                final String str = Character.toString(this.characters[line][col]);
+
+                lbl.setText(str);
+                if (this.reversed[line][col]) {
+                    lbl.setBackground(Color.LIGHT_GRAY);
+                    lbl.setForeground(Color.BLACK);
+                } else{
+                    lbl.setBackground(Color.BLACK);
+                    lbl.setForeground(Color.LIGHT_GRAY);
+                }
+            }
         }
     }
 }
