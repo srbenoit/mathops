@@ -7,8 +7,11 @@ import dev.mathops.commons.log.Log;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GridLayout;
@@ -18,13 +21,19 @@ import java.io.IOException;
 /**
  * A console panel that shows text (perhaps inverted) and az cursor.
  */
-public final class Console extends JPanel {
+public final class Console extends JPanel implements Runnable {
 
     /** Margin on left and right. */
     private static final int LEFT_RIGHT_MARGIN = 5;
 
     /** Margin on top and bottom. */
     private static final int TOP_BOTTOM_MARGIN = 5;
+
+    /** The desired font size. */
+    private static final float FONT_SIZE = 12.0f;
+
+    /** The fallback font size. */
+    private static final int FALLBACK_FONT_SIZE = 13;
 
     /** The number of columns. */
     private final int numColumns;
@@ -51,6 +60,9 @@ public final class Console extends JPanel {
 
         super(new GridLayout(theNumLines, theNumColumns));
 
+        setFocusable(true);
+        setDoubleBuffered(true);
+
         this.numColumns = theNumColumns;
         this.numLines = theNumLines;
 
@@ -59,30 +71,26 @@ public final class Console extends JPanel {
                 TOP_BOTTOM_MARGIN, LEFT_RIGHT_MARGIN);
         setBorder(edgeBorder);
 
-        final byte[] fontBytes = FileLoader.loadFileAsBytes(Console.class, "Consolas.ttf", true);
+        final byte[] fontBytes = FileLoader.loadFileAsBytes(Console.class, "JetBrainsMono.ttf", true);
         Font font;
         if (fontBytes == null) {
-            font = new Font(Font.MONOSPACED, Font.PLAIN, 13);
+            font = new Font(Font.MONOSPACED, Font.PLAIN, FALLBACK_FONT_SIZE);
         } else {
             try (final ByteArrayInputStream in = new ByteArrayInputStream(fontBytes)) {
                 final Font onePoint = Font.createFont(Font.TRUETYPE_FONT, in);
-                font = onePoint.deriveFont(14f);
-                Log.info("Loaded the Consolas font.");
+                font = onePoint.deriveFont(FONT_SIZE);
             } catch (final IOException | FontFormatException ex) {
-                font = new Font(Font.MONOSPACED, Font.PLAIN, 13);
+                font = new Font(Font.MONOSPACED, Font.PLAIN, FALLBACK_FONT_SIZE);
             }
         }
-
-        final Border labelBorder = BorderFactory.createEmptyBorder(1, 0, 0, 1);
 
         this.labels = new JLabel[theNumLines][theNumColumns];
         for (int line = 0; line < theNumLines; ++line) {
             for (int col = 0; col < theNumColumns; ++col) {
                 final JLabel lbl = new JLabel(CoreConstants.SPC);
                 lbl.setBackground(Color.BLACK);
-                lbl.setForeground(Color.LIGHT_GRAY);
+                lbl.setForeground(Color.WHITE);
                 lbl.setFont(font);
-                lbl.setBorder(labelBorder);
                 lbl.setOpaque(true);
                 add(lbl);
                 this.labels[line][col] = lbl;
@@ -133,7 +141,7 @@ public final class Console extends JPanel {
      * @param y   the y coordinate
      * @param len the number of characters to reverse
      */
-    public void reverse(final int x, final int y, final int len) {
+    void reverse(final int x, final int y, final int len) {
 
         if (y >= 0 && y < this.numLines) {
             final boolean[] row = this.reversed[y];
@@ -150,19 +158,37 @@ public final class Console extends JPanel {
      * Updates all labels with the appropriate characters.
      */
     public void commit() {
+
+        SwingUtilities.invokeLater(this);
+    }
+
+    /**
+     * Updates labels.  This should be called on the AWT event thread.
+     */
+    public void run() {
+
         for (int line = 0; line < this.numLines; ++line) {
             for (int col = 0; col < this.numColumns; ++col) {
                 final JLabel lbl = this.labels[line][col];
 
                 final String str = Character.toString(this.characters[line][col]);
 
-                lbl.setText(str);
+                final String existing = lbl.getText();
+                if (!str.equals(existing)) {
+                    lbl.setText(str);
+                }
+
                 if (this.reversed[line][col]) {
-                    lbl.setBackground(Color.LIGHT_GRAY);
+                    lbl.setBackground(Color.WHITE);
                     lbl.setForeground(Color.BLACK);
                 } else{
                     lbl.setBackground(Color.BLACK);
-                    lbl.setForeground(Color.LIGHT_GRAY);
+                    lbl.setForeground(Color.WHITE);
+                }
+
+                if (!lbl.isPreferredSizeSet()) {
+                    final Dimension size = lbl.getPreferredSize();
+                    lbl.setPreferredSize(size);
                 }
             }
         }

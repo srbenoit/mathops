@@ -129,6 +129,42 @@ public final class DbConfig implements Comparable<DbConfig> {
     }
 
     /**
+     * Constructs a new {@code DbConfig}.
+     *
+     * @param theServer the owning server configuration
+     * @param theId the database configuration ID
+     * @param theUse  the database use
+     */
+    public DbConfig(final ServerConfig theServer, final String theId, final EDbUse theUse) {
+
+        this.server = theServer;
+        this.id = theId;
+        this.use = theUse;
+        this.schemata = new ArrayList<>(4);
+        this.logins = new ArrayList<>(4);
+    }
+
+    /**
+     * Adds a schema.
+     *
+     * @param schema the schema
+     */
+    public void addSchema(final SchemaConfig schema) {
+
+        this.schemata.add(schema);
+    }
+
+    /**
+     * Adds a login.
+     *
+     * @param login the login
+     */
+    public void addLogin(final LoginConfig login) {
+
+        this.logins.add(login);
+    }
+
+    /**
      * Gets the list of schemata supported by the database.
      *
      * @return an unmodifiable view of the list of schemata

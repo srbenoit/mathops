@@ -80,6 +80,30 @@ public final class SchemaConfig {
     }
 
     /**
+     * Constructs a new {@code SchemaConfig}.
+     *
+     * @param theId the schema ID
+     * @param theBuilderClassName the fully-qualified name of the builder class
+     * @param theUse the schema use
+     * @throws IllegalArgumentException if the builder class name is not valid
+     */
+    public SchemaConfig(final String theId, final String theBuilderClassName, final ESchemaUse theUse)
+            throws IllegalArgumentException{
+
+        this.id = theId;
+        this.builderClassName = theBuilderClassName;
+        this.use = theUse;
+
+        try {
+            final Class<?> cls = Class.forName(this.builderClassName);
+            this.builderConstr = cls.getConstructor();
+        } catch (final ClassNotFoundException | NoSuchMethodException ex) {
+            final String msg = Res.fmt(Res.SCH_BAD_BUILDER, this.builderClassName);
+            throw new IllegalArgumentException(msg, ex);
+        }
+    }
+
+    /**
      * Gets the builder associated with the schema.
      *
      * @return the builder

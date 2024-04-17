@@ -106,6 +106,33 @@ public final class ServerConfig {
     }
 
     /**
+     * Constructs a new {@code ServerConfig}.
+     *
+     * @param theType the server type
+     * @param theHost the host
+     * @param thePort the port
+     * @param theName the server name
+     */
+    public ServerConfig(final EDbProduct theType, final String theHost, final int thePort, final String theName) {
+
+        this.type = theType;
+        this.host = theHost;
+        this.port = thePort;
+        this.name = theName;
+        this.databases = new ArrayList<>(5);
+    }
+
+    /**
+     * Adds a database.
+     *
+     * @param db the database configuration to add
+     */
+    public void addDatabase(final DbConfig db) {
+
+        this.databases.add(db);
+    }
+
+    /**
      * Gets the list of databases on the server.
      *
      * @return the list of databases

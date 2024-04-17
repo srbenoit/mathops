@@ -485,13 +485,13 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                 final LiveSessionInfo live = new LiveSessionInfo("abcdef",
                         "Local", ERole.STUDENT);
 
-                live.setUserInfo("833155611", "Test",
+                live.setUserInfo("831599651", "Test",
                         "Student", "Test Student");
 
                 final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
                 final UnitExamAvailability avail =
-                        new UnitExamAvailability(RawRecordConstants.M117, Integer.valueOf(3));
+                        new UnitExamAvailability(RawRecordConstants.M125, Integer.valueOf(4));
 
                 final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(session.userId);
 

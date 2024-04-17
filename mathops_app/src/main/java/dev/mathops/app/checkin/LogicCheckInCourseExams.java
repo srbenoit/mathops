@@ -873,21 +873,23 @@ final class LogicCheckInCourseExams {
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
+            final RawStexam passedU1 = workRecord.getFirstPassingUnitExam(1);
+            final RawStexam passedU2 = workRecord.getFirstPassingUnitExam(2);
+            final RawStexam passedU3 = workRecord.getFirstPassingUnitExam(3);
+            final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
+
             // See if the prior unit exam must be passed before accessing a Unit exam
             if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR)
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS)) {
 
-                final RawStexam passedU1 = workRecord.getFirstPassingUnitExam(1);
                 if (passedU1 == null) {
                     indicateExamUnavailable(data.unit2Exam, "Must Pass Unit 1", enforceEligibility);
                 }
 
-                final RawStexam passedU2 = workRecord.getFirstPassingUnitExam(2);
                 if (passedU2 == null) {
                     indicateExamUnavailable(data.unit3Exam, "Must Pass Unit 2", enforceEligibility);
                 }
 
-                final RawStexam passedU3 = workRecord.getFirstPassingUnitExam(3);
                 if (passedU3 == null) {
                     indicateExamUnavailable(data.unit4Exam, "Must Pass Unit 3", enforceEligibility);
                 }
@@ -898,22 +900,22 @@ final class LogicCheckInCourseExams {
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS)) {
 
                 final RawStexam passedR1 = workRecord.getFirstPassingReviewExam(1);
-                if (passedR1 == null) {
+                if (passedR1 == null && passedU1 == null) {
                     indicateExamUnavailable(data.unit1Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
                 final RawStexam passedR2 = workRecord.getFirstPassingReviewExam(2);
-                if (passedR2 == null) {
+                if (passedR2 == null && passedU2 == null) {
                     indicateExamUnavailable(data.unit2Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
                 final RawStexam passedR3 = workRecord.getFirstPassingReviewExam(3);
-                if (passedR3 == null) {
+                if (passedR3 == null && passedU3 == null) {
                     indicateExamUnavailable(data.unit3Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
 
                 final RawStexam passedR4 = workRecord.getFirstPassingReviewExam(4);
-                if (passedR4 == null) {
+                if (passedR4 == null && passedU4 == null) {
                     indicateExamUnavailable(data.unit4Exam, MUST_PASS_REVIEW, enforceEligibility);
                 }
             }
@@ -922,7 +924,6 @@ final class LogicCheckInCourseExams {
             if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_MSTR)
                     || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_PASS)) {
 
-                final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
                 if (passedU4 == null) {
                     indicateExamUnavailable(data.finalExam, "Must Pass Unit 4", enforceEligibility);
                 }
@@ -973,35 +974,48 @@ final class LogicCheckInCourseExams {
         final boolean isOld = sectData.numbers.isOld(reg.course);
 
         if (isOld) {
-            final Integer allowed1 = sectData.cuSections.get(ONE).atmptsPerReview;
-            if (Objects.nonNull(allowed1) && allowed1.intValue() < INFINITY) {
-                final int numFailed = workRecord.countFailedExamSincePassingReview(1);
-                if (numFailed >= allowed1.intValue()) {
-                    indicateExamUnavailable(data.unit1Exam, MUST_REPASS_REVIEW, enforceEligibility);
+            final RawStexam passedU1 = workRecord.getFirstPassingUnitExam(1);
+            final RawStexam passedU2 = workRecord.getFirstPassingUnitExam(2);
+            final RawStexam passedU3 = workRecord.getFirstPassingUnitExam(3);
+            final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
+
+            if (passedU1 == null) {
+                final Integer allowed1 = sectData.cuSections.get(ONE).atmptsPerReview;
+                if (Objects.nonNull(allowed1) && allowed1.intValue() < INFINITY) {
+                    final int numFailed = workRecord.countFailedExamSincePassingReview(1);
+                    if (numFailed >= allowed1.intValue()) {
+                        indicateExamUnavailable(data.unit1Exam, MUST_REPASS_REVIEW, enforceEligibility);
+                    }
                 }
             }
 
-            final Integer allowed2 = sectData.cuSections.get(TWO).atmptsPerReview;
-            if (Objects.nonNull(allowed2) && allowed2.intValue() < INFINITY) {
-                final int numFailed = workRecord.countFailedExamSincePassingReview(2);
-                if (numFailed >= allowed2.intValue()) {
-                    indicateExamUnavailable(data.unit2Exam, MUST_REPASS_REVIEW, enforceEligibility);
+            if (passedU2 == null) {
+                final Integer allowed2 = sectData.cuSections.get(TWO).atmptsPerReview;
+                if (Objects.nonNull(allowed2) && allowed2.intValue() < INFINITY) {
+                    final int numFailed = workRecord.countFailedExamSincePassingReview(2);
+                    if (numFailed >= allowed2.intValue()) {
+                        indicateExamUnavailable(data.unit2Exam, MUST_REPASS_REVIEW, enforceEligibility);
+                    }
                 }
             }
 
-            final Integer allowed3 = sectData.cuSections.get(THREE).atmptsPerReview;
-            if (Objects.nonNull(allowed3) && allowed3.intValue() < INFINITY) {
-                final int numFailed = workRecord.countFailedExamSincePassingReview(3);
-                if (numFailed >= allowed3.intValue()) {
-                    indicateExamUnavailable(data.unit3Exam, MUST_REPASS_REVIEW, enforceEligibility);
+            if (passedU3 == null) {
+                final Integer allowed3 = sectData.cuSections.get(THREE).atmptsPerReview;
+                if (Objects.nonNull(allowed3) && allowed3.intValue() < INFINITY) {
+                    final int numFailed = workRecord.countFailedExamSincePassingReview(3);
+                    if (numFailed >= allowed3.intValue()) {
+                        indicateExamUnavailable(data.unit3Exam, MUST_REPASS_REVIEW, enforceEligibility);
+                    }
                 }
             }
 
-            final Integer allowed4 = sectData.cuSections.get(FOUR).atmptsPerReview;
-            if (Objects.nonNull(allowed4) && allowed4.intValue() < INFINITY) {
-                final int numFailed = workRecord.countFailedExamSincePassingReview(4);
-                if (numFailed >= allowed4.intValue()) {
-                    indicateExamUnavailable(data.unit4Exam, MUST_REPASS_REVIEW, enforceEligibility);
+            if (passedU4 == null) {
+                final Integer allowed4 = sectData.cuSections.get(FOUR).atmptsPerReview;
+                if (Objects.nonNull(allowed4) && allowed4.intValue() < INFINITY) {
+                    final int numFailed = workRecord.countFailedExamSincePassingReview(4);
+                    if (numFailed >= allowed4.intValue()) {
+                        indicateExamUnavailable(data.unit4Exam, MUST_REPASS_REVIEW, enforceEligibility);
+                    }
                 }
             }
         }
