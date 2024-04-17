@@ -15,8 +15,11 @@ public final class MainWindow extends JFrame implements KeyListener {
     /** The console. */
     private Console console = null;
 
+    /** The cache. */
+    private final Cache cache;
+
     /** The main screen. */
-    private final ScreenMain main;
+    private ScreenMain main;
 
     /** The currently active screen. */
     private IScreen activeScreen;
@@ -29,17 +32,15 @@ public final class MainWindow extends JFrame implements KeyListener {
     MainWindow(final Cache theCache) {
 
         super("MATH ADMIN");
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
+
+        this.cache = theCache;
 
         this.console = new Console(100, 40);
         this.console.addKeyListener(this);
         setContentPane(this.console);
-
-        this.main = new ScreenMain(theCache);
-        this.activeScreen = this.main;
-
-        this.activeScreen.draw(this.console);
     }
 
     /**
@@ -47,11 +48,24 @@ public final class MainWindow extends JFrame implements KeyListener {
      */
     public void display() {
 
+        this.main = new ScreenMain(this.cache, this);
+        this.activeScreen = this.main;
+
+        this.activeScreen.draw(this.console);
+
         UIUtilities.packAndCenter(this);
         setVisible(true);
         this.console.requestFocus();
     }
 
+    /**
+     * Called when the application is exited.
+     */
+    public void quit() {
+
+        setVisible(false);
+        dispose();
+    }
 
     /**
      * Called when a key is typed.

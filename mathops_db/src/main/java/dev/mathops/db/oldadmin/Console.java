@@ -61,7 +61,6 @@ public final class Console extends JPanel implements Runnable {
         super(new GridLayout(theNumLines, theNumColumns));
 
         setFocusable(true);
-        setDoubleBuffered(true);
 
         this.numColumns = theNumColumns;
         this.numLines = theNumLines;
@@ -167,9 +166,23 @@ public final class Console extends JPanel implements Runnable {
      */
     public void run() {
 
+        setVisible(false);
+
         for (int line = 0; line < this.numLines; ++line) {
             for (int col = 0; col < this.numColumns; ++col) {
+
                 final JLabel lbl = this.labels[line][col];
+                final Color curBg = lbl.getBackground();
+
+                if (this.reversed[line][col]) {
+                    if (curBg.getRed() == 0) {
+                        lbl.setBackground(Color.WHITE);
+                        lbl.setForeground(Color.BLACK);
+                    }
+                } else if (curBg.getRed() > 0) {
+                    lbl.setBackground(Color.BLACK);
+                    lbl.setForeground(Color.WHITE);
+                }
 
                 final String str = Character.toString(this.characters[line][col]);
 
@@ -178,19 +191,17 @@ public final class Console extends JPanel implements Runnable {
                     lbl.setText(str);
                 }
 
-                if (this.reversed[line][col]) {
-                    lbl.setBackground(Color.WHITE);
-                    lbl.setForeground(Color.BLACK);
-                } else{
-                    lbl.setBackground(Color.BLACK);
-                    lbl.setForeground(Color.WHITE);
-                }
-
                 if (!lbl.isPreferredSizeSet()) {
                     final Dimension size = lbl.getPreferredSize();
-                    lbl.setPreferredSize(size);
+                    final Dimension exist = lbl.getPreferredSize();
+                    if (!exist.equals(size)) {
+                        lbl.setPreferredSize(size);
+                    }
                 }
             }
         }
+
+        setVisible(true);
+        requestFocus();
     }
 }

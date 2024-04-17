@@ -18,32 +18,47 @@ final class ScreenMain implements IScreen {
     /** The cache. */
     private final Cache cache;
 
+    /** The main window. */
+    private final MainWindow mainWindow;
+
     /** The current selection (0 through 9). */
     private int selection;
 
     /** Flag indicating "Pick student" is being shown. */
     private boolean showingPick;
 
+    /** Flag indicating "Press RETURN to select, or F5 to cancel" is being shown. */
+    private boolean showingAccept;
+
     /** The current student ID. */
     private String studentId;
 
     /** The current student record. */
-    private RawStudent student;
+    private RawStudent student = null;
 
     /** An error message. */
     private String errorMessage;
+
+    /** Flag indicating lock screen is being shown. */
+    private boolean showingLock;
+
+    /** The lock password being typed. */
+    private String lockPassword;
 
     /**
      * Constructs a new {@code ScreenMain}.
      *
      * @param theCache the cache
+     * @param theMainWindow the main window
      */
-    ScreenMain(final Cache theCache) {
+    ScreenMain(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
+        this.mainWindow = theMainWindow;
+
         this.selection = 0;
         this.studentId = CoreConstants.EMPTY;
-        this.student = null;
+        this.errorMessage = CoreConstants.EMPTY;
     }
 
     /**
@@ -58,7 +73,6 @@ final class ScreenMain implements IScreen {
 
         switch (this.selection) {
             case 0:
-            default:
                 console.reverse(13, 0, 6);
                 console.print("Select a student", 0, 1);
                 break;
@@ -129,6 +143,10 @@ final class ScreenMain implements IScreen {
                     console.print(name, 28, 13);
                 }
             }
+
+            if (this.showingAccept) {
+                console.print("Press RETURN to select or F5 to cancel...", 15, 16);
+            }
         } else if (this.student != null) {
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
@@ -142,9 +160,10 @@ final class ScreenMain implements IScreen {
             console.print(idMsg, 40, 4);
         }
 
-        if (this.errorMessage != null) {
+        if (!this.errorMessage.isBlank()) {
             console.print(this.errorMessage, 1, 21);
-            console.reverse(0, 21, this.errorMessage.length() + 2);
+            final int len = this.errorMessage.length();
+            console.reverse(0, 21, len + 2);
         }
 
         console.commit();
@@ -173,9 +192,17 @@ final class ScreenMain implements IScreen {
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
-            if (this.showingPick) {
+            if (this.showingAccept) {
+                this.showingPick = false;
+                this.showingAccept = false;
+                this.errorMessage = CoreConstants.EMPTY;
+                repaint = true;
+            } else if (this.showingPick) {
                 try {
                     this.student = RawStudentLogic.query(this.cache, this.studentId, false);
+                    this.showingAccept = true;
+                    this.errorMessage = CoreConstants.EMPTY;
+                    repaint = true;
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     this.studentId = CoreConstants.EMPTY;
@@ -183,12 +210,15 @@ final class ScreenMain implements IScreen {
                     repaint = true;
                 }
             } else {
-                if (this.selection == 0) {
+                if (this.selection == 9) {
+                    this.mainWindow.quit();
+                } else if (this.selection == 0) {
+                    this.student = null;
                     this.showingPick = true;
-                    this.errorMessage = null;
+                    this.showingAccept = false;
+                    this.errorMessage = CoreConstants.EMPTY;
                     repaint = true;
                 }
-                //
             }
         }
 
@@ -205,7 +235,14 @@ final class ScreenMain implements IScreen {
 
         boolean repaint = false;
 
-        if (this.showingPick) {
+        if (this.showingLock) {
+            final int lockLen = this.lockPassword.length();
+
+            if (lockLen < 8 && character >= '0' && character <= '9') {
+                this.lockPassword = this.lockPassword + character;
+                repaint = true;
+            }
+        } else if (this.showingPick && !this.showingAccept) {
             final int stuIdLen = this.studentId.length();
 
             if (stuIdLen < 9 && character >= '0' && character <= '9') {

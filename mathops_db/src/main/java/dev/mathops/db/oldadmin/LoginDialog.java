@@ -16,6 +16,7 @@ import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.SchemaConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -130,6 +131,9 @@ public final class LoginDialog extends JFrame implements ActionListener {
 
         UIUtilities.packAndCenter(this);
         setVisible(true);
+
+        this.username.requestFocusInWindow();
+        this.username.requestFocus();
     }
 
     /**
@@ -142,7 +146,7 @@ public final class LoginDialog extends JFrame implements ActionListener {
         final boolean isProd = this.prod.isSelected();
 
         // Create the server configuration
-        final int port = isProd ? 1900 : 1901;
+        final int port = isProd ? 1901 : 1900;
         final String serverName = isProd ? "imp_prodtcp" : "imp_devtcp";
         final ServerConfig server = new ServerConfig(EDbProduct.INFORMIX, "baer.math.colostate.edu", port, serverName);
 
@@ -171,30 +175,37 @@ public final class LoginDialog extends JFrame implements ActionListener {
 
         final Map<ESchemaUse, DbContext> useMap = new EnumMap<>(ESchemaUse.class);
 
-        final DbContext ctx = new DbContext(schema, login);
-        useMap.put(ESchemaUse.PRIMARY, ctx);
-
-        final DbProfile profile;
+        final String profileName;
         if (this.prod.isSelected()) {
-            profile = new DbProfile("PROD", useMap);
+            profileName = "PROD";
         } else {
-            profile = new DbProfile("DEV", useMap);
+            profileName = "DEV";
         }
 
+        final DbContext ctx = new DbContext(schema, login);
+        useMap.put(ESchemaUse.PRIMARY, ctx);
+        final DbProfile profile = new DbProfile(profileName, useMap);
+
         try {
-            Log.info("Connecting as '", usernameStr, "' with password '", passwordStr);
+//            Log.info("Connecting as '", usernameStr, "' with password '", passwordStr);
 
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(profile, conn);
 
             try {
-                RawWhichDbLogic.query(cache);
-                setVisible(false);
+                final RawWhichDb which = RawWhichDbLogic.query(cache);
+                if (which == null) {
+                    this.error.setText("Unable to check database type.");
+                } else if (profileName.equals(which.descr)) {
+                    setVisible(false);
 
-                final MainWindow mainWindow = new MainWindow(cache);
-                mainWindow.display();
+                    final MainWindow mainWindow = new MainWindow(cache);
+                    mainWindow.display();
 
-                dispose();
+                    dispose();
+                } else {
+                    this.error.setText(profileName + " selected, database indicates " + which.descr);
+                }
             } catch (final SQLException ex) {
                 this.error.setText("Unable to connect.");
             }
