@@ -199,7 +199,7 @@ public final class LoginDialog extends JFrame implements ActionListener {
                 } else if (profileName.equals(which.descr)) {
                     setVisible(false);
 
-                    final MainWindow mainWindow = new MainWindow(cache);
+                    final MainWindow mainWindow = new MainWindow(cache, usernameStr);
                     mainWindow.display();
 
                     dispose();

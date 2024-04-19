@@ -18,6 +18,9 @@ public final class MainWindow extends JFrame implements KeyListener {
     /** The cache. */
     private final Cache cache;
 
+    /** Data on the logged in user. */
+    private final UserData userData;
+
     /** The main screen. */
     private ScreenMain main;
 
@@ -28,8 +31,9 @@ public final class MainWindow extends JFrame implements KeyListener {
      * Constructs a new {@code MainWindow}.
      *
      * @param theCache the cache
+     * @param username the username of the logged-in user
      */
-    MainWindow(final Cache theCache) {
+    MainWindow(final Cache theCache, final String username) {
 
         super("MATH ADMIN");
 
@@ -38,9 +42,31 @@ public final class MainWindow extends JFrame implements KeyListener {
 
         this.cache = theCache;
 
+        this.userData = new UserData(this.cache, username);
+
         this.console = new Console(100, 40);
         this.console.addKeyListener(this);
         setContentPane(this.console);
+    }
+
+    /**
+     * Gets the console.
+     *
+     * @return the console
+     */
+    Console getConsole() {
+
+        return this.console;
+    }
+
+    /**
+     * Gets the user data for the logged-in user.
+     *
+     * @return the user data
+     */
+    UserData getUserData() {
+
+        return this.userData;
     }
 
     /**

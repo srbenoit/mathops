@@ -2,19 +2,18 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.commons.log.Log;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -35,11 +34,17 @@ public final class Console extends JPanel implements Runnable {
     /** The fallback font size. */
     private static final int FALLBACK_FONT_SIZE = 13;
 
+    /** The cursor color. */
+    private static final Color CURSOR_COLOR = new Color(50, 205, 50);
+
     /** The number of columns. */
     private final int numColumns;
 
     /** The number of lines. */
     private final int numLines;
+
+    /** The cursor location. */
+    private final Point cursor;
 
     /** The labels that display the characters in [y][x] order. */
     private final JLabel[][] labels;
@@ -64,6 +69,7 @@ public final class Console extends JPanel implements Runnable {
 
         this.numColumns = theNumColumns;
         this.numLines = theNumLines;
+        this.cursor = new Point(-1, -1);
 
         setBackground(Color.BLACK);
         final Border edgeBorder = BorderFactory.createEmptyBorder(TOP_BOTTOM_MARGIN, LEFT_RIGHT_MARGIN,
@@ -110,6 +116,27 @@ public final class Console extends JPanel implements Runnable {
                 this.reversed[line][col] = false;
             }
         }
+    }
+
+    /**
+     * Sets the cursor location.  If the (x, y) point is outside the screen bounds, no cursor is drawn.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    void setCursor(final int x, final int y) {
+
+        this.cursor.setLocation(x, y);
+    }
+
+    /**
+     * Gets the cursor location.
+     *
+     * @return the cursor.
+     */
+    Point getCursorPoint() {
+
+        return this.cursor;
     }
 
     /**
@@ -168,21 +195,19 @@ public final class Console extends JPanel implements Runnable {
 
         setVisible(false);
 
+        final int cx = this.cursor.x;
+        final int cy = this.cursor.y;
+
         for (int line = 0; line < this.numLines; ++line) {
             for (int col = 0; col < this.numColumns; ++col) {
-
                 final JLabel lbl = this.labels[line][col];
-                final Color curBg = lbl.getBackground();
 
-                if (this.reversed[line][col]) {
-                    if (curBg.getRed() == 0) {
-                        lbl.setBackground(Color.WHITE);
-                        lbl.setForeground(Color.BLACK);
-                    }
-                } else if (curBg.getRed() > 0) {
-                    lbl.setBackground(Color.BLACK);
-                    lbl.setForeground(Color.WHITE);
+                if (line == cy && col == cx) {
+                    lbl.setBackground(CURSOR_COLOR);
+                } else {
+                    lbl.setBackground(this.reversed[line][col] ? Color.WHITE : Color.BLACK);
                 }
+                lbl.setForeground(this.reversed[line][col] ? Color.BLACK : Color.WHITE);
 
                 final String str = Character.toString(this.characters[line][col]);
 
