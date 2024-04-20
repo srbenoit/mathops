@@ -35,7 +35,7 @@ public final class MainWindow extends JFrame implements KeyListener {
      */
     MainWindow(final Cache theCache, final String username) {
 
-        super("MATH ADMIN");
+        super("ADMIN");
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -77,7 +77,7 @@ public final class MainWindow extends JFrame implements KeyListener {
         this.main = new ScreenMain(this.cache, this);
         this.activeScreen = this.main;
 
-        this.activeScreen.draw(this.console);
+        this.activeScreen.draw();
 
         UIUtilities.packAndCenter(this);
         setVisible(true);
@@ -103,7 +103,7 @@ public final class MainWindow extends JFrame implements KeyListener {
 
         final char character = e.getKeyChar();
         if (this.activeScreen.processKeyTyped(character)) {
-            this.activeScreen.draw(this.console);
+            this.activeScreen.draw();
         }
     }
 
@@ -116,8 +116,10 @@ public final class MainWindow extends JFrame implements KeyListener {
     public void keyPressed(final KeyEvent e) {
 
         final int key = e.getKeyCode();
-        if (this.activeScreen.processKeyPressed(key)) {
-            this.activeScreen.draw(this.console);
+        final int mods = e.getModifiersEx();
+
+        if (this.activeScreen.processKeyPressed(key, mods)) {
+            this.activeScreen.draw();
         }
     }
 

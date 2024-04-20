@@ -1,7 +1,6 @@
 package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.ui.ChangeUI;
-import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.old.DbConnection;
 
 import javax.swing.SwingUtilities;
