@@ -4,6 +4,8 @@ import dev.mathops.commons.log.Log;
 
 import java.io.Serial;
 
+// MOVE TO Mathemetric "math" library
+
 /**
  * A constant irrational value consisting of a fraction (with integer numerator and denominator) and an irrational
  * factor which can be PI or E or the square root of a positive integer. No effort is made in the case of a square root
