@@ -133,7 +133,7 @@ public final class MajorMathRequirement {
         boolean onlyAUCC = true;
 
         for (final String s : this.all) {
-            if ("AUCC3".equals(s) || "AUCC3SOC".equals(s)) {
+            if ("AUCC2".equals(s) || "AUCC3".equals(s) || "AUCC3SOC".equals(s)) {
                 continue;
             }
             onlyAUCC = false;
@@ -155,12 +155,13 @@ public final class MajorMathRequirement {
         boolean onlyPrecalc = true;
 
         for (final String s : this.all) {
-            if ("AUCC3".equals(s) || "AUCC3SOC".equals(s)
-                    || "AUCC2".equals(s) || "AGED3".equals(s)
-                    || "ANIM3".equals(s) || "M 101".equals(s)
-                    || RawRecordConstants.M117.equals(s) || RawRecordConstants.M118.equals(s)
+            if ("AUCC2".equals(s) || "AUCC3".equals(s) || "AUCC3SOC".equals(s) || "AGED3A".equals(s)
+                    || "AGED3B".equals(s) || "ANIM3".equals(s) || "BIOM1".equals(s) || "BIOM2".equals(s)
+                    || "BIOM3".equals(s) || "BUSA3".equals(s) || "FRRS3".equals(s) || "M 101".equals(s)
+                    || "S 100".equals(s) || RawRecordConstants.M117.equals(s) || RawRecordConstants.M118.equals(s)
                     || RawRecordConstants.M124.equals(s) || RawRecordConstants.M125.equals(s)
-                    || RawRecordConstants.M126.equals(s)) {
+                    || RawRecordConstants.M126.equals(s) || RawRecordConstants.M120.equals(s)
+                    || RawRecordConstants.M127.equals(s)) {
                 continue;
             }
             onlyPrecalc = false;
@@ -182,15 +183,15 @@ public final class MajorMathRequirement {
         boolean onlyCalc1 = true;
 
         for (final String s : this.all) {
-            if ("AUCC3".equals(s) || "AUCC3SOC".equals(s)
-                    || "AUCC2".equals(s) || "AGED3".equals(s)
-                    || "ANIM3".equals(s) || "BIOL3".equals(s)
-                    || "M 101".equals(s) || RawRecordConstants.M117.equals(s)
-                    || RawRecordConstants.M118.equals(s) || RawRecordConstants.M124.equals(s)
-                    || RawRecordConstants.M125.equals(s) || RawRecordConstants.M126.equals(s)
-                    || "M 141".equals(s) || "M 155".equals(s)
-                    || "M 160".equals(s) || "CALC".equals(s)
-                    || "CALC1BIO".equals(s)) {
+            if ("AUCC2".equals(s) || "AUCC3".equals(s) || "AUCC3SOC".equals(s) || "AGED3A".equals(s)
+                    || "AGED3B".equals(s) || "ANIM3".equals(s) || "BIOM1".equals(s) || "BIOM2".equals(s)
+                    || "BIOM3".equals(s) || "BUSA3".equals(s) || "FRRS3".equals(s) || "M 101".equals(s)
+                    || "S 100".equals(s) || RawRecordConstants.M117.equals(s) || RawRecordConstants.M118.equals(s)
+                    || RawRecordConstants.M124.equals(s) || RawRecordConstants.M125.equals(s)
+                    || RawRecordConstants.M126.equals(s) || RawRecordConstants.M120.equals(s)
+                    || RawRecordConstants.M127.equals(s) || "ECON".equals(s) || "CALC".equals(s)
+                    || "CALC1BIO".equals(s) || "CALC1CS".equals(s) || "M 141".equals(s) || "M 155".equals(s)
+                    || "M 160".equals(s)) {
                 continue;
             }
             onlyCalc1 = false;
@@ -199,38 +200,6 @@ public final class MajorMathRequirement {
 
         return onlyCalc1;
     }
-
-//    /**
-//     * Tests whether the major requires no mathematics beyond calculus II.
-//     *
-//     * @return {@code true} if the major requires no mathematics beyond calculus II
-//     */
-//    public boolean isNothingBeyondCalc2() {
-//
-//        populateAll();
-//
-//        boolean onlyCalc2 = true;
-//
-//        for (final String s : this.all) {
-//            if ("AUCC3".equals(s) || "AUCC3SOC".equals(s)
-//                    || "AUCC2".equals(s) || "AGED3".equals(s)
-//                    || "ANIM3".equals(s) || "BIOL3".equals(s)
-//                    || "M 101".equals(s) || RawRecordConstants.M117.equals(s)
-//                    || RawRecordConstants.M118.equals(s) || RawRecordConstants.M124.equals(s)
-//                    || RawRecordConstants.M125.equals(s) || RawRecordConstants.M126.equals(s)
-//                    || "M 141".equals(s) || "M 155".equals(s)
-//                    || "M 160".equals(s) || "CALC".equals(s)
-//                    || "CALC1BIO".equals(s) || "M 161".equals(s)
-//                    || "M 255".equals(s) || "CALC2BIO".equals(s)
-//                    || "CALC2CHM".equals(s)) {
-//                continue;
-//            }
-//            onlyCalc2 = false;
-//            break;
-//        }
-//
-//        return onlyCalc2;
-//    }
 
     /**
      * Populates an aggregate list of all requirements.

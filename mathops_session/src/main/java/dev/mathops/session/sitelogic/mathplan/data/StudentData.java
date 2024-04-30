@@ -993,9 +993,8 @@ public final class StudentData {
                 // forcing parse of subtest scores (whose thresholds could change). This requires
                 // retroactively populating all existing rows, then starting to store the field.
 
-                // if ((isRecommendMPEPlace() || this.placementCredit.size() > 0) //
-                if (!this.placementCredit.isEmpty() //
-                        && (leftToSatisfy > 1 || needs117 || needs118)) {
+                // if ((isRecommendMPEPlace() || this.placementCredit.size() > 0)
+                if (!this.placementCredit.isEmpty() && (leftToSatisfy > 1 || needs117 || needs118)) {
                     // Case B
                     if (openingMessagePast == ENextStep.MSG_1A_PLURAL) {
                         // Use messages based on critical prereqs

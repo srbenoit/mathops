@@ -1,6 +1,5 @@
 package dev.mathops.session.sitelogic.mathplan.data;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -47,7 +46,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     final String lowestLastCourse;
 
     /** The course numbers, sorted. */
-    public final List<String> courseNumbers;
+    final List<String> courseNumbers;
 
     /**
      * Constructs a new {@code CourseGroup}.
@@ -89,8 +88,8 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
      *                            highest course number from that "easiest" list
      * @param theCourseNumbers    the course numbers
      */
-    /* default */ CourseGroup(final String theGroupCode, final Integer theNumCredits,
-                              final String theLowestLastCourse, final Collection<String> theCourseNumbers) {
+    CourseGroup(final String theGroupCode, final Integer theNumCredits,
+                final String theLowestLastCourse, final Collection<String> theCourseNumbers) {
 
         if (theGroupCode == null) {
             throw new IllegalArgumentException("Group code may not be null");
@@ -257,7 +256,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
             htm.add(Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits));
         }
 
-        if (MathPlanLogic.AUCC3.equals(this.groupCode) || MathPlanLogic.AUCC3SOC.equals(this.groupCode)) {
+        if (MathPlanLogic.AUCC3.equals(this.groupCode) || MathPlanLogic.AUCC2.equals(this.groupCode)) {
             htm.add(" any courses that satisfy the <a href='https://catalog.colostate.edu/general-catalog/",
                     "all-university-core-curriculum/aucc/#Fundamental-Competencies'>AUCC Quantitative ",
                     "Reasoning</a> requirement, such as ");

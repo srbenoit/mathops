@@ -30,7 +30,7 @@ public final class PrecalcTutorialStatus {
      * The course ID (in 'M 1170' format) of the course whose corresponding Precalculus Tutorial is currently available
      * to the student.
      */
-    public String nextPrecalcTutorial;
+    String nextPrecalcTutorial;
 
     /**
      * The course (M 1170 through M 1260) for which the student is currently eligible to take the precalculus exam (has
@@ -44,7 +44,7 @@ public final class PrecalcTutorialStatus {
     /**
      * Constructs a new {@code PrecalcTutorialStatus}.
      */
-    public PrecalcTutorialStatus() {
+    PrecalcTutorialStatus() {
 
         this.holds = new ArrayList<>(2);
         this.completedPrecalcTutorials = new HashSet<>(5);

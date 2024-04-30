@@ -219,8 +219,7 @@ enum PagePlanMajors1 {
                                           final String categoryId, final String categoryLabel,
                                           final Map<Major, MajorMathRequirement> allMajors, final Major declaredMajor,
                                           final Collection<? super MajorMathRequirement> requirements,
-                                          final Collection<Major> selectedMajors,
-                                          final boolean disable) {
+                                          final Collection<Major> selectedMajors, final boolean disable) {
 
         int numSelected = 0;
 
@@ -241,9 +240,8 @@ enum PagePlanMajors1 {
         if (disable) {
             htm.add(" disabled='disabled'");
         }
-        htm.add(" onchange=\"toggleCategory(this,'", categoryId,
-                "');\"/><label for='ck_", categoryId, "'>", categoryLabel);
-        htm.addln("</label>").eP();
+        htm.addln(" onchange=\"toggleCategory(this,'", categoryId, "');\"/><label for='ck_", categoryId, "'>",
+                categoryLabel, "</label>").eP();
 
         htm.add("<div class='indent2 columns' id='", categoryId, "'");
         if (numSelected == 0) {
@@ -291,10 +289,7 @@ enum PagePlanMajors1 {
                 htm.add(" disabled='disabled'");
             }
 
-            htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleConc(this,'", classname, "');\"");
-
-            htm.add("/>");
-
+            htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleConc(this,'", classname, "');\"/>");
             htm.add("<label for='", pcode, "'>");
 
             final String mname = major.majorName;
@@ -310,10 +305,8 @@ enum PagePlanMajors1 {
             }
 
             if (major.catalogUrl != null) {
-                htm.add("<span style='white-space:nowrap;'>&nbsp;",
-                        "<a target='_blank' href='", major.catalogUrl,
-                        "'><img style='position:relative;top:-1px' ",
-                        "src='/images/welcome/catalog3.png'/></a></span>");
+                htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogUrl,
+                        "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
             }
 
             if (major.equals(declaredMajor)) {
@@ -323,6 +316,7 @@ enum PagePlanMajors1 {
 
             htm.add("</span>");
             htm.addln("</label>");
+
             if (selected) {
                 htm.addln("<div id='", classname, "' style='margin-left:20px;display:block;'>");
             } else {
@@ -330,13 +324,13 @@ enum PagePlanMajors1 {
             }
 
             for (final Major conc : majors) {
+
                 if (conc.concentrationName != null && major.majorName.equals(conc.majorName)) {
 
                     final String ccode = categoryId + CoreConstants.DOT + conc.programCode;
 
                     htm.sDiv();
-                    htm.add("<input type='checkbox' name='",
-                            ccode, "' id='", ccode, "'");
+                    htm.add("<input type='checkbox' name='", ccode, "' id='", ccode, "'");
 
                     htm.add(" class='");
                     if (Boolean.TRUE.equals(conc.autoCheck)) {

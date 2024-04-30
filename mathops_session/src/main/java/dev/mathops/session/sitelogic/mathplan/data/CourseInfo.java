@@ -11,13 +11,13 @@ public final class CourseInfo {
     public final RawCourse course;
 
     /** Flag indicating course was added to satisfy a prereq, not from a major/program. */
-    public final boolean addedAsPrereq;
+    final boolean addedAsPrereq;
 
     /** The required grade to satisfy prerequisites of down-stream courses. */
-    /* default */ Float requiredGrade;
+    Float requiredGrade;
 
     /** The earned grade. */
-    /* default */ Float earnedGrade;
+    Float earnedGrade;
 
     /** The course status. */
     public ECourseStatus status;
