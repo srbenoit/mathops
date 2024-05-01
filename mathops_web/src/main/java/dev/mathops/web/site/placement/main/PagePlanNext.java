@@ -157,9 +157,8 @@ enum PagePlanNext {
 
         final boolean check2 = intentions.containsKey(TWO);
         htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm1'>",
-                "I understand that this plan is only a recommendation.  The math requirements for ",
-                "each degree program can change over time, and should be verified with the ",
-                "University Catalog.</label>").eP();
+                "I understand that this plan is only a recommendation.  The math requirements for each degree ",
+                "program can change over time, and should be verified with the University Catalog.</label>").eP();
 
         if (needsPlacement) {
             htm.sP().add("<input type='checkbox' name='affirm2' id='affirm2'");
@@ -274,8 +273,7 @@ enum PagePlanNext {
 
             for (final ENextStep step : nextSteps) {
                 if (step == ENextStep.MSG_3A || step == ENextStep.MSG_3G || step == ENextStep.MSG_3H
-                        || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B
-                        || step == ENextStep.MSG_4C) {
+                        || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B || step == ENextStep.MSG_4C) {
                     needsPlacement = false;
                 }
                 emitStep(htm, step, applicationTerm, data, false);
@@ -310,8 +308,7 @@ enum PagePlanNext {
         final String m101OrFirst;
         final String m101OrThat;
         if (critical.isCourseInSemester1("M 101")) {
-            m101OrFirst = "<strong class='headercolor'>"
-                    + Res.get(Res.PLAN_M101_TITLE) + "</strong>";
+            m101OrFirst = "<strong class='headercolor'>" + Res.get(Res.PLAN_M101_TITLE) + "</strong>";
             m101OrThat = Res.get(Res.PLAN_M101_LABEL);
         } else {
             m101OrFirst = Res.get(Res.PLAN_YOUR_FIRST_COURSES);
@@ -375,13 +372,11 @@ enum PagePlanNext {
             case MSG_1B_SINGULAR:
                 htm.sP().add(STAR);
                 if (critPrearrivPrereqs == 1) {
-                    htm.add("There is a course important to your program whose prerequisite is not ",
-                            "yet satisfied. You should try to satisfy this prerequisite as quickly as ",
-                            "possible.");
+                    htm.add("There is a course important to your program whose prerequisite is not yet ",
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
-                    htm.add("There is a course important to your program whose prerequisites are not ",
-                            "yet satisfied. You should try to satisfy these prerequisites as quickly as ",
-                            "possible.");
+                    htm.add("There is a course important to your program whose prerequisites are not yet ",
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -389,13 +384,11 @@ enum PagePlanNext {
             case MSG_1B_PLURAL:
                 htm.sP().add(STAR);
                 if (critPrearrivPrereqs == 1) {
-                    htm.add("There are courses important to your program whose prerequisite is not ",
-                            "yet satisfied. You should try to satisfy this prerequisite as quickly as ",
-                            "possible.");
+                    htm.add("There are courses important to your program whose prerequisite is not yet ",
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
-                    htm.add("There are courses important to your program whose prerequisites are ",
-                            "not yet satisfied. You should try to satisfy these prerequisites as quickly ",
-                            "as possible.");
+                    htm.add("There are courses important to your program whose prerequisites are not yet ",
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -422,8 +415,8 @@ enum PagePlanNext {
                 } else {
                     htm.add("We recommend that you satisfy the prerequisites");
                 }
-                htm.add(" for your first-semester courses so you can take those courses during ",
-                        semester, ", if space permits.");
+                htm.add(" for your first-semester courses so you can take those courses during ", semester,
+                        ", if space permits.");
                 if (applicationTerm == ETermName.FALL || applicationTerm == ETermName.SPRING) {
                     htm.add(" Ideally, you will register for those courses during Orientation.");
                 }
@@ -433,13 +426,11 @@ enum PagePlanNext {
             case MSG_1D_SINGULAR:
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
-                    htm.add("A course that is recommended for your program has a prerequisite that ",
-                            "is not yet satisfied. You should try to satisfy this prerequisite as ",
-                            "quickly as possible.");
+                    htm.add("A course that is recommended for your program has a prerequisite that is not yet ",
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
-                    htm.add("A course that is recommended for your program has prerequisites that ",
-                            "are not yet satisfied. You should try to satisfy these prerequisites as ",
-                            "quickly as possible.");
+                    htm.add("A course that is recommended for your program has prerequisites that are not yet ",
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -447,13 +438,11 @@ enum PagePlanNext {
             case MSG_1D_PLURAL:
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
-                    htm.add("There are courses recommended for your program whose prerequisite is ",
-                            "not yet satisfied. You should try to satisfy this prerequisite as quickly ",
-                            "as possible.");
+                    htm.add("There are courses recommended for your program whose prerequisite is not yet ",
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
-                    htm.add("There are courses recommended for your program whose prerequisites are ",
-                            "not yet satisfied. You should try to satisfy these prerequisites as quickly ",
-                            "as possible.");
+                    htm.add("There are courses recommended for your program whose prerequisites are not yet ",
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -465,8 +454,8 @@ enum PagePlanNext {
                 } else {
                     htm.add("Satisfying the prerequisites");
                 }
-                htm.add(" for your first-semester course would allow you to take that course during ",
-                        semester, ", if space permits.");
+                htm.add(" for your first-semester course would allow you to take that course during ", semester,
+                        ", if space permits.");
                 htm.eP();
                 break;
 
@@ -477,8 +466,8 @@ enum PagePlanNext {
                 } else {
                     htm.add("Satisfying the prerequisites");
                 }
-                htm.add(" of your first-semester courses would allow you to take those courses",
-                        " during ", semester, ", if space permits.");
+                htm.add(" of your first-semester courses would allow you to take those courses during ", semester,
+                        ", if space permits.");
                 htm.eP();
                 break;
 
@@ -486,12 +475,10 @@ enum PagePlanNext {
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("There is a course in your program whose prerequisite is not yet ",
-                            "satisfied. You should try to satisfy this prerequisite as quickly as ",
-                            "possible.");
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
                     htm.add("There is a course in your program whose prerequisites are not yet ",
-                            "satisfied. You should try to satisfy these prerequisites as quickly as ",
-                            "possible.");
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -500,12 +487,10 @@ enum PagePlanNext {
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("There are courses in your program whose prerequisite is not yet ",
-                            "satisfied. You should try to satisfy this prerequisite as quickly as ",
-                            "possible.");
+                            "satisfied. You should try to satisfy this prerequisite as quickly as possible.");
                 } else {
                     htm.add("There are courses in your program whose prerequisites are not yet ",
-                            "satisfied. You should try to satisfy these prerequisites as quickly as ",
-                            "possible.");
+                            "satisfied. You should try to satisfy these prerequisites as quickly as possible.");
                 }
                 htm.eP();
                 break;
@@ -524,8 +509,7 @@ enum PagePlanNext {
 
             case MSG_1H:
                 htm.sP().add(DISC);
-                htm.add("You still have <strong class='headercolor'>Math Placement</strong> ",
-                        "opportunities to satisfy ");
+                htm.add("You still have <strong class='headercolor'>Math Placement</strong> opportunities to satisfy ");
                 if (critPrearrivPrereqs == 1) {
                     htm.add("this prerequisite. ");
                 } else {
@@ -538,13 +522,11 @@ enum PagePlanNext {
             case MSG_1I:
                 htm.sP().add(DISC);
                 if (critPrearrivPrereqs == 1) {
-                    htm.add("You may also complete a section of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ",
-                            "this prerequisite.");
+                    htm.add("You may also complete a section of the <strong class='headercolor'>",
+                            "Precalculus Tutorial</strong> to satisfy this prerequisite.");
                 } else {
-                    htm.add("You may also complete sections of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ",
-                            "these prerequisites.");
+                    htm.add("You may also complete sections of the <strong class='headercolor'>",
+                            "Precalculus Tutorial</strong> to satisfy these prerequisites.");
                 }
                 htm.eP();
                 break;
@@ -552,21 +534,18 @@ enum PagePlanNext {
             case MSG_1J:
                 htm.sP().add(DISC);
                 if (critPrearrivPrereqs == 1) {
-                    htm.add("You may complete a section of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ");
-                    htm.add("this prerequisite.");
+                    htm.add("You may complete a section of the <strong class='headercolor'>",
+                            "Precalculus Tutorial</strong> to satisfy this prerequisite.");
                 } else {
-                    htm.add("You may complete sections of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ");
-                    htm.add("these prerequisites.");
+                    htm.add("You may complete sections of the <strong class='headercolor'>",
+                            "Precalculus Tutorial</strong> to satisfy these prerequisites.");
                 }
                 htm.eP();
                 break;
 
             case MSG_1K:
                 htm.sP().add(DISC);
-                htm.add("You also have <strong class='headercolor'>Math Placement</strong> ",
-                        "opportunities to satisfy ");
+                htm.add("You also have <strong class='headercolor'>Math Placement</strong> opportunities to satisfy ");
                 if (critPrearrivPrereqs == 1) {
                     htm.add("this prerequisite. ");
                 } else {
@@ -578,10 +557,9 @@ enum PagePlanNext {
 
             case MSG_1L_SINGULAR:
                 htm.sP().add(DISC);
-                htm.add("You may complete the <strong class='headercolor'>Entry-Level ",
-                        "Mathematics (ELM) Tutorial</strong> to allow you to register for ",
-                        "<strong class='headercolor'>MATH 117: College Algebra in Context I</strong>, ",
-                        "but this will NOT satisfy the ");
+                htm.add("You may complete the <strong class='headercolor'>Entry-Level Mathematics (ELM) ",
+                        "Tutorial</strong> to allow you to register for <strong class='headercolor'>MATH 117: College ",
+                        "Algebra in Context I</strong>, but this will NOT satisfy the ");
                 if (critPrearrivPrereqs == 1) {
                     htm.add("prerequisite");
                 } else {
@@ -593,10 +571,9 @@ enum PagePlanNext {
 
             case MSG_1L_PLURAL:
                 htm.sP().add(DISC);
-                htm.add("You may complete the <strong class='headercolor'>Entry-Level ",
-                        "Mathematics (ELM) Tutorial</strong> to allow you to register for ",
-                        "<strong class='headercolor'>MATH 117: College Algebra in Context I</strong>, ",
-                        "but this will NOT satisfy the ");
+                htm.add("You may complete the <strong class='headercolor'>Entry-Level Mathematics (ELM) ",
+                        "Tutorial</strong> to allow you to register for <strong class='headercolor'>MATH 117: College ",
+                        "Algebra in Context I</strong>, but this will NOT satisfy the ");
                 if (critPrearrivPrereqs == 1) {
                     htm.add("prerequisite");
                 } else {
@@ -608,17 +585,17 @@ enum PagePlanNext {
 
             case MSG_1M_SINGULAR:
                 htm.sP().add(STAR);
-                htm.add("You should speak with your adviser (if you have been assigned an advisor), ",
-                        "or to the Department of Mathematics (if not) about your options to satisfy the ",
-                        "prerequisites for your first-semester mathematics course.");
+                htm.add("You should speak with your adviser (if you have been assigned an advisor), or to the ",
+                        "Department of Mathematics (if not) about your options to satisfy the prerequisites for your ",
+                        "first-semester mathematics course.");
                 htm.eP();
                 break;
 
             case MSG_1M_PLURAL:
                 htm.sP().add(STAR);
-                htm.add("You should speak with your adviser (if you have been assigned an advisor), ",
-                        "or to the Department of Mathematics (if not) about your options to satisfy the ",
-                        "prerequisites for your first-semester mathematics courses.");
+                htm.add("You should speak with your adviser (if you have been assigned an advisor), or to the ",
+                        "Department of Mathematics (if not) about your options to satisfy the prerequisites for your ",
+                        "first-semester mathematics courses.");
                 htm.eP();
                 break;
 
@@ -636,8 +613,7 @@ enum PagePlanNext {
 
             case MSG_1O:
                 htm.sP().add(DISC);
-                htm.add("You still have <strong class='headercolor'>Math Placement</strong> ",
-                        "opportunities to satisfy ");
+                htm.add("You still have <strong class='headercolor'>Math Placement</strong> opportunities to satisfy ");
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("this prerequisite. ");
                 } else {
@@ -650,13 +626,11 @@ enum PagePlanNext {
             case MSG_1P:
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
-                    htm.add("You may also complete a section of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ",
-                            "this prerequisite.");
+                    htm.add("You may also complete a section of the <strong class='headercolor'>Precalculus ",
+                            "Tutorial</strong> to satisfy this prerequisite.");
                 } else {
-                    htm.add("You may also complete sections of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ",
-                            "these prerequisites.");
+                    htm.add("You may also complete sections of the <strong class='headercolor'>Precalculus ",
+                            "Tutorial</strong> to satisfy these prerequisites.");
                 }
                 htm.eP();
                 break;
@@ -664,21 +638,18 @@ enum PagePlanNext {
             case MSG_1Q:
                 htm.sP().add(DISC);
                 if (typPrearrivalPrereqs == 1) {
-                    htm.add("You may complete a section of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ");
-                    htm.add("this prerequisite.");
+                    htm.add("You may complete a section of the <strong class='headercolor'>Precalculus ",
+                            "Tutorial</strong> to satisfy this prerequisite.");
                 } else {
-                    htm.add("You may complete sections of the ",
-                            "<strong class='headercolor'>Precalculus Tutorial</strong> to satisfy ");
-                    htm.add("these prerequisites.");
+                    htm.add("You may complete sections of the <strong class='headercolor'>Precalculus ",
+                            "Tutorial</strong> to satisfy these prerequisites.");
                 }
                 htm.eP();
                 break;
 
             case MSG_1R:
                 htm.sP().add(DISC);
-                htm.add("You also have <strong class='headercolor'>Math Placement</strong> ",
-                        "opportunities to satisfy ");
+                htm.add("You also have <strong class='headercolor'>Math Placement</strong> opportunities to satisfy ");
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("this prerequisite. ");
                 } else {
@@ -690,10 +661,9 @@ enum PagePlanNext {
 
             case MSG_1S_SINGULAR:
                 htm.sP().add(DISC);
-                htm.add("You may complete the <strong class='headercolor'>Entry-Level ",
-                        "Mathematics (ELM) Tutorial</strong> to allow you to register for ",
-                        "<strong class='headercolor'>MATH 117: College Algebra in Context I</strong>, ",
-                        "but this will NOT satisfy the ");
+                htm.add("You may complete the <strong class='headercolor'>Entry-Level Mathematics (ELM) ",
+                        "Tutorial</strong> to allow you to register for <strong class='headercolor'>MATH 117: College ",
+                        "Algebra in Context I</strong>, but this will NOT satisfy the ");
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("prerequisite");
                 } else {
@@ -705,10 +675,9 @@ enum PagePlanNext {
 
             case MSG_1S_PLURAL:
                 htm.sP().add(DISC);
-                htm.add("You may complete the <strong class='headercolor'>Entry-Level ",
-                        "Mathematics (ELM) Tutorial</strong> to allow you to register for ",
-                        "<strong class='headercolor'>MATH 117: College Algebra in Context I</strong>, ",
-                        "but this will NOT satisfy the ");
+                htm.add("You may complete the <strong class='headercolor'>Entry-Level Mathematics (ELM) ",
+                        "Tutorial</strong> to allow you to register for <strong class='headercolor'>MATH 117: College ",
+                        "Algebra in Context I</strong>, but this will NOT satisfy the ");
                 if (typPrearrivalPrereqs == 1) {
                     htm.add("prerequisite");
                 } else {
@@ -755,8 +724,7 @@ enum PagePlanNext {
 
             case MSG_2D:
                 htm.sP().add(STAR);
-                htm.add("It is important that you take ", m101OrFirst, " during ", semester,
-                        CoreConstants.DOT);
+                htm.add("It is important that you take ", m101OrFirst, " during ", semester, CoreConstants.DOT);
                 if (applicationTerm == ETermName.FALL || applicationTerm == ETermName.SPRING) {
                     htm.add(" Ideally, you will register for this course during Orientation.");
                 }
@@ -765,8 +733,7 @@ enum PagePlanNext {
 
             case MSG_2E:
                 htm.sP().add(DISC);
-                htm.add("We recommend that you take ", m101OrFirst, " during ", semester,
-                        CoreConstants.DOT);
+                htm.add("We recommend that you take ", m101OrFirst, " during ", semester, CoreConstants.DOT);
                 if (applicationTerm == ETermName.FALL || applicationTerm == ETermName.SPRING) {
                     htm.add(" Ideally, you will register for this course during Orientation.");
                 }
@@ -789,9 +756,8 @@ enum PagePlanNext {
 
             case MSG_2H:
                 htm.sP().add(DISC);
-                htm.add("We recommend that you take ",
-                        "<strong class='headercolor'>MATH 117: College Algebra in Context I</strong> ",
-                        "as quickly as possible.");
+                htm.add("We recommend that you take <strong class='headercolor'>MATH 117: College Algebra in Context ",
+                        "I</strong> as quickly as possible.");
                 htm.eP();
                 break;
 
@@ -811,24 +777,23 @@ enum PagePlanNext {
             case MSG_2K:
                 htm.sP().add(DISC);
                 htm.add("The fastest way to become eligible for <strong>MATH 117</strong> is through ",
-                        "<strong class='headercolor'>Math Placement</strong>. Examples and practice ",
-                        "materials are provided if you would like to review.");
+                        "<strong class='headercolor'>Math Placement</strong>. Examples and practice materials are ",
+                        "provided if you would like to review.");
                 htm.eP();
                 break;
 
             case MSG_2L:
                 htm.sP().add(DISC);
-                htm.add("You only need to complete the Algebra portion of ",
-                        "<strong class='headercolor'>Math Placement</strong> to become eligible ",
-                        "for <strong>MATH 117</strong>, but completing as much as you can may give you ",
-                        "more options in case you change majors.");
+                htm.add("You only need to complete the Algebra portion of <strong class='headercolor'>Math ",
+                        "Placement</strong> to become eligible for <strong>MATH 117</strong>, but completing as much ",
+                        "as you can may give you more options in case you change majors.");
                 htm.eP();
                 break;
 
             case MSG_2M:
                 htm.sP().add(DISC);
-                htm.add("You still have <strong class='headercolor'>Math Placement</strong> ",
-                        "opportunities to become eligible for <strong>MATH 117</strong>. ",
+                htm.add("You still have <strong class='headercolor'>Math Placement</strong> opportunities to become ",
+                        "eligible for <strong>MATH 117</strong>. ",
                         "Examples and practice materials are provided if you would like to review.");
                 htm.eP();
                 break;
@@ -884,44 +849,42 @@ enum PagePlanNext {
 
             case MSG_3B:
                 htm.sP().add(DISC);
-                htm.add("We recommend that you complete the required three credits of Core ",
-                        "Curriculum mathematics within your first thirty credit hours.");
+                htm.add("We recommend that you complete the required three credits of Core Curriculum mathematics ",
+                        "within your first thirty credit hours.");
                 htm.eP();
                 emitTransferMessage(htm);
                 break;
 
             case MSG_3C:
                 htm.sP().add(DISC);
-                htm.add("If you decide to pursue a major that requires College Algebra or other ",
-                        "Precalculus or Calculus courses, you can go through ",
-                        "<strong class='headercolor'>Math Placement</strong> or complete a tutorial ",
-                        "to become eligible for those mathematics courses.");
+                htm.add("If you decide to pursue a major that requires College Algebra or other Precalculus or ",
+                        "Calculus courses, you can go through <strong class='headercolor'>Math Placement</strong> or ",
+                        "complete a tutorial to become eligible for those mathematics courses.");
                 htm.eP();
                 emitTransferMessage(htm);
                 break;
 
             case MSG_3D:
                 htm.sP().add(DISC);
-                htm.add("You are eligible to take the <strong class='headercolor'>Math Challenge ",
-                        "Exam</strong>. With this exam, you can attempt to earn credit in one or more ",
-                        "of your required courses. Examples and practice materials are provided if you ",
-                        "would like to review.");
+                htm.add("You are eligible to take the <strong class='headercolor'>Math Challenge Exam</strong>. With ",
+                        "this exam, you can attempt to earn credit in one or more of your required courses. Examples ",
+                        "and practice materials are provided if you would like to review.");
                 htm.eP();
                 break;
 
             case MSG_3E:
                 htm.sP().add(DISC);
                 htm.add("You can attempt to place out of one or more courses through ",
-                        "<strong class='headercolor'>Math Placement</strong>. Examples and practice ",
-                        "materials are provided if you would like to review.");
+                        "<strong class='headercolor'>Math Placement</strong>. Examples and practice materials are ",
+                        "provided if you would like to review.");
                 htm.eP();
                 break;
 
             case MSG_3F:
                 htm.sP().add(DISC);
-                htm.add("You still have <strong class='headercolor'>Math Placement </strong> ",
-                        "opportunities that could be used to place out of one or more courses. ",
-                        "Examples and practice materials are provided if you would like to review.");
+                htm.add("You still have <strong class='headercolor'>Math Placement </strong> opportunities that could ",
+                        "be used to place out of one or more courses. Examples and practice materials are provided if ",
+                        "you would like to review.");
                 htm.eP();
                 break;
 
@@ -934,8 +897,8 @@ enum PagePlanNext {
 
             case MSG_3H:
                 htm.sP().add(DISC);
-                htm.add("You do not need to complete the Math Placement process unless you plan to ",
-                        "take a math course other than MATH 101 or STAT 100.");
+                htm.add("You do not need to complete the Math Placement process unless you plan to take a math course ",
+                        "other than MATH 101, MATH 105, STAT 100, STAT 201, or STAT 204.");
                 htm.eP();
                 emitTransferMessage(htm);
                 break;
@@ -960,8 +923,8 @@ enum PagePlanNext {
 
             case MSG_4C:
                 htm.sP().add(DISC);
-                htm.add("Your existing course credit satisfies the requirements of your selected ",
-                        "major(s) of interest.");
+                htm.add("Your existing course credit satisfies the requirements of your selected major(s) of ",
+                        "interest.");
                 htm.eP();
                 break;
 

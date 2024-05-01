@@ -284,9 +284,7 @@ enum PagePlanMajors2 {
                     final String ccode = conc.programCode;
 
                     htm.sDiv();
-                    htm.add("<input type='checkbox' name='", ccode, "' id='", ccode, "'");
-
-                    htm.add(" class='");
+                    htm.add("<input type='checkbox' name='", ccode, "' id='", ccode, "' class='");
                     if (Boolean.TRUE.equals(conc.autoCheck)) {
                         htm.add(classname, " autocheck");
                     } else {
