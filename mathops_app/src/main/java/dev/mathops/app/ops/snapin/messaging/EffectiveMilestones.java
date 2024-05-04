@@ -281,7 +281,7 @@ public class EffectiveMilestones {
 
         this.u1 = findDate(ms, stuMs, RawMilestone.UNIT_EXAM, unit1);
         if (this.u1 == null) {
-            final int u1Index = Math.max(r1Index + 1, daysOfTerm.size() - 1);
+            final int u1Index = Math.min(r1Index + 1, daysOfTerm.size() - 1);
             this.u1 = daysOfTerm.get(u1Index);
         }
 
@@ -319,7 +319,7 @@ public class EffectiveMilestones {
 
         this.u2 = findDate(ms, stuMs, RawMilestone.UNIT_EXAM, unit2);
         if (this.u2 == null) {
-            final int u2Index = Math.max(r1Index + 1, daysOfTerm.size() - 1);
+            final int u2Index = Math.min(r1Index + 1, daysOfTerm.size() - 1);
             this.u2 = daysOfTerm.get(u2Index);
         }
 
@@ -357,7 +357,7 @@ public class EffectiveMilestones {
 
         this.u3 = findDate(ms, stuMs, RawMilestone.UNIT_EXAM, unit3);
         if (this.u3 == null) {
-            final int u3Index = Math.max(r3Index + 1, daysOfTerm.size() - 1);
+            final int u3Index = Math.min(r3Index + 1, daysOfTerm.size() - 1);
             this.u3 = daysOfTerm.get(u3Index);
         }
 
@@ -395,7 +395,7 @@ public class EffectiveMilestones {
 
         this.u4 = findDate(ms, stuMs, RawMilestone.UNIT_EXAM, unit4);
         if (this.u4 == null) {
-            final int u4Index = Math.max(r4Index + 1, daysOfTerm.size() - 1);
+            final int u4Index = Math.min(r4Index + 1, daysOfTerm.size() - 1);
             this.u4 = daysOfTerm.get(u4Index);
         }
 
