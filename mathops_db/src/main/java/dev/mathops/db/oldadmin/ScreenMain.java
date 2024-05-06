@@ -18,8 +18,32 @@ final class ScreenMain implements IScreen {
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
 
+    /** The character to select "Course". */
+    private static final char COURSE_CHAR = 'c';
+
+    /** The character to select "Schedule". */
+    private static final char SCHEDULE_CHAR = 's';
+
+    /** The character to select "Discipline". */
+    private static final char DISCIPLINE_CHAR = 'd';
+
+    /** The character to select "Holds". */
+    private static final char HOLDS_CHAR = 'h';
+
+    /** The character to select "Exams". */
+    private static final char EXAMS_CHAR = 'e';
+
+    /** The character to select "MPE". */
+    private static final char MPE_CHAR = 'm';
+
+    /** The character to select "Resource". */
+    private static final char RESOURCE_CHAR = 'r';
+
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
+
+    /** The character to select "Quit". */
+    private static final char QUIT_CHAR = 'k';
 
     /** The cache. */
     private final Cache cache;
@@ -290,6 +314,27 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
+            } else if (this.selection == 1) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Course page
+            } else if (this.selection == 2) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Schedule page
+            } else if (this.selection == 3) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Discipline page
+            } else if (this.selection == 4) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Holds page
+            } else if (this.selection == 5) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Exams page
+            } else if (this.selection == 6) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do MPE page
+            } else if (this.selection == 7) {
+                // TODO: If no student picked, do "Pick" operation first
+                // TODO: otherwise, do Resource page
             } else if (this.selection == 8) {
                 if (this.lockPassword != null) {
                     this.showingLock = true;
@@ -329,11 +374,34 @@ final class ScreenMain implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
+        } else if ((int) character == (int) COURSE_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Course page
+        } else if ((int) character == (int) SCHEDULE_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Schedule page
+        } else if ((int) character == (int) DISCIPLINE_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Discipline page
+        } else if ((int) character == (int) HOLDS_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Holds page
+        } else if ((int) character == (int) EXAMS_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Exams page
+        } else if ((int) character == (int) MPE_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do MPE page
+        } else if ((int) character == (int) RESOURCE_CHAR) {
+            // TODO: If no student picked, do "Pick" operation first
+            // TODO: otherwise, do Resource page
         } else if ((int) character == (int) LOCK_CHAR && this.lockPassword != null) {
             this.showingLock = true;
             this.lockPasswordField.clear();
             this.lockPasswordField.activate();
             repaint = true;
+        } else if ((int) character == (int) QUIT_CHAR) {
+            this.mainWindow.quit();
         }
 
         return repaint;
