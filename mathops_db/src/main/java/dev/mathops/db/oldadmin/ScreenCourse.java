@@ -12,21 +12,21 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The main screen.
+ * The Course screen.
  */
-final class ScreenMain implements IScreen {
+final class ScreenCourse implements IScreen {
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
 
     /** The character to select "Course". */
-    private static final char COURSE_CHAR = 'c';
+    private static final char HISTORY_CHAR = 'c';
 
     /** The character to select "Schedule". */
-    private static final char SCHEDULE_CHAR = 's';
+    private static final char CURRENT_CHAR = 's';
 
     /** The character to select "Discipline". */
-    private static final char DISCIPLINE_CHAR = 'd';
+    private static final char HOMEWORK_CHAR = 'd';
 
     /** The character to select "Holds". */
     private static final char HOLDS_CHAR = 'h';
@@ -86,12 +86,12 @@ final class ScreenMain implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenMain}.
+     * Constructs a new {@code ScreenCourse}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenMain(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -108,55 +108,47 @@ final class ScreenMain implements IScreen {
     }
 
     /**
+     * Sets the student.
+     *
+     * @param theStudent the student
+     */
+    public void setStudent(final RawStudent theStudent) {
+
+        this.student = theStudent;
+    }
+
+    /**
      * Draws the screen to a console.
      */
     public void draw() {
 
         this.console.clear();
-        this.console.print(
-                "MAIN ADMIN:   Pick  Course  Schedule  Discipline  Holds  Exams  MPE  Resource  locK  QUIT", 0, 0);
+        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(13, 0, 6);
-                this.console.print("Select a student", 0, 1);
-                break;
-            case 1:
-                this.console.reverse(19, 0, 8);
+                this.console.reverse(17, 0, 9);
                 this.console.print("View registration history in PACe courses", 0, 1);
                 break;
+            case 1:
+                this.console.reverse(26, 0, 9);
+                this.console.print("View current PACe course registrations", 0, 1);
+                break;
             case 2:
-                this.console.reverse(27, 0, 10);
-                this.console.print("View student testing and deadline history", 0, 1);
+                this.console.reverse(35, 0, 14);
+                this.console.print("VView homework record for student in selected course/section", 0, 1);
                 break;
             case 3:
-                this.console.reverse(37, 0, 12);
-                this.console.print("View/add/update disciplinary incidents", 0, 1);
+                this.console.reverse(49, 0, 6);
+                this.console.print("Select a different student", 0, 1);
                 break;
             case 4:
-                this.console.reverse(49, 0, 7);
-                this.console.print("View/Add/Delete administrative holds and participation info", 0, 1);
-                break;
-            case 5:
-                this.console.reverse(56, 0, 7);
-                this.console.print("Add/Modify/Delete exams, check answers, issue calculators & make-up exams", 0, 1);
-                break;
-            case 6:
-                this.console.reverse(63, 0, 5);
-                this.console.print("Verify MPE, ELM Exam & Intensive Review results, plus transfer and AP credit", 0,
-                        1);
-                break;
-            case 7:
-                this.console.reverse(68, 0, 10);
-                this.console.print("Record loan of Resource items", 0, 1);
-                break;
-            case 8:
-                this.console.reverse(78, 0, 6);
+                this.console.reverse(55, 0, 6);
                 this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
                 break;
-            case 9:
-                this.console.reverse(84, 0, 6);
-                this.console.print("Exit this program and return to login", 0, 1);
+            case 5:
+                this.console.reverse(61, 0, 6);
+                this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
 
@@ -270,20 +262,14 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.console.setCursor(-1, -1);
 
-                if (this.selection == 1) {
-                    doCourse();
+                if (this.selection == 0) {
+                    doHistory();
+                } else if (this.selection == 1) {
+                    doCurrent();
                 } else if (this.selection == 2) {
-                    doSchedule();
+                    doHomework();
                 } else if (this.selection == 3) {
-                    doDiscipline();
-                } else if (this.selection == 4) {
-                    doHolds();
-                } else if (this.selection == 5) {
-                    doExams();
-                } else if (this.selection == 6) {
-                    doMpe();
-                } else if (this.selection == 7) {
-                    doResource();
+                    doPick();
                 }
 
                 repaint = true;
@@ -329,18 +315,28 @@ final class ScreenMain implements IScreen {
 
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             ++this.selection;
-            if (this.selection > 9) {
+            if (this.selection > 5) {
                 this.selection = 0;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             --this.selection;
             if (this.selection < 0) {
-                this.selection = 9;
+                this.selection = 5;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+
             if (this.selection == 0) {
+                doHistory();
+                repaint = true;
+            } else if (this.selection == 1) {
+                doCurrent();
+                repaint = true;
+            } else if (this.selection == 2) {
+                doHomework();
+                repaint = true;
+            } else if (this.selection == 3) {
                 this.student = null;
                 this.showingPick = true;
                 this.errorMessage1 = CoreConstants.EMPTY;
@@ -348,32 +344,9 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
-            } else if (this.selection == 1) {
-                doCourse();
-                repaint = true;
-            } else if (this.selection == 2) {
-                doSchedule();
-                repaint = true;
-            } else if (this.selection == 3) {
-                doDiscipline();
-                repaint = true;
             } else if (this.selection == 4) {
-                doHolds();
+                doQuit();
                 repaint = true;
-            } else if (this.selection == 5) {
-                doExams();
-                repaint = true;
-            } else if (this.selection == 6) {
-                doMpe();
-                repaint = true;
-            } else if (this.selection == 7) {
-                doResource();
-                repaint = true;
-            } else if (this.selection == 8) {
-                doLock();
-                repaint = true;
-            } else if (this.selection == 9) {
-                this.mainWindow.quit();
             }
         }
 
@@ -405,177 +378,55 @@ final class ScreenMain implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) COURSE_CHAR) {
-            this.selection = 1;
-            doCourse();
+        } else if ((int) character == (int) HISTORY_CHAR) {
+            doHistory();
             repaint = true;
-        } else if ((int) character == (int) SCHEDULE_CHAR) {
-            this.selection = 2;
-            doSchedule();
+        } else if ((int) character == (int) CURRENT_CHAR) {
+            doCurrent();
             repaint = true;
-        } else if ((int) character == (int) DISCIPLINE_CHAR) {
-            this.selection = 3;
-            doDiscipline();
+        } else if ((int) character == (int) HOMEWORK_CHAR) {
+            doHomework();
             repaint = true;
-        } else if ((int) character == (int) HOLDS_CHAR) {
-            this.selection = 4;
-            doHolds();
-            repaint = true;
-        } else if ((int) character == (int) EXAMS_CHAR) {
-            this.selection = 5;
-            doExams();
-            repaint = true;
-        } else if ((int) character == (int) MPE_CHAR) {
-            this.selection = 6;
-            doMpe();
-            repaint = true;
-        } else if ((int) character == (int) RESOURCE_CHAR) {
-            this.selection = 7;
-            doResource();
+        } else if ((int) character == (int) PICK_CHAR) {
+            doPick();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
-            this.selection = 8;
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
-            this.selection = 9;
-            this.mainWindow.quit();
+            doQuit();
+            repaint = true;
         }
 
         return repaint;
     }
 
     /**
-     * Handles the selection of the "Course" item.
+     * Handles the selection of the "History" item.
      */
-    private void doCourse() {
+    private void doHistory() {
 
-        if (isClearedFor("COURSE", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                this.mainWindow.goToCourse(this.student);
-            }
-        }
     }
 
     /**
-     * Handles the selection of the "Schedule" item.
+     * Handles the selection of the "Current" item.
      */
-    private void doSchedule() {
+    private void doCurrent() {
 
-        if (isClearedFor("PACING", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the Schedule page.
-            }
-        }
     }
 
     /**
-     * Handles the selection of the "Discipline" item.
+     * Handles the selection of the "Homework" item.
      */
-    private void doDiscipline() {
+    private void doHomework() {
 
-        if (isClearedFor("DISCIP", 3)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the Discipline page.
-            }
-        }
     }
 
     /**
-     * Handles the selection of the "Holds" item.
+     * Handles the selection of the "Pick" item.
      */
-    private void doHolds() {
+    private void doPick() {
 
-        if (isClearedFor("ADHOLD", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the Holds page.
-            }
-        }
-    }
-
-    /**
-     * Handles the selection of the "Exams" item.
-     */
-    private void doExams() {
-
-        if (isClearedFor("PENDEX", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the Exams page.
-            }
-        }
-    }
-
-    /**
-     * Handles the selection of the "MPE" item.
-     */
-    private void doMpe() {
-
-        if (isClearedFor("PLACE", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the MPE page.
-            }
-        }
-    }
-
-    /**
-     * Handles the selection of the "Resource" item.
-     */
-    private void doResource() {
-
-        if (isClearedFor("LOAN", 5)) {
-            if (this.student == null) {
-                this.showingPick = true;
-                this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
-                this.studentIdField.clear();
-                this.studentIdField.activate();
-            } else {
-                // TODO: Jump to the Resource page.
-            }
-        }
     }
 
     /**
@@ -591,28 +442,9 @@ final class ScreenMain implements IScreen {
     }
 
     /**
-     * Tests whether the logged-in user is cleared to access a specified function.
-     *
-     * @param clearFunction   the function
-     * @param comparisonValue the value to which to compare
-     * @return true if cleared
+     * Handles the selection of the "Quit" item.
      */
-    private boolean isClearedFor(final String clearFunction, final int comparisonValue) {
+    private void doQuit() {
 
-        boolean ok = false;
-
-        final Integer clearType = this.mainWindow.getUserData().getClearType(clearFunction);
-
-        if (clearType == null) {
-            this.errorMessage1 = "You don't have clearance to use this option.";
-            this.errorMessage2 = " Press any key to continue...";
-        } else if (clearType.intValue() >= comparisonValue) {
-            this.errorMessage1 = "You don't have clearance to use this option.";
-            this.errorMessage2 = " Press any key to continue...";
-        } else {
-            ok = true;
-        }
-
-        return ok;
     }
 }
