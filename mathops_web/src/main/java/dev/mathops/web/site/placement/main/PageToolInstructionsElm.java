@@ -35,28 +35,24 @@ enum PageToolInstructionsElm {
         htm.eP();
 
         htm.sP();
-        htm.addln("The ELM Tutorial is an alternate method to achieve some of the possible ",
-                "outcomes of the Math Placement process. The ELM Tutorial can be used to");
+        htm.addln("The ELM Tutorial is an alternate method to achieve some of the possible outcomes of the ",
+                "Math Placement process. The ELM Tutorial can be used to satisfy the prerequisite for the entry-level ",
+                "mathematics courses:");
         htm.eP();
 
-        htm.addln("<ul>");
-        htm.addln(" <li>satisfy the Colorado State University Admission Requirement in ",
-                "Mathematics for transfer students; and/or</li>");
-        htm.addln(" <li>satisfy the prerequisite for the entry-level mathematics courses");
-        htm.addln("     <ul>");
-        htm.addln("      <li>MATH 117, College Algebra in Context I</li>");
-        htm.addln("      <li>MATH 120, College Algebra</li>");
-        htm.addln("      <li>MATH 127, Precalculus</li>");
-        htm.addln("     </ul></li>");
-        htm.addln("</ul>");
+        htm.addln(" <ul>");
+        htm.addln("  <li>MATH 117, College Algebra in Context I</li>");
+        htm.addln("  <li>MATH 120, College Algebra</li>");
+        htm.addln("  <li>MATH 127, Precalculus</li>");
+        htm.addln(" </ul>");
 
         htm.sP();
         htm.addln("The ELM Tutorial cannot be used to place out of or earn credit for any courses.");
         htm.eP();
 
         htm.sDiv("center");
-        htm.addln(" <form style='display:inline;margin:20pt;' method='get' ",
-                "target='_blank' action='/www/media/ELM_information.pdf'>");
+        htm.addln(" <form style='display:inline;margin:20pt;' method='get' target='_blank' ",
+                "action='/www/media/ELM_information.pdf'>");
         htm.add("  <input type='submit' class='btn' value='Tell me more about the ELM Tutorial'/>");
         htm.addln(" </form>");
         htm.eDiv(); // center
@@ -64,9 +60,8 @@ enum PageToolInstructionsElm {
         htm.div("vgap");
 
         htm.sP();
-        htm.addln("After completing the four units of the ELM Tutorial, you may take the ELM ",
-                "Exam. Passing this exam satisfies the prerequisite for MATH 117, MATH 120, and ",
-                "MATH 127, and the transfer admission requirement in mathematics.");
+        htm.addln("After completing the four units of the ELM Tutorial, you may take the ELM Exam. ",
+                "Passing this exam satisfies the prerequisite for MATH 117, MATH 120, and MATH 127.");
         htm.eP();
 
         htm.div("vgap");
@@ -74,8 +69,7 @@ enum PageToolInstructionsElm {
         htm.sDiv("center");
         htm.addln(" <form style='display:inline;margin:20pt;' method='get' ",
                 "target='_blank' action='/elm-tutorial/home.html'>");
-        htm.add("  <input type='submit' class='btn'");
-        htm.add(" value='Go to the ELM Tutorial web site'/>");
+        htm.add("  <input type='submit' class='btn' value='Go to the ELM Tutorial web site'/>");
         htm.addln(" </form>");
         htm.eDiv(); // center
 

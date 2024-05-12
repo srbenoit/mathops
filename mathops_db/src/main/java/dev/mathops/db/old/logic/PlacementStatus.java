@@ -91,11 +91,6 @@ public final class PlacementStatus {
     public final SortedSet<String> earnedCreditFor;
 
     /**
-     * Flag indicating whether the student has satisfied the transfer requirement in mathematics.
-     */
-    public boolean transferSatisfied;
-
-    /**
      * Constructs a new {@code PlacementStatus}.
      */
     public PlacementStatus() {

@@ -4,7 +4,6 @@ import dev.mathops.dbjobs.batch.daily.AuditBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.CheckStudentTerm;
 import dev.mathops.dbjobs.batch.daily.CleanPending;
 import dev.mathops.dbjobs.batch.daily.CloseIncompletes;
-import dev.mathops.dbjobs.batch.daily.DeleteTestUserData;
 import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;
@@ -13,7 +12,6 @@ import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;
-import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -113,15 +111,15 @@ public final class CronJobs implements ICronJob {
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-            new PrecalcProgressReport("athletes_summary", "ATHLETE",
-                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+//            new PrecalcProgressReport("athletes_summary", "ATHLETE",
+//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
             // *** This report runs during the semester - engineering sends an email near the start
             // of the term to request it, along with the list of people that the numan cron job
             // should email it to.
 
-            new PrecalcProgressReport("engineering_summary", "ENGRSTU",
-                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
+//            new PrecalcProCULUS PROGRESS ProgressReport("engineering_summary", "ENGRSTU",
+////                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
 
             this.reportsNextRun = LocalDateTime.of(tomorrow, ONE_AM);
         }

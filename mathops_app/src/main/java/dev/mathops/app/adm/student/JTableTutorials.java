@@ -70,7 +70,7 @@ final class JTableTutorials extends AbstractAdminTable<RawStexam> {
                 row[0] = "ELM";
                 row[1] = "Unit 3 Review";
                 row[2] = FMT_MDY.format(record.examDt);
-                row[3] = valueToString("Met transfer requirement in math");
+                row[3] = valueToString("Eligible for MATH 116");
 
                 getModel().addRow(row);
             }

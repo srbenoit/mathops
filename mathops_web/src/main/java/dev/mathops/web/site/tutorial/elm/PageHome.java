@@ -91,21 +91,15 @@ final class PageHome {
         htm.eH(2);
 
         htm.sP("indent11");
-        htm.addln("This tutorial is available to students who have completed the Math Placement ",
-                "Tool.  There is no fee for using this tutorial.  Successful completion of ",
-                "specific portions of the ELM Tutorial can satisfy:");
+        htm.addln("This tutorial is available to students who have completed the Math Placement Tool.  There is no ",
+                "fee for using this tutorial.  Successful completion of specific portions of the ELM Tutorial can ",
+                "satisfy the prerequisite for the entry-level mathematics courses:");
         htm.eP();
 
         htm.addln("<ul style='margin:3px 0 0 0'>");
-        htm.addln(" <li style='margin-top:3px;'> the CSU Admission Requirement in Mathematics ",
-                "for transfer students; and/or </li>");
-        htm.addln(" <li style='margin-top:3px;'> the prerequisite for the entry-level mathematics courses");
-        htm.addln("  <ul>");
-        htm.addln("   <li style='margin-top:3px;'>MATH 117, College Algebra in Context I</li>");
-        htm.addln("   <li style='margin-top:3px;'>MATH 120, College Algebra</li>");
-        htm.addln("   <li style='margin-top:3px;'>MATH 127, Precalculus</li>");
-        htm.addln("  </ul>");
-        htm.addln(" </li>");
+        htm.addln(" <li style='margin-top:3px;'>MATH 117, College Algebra in Context I</li>");
+        htm.addln(" <li style='margin-top:3px;'>MATH 120, College Algebra</li>");
+        htm.addln(" <li style='margin-top:3px;'>MATH 127, Precalculus</li>");
         htm.addln("</ul>");
 
         htm.sP("indent11", "style='margin-top:0;'");

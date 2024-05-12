@@ -38,10 +38,10 @@ import java.util.Map;
 final class StillNeeds54Points {
 
     /** The date after the drop date for section 1. */
-    private static final LocalDate DAY_AFTER_DROP_SECT_1 = LocalDate.of(2023, 1, 23);
+    private static final LocalDate DAY_AFTER_DROP_SECT_1 = LocalDate.of(2024, 1, 22);
 
     /** The date after the drop date for section 2. */
-    private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2023, 3, 28);
+    private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2024, 3, 27);
 
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
@@ -96,7 +96,6 @@ final class StillNeeds54Points {
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, true);
 
-
         final Iterator<RawStcourse> iter = allRegs.iterator();
         while (iter.hasNext()) {
             final RawStcourse reg = iter.next();
@@ -119,16 +118,25 @@ final class StillNeeds54Points {
 
             final String course = reg.course;
             if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
-                    || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
-                    || RawRecordConstants.M126.equals(course)) {
+                    || RawRecordConstants.M124.equals(course)) {
                 final String sect = reg.sect;
 
-                // NOTE: We do not consider section 003 / 004, which are face-to-face
+                // NOTE: For these courses, we only disregard 550
 
-                if ((!"001".equals(sect) && !"002".equals(sect) && !"401".equals(sect) && !"801".equals(sect)
-                        && !"809".equals(sect))) {
+                if ("550".equals(sect)) {
                     iter.remove();
                 }
+            } else if (RawRecordConstants.M125.equals(course) || RawRecordConstants.M126.equals(course)) {
+                final String sect = reg.sect;
+
+                // NOTE: For these, we disregard, 550, 003, and 004 (face-to-face)
+
+                if ("550".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
+                    iter.remove();
+                }
+            } else if (RawRecordConstants.MATH125.equals(course) || RawRecordConstants.MATH126.equals(course)) {
+                // New courses, remove.
+                iter.remove();
             } else {
                 Log.warning("Unexpected course: ", course);
                 iter.remove();
@@ -138,7 +146,7 @@ final class StillNeeds54Points {
         // Organize registrations by student
         final Map<String, List<RawStcourse>> regsByStudent = new HashMap<>(10);
         for (final RawStcourse reg : allRegs) {
-            final List<RawStcourse> list = regsByStudent.computeIfAbsent(reg.stuId, k -> new ArrayList<>(5));
+            final List<RawStcourse> list = regsByStudent.computeIfAbsent(reg.stuId, s -> new ArrayList<>(5));
             list.add(reg);
         }
 
@@ -231,8 +239,8 @@ final class StillNeeds54Points {
                         Log.info("Marking withdrawal for ", reg.stuId, " in ", reg.course);
 
                         // FIXME:
-                        // RawStcourseLogic.updateDroppedGrade(cache, reg.stuId, reg.course, reg.sect,
-                        // reg.termKey, reg.lastClassRollDt, "W");
+//                         RawStcourseLogic.updateDroppedGrade(cache, reg.stuId, reg.course, reg.sect,
+//                         reg.termKey, reg.lastClassRollDt, "W");
                     }
                 } else if ("N".equals(reg.openStatus)) {
 
@@ -240,8 +248,8 @@ final class StillNeeds54Points {
                         Log.info("Marking open=N as U for ", reg.stuId, " in ", reg.course);
 
                         // FIXME:
-                        // RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
-                        // reg.sect, reg.termKey, reg.completed, null, "U");
+//                         RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
+//                         reg.sect, reg.termKey, reg.completed, null, "U");
                     }
 
                 } else if ("G".equals(reg.openStatus)) {
@@ -250,8 +258,8 @@ final class StillNeeds54Points {
                         Log.info("Marking open=G as U for ", reg.stuId, " in ", reg.course);
 
                         // FIXME:
-                        // RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
-                        // reg.sect, reg.termKey, reg.completed, null, "U");
+//                         RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
+//                         reg.sect, reg.termKey, reg.completed, null, "U");
                     }
 
                 } else if (reg.openStatus == null) {
@@ -260,8 +268,8 @@ final class StillNeeds54Points {
                         Log.info("Marking unopened as U for ", reg.stuId, " in ", reg.course);
 
                         // FIXME:
-                        // RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
-                        // reg.sect, reg.termKey, reg.completed, null, "U");
+//                         RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
+//                         reg.sect, reg.termKey, reg.completed, null, "U");
                     }
 
                 } else if (reg.paceOrder == null) {
@@ -361,20 +369,22 @@ final class StillNeeds54Points {
                 if (test.examScore != null) {
                     final int unit = test.unit == null ? -1 : test.unit.intValue();
 
+                    final int score = test.examScore.intValue();
                     if (unit == 1) {
-                        scoreUE1 = Math.max(scoreUE1, test.examScore.intValue());
+                        scoreUE1 = Math.max(scoreUE1, score);
                     } else if (unit == 2) {
-                        scoreUE2 = Math.max(scoreUE2, test.examScore.intValue());
+                        scoreUE2 = Math.max(scoreUE2, score);
                     } else if (unit == 3) {
-                        scoreUE3 = Math.max(scoreUE3, test.examScore.intValue());
+                        scoreUE3 = Math.max(scoreUE3, score);
                     } else if (unit == 4) {
-                        scoreUE4 = Math.max(scoreUE4, test.examScore.intValue());
+                        scoreUE4 = Math.max(scoreUE4, score);
                     }
                 }
 
             } else if ("F".equals(test.examType)) {
                 if (test.examScore != null) {
-                    scoreFIN = Math.max(scoreFIN, test.examScore.intValue());
+                    final int score = test.examScore.intValue();
+                    scoreFIN = Math.max(scoreFIN, score);
 
                     if (whenPassedFIN == null || test.examDt.isBefore(whenPassedFIN)) {
                         whenPassedFIN = test.examDt;
@@ -386,8 +396,9 @@ final class StillNeeds54Points {
         }
 
         if (whenPassedFIN != null) {
+            final int pace = stterm.pace.intValue();
             final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache,
-                    active.term, stterm.pace.intValue(), stterm.paceTrack);
+                    active.term, pace, stterm.paceTrack);
 
             final List<RawStmilestone> stMilestones = RawStmilestoneLogic
                     .getStudentMilestones(cache, active.term, stterm.paceTrack, reg.stuId);
@@ -468,8 +479,8 @@ final class StillNeeds54Points {
                             reg.course);
 
                     // FIXME:
-                    // RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
-                    // reg.sect, reg.termKey, "Y", totalInt, grade);
+//                     RawStcourseLo.tgic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
+////                     reg.sect, regermKey, "Y", totalInt, grade);
                 }
             } else {
                 Log.warning(reg.course, " not marked as completed for ", reg.stuId);

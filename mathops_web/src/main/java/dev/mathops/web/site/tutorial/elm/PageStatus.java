@@ -26,6 +26,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -93,13 +94,23 @@ enum PageStatus {
 
         if (status.elmExamPassed) {
             htm.sDiv("indent22");
-            htm.addln("Congratulations!  You have completed the ELM Tutorial and passed the ",
-                    "<b>ELM Exam</b>.  This makes you eligible to register for ",
-                    "<strong>MATH 117</strong>.");
+            htm.addln("Congratulations!  You have completed the ELM Tutorial and passed the <b>ELM Exam</b>.  This ",
+                    "makes you eligible to register for <strong>MATH 117</strong>, <strong>MATH 120</strong>, or ",
+                    "<strong>MATH 127</strong>.");
         } else {
+            if (status.elm3Passed) {
+                htm.sDiv("indent22");
+                htm.addln("You have completed three units of the ELM Tutorial.  This makes you eligible to register ",
+                        "for the combination of <strong>MATH 116</strong> and <strong>MATH 117</strong>.");
+                htm.eDiv();
+
+                htm.eH(2).div("vgap2");
+            }
+
             htm.sDiv("indent22");
-            htm.addln("To qualify for <strong>MATH 117</strong>, you must complete all four units ",
-                    "of the ELM Tutorial and pass the ELM Exam.");
+            htm.addln("To qualify for <strong>MATH 117</strong>, <strong>MATH 120</strong>, or ",
+                    "<strong>MATH 127</strong>, you must complete all four units of the ELM Tutorial and pass the ",
+                    "ELM Exam.");
             htm.eDiv();
 
             htm.eH(2).div("vgap2");
@@ -123,11 +134,10 @@ enum PageStatus {
                     }
                 }
 
-                htm.addln("If you do not earn a passing score on the proctored ELM Exam by the ",
-                        "registration deadline for the next regular (Fall or Spring) semester, you ",
-                        "will be required to start over with Unit 1 of the ELM Tutorial. The next ",
-                        "deadline for completing the ELM Tutorial and passing the ELM Exam is <strong>",
-                        TemporalUtils.FMT_MDY.format(deleteDate), "</strong>.");
+                htm.addln("If you do not earn a passing score on the proctored ELM Exam by the registration deadline ",
+                        "for the next regular (Fall or Spring) semester, you will be required to start over with ",
+                        "Unit 1 of the ELM Tutorial. The next deadline for completing the ELM Tutorial and passing ",
+                        "the ELM Exam is <strong>", TemporalUtils.FMT_MDY.format(deleteDate), "</strong>.");
             }
         }
         htm.eDiv();
@@ -163,16 +173,15 @@ enum PageStatus {
         if (cunit == null) {
             htm.sP("red").add("Unable to look up course/unit data.").eP();
         } else {
-            final RawCusection cusect = RawCusectionLogic.query(cache, //
-                    RawRecordConstants.M100T, "1", unit, activeKey);
+            final RawCusection cusect = RawCusectionLogic.query(cache, RawRecordConstants.M100T, "1", unit, activeKey);
 
             if (cusect == null) {
                 htm.sP("red").add("Unable to look up course/unit/section data.").eP();
             } else {
                 final String studentId = status.student.stuId;
 
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M100T, unit, false, "R", "U");
+                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, RawRecordConstants.M100T,
+                        unit, false, "R", "U");
 
                 showUnitProgress(cache, cunit, cusect, exams, htm);
 
@@ -181,12 +190,9 @@ enum PageStatus {
                             exam.serialNbr.longValue());
 
                     htm.sDiv("indent22");
-                    htm.addln("<a class='ulink' ",
-                            "href='see_past_exam.html?course=M%20100T&exam=",
-                            exam.version, "&xml=", path, CoreConstants.SLASH,
-                            ExamWriter.EXAM_FILE, "&upd=", path, CoreConstants.SLASH,
-                            ExamWriter.ANSWERS_FILE, "'>View the ", exam.getExamLabel(), //
-                            "</a>");
+                    htm.addln("<a class='ulink' href='see_past_exam.html?course=M%20100T&exam=", exam.version,
+                            "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE, "&upd=", path,
+                            CoreConstants.SLASH, ExamWriter.ANSWERS_FILE, "'>View the ", exam.getExamLabel(), "</a>");
                     htm.eDiv();
                 }
 
@@ -212,12 +218,10 @@ enum PageStatus {
         final int unit = cunit.unit.intValue();
 
         // Gather the exam model and label for the needed exams
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, //
-                cunit.course, cunit.unit, "U");
+        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, cunit.course, cunit.unit, "U");
         final String unitExamLabel = unitExam == null ? null : unitExam.buttonLabel;
 
-        final RawExam unitRevExam = RawExamLogic.queryActiveByCourseUnitType(cache, //
-                cunit.course, cunit.unit, "R");
+        final RawExam unitRevExam = RawExamLogic.queryActiveByCourseUnitType(cache, cunit.course, cunit.unit, "R");
         final String unitRevExamLabel = unitRevExam == null ? null : unitRevExam.buttonLabel;
 
         // See if the student has a passing review exam on record and display the student's review
@@ -237,14 +241,13 @@ enum PageStatus {
 
             htm.sDiv("indent22");
             if (reviewAttempts == 0) {
-                htm.addln("You have <strong>not yet taken</strong> the <span class='green'>",
-                        unitRevExamLabel, "</span>.");
+                htm.addln("You have <strong>not yet taken</strong> the <span class='green'>", unitRevExamLabel,
+                        "</span>.");
             } else if (passedReview) {
-                htm.addln("You have <strong>passed</strong> the <span class='green'>",
-                        unitRevExamLabel, "</span>.");
+                htm.addln("You have <strong>passed</strong> the <span class='green'>", unitRevExamLabel, "</span>.");
             } else {
-                htm.addln("You have <strong>not yet passed</strong> the <span class='green'>",
-                        unitRevExamLabel, "</span>.");
+                htm.addln("You have <strong>not yet passed</strong> the <span class='green'>", unitRevExamLabel,
+                        "</span>.");
             }
             htm.eDiv();
         } else {
@@ -285,15 +288,13 @@ enum PageStatus {
                 htm.eDiv();
 
                 htm.sDiv("indent22");
-                htm.addln("Your best score on the ", unitExamLabel, //
-                        ": <strong style='color:blue'>", Integer.toString(bestScore),
-                        "</strong>");
+                htm.addln("Your best score on the ", unitExamLabel, ": <strong style='color:blue'>",
+                        Integer.toString(bestScore), "</strong>");
 
                 if (cunit.possibleScore != null && cunit.possibleScore.intValue() > 0) {
                     if (cusect.ueMasteryScore != null && cusect.ueMasteryScore.intValue() > 0) {
                         htm.addln("(out of <strong>", cunit.possibleScore,
-                                "</strong> possible, minimum required score is <strong>",
-                                cusect.ueMasteryScore, //
+                                "</strong> possible, minimum required score is <strong>", cusect.ueMasteryScore,
                                 "</strong>).");
                     } else {
                         htm.addln("(out of <strong>", cunit.possibleScore, "</strong> possible).");

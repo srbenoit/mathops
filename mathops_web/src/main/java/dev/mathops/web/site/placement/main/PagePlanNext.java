@@ -844,7 +844,6 @@ enum PagePlanNext {
                 htm.sP(CENTER).add(CHECK);
                 htm.add("No further action is needed.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_3B:
@@ -852,7 +851,6 @@ enum PagePlanNext {
                 htm.add("We recommend that you complete the required three credits of Core Curriculum mathematics ",
                         "within your first thirty credit hours.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_3C:
@@ -861,7 +859,6 @@ enum PagePlanNext {
                         "Calculus courses, you can go through <strong class='headercolor'>Math Placement</strong> or ",
                         "complete a tutorial to become eligible for those mathematics courses.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_3D:
@@ -892,7 +889,6 @@ enum PagePlanNext {
                 htm.sP().add(DISC);
                 htm.add("You do not need to complete the Math Placement process.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_3H:
@@ -900,7 +896,6 @@ enum PagePlanNext {
                 htm.add("You do not need to complete the Math Placement process unless you plan to take a math course ",
                         "other than MATH 101, MATH 105, STAT 100, STAT 201, or STAT 204.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             //
@@ -911,14 +906,12 @@ enum PagePlanNext {
                 htm.sP(CENTER).add(CHECK);
                 htm.add("No further action is needed.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_4B:
                 htm.sP().add(DISC);
                 htm.add("You do not need to complete the Math Placement process.");
                 htm.eP();
-                emitTransferMessage(htm);
                 break;
 
             case MSG_4C:
@@ -980,19 +973,6 @@ enum PagePlanNext {
     }
 
     /**
-     * Emits a message for transfer students about the transfer admission requirement.
-     *
-     * @param htm the {@code HtmlBuilder} to which to append
-     */
-    private static void emitTransferMessage(final HtmlBuilder htm) {
-
-        htm.sP(CENTER);
-        htm.add("*** <strong>Transfer Students</strong>: please be sure you have satisfied the <a target='_blank' ",
-                "href='https://admissions.colostate.edu/requirementinmathematics/'>Transfer Math Requirement</a>.");
-        htm.eP();
-    }
-
-    /**
      * Called when a POST is received to the page.
      *
      * @param cache   the data cache
@@ -1034,7 +1014,7 @@ enum PagePlanNext {
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
             // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that
-            // indicates placement is needed.  If there a row with survey_nbr=1 and stu_answer='Y', that indicates
+            // indicates placement is needed.  If there is a row with survey_nbr=1 and stu_answer='Y', that indicates
             // the math plan has been completed and placement is not needed. The MPL test score is '1' if placement
             // is not needed, and '2' if placement is needed.
 
