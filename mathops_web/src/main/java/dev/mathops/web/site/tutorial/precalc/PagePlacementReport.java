@@ -83,9 +83,8 @@ enum PagePlacementReport {
 
             htm.sP("indent11");
             htm.addln(" Visit our");
-            htm.addln(" <a href='https://placement.", Contexts.DOMAIN,
-                    "/welcome/welcome.html'>Math Placement Directory</a>");
-            htm.addln(" for information on using the Math Placement Tool.");
+            htm.addln(" <a href='https://placement.", Contexts.DOMAIN, "/welcome/welcome.html'>Math Placement ",
+                    "Directory</a> for information on using the Math Placement Tool.");
             htm.eP();
         } else {
             appendYouHaveTaken(htm, status);
@@ -107,8 +106,7 @@ enum PagePlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You are cleared to register for:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You are cleared to register for:");
                 }
 
                 if (comma) {
@@ -118,8 +116,7 @@ enum PagePlacementReport {
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
 
-                if ((!"MATH 101".equals(course)
-                        && !"STAT 100".equals(course))) {
+                if ((!"MATH 101".equals(course) && !"STAT 100".equals(course))) {
                     noneBut101 = false;
                 }
             }
@@ -183,20 +180,10 @@ enum PagePlacementReport {
             if (noneBut101) {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                htm.addln("MATH 101, MATH 105, and STAT 100 do not satisfy the degree requirements for many ",
-                        "majors.  Ask your adviser if these courses are appropriate for your major, or consult ",
-                        "the <a href='https://www.catalog.colostate.edu/'>University  Catalog</a>.");
+                htm.addln("MATH 101, MATH 105, and STAT 100 do not satisfy the degree requirements for many majors. ",
+                        "Ask your adviser if these courses are appropriate for your major, or consult the ",
+                        "<a href='https://www.catalog.colostate.edu/'>University  Catalog</a>.");
                 htm.eP();
-
-                if (!status.transferSatisfied) {
-                    htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
-                    htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                    htm.addln("Transfer Students: This placement result does not satisfy the ",
-                            "<a href='https://admissions.colostate.edu/requirementinmathematics'>admission ",
-                            "requirement in mathematics</a>.  You should complete units 1-3 of the ELM Tutorial ",
-                            "if you need to satisfy this admission requirement.");
-                    htm.eP();
-                }
 
                 htm.addln("<p class='indent11' style='margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/info.png'/> &nbsp; ");

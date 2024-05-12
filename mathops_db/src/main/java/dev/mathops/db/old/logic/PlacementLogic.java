@@ -424,12 +424,8 @@ public class PlacementLogic {
 
             if (RawRecordConstants.M100C.equals(course)) {
                 cleared.add(RawRecordConstants.MATH117);
-                this.status.transferSatisfied = true;
-            } else if ("M 100M".equals(course) || RawRecordConstants.M100T.equals(course)) {
-                this.status.transferSatisfied = true;
             } else if ("M 100A".equals(course)) {
                 cleared.add(RawRecordConstants.MATH117);
-                this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M117.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH117);
@@ -437,7 +433,6 @@ public class PlacementLogic {
                     placedOut.add(RawRecordConstants.MATH117);
                 }
                 cleared.add(RawRecordConstants.MATH118);
-                this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M118.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH118);
@@ -447,7 +442,6 @@ public class PlacementLogic {
                 cleared.add(RawRecordConstants.MATH124);
                 cleared.add(RawRecordConstants.MATH125);
                 cleared.add("MATH 141");
-                this.status.transferSatisfied = true;
             } else if ("M 120".equals(course) || "M 120A".equals(course) || "M 121".equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH117);
@@ -458,14 +452,12 @@ public class PlacementLogic {
                 }
                 cleared.add(RawRecordConstants.MATH124);
                 cleared.add(RawRecordConstants.MATH125);
-                this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M124.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH124);
                 } else {
                     placedOut.add(RawRecordConstants.MATH124);
                 }
-                this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M125.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH125);
@@ -473,14 +465,12 @@ public class PlacementLogic {
                     placedOut.add(RawRecordConstants.MATH125);
                 }
                 cleared.add(RawRecordConstants.MATH126);
-                this.status.transferSatisfied = true;
             } else if (RawRecordConstants.M126.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH126);
                 } else {
                     placedOut.add(RawRecordConstants.MATH126);
                 }
-                this.status.transferSatisfied = true;
             }
 
             if (placedOut.contains(RawRecordConstants.MATH124) && placedOut.contains(RawRecordConstants.MATH125)) {
@@ -492,8 +482,7 @@ public class PlacementLogic {
             }
         }
 
-        // Don't list courses for which the student has placed out or earned credit as "available"
-        // to add
+        // Don't list courses for which the student has placed out or earned credit as "available" to add
         cleared.removeAll(placedOut);
         cleared.removeAll(earnedCredit);
     }

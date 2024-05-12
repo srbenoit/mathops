@@ -60,7 +60,7 @@ public final class ELMTutorialStatus {
      * Flag indicating the student has passed the proctored Unit 3 exam for the ELM Tutorial, which satisfies the
      * transfer requirement in Math.
      */
-    private boolean elm3Passed;
+    public boolean elm3Passed;
 
     /**
      * Constructs a new {@code ELMTutorialStatus}.

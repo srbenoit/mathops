@@ -12,7 +12,7 @@ import dev.mathops.db.old.svc.term.TermRec;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.SequencedCollection;
 
 /**
  * Logic relating to the calculation of pace track.
@@ -156,44 +156,64 @@ public enum PaceTrackLogic {
         // Default track is "A"
         String track = "A";
 
-        if ("002".equals(sect)) {
-            // 002 is a "late-start" section - track C (only 1 or 2 course pace)
-            track = "C";
-        } else if ("003".equals(sect) || "004".equals(sect) || "005".equals(sect) || "006".equals(sect)
-                || "007".equals(sect)) {
-            // In-person sections - if "MATH 125" or "MATH 126" is included, use track E, otherwise, use track D
+        if ("001".equals(sect)) {
 
-            track = "D";
+            // In Fall/Spring, 001 is the normal full-semester online section
+
+            // In Summer 24, section MATH 117 (001) is a Face-to-Face 117 (paired with 116) - Track B
             for (final RawStcourse test : registrations) {
-                if ((RawRecordConstants.MATH125.equals(test.course)
-                        || RawRecordConstants.MATH126.equals(test.course))
-                        && isCountedTowardPace(test)) {
-                    track = "E";
+                if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
+                    track = "B";
                     break;
                 }
             }
-        } else if (pace == 2) {
-            // 2-course students who have MATH 117 (Fall) or MATH 125 (Spring) are track "A".  Otherwise, track "B".
-            // Summer has only track A.
-            track = "B";
+        } else if ("002".equals(sect) || "102".equals(sect)) {
+
+            // In Fall/Spring, 002 is a "late-start" section - track C (only 1 or 2 course pace)
+            // track = "C";
+
+            // In Summer 24, section MATH 117 (002/102) is a Face-to-Face 117 (paired with 116) - Track C
             for (final RawStcourse test : registrations) {
-                if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
-                    track = "A";
+                if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
+                    track = "C";
                     break;
                 }
             }
-        } else if (pace == 1) {
-            // 1-course students who have MATH 117 or {MATH 125 (Fall) or MATH 124 (Spring)} are
-            // track "A". Otherwise, track "B".  Summer has only track A.
-            track = "B";
-            for (final RawStcourse test : registrations) {
-                if ((RawRecordConstants.M117.equals(test.course)
-                        || RawRecordConstants.M124.equals(test.course))
-                        && isCountedTowardPace(test)) {
-                    track = "A";
-                    break;
-                }
-            }
+//        } else if ("003".equals(sect) || "004".equals(sect) || "005".equals(sect) || "006".equals(sect)
+//                || "007".equals(sect)) {
+//            // In-person sections - if "MATH 125" or "MATH 126" is included, use track E, otherwise, use track D
+//
+//            track = "D";
+//            for (final RawStcourse test : registrations) {
+//                if ((RawRecordConstants.MATH125.equals(test.course)
+//                        || RawRecordConstants.MATH126.equals(test.course))
+//                        && isCountedTowardPace(test)) {
+//                    track = "E";
+//                    break;
+//                }
+//            }
+//        } else if (pace == 2) {
+//            // 2-course students who have MATH 117 (Fall) or MATH 125 (Spring) are track "A".  Otherwise, track "B".
+//            // Summer has only track A.
+//            track = "B";
+//            for (final RawStcourse test : registrations) {
+//                if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
+//                    track = "A";
+//                    break;
+//                }
+//            }
+//        } else if (pace == 1) {
+//            // 1-course students who have MATH 117 or {MATH 125 (Fall) or MATH 124 (Spring)} are
+//            // track "A". Otherwise, track "B".  Summer has only track A.
+//            track = "B";
+//            for (final RawStcourse test : registrations) {
+//                if ((RawRecordConstants.M117.equals(test.course)
+//                        || RawRecordConstants.M124.equals(test.course))
+//                        && isCountedTowardPace(test)) {
+//                    track = "A";
+//                    break;
+//                }
+//            }
         }
 
         return track;
@@ -209,7 +229,9 @@ public enum PaceTrackLogic {
      */
     public static String determinePaceTrack(final Iterable<RawStcourse> registrations) {
 
-        return determinePaceTrack(registrations, determinePace(registrations));
+        final int pace = determinePace(registrations);
+
+        return determinePaceTrack(registrations, pace);
     }
 
     /**
@@ -226,7 +248,7 @@ public enum PaceTrackLogic {
         // incompletes and "Ignored" courses.
 
         final int numRegs = registrations.size();
-        final List<RawStcourse> open = new ArrayList<>(numRegs);
+        final SequencedCollection<RawStcourse> open = new ArrayList<>(numRegs);
         final Collection<RawStcourse> notOpen = new ArrayList<>(numRegs);
 
         for (final RawStcourse test : registrations) {
@@ -277,7 +299,7 @@ public enum PaceTrackLogic {
 
             if (first == null) {
                 if (open.size() == 1) {
-                    first = open.get(0).course;
+                    first = open.getFirst().course;
                 } else {
                     // There were multiple open courses, but none marked as order 1 - this could occur if the student
                     // completes a course then drops it after starting course 3. In this case, take the lowest order
@@ -374,8 +396,9 @@ public enum PaceTrackLogic {
                 final String track = determinePaceTrack(registrations, pace);
 
                 if (existing == null) {
-                    final RawStterm newRec = new RawStterm(active.term, studentId, Integer.valueOf(pace), track, first,
-                            null, null, null);
+                    final Integer paceInteger = Integer.valueOf(pace);
+                    final RawStterm newRec = new RawStterm(active.term, studentId, paceInteger, track, first, null,
+                            null, null);
 
                     Log.info("Inserting STTERM <", newRec.termKey.shortString, ",", newRec.stuId, ",",
                             newRec.pace, ",", newRec.paceTrack, ",", newRec.firstCourse, ">");
@@ -385,8 +408,9 @@ public enum PaceTrackLogic {
                 } else if (existing.pace.intValue() != pace || !existing.paceTrack.equals(track)
                         || !existing.firstCourse.equals(first)) {
 
-                    Log.info("Updating STTERM <", active.term.shortString, ",", studentId, ",", Integer.toString(pace),
-                            ",", track, ",", first, ">");
+                    final String paceStr = Integer.toString(pace);
+                    Log.info("Updating STTERM <", active.term.shortString, ",", studentId, ",", paceStr, ",", track,
+                            ",", first, ">");
 
                     RawSttermLogic.updatePaceTrackFirstCourse(cache, studentId, active.term, pace, track, first);
                 }

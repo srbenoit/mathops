@@ -83,10 +83,9 @@ enum PagePlacementReport {
             htm.eP();
 
             htm.sP("indent11");
-            htm.addln(" Visit our");
-            htm.addln(" <a href='https://placement.", Contexts.DOMAIN,
-                    "/welcome/welcome.html'>Math Placement Directory</a>");
-            htm.addln(" for information on using the Math Placement Tool.");
+            htm.addln(" Visit our <a href='https://placement.", Contexts.DOMAIN,
+                    "/welcome/welcome.html'>Math Placement Directory</a>  for information on using the Math ",
+                    "Placement Tool.");
             htm.eP();
         } else {
             appendYouHaveTaken(htm, status);
@@ -108,8 +107,7 @@ enum PagePlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You are cleared to register for:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You are cleared to register for:");
                 }
 
                 if (comma) {
@@ -137,8 +135,7 @@ enum PagePlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You have placed out of:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have placed out of:");
                 }
 
                 if (comma) {
@@ -163,8 +160,7 @@ enum PagePlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You have earned placement credit for:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have earned placement credit for:");
                 }
 
                 if (comma) {
@@ -183,21 +179,10 @@ enum PagePlacementReport {
             if (noneBut101) {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many ",
-                        "majors.  Consult the <a href='https://www.catalog.colostate.edu/'>University ",
-                        " Catalog</a> to see if these courses are appropriate for your desired major.");
+                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many majors.  ",
+                        "Consult the <a href='https://www.catalog.colostate.edu/'>University Catalog</a> ",
+                        "to see if these courses are appropriate for your desired major.");
                 htm.eP();
-
-                if (!status.transferSatisfied) {
-                    htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
-                    htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                    htm.addln("Transfer Students: This placement result does not satisfy the ",
-                            "<a href='https://admissions.colostate.edu/requirementinmathematics'>",
-                            "admission requirement in mathematics</a>.  You should complete ",
-                            "units 1-3 of the ELM Tutorial if you need to satisfy this admission ",
-                            "requirement.");
-                    htm.eP();
-                }
 
                 htm.addln("<p class='indent11' style='margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/info.png'/> &nbsp; ");
@@ -206,20 +191,19 @@ enum PagePlacementReport {
 
                 if (status.attemptsRemaining > 0) {
                     htm.sP("indent33");
-                    htm.add("To become eligible to register for just MATH 117, MATH 120, or ",
-                            "MATH 127, you may complete the ELM Tutorial and take the ELM Exam.");
+                    htm.add("To become eligible to register for just MATH 117, MATH 120, or MATH 127, you may ",
+                            "complete the ELM Tutorial and take the ELM Exam.");
                     htm.eP();
 
                     htm.sP("indent33");
-                    htm.add("Alternatively, to become eligible to register for additional ",
-                            "mathematics courses, including MATH 117, MATH 120, or MATH 127, you ",
-                            "could use the <a href='https://placement.", Contexts.DOMAIN,
-                            "/mpe-review/index.html' class='ulink'>Math Placement Review materials</a>",
-                            " to study, and try the Math Placement Tool again.");
+                    htm.add("Alternatively, to become eligible to register for additional mathematics courses, ",
+                            "including MATH 117, MATH 120, or MATH 127, you could use the ",
+                            "<a href='https://placement.", Contexts.DOMAIN, "/mpe-review/index.html' class='ulink'>",
+                            "Math Placement Review materials</a> to study, and try the Math Placement Tool again.");
                 } else {
                     htm.sP("indent33");
-                    htm.addln(" To become eligible to register for MATH 117, MATH 120, or ",
-                            "MATH 127, complete the ELM Tutorial and take the ELM Exam.");
+                    htm.addln(" To become eligible to register for MATH 117, MATH 120, or MATH 127, complete the ",
+                            "ELM Tutorial and take the ELM Exam.");
                 }
                 htm.eP();
             }
@@ -228,8 +212,8 @@ enum PagePlacementReport {
             if (student != null && student.adviserEmail != null) {
                 htm.div("vgap");
                 htm.sP("indent11");
-                htm.addln(" You should check with your adviser for complete information ",
-                        "concerning your math requirements.");
+                htm.addln("You should check with your adviser for complete information concerning your math ",
+                        "requirements.");
                 htm.eP();
             }
 

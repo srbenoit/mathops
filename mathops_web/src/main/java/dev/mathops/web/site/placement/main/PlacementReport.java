@@ -53,14 +53,12 @@ final class PlacementReport {
         if (status.attemptsUsed == 0) {
 
             htm.sP("indent11", "style='padding-left:32px;'");
-            htm.add("<img src='/images/orange2.png' ",
-                    "style='margin:0 0 0 -32px; padding-right:10px;'/>");
+            htm.add("<img src='/images/orange2.png' style='margin:0 0 0 -32px; padding-right:10px;'/>");
             htm.addln(" You have not yet completed the Math Placement Tool.");
             htm.eP();
 
             htm.sP("indent11");
-            htm.addln(" Visit our");
-            htm.addln(" <a href='welcome.html'>Math Placement Directory</a>");
+            htm.addln(" Visit our  <a href='welcome.html'>Math Placement Directory</a>");
             htm.addln(" for information on using the Math Placement Tool.");
             htm.eP();
         } else {
@@ -81,8 +79,7 @@ final class PlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You are cleared to register for:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You are cleared to register for:");
                 }
 
                 if (comma) {
@@ -92,8 +89,7 @@ final class PlacementReport {
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
 
-                if ((!"MATH 101".equals(course)
-                        && !"STAT 100".equals(course))) {
+                if ((!"MATH 101".equals(course) && !"STAT 100".equals(course))) {
                     noneBut101 = false;
                 }
             }
@@ -111,8 +107,7 @@ final class PlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You have placed out of:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have placed out of:");
                 }
 
                 if (comma) {
@@ -137,8 +132,7 @@ final class PlacementReport {
                 if (heading) {
                     heading = false;
                     htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp;");
-                    htm.addln("You have earned placement credit for:");
+                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have earned placement credit for:");
                 }
 
                 if (comma) {
@@ -155,77 +149,53 @@ final class PlacementReport {
             }
 
             if (noneBut101) {
-                htm.addln("<p class='indent11' ",
-                        "style='margin-bottom:0;margin-top:10pt;'>");
-                htm.addln("<img style='position:relative; top:-1px' ",
-                        "src='/images/error.png'/> &nbsp; ");
+                htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
+                htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
 
-                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many ",
-                        "majors.  Consult the <a href='https://www.catalog.colostate.edu/'>University ",
-                        " Catalog</a> to see if these courses are appropriate for your desired major.");
+                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many majors.  Consult the ",
+                        "<a href='https://www.catalog.colostate.edu/'>University  Catalog</a> to see if these courses ",
+                        "are appropriate for your desired major.");
                 htm.eP();
 
-                if (!status.transferSatisfied) {
-                    htm.addln("<p class='indent11' ",
-                            "style='margin-bottom:0;margin-top:10pt;'>");
-                    htm.addln("<img style='position:relative; top:-1px' ",
-                            "src='/images/error.png'/> &nbsp; ");
-
-                    htm.addln("Transfer Students: This placement result does not satisfy the ",
-                            "<a href='https://admissions.colostate.edu/requirementinmathematics'>",
-                            "admission requirement in mathematics</a>.  You should complete ",
-                            "units 1-3 of the ELM Tutorial if you need to satisfy this admission ",
-                            "requirement.");
-                    htm.eP();
-                }
-
-                htm.addln("<p class='indent11' ",
-                        "style='margin-top:10pt;'>");
-                htm.addln("<img style='position:relative; top:-1px' ",
-                        "src='/images/info.png'/> &nbsp; ");
+                htm.addln("<p class='indent11' style='margin-top:10pt;'>");
+                htm.addln("<img style='position:relative; top:-1px' src='/images/info.png'/> &nbsp; ");
                 htm.addln("<span class='blue'>What should I do now?</span>");
                 htm.eP();
 
                 if (status.attemptsRemaining > 0) {
                     htm.sP("indent33");
-                    htm.add("To become eligible to register for additional mathematics courses, ",
-                            "including MATH 117, MATH 120, or MATH 127, you should use the ",
-                            "<a href='review.html' class='ulink'>",
-                            "Math Placement Review materials</a> to study, and ",
-                            "try the Math Placement Tool again.");
+                    htm.add("To become eligible to register for additional mathematics courses, including MATH 117, ",
+                            "MATH 120, or MATH 127, you should use the <a href='review.html' class='ulink'>",
+                            "Math Placement Review materials</a> to study, and try the Math Placement Tool again.");
                     htm.eP();
 
                     htm.sP("indent33");
-                    htm.add("Alternately, to become eligible to register for just MATH 117, ",
-                            "MATH 120, or MATH 127, you may complete the ELM Tutorial and take the ",
-                            "ELM Exam.");
+                    htm.add("Alternately, to become eligible to register for just MATH 117, MATH 120, or MATH 127, ",
+                            "you may complete the ELM Tutorial and take the ELM Exam.");
                 } else {
                     htm.sP("indent33");
-                    htm.addln(" To become eligible to register for MATH 117, MATH 120, or ",
-                            "MATH 127, you must complete the ELM Tutorial and take the ELM Exam.");
+                    htm.addln(" To become eligible to register for MATH 117, MATH 120, or MATH 127, you must ",
+                            "complete the ELM Tutorial and take the ELM Exam.");
                 }
                 htm.eP();
             }
 
             // Only show adviser comment if the student is known to have an adviser
-            final RawStudent student =
-                    RawStudentLogic.query(cache, session.getEffectiveUserId(), false);
+            final RawStudent student = RawStudentLogic.query(cache, session.getEffectiveUserId(), false);
 
             if (student != null && student.adviserEmail != null) {
                 htm.div("vgap");
                 htm.sP("indent11");
-                htm.addln(" You should check with your adviser for complete information ",
-                        "concerning your math requirements.");
+                htm.addln(" You should check with your adviser for complete information concerning your math ",
+                        "requirements.");
                 htm.eP();
             }
 
             if (includeLink) {
                 htm.hr();
                 htm.addln("<p style='text-align:center;'>");
-                htm.addln(" Click <strong><a href='",
-                        "https://www.math.colostate.edu/placement/understand_MPE.shtml'>",
-                        "here</a></strong> for information to help you understand your placement ",
-                        "results.");
+                htm.addln(" Click <strong><a href='https://www.math.colostate.edu/placement/understand_MPE.shtml'>",
+                        "here</a></strong> for information to help you understand your placement results.");
                 htm.eP();
             }
 
@@ -247,8 +217,7 @@ final class PlacementReport {
     private static void appendYouHaveTaken(final HtmlBuilder htm, final PlacementStatus status) {
 
         htm.sP("indent11", "style='padding-left:32px;'");
-        htm.add("<img src='/images/orange2.png' ",
-                "style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
+        htm.add("<img src='/images/orange2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
 
         if (status.attemptsUsed == 0) {
             htm.addln(" You have not yet completed the Math Placement Tool.");
@@ -299,16 +268,15 @@ final class PlacementReport {
      * @param session the user session
      * @throws SQLException if there is an error accessing the database
      */
-    private static void logStudentAccess(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    private static void logStudentAccess(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
         final String studentId = session.getEffectiveUserId();
 
         if (studentId != null && session.actAsUserId == null) {
             // If we don't have a record of this user checking their results, add one
 
-            final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                    studentId, MathPlanLogic.CHECKED_RESULTS_PROFILE);
+            final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, studentId,
+                    MathPlanLogic.CHECKED_RESULTS_PROFILE);
 
             if (responses.isEmpty()) {
                 final RawStudent stu = RawStudentLogic.query(cache, studentId, false);
@@ -317,9 +285,8 @@ final class PlacementReport {
                     final LocalDateTime when = session.getNow().toLocalDateTime();
 
                     final RawStmathplan log = new RawStmathplan(studentId, stu.pidm, null,
-                            MathPlanLogic.CHECKED_RESULTS_PROFILE, when.toLocalDate(),
-                            Integer.valueOf(1), "Y", Integer.valueOf(TemporalUtils.minuteOfDay(when)),
-                            Long.valueOf(session.loginSessionTag));
+                            MathPlanLogic.CHECKED_RESULTS_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
+                            Integer.valueOf(TemporalUtils.minuteOfDay(when)), Long.valueOf(session.loginSessionTag));
 
                     RawStmathplanLogic.INSTANCE.insert(cache, log);
                 }

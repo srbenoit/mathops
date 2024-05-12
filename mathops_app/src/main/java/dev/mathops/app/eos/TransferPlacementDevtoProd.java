@@ -79,8 +79,8 @@ import java.util.TreeMap;
  */
 final class TransferPlacementDevtoProd {
 
-    // FA23: Switch to DEV happened on December 13 at 7:18 AM
-    private static final LocalDateTime CUTOVER_DATETIME = LocalDateTime.of(2023, 12, 13, 7, 18);
+    // SP23: Switch to DEV happened on May 9 at 5:15 AM
+    private static final LocalDateTime CUTOVER_DATETIME = LocalDateTime.of(2024, 5, 9, 5, 15);
 
     /** Debug flag - true to print but do no actual transfer of data; false to transfer data. */
     private static final boolean DEBUG = true;
@@ -136,7 +136,7 @@ final class TransferPlacementDevtoProd {
 
         final Collection<String> report = new ArrayList<>(100);
 
-        report.add("Transfer of Placement, ELM, Precalcu Tutorial Data (DEV to PROD) -- "
+        report.add("Transfer of Placement, ELM, Precalculus Tutorial Data (DEV to PROD) -- "
                 + TemporalUtils.FMT_MDY_AT_HM_A.format(LocalDateTime.now()));
         report.add("-----------------------------------------------------------------"
                 + "---------------------------");

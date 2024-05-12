@@ -48,7 +48,7 @@ public final class AuditBannerTestScores {
     private static final String DIAGNOSE_STU = null;
 
     /** Date before which scores have already been audited. */
-    private static final LocalDate START_DATE = LocalDate.of(2023, Month.DECEMBER, 20);
+    private static final LocalDate START_DATE = LocalDate.of(2024, Month.MAY, 12);
 
     /** A commonly used string. */
     private static final String ERROR = "ERROR: ";
@@ -287,16 +287,20 @@ public final class AuditBannerTestScores {
                     while (iter.hasNext()) {
                         final RawMpscorequeue rec = iter.next();
 
-                        if ("MC00".equals(rec.testCode)) {
-                            if ("2".equals(rec.testScore)) {
-                                needs00Score2 = false;
-                            } else if ("4".equals(rec.testScore)) {
-                                needs00Score4 = false;
-                            }
-                        }
-
-                        if (rec.testDate.toLocalDate().isBefore(start)) {
+                        if ("MPL".equals(rec.testCode)) {
                             iter.remove();
+                        } else {
+                            if ("MC00".equals(rec.testCode)) {
+                                if ("2".equals(rec.testScore)) {
+                                    needs00Score2 = false;
+                                } else if ("4".equals(rec.testScore)) {
+                                    needs00Score4 = false;
+                                }
+                            }
+
+                            if (rec.testDate.toLocalDate().isBefore(start)) {
+                                iter.remove();
+                            }
                         }
                     }
                 } finally {

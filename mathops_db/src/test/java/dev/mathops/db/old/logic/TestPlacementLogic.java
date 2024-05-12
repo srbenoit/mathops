@@ -255,16 +255,6 @@ final class TestPlacementLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("Correct false transfer satisfied")
-    void test0117() {
-
-        // 99CIMP000: Has not taken MPT/MPE, not eligible for unproctored
-
-        assertFalse(statusCIMP000.transferSatisfied, "Expected false transfer satisfied");
-    }
-
-    /** Test case. */
-    @Test
     @DisplayName("Correct available local proctored IDs")
     void test0201() {
 
@@ -440,15 +430,5 @@ final class TestPlacementLogic {
         assertEquals(2, statusCIMP001.clearedFor.size(), "Expected 2 cleared for");
         assertTrue(statusCIMP001.clearedFor.contains("MATH 101"), "Expected cleared for MATH 101");
         assertTrue(statusCIMP001.clearedFor.contains("STAT 100"), "Expected cleared for STAT 100");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("Correct false transfer satisfied")
-    void test0217() {
-
-        // 99CIMP001: Has not taken MPT/MPE, eligible for unproctored by Application Term
-
-        assertFalse(statusCIMP001.transferSatisfied, "Expected false transfer satisfied");
     }
 }
