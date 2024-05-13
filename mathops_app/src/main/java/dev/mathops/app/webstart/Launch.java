@@ -66,7 +66,7 @@ import java.util.List;
 final class Launch implements Runnable {
 
     /** Launcher version. */
-    private static final String VERSION = "1.2.017";
+    private static final String VERSION = "1.2.018";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
@@ -135,7 +135,22 @@ final class Launch implements Runnable {
         this.downloadDir.mkdirs();
 
         this.logFile = new File(this.launchDir, "launch.log");
-        this.logFile.delete();
+        final File logBak1 = new File(this.launchDir, "launch1.log");
+        final File logBak2 = new File(this.launchDir, "launch2.log");
+        final File logBak3 = new File(this.launchDir, "launch3.log");
+        if (logBak3.exists()) {
+            logBak3.delete();
+        }
+        if (logBak2.exists()) {
+            logBak2.renameTo(logBak3);
+        }
+        if (logBak1.exists()) {
+            logBak1.renameTo(logBak2);
+        }
+        if (this.logFile.exists()) {
+            this.logFile.renameTo(logBak1);
+        }
+
         FileUtils.log(this.logFile, "Launcher ", VERSION, " starting");
         FileUtils.log(this.logFile, "Application Directory: ", this.appDir.getAbsolutePath());
 
@@ -334,7 +349,9 @@ final class Launch implements Runnable {
         try (final InputStream in = (InputStream) url.getContent()) {
             result = AppDescriptor.parse(in);
 
-            if (result != null) {
+            if (result == null) {
+                FileUtils.log(this.logFile, "  Failed to parse application descriptor at ", url);
+            } else {
                 FileUtils.log(this.logFile, "  Downloaded descriptor '", result.name, "' version ", result.version);
             }
         } catch (final IOException ex) {
@@ -369,6 +386,8 @@ final class Launch implements Runnable {
             boolean allValid = true;
 
             for (final FileDescriptor file : descriptor.getFiles()) {
+
+                FileUtils.log(this.logFile, "  Attempting to download ", file.name);
 
                 sha256.reset();
                 try {

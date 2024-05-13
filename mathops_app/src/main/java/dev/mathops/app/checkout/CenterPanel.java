@@ -32,7 +32,7 @@ final class CenterPanel extends JPanel implements Runnable {
     private static final long serialVersionUID = -7029995559760361198L;
 
     /** Application version. */
-    private static final String VERSION = "v2.3.5 (Jan 1, 2024)";
+    private static final String VERSION = "v2.3.6 (May 13, 2024)";
 
     /** The database profile. */
     private final DbProfile dbProfile;

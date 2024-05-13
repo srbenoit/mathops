@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 final class TestingAppBuilder {
 
     /** The version number. */
-    private static final String VERSION = "1.2.017";
+    private static final String VERSION = "1.2.018";
 
     /** Directory where project is stored. */
     private final File projectDir;
@@ -180,7 +180,7 @@ final class TestingAppBuilder {
 
         final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
         if (bytes != null) {
-            final String hex = HexEncoder.encodeLowercase(sha256.digest(bytes));
+            final String hex = HexEncoder.encodeUppercase(sha256.digest(bytes));
             xml.addln("  <file name='", file.getName(), "' size='", Integer.toString(bytes.length), "' sha256='", hex,
                     "'/>");
         }

@@ -63,7 +63,7 @@ import java.lang.reflect.InvocationTargetException;
 final class Updater implements Runnable {
 
     /** Updater version. */
-    private static final String VERSION = "1.2.017";
+    private static final String VERSION = "1.2.018";
 
     /** Name of the "launch" subdirectory. */
     private static final String LAUNCH = "launch";
@@ -149,7 +149,21 @@ final class Updater implements Runnable {
         }
 
         this.logFile = new File(this.launchDir, "updater.log");
-        this.logFile.delete();
+        final File logBak1 = new File(this.launchDir, "updater1.log");
+        final File logBak2 = new File(this.launchDir, "updater2.log");
+        final File logBak3 = new File(this.launchDir, "updater3.log");
+        if (logBak3.exists()) {
+            logBak3.delete();
+        }
+        if (logBak2.exists()) {
+            logBak2.renameTo(logBak3);
+        }
+        if (logBak1.exists()) {
+            logBak1.renameTo(logBak2);
+        }
+        if (this.logFile.exists()) {
+            this.logFile.renameTo(logBak1);
+        }
 
         FileUtils.log(this.logFile, "Updater ", VERSION, " starting");
         FileUtils.log(this.logFile, "Application Directory: ", appDir.getAbsolutePath());
@@ -277,8 +291,7 @@ final class Updater implements Runnable {
 
         boolean valid = false;
 
-        // Load the old an new app XML files and check that the release date is more recent in the
-        // update directory
+        // Load the old an new app XML files and check that the release date is more recent in the update directory
 
         if (this.launchDir.exists() && this.launchDir.isDirectory()) {
 
@@ -300,18 +313,28 @@ final class Updater implements Runnable {
                         final AppDescriptor launchApp = AppDescriptor.parse(launchXml);
 
                         if (launchApp == null) {
+                            FileUtils.log(this.logFile, "launch.xml could not be parsed - attempting to update...");
+
                             // launch.xml bad - try to copy it over
                             valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
                                     this.logFile, LAUNCH_XML);
+                            if (!valid) {
+                                FileUtils.log(this.logFile, "Failed to update launch.xml");
+                            }
                             this.status.setText(valid ? "Finished" : "Update failed");
                         } else {
                             this.installedVersion.setText(updateLaunchApp.version);
                             this.installedDate.setText(TemporalUtils.FMT_MDY.format(updateLaunchApp.releaseDate));
 
                             if (updateLaunchApp.releaseDate.isAfter(launchApp.releaseDate)) {
+                                FileUtils.log(this.logFile, "A more recent launch.xml was found...");
+
                                 // Update is more recent - copy into place
                                 valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
                                         this.logFile, LAUNCH_XML);
+                                if (!valid) {
+                                    FileUtils.log(this.logFile, "Failed to install new launch.xml");
+                                }
                                 this.status.setText(valid ? "Finished" : "Update failed");
                             } else {
                                 this.status.setText(Res.get(Res.NO_LAUNCH_UPD_NEEDED));
@@ -319,9 +342,14 @@ final class Updater implements Runnable {
                             }
                         }
                     } else {
+                        FileUtils.log(this.logFile, "launch.xml does not exist - attempting to download...");
+
                         // launch.xml missing - try to copy it over
                         valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,
                                 this.logFile, LAUNCH_XML);
+                        if (!valid) {
+                            FileUtils.log(this.logFile, "Failed to download launch.xml");
+                        }
                         this.status.setText(valid ? "Finished" : "Update failed");
                     }
                 }
