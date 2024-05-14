@@ -99,7 +99,7 @@ public final class SiteDataCourse {
 
                 // final long t2 = System.currentTimeMillis();
 
-                if (loadCourseUnits(cache, courseId, sectionNum)) {
+                if (loadCourseUnits(cache, courseId, sectionNum, termKey)) {
                     map.put(sectionNum, cfg);
                 } else {
                     cfg = null;
@@ -125,12 +125,12 @@ public final class SiteDataCourse {
      * @throws SQLException if an error occurs reading data
      */
     private boolean loadCourseUnits(final Cache cache, final String courseId,
-                                    final String sectionNum) throws SQLException {
+                                    final String sectionNum, final TermKey termKey) throws SQLException {
 
         boolean success = true;
 
         final List<RawCusection> courseSectionUnits = RawCusectionLogic.queryByCourseSection(cache,
-                courseId, sectionNum, TermLogic.get(cache).queryActive(cache).term);
+                courseId, sectionNum, termKey);
 
         for (final RawCusection cusect : courseSectionUnits) {
 
@@ -138,7 +138,7 @@ public final class SiteDataCourse {
 
             final Integer unit = Integer.valueOf(cusect.unit.intValue());
 
-            if (!loadCourseUnitObjectives(cache, courseId, unit)) {
+            if (!loadCourseUnitObjectives(cache, courseId, unit, termKey)) {
                 success = false;
                 break;
             }
@@ -164,40 +164,33 @@ public final class SiteDataCourse {
      * @throws SQLException if an error occurs reading data
      */
     private boolean loadCourseUnitObjectives(final Cache cache, final String courseId,
-                                             final Integer unit) throws SQLException {
+                                             final Integer unit, final TermKey termKey) throws SQLException {
 
         boolean success = true;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final List<RawCuobjective> courseUnitObjectives =
+                RawCuobjectiveLogic.queryByCourseUnit(cache, courseId, unit, termKey);
 
-        if (active == null) {
-            success = false;
-        } else {
+        for (final RawCuobjective cuobj : courseUnitObjectives) {
+            final SiteDataCfgObjective data = new SiteDataCfgObjective(cache, cuobj);
 
-            final List<RawCuobjective> courseUnitObjectives =
-                    RawCuobjectiveLogic.queryByCourseUnit(cache, courseId, unit, active.term);
-
-            for (final RawCuobjective cuobj : courseUnitObjectives) {
-                final SiteDataCfgObjective data = new SiteDataCfgObjective(cache, cuobj);
-
-                if (data.courseUnitObjective == null) {
-                    success = false;
-                    break;
-                }
-
-                final Map<Integer, SortedSet<Integer>> map = this.objectives.computeIfAbsent(courseId,
-                        s -> new TreeMap<>());
-
-                final SortedSet<Integer> set = map.computeIfAbsent(unit, k -> new TreeSet<>());
-                set.add(cuobj.objective);
-
-                final Map<Integer, Map<Integer, SiteDataCfgObjective>> map2 =
-                        this.objectiveConfigs.computeIfAbsent(courseId, s -> new TreeMap<>());
-
-                final Map<Integer, SiteDataCfgObjective> map3 = map2.computeIfAbsent(unit, k -> new TreeMap<>());
-
-                map3.put(cuobj.objective, data);
+            if (data.courseUnitObjective == null) {
+                success = false;
+                break;
             }
+
+            final Map<Integer, SortedSet<Integer>> map = this.objectives.computeIfAbsent(courseId,
+                    s -> new TreeMap<>());
+
+            final SortedSet<Integer> set = map.computeIfAbsent(unit, k -> new TreeSet<>());
+            set.add(cuobj.objective);
+
+            final Map<Integer, Map<Integer, SiteDataCfgObjective>> map2 =
+                    this.objectiveConfigs.computeIfAbsent(courseId, s -> new TreeMap<>());
+
+            final Map<Integer, SiteDataCfgObjective> map3 = map2.computeIfAbsent(unit, k -> new TreeMap<>());
+
+            map3.put(cuobj.objective, data);
         }
 
         return success;
