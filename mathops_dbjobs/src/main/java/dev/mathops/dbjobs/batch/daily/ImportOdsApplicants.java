@@ -131,7 +131,9 @@ public final class ImportOdsApplicants {
             throws SQLException {
 
         final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
-        report.add("Retrieved  " + all.size() + " existing student records.");
+        final String msg1 = "Retrieved " + all.size() + " existing student records.";
+        report.add(msg1);
+        Log.info(msg1);
 
         final DbConnection odsConn = this.odsCtx.checkOutConnection();
 
@@ -155,7 +157,9 @@ public final class ImportOdsApplicants {
                 }
 
                 if (applicants != null) {
-                    report.add("Found " + applicants.size() + " applicants.");
+                    final String msg2 = "Found " + applicants.size() + " applicants.";
+                    report.add(msg2);
+                    Log.info(msg2);
 
                     // Update majors every Sunday
                     if (LocalDate.now().getDayOfWeek() == DayOfWeek.SUNDAY) {

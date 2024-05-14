@@ -39,7 +39,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
     private static final long serialVersionUID = 8968168443957197770L;
 
     /** Application version. */
-    private static final String VERSION = "v2.3.5 (Jan 1 2024)";
+    private static final String VERSION = "v2.3.6 (May 13, 2024)";
 
     /** Label string. */
     private static final String UNIT_1 = "Unit 1";
