@@ -52,6 +52,7 @@ import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.LiveSessionInfo;
@@ -1028,9 +1029,9 @@ public final class StudentCourseStatus extends LogicBase {
      * @return {@code true} if data was gathered successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean gatherData(final Cache cache, final ImmutableSessionInfo session,
-                              final String theStudentId, final String theCourseId, final boolean isSkillsReview,
-                              final boolean isPractice) throws SQLException {
+    public boolean gatherData(final Cache cache, final ImmutableSessionInfo session, final String theStudentId,
+                              final String theCourseId, final boolean isSkillsReview, final boolean isPractice)
+            throws SQLException {
 
         final boolean result;
 
@@ -1285,8 +1286,8 @@ public final class StudentCourseStatus extends LogicBase {
      */
     private boolean queryStudentCourse(final Cache cache, final ChronoZonedDateTime<LocalDate> now, final ERole role,
                                        final String theStudentId, final String theCourseId,
-                                       final boolean isSkillsReview,
-                                       final boolean isPractice) throws SQLException {
+                                       final boolean isSkillsReview, final boolean isPractice)
+            throws SQLException {
 
         boolean result = true;
 
@@ -1314,8 +1315,7 @@ public final class StudentCourseStatus extends LogicBase {
         } else if ("Y".equals(this.course.isTutorial)) {
             this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
 
-            if (RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(), //
-                    "ADMIN", "M384", "TUTOR")) {
+            if (RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(), "ADMIN", "M384", "TUTOR")) {
                 this.openAccess = true;
             }
 
@@ -1345,7 +1345,7 @@ public final class StudentCourseStatus extends LogicBase {
                 // No actual or visiting record; some special student types get simulated record
 
                 if (("AACTUTOR".equals(theStudentId)
-                        || RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(), //
+                        || RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(),
                         "ADMIN", "M384", "TUTOR"))
                         || role.canActAs(ERole.ADMINISTRATOR)) {
 
@@ -1423,7 +1423,11 @@ public final class StudentCourseStatus extends LogicBase {
 
         final boolean result;
 
-        this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+        if ("Y".equals(this.studentCourse.iInProgress)) {
+            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.studentCourse.iTermKey);
+        } else {
+            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+        }
 
         if (this.courseSection == null) {
             setErrorText("Unable to look up information on " + crs + " section " + sect);
@@ -1455,7 +1459,10 @@ public final class StudentCourseStatus extends LogicBase {
         final String crs = this.studentCourse.course;
         final String sect = this.studentCourse.sect;
 
-        final List<RawCusection> list = RawCusectionLogic.queryByCourseSection(cache, crs, sect, this.activeTerm.term);
+        final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
+                : this.studentCourse.termKey;
+
+        final List<RawCusection> list = RawCusectionLogic.queryByCourseSection(cache, crs, sect, term);
 
         boolean result = true;
         this.courseSectionUnits = new RawCusection[this.maxUnit + 1];
@@ -2504,6 +2511,7 @@ public final class StudentCourseStatus extends LogicBase {
     private void checkReviewExamAvailability(final Cache cache, final ZonedDateTime now) throws SQLException {
 
         final String pacing = this.pacingStructure.pacingStructure;
+        final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
 
         // Determine availability of review exams in each unit
         for (int unit = 0; unit <= this.maxUnit; ++unit) {
@@ -2527,23 +2535,26 @@ public final class StudentCourseStatus extends LogicBase {
             final LocalDate lastTest = sectionUnit.lastTestDt;
 
             if (this.reviewExams[unit] != null) {
-                final String examLbl = this.reviewExams[unit].buttonLabel;
+                // We don't use section test dates for incompletes...
+                if (!isIncomplete) {
+                    final String examLbl = this.reviewExams[unit].buttonLabel;
 
-                // Use the start and ends dates to test availability of the review exam.
-                if (firstTest != null && firstTest.isAfter(today)) {
-                    this.reviewAvailable[unit] = false;
-                    this.reviewReasons[unit] = "The first date to take " + examLbl + " is "
-                            + TemporalUtils.FMT_MDY.format(firstTest);
+                    // Use the start and ends dates to test availability of the review exam.
+                    if (firstTest != null && firstTest.isAfter(today)) {
+                        this.reviewAvailable[unit] = false;
+                        this.reviewReasons[unit] = "The first date to take " + examLbl + " is "
+                                + TemporalUtils.FMT_MDY.format(firstTest);
 
-                    continue;
-                }
+                        continue;
+                    }
 
-                if (lastTest != null && today.isAfter(lastTest)) {
-                    this.reviewAvailable[unit] = false;
-                    this.reviewReasons[unit] = "The last date to take " + examLbl + " was "
-                            + TemporalUtils.FMT_MDY.format(lastTest);
+                    if (lastTest != null && today.isAfter(lastTest)) {
+                        this.reviewAvailable[unit] = false;
+                        this.reviewReasons[unit] = "The last date to take " + examLbl + " was "
+                                + TemporalUtils.FMT_MDY.format(lastTest);
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 // The review exam is available, now see if it can be taken for credit. If there
@@ -2632,6 +2643,8 @@ public final class StudentCourseStatus extends LogicBase {
     private void checkProctoredExamAvailability(final Cache cache, final ZonedDateTime now) throws SQLException {
 
         final String pacing = this.pacingStructure.pacingStructure;
+        final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
+        final boolean isUncounted = "N".equals(this.studentCourse.iCounted);
 
         // Get the first and last dates in the term where students may work
         final LocalDate termFirst = RawCampusCalendarLogic.getFirstClassDay(cache);
@@ -2652,17 +2665,19 @@ public final class StudentCourseStatus extends LogicBase {
             }
 
             // Date-based constraints
-            if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
-
-                // A non-counted Incomplete - only date constraint is incomplete deadline
-                final LocalDate deadline = this.studentCourse.iDeadlineDt;
-                if (deadline != null && deadline.isBefore(today)) {
-                    this.proctoredAvailable[unit] = false;
-                    this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
-                } else {
-                    this.proctoredAvailable[unit] = true;
-                }
+            if (isIncomplete) {
+                 if (isUncounted) {
+                     // A non-counted Incomplete - only date constraint is incomplete deadline
+                     final LocalDate deadline = this.studentCourse.iDeadlineDt;
+                     if (deadline != null && deadline.isBefore(today)) {
+                         this.proctoredAvailable[unit] = false;
+                         this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
+                     } else {
+                         this.proctoredAvailable[unit] = true;
+                     }
+                 }
             } else {
+                // Only for non-Incompletes, since test dates would be from earlier term
                 final LocalDate firstTest = sectionUnit.firstTestDt;
                 final LocalDate lastTest = sectionUnit.lastTestDt;
                 final String examLbl;
@@ -2688,8 +2703,7 @@ public final class StudentCourseStatus extends LogicBase {
             }
 
             if (this.proctoredAvailable[unit]) {
-                final boolean isFinal = this.courseUnits[unit] != null
-                        && "FIN".equals(this.courseUnits[unit].unitType);
+                final boolean isFinal = this.courseUnits[unit] != null && "FIN".equals(this.courseUnits[unit].unitType);
 
                 // See if pacing structure constraints make the exam unavailable
 
@@ -2774,8 +2788,7 @@ public final class StudentCourseStatus extends LogicBase {
             }
 
             if (this.proctoredAvailable[unit]) {
-                // See if constraints on the number of attempts per passing review make the exam
-                // unavailable
+                // See if constraints on the number of attempts per passing review make the exam unavailable
 
                 final Integer perReview = sectionUnit.atmptsPerReview;
                 Integer total = sectionUnit.nbrAtmptsAllow;
@@ -2832,8 +2845,7 @@ public final class StudentCourseStatus extends LogicBase {
         if (!isProctoredPassed(5)) {
             boolean courseEnded = false;
 
-            if ("Y".equals(this.studentCourse.iInProgress)
-                    && "N".equals(this.studentCourse.iCounted)) {
+            if (isIncomplete && isUncounted) {
                 // Incomplete - use inc deadline
                 final LocalDate deadline = this.studentCourse.iDeadlineDt;
                 courseEnded = deadline.isBefore(today);
@@ -2869,9 +2881,9 @@ public final class StudentCourseStatus extends LogicBase {
      * @param now       the current date/time
      * @param examLbl   the label for the exam
      */
-    private void describeTestingWindow(final int unit, final ChronoLocalDate termFirst,
-                                       final ChronoLocalDate termLast, final ChronoLocalDate firstTest,
-                                       final ChronoLocalDate lastTest, final ZonedDateTime now, final String examLbl) {
+    private void describeTestingWindow(final int unit, final ChronoLocalDate termFirst, final ChronoLocalDate termLast,
+                                       final ChronoLocalDate firstTest, final ChronoLocalDate lastTest,
+                                       final ZonedDateTime now, final String examLbl) {
 
         // Build the description of the testing window
         if (!firstTest.isAfter(termFirst) && !termLast.isAfter(lastTest)) {
