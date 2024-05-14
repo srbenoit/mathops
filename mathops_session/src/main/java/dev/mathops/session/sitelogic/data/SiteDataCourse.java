@@ -86,16 +86,19 @@ public final class SiteDataCourse {
             cfg = new SiteDataCfgCourse(cache, courseId, sectionNum, termKey, this.owner);
             // final long t1 = System.currentTimeMillis();
 
-            final RawPacingStructure pacingStructure = cfg.pacingStructure;
-            if (pacingStructure != null && "Y".equals(pacingStructure.requireLicensed)
-                    && "N".equals(this.owner.studentData.getStudent().licensed)) {
+            if (cfg.course == null) {
+                Log.warning("Unable to create information for ", courseId, ", sect ", sectionNum, " for term ", termKey);
+                cfg = null;
+            } else {
+                final RawPacingStructure pacingStructure = cfg.pacingStructure;
+                if (pacingStructure != null && "Y".equals(pacingStructure.requireLicensed)
+                        && "N".equals(this.owner.studentData.getStudent().licensed)) {
 
-                cfg.mustTakeUsersExam = true;
-            }
+                    cfg.mustTakeUsersExam = true;
+                }
 
-            // final long t2 = System.currentTimeMillis();
+                // final long t2 = System.currentTimeMillis();
 
-            if (cfg.course != null) {
                 if (loadCourseUnits(cache, courseId, sectionNum)) {
                     map.put(sectionNum, cfg);
                 } else {
@@ -198,6 +201,11 @@ public final class SiteDataCourse {
         }
 
         return success;
+    }
+
+    public Map<String, Map<String, SiteDataCfgCourse>> getCourses() {
+
+        return this.courseConfigs;
     }
 
     /**

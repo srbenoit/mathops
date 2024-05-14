@@ -355,7 +355,7 @@ public final class CourseSiteLogicCourse {
                 final String regSect = stcourse.sect;
 
                 for (final RawCsection contextCourse : contextCourses) {
-                    if (contextCourse.course.equals(regCourseId) && contextCourse.sect.equals(regSect)) {
+                    if (contextCourse.course.equals(regCourseId)) {
                         stCoursesInContext.add(stcourse);
                         break;
                     }

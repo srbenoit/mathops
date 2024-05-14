@@ -367,15 +367,13 @@ public final class SiteDataRegistration {
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadRegistrations(final Cache cache, final String studentId)
-            throws SQLException {
+    private boolean loadRegistrations(final Cache cache, final String studentId) throws SQLException {
 
         final boolean success = true;
 
-        // Load all courses marked as completed (for all terms), that are not credit by exam, used
-        // for testing prerequisites (we store credit by exam elsewhere)
-        final List<RawStcourse> allPastAndCurrent =
-                RawStcourseLogic.queryByStudent(cache, studentId, false, false);
+        // Load all courses marked as completed (for all terms), that are not credit by exam, used for testing
+        // prerequisites (we store credit by exam elsewhere)
+        final List<RawStcourse> allPastAndCurrent = RawStcourseLogic.queryByStudent(cache, studentId, false, false);
 
         this.allCompletedCourses = new ArrayList<>(allPastAndCurrent.size());
         for (final RawStcourse past : allPastAndCurrent) {
@@ -394,23 +392,19 @@ public final class SiteDataRegistration {
 
         for (final RawStcourse cur : curTermReg) {
 
-            // Ignore courses with an incomplete deadline date but which are not incompletes
-            // in progress and are not counted in pace
+            // Ignore courses with an incomplete deadline date but which are not incompletes in progress and are not
+            // counted in pace
 
-            if (cur.iDeadlineDt != null && "N".equals(cur.iInProgress)
-                    && !"Y".equals(cur.iCounted)) {
+            if (cur.iDeadlineDt != null && "N".equals(cur.iInProgress) && !"Y".equals(cur.iCounted)) {
                 continue;
             }
 
             this.registrations.add(cur);
-            // Log.info("Found registration in ", cur.course);
+//            Log.info("Found registration in ", cur.course);
 
-            // If we find a course that has an incomplete deadline date, is not completed,
-            // and is not counted in pace, flag that since the student will have to work
-            // on those courses before starting any paced courses.
-            if ("Y".equals(cur.iInProgress) && "N".equals(cur.iCounted)
-                    && "N".equals(cur.completed)) {
-
+            // If we find a course that has an incomplete deadline date, is not completed, and is not counted in pace,
+            // flag that since the student will have to work on those courses before starting any paced courses.
+            if ("Y".equals(cur.iInProgress) && "N".equals(cur.iCounted) && "N".equals(cur.completed)) {
                 this.nonPacedIncompletePending = true;
             }
 
@@ -428,11 +422,16 @@ public final class SiteDataRegistration {
                     this.registrationTerms.add(incTerm);
                 }
             }
+
+            if ("Y".equals(cur.iInProgress)) {
+                this.owner.courseData.addCourse(cache, cur.course, cur.sect, cur.iTermKey);
+            } else {
+                this.owner.courseData.addCourse(cache, cur.course, cur.sect, cur.termKey);
+            }
         }
 
-        // Finally, go through all the student's current and past registrations, and see which
-        // courses they have access to via a purchased e-text. For each such course, load the course
-        // information.
+        // Finally, go through all the student's current and past registrations, and see which courses they have access
+        // to via a purchased e-text. For each such course, load the course information.
         final String[] courseIds = this.owner.studentData.getEtextCourseIds();
         outer:
         for (final String courseId : courseIds) {
@@ -449,24 +448,21 @@ public final class SiteDataRegistration {
             // it, they can still access in practice mode if they have taken the course in the
             // past. In this case, use their past registration's section number.
 
-            // FIXME: What if their old section number no longer exists in the current term?
-            // This will always happen if student took 401 in Summer or 002/003.
-
             // HACK: If section is "401", and the current term is not "SM", then change section
             // to "801", and if section is 00*, change to 001
-            final boolean isNotSummer = this.active.term.name != ETermName.SUMMER;
+//            final boolean isNotSummer = this.active.term.name != ETermName.SUMMER;
 
             for (final RawStcourse test : this.allCompletedCourses) {
                 if (courseId.equals(test.course)) {
-                    String sect = test.sect;
+//                    String sect = test.sect;
+//
+//                    if ("002".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
+//                        sect = "001";
+//                    } else if ((isNotSummer && "401".equals(sect)) || "809".equals(sect)) {
+//                        sect = "801";
+//                    }
 
-                    if ("002".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
-                        sect = "001";
-                    } else if ((isNotSummer && "401".equals(sect)) || "809".equals(sect)) {
-                        sect = "801";
-                    }
-
-                    this.owner.courseData.addCourse(cache, test.course, sect, test.termKey);
+                    this.owner.courseData.addCourse(cache, test.course, test.sect, test.termKey);
                     break;
                 }
             }

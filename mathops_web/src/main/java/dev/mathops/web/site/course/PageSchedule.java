@@ -34,6 +34,7 @@ import dev.mathops.session.sitelogic.data.SiteDataRegistration;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
+import dev.mathops.web.site.course.data.CourseData;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -473,30 +474,44 @@ enum PageSchedule {
 
                 final TermKey incTerm = reg.iTermKey;
 
-                final RawCourse course = logic.data.courseData.getCourse(reg.course, reg.sect).course;
+                final SiteDataCfgCourse courseData = logic.data.courseData.getCourse(reg.course, reg.sect);
+                if (courseData == null) {
+                    htm.addln(" <strong>", reg.course, "</strong> - unable to query course status.");
 
-                htm.sP();
-                htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ", incTerm.name.fullName,
-                        ", ", incTerm.year, " semester) must be completed by <strong>",
-                        TemporalUtils.FMT_WMDY.format(deadline), "</strong>.");
-
-                final LocalDate today = logic.data.now.toLocalDate();
-                final LocalDate plus1 = today.plusDays(1L);
-                final LocalDate plus2 = today.plusDays(2L);
-                final LocalDate plus3 = today.plusDays(3L);
-
-                if ((!today.isAfter(deadline) && !plus3.isBefore(deadline))) {
-                    htm.add(" <span class='redred'>(<strong>DEADLINE IS ");
-                    if (deadline.isEqual(today)) {
-                        htm.add("TODAY");
-                    } else if (deadline.isEqual(plus1)) {
-                        htm.add("TOMORROW");
-                    } else if (deadline.isEqual(plus2)) {
-                        htm.add("2 DAYS FROM TODAY");
-                    } else if (deadline.isEqual(plus3)) {
-                        htm.add("3 DAYS FROM TODAY)");
+                    final Map<String, Map<String, SiteDataCfgCourse>> courses =  logic.data.courseData.getCourses();
+                    for (final Map.Entry<String, Map<String, SiteDataCfgCourse>> e1 : courses.entrySet()) {
+                        final String courseId = e1.getKey();
+                        for (final Map.Entry<String, SiteDataCfgCourse> e2 : e1.getValue().entrySet()) {
+                            final String sect = e2.getKey();
+                            Log.info("  Found ", courseId, " sect ", sect);
+                        }
                     }
-                    htm.addln("</strong>)</span>");
+                } else {
+                    final RawCourse course = courseData.course;
+
+                    htm.sP();
+                    htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ", incTerm.name.fullName,
+                            ", ", incTerm.year, " semester) must be completed by <strong>",
+                            TemporalUtils.FMT_WMDY.format(deadline), "</strong>.");
+
+                    final LocalDate today = logic.data.now.toLocalDate();
+                    final LocalDate plus1 = today.plusDays(1L);
+                    final LocalDate plus2 = today.plusDays(2L);
+                    final LocalDate plus3 = today.plusDays(3L);
+
+                    if ((!today.isAfter(deadline) && !plus3.isBefore(deadline))) {
+                        htm.add(" <span class='redred'>(<strong>DEADLINE IS ");
+                        if (deadline.isEqual(today)) {
+                            htm.add("TODAY");
+                        } else if (deadline.isEqual(plus1)) {
+                            htm.add("TOMORROW");
+                        } else if (deadline.isEqual(plus2)) {
+                            htm.add("2 DAYS FROM TODAY");
+                        } else if (deadline.isEqual(plus3)) {
+                            htm.add("3 DAYS FROM TODAY)");
+                        }
+                        htm.addln("</strong>)</span>");
+                    }
                 }
                 htm.eP();
             }

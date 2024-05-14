@@ -1028,9 +1028,9 @@ public final class StudentCourseStatus extends LogicBase {
      * @return {@code true} if data was gathered successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean gatherData(final Cache cache, final ImmutableSessionInfo session,
-                              final String theStudentId, final String theCourseId, final boolean isSkillsReview,
-                              final boolean isPractice) throws SQLException {
+    public boolean gatherData(final Cache cache, final ImmutableSessionInfo session, final String theStudentId,
+                              final String theCourseId, final boolean isSkillsReview, final boolean isPractice)
+            throws SQLException {
 
         final boolean result;
 
@@ -1423,7 +1423,11 @@ public final class StudentCourseStatus extends LogicBase {
 
         final boolean result;
 
-        this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+        if ("Y".equals(this.studentCourse.iInProgress)) {
+            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.studentCourse.iTermKey);
+        } else {
+            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+        }
 
         if (this.courseSection == null) {
             setErrorText("Unable to look up information on " + crs + " section " + sect);
