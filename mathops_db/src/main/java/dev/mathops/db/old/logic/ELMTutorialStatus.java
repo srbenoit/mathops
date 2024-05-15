@@ -144,9 +144,8 @@ public final class ELMTutorialStatus {
             status.failedElmExamsSinceLastPassingReview = failedSinceLastRE;
             status.eligibleForElmExam = !passedElmUnit4RE.isEmpty() && failedSinceLastRE < 2;
 
-            // Determine dates when the tutorial site and online proctored ELM Exam will be
-            // available. This is available except during the scheduled placement maintenance
-            // periods.
+            // Determine dates when the tutorial site and online proctored ELM Exam will be available. This is
+            // available except during the scheduled placement maintenance periods.
             final List<DateRange> ranges = new ArrayList<>(5);
             final List<RawCampusCalendar> calendars = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
 
