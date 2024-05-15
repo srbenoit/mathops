@@ -20,7 +20,7 @@ final class SpecialCategoriesStatus {
     private final List<RawSpecialStus> specials;
 
     /**
-     * Constructs a new {@code RemoteTestingStatus}.
+     * Constructs a new {@code SpecialCategoriesStatus}.
      *
      * @param theSpecials a list of special student categories
      */
@@ -39,8 +39,7 @@ final class SpecialCategoriesStatus {
      * @return the generated status object
      * @throws SQLException if there is an error accessing the database
      */
-    static SpecialCategoriesStatus of(final Cache cache, final String studentId)
-            throws SQLException {
+    static SpecialCategoriesStatus of(final Cache cache, final String studentId) throws SQLException {
 
         return new SpecialCategoriesStatus(RawSpecialStusLogic.queryByStudent(cache, studentId));
     }
