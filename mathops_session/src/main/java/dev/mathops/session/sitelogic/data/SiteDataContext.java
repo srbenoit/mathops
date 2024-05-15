@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * A container for the context-oriented data relating to a {@code SiteData} object.
  */
-public final class SiteDataContext {
+public final class  SiteDataContext {
 
     /** In-context Course records. */
     private final List<RawCourse> courses;
