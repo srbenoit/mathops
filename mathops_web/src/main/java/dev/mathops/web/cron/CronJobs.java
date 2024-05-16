@@ -12,6 +12,8 @@ import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;
+import dev.mathops.dbjobs.report.cron.PlacementReport;
+import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -97,26 +99,24 @@ public final class CronJobs implements ICronJob {
 
         if (now.isAfter(this.reportsNextRun)) {
 
-            // *** This report is used during Summer to tell Engineering how many of their students
-            // are completing placement
+            // *** This report is used during Summer to tell Engineering how many of their students are completing
+            // placement
 
             // new PlacementReport("engr_plc_results", "ENGRPLC").execute();
 
-            // *** This report gets used during orientation - each day there is a list of students
-            // to load into 'special_stus', then this report goes out to the advising group list
+            // *** This report gets used during orientation - each day there is a list of students to load into
+            // 'special_stus', then this report goes out to the advising group list
 
-            // new PlacementReport("orient_plc_results", "ORIENTN").execute();
+            new PlacementReport("orient_plc_results", "ORIENTN").execute();
 
-            // *** This report runs during the semester - athletics sends an email near the start
-            // of the term to request it, along with the list of people that the numan cron job
-            // should email it to.
+            // *** This report runs during the semester - athletics sends an email near the start of the term to
+            // request it, along with the list of people that the numan cron job should email it to.
 
-//            new PrecalcProgressReport("athletes_summary", "ATHLETE",
-//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+            new PrecalcProgressReport("athletes_summary", "ATHLETE",
+                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
-            // *** This report runs during the semester - engineering sends an email near the start
-            // of the term to request it, along with the list of people that the numan cron job
-            // should email it to.
+            // *** This report runs during the semester - engineering sends an email near the start of the term to
+            // request it, along with the list of people that the numan cron job should email it to.
 
 //            new PrecalcProCULUS PROGRESS ProgressReport("engineering_summary", "ENGRSTU",
 ////                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();

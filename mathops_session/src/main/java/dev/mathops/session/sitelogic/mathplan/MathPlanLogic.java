@@ -3,9 +3,11 @@ package dev.mathops.session.sitelogic.mathplan;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.ifaces.ILiveCsuCredit;
@@ -4008,12 +4010,29 @@ public final class MathPlanLogic {
         final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId, INTENTIONS_PROFILE);
         final RawStmathplan record = responses.get(TWO);
         if (record != null && "Y".equals(record.stuAnswer)) {
-            planSaysPlacementNeeded = true;
+            // See of their latest recommendation was "3 cr. of Core Math*"
+            final Map<Integer, RawStmathplan> profile = getMathPlanResponses(cache, studentId, PLAN_PROFILE);
+            final RawStmathplan rec = profile.get(TWO);
+
+            if (rec == null) {
+                planSaysPlacementNeeded = true;
+            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("(none)")) {
+                planSaysPlacementNeeded = false;
+            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("3 cr. of Core")) {
+                planSaysPlacementNeeded = false;
+            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("2 cr. of Core")) {
+                planSaysPlacementNeeded = false;
+            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("1 cr. of Core")) {
+                planSaysPlacementNeeded = false;
+            } else {
+                planSaysPlacementNeeded = true;
+            }
         }
 
         final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
         if (!attempts.isEmpty()) {
             satisfiedByPlacement = true;
+            planSaysPlacementNeeded = false;
         }
 
         if (!satisfiedByPlacement) {
@@ -4033,6 +4052,7 @@ public final class MathPlanLogic {
                         || RawRecordConstants.M002.equals(xfer.course)) {
                     // M 002 is a community college course that clears prereqs for 117
                     satisfiedByTransfer = true;
+                    planSaysPlacementNeeded = false;
                     break;
                 }
             }
@@ -4046,8 +4066,14 @@ public final class MathPlanLogic {
                             || RawRecordConstants.M118.equals(reg.course)
                             || RawRecordConstants.M124.equals(reg.course)
                             || RawRecordConstants.M125.equals(reg.course)
-                            || RawRecordConstants.M126.equals(reg.course)) {
+                            || RawRecordConstants.M126.equals(reg.course)
+                            || RawRecordConstants.MATH117.equals(reg.course)
+                            || RawRecordConstants.MATH118.equals(reg.course)
+                            || RawRecordConstants.MATH124.equals(reg.course)
+                            || RawRecordConstants.MATH125.equals(reg.course)
+                            || RawRecordConstants.MATH126.equals(reg.course)) {
                         satisfiedByCourse = true;
+                        planSaysPlacementNeeded = false;
                         break;
                     }
                 }
@@ -4169,35 +4195,39 @@ public final class MathPlanLogic {
         }
     }
 
-//    /**
-//     * Main method to test placement status.
-//     *
-//     * @param args command-line arguments
-//     */
-//    public static void main(final String... args) {
-//
-//        final ContextMap map = ContextMap.getDefaultInstance();
-//        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-//        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-//
-//        try {
-//            final DbConnection conn = ctx.checkOutConnection();
-//            try {
-//                final Cache cache = new Cache(dbProfile, conn);
-//
-//                // Student 823251213 PIDM 10567708
-//                final MathPlanLogic logic = new MathPlanLogic(dbProfile);
-//
-//                final String status1 = getMathPlanStatus(cache, 10567708);
-//                Log.info("Student 823251213 plan status: " + status1);
-//
-//                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "823251213");
-//                Log.info("Student 823251213 placement status: ", status2);
-//            } finally {
-//                ctx.checkInConnection(conn);
-//            }
-//        } catch (final SQLException ex) {
-//            Log.warning(ex);
-//        }
-//    }
+    /**
+     * Main method to test placement status.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(final String... args) {
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+
+        try {
+            final DbConnection conn = ctx.checkOutConnection();
+            try {
+                final Cache cache = new Cache(dbProfile, conn);
+
+                // Student 823251213 PIDM 10567708
+                final MathPlanLogic logic = new MathPlanLogic(dbProfile);
+
+                final String status1 = getMathPlanStatus(cache, 11806361);
+                Log.info("Student 833004236  plan status: " + status1);
+
+                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "833004236");
+                Log.info("Student 833004236  placement status: ");
+                Log.info("    Placement needed:   ", status2.isPlacementNeeded);
+                Log.info("    Placement complete: ", status2.isPlacementComplete);
+                Log.info("    How satisfied:      ", status2.howSatisfied);
+
+            } finally {
+                ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
 }

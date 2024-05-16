@@ -89,7 +89,7 @@ public final class PlacementReport {
     /**
      * Executes the job.
      */
-    private void execute() {
+    public void execute() {
 
         final Collection<String> report = new ArrayList<>(10);
         final Collection<String> csv = new ArrayList<>(10);
