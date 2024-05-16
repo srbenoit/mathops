@@ -118,17 +118,16 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
 
         if (ok) {
             if ("Y".equals(this.studentCourse.iInProgress)) {
-                ok = checkIncompleteDeadline(session, reasons) //
-                        && checkPassedUnit(cache, session, reasons, avail) //
-                        && checkNumAttempts(cache, session, reasons, avail) //
-                        && checkCourseRegistration(reasons) //
-                        && checkUnitTestingDateRange(session, reasons); //
+                ok = checkIncompleteDeadline(session, reasons)
+                        && checkPassedUnit(cache, session, reasons, avail)
+                        && checkNumAttempts(cache, session, reasons, avail)
+                        && checkCourseRegistration(reasons);
             } else {
-                ok = checkPassedUnit(cache, session, reasons, avail) //
-                        && checkNumAttempts(cache, session, reasons, avail) //
-                        && checkCourseRegistration(reasons) //
-                        && checkUnitTestingDateRange(session, reasons) //
-                        && checkForCourseLockout(cache, session.getNow(), reasons); //
+                ok = checkPassedUnit(cache, session, reasons, avail)
+                        && checkNumAttempts(cache, session, reasons, avail)
+                        && checkCourseRegistration(reasons)
+                        && checkUnitTestingDateRange(session, reasons)
+                        && checkForCourseLockout(cache, session.getNow(), reasons);
             }
         }
 

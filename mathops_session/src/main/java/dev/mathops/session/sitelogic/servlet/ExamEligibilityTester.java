@@ -91,20 +91,17 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * @return true if request completed successfully; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkExamAvailability(final Cache cache, final ZonedDateTime now,
-                                          final HtmlBuilder reasons, final AvailableExam avail,
-                                          final boolean checkEligibility)
+    private boolean checkExamAvailability(final Cache cache, final ZonedDateTime now, final HtmlBuilder reasons,
+                                          final AvailableExam avail, final boolean checkEligibility)
             throws SQLException {
 
         boolean ok;
 
-        // Next, gather the information from STCOURSE and CUSECTION, since it is used repeatedly
-        // in the checks that follow.
-        ok = gatherSectionInfo(cache, reasons, avail.exam.course, avail.exam.unit,
-                checkEligibility);
+        // Gather the information from STCOURSE and CUSECTION, since it is used repeatedly in the checks that follow.
+        ok = gatherSectionInfo(cache, reasons, avail.exam.course, avail.exam.unit, checkEligibility);
 
-        // If student is finishing an incomplete, they may only test in the course that is
-        // incomplete, or courses where this restriction is not enforced.
+        // If student is finishing an incomplete, they may only test in the course that is incomplete, or courses where
+        // this restriction is not enforced.
         if (ok && this.incompleteOnly && checkEligibility) {
             ok = checkIncomplete(now, reasons);
         }
@@ -114,8 +111,8 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
             ok = checkNumAttempts(cache, reasons, avail);
         }
 
-        // See if the student is registered for the exam's course, or is in an exception category
-        // and allowed to take the exam
+        // See if the student is registered for the exam's course, or is in an exception category and allowed to take
+        // the exam
         if (ok) {
             ok = checkCourseRegistration(reasons);
         }
@@ -125,12 +122,12 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
             final String section = this.studentCourse.sect;
 
             final boolean isELM = RawRecordConstants.M100T.equals(course);
-            final boolean isDistance =
-                    section != null && (section.charAt(0) == '8' || section.charAt(0) == '4');
-            final boolean isPuAllowed = RawSpecialStusLogic.isSpecialType(cache, this.studentId, //
-                    now.toLocalDate(), "RIUSEPU");
+            final boolean isDistance = section != null && (section.charAt(0) == '8' || section.charAt(0) == '4');
+            final boolean isPuAllowed = RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(),
+                    "RIUSEPU");
+            final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
 
-            if (isELM || isDistance || isPuAllowed) {
+            if (isELM || isDistance || isPuAllowed || isIncomplete) {
                 // No time-window checks
                 ok = true;
             } else {

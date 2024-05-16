@@ -199,9 +199,15 @@ public class HomeworkEligibilityTester extends EligibilityTesterBase {
         if (isSpecialStudentId() || isSpecial()) {
             ok = gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, false);
         } else if (gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, true)) {
-            ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)
-                    && checkTimeWindows(now, reasons) && checkObjectiveEligibility(cache, reasons, hw)
-                    && checkForCourseLockout(cache, now, reasons);
+            if ("Y".equals(this.studentCourse.iInProgress)) {
+                ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)
+                        && checkObjectiveEligibility(cache, reasons, hw)
+                        && checkForCourseLockout(cache, now, reasons);
+            } else {
+                ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)
+                        && checkTimeWindows(now, reasons) && checkObjectiveEligibility(cache, reasons, hw)
+                        && checkForCourseLockout(cache, now, reasons);
+            }
         } else {
             ok = false;
         }
