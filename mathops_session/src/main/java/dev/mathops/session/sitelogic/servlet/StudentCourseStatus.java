@@ -1643,15 +1643,13 @@ public final class StudentCourseStatus extends LogicBase {
         RawStterm stterm = this.studentTerm;
 
         // Determine the term to use for deadlines
-        if ("Y".equals(this.studentCourse.iInProgress)
-                && "N".equals(this.studentCourse.iCounted)) {
+        if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
 
             term = TermLogic.get(cache).query(cache, this.studentCourse.iTermKey);
 
-            Log.info("Term to use for milestones: ", term);
+            Log.info("Term to use for milestones: ", term.term);
 
-            // To get the right milestone, pace needs to be that from the "stterm"
-            // record from the incomplete term
+            // To get the right milestone, pace needs to be that from the "stterm" record from the incomplete term
             stterm = RawSttermLogic.query(cache, term.term, this.student.stuId);
             if (stterm != null) {
                 pace = stterm.pace.intValue();

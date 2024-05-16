@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
@@ -12,7 +11,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -278,26 +276,17 @@ public final class SiteDataRegistration {
      */
     boolean loadData(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
-        // final long t0 = System.currentTimeMillis();
-
         this.active = TermLogic.get(cache).queryActive(cache);
 
         final String studentId = this.owner.studentData.getStudent().stuId;
-        // final long t1 = System.currentTimeMillis();
 
         final boolean b1 = loadRegistrations(cache, studentId);
-        // final long t2 = System.currentTimeMillis();
 
         this.transferCredit = RawFfrTrnsLogic.queryByStudent(cache, studentId);
-        // final long t3 = System.currentTimeMillis();
 
-        final boolean b3 = makeTutorialsAvailable(cache);
-        // final long t4 = System.currentTimeMillis();
+        final boolean b2 = buildSpecialStuRegs(cache, session);
 
-        final boolean b4 = buildSpecialStuRegs(cache, session);
-        // final long t5 = System.currentTimeMillis();
-
-        boolean success = b1 && b3 && b4;
+        boolean success = b1 && b2;
 
         if (success) {
             final int numCourses = getRegistrations().size();
@@ -317,7 +306,8 @@ public final class SiteDataRegistration {
             // neither based on hold status
             final SiteDataStudent stuData = this.owner.studentData;
 
-            if ("F".equals(stuData.getStudent().sevAdminHold)) {
+            final RawStudent stu = stuData.getStudent();
+            if ("F".equals(stu.sevAdminHold)) {
                 final List<RawAdminHold> holds = stuData.getStudentHolds();
                 boolean all30 = true;
                 for (final RawAdminHold hold : holds) {
@@ -330,14 +320,6 @@ public final class SiteDataRegistration {
                 this.lockedOut = all30;
             }
         }
-        // final long t6 = System.currentTimeMillis();
-
-        // Log.info(" Term and student: " + (t1 - t0));
-        // Log.info(" Load registrations: " + (t2 - t1));
-        // Log.info(" Load transfer credit: " + (t3 - t2));
-        // Log.info(" Tutorial availability: " + (t4 - t3));
-        // Log.info(" Special student rows: " + (t5 - t4));
-        // Log.info(" Detail data: " + (t6 - t5));
 
         return success;
     }
@@ -472,40 +454,6 @@ public final class SiteDataRegistration {
     }
 
     /**
-     * Scans the courses available in the current context, and for any that are marked as tutorials, makes the course
-     * available to the user.
-     *
-     * @param cache the data cache
-     * @return {@code true} if success; {@code false} on any error
-     * @throws SQLException if an error occurs reading data
-     */
-    private boolean makeTutorialsAvailable(final Cache cache) throws SQLException {
-
-        final SiteDataContext contextData = this.owner.contextData;
-        final List<RawCourse> courses = contextData.getCourses();
-        final List<RawCsection> sections = contextData.getCourseSections();
-
-        int paceOrder = 1;
-        for (final RawCourse course : courses) {
-            if (!"Y".equals(course.isTutorial)) {
-                continue;
-            }
-
-            for (final RawCsection sect : sections) {
-                if (sect.course.equals(course.course) && sect.termKey.equals(this.active.term)) {
-
-                    this.registrations.add(makeSyntheticReg(sect.course, sect.sect, paceOrder));
-                    ++paceOrder;
-                    this.registrationTerms.add(this.active);
-                    this.owner.courseData.addCourse(cache, sect.course, sect.sect, this.active.term);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Scans the special student categories and installs synthetic student course records to grant course access to
      * certain special categories.
      *
@@ -517,25 +465,24 @@ public final class SiteDataRegistration {
     private boolean buildSpecialStuRegs(final Cache cache, final ImmutableSessionInfo session)
             throws SQLException {
 
-        final List<RawSpecialStus> specials = this.owner.studentData.getSpecialStudents();
-
         boolean addSpecials = false;
-        final Collection<String> courseIds = new ArrayList<>(5);
+
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             addSpecials = true;
         } else {
+            final List<RawSpecialStus> specials = this.owner.studentData.getSpecialStudents();
+
             for (final RawSpecialStus spec : specials) {
                 final String type = spec.stuType;
 
-                if ("ADMIN".equals(type)
-                        || "TUTOR".equals(type)
-                        || "M384".equals(type)) {
+                if ("ADMIN".equals(type) || "TUTOR".equals(type) || "M384".equals(type)) {
                     addSpecials = true;
                     break;
                 }
             }
         }
 
+        final Collection<String> courseIds = new ArrayList<>(5);
         if (addSpecials) {
             courseIds.add(RawRecordConstants.M117);
             courseIds.add(RawRecordConstants.M118);
@@ -544,13 +491,6 @@ public final class SiteDataRegistration {
             courseIds.add(RawRecordConstants.M126);
             courseIds.add(RawRecordConstants.MATH125);
             courseIds.add(RawRecordConstants.MATH126);
-        }
-
-        if (!courseIds.isEmpty()) {
-            final List<RawCsection> contextCourses = this.owner.contextData.getCourseSections();
-
-            // Sort so we pick section 001 first if available (and get consistent picks each call)
-            Collections.sort(contextCourses);
 
             int paceOrder = 1;
             outer:
@@ -562,29 +502,38 @@ public final class SiteDataRegistration {
                     }
                 }
 
-                // If the course exists in this context, make a synthetic registration for it
-                for (final RawCsection crs : contextCourses) {
-                    if (courseId.equals(crs.course) && crs.termKey.equals(this.active.term)) {
-
-                        // If the section is not a real course type, skip
-                        SiteDataCfgCourse cfgCourse = this.owner.courseData.getCourse(crs.course, crs.sect);
-
-                        if (cfgCourse == null) {
-                            cfgCourse = this.owner.courseData.addCourse(cache, crs.course, crs.sect, this.active.term);
+                // Make a synthetic registration for it - try section 001 first, section 401 next, then take any
+                // section we can get
+                RawCsection sect = this.owner.contextData.getCourseSection(courseId, "001", this.active.term);
+                if (sect == null) {
+                    sect = this.owner.contextData.getCourseSection(courseId, "401", this.active.term);
+                    if (sect == null) {
+                        final List<RawCsection> all = this.owner.contextData.getAllCourseSections(courseId,
+                                this.active.term);
+                        if (all != null && !all.isEmpty()) {
+                            sect = all.getFirst();
                         }
+                    }
+                }
 
-                        if (cfgCourse != null && cfgCourse.courseSection != null) {
-                            final String type = cfgCourse.courseSection.instrnType;
+                if (sect != null) {
+                    SiteDataCfgCourse cfgCourse = this.owner.courseData.getCourse(courseId, sect.sect);
 
-                            if ("RI".equals(type) || "CE".equals(type)) {
+                    if (cfgCourse == null) {
+                        cfgCourse = this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
+                    }
 
-                                this.registrations.add(makeSyntheticReg(crs.course, crs.sect, paceOrder));
-                                ++paceOrder;
-                                this.registrationTerms.add(this.active);
+                    if (cfgCourse != null && cfgCourse.courseSection != null) {
+                        final String type = cfgCourse.courseSection.instrnType;
 
-                                this.owner.courseData.addCourse(cache, crs.course, crs.sect, this.active.term);
-                                break;
-                            }
+                        if ("RI".equals(type) || "CE".equals(type)) {
+
+                            this.registrations.add(makeSyntheticReg(courseId, sect.sect, paceOrder));
+                            ++paceOrder;
+                            this.registrationTerms.add(this.active);
+
+                            this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
+                            break;
                         }
                     }
                 }
@@ -603,15 +552,12 @@ public final class SiteDataRegistration {
      * @param paceOrder  the pace order
      * @return the generated synthetic {@code StudentCourse} record
      */
-    private RawStcourse makeSyntheticReg(final String courseId, final String sectionNum,
-                                         final int paceOrder) {
+    private RawStcourse makeSyntheticReg(final String courseId, final String sectionNum, final int paceOrder) {
 
         final RawStcourse result =
-                new RawStcourse(this.active.term, this.owner.studentData.getStudent().stuId, courseId,
-                        sectionNum, Integer.valueOf(paceOrder), "Y", null, "N",
-                        null, null, "Y", "N", "N",
-                        "N", null, null, null, null, "N", null, null, null,
-                        null, "RI", null, null, null, null);
+                new RawStcourse(this.active.term, this.owner.studentData.getStudent().stuId, courseId, sectionNum,
+                        Integer.valueOf(paceOrder), "Y", null, "N", null, null, "Y", "N", "N", "N", null, null, null,
+                        null, "N", null, null, null, null, "RI", null, null, null, null);
 
         result.synthetic = true;
 
@@ -782,7 +728,6 @@ public final class SiteDataRegistration {
     private boolean determineStudentRuleSet(final Cache cache) throws SQLException {
 
         final Map<String, RawPacingStructure> ruleSets = new TreeMap<>();
-        final List<RawCsection> contextCourses = this.owner.contextData.getCourseSections();
         boolean success = true;
 
         for (final RawStcourse stcourse : this.registrations) {
@@ -793,32 +738,17 @@ public final class SiteDataRegistration {
                 continue;
             }
 
-            final String courseId = stcourse.course;
-            final String sectionNum = stcourse.sect;
+            final SiteDataCfgCourse coursedata;
 
-            for (final RawCsection crs : contextCourses) {
-                if (courseId.equals(crs.course) && sectionNum.equals(crs.sect) &&
-                        crs.termKey.equals(this.active.term)) {
+            if ("Y".equals(stcourse.iInProgress) && stcourse.iTermKey != null) {
+                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, stcourse.iTermKey);
+            } else {
+                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, this.active.term);
+            }
 
-                    final RawCourse course = this.owner.contextData.getCourse(crs.course);
-                    if ("Y".equals(course.isTutorial)) {
-                        continue;
-                    }
-
-                    final SiteDataCfgCourse coursedata;
-                    if ("Y".equals(stcourse.iInProgress) && stcourse.iTermKey != null) {
-                        coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect,
-                                stcourse.iTermKey);
-                    } else {
-                        coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect,
-                                this.active.term);
-                    }
-
-                    final RawPacingStructure ruleSet = coursedata.pacingStructure;
-                    if (ruleSet != null) {
-                        ruleSets.put(ruleSet.pacingStructure, ruleSet);
-                    }
-                }
+            final RawPacingStructure ruleSet = coursedata.pacingStructure;
+            if (ruleSet != null) {
+                ruleSets.put(ruleSet.pacingStructure, ruleSet);
             }
         }
 

@@ -13,6 +13,8 @@ import dev.mathops.session.sitelogic.data.SiteData;
 
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A container for all logic that supports generation of a web page within a course website. The input is a session
@@ -23,6 +25,12 @@ import java.time.ZonedDateTime;
  * Web page code should be performing NO logic - just layout and formatting of the information gathered here.
  */
 public final class CourseSiteLogic {
+
+    /** Course IDs in context. */
+    public static final List<String> COURSE_IDS = Arrays.asList(RawRecordConstants.M117, RawRecordConstants.M118,
+            RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH117,
+            RawRecordConstants.MATH118, RawRecordConstants.MATH124, RawRecordConstants.MATH125,
+            RawRecordConstants.MATH126);
 
     /** The site profile. */
     private final WebSiteProfile siteProfile;

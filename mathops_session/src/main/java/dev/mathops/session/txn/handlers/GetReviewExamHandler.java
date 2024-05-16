@@ -100,8 +100,7 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
      * @return the generated reply XML to send to the client
      * @throws SQLException if there is an error accessing the database
      */
-    private String processRequest(final Cache cache, final GetReviewExamRequest request)
-            throws SQLException {
+    private String processRequest(final Cache cache, final GetReviewExamRequest request) throws SQLException {
 
         final GetReviewExamReply reply = new GetReviewExamReply();
 
@@ -152,8 +151,7 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
 
                     if ("R".equals(type)) {
 
-                        // We need to verify the exam and fill in the remaining fields in
-                        // AvailableExam
+                        // We need to verify the exam and fill in the remaining fields in AvailableExam
                         final ReviewExamEligibilityTester examtest =
                                 new ReviewExamEligibilityTester(getStudent().stuId);
 

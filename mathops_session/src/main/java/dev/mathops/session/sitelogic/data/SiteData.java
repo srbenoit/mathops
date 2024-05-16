@@ -31,7 +31,7 @@ public final class SiteData {
     public final ZonedDateTime now;
 
     /** Data relating to context. */
-    public final SiteDataContext contextData;
+    public SiteDataContext contextData;
 
     /** Data relating to student. */
     public final SiteDataStudent studentData;
@@ -67,7 +67,6 @@ public final class SiteData {
         this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
         this.dbProfile = theDbProfile;
 
-        this.contextData = new SiteDataContext();
         this.studentData = new SiteDataStudent(this);
         this.registrationData = new SiteDataRegistration(this);
         this.milestoneData = new SiteDataMilestone(this);
@@ -138,6 +137,7 @@ public final class SiteData {
         try {
             final DbConnection conn = primaryDbContext.checkOutConnection();
             final Cache cache = new Cache(this.dbProfile, conn);
+            this.contextData = new SiteDataContext(cache);
 
             try {
                 success = loadData(cache, session);
@@ -175,7 +175,7 @@ public final class SiteData {
 
         // final long t0 = System.currentTimeMillis();
 
-        this.contextData.loadData(cache, this.courses);
+//        this.contextData.loadData(cache, this.courses);
         // final long t1 = System.currentTimeMillis();
 
         final boolean b2 = this.studentData.loadData(cache, session);

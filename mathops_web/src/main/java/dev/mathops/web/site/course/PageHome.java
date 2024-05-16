@@ -9,6 +9,7 @@ import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractPageSite;
@@ -89,17 +90,15 @@ enum PageHome {
             final List<RawStcourse> filtered;
             final List<RawStcourse> tempList = new ArrayList<>(10);
 
-            final List<RawCsection> csections = logic.data.contextData.getCourseSections();
 
             for (final RawStcourse reg : pacedReg) {
                 final String regCourseId = reg.course;
                 final String regSect = reg.sect;
+                final TermKey regTerm = "Y".equals(reg.iInProgress) ? reg.iTermKey : reg.termKey;
 
-                for (final RawCsection csect : csections) {
-                    if (csect.course.equals(regCourseId) && csect.sect.equals(regSect)) {
-                        tempList.add(reg);
-                        break;
-                    }
+                final RawCsection csect = logic.data.contextData.getCourseSection(regCourseId, regSect, regTerm);
+                if (csect != null) {
+                    tempList.add(reg);
                 }
             }
             filtered = new ArrayList<>(tempList);

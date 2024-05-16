@@ -226,6 +226,30 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
     }
 
     /**
+     * Retrieves all course sections for a specified course in a specified term.
+     *
+     * @param cache   the data cache
+     * @param course the course ID
+     * @param termKey the term key
+     * @return the list of sections; {@code null} on any error
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawCsection> queryByCourseTerm(final Cache cache, final String course, final TermKey termKey)
+            throws SQLException {
+
+        final List<RawCsection> forTerm = queryByTerm(cache, termKey);
+        final List<RawCsection> result = new ArrayList<>(10);
+
+        for (final RawCsection row : forTerm) {
+            if (row.course.equals(course)) {
+                result.add(row);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Retrieves a particular course section.
      *
      * @param cache   the data cache

@@ -142,8 +142,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                 ok = checkIncompleteDeadline(session, reasons)
                         && checkPassedReview(cache, session, reasons, avail)
                         && checkNumAttempts(cache, session, reasons, avail)
-                        && checkCourseRegistration(reasons)
-                        && checkUnitTestingDateRange(session, reasons);
+                        && checkCourseRegistration(reasons);
             } else {
                 ok = checkPassedReview(cache, session, reasons, avail)
                         && checkNumAttempts(cache, session, reasons, avail)

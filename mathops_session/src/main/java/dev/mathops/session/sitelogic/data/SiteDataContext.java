@@ -5,16 +5,12 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,161 +19,101 @@ import java.util.Map;
  */
 public final class  SiteDataContext {
 
-    /** In-context Course records. */
-    private final List<RawCourse> courses;
+    /** The cache. */
+    private final Cache cache;
 
-    /** In-context Course section records. */
-    private final List<RawCsection> courseSections;
+    /** Map from course ID to cached course. */
+    private final Map<String, RawCourse> courses;
 
-    /** Map from course section to pacing structure record. */
-    private final Map<RawCsection, RawPacingStructure> coursePacingStructures;
+    /** Map from term key to a list of cached course section records. */
+    private final Map<TermKey, List<RawCsection>> courseSections;
 
     /**
      * Constructs a new {@code SiteDataContext}.
-     */
-    SiteDataContext() {
-
-        this.courses = new ArrayList<>(10);
-        this.courseSections = new ArrayList<>(10);
-        this.coursePacingStructures = new HashMap<>(10);
-    }
-
-    /**
-     * Gets the course records corresponding to the context course records.
      *
-     * @return the course records (CCourse), with same length and indexing as the list returned by
-     *         {@code getContextCourses})
+     * @param theCache the cache
      */
-    public List<RawCourse> getCourses() {
+    SiteDataContext(final Cache theCache) {
 
-        return new ArrayList<>(this.courses);
+        this.cache = theCache;
+        this.courses = new HashMap<>(10);
+        this.courseSections = new HashMap<>(3);
     }
 
     /**
      * Gets the course record for a course in the context.
      *
      * @param courseId the ID of the course
-     * @return the course (CCourse)
+     * @return the course record; null if none found
      */
     public RawCourse getCourse(final String courseId) {
 
-        RawCourse result = null;
+        RawCourse result = this.courses.get(courseId);
 
-        for (final RawCourse crs : this.courses) {
-            if (courseId.equals(crs.course)) {
-                result = crs;
-                break;
-            }        }
+        if (result == null) {
+            try {
+                result = RawCourseLogic.query(this.cache, courseId);
+                if (result != null) {
+                    this.courses.put(courseId, result);
+                }
+            } catch (final SQLException ex) {
+                Log.severe("Failed to query for course", ex);
+            }
+        }
 
         return result;
     }
 
     /**
-     * Gets the course section records corresponding to the context course records.
-     *
-     * @return the course section records, with same length and indexing as the list returned by
-     *         {@code getContextCourses})
+     * Gets the course section record for a specified course and section in a specified term.
+     * @param courseId the course ID
+     * @param section the section number
+     * @param term the term
+     * @return the course section record; null if none found
      */
-    public List<RawCsection> getCourseSections() {
+    public RawCsection getCourseSection(final String courseId, final String section, final TermKey term) {
 
-        return new ArrayList<>(this.courseSections);
-    }
+        final List<RawCsection> list = this.courseSections.computeIfAbsent(term, key -> new ArrayList<>(10));
 
-    /**
-     * Queries all database data relevant to a session's effective user ID within the session's context.
-     * <p>
-     * At the time this method is called; the {@code SiteData} object will have loaded the active term, all calendar
-     * records, and all pace track rules.
-     *
-     * @param cache      the data cache
-     * @param theCourses a list of courses to include
-     * @throws SQLException if there is an error accessing the database
-     */
-    void loadData(final Cache cache, final String... theCourses) throws SQLException {
+        RawCsection result = null;
 
-         loadCoursesInContext(cache, theCourses);
-         loadRawCsectionsInContext(cache, theCourses);
-         loadCourseRuleSetsInContext(cache);
-    }
-
-    /**
-     * Populates course records for all courses included in the context.
-     *
-     * @param cache      the data cache
-     * @param theCourses the list of courses to include
-     * @throws SQLException if there is an error accessing the database
-     */
-    private void loadCoursesInContext(final Cache cache, final String... theCourses) throws SQLException {
-
-        this.courses.clear();
-
-        for (final String courseId : theCourses) {
-            final RawCourse course = RawCourseLogic.query(cache, courseId);
-
-            if (course != null) {
-                this.courses.add(course);
-            } else {
-                Log.warning("Course ", courseId, " not found");
+        for (final RawCsection row : list) {
+            if (row.course.equals(courseId) && row.sect.equals(section)) {
+                result = row;
+                break;
             }
         }
-    }
 
-    /**
-     * Populates course section records for all courses included in the context.
-     *
-     * @param cache      the data cache
-     * @param theCourses the list of courses to include
-     * @throws SQLException if there was an error accessing the database
-     */
-    private void loadRawCsectionsInContext(final Cache cache, final String... theCourses) throws SQLException {
-
-        this.courseSections.clear();
-
-        final TermKey key = TermLogic.get(cache).queryActive(cache).term;
-        final List<RawCsection> all = RawCsectionLogic.queryByTerm(cache, key);
-
-        for (final String course : theCourses) {
-            for (final RawCsection test : all) {
-                if (test.course.equals(course)) {
-                    this.courseSections.add(test);
+        if (result == null) {
+            try {
+                result = RawCsectionLogic.query(this.cache, courseId, section, term);
+                if (result != null) {
+                    list.add(result);
                 }
+            } catch (final SQLException ex) {
+                Log.severe("Failed to query for course section", ex);
             }
         }
+
+        return result;
     }
 
     /**
-     * Populates course pacing structure records for all courses included in the context.
-     *
-     * @param cache the data cache
-     * @throws SQLException if there is an error accessing the database
+     * Gets all course section records for a specified course in a specified term.
+     * @param courseId the course ID
+     * @param term the term
+     * @return the course section record; null if none found
      */
-    private void loadCourseRuleSetsInContext(final Cache cache) throws SQLException {
+    public List<RawCsection> getAllCourseSections(final String courseId, final TermKey term) {
 
-        this.coursePacingStructures.clear();
+        List<RawCsection> result = null;
 
-        final Iterator<RawCsection> iter = this.courseSections.iterator();
-        while (iter.hasNext()) {
-            final RawCsection csect = iter.next();
-            if ("OT".equals(csect.instrnType)) {
-                continue;
-            }
-
-            final String ruleSetId = csect.pacingStructure;
-
-            if (ruleSetId == null) {
-                Log.warning("No pacing structure configured for course ", csect.course, " section ", csect.sect);
-                iter.remove();
-            } else {
-                final RawPacingStructure record = RawPacingStructureLogic.query(cache, ruleSetId);
-
-                if (record == null) {
-                    Log.warning("Unable to query for pacing structure ", ruleSetId, " for course ", csect.course,
-                            " section ", csect.sect);
-                    iter.remove();
-                } else {
-                    this.coursePacingStructures.put(csect, record);
-                }
-            }
+        try {
+            result = RawCsectionLogic.queryByCourseTerm(this.cache, courseId, term);
+        } catch (final SQLException ex) {
+            Log.severe("Failed to query for course sections", ex);
         }
+
+        return result;
     }
 }

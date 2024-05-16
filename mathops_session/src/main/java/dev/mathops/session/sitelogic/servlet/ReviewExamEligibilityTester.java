@@ -34,9 +34,6 @@ import java.util.List;
  */
 public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
-    /** Flag indicating exam is in a tutorial course. */
-    private boolean isTutorial;
-
     /**
      * Create a new eligibility test class, which can be used to test unit review exams for eligibility.
      *
@@ -66,8 +63,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
             throws SQLException {
 
         // Verify that there is a term active and currently in progress
-        boolean ok = validateStudent(cache, now, reasons, holds, true)
-                && checkActiveTerm(cache, now, reasons);
+        boolean ok = validateStudent(cache, now, reasons, holds, true) && checkActiveTerm(cache, now, reasons);
 
         // See that the student is registered, and get some additional student information.
         if (ok) {
@@ -425,7 +421,8 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         boolean success = true;
 
-        if (this.courseSectionUnit != null && this.courseSectionUnit.lastTestDt != null) {
+        if (!"Y".equals(this.studentCourse.iInProgress) && this.courseSectionUnit != null &&
+                this.courseSectionUnit.lastTestDt != null) {
 
             final LocalDate day = this.courseSectionUnit.lastTestDt;
             final LocalDate today = now.toLocalDate();
@@ -475,10 +472,6 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
      */
     private boolean checkUnitEligibility(final Cache cache, final HtmlBuilder reasons,
                                          final String course, final Integer unit) throws SQLException {
-
-        if (this.isTutorial) {
-            return true;
-        }
 
         final List<RawSthomework> sthw;
         boolean ok = true;

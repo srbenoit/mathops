@@ -24,7 +24,6 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
-import dev.mathops.session.sitelogic.data.SiteDataContext;
 import dev.mathops.session.sitelogic.data.SiteDataCourse;
 import dev.mathops.session.sitelogic.data.SiteDataStudent;
 
@@ -215,15 +214,43 @@ public final class CourseSiteLogicCourse {
      */
     private void loadCourseLabels() {
 
-        final List<RawCourse> contextCourses = this.data.contextData.getCourses();
+        this.courseLabels.put("M 116", "MATH 116");
+        this.courseLabels.put("M 117", "MATH 117");
+        this.courseLabels.put("M 118", "MATH 118");
+        this.courseLabels.put("M 124", "MATH 124");
+        this.courseLabels.put("M 125", "MATH 125");
+        this.courseLabels.put("M 126", "MATH 126");
 
-        for (final RawCourse course : contextCourses) {
-            final String courseId = course.course;
-            final String label = course.courseLabel;
-            if (label != null) {
-                this.courseLabels.put(courseId, label);
-            }
-        }
+        this.courseLabels.put("MATH 116", "MATH 116");
+        this.courseLabels.put("MATH 117", "MATH 117");
+        this.courseLabels.put("MATH 118", "MATH 118");
+        this.courseLabels.put("MATH 124", "MATH 124");
+        this.courseLabels.put("MATH 125", "MATH 125");
+        this.courseLabels.put("MATH 126", "MATH 126");
+
+        this.courseLabels.put("M 100R", "Math Placement Review");
+        this.courseLabels.put("M 100T", "ELM Tutorial");
+        this.courseLabels.put("M 100P", "Math Placement Tool");
+        this.courseLabels.put("M 100U", "User's Exam");
+        this.courseLabels.put("M 170T", "Precalculus Tutorial");
+
+        this.courseLabels.put("M 1170", "College Algebra I");
+        this.courseLabels.put("M 1180", "College Algebra II");
+        this.courseLabels.put("M 1240", "Functions");
+        this.courseLabels.put("M 1250", "College Trig I");
+        this.courseLabels.put("M 1260", "College Trig II");
+
+        this.courseLabels.put("M 384", "MATH 384");
+        this.courseLabels.put("M 495", "MATH 495");
+
+        this.courseLabels.put("M 160R", "MATH 160 Review");
+        this.courseLabels.put("M 161R", "MATH 161 Review");
+
+        this.courseLabels.put("M 117C", "MATH 117 Challenge Exam");
+        this.courseLabels.put("M 118C", "MATH 118 Challenge Exam");
+        this.courseLabels.put("M 124C", "MATH 124 Challenge Exam");
+        this.courseLabels.put("M 125C", "MATH 125 Challenge Exam");
+        this.courseLabels.put("M 126C", "MATH 126 Challenge Exam");
     }
 
     /**
@@ -236,55 +263,41 @@ public final class CourseSiteLogicCourse {
         // TODO: Make this data driven, and also context-specific
 
         if (GUEST.equals(studentId)) {
-            if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M100T);
-                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
-                this.otCreditCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
-                this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
-            }
+            final String lblm100t = this.courseLabels.get(RawRecordConstants.M100T);
+            this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lblm100t));
+
+            final String lblm117 = this.courseLabels.get(RawRecordConstants.M117);
+            this.otCreditCourses.add(new CourseInfo(RawRecordConstants.M117, lblm117));
+
+            final String lblm118 = this.courseLabels.get(RawRecordConstants.M118);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lblm118));
+
+            final String lblm124 = this.courseLabels.get(RawRecordConstants.M124);
+            this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M124, lblm124));
+
+            final String lblm125 = this.courseLabels.get(RawRecordConstants.M125);
+            this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M125, lblm125));
+
+            final String lblm126 = this.courseLabels.get(RawRecordConstants.M126);
+            this.noPrereqCourses.add(new CourseInfo(RawRecordConstants.M126, lblm126));
         } else if (AACTUTOR.equals(studentId)) {
-            if (this.courseLabels.containsKey(RawRecordConstants.M100T)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M100T);
-                this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
-            }
+            final String lblm100t = this.courseLabels.get(RawRecordConstants.M100T);
+            this.tutorials.add(new CourseInfo(RawRecordConstants.M100T, lblm100t));
+
+            final String lblm117 = this.courseLabels.get(RawRecordConstants.M117);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lblm117));
+
+            final String lblm118 = this.courseLabels.get(RawRecordConstants.M118);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lblm118));
+
+            final String lblm124 = this.courseLabels.get(RawRecordConstants.M124);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lblm124));
+
+            final String lblm125 = this.courseLabels.get(RawRecordConstants.M125);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lblm125));
+
+            final String lblm126 = this.courseLabels.get(RawRecordConstants.M126);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lblm126));
         }
     }
 
@@ -297,179 +310,49 @@ public final class CourseSiteLogicCourse {
      */
     private void loadStudentData(final Cache cache, final ZonedDateTime now) throws SQLException {
 
-        makeTutorialsAvailable(now);
-
         if (this.session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
-            if (this.courseLabels.containsKey(RawRecordConstants.M117)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M117);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M118)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M118);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M124)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M124);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M125)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M125);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.M126)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.M126);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lbl));
-            }
-//            if (this.courseLabels.containsKey(RawRecordConstants.MATH117)) {
-//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH117);
-//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH117, lbl));
-//            }
-//            if (this.courseLabels.containsKey(RawRecordConstants.MATH118)) {
-//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH118);
-//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH118, lbl));
-//            }
-//            if (this.courseLabels.containsKey(RawRecordConstants.MATH124)) {
-//                final String lbl = this.courseLabels.get(RawRecordConstants.MATH124);
-//                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH124, lbl));
-//            }
-            if (this.courseLabels.containsKey(RawRecordConstants.MATH125)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.MATH125);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH125, lbl));
-            }
-            if (this.courseLabels.containsKey(RawRecordConstants.MATH126)) {
-                final String lbl = this.courseLabels.get(RawRecordConstants.MATH126);
-                this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126, lbl));
-            }
+            final String lblm117 = this.courseLabels.get(RawRecordConstants.M117);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M117, lblm117));
+
+            final String lblm118 = this.courseLabels.get(RawRecordConstants.M118);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M118, lblm118));
+
+            final String lblm124 = this.courseLabels.get(RawRecordConstants.M124);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M124, lblm124));
+
+            final String lblm125 = this.courseLabels.get(RawRecordConstants.M125);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M125, lblm125));
+
+            final String lblm126 = this.courseLabels.get(RawRecordConstants.M126);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.M126, lblm126));
+
+//            final String lblmath117 = this.courseLabels.get(RawRecordConstants.MATH117);
+//            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH117, lblmath117));
+
+//            final String lblmath118 = this.courseLabels.get(RawRecordConstants.MATH118);
+//            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH118, lblmath118));
+
+//            final String lblmath124 = this.courseLabels.get(RawRecordConstants.MATH124);
+//            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH124, lblmath124));
+
+            final String lblmath125 = this.courseLabels.get(RawRecordConstants.MATH125);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH125, lblmath125));
+
+            final String lblmath126 = this.courseLabels.get(RawRecordConstants.MATH126);
+            this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126, lblmath126));
         } else {
             addSpecialStudentCourses();
-
             final List<RawStcourse> studentCourses = this.data.registrationData.getRegistrations();
 
             // Filter courses to only those this website supports
-            final List<RawCsection> contextCourses = this.data.contextData.getCourseSections();
             final Collection<RawStcourse> stCoursesInContext = new ArrayList<>(10);
-
             for (final RawStcourse stcourse : studentCourses) {
-
-                final String regCourseId = stcourse.course;
-                final String regSect = stcourse.sect;
-
-                for (final RawCsection contextCourse : contextCourses) {
-                    if (contextCourse.course.equals(regCourseId)) {
-                        stCoursesInContext.add(stcourse);
-                        break;
-                    }
+                if (CourseSiteLogic.COURSE_IDS.contains(stcourse.course)) {
+                    stCoursesInContext.add(stcourse);
                 }
             }
 
             processCourses(cache, now, stCoursesInContext);
-        }
-    }
-
-    /**
-     * Tests whether the student has any placement attempts on record, and if so, makes any tutorials available that
-     * require a placement attempt record. Any tutorials that have no such requirement are also made available.
-     *
-     * @param now the current date/time
-     */
-    private void makeTutorialsAvailable(final ZonedDateTime now) {
-
-        final SiteDataStudent stuData = this.data.studentData;
-
-        // See if the student has any placement/ELM exam attempts on-record (or is an admin)
-        final boolean hasPlacement = this.session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)
-                || !stuData.getStudentPlacementAttempts().isEmpty()
-                || !stuData.getStudentElmAttempts().isEmpty();
-
-        // Scan the list of courses, adding tutorials as appropriate
-        final SiteDataContext contextData = this.data.contextData;
-        final List<RawCourse> courses = this.data.contextData.getCourses();
-        for (final RawCourse contextCourse : courses) {
-            final RawCourse course = contextData.getCourse(contextCourse.course);
-
-            if ("Y".equals(course.isTutorial)) {
-
-                final boolean canSeeAll = stuData.isSpecialType(now, AACTUTOR)
-                        || stuData.isSpecialType(now, "TUTOR")
-                        || stuData.isSpecialType(now, "ADMIN")
-                        || stuData.isSpecialType(now, "STEVE");
-
-                if (canSeeAll || !course.isPlacementRequired()) {
-                    this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                } else {
-
-                    // Allow a "Special student" record to grant access to Precalc Tutorials
-                    if ((RawRecordConstants.M1170.equals(course.course)
-                            && stuData.isSpecialType(now, "PCT117"))
-                            || (RawRecordConstants.M1180.equals(course.course)
-                            && stuData.isSpecialType(now, "PCT118"))) {
-                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                    } else if ((RawRecordConstants.M1240.equals(course.course)
-                            && stuData.isSpecialType(now, "PCT124"))
-                            || (RawRecordConstants.M1250.equals(course.course)
-                            && stuData.isSpecialType(now, "PCT125"))) {
-                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                    } else if (RawRecordConstants.M1260.equals(course.course)
-                            && stuData.isSpecialType(now, "PCT126")) {
-                        this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                    }
-
-                    if (hasPlacement) {
-
-                        // FIXME: Manual enforcement of availability for precalc tutorials:
-                        // these are unavailable if student already has course or placement out of
-                        // course, or if student does NOT have or placed out of prereqs for course
-
-                        if (RawRecordConstants.M1170.equals(course.course)) {
-
-                            if (!hasCourseAsPrereq(RawRecordConstants.M117)) {
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                            }
-
-                        } else if (RawRecordConstants.M1180.equals(course.course)) {
-
-                            if (!hasCourseAsPrereq(RawRecordConstants.M118)) {
-                                // Availability of M 1180 is governed by having 117 done
-                                final boolean has117 = hasCourseAsPrereq(RawRecordConstants.M117);
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has117));
-                            }
-
-                        } else if (RawRecordConstants.M1240.equals(course.course)) {
-
-                            if (!hasCourseAsPrereq(RawRecordConstants.M124)) {
-                                // Availability of M 1240 is governed by having 118 done
-                                final boolean has118 = hasCourseAsPrereq(RawRecordConstants.M118);
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has118));
-                            }
-
-                        } else if (RawRecordConstants.M1250.equals(course.course)) {
-
-                            // NOTE: The following line used to be "M 118", which would offer the
-                            // student both 1240 and 1250 if they had 118 finished. The change to
-                            // "M 124" below makes it offer tutorials in numeric order only.
-                            if (!hasCourseAsPrereq(RawRecordConstants.M125)) {
-                                // Availability of M 1250 is governed by having 124 done (NOTE:
-                                // We force numerical order, not just pre-requisite order)
-                                final boolean has124 = hasCourseAsPrereq(RawRecordConstants.M124);
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has124));
-                            }
-
-                        } else if (RawRecordConstants.M1260.equals(course.course)) {
-
-                            if (!hasCourseAsPrereq(RawRecordConstants.M126)) {
-                                // Availability of M 1260 is governed by having 124 and 125 done
-                                final boolean has124 = hasCourseAsPrereq(RawRecordConstants.M124);
-                                final boolean has125 = hasCourseAsPrereq(RawRecordConstants.M125);
-                                this.tutorials.add(new CourseInfo(course.course, course.courseLabel, has124 && has125));
-                            }
-
-                        } else {
-                            // An "ordinary" tutorial that just requires the placement exam
-                            this.tutorials.add(new CourseInfo(course.course, course.courseLabel));
-                        }
-                    }
-                }
-            }
         }
     }
 

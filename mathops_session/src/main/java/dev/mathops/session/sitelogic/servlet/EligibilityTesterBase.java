@@ -31,6 +31,7 @@ import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -366,14 +367,17 @@ class EligibilityTesterBase {
         }
 
         if (isTut != null && ok) {
-            this.courseSection = RawCsectionLogic.query(cache, course, this.studentCourse.sect, this.activeTerm.term);
+            final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
+                    : this.activeTerm.term;
+
+            this.courseSection = RawCsectionLogic.query(cache, course, this.studentCourse.sect, term);
 
             if (this.courseSection == null) {
                 reasons.add("Unable to query course section information");
                 ok = false;
             } else {
-                final List<RawCusection> cusections = RawCusectionLogic.queryByCourseSection(cache,
-                        course, this.studentCourse.sect, this.activeTerm.term);
+                final List<RawCusection> cusections = RawCusectionLogic.queryByCourseSection(cache, course,
+                        this.studentCourse.sect, term);
                 for (final RawCusection cusect : cusections) {
                     if (cusect.unit.equals(unit)) {
                         this.courseSectionUnit = cusect;

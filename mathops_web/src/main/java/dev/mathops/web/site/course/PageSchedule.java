@@ -101,8 +101,6 @@ enum PageSchedule {
                                   final HtmlBuilder htm) throws SQLException {
 
         // Build list of registrations relevant to this context
-        final List<RawCourse> webSiteCourses = logic.data.contextData.getCourses();
-
         final SiteDataRegistration regData = logic.data.registrationData;
 
         final List<RawStcourse> tempList = new ArrayList<>(6);
@@ -119,8 +117,8 @@ enum PageSchedule {
                 continue;
             }
 
-            for (final RawCourse wsCourse : webSiteCourses) {
-                if (reg.course.equals(wsCourse.course)) {
+            for (final String courseId : CourseSiteLogic.COURSE_IDS) {
+                if (reg.course.equals(courseId)) {
                     tempList.add(reg);
                     break;
                 }
@@ -142,8 +140,8 @@ enum PageSchedule {
                     continue;
                 }
 
-                for (final RawCourse wsCourse : webSiteCourses) {
-                    if (reg.course.equals(wsCourse.course)) {
+                for (final String courseId : CourseSiteLogic.COURSE_IDS) {
+                    if (reg.course.equals(courseId)) {
                         tempList.add(reg);
                         break;
                     }

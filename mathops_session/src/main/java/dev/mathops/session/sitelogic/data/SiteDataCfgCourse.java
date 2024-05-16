@@ -4,7 +4,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -54,7 +53,7 @@ public final class SiteDataCfgCourse {
         this.owner = siteData;
 
         final RawCourse theCourse = RawCourseLogic.query(cache, courseId);
-        final RawCsection theSect = loadCourseSection(cache, courseId, sectionNum, termKey);
+        final RawCsection theSect = loadCourseSection(courseId, sectionNum, termKey);
 
         if (theCourse == null || theSect == null) {
             this.course = null;
@@ -82,35 +81,20 @@ public final class SiteDataCfgCourse {
     /**
      * Loads the course section record (or fetches it from existing data if already loaded).
      *
-     * @param cache      the data cache
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term in which the course was taken
      * @return the loaded course record; {@code null} on error
-     * @throws SQLException if there is an error accessing the database
      */
-    private RawCsection loadCourseSection(final Cache cache, final String courseId,
-                                          final String sectionNum, final TermKey termKey) throws SQLException {
+    private RawCsection loadCourseSection(final String courseId, final String sectionNum, final TermKey termKey) {
 
-        RawCsection theCourseSection = null;
+        final RawCsection result = this.owner.contextData.getCourseSection(courseId, sectionNum, termKey);
 
-        // See if the course section has already been loaded
-        for (final RawCsection ctxCrs : this.owner.contextData.getCourseSections()) {
-            if (courseId.equals(ctxCrs.course) && courseId.equals(ctxCrs.sect)
-                    && termKey.equals(ctxCrs.termKey)) {
-                theCourseSection = ctxCrs;
-                break;
-            }
+        if (result == null) {
+            this.owner.setError("Unable to query for course " + courseId + " section " + sectionNum + " in term "
+                    + termKey);
         }
 
-        if (theCourseSection == null) {
-            theCourseSection = RawCsectionLogic.query(cache, courseId, sectionNum, termKey);
-            if (theCourseSection == null) {
-                this.owner.setError("Unable to query for course " + courseId + " section "
-                        + sectionNum + " in term " + termKey);
-            }
-        }
-
-        return theCourseSection;
+        return result;
     }
 }
