@@ -65,8 +65,7 @@ public enum StandardMasteryEligibilityTester {
                         masteryLogic.query(cache, stu.stuId, reg.course, Integer.valueOf(unit));
 
                 if (unitMastery == null) {
-                    // TODO: Should actually query work record and make sure we'ere inserting
-                    // accurate data
+                    // TODO: Should actually query work record and make sure we're inserting accurate data
 
                     unitMastery = new StudentUnitMasteryRec(stu.stuId, reg.course,
                             Integer.valueOf(unit), Integer.valueOf(0), null, null, null, null);

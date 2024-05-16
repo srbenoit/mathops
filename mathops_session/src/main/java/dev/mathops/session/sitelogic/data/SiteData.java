@@ -24,9 +24,6 @@ public final class SiteData {
     /** The database profile. */
     private final DbProfile dbProfile;
 
-    /** True if OT courses should be ignored. */
-    private final boolean ignoreOT;
-
     /** The courses to include. */
     private final String[] courses;
 
@@ -62,14 +59,11 @@ public final class SiteData {
      *
      * @param theDbProfile the database profile (host, path, and DbProfile)
      * @param theNow       the date/time to consider now
-     * @param isIgnoreOT   true to ignore OT courses
      * @param theCourses   the courses to include
      */
-    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow,
-                    final boolean isIgnoreOT, final String... theCourses) {
+    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow, final String... theCourses) {
 
         this.now = theNow;
-        this.ignoreOT = isIgnoreOT;
         this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
         this.dbProfile = theDbProfile;
 
@@ -128,8 +122,8 @@ public final class SiteData {
      * Loads all database data relevant to a session's effective user ID within the session's context, but does not use
      * the database cache objects.
      * <p>
-     * TODO: support flags that govern which data to load, so this object may be used everywhere,
-     * including checkin and checkout, the admin site, etc.
+     * TODO: support flags that govern which data to load, so this object may be used everywhere, including checkin
+     *    and checkout, the admin site, etc.
      *
      * @param session the session info
      * @return {@code true} if success; {@code false} on any error
@@ -158,8 +152,7 @@ public final class SiteData {
 
         if (success) {
             final long end = System.currentTimeMillis();
-            Log.info("SiteData took " + (end - start)
-                    + " ms. to gather: " + session.getEffectiveUserId()
+            Log.info("SiteData took " + (end - start) + " ms. to gather: " + session.getEffectiveUserId()
                     + CoreConstants.SPC + session.getEffectiveScreenName());
         }
 
@@ -182,7 +175,7 @@ public final class SiteData {
 
         // final long t0 = System.currentTimeMillis();
 
-        this.contextData.loadData(cache, this.ignoreOT, this.courses);
+        this.contextData.loadData(cache, this.courses);
         // final long t1 = System.currentTimeMillis();
 
         final boolean b2 = this.studentData.loadData(cache, session);

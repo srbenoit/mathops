@@ -127,13 +127,8 @@ public class CourseSite extends AbstractPageSite {
                     LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
                     // TODO: Replace all logic with this
-                    final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session, false,
-                            RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
-                            RawRecordConstants.M125, RawRecordConstants.M126,
-                            // RawRecordConstants.MATH117,
-                            // RawRecordConstants.MATH118
-                            // RawRecordConstants.MATH124,
-                            RawRecordConstants.MATH125, RawRecordConstants.MATH126);
+
+                    final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
                     logic.gatherData();
 
                     switch (subpath) {
@@ -222,13 +217,7 @@ public class CourseSite extends AbstractPageSite {
             if (session != null) {
                 LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-                final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session, false,
-                        RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
-                        RawRecordConstants.M125, RawRecordConstants.M126,
-                        // RawRecordConstants.MATH117,
-                        // RawRecordConstants.MATH118,
-                        // RawRecordConstants.MATH124,
-                        RawRecordConstants.MATH125, RawRecordConstants.MATH126);
+                final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
                 logic.gatherData();
 
                 if ("rolecontrol.html".equals(subpath)) {

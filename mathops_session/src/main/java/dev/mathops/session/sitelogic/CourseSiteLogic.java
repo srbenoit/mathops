@@ -7,6 +7,7 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
 
@@ -23,9 +24,6 @@ import java.time.ZonedDateTime;
  */
 public final class CourseSiteLogic {
 
-    /** A zero-length array used to create other arrays. */
-    private static final String[] ZERO_LEN_STRING_ARR = new String[0];
-
     /** The site profile. */
     private final WebSiteProfile siteProfile;
 
@@ -34,9 +32,6 @@ public final class CourseSiteLogic {
 
     /** The error message if loading data failed. */
     private String error;
-
-    /** True to ignore OT sections. */
-    private final boolean ignoreOT;
 
     /** The courses to include. */
     private final String[] courses;
@@ -52,17 +47,15 @@ public final class CourseSiteLogic {
      *
      * @param theSiteProfile the site profile
      * @param theSessionInfo the session info
-     * @param isIgnoreOT     true to ignore OT sections of courses
-     * @param theCourses     the list of courses to include
      */
-    public CourseSiteLogic(final WebSiteProfile theSiteProfile, final ImmutableSessionInfo theSessionInfo,
-                           final boolean isIgnoreOT, final String... theCourses) {
+    public CourseSiteLogic(final WebSiteProfile theSiteProfile, final ImmutableSessionInfo theSessionInfo) {
 
         this.siteProfile = theSiteProfile;
         this.sessionInfo = theSessionInfo;
 
-        this.ignoreOT = isIgnoreOT;
-        this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
+        this.courses = new String[] {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
+                RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
+                RawRecordConstants.MATH126};
     }
 
     /**
@@ -126,10 +119,9 @@ public final class CourseSiteLogic {
         final DbProfile profile = getSiteProfile().dbProfile;
 
         final ZonedDateTime now = this.sessionInfo.getNow();
-        final SiteData theData = new SiteData(profile, now, this.ignoreOT, this.courses);
+        final SiteData theData = new SiteData(profile, now, this.courses);
 
-        // First, do all database queries we'll need, so we get as close to a consistent image of
-        // the data as we can.
+        // First, do all database queries we'll need, so we get as close to a consistent image of the data as we can.
         final boolean success = theData.load(this.sessionInfo);
         this.data = theData;
 

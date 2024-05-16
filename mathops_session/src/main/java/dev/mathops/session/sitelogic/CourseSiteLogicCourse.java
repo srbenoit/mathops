@@ -42,7 +42,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Logic and data access relating to the course information for courses in which the student is enrolled
+ * Logic and data access relating to the course information for courses in which the student is enrolled.
  * <p>
  * Web page code should be performing NO logic - just layout and formatting of the information gathered here.
  */

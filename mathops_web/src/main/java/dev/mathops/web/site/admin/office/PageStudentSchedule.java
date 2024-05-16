@@ -161,7 +161,7 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final Cache cache, final AdminSite site, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now(), false,
+        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now(),
                 RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                 RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
                 RawRecordConstants.MATH126);

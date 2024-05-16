@@ -90,14 +90,13 @@ public final class  SiteDataContext {
      * records, and all pace track rules.
      *
      * @param cache      the data cache
-     * @param ignoreOT   true to skip "OT" section of indicated courses
      * @param theCourses a list of courses to include
      * @throws SQLException if there is an error accessing the database
      */
-    void loadData(final Cache cache, final boolean ignoreOT, final String... theCourses) throws SQLException {
+    void loadData(final Cache cache, final String... theCourses) throws SQLException {
 
          loadCoursesInContext(cache, theCourses);
-         loadRawCsectionsInContext(cache, ignoreOT, theCourses);
+         loadRawCsectionsInContext(cache, theCourses);
          loadCourseRuleSetsInContext(cache);
     }
 
@@ -127,12 +126,10 @@ public final class  SiteDataContext {
      * Populates course section records for all courses included in the context.
      *
      * @param cache      the data cache
-     * @param ignoreOT   true to ignore OT sections of courses
      * @param theCourses the list of courses to include
      * @throws SQLException if there was an error accessing the database
      */
-    private void loadRawCsectionsInContext(final Cache cache, final boolean ignoreOT,
-                                           final String... theCourses) throws SQLException {
+    private void loadRawCsectionsInContext(final Cache cache, final String... theCourses) throws SQLException {
 
         this.courseSections.clear();
 
@@ -141,10 +138,6 @@ public final class  SiteDataContext {
 
         for (final String course : theCourses) {
             for (final RawCsection test : all) {
-                if (ignoreOT && "OT".equals(test.instrnType)) {
-                    continue;
-                }
-
                 if (test.course.equals(course)) {
                     this.courseSections.add(test);
                 }
