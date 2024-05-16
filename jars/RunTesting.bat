@@ -1,0 +1,1 @@
+java -cp .\ifxjdbc.jar;.\ojdbc7.jar;.\ADMIN.jar;.\flatlaf-3.0.jar;.\jwabbit.jar dev.mathops.app.teststation.TestStationApp

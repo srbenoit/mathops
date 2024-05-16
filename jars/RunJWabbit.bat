@@ -1,0 +1,1 @@
+java -cp .\jwabbit.jar; jwabbit.Launcher
