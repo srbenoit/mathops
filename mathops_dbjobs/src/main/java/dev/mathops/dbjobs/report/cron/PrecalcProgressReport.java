@@ -70,8 +70,7 @@ public final class PrecalcProgressReport {
      * @param theCategory  the special_stus category used to select report population
      * @param theSubheader the subheader text for the report
      */
-    public PrecalcProgressReport(final String theFilename, final String theCategory,
-                                 final String theSubheader) {
+    public PrecalcProgressReport(final String theFilename, final String theCategory, final String theSubheader) {
 
         this.filename = theFilename;
         this.category = theCategory;
@@ -184,9 +183,9 @@ public final class PrecalcProgressReport {
         if (active != null) {
             activeKey = active.term;
         }
+        Log.info("Active term is ", activeKey);
 
-        final List<RawStcourse> regs =
-                RawStcourseLogic.queryByStudent(cache, stu.stuId, activeKey, false, false);
+        final List<RawStcourse> regs = RawStcourseLogic.queryByStudent(cache, stu.stuId, activeKey, false, false);
 
         // Remove "forfeit" courses and Incomplete courses not counted in pace
         regs.removeIf(next -> "G".equals(next.openStatus) || ("Y".equals(next.iInProgress)
@@ -240,11 +239,10 @@ public final class PrecalcProgressReport {
             final int pace = PaceTrackLogic.determinePace(ordered);
             final String track = PaceTrackLogic.determinePaceTrack(ordered, pace);
 
-            final List<RawMilestone> milestones =
-                    RawMilestoneLogic.getAllMilestones(cache, activeKey, pace, track);
+            final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, activeKey, pace, track);
 
-            final List<RawStmilestone> stmilestones =
-                    RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track, stu.stuId);
+            final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track,
+                    stu.stuId);
 
             // Generate report
 
@@ -264,8 +262,7 @@ public final class PrecalcProgressReport {
                 final int order = i + 1;
                 final RawStcourse reg = ordered.get(i);
 
-                final List<RawStexam> stexams =
-                        RawStexamLogic.getExams(cache, stu.stuId, reg.course, true, "R", "F");
+                final List<RawStexam> stexams = RawStexamLogic.getExams(cache, stu.stuId, reg.course, true, "R", "F");
 
                 // Unit review exams
                 for (int unit = 1; unit <= 4; ++unit) {
@@ -300,9 +297,8 @@ public final class PrecalcProgressReport {
                     //
 
                     htm.reset();
-                    htm.add("   ").add(pace).add("       ")
-                            .add(order).add("     ").add(reg.course)
-                            .add("      ").add(unit).add("       RE      ");
+                    htm.add("   ").add(pace).add("       ").add(order).add("     ").add(reg.course).add("      ")
+                            .add(unit).add("       RE      ");
 
                     if (due == null) {
                         htm.add("Unknown   ");
@@ -320,12 +316,7 @@ public final class PrecalcProgressReport {
                         }
                     } else {
                         htm.add("  ", TemporalUtils.FMT_MDY_COMPACT_FIXED.format(completed));
-
-                        if (late) {
-                            htm.add("    late");
-                        } else {
-                            htm.add("     OK");
-                        }
+                        htm.add(late ? "    late" : "     OK");
                     }
 
                     rpt.add(htm.toString());
@@ -404,7 +395,8 @@ public final class PrecalcProgressReport {
         final LocalDate today = LocalDate.now();
         final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByType(cache, this.category, today);
 
-        final List<RawStudent> students = new ArrayList<>(specials.size());
+        final int count = specials.size();
+        final List<RawStudent> students = new ArrayList<>(count);
         for (final RawSpecialStus spec : specials) {
             final RawStudent stu = RawStudentLogic.query(cache, spec.stuId, false);
             if (stu == null) {
@@ -426,16 +418,16 @@ public final class PrecalcProgressReport {
      */
     public static void main(final String... args) {
 
-        // final PrecalcProgressReport job = new PrecalcProgressReport("athletes_summary",
-        // "ATHLETE", "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
+         final PrecalcProgressReport job = new PrecalcProgressReport("athletes_summary",
+         "ATHLETE", "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
 
 //        final PrecalcProgressReport job =
 //                new PrecalcProgressReport("engineering_summary", "ENGRSTU",
 //                        "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS");
 
-        final PrecalcProgressReport job =
-                new PrecalcProgressReport("m116_summary", "M116",
-                        "PRECALCULUS PROGRESS REPORT FOR STUDENTS IN MATH 116");
+//        final PrecalcProgressReport job =
+//                new PrecalcProgressReport("m116_summary", "M116",
+//                        "PRECALCULUS PROGRESS REPORT FOR STUDENTS IN MATH 116");
 
         job.execute();
     }
