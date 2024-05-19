@@ -1235,12 +1235,13 @@ public final class MathPlanLogic {
                 // ===================
 
                 // *** Major in Business Administration (with nine concentrations)
+                // NOTE: Catalog shows this math in semester 2 - Business has requested we list it in semester 1
 
                 final Major mBUSA = new Major(2000, "BUSA-BS", Boolean.FALSE,
                         "Business Administration",
                         CAT + "business/business-administration/business-administration-major/");
                 final MajorMathRequirement rBUSA = new MajorMathRequirement("BUSA-BS")
-                        .setSemesterCourses(null, BUSA3, null);
+                        .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSA, rBUSA);
 
                 final Major mBUSAACCZ = new Major(2001, "BUSA-ACCZ-BS",
@@ -1249,7 +1250,7 @@ public final class MathPlanLogic {
                         CAT + "business/accounting/business-administration-major-accounting-concentration/");
                 final MajorMathRequirement rBUSAACCZ =
                         new MajorMathRequirement("BUSA-ACCZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAACCZ, rBUSAACCZ);
 
                 final Major mBUSAFINZ = new Major(2002, "BUSA-FINZ-BS",
@@ -1258,7 +1259,7 @@ public final class MathPlanLogic {
                         CAT + "business/finance-real-estate/business-administration-major-finance-concentration/");
                 final MajorMathRequirement rBUSAFINZ =
                         new MajorMathRequirement("BUSA-FINZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAFINZ, rBUSAFINZ);
 
                 final Major mBUSAFPLZ = new Major(2003, "BUSA-FPLZ-BS",
@@ -1268,7 +1269,7 @@ public final class MathPlanLogic {
                                 + "major-financial-planning-concentration/#text");
                 final MajorMathRequirement rBUSAFPLZ =
                         new MajorMathRequirement("BUSA-FPLZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAFPLZ, rBUSAFPLZ);
 
                 final Major mBUSAHRMZ = new Major(2004, "BUSA-HRMZ-BS",
@@ -1278,7 +1279,7 @@ public final class MathPlanLogic {
                                 + "resource-management-concentration/");
                 final MajorMathRequirement rBUSAHRMZ =
                         new MajorMathRequirement("BUSA-HRMZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAHRMZ, rBUSAHRMZ);
 
                 final Major mBUSAINSZ = new Major(2005, "BUSA-INSZ-BS",
@@ -1288,7 +1289,7 @@ public final class MathPlanLogic {
                                 + "administration-major-information-systems-concentration/");
                 final MajorMathRequirement rBUSAINSZ =
                         new MajorMathRequirement("BUSA-INSZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAINSZ, rBUSAINSZ);
 
                 final Major mBUSAMINZ = new Major(2010, "BUSA-MINZ-BS",
@@ -1297,7 +1298,7 @@ public final class MathPlanLogic {
                         CAT + "business/management/business-administration-major-management-innovation-concentration/");
                 final MajorMathRequirement rBUSAMINZ =
                         new MajorMathRequirement("BUSA-MINZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAMINZ, rBUSAMINZ);
 
                 final Major mBUSAMKTZ = new Major(2006, "BUSA-MKTZ-BS",
@@ -1306,7 +1307,7 @@ public final class MathPlanLogic {
                         CAT + "business/marketing/business-administration-major-marketing-concentration/");
                 final MajorMathRequirement rBUSAMKTZ =
                         new MajorMathRequirement("BUSA-MKTZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAMKTZ, rBUSAMKTZ);
 
                 // DEACTIVATED (commented to preserve what the historical number represents):
@@ -1318,7 +1319,7 @@ public final class MathPlanLogic {
                         CAT + "business/finance-real-estate/business-administration-major-real-estate-concentration/");
                 final MajorMathRequirement rBUSAREAZ =
                         new MajorMathRequirement("BUSA-REAZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSAREAZ, rBUSAREAZ);
 
                 final Major mBUSASCMZ = new Major(2009, "BUSA-SCMZ-BS",
@@ -1328,7 +1329,7 @@ public final class MathPlanLogic {
                                 + "supply-chain-management-concentration/");
                 final MajorMathRequirement rBUSASCMZ =
                         new MajorMathRequirement("BUSA-SCMZ-BS")
-                                .setSemesterCourses(null, BUSA3, null);
+                                .setSemesterCourses(BUSA3, null, null);
                 map.put(mBUSASCMZ, rBUSASCMZ);
 
                 // ======================
