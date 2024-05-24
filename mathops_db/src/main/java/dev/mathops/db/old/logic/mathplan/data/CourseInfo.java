@@ -10,14 +10,14 @@ public final class CourseInfo {
     /** The course record. */
     public final RawCourse course;
 
-    /** Flag indicating course was added to satisfy a prereq, not from a major/program. */
-    public final boolean addedAsPrereq;
+    /** Flag indicating course was added to satisfy a prerequisite, not from a major/program. */
+    final boolean addedAsPrerequisite;
 
     /** The required grade to satisfy prerequisites of down-stream courses. */
-    public Float requiredGrade;
+    Float requiredGrade = null;
 
     /** The earned grade. */
-    public Float earnedGrade;
+    Float earnedGrade = null;
 
     /** The course status. */
     public ECourseStatus status;
@@ -31,7 +31,7 @@ public final class CourseInfo {
     public CourseInfo(final RawCourse theCourse, final boolean isAddedAsPrereq) {
 
         this.course = theCourse;
-        this.addedAsPrereq = isAddedAsPrereq;
+        this.addedAsPrerequisite = isAddedAsPrereq;
         this.status = ECourseStatus.NONE;
     }
 }

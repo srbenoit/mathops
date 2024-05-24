@@ -36,7 +36,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     final String groupCode;
 
     /** The number of credits needed, if multiple courses can be selected (null if not). */
-    public final Integer nbrCredits;
+    final Integer nbrCredits;
 
     /**
      * If the lowest possible course numbers are chosen from the list of options, this is the highest course number from
@@ -45,7 +45,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     final String lowestLastCourse;
 
     /** The course numbers, sorted. */
-    public final List<String> courseNumbers;
+    final List<String> courseNumbers;
 
     /**
      * Constructs a new {@code CourseGroup}.
@@ -74,7 +74,8 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
             this.courseNumbers = new ArrayList<>(0);
         } else {
             this.courseNumbers = new ArrayList<>(theCourseNumbers.length);
-            this.courseNumbers.addAll(Arrays.asList(theCourseNumbers));
+            final List<String> numbers = Arrays.asList(theCourseNumbers);
+            this.courseNumbers.addAll(numbers);
         }
     }
 
@@ -250,9 +251,11 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
         final HtmlBuilder htm = new HtmlBuilder(50);
 
         if (this.nbrCredits == null) {
-            htm.add(Res.get(Res.SELECT_ONE_COURSE_FROM));
+            final String msg = Res.get(Res.SELECT_ONE_COURSE_FROM);
+            htm.add(msg);
         } else {
-            htm.add(Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits));
+            final String msg = Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits);
+            htm.add(msg);
         }
 
         if (MathPlanConstants.AUCC3.equals(this.groupCode) || MathPlanConstants.AUCC2.equals(this.groupCode)) {
@@ -268,10 +271,11 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
                     if (comma) {
                         htm.add(", ");
                     }
-                    if (crs.getCatalogUrl() == null) {
+                    final String url = crs.getCatalogUrl();
+                    if (url == null) {
                         htm.add(crs.courseLabel);
                     } else {
-                        htm.add("<a href='", crs.getCatalogUrl(), "' target='_blank'>", crs.courseLabel, "</a>");
+                        htm.add("<a href='", url, "' target='_blank'>", crs.courseLabel, "</a>");
                     }
                     comma = true;
                 }
@@ -314,9 +318,11 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
         final HtmlBuilder htm = new HtmlBuilder(50);
 
         if (this.nbrCredits == null) {
-            htm.add(Res.get(Res.SELECT_ONE_COURSE_FROM));
+            final String msg = Res.get(Res.SELECT_ONE_COURSE_FROM);
+            htm.add(msg);
         } else {
-            htm.add(Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits));
+            final String msg = Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits);
+            htm.add(msg);
         }
         htm.add(" (");
 
@@ -350,7 +356,9 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
 
         if (result == 0) {
             // Shorter (more restrictive) lists are considered higher
-            result = -Integer.compare(this.courseNumbers.size(), o.courseNumbers.size());
+            final int count = this.courseNumbers.size();
+            final int oCount = o.courseNumbers.size();
+            result = -Integer.compare(count, oCount);
         }
 
         return result;

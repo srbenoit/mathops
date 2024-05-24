@@ -31,7 +31,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      * @param theCourseGroup the source course group
      * @param courseData     a map from course ID to course object
      */
-    public CourseInfoGroup(final CourseGroup theCourseGroup, final Map<String, RawCourse> courseData) {
+    CourseInfoGroup(final CourseGroup theCourseGroup, final Map<String, RawCourse> courseData) {
 
         if (theCourseGroup == null) {
             throw new IllegalArgumentException("Course group may not be null");
@@ -101,7 +101,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the course numbers list
      */
-    public List<String> getCourseNumbers() {
+    List<String> getCourseNumbers() {
 
         return this.courseGroup.courseNumbers;
     }
@@ -111,7 +111,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the number of credits; {@code null} if students select a single course from the list
      */
-    public Integer getNumCredits() {
+    Integer getNumCredits() {
 
         return this.courseGroup.nbrCredits;
     }
@@ -164,7 +164,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the lowest last course
      */
-    public String getLowestLastCourse() {
+    String getLowestLastCourse() {
 
         return this.courseGroup.lowestLastCourse;
     }
@@ -237,7 +237,8 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
         final boolean equal;
 
         if (obj instanceof CourseInfoGroup) {
-            equal = ((CourseInfoGroup) obj).getGroupCode().equals(getGroupCode());
+            final String code = getGroupCode();
+            equal = ((CourseInfoGroup) obj).getGroupCode().equals(code);
         } else {
             equal = false;
         }

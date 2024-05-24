@@ -582,14 +582,11 @@ public final class StudentData {
         final TermRec active = TermLogic.get(cache).queryActive(cache);
 
         final ETermName activeTermName = active == null ? null : active.term.name;
-        final int activeTermYear =
-                active == null ? LocalDate.now().getYear() : active.term.year.intValue();
+        final int activeTermYear = active == null ? LocalDate.now().getYear() : active.term.year.intValue();
 
-        final int numSem1 =
-                critical.getSemester1Courses().size() + critical.getSemester1CourseGroups().size();
+        final int numSem1 = critical.getSemester1Courses().size() + critical.getSemester1CourseGroups().size();
 
         if (critical.hasPreArrivalData() > 0) {
-
             // CASE 1.1, critical pre-arrival requirements
             if (numSem1 > 1) {
                 createPlanCase1(activeTermYear, activeTermName, critical, ENextStep.MSG_1A_PLURAL,
@@ -625,8 +622,7 @@ public final class StudentData {
 
             // See if student is done with everything
 
-            if (typical.hasSemester1Data() || typical.hasSemester2Data()
-                    || typical.hasAdditionalData()) {
+            if (typical.hasSemester1Data() || typical.hasSemester2Data() || typical.hasAdditionalData()) {
                 // CASE 3:
                 createPlanCase3(typical, logic);
             } else {
@@ -1406,7 +1402,7 @@ public final class StudentData {
 
             if ((RawRecordConstants.M117.equals(id) || RawRecordConstants.M118.equals(id)
                     || RawRecordConstants.M124.equals(id) || RawRecordConstants.M125.equals(id)
-                    || RawRecordConstants.M126.equals(id)) && info.addedAsPrereq) {
+                    || RawRecordConstants.M126.equals(id)) && info.addedAsPrerequisite) {
 
                 allNamed = false;
                 break;

@@ -59,7 +59,8 @@ public final class RequiredPrereq implements Serializable, Comparable<RequiredPr
         this.mayBeConcurrent = theMayBeConcurrent;
 
         if (requiredCourses != null) {
-            this.prereqCourses.addAll(Arrays.asList(requiredCourses));
+            final List<String> list = Arrays.asList(requiredCourses);
+            this.prereqCourses.addAll(list);
         }
     }
 
@@ -72,8 +73,7 @@ public final class RequiredPrereq implements Serializable, Comparable<RequiredPr
     public int hashCode() {
 
         return this.courseId.hashCode() + Objects.hashCode(this.mayBeConcurrent)
-                + Objects.hashCode(this.prereqCourses)
-                + Objects.hashCode(this.prereqGrades);
+                + Objects.hashCode(this.prereqCourses) + Objects.hashCode(this.prereqGrades);
     }
 
     /**

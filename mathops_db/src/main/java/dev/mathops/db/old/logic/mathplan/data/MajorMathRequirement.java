@@ -26,22 +26,22 @@ public final class MajorMathRequirement {
     public String programCode;
 
     /** The semester 1 critical requirements, a list of CourseGroups keys. */
-    public final List<String> sem1Critical;
+    final List<String> sem1Critical;
 
     /** The semester 1 recommended requirements, a list of CourseGroups keys. */
-    public final List<String> sem1Recommended;
+    final List<String> sem1Recommended;
 
     /** The semester 1 other requirements, a list of CourseGroups keys. */
-    public final List<String> sem1Typical;
+    final List<String> sem1Typical;
 
     /** The semester 2 critical requirements, a list of CourseGroups keys. */
-    public final List<String> sem2Critical;
+    final List<String> sem2Critical;
 
     /** The semester 2 recommended requirements, a list of CourseGroups keys. */
-    public final List<String> sem2Recommended;
+    final List<String> sem2Recommended;
 
     /** The semester 2 other requirements, a list of CourseGroups keys. */
-    public final List<String> sem2Typical;
+    final List<String> sem2Typical;
 
     /** Additional requirements, a list of CourseGroups keys. */
     public final List<String> additional;
@@ -90,10 +90,13 @@ public final class MajorMathRequirement {
         if (semester1 != null) {
             final String[] e1 = semester1.split(CoreConstants.COMMA);
             for (final String entry : e1) {
-                if (!entry.isEmpty() && entry.charAt(entry.length() - 1) == '!') {
-                    this.sem1Critical.add(entry.substring(0, entry.length() - 1));
+                final int len = entry.length();
+                if (!entry.isEmpty() && (int) entry.charAt(len - 1) == '!') {
+                    final String substring = entry.substring(0, len - 1);
+                    this.sem1Critical.add(substring);
                 } else if (entry.endsWith(CoreConstants.DOT)) {
-                    this.sem1Recommended.add(entry.substring(0, entry.length() - 1));
+                    final String substring = entry.substring(0, len - 1);
+                    this.sem1Recommended.add(substring);
                 } else {
                     this.sem1Typical.add(entry);
                 }
@@ -103,10 +106,13 @@ public final class MajorMathRequirement {
         if (semester2 != null) {
             final String[] e2 = semester2.split(CoreConstants.COMMA);
             for (final String entry : e2) {
-                if (!entry.isEmpty() && entry.charAt(entry.length() - 1) == '!') {
-                    this.sem2Critical.add(entry.substring(0, entry.length() - 1));
+                final int len = entry.length();
+                if (!entry.isEmpty() && (int) entry.charAt(len - 1) == '!') {
+                    final String substring = entry.substring(0, len - 1);
+                    this.sem2Critical.add(substring);
                 } else if (entry.endsWith(CoreConstants.DOT)) {
-                    this.sem2Recommended.add(entry.substring(0, entry.length() - 1));
+                    final String substring = entry.substring(0, len - 1);
+                    this.sem2Recommended.add(substring);
                 } else {
                     this.sem2Typical.add(entry);
                 }

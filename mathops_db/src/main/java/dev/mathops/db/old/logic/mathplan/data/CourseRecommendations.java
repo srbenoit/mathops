@@ -188,17 +188,23 @@ public final class CourseRecommendations {
         all.putAll(this.criticalSequence.getSemester1Courses());
         all.putAll(this.criticalSequence.getSemester2Courses());
         all.putAll(this.criticalSequence.getAdditionalCourses());
+
         for (final CourseInfoGroup g : this.criticalSequence.getSemester1CourseGroups()) {
             final String lowest = g.getLowestLastCourse();
-            all.put(lowest, new CourseInfo(courseData.get(lowest), false));
+            final RawCourse lowestCourse = courseData.get(lowest);
+            all.put(lowest, new CourseInfo(lowestCourse, false));
         }
+
         for (final CourseInfoGroup g : this.criticalSequence.getSemester2CourseGroups()) {
             final String lowest = g.getLowestLastCourse();
-            all.put(lowest, new CourseInfo(courseData.get(lowest), false));
+            final RawCourse lowestCourse = courseData.get(lowest);
+            all.put(lowest, new CourseInfo(lowestCourse, false));
         }
+
         for (final CourseInfoGroup g : this.criticalSequence.getAdditionalCourseGroups()) {
             final String lowest = g.getLowestLastCourse();
-            all.put(lowest, new CourseInfo(courseData.get(lowest), false));
+            final RawCourse lowestCourse = courseData.get(lowest);
+            all.put(lowest, new CourseInfo(lowestCourse, false));
         }
 
 //        boolean needsCalc = false;
@@ -229,7 +235,8 @@ public final class CourseRecommendations {
         for (final String name : groupNames) {
             final CourseGroup grp = groupData.get(name);
             if (grp == null) {
-                Log.warning(Res.fmt(Res.NO_COURSE_GROUP_WITH_CODE, name));
+                final String msg = Res.fmt(Res.NO_COURSE_GROUP_WITH_CODE, name);
+                Log.warning(msg);
             } else {
                 requirements.add(new CourseInfoGroup(grp, courseData));
             }
@@ -245,7 +252,8 @@ public final class CourseRecommendations {
      */
     private void mark60CreditCriticals(final StudentData data) {
 
-        final int coreRemaining = (int) Math.ceil(3.0 - data.getCreditsOfCoreCompleted());
+        final double coreCompleted = data.getCreditsOfCoreCompleted();
+        final int coreRemaining = (int) Math.ceil(3.0 - coreCompleted);
 
         if (coreRemaining > 0) {
             final double numTransfer = data.countTransferCredits();
