@@ -1,6 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
-
-import dev.mathops.commons.EqualityTests;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import java.io.Serial;
 import java.io.Serializable;

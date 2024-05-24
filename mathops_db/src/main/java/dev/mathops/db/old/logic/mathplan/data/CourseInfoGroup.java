@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.db.old.rawrecord.RawCourse;
 
@@ -31,7 +31,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      * @param theCourseGroup the source course group
      * @param courseData     a map from course ID to course object
      */
-    CourseInfoGroup(final CourseGroup theCourseGroup, final Map<String, RawCourse> courseData) {
+    public CourseInfoGroup(final CourseGroup theCourseGroup, final Map<String, RawCourse> courseData) {
 
         if (theCourseGroup == null) {
             throw new IllegalArgumentException("Course group may not be null");
@@ -101,7 +101,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the course numbers list
      */
-    List<String> getCourseNumbers() {
+    public List<String> getCourseNumbers() {
 
         return this.courseGroup.courseNumbers;
     }
@@ -111,7 +111,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the number of credits; {@code null} if students select a single course from the list
      */
-    Integer getNumCredits() {
+    public Integer getNumCredits() {
 
         return this.courseGroup.nbrCredits;
     }
@@ -164,7 +164,7 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
      *
      * @return the lowest last course
      */
-    String getLowestLastCourse() {
+    public String getLowestLastCourse() {
 
         return this.courseGroup.lowestLastCourse;
     }

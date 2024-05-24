@@ -4,12 +4,13 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.Major;
-import dev.mathops.session.sitelogic.mathplan.data.MajorMathRequirement;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.Major;
+import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -46,7 +47,8 @@ enum PagePlanMajors2 {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
@@ -358,7 +360,8 @@ enum PagePlanMajors2 {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session);
+        final StudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
+                session.loginSessionTag, session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
         if (data != null && session.actAsUserId == null) {
@@ -382,9 +385,10 @@ enum PagePlanMajors2 {
             }
 
             if (!questions.isEmpty()) {
-                logic.deleteMathPlanResponses(cache, data.student, MathPlanLogic.MAJORS_PROFILE, session);
-                logic.storeMathPlanResponses(cache, data.student, MathPlanLogic.MAJORS_PROFILE, questions, answers,
-                        session);
+                logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, session.getNow(),
+                        session.loginSessionTag);
+                logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, questions, answers,
+                        session.getNow(), session.loginSessionTag);
             }
         }
 

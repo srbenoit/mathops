@@ -4,6 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
@@ -22,7 +23,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -107,7 +108,7 @@ enum PageReviewOutline {
             // If we don't have a record of this user accessing the review site, create one.
 
             final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, studentId,
-                    MathPlanLogic.REVIEWED_PROFILE);
+                    MathPlanConstants.REVIEWED_PROFILE);
 
             if (responses.isEmpty()) {
                 final RawStudent stu = RawStudentLogic.query(cache, studentId, false);
@@ -118,7 +119,7 @@ enum PageReviewOutline {
                     final LocalDateTime when = session.getNow().toLocalDateTime();
 
                     final RawStmathplan log = new RawStmathplan(studentId, stu.pidm, aplnTermStr,
-                            MathPlanLogic.REVIEWED_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
+                            MathPlanConstants.REVIEWED_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
                             Integer.valueOf(TemporalUtils.minuteOfDay(when)), Long.valueOf(session.loginSessionTag));
 
                     RawStmathplanLogic.INSTANCE.insert(cache, log);

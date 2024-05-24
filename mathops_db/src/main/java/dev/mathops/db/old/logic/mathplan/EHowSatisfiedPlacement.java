@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan;
+package dev.mathops.db.old.logic.mathplan;
 
 /**
  * Possible methods by which the Math Placement requirement can be satisfied.

@@ -4,12 +4,13 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -276,7 +277,7 @@ final class PlacementReport {
             // If we don't have a record of this user checking their results, add one
 
             final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, studentId,
-                    MathPlanLogic.CHECKED_RESULTS_PROFILE);
+                    MathPlanConstants.CHECKED_RESULTS_PROFILE);
 
             if (responses.isEmpty()) {
                 final RawStudent stu = RawStudentLogic.query(cache, studentId, false);
@@ -285,7 +286,7 @@ final class PlacementReport {
                     final LocalDateTime when = session.getNow().toLocalDateTime();
 
                     final RawStmathplan log = new RawStmathplan(studentId, stu.pidm, null,
-                            MathPlanLogic.CHECKED_RESULTS_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
+                            MathPlanConstants.CHECKED_RESULTS_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
                             Integer.valueOf(TemporalUtils.minuteOfDay(when)), Long.valueOf(session.loginSessionTag));
 
                     RawStmathplanLogic.INSTANCE.insert(cache, log);

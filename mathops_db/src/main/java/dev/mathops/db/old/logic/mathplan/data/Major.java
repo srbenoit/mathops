@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 /**
  * An academic major in which students could express interest for determining potential math requirements. Programs may

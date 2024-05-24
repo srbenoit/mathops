@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -59,7 +59,7 @@ public final class CourseSequence {
      *
      * @param theCore the core course group
      */
-    CourseSequence(final CourseGroup theCore) {
+    public CourseSequence(final CourseGroup theCore) {
 
         this.core = theCore;
 
@@ -77,7 +77,7 @@ public final class CourseSequence {
     /**
      * Eliminates any duplicate courses or course groups, keeping only the earliest instance.
      */
-    void eliminateDuplicates() {
+    public void eliminateDuplicates() {
 
         this.additionalCourseGroups.removeAll(this.semester2CourseGroups);
         this.additionalCourseGroups.removeAll(this.semester1CourseGroups);
@@ -110,7 +110,7 @@ public final class CourseSequence {
      *
      * @param allCourses the map from course ID to course data object for all courses
      */
-    void convertOneCourseGroups(final Map<String, RawCourse> allCourses) {
+    public void convertOneCourseGroups(final Map<String, RawCourse> allCourses) {
 
         extractOneCourseGroups(this.semester1CourseGroups, this.semester1Courses, allCourses);
         extractOneCourseGroups(this.semester2CourseGroups, this.semester2Courses, allCourses);
@@ -150,7 +150,7 @@ public final class CourseSequence {
      * courses to the place where the group occurs, reducing the credit/course requirement of the group accordingly
      * (this may remove groups).
      */
-    void resolveGroups() {
+    public void resolveGroups() {
 
         final Iterable<CourseInfoGroup> copy1 = new ArrayList<>(this.semester1CourseGroups);
         for (final CourseInfoGroup group : copy1) {
@@ -231,7 +231,7 @@ public final class CourseSequence {
      *
      * @param allCourses a map from course ID to course data; used to get number of credits for each course
      */
-    void cleanNeedlessGroups(final Map<String, RawCourse> allCourses) {
+    public void cleanNeedlessGroups(final Map<String, RawCourse> allCourses) {
 
         final Map<String, CourseInfo> priorAndCurrent = new TreeMap<>();
 
@@ -262,7 +262,7 @@ public final class CourseSequence {
      *
      * @param allCourses a map from course ID to course record
      */
-    void mergeNoCreditForBothCourses(final Map<String, RawCourse> allCourses) {
+    public void mergeNoCreditForBothCourses(final Map<String, RawCourse> allCourses) {
 
         final Collection<String> all = new HashSet<>(this.preArrivalCourses.keySet());
         all.addAll(this.semester1Courses.keySet());
@@ -1327,7 +1327,7 @@ public final class CourseSequence {
      *
      * @param courseData a map from course ID to course data
      */
-    void simplifyGroups(final Map<String, RawCourse> courseData) {
+    public void simplifyGroups(final Map<String, RawCourse> courseData) {
 
         for (final CourseInfoGroup group : this.semester1CourseGroups) {
             if (group.getNumCredits() == null) {
@@ -1413,7 +1413,7 @@ public final class CourseSequence {
      *
      * @param numCredits the number of core courses to be included in semester 1
      */
-    void ensureCoreSem1(final int numCredits) {
+    public void ensureCoreSem1(final int numCredits) {
 
         final int numCoreInSem1 = countCore(this.semester1Courses, this.semester1CourseGroups);
 
@@ -1483,7 +1483,7 @@ public final class CourseSequence {
      *
      * @param numCredits the number of core courses to be included in semester 1 and 2
      */
-    void ensureCoreSem12(final int numCredits) {
+    public void ensureCoreSem12(final int numCredits) {
 
         final int numCoreInSem12 = countCore(this.semester1Courses, this.semester1CourseGroups)
                 + countCore(this.semester2Courses, this.semester2CourseGroups);
@@ -1675,7 +1675,7 @@ public final class CourseSequence {
      *
      * @return {@code true} if MATH 101 is needed in semester 1.
      */
-    boolean needs101InSem1() {
+    public boolean needs101InSem1() {
 
         return isCourseInSemester1("M 101") || isGroupInSemester1("AUCC3") || isGroupInSemester1("AUCC2");
     }
@@ -1685,7 +1685,7 @@ public final class CourseSequence {
      *
      * @return {@code true} if MATH 117 is needed in semester 1.
      */
-    boolean needs117InSem1() {
+    public boolean needs117InSem1() {
 
         final boolean needs117;
 
@@ -1702,7 +1702,7 @@ public final class CourseSequence {
      *
      * @return {@code true} if MATH 101 is needed in semester 2.
      */
-    boolean needs101InSem2() {
+    public boolean needs101InSem2() {
 
         return isCourseInSemester2("M 101") || isGroupInSemester2("AUCC3") || isGroupInSemester2("AUCC2");
     }
@@ -1747,7 +1747,7 @@ public final class CourseSequence {
      * @param group the group code
      * @return {@code true} if the group is listed in semester 1
      */
-    boolean isGroupInSemester1(final String group) {
+    public boolean isGroupInSemester1(final String group) {
 
         boolean found = false;
 

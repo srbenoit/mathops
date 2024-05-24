@@ -2,6 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -9,9 +10,9 @@ import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
-import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,7 +50,7 @@ enum PageSecureLanding {
         boolean hasReviewed = false;
         if (stu != null) {
             final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                    stu.stuId, MathPlanLogic.REVIEWED_PROFILE);
+                    stu.stuId, MathPlanConstants.REVIEWED_PROFILE);
             hasReviewed = responses != null && !responses.isEmpty();
         }
 

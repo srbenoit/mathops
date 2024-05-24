@@ -9,18 +9,19 @@ import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.CourseInfo;
-import dev.mathops.session.sitelogic.mathplan.data.CourseRecommendations;
-import dev.mathops.session.sitelogic.mathplan.data.CourseSequence;
-import dev.mathops.session.sitelogic.mathplan.data.ENextStep;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
+import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
+import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
+import dev.mathops.db.old.logic.mathplan.data.ENextStep;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -77,7 +78,8 @@ enum PagePlanNext {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
@@ -90,7 +92,7 @@ enum PagePlanNext {
             htm.sDiv("inset2");
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
-                    session.getEffectiveUserId(), MathPlanLogic.ONLY_RECOM_PROFILE);
+                    session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
 
             if (existing.containsKey(ONE)) {
                 showPlan(cache, session, htm, logic);
@@ -121,7 +123,8 @@ enum PagePlanNext {
 
         final String screenName = session.getEffectiveScreenName();
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> intentions = data.getIntentions();
 
@@ -996,9 +999,11 @@ enum PagePlanNext {
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
             final String effectiveId = session.getEffectiveUserId();
-            final StudentData data = logic.getStudentData(cache, effectiveId, session);
+            final StudentData data = logic.getStudentData(cache, effectiveId, session.getNow(), session.loginSessionTag,
+                    session.actAsUserId == null);
 
-            logic.deleteMathPlanResponses(cache, data.student, MathPlanLogic.INTENTIONS_PROFILE, session);
+            logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, session.getNow(),
+                    session.loginSessionTag);
 
             final List<Integer> questions = new ArrayList<>(2);
             final List<String> answers = new ArrayList<>(2);
@@ -1009,8 +1014,8 @@ enum PagePlanNext {
             questions.add(TWO);
             answers.add(aff2 ? "Y" : "N");
 
-            logic.storeMathPlanResponses(cache, data.student, MathPlanLogic.INTENTIONS_PROFILE, questions, answers,
-                    session);
+            logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions, answers,
+                    session.getNow(), session.loginSessionTag);
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
             // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that

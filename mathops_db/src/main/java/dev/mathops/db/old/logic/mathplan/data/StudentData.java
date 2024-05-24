@@ -1,7 +1,8 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
@@ -21,11 +22,10 @@ import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -115,17 +115,19 @@ public final class StudentData {
     /**
      * Constructs a new {@code StudentData}.
      *
-     * @param cache        the data cache
-     * @param theStudent   the student record
-     * @param logic        the logic object to use to populate student data
-     * @param session      the session information
-     * @param writeChanges {@code true} to write profile value changes (used when the student is accessing the site);
-     *                     {@code false} to skip writing changes (used when an administrator or adviser is acting as a
-     *                     student)
+     * @param cache           the data cache
+     * @param theStudent      the student record
+     * @param logic           the logic object to use to populate student data
+     * @param now             the date/time to consider "now"
+     * @param loginSessionTag the login session tag
+     * @param writeChanges    {@code true} to write profile value changes (used when the student is accessing the site);
+     *                        {@code false} to skip writing changes (used when an administrator or adviser is acting as
+     *                        a student)
      * @throws SQLException if there is an error accessing the database
      */
     public StudentData(final Cache cache, final RawStudent theStudent, final MathPlanLogic logic,
-                       final ImmutableSessionInfo session, final boolean writeChanges) throws SQLException {
+                       final ZonedDateTime now, final long loginSessionTag, final boolean writeChanges)
+            throws SQLException {
 
         this.expiry = System.currentTimeMillis() + RETENTION_MS;
 
@@ -139,20 +141,20 @@ public final class StudentData {
 
         // Populate "what student has told us"
         this.majorProfileResponses =
-                MathPlanLogic.getMathPlanResponses(cache, studentId, MathPlanLogic.MAJORS_PROFILE);
+                MathPlanLogic.getMathPlanResponses(cache, studentId, MathPlanConstants.MAJORS_PROFILE);
 
         // Populate "existing work on record"
         this.viewedExisting = MathPlanLogic
-                .getMathPlanResponses(cache, studentId, MathPlanLogic.EXISTING_PROFILE)
+                .getMathPlanResponses(cache, studentId, MathPlanConstants.EXISTING_PROFILE)
                 .containsKey(Integer.valueOf(1));
 
         this.checkedOnlyRecommendation = MathPlanLogic
-                .getMathPlanResponses(cache, studentId, MathPlanLogic.ONLY_RECOM_PROFILE)
+                .getMathPlanResponses(cache, studentId, MathPlanConstants.ONLY_RECOM_PROFILE)
                 .containsKey(Integer.valueOf(1));
 
         // Populate "intentions"
         this.intentionsResponses = MathPlanLogic.getMathPlanResponses(cache, studentId,
-                MathPlanLogic.INTENTIONS_PROFILE);
+                MathPlanConstants.INTENTIONS_PROFILE);
 
         // Populate "what student has done"
         this.completedCourses = logic.getCompletedCourses(studentId);
@@ -169,24 +171,21 @@ public final class StudentData {
                 && this.completedCourses.isEmpty() && this.liveTransferCredit.isEmpty();
 
         // Gather math courses required by all selected majors (if any)
-        this.requirements =
-                accumulateRequirements(this.student.programCode, this.majorProfileResponses, logic);
+        this.requirements = accumulateRequirements(this.student.programCode, this.majorProfileResponses, logic);
 
         // Compute course recommendations to satisfy requirements
         this.recommendations = new CourseRecommendations(this.requirements, this, logic);
 
         this.prereqLogic = new PrerequisiteLogic(cache, studentId);
 
-        this.placementStatus = new PlacementLogic(cache, studentId, this.student.aplnTerm,
-                session.getNow()).status;
+        this.placementStatus = new PlacementLogic(cache, studentId, this.student.aplnTerm, now).status;
 
         final HoldsStatus holds = HoldsStatus.of(cache, studentId);
 
-        this.elmTutorialStatus =
-                ELMTutorialStatus.of(cache, studentId, session.getNow(), holds);
+        this.elmTutorialStatus = ELMTutorialStatus.of(cache, studentId, now, holds);
 
-        this.precalcTutorialStatus = new PrecalcTutorialLogic(cache, studentId,
-                session.getNow().toLocalDate(), this.prereqLogic).status;
+        this.precalcTutorialStatus = new PrecalcTutorialLogic(cache, studentId, now.toLocalDate(),
+                this.prereqLogic).status;
 
         // Count the number of AUCC core mathematics course credits completed with a grade
         // of C (2.000) or better.
@@ -199,7 +198,7 @@ public final class StudentData {
         this.nextSteps = new ArrayList<>(5);
         createPlan(cache, logic);
         if (writeChanges) {
-            recordPlan(cache, logic, session);
+            recordPlan(cache, logic, now, studentId, loginSessionTag);
         }
 
         recordAnalytics();
@@ -227,8 +226,7 @@ public final class StudentData {
         } else if (sat == null) {
             potentialRemedial = act.intValue() < CDHE_ACT_CUT_SCORE;
         } else {
-            potentialRemedial =
-                    sat.intValue() < CDHE_SAT_CUT_SCORE && act.intValue() < CDHE_ACT_CUT_SCORE;
+            potentialRemedial = sat.intValue() < CDHE_SAT_CUT_SCORE && act.intValue() < CDHE_ACT_CUT_SCORE;
         }
 
         return potentialRemedial;
@@ -649,17 +647,19 @@ public final class StudentData {
      * Records the plan in the profile response table so advisers can view it quickly without having to rebuilt it for
      * each advisee.
      *
-     * @param cache   the data cache
-     * @param logic   the logic object
-     * @param session the login session
+     * @param cache           the data cache
+     * @param logic           the logic object
+     * @param now             the date/time to consider "now"
+     * @param stuId           the student ID
+     * @param loginSessionTag the login session tag
      * @throws SQLException if there is an error accessing the database
      */
-    public void recordPlan(final Cache cache, final MathPlanLogic logic,
-                           final ImmutableSessionInfo session) throws SQLException {
+    public void recordPlan(final Cache cache, final MathPlanLogic logic, final ZonedDateTime now, final String stuId,
+                           final long loginSessionTag) throws SQLException {
 
         // Record only after student has checked the "only a recommendation" box
-        final Map<Integer, RawStmathplan> done = MathPlanLogic.getMathPlanResponses(cache,
-                session.getEffectiveUserId(), MathPlanLogic.ONLY_RECOM_PROFILE);
+        final Map<Integer, RawStmathplan> done = MathPlanLogic.getMathPlanResponses(cache, stuId,
+                MathPlanConstants.ONLY_RECOM_PROFILE);
 
         if (!done.isEmpty()) {
 
@@ -675,8 +675,8 @@ public final class StudentData {
             final String value3 = makePlanTextSem2(courseData);
             final String value4 = makePlanTextAdd(courseData);
 
-            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
-                    session.getEffectiveUserId(), MathPlanLogic.PLAN_PROFILE);
+            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, stuId,
+                    MathPlanConstants.PLAN_PROFILE);
 
             final RawStmathplan exist1 = existing.get(key1);
             final RawStmathplan exist2 = existing.get(key2);
@@ -702,8 +702,8 @@ public final class StudentData {
                 answers.add(value3);
                 answers.add(value4);
 
-                logic.storeMathPlanResponses(cache, this.student, MathPlanLogic.PLAN_PROFILE,
-                        questions, answers, session);
+                logic.storeMathPlanResponses(cache, this.student, MathPlanConstants.PLAN_PROFILE, questions, answers,
+                        now, loginSessionTag);
             }
         }
     }
@@ -797,13 +797,13 @@ public final class StudentData {
      * Generates a string representation of the list of semester 2 requirements from the student's plan to be shown in
      * the adviser's screen.
      *
-     * @param courseData         the course data
-     * @param typicalCourses     the typical course list
-     * @param typicalGroups      the typical group course list
-     * @param criticalCourses    the critical course list
-     * @param criticalGroups     the critical group course list
-     * @param hasMultipleCalc1   true if course sequence allows multiple Calc 1 courses
-     * @param hasMultipleCalc2   true if course sequence allows multiple Calc 2 courses
+     * @param courseData       the course data
+     * @param typicalCourses   the typical course list
+     * @param typicalGroups    the typical group course list
+     * @param criticalCourses  the critical course list
+     * @param criticalGroups   the critical group course list
+     * @param hasMultipleCalc1 true if course sequence allows multiple Calc 1 courses
+     * @param hasMultipleCalc2 true if course sequence allows multiple Calc 2 courses
      * @return the string representation
      */
     private static String makePlanText(final Map<String, RawCourse> courseData,

@@ -1,9 +1,8 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -37,7 +36,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     final String groupCode;
 
     /** The number of credits needed, if multiple courses can be selected (null if not). */
-    final Integer nbrCredits;
+    public final Integer nbrCredits;
 
     /**
      * If the lowest possible course numbers are chosen from the list of options, this is the highest course number from
@@ -46,7 +45,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     final String lowestLastCourse;
 
     /** The course numbers, sorted. */
-    final List<String> courseNumbers;
+    public final List<String> courseNumbers;
 
     /**
      * Constructs a new {@code CourseGroup}.
@@ -256,7 +255,7 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
             htm.add(Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits));
         }
 
-        if (MathPlanLogic.AUCC3.equals(this.groupCode) || MathPlanLogic.AUCC2.equals(this.groupCode)) {
+        if (MathPlanConstants.AUCC3.equals(this.groupCode) || MathPlanConstants.AUCC2.equals(this.groupCode)) {
             htm.add(" any courses that satisfy the <a href='https://catalog.colostate.edu/general-catalog/",
                     "all-university-core-curriculum/aucc/#Fundamental-Competencies'>AUCC Quantitative ",
                     "Reasoning</a> requirement, such as ");

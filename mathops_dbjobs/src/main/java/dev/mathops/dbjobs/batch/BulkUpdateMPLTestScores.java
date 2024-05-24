@@ -9,6 +9,8 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -30,18 +32,28 @@ import java.util.Set;
  * corresponding "MPL" test score in SORTEST.  If the SORTEST record is missing, a record is inserted.
  *
  * <p>
- * The logic for an individual student (based on the most recent completion of the Math Plan) is as follows:
+ * The logic for an individual student is as follows:
  * <pre>
  * IF
- *     the student has a response with version='WLCM5' and survey_nbr=2 and stu_answer='Y'
+ *     the student has any responses to MATH PLAN records
  * THEN
- *     the student should have a "MPL" test score of "2" to indicate Math Placement is indicated by the Math Plan
- * ELSE IF
- *     the student has a response with version='WLCM5' and survey_nbr=1 and stu_answer='Y'
- * THEN
- *     the student should have a "MPL" test score of "1" to indicate Math Placement is not indicated by the Math Plan
+ *     IF
+ *         the student's Math Plan recommendation is any AUCC-1B course
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
+ *         the student has completed the Math Placement tool
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
+ *         the student has any MATH transfer credit that clears 1B or satisfies the prerequisite for MATH 117
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE
+ *         the student should have a "MPL" test score of "2" to indicate Math Placement is needed
+ *     END IF
  * ELSE
- *     the student should not have a "MPL" test score at all
+ *     the student should not have any "MPL" test score at all, to indicate the Math Plan is not yet complete
  * END IF
  * </pre>
  */
@@ -78,7 +90,6 @@ public enum BulkUpdateMPLTestScores {
         Log.fine("    Found ", sizeStr, " MathPlan responses");
 
         final Map<String, RawStmathplan> latest1 = new HashMap<>(25000);
-        final Map<String, RawStmathplan> latest2 = new HashMap<>(25000);
 
         // Find the most recent "WLCM5" rows
         for (final RawStmathplan row : allStMathPlan) {
@@ -95,16 +106,6 @@ public enum BulkUpdateMPLTestScores {
                             latest1.put(row.stuId, row);
                         }
                     }
-                } else if (TWO.equals(row.surveyNbr)) {
-                    final RawStmathplan existing2 = latest2.get(row.stuId);
-                    if (existing2 == null) {
-                        latest2.put(row.stuId, row);
-                    } else {
-                        final LocalDateTime existingWhen = existing2.getWhen();
-                        if (existingWhen == null || existingWhen.isBefore(when)) {
-                            latest2.put(row.stuId, row);
-                        }
-                    }
                 }
             }
         }
@@ -113,15 +114,9 @@ public enum BulkUpdateMPLTestScores {
         final String size1Str = Integer.toString(size1);
         Log.fine("    Found ", size1Str, " 'WLCM5' question 1 responses");
 
-        final int size2 = latest2.size();
-        final String size2Str = Integer.toString(size2);
-        Log.fine("    Found ", size2Str, " 'WLCM5' question 2 responses");
-
         final Collection<String> stuIds = new HashSet<>(25000);
         final Set<String> keys1 = latest1.keySet();
-        final Set<String> keys2 = latest2.keySet();
         stuIds.addAll(keys1);
-        stuIds.addAll(keys2);
 
         final int sizeAll = stuIds.size();
         final String sizeAllStr = Integer.toString(sizeAll);
@@ -132,12 +127,14 @@ public enum BulkUpdateMPLTestScores {
         Log.fine("Scanning SORTEST table...");
 
         final DbConnection liveConn = liveCtx.checkOutConnection();
+        final LocalDateTime now = LocalDateTime.now();
         try {
             int count1 = 0;
             int count2 = 0;
             int already1 = 0;
             int already2 = 0;
             for (final String stuId : stuIds) {
+
                 RawStudent student = RawStudentLogic.query(cache, stuId, false);
                 if (student == null) {
                     Log.fine("   WARNING: Student ", stuId, " needed to be retrieved");
@@ -161,63 +158,48 @@ public enum BulkUpdateMPLTestScores {
                         }
                     }
 
-                    if (latest2.containsKey(stuId)) {
-                        // Student should have a "2" MPL score
-                        boolean doInsert = false;
+                    final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, stuId);
 
-                        if (mostRecent == null) {
-                            doInsert = true;
-                        } else if ("2".equals(mostRecent.testScore)) {
-                            ++already2;
+                    String wantValue = null;
+                    if (latest1.containsKey(stuId)) {
+                        if (status.isPlacementComplete) {
+                            wantValue = "1";
+                        } else if (status.isPlacementNeeded) {
+                            wantValue = "2";
                         } else {
-                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '2'");
-                            doInsert = true;
+                            wantValue = "1";
                         }
+                    }
 
-                        if (doInsert) {
-                            final RawStmathplan submission = latest2.get(stuId);
-                            final LocalDateTime when = submission.getWhen();
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "2");
+                    boolean doInsert = false;
+                    if (wantValue == null) {
+                        if (mostRecent != null) {
+                            Log.warning("Student ", stuId, " who has not completed MathPlan has a MPL score of ",
+                                    mostRecent.testScore);
+                        }
+                    } else if (mostRecent == null) {
+                        // Insert the new score
+                        doInsert = true;
+                    } else if (!wantValue.equals(mostRecent.testScore)) {
+                        // Score has changed - insert a new score
+                        doInsert = true;
+                    }
 
-                            if (DEBUG) {
-                                Log.fine("   Need to insert MPL=2 test score for ", stuId);
-                            } else {
-                                Log.fine("   Inserting MPL=2 test score for ", stuId);
-                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                    Log.fine("   ERROR: Failed to inserting MPL=2 test score for ", stuId);
-                                }
+                    if (doInsert) {
+                        // Score has changed - insert a new score
+                        if (DEBUG) {
+                            Log.fine("   Need to insert MPL=", wantValue, " test score for ", stuId);
+                        } else {
+                            Log.fine("   Inserting MPL=", wantValue, " test score for ", stuId);
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, now,
+                                    wantValue);
+                            if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                Log.fine("   ERROR: Failed to insert MPL=", wantValue, " test score for ", stuId);
                             }
-
+                        }
+                        if ("2".equals(wantValue)) {
                             ++count2;
-                        }
-                    } else if (latest1.containsKey(stuId)) {
-                        // Student should have a "1" MPL score
-                        boolean doInsert = false;
-
-                        if (mostRecent == null) {
-                            doInsert = true;
-                        } else if ("1".equals(mostRecent.testScore)) {
-                            ++already1;
-                        } else {
-                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '1'");
-                            doInsert = true;
-                        }
-
-                        if (doInsert) {
-                            final RawStmathplan submission = latest1.get(stuId);
-                            final LocalDateTime when = submission.getWhen();
-
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "1");
-
-                            if (DEBUG) {
-                                Log.fine("   Need to insert MPL=1 test score for ", stuId);
-                            } else {
-                                Log.fine("   Inserting MPL=1 test score for ", stuId);
-                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                    Log.fine("   ERROR: Failed to inserting MPL=1 test score for ", stuId);
-                                }
-                            }
-
+                        } else{
                             ++count1;
                         }
                     }

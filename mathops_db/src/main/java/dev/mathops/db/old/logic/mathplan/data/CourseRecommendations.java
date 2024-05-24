@@ -1,8 +1,8 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.util.Collection;
 import java.util.HashMap;

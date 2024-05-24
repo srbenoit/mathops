@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
