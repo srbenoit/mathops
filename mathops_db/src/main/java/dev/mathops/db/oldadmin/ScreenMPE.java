@@ -12,21 +12,24 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The Course screen.
+ * The MPE screen.
  */
-final class ScreenCourse implements IScreen {
+final class ScreenMPE implements IScreen {
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
 
-    /** The character to select "Course". */
-    private static final char HISTORY_CHAR = 'h';
+    /** The character to select "Add". */
+    private static final char CREDIT_CHAR = 'C';
 
-    /** The character to select "Schedule". */
-    private static final char CURRENT_CHAR = 'c';
+    /** The character to select "Delete". */
+    private static final char CHALLENGE_CHAR = 'H';
 
-    /** The character to select "Discipline". */
-    private static final char HOMEWORK_CHAR = 'w';
+    /** The character to select "Check Ans". */
+    private static final char TRANSFER_CHAR = 'T';
+
+    /** The character to select "Make-Upo. */
+    private static final char BYPASS_CHAR = 'B';
 
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
@@ -74,12 +77,12 @@ final class ScreenCourse implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenCourse}.
+     * Constructs a new {@code ScreenMPE}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenMPE(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -111,31 +114,35 @@ final class ScreenCourse implements IScreen {
     public void draw() {
 
         this.console.clear();
-        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
+        this.console.print("PLACEMENT OPTIONS:   Credit  cHallenge  Transfer  Bypass  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(17, 0, 9);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                this.console.reverse(20, 0, 8);
+                this.console.print("View results on record from all sources", 0, 1);
                 break;
             case 1:
-                this.console.reverse(26, 0, 9);
-                this.console.print("View current PACe course registrations", 0, 1);
+                this.console.reverse(28, 0, 11);
+                this.console.print("View challenge exams taken by student", 0, 1);
                 break;
             case 2:
-                this.console.reverse(35, 0, 14);
-                this.console.print("View homework record for student in selected course/section", 0, 1);
+                this.console.reverse(39, 0, 10);
+                this.console.print("Add/View/Modify transfer evaluation information", 0, 1);
                 break;
             case 3:
-                this.console.reverse(49, 0, 6);
-                this.console.print("Select a different student", 0, 1);
+                this.console.reverse(49, 0, 8);
+                this.console.print("Temporarily bypass the course prerequisite", 0, 1);
                 break;
             case 4:
-                this.console.reverse(55, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                this.console.reverse(57, 0, 6);
+                this.console.print("Select a different student", 0, 1);
                 break;
             case 5:
-                this.console.reverse(61, 0, 6);
+                this.console.reverse(63, 0, 6);
+                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                break;
+            case 6:
+                this.console.reverse(69, 0, 6);
                 this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
@@ -251,12 +258,14 @@ final class ScreenCourse implements IScreen {
                 this.console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
-                    doHistory();
+                    doCredit();
                 } else if (this.selection == 1) {
-                    doCurrent();
+                    doChallenge();
                 } else if (this.selection == 2) {
-                    doHomework();
+                    doTransfer();
                 } else if (this.selection == 3) {
+                    doBypass();
+                } else if (this.selection == 4) {
                     doPick();
                 }
 
@@ -303,28 +312,31 @@ final class ScreenCourse implements IScreen {
 
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             ++this.selection;
-            if (this.selection > 5) {
+            if (this.selection > 6) {
                 this.selection = 0;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             --this.selection;
             if (this.selection < 0) {
-                this.selection = 5;
+                this.selection = 6;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
 
             if (this.selection == 0) {
-                doHistory();
+                doCredit();
                 repaint = true;
             } else if (this.selection == 1) {
-                doCurrent();
+                doChallenge();
                 repaint = true;
             } else if (this.selection == 2) {
-                doHomework();
+                doTransfer();
                 repaint = true;
             } else if (this.selection == 3) {
+                doBypass();
+                repaint = true;
+            } else if (this.selection == 4) {
                 this.student = null;
                 this.showingPick = true;
                 this.errorMessage1 = CoreConstants.EMPTY;
@@ -332,10 +344,10 @@ final class ScreenCourse implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (this.selection == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (this.selection == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -369,14 +381,17 @@ final class ScreenCourse implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) HISTORY_CHAR) {
-            doHistory();
+        } else if ((int) character == (int) CREDIT_CHAR) {
+            doCredit();
             repaint = true;
-        } else if ((int) character == (int) CURRENT_CHAR) {
-            doCurrent();
+        } else if ((int) character == (int) CHALLENGE_CHAR) {
+            doChallenge();
             repaint = true;
-        } else if ((int) character == (int) HOMEWORK_CHAR) {
-            doHomework();
+        } else if ((int) character == (int) TRANSFER_CHAR) {
+            doTransfer();
+            repaint = true;
+        } else if ((int) character == (int) BYPASS_CHAR) {
+            doBypass();
             repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
             doPick();
@@ -393,23 +408,30 @@ final class ScreenCourse implements IScreen {
     }
 
     /**
-     * Handles the selection of the "History" item.
+     * Handles the selection of the "Credit" item.
      */
-    private void doHistory() {
+    private void doCredit() {
 
     }
 
     /**
-     * Handles the selection of the "Current" item.
+     * Handles the selection of the "Challenge" item.
      */
-    private void doCurrent() {
+    private void doChallenge() {
 
     }
 
     /**
-     * Handles the selection of the "Homework" item.
+     * Handles the selection of the "Transfer" item.
      */
-    private void doHomework() {
+    private void doTransfer() {
+
+    }
+
+    /**
+     * Handles the selection of the "Bypass" item.
+     */
+    private void doBypass() {
 
     }
 

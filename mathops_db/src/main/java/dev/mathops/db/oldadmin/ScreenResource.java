@@ -12,21 +12,21 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The Course screen.
+ * The Resource screen.
  */
-final class ScreenCourse implements IScreen {
+final class ScreenResource implements IScreen {
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
 
-    /** The character to select "Course". */
-    private static final char HISTORY_CHAR = 'h';
+    /** The character to select "Loan". */
+    private static final char LOAN_CHAR = 'l';
 
-    /** The character to select "Schedule". */
-    private static final char CURRENT_CHAR = 'c';
+    /** The character to select "Return". */
+    private static final char RETURN_CHAR = 'r';
 
-    /** The character to select "Discipline". */
-    private static final char HOMEWORK_CHAR = 'w';
+    /** The character to select "Outstandiing". */
+    private static final char OUTSTANDING_CHAR = 'o';
 
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
@@ -74,12 +74,12 @@ final class ScreenCourse implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenCourse}.
+     * Constructs a new {@code ScreenResource}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenResource(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -111,31 +111,27 @@ final class ScreenCourse implements IScreen {
     public void draw() {
 
         this.console.clear();
-        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
+        this.console.print("RESOURCE OPTIONS:   Loan  Return  Outstanding  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(17, 0, 9);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                this.console.reverse(19, 0, 6);
+                this.console.print("Record PACe materials being loaned to a student", 0, 1);
                 break;
             case 1:
-                this.console.reverse(26, 0, 9);
-                this.console.print("View current PACe course registrations", 0, 1);
+                this.console.reverse(25, 0, 8);
+                this.console.print("Record the return of borrowed PACe materials", 0, 1);
                 break;
             case 2:
-                this.console.reverse(35, 0, 14);
-                this.console.print("View homework record for student in selected course/section", 0, 1);
+                this.console.reverse(33, 0, 13);
+                this.console.print("View unreturned PACe materials for a student", 0, 1);
                 break;
             case 3:
-                this.console.reverse(49, 0, 6);
-                this.console.print("Select a different student", 0, 1);
-                break;
-            case 4:
-                this.console.reverse(55, 0, 6);
+                this.console.reverse(46, 0, 6);
                 this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
                 break;
-            case 5:
-                this.console.reverse(61, 0, 6);
+            case 4:
+                this.console.reverse(52, 0, 6);
                 this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
@@ -187,17 +183,8 @@ final class ScreenCourse implements IScreen {
             if (this.showingAccept) {
                 this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
-        } else if (Objects.nonNull(this.student)) {
-            final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
-            if (name.length() > 34) {
-                final String shortened = name.substring(0, 34);
-                this.console.print(shortened, 0, 4);
-            } else {
-                this.console.print(name, 0, 4);
-            }
-
-            final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
-            this.console.print(idMsg, 41, 4);
+//        } else if (Objects.nonNull(this.student)) {
+            // No action
         }
 
         if (!this.errorMessage1.isBlank()) {
@@ -251,13 +238,11 @@ final class ScreenCourse implements IScreen {
                 this.console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
-                    doHistory();
+                    doLoan();
                 } else if (this.selection == 1) {
-                    doCurrent();
+                    doReturn();
                 } else if (this.selection == 2) {
-                    doHomework();
-                } else if (this.selection == 3) {
-                    doPick();
+                    doOutstanding();
                 }
 
                 repaint = true;
@@ -316,13 +301,13 @@ final class ScreenCourse implements IScreen {
         } else if (key == KeyEvent.VK_ENTER) {
 
             if (this.selection == 0) {
-                doHistory();
+                doLoan();
                 repaint = true;
             } else if (this.selection == 1) {
-                doCurrent();
+                doReturn();
                 repaint = true;
             } else if (this.selection == 2) {
-                doHomework();
+                doOutstanding();
                 repaint = true;
             } else if (this.selection == 3) {
                 this.student = null;
@@ -369,17 +354,14 @@ final class ScreenCourse implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) HISTORY_CHAR) {
-            doHistory();
+        } else if ((int) character == (int) LOAN_CHAR) {
+            doLoan();
             repaint = true;
-        } else if ((int) character == (int) CURRENT_CHAR) {
-            doCurrent();
+        } else if ((int) character == (int) RETURN_CHAR) {
+            doReturn();
             repaint = true;
-        } else if ((int) character == (int) HOMEWORK_CHAR) {
-            doHomework();
-            repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
+        } else if ((int) character == (int) OUTSTANDING_CHAR) {
+            doOutstanding();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             doLock();
@@ -393,30 +375,23 @@ final class ScreenCourse implements IScreen {
     }
 
     /**
-     * Handles the selection of the "History" item.
+     * Handles the selection of the "Loan" item.
      */
-    private void doHistory() {
+    private void doLoan() {
 
     }
 
     /**
-     * Handles the selection of the "Current" item.
+     * Handles the selection of the "Return" item.
      */
-    private void doCurrent() {
+    private void doReturn() {
 
     }
 
     /**
-     * Handles the selection of the "Homework" item.
+     * Handles the selection of the "Outstanding" item.
      */
-    private void doHomework() {
-
-    }
-
-    /**
-     * Handles the selection of the "Pick" item.
-     */
-    private void doPick() {
+    private void doOutstanding() {
 
     }
 

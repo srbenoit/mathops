@@ -478,7 +478,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the Schedule page.
+                this.mainWindow.goToSchedule(this.student);
             }
         }
     }
@@ -497,7 +497,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the Discipline page.
+                this.mainWindow.goToDiscipline(this.student);
             }
         }
     }
@@ -516,7 +516,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the Holds page.
+                this.mainWindow.goToHolds(this.student);
             }
         }
     }
@@ -535,7 +535,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the Exams page.
+                this.mainWindow.goToExams(this.student);
             }
         }
     }
@@ -554,7 +554,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the MPE page.
+                this.mainWindow.goToMPE(this.student);
             }
         }
     }
@@ -573,7 +573,7 @@ final class ScreenMain implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                // TODO: Jump to the Resource page.
+                this.mainWindow.goToResource(this.student);
             }
         }
     }

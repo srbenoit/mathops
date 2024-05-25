@@ -8,7 +8,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import javax.swing.JFrame;
 import java.awt.Cursor;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
@@ -34,8 +33,26 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     /** The main screen. */
     private ScreenMain main;
 
-    /** The course screen. */
+    /** The Course screen. */
     private ScreenCourse course;
+
+    /** The Schedule screen. */
+    private ScreenSchedule schedule;
+
+    /** The Discipline screen. */
+    private ScreenDiscipline discipline;
+
+    /** The Holds screen. */
+    private ScreenHolds holds;
+
+    /** The Exams screen. */
+    private ScreenExams exams;
+
+    /** The MPE screen. */
+    private ScreenMPE mpe;
+
+    /** The Resource screen. */
+    private ScreenResource resource;
 
     /** The currently active screen. */
     private IScreen activeScreen;
@@ -90,6 +107,12 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
 
         this.main = new ScreenMain(this.cache, this);
         this.course = new ScreenCourse(this.cache, this);
+        this.schedule = new ScreenSchedule(this.cache, this);
+        this.discipline = new ScreenDiscipline(this.cache, this);
+        this.holds = new ScreenHolds(this.cache, this);
+        this.exams = new ScreenExams(this.cache, this);
+        this.mpe = new ScreenMPE(this.cache, this);
+        this.resource = new ScreenResource(this.cache, this);
 
         this.activeScreen = this.main;
 
@@ -105,7 +128,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
      *
      * @param student the student
      */
-    public void goToCourse(final RawStudent student) {
+    void goToCourse(final RawStudent student) {
 
         this.course.setStudent(student);
         this.activeScreen = this.course;
@@ -114,9 +137,87 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     }
 
     /**
+     * Jumps to the Schedule screen.
+     *
+     * @param student the student
+     */
+    void goToSchedule(final RawStudent student) {
+
+        this.schedule.setStudent(student);
+        this.activeScreen = this.schedule;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Discipline screen.
+     *
+     * @param student the student
+     */
+    void goToDiscipline(final RawStudent student) {
+
+        this.discipline.setStudent(student);
+        this.activeScreen = this.discipline;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Holds screen.
+     *
+     * @param student the student
+     */
+    void goToHolds(final RawStudent student) {
+
+        this.holds.setStudent(student);
+        this.activeScreen = this.holds;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Exams screen.
+     *
+     * @param student the student
+     */
+    void goToExams(final RawStudent student) {
+
+        this.exams.setStudent(student);
+        this.activeScreen = this.exams;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the MPE screen.
+     *
+     * @param student the student
+     */
+    void goToMPE(final RawStudent student) {
+
+        this.mpe.setStudent(student);
+        this.activeScreen = this.mpe;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Resource screen.
+     *
+     * @param student the student
+     */
+    void goToResource(final RawStudent student) {
+
+        this.resource.setStudent(student);
+        this.activeScreen = this.resource;
+
+        this.activeScreen.draw();
+    }
+
+    /**
      * Called when the application is exited.
      */
-    public void quit() {
+    void quit() {
 
         setVisible(false);
         dispose();

@@ -12,21 +12,24 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The Course screen.
+ * The Discipline screen.
  */
-final class ScreenCourse implements IScreen {
+final class ScreenDiscipline implements IScreen {
+
+    /** The character to select "Next". */
+    private static final char NEXT_CHAR = 'n';
+
+    /** The character to select "preVious". */
+    private static final char PREVIOUS_CHAR = 'v';
+
+    /** The character to select "Add". */
+    private static final char ADD_CHAR = 'a';
+
+    /** The character to select "Update". */
+    private static final char UPDATE_CHAR = 'u';
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
-
-    /** The character to select "Course". */
-    private static final char HISTORY_CHAR = 'h';
-
-    /** The character to select "Schedule". */
-    private static final char CURRENT_CHAR = 'c';
-
-    /** The character to select "Discipline". */
-    private static final char HOMEWORK_CHAR = 'w';
 
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
@@ -74,12 +77,12 @@ final class ScreenCourse implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenCourse}.
+     * Constructs a new {@code ScreenDiscipline}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenDiscipline(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -111,31 +114,35 @@ final class ScreenCourse implements IScreen {
     public void draw() {
 
         this.console.clear();
-        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
+        this.console.print("DISCIPLINE:   Next  preVious  Add  Update  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(17, 0, 9);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                this.console.reverse(13, 0, 6);
+                this.console.print("View the next incident on record", 0, 1);
                 break;
             case 1:
-                this.console.reverse(26, 0, 9);
-                this.console.print("View current PACe course registrations", 0, 1);
+                this.console.reverse(19, 0, 10);
+                this.console.print("View the previous incident on record", 0, 1);
                 break;
             case 2:
-                this.console.reverse(35, 0, 14);
-                this.console.print("View homework record for student in selected course/section", 0, 1);
+                this.console.reverse(29, 0, 5);
+                this.console.print("Document a new cheating incident", 0, 1);
                 break;
             case 3:
-                this.console.reverse(49, 0, 6);
-                this.console.print("Select a different student", 0, 1);
+                this.console.reverse(34, 0, 8);
+                this.console.print("Update an existing incident on record", 0, 1);
                 break;
             case 4:
-                this.console.reverse(55, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                this.console.reverse(42, 0, 6);
+                this.console.print("Select a different student", 0, 1);
                 break;
             case 5:
-                this.console.reverse(61, 0, 6);
+                this.console.reverse(48, 0, 6);
+                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                break;
+            case 6:
+                this.console.reverse(54, 0, 6);
                 this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
@@ -188,6 +195,7 @@ final class ScreenCourse implements IScreen {
                 this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
         } else if (Objects.nonNull(this.student)) {
+
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
                 final String shortened = name.substring(0, 34);
@@ -198,6 +206,23 @@ final class ScreenCourse implements IScreen {
 
             final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
             this.console.print(idMsg, 41, 4);
+
+            this.console.print("*************************************************************************", 0, 6);
+
+            this.console.print("   date of incident:                  interviewer:", 0, 8);
+            this.console.print("             course:                      proctor:", 0, 9);
+            this.console.print("               unit:", 0, 10);
+
+            this.console.print("      incident code:", 0, 12);
+            this.console.print(" description of", 0, 13);
+            this.console.print("  cheating incident:", 0, 14);
+
+            this.console.print("        action code:", 0, 16);
+            this.console.print("additional comments:", 0, 17);
+
+            this.console.print("*************************************************************************", 0, 20);
+
+            // TODO: Populate the fields of the current incident
         }
 
         if (!this.errorMessage1.isBlank()) {
@@ -251,12 +276,14 @@ final class ScreenCourse implements IScreen {
                 this.console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
-                    doHistory();
+                    doNext();
                 } else if (this.selection == 1) {
-                    doCurrent();
+                    doPrevious();
                 } else if (this.selection == 2) {
-                    doHomework();
+                    doAdd();
                 } else if (this.selection == 3) {
+                    doUpdate();
+                } else if (this.selection == 4) {
                     doPick();
                 }
 
@@ -284,7 +311,6 @@ final class ScreenCourse implements IScreen {
                     Log.warning(ex);
                     this.studentIdField.clear();
                     this.errorMessage1 = "ERROR:  Student not found.";
-                    ;
                     this.errorMessage2 = CoreConstants.EMPTY;
                     repaint = true;
                 }
@@ -303,28 +329,31 @@ final class ScreenCourse implements IScreen {
 
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             ++this.selection;
-            if (this.selection > 5) {
+            if (this.selection > 6) {
                 this.selection = 0;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             --this.selection;
             if (this.selection < 0) {
-                this.selection = 5;
+                this.selection = 6;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
 
             if (this.selection == 0) {
-                doHistory();
+                doNext();
                 repaint = true;
             } else if (this.selection == 1) {
-                doCurrent();
+                doPrevious();
                 repaint = true;
             } else if (this.selection == 2) {
-                doHomework();
+                doAdd();
                 repaint = true;
             } else if (this.selection == 3) {
+                doUpdate();
+                repaint = true;
+            } else if (this.selection == 4) {
                 this.student = null;
                 this.showingPick = true;
                 this.errorMessage1 = CoreConstants.EMPTY;
@@ -332,10 +361,10 @@ final class ScreenCourse implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (this.selection == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (this.selection == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -369,17 +398,17 @@ final class ScreenCourse implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) HISTORY_CHAR) {
-            doHistory();
+        } else if ((int) character == (int) NEXT_CHAR) {
+            doNext();
             repaint = true;
-        } else if ((int) character == (int) CURRENT_CHAR) {
-            doCurrent();
+        } else if ((int) character == (int) PREVIOUS_CHAR) {
+            doPrevious();
             repaint = true;
-        } else if ((int) character == (int) HOMEWORK_CHAR) {
-            doHomework();
+        } else if ((int) character == (int) ADD_CHAR) {
+            doAdd();
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
+        } else if ((int) character == (int) UPDATE_CHAR) {
+            doUpdate();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             doLock();
@@ -393,23 +422,30 @@ final class ScreenCourse implements IScreen {
     }
 
     /**
-     * Handles the selection of the "History" item.
+     * Handles the selection of the "Next" item.
      */
-    private void doHistory() {
+    private void doNext() {
 
     }
 
     /**
-     * Handles the selection of the "Current" item.
+     * Handles the selection of the "preVious" item.
      */
-    private void doCurrent() {
+    private void doPrevious() {
 
     }
 
     /**
-     * Handles the selection of the "Homework" item.
+     * Handles the selection of the "Add" item.
      */
-    private void doHomework() {
+    private void doAdd() {
+
+    }
+
+    /**
+     * Handles the selection of the "Update" item.
+     */
+    private void doUpdate() {
 
     }
 

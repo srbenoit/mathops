@@ -12,21 +12,27 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The Course screen.
+ * The Holds screen.
  */
-final class ScreenCourse implements IScreen {
+final class ScreenHolds implements IScreen {
+
+    /** The character to select "Delete". */
+    private static final char DELETE_CHAR = 'd';
+
+    /** The character to select "Add". */
+    private static final char ADD_CHAR = 'a';
+
+    /** The character to select "Registration". */
+    private static final char REGISTRATION_CHAR = 'r';
+
+    /** The character to select "Order". */
+    private static final char ORDER_CHAR = 'o';
+
+    /** The character to select "Screen". */
+    private static final char SCREEN_CHAR = 's';
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
-
-    /** The character to select "Course". */
-    private static final char HISTORY_CHAR = 'h';
-
-    /** The character to select "Schedule". */
-    private static final char CURRENT_CHAR = 'c';
-
-    /** The character to select "Discipline". */
-    private static final char HOMEWORK_CHAR = 'w';
 
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
@@ -74,12 +80,12 @@ final class ScreenCourse implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenCourse}.
+     * Constructs a new {@code ScreenHolds}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenHolds(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -111,31 +117,39 @@ final class ScreenCourse implements IScreen {
     public void draw() {
 
         this.console.clear();
-        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
+        this.console.print("HOLDS:   Delete  Add  Registration  Order  Screen  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(17, 0, 9);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                this.console.reverse(8, 0, 8);
+                this.console.print("Select and delete administrative holds", 0, 1);
                 break;
             case 1:
-                this.console.reverse(26, 0, 9);
-                this.console.print("View current PACe course registrations", 0, 1);
+                this.console.reverse(16, 0, 5);
+                this.console.print("Add administrative holds", 0, 1);
                 break;
             case 2:
-                this.console.reverse(35, 0, 14);
-                this.console.print("View homework record for student in selected course/section", 0, 1);
+                this.console.reverse(21, 0, 14);
+                this.console.print("View student's registration", 0, 1);
                 break;
             case 3:
-                this.console.reverse(49, 0, 6);
-                this.console.print("Select a different student", 0, 1);
+                this.console.reverse(35, 0, 7);
+                this.console.print("Change the order courses should be completed for calculus", 0, 1);
                 break;
             case 4:
-                this.console.reverse(55, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                this.console.reverse(42, 0, 8);
+                this.console.print("View additional administrative holds", 0, 1);
                 break;
             case 5:
-                this.console.reverse(61, 0, 6);
+                this.console.reverse(50, 0, 6);
+                this.console.print("Select a different student", 0, 1);
+                break;
+            case 6:
+                this.console.reverse(56, 0, 6);
+                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                break;
+            case 7:
+                this.console.reverse(62, 0, 6);
                 this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
@@ -188,16 +202,54 @@ final class ScreenCourse implements IScreen {
                 this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
         } else if (Objects.nonNull(this.student)) {
+
+            this.console.print("NAME:", 4, 3);
+            this.console.print("ID:", 6, 4);
+            this.console.print("Format:", 2, 5);
+
+            this.console.print("Max # of Courses Allowed:", 40, 3);
+            this.console.print("Order Enforced for Calculus:", 37, 4);
+            this.console.print("Passed User's Exam:", 46, 5);
+
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
                 final String shortened = name.substring(0, 34);
-                this.console.print(shortened, 0, 4);
+                this.console.print(shortened, 10, 3);
             } else {
-                this.console.print(name, 0, 4);
+                this.console.print(name, 10, 3);
             }
 
-            final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
-            this.console.print(idMsg, 41, 4);
+            this.console.print(this.student.stuId, 10, 4);
+
+            // TODO: Print the format at (10, 5);
+            // TODO: Print the max courses allowed at (66, 3);
+            // TODO: Print the order enforced flag at (66, 4);
+            // TODO: Print the passed user's exam at (66, 5);
+
+            this.console.print("Administrative Holds", 24, 7);
+
+            // TODO: Following applies if there are no holds - different display if there are...
+            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + " \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 4,
+                    8);
+            this.console.print("\u2551                                                         \u2551", 4, 9);
+            this.console.print("\u2551                                                         \u2551", 4, 10);
+            this.console.print("\u2551                                                         \u2551", 4, 11);
+            this.console.print("\u2551                                                         \u2551", 4, 12);
+            this.console.print("\u2551             No Administrative Holds on record           \u2551", 4, 13);
+            this.console.print("\u2551                                                         \u2551", 4, 14);
+            this.console.print("\u2551                                                         \u2551", 4, 15);
+            this.console.print("\u2551                                                         \u2551", 4, 16);
+            this.console.print("\u2551                                                         \u2551", 4, 17);
+            this.console.print("\u2551                                                         \u2551", 4, 18);
+            this.console.print("\u2551                                                         \u2551", 4, 19);
+            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 4,
+                    20);
         }
 
         if (!this.errorMessage1.isBlank()) {
@@ -251,12 +303,16 @@ final class ScreenCourse implements IScreen {
                 this.console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
-                    doHistory();
+                    doDelete();
                 } else if (this.selection == 1) {
-                    doCurrent();
+                    doAdd();
                 } else if (this.selection == 2) {
-                    doHomework();
+                    doRegistration();
                 } else if (this.selection == 3) {
+                    doOrder();
+                } else if (this.selection == 4) {
+                    doScreen();
+                } else if (this.selection == 5) {
                     doPick();
                 }
 
@@ -284,7 +340,6 @@ final class ScreenCourse implements IScreen {
                     Log.warning(ex);
                     this.studentIdField.clear();
                     this.errorMessage1 = "ERROR:  Student not found.";
-                    ;
                     this.errorMessage2 = CoreConstants.EMPTY;
                     repaint = true;
                 }
@@ -303,28 +358,34 @@ final class ScreenCourse implements IScreen {
 
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             ++this.selection;
-            if (this.selection > 5) {
+            if (this.selection > 6) {
                 this.selection = 0;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             --this.selection;
             if (this.selection < 0) {
-                this.selection = 5;
+                this.selection = 6;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
 
             if (this.selection == 0) {
-                doHistory();
+                doDelete();
                 repaint = true;
             } else if (this.selection == 1) {
-                doCurrent();
+                doAdd();
                 repaint = true;
             } else if (this.selection == 2) {
-                doHomework();
+                doRegistration();
                 repaint = true;
             } else if (this.selection == 3) {
+                doOrder();
+                repaint = true;
+            } else if (this.selection == 4) {
+                doScreen();
+                repaint = true;
+            } else if (this.selection == 5) {
                 this.student = null;
                 this.showingPick = true;
                 this.errorMessage1 = CoreConstants.EMPTY;
@@ -332,10 +393,10 @@ final class ScreenCourse implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (this.selection == 6) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (this.selection == 7) {
                 doQuit();
                 repaint = true;
             }
@@ -369,17 +430,20 @@ final class ScreenCourse implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) HISTORY_CHAR) {
-            doHistory();
+        } else if ((int) character == (int) DELETE_CHAR) {
+            doDelete();
             repaint = true;
-        } else if ((int) character == (int) CURRENT_CHAR) {
-            doCurrent();
+        } else if ((int) character == (int) ADD_CHAR) {
+            doAdd();
             repaint = true;
-        } else if ((int) character == (int) HOMEWORK_CHAR) {
-            doHomework();
+        } else if ((int) character == (int) REGISTRATION_CHAR) {
+            doRegistration();
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
+        } else if ((int) character == (int) ORDER_CHAR) {
+            doOrder();
+            repaint = true;
+        } else if ((int) character == (int) SCREEN_CHAR) {
+            doScreen();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             doLock();
@@ -393,23 +457,37 @@ final class ScreenCourse implements IScreen {
     }
 
     /**
-     * Handles the selection of the "History" item.
+     * Handles the selection of the "Delete" item.
      */
-    private void doHistory() {
+    private void doDelete() {
 
     }
 
     /**
-     * Handles the selection of the "Current" item.
+     * Handles the selection of the "Add" item.
      */
-    private void doCurrent() {
+    private void doAdd() {
 
     }
 
     /**
-     * Handles the selection of the "Homework" item.
+     * Handles the selection of the "Registration" item.
      */
-    private void doHomework() {
+    private void doRegistration() {
+
+    }
+
+    /**
+     * Handles the selection of the "Order" item.
+     */
+    private void doOrder() {
+
+    }
+
+    /**
+     * Handles the selection of the "Screen" item.
+     */
+    private void doScreen() {
 
     }
 

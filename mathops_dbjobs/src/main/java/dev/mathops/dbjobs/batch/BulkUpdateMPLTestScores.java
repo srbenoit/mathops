@@ -61,7 +61,7 @@ public enum BulkUpdateMPLTestScores {
     ;
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** The test code. */
     private static final String TEST_CODE = "MPL";

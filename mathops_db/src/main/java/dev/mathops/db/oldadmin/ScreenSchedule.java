@@ -12,21 +12,24 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * The Course screen.
+ * The Schedule screen.
  */
-final class ScreenCourse implements IScreen {
+final class ScreenSchedule implements IScreen {
+
+    /** The character to select "Registration". */
+    private static final char REGISTRATION_CHAR = 'r';
+
+    /** The character to select "Deadlines". */
+    private static final char DEADLINES_CHAR = 'd';
+
+    /** The character to select "Weekly". */
+    private static final char WEEKLY_CHAR = 'w';
+
+    /** The character to select "Appeal". */
+    private static final char APPEAL_CHAR = 'a';
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
-
-    /** The character to select "Course". */
-    private static final char HISTORY_CHAR = 'h';
-
-    /** The character to select "Schedule". */
-    private static final char CURRENT_CHAR = 'c';
-
-    /** The character to select "Discipline". */
-    private static final char HOMEWORK_CHAR = 'w';
 
     /** The character to select "Lock". */
     private static final char LOCK_CHAR = 'k';
@@ -74,12 +77,12 @@ final class ScreenCourse implements IScreen {
     private boolean showingLock = false;
 
     /**
-     * Constructs a new {@code ScreenCourse}.
+     * Constructs a new {@code ScreenSchedule}.
      *
      * @param theCache      the cache
      * @param theMainWindow the main window
      */
-    ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
+    ScreenSchedule(final Cache theCache, final MainWindow theMainWindow) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -111,31 +114,35 @@ final class ScreenCourse implements IScreen {
     public void draw() {
 
         this.console.clear();
-        this.console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
+        this.console.print("SCHEDULE:   Registration  Deadlines  Weekly  Appeal  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(17, 0, 9);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                this.console.reverse(11, 0, 14);
+                this.console.print("View student's registration", 0, 1);
                 break;
             case 1:
-                this.console.reverse(26, 0, 9);
-                this.console.print("View current PACe course registrations", 0, 1);
+                this.console.reverse(25, 0, 11);
+                this.console.print("View deadline schedule and progress", 0, 1);
                 break;
             case 2:
-                this.console.reverse(35, 0, 14);
-                this.console.print("View homework record for student in selected course/section", 0, 1);
+                this.console.reverse(36, 0, 8);
+                this.console.print("View student's work completed grouped by week", 0, 1);
                 break;
             case 3:
-                this.console.reverse(49, 0, 6);
-                this.console.print("Select a different student", 0, 1);
+                this.console.reverse(44, 0, 8);
+                this.console.print("View/add/update appeals of required deadlines", 0, 1);
                 break;
             case 4:
-                this.console.reverse(55, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                this.console.reverse(52, 0, 6);
+                this.console.print("Select a different student", 0, 1);
                 break;
             case 5:
-                this.console.reverse(61, 0, 6);
+                this.console.reverse(58, 0, 6);
+                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                break;
+            case 6:
+                this.console.reverse(64, 0, 6);
                 this.console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
@@ -188,16 +195,25 @@ final class ScreenCourse implements IScreen {
                 this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
         } else if (Objects.nonNull(this.student)) {
+
+            this.console.print("NAME:", 4, 3);
+            this.console.print("ID:", 6, 4);
+
+            this.console.print("Format:", 49, 3);
+            this.console.print("Passed User's Exam:", 37, 4);
+            this.console.print("Earned TC Bonus:", 40, 5);
+
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
                 final String shortened = name.substring(0, 34);
-                this.console.print(shortened, 0, 4);
+                this.console.print(shortened, 10, 3);
             } else {
-                this.console.print(name, 0, 4);
+                this.console.print(name, 10, 3);
             }
 
-            final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
-            this.console.print(idMsg, 41, 4);
+            this.console.print(this.student.stuId, 10, 4);
+
+            // TODO: Print the "Format", "Passed User's Exam", and "Earned TC Bonus" fields
         }
 
         if (!this.errorMessage1.isBlank()) {
@@ -251,12 +267,14 @@ final class ScreenCourse implements IScreen {
                 this.console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
-                    doHistory();
+                    doRegistration();
                 } else if (this.selection == 1) {
-                    doCurrent();
+                    doDeadlines();
                 } else if (this.selection == 2) {
-                    doHomework();
+                    doWeekly();
                 } else if (this.selection == 3) {
+                    doAppeal();
+                } else if (this.selection == 4) {
                     doPick();
                 }
 
@@ -284,7 +302,6 @@ final class ScreenCourse implements IScreen {
                     Log.warning(ex);
                     this.studentIdField.clear();
                     this.errorMessage1 = "ERROR:  Student not found.";
-                    ;
                     this.errorMessage2 = CoreConstants.EMPTY;
                     repaint = true;
                 }
@@ -303,28 +320,31 @@ final class ScreenCourse implements IScreen {
 
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             ++this.selection;
-            if (this.selection > 5) {
+            if (this.selection > 6) {
                 this.selection = 0;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             --this.selection;
             if (this.selection < 0) {
-                this.selection = 5;
+                this.selection = 6;
             }
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
 
             if (this.selection == 0) {
-                doHistory();
+                doRegistration();
                 repaint = true;
             } else if (this.selection == 1) {
-                doCurrent();
+                doDeadlines();
                 repaint = true;
             } else if (this.selection == 2) {
-                doHomework();
+                doWeekly();
                 repaint = true;
             } else if (this.selection == 3) {
+                doAppeal();
+                repaint = true;
+            } else if (this.selection == 4) {
                 this.student = null;
                 this.showingPick = true;
                 this.errorMessage1 = CoreConstants.EMPTY;
@@ -332,10 +352,10 @@ final class ScreenCourse implements IScreen {
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (this.selection == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (this.selection == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -369,17 +389,17 @@ final class ScreenCourse implements IScreen {
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
-        } else if ((int) character == (int) HISTORY_CHAR) {
-            doHistory();
+        } else if ((int) character == (int) REGISTRATION_CHAR) {
+            doRegistration();
             repaint = true;
-        } else if ((int) character == (int) CURRENT_CHAR) {
-            doCurrent();
+        } else if ((int) character == (int) DEADLINES_CHAR) {
+            doDeadlines();
             repaint = true;
-        } else if ((int) character == (int) HOMEWORK_CHAR) {
-            doHomework();
+        } else if ((int) character == (int) WEEKLY_CHAR) {
+            doWeekly();
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
+        } else if ((int) character == (int) APPEAL_CHAR) {
+            doAppeal();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             doLock();
@@ -393,23 +413,30 @@ final class ScreenCourse implements IScreen {
     }
 
     /**
-     * Handles the selection of the "History" item.
+     * Handles the selection of the "Registration" item.
      */
-    private void doHistory() {
+    private void doRegistration() {
 
     }
 
     /**
-     * Handles the selection of the "Current" item.
+     * Handles the selection of the "Deadlines" item.
      */
-    private void doCurrent() {
+    private void doDeadlines() {
 
     }
 
     /**
-     * Handles the selection of the "Homework" item.
+     * Handles the selection of the "Weekly" item.
      */
-    private void doHomework() {
+    private void doWeekly() {
+
+    }
+
+    /**
+     * Handles the selection of the "Appeal" item.
+     */
+    private void doAppeal() {
 
     }
 
