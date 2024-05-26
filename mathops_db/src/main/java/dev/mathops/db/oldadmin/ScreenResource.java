@@ -24,9 +24,6 @@ final class ScreenResource extends AbstractScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenResource}.
      *
@@ -35,9 +32,7 @@ final class ScreenResource extends AbstractScreen {
      */
     ScreenResource(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 5);
     }
 
     /**
@@ -50,7 +45,7 @@ final class ScreenResource extends AbstractScreen {
         console.clear();
         console.print("RESOURCE OPTIONS:   Loan  Return  Outstanding  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(19, 0, 6);
                 console.print("Record PACe materials being loaned to a student", 0, 1);
@@ -97,32 +92,27 @@ final class ScreenResource extends AbstractScreen {
             processKeyPressInLocked(key);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 4) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 4;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doLoan();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doReturn();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doOutstanding();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doQuit();
                 repaint = true;
             }
@@ -145,18 +135,23 @@ final class ScreenResource extends AbstractScreen {
             processKeyTypedInLocked(character);
             repaint = true;
         } else if ((int) character == (int) LOAN_CHAR) {
+            setSelection(0);
             doLoan();
             repaint = true;
         } else if ((int) character == (int) RETURN_CHAR) {
+            setSelection(1);
             doReturn();
             repaint = true;
         } else if ((int) character == (int) OUTSTANDING_CHAR) {
+            setSelection(2);
             doOutstanding();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(3);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(4);
             doQuit();
             repaint = true;
         }

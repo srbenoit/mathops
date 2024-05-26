@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -36,9 +35,6 @@ final class ScreenHolds extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenHolds}.
      *
@@ -47,9 +43,7 @@ final class ScreenHolds extends AbstractStudentScreen {
      */
     ScreenHolds(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 8);
     }
 
     /**
@@ -62,7 +56,7 @@ final class ScreenHolds extends AbstractStudentScreen {
         console.clear();
         console.print("HOLDS:   Delete  Add  Registration  Order  Screen  Pick  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(8, 0, 8);
                 console.print("Select and delete administrative holds", 0, 1);
@@ -151,17 +145,19 @@ final class ScreenHolds extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 0) {
+                final int sel = getSelection();
+
+                if (sel == 0) {
                     doDelete();
-                } else if (this.selection == 1) {
+                } else if (sel == 1) {
                     doAdd();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doRegistration();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doOrder();
-                } else if (this.selection == 4) {
+                } else if (sel == 4) {
                     doScreen();
-                } else if (this.selection == 5) {
+                } else if (sel == 5) {
                     doPick();
                 }
             }
@@ -170,41 +166,36 @@ final class ScreenHolds extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 7) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 7;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doDelete();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doAdd();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doRegistration();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doOrder();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doScreen();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 6) {
+            } else if (sel == 6) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 7) {
+            } else if (sel == 7) {
                 doQuit();
                 repaint = true;
             }
@@ -229,28 +220,36 @@ final class ScreenHolds extends AbstractStudentScreen {
         } else if (isPicking()) {
             processKeyTypedInPick(character);
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
-            repaint = true;
         } else if ((int) character == (int) DELETE_CHAR) {
+            setSelection(0);
             doDelete();
             repaint = true;
         } else if ((int) character == (int) ADD_CHAR) {
+            setSelection(1);
             doAdd();
             repaint = true;
         } else if ((int) character == (int) REGISTRATION_CHAR) {
+            setSelection(2);
             doRegistration();
             repaint = true;
         } else if ((int) character == (int) ORDER_CHAR) {
+            setSelection(3);
             doOrder();
             repaint = true;
         } else if ((int) character == (int) SCREEN_CHAR) {
+            setSelection(4);
             doScreen();
             repaint = true;
+        } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(5);
+            doPick();
+            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(6);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(7);
             doQuit();
             repaint = true;
         }

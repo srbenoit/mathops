@@ -31,12 +31,13 @@ abstract class AbstractStudentScreen extends AbstractScreen {
     /**
      * Constructs a new {@code AbstractStudentScreen}.
      *
-     * @param theCache      the cache
-     * @param theMainWindow the main window
+     * @param theCache         the cache
+     * @param theMainWindow    the main window
+     * @param theNumSelections the number of selections
      */
-    AbstractStudentScreen(final Cache theCache, final MainWindow theMainWindow) {
+    AbstractStudentScreen(final Cache theCache, final MainWindow theMainWindow, final int theNumSelections) {
 
-        super(theCache, theMainWindow);
+        super(theCache, theMainWindow, theNumSelections);
 
         final Console console = getConsole();
         this.studentIdField = new Field(console, 28, 11, 9, false, "0123456789");
@@ -80,6 +81,22 @@ abstract class AbstractStudentScreen extends AbstractScreen {
     final boolean isPicking() {
 
         return this.picking;
+    }
+
+    /**
+     * Draws the student's name and ID on line 4.
+     */
+    final void drawStudentNameId() {
+
+        if (Objects.nonNull(this.student)) {
+            final Console console = getConsole();
+
+            final String name = getClippedStudentName();
+            console.print(name, 0, 4);
+
+            final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
+            console.print(idMsg, 41, 4);
+        }
     }
 
     /**

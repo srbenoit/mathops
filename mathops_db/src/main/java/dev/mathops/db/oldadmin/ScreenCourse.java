@@ -2,10 +2,17 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.awt.event.KeyEvent;
-import java.util.Objects;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * The Course screen.
@@ -30,8 +37,8 @@ final class ScreenCourse extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
+    /** Flag indicating there is an active "Press any key to continue" prompt. */
+    private boolean clearPressAnyKey;
 
     /**
      * Constructs a new {@code ScreenCourse}.
@@ -41,9 +48,9 @@ final class ScreenCourse extends AbstractStudentScreen {
      */
     ScreenCourse(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
+        super(theCache, theMainWindow, 6);
 
-        this.selection = 0;
+        this.clearPressAnyKey = false;
     }
 
     /**
@@ -56,7 +63,7 @@ final class ScreenCourse extends AbstractStudentScreen {
         console.clear();
         console.print("COURSE OPTIONS:   History  Current  homework_rpt  Pick  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(17, 0, 9);
                 console.print("View registration history in PACe courses", 0, 1);
@@ -88,14 +95,7 @@ final class ScreenCourse extends AbstractStudentScreen {
         } else if (isPicking()) {
             drawPickBox();
         } else {
-            final RawStudent stu = getStudent();
-
-            if (Objects.nonNull(stu)) {
-                final String name = getClippedStudentName();
-                console.print(name, 0, 4);
-                final String idMsg = SimpleBuilder.concat("Student ID: ", stu.stuId);
-                console.print(idMsg, 41, 4);
-            }
+            drawStudentNameId();
         }
 
         drawErrors();
@@ -119,13 +119,15 @@ final class ScreenCourse extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 0) {
+                final int sel = getSelection();
+
+                if (sel == 0) {
                     doHistory();
-                } else if (this.selection == 1) {
+                } else if (sel == 1) {
                     doCurrent();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doHomework();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doPick();
                 }
             }
@@ -134,35 +136,30 @@ final class ScreenCourse extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 5) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 5;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doHistory();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doCurrent();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doHomework();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doQuit();
                 repaint = true;
             }
@@ -187,22 +184,32 @@ final class ScreenCourse extends AbstractStudentScreen {
         } else if (isPicking()) {
             processKeyTypedInPick(character);
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
+        } else if (this.clearPressAnyKey) {
+            clearErrors();
+            this.clearPressAnyKey = false;
             repaint = true;
         } else if ((int) character == (int) HISTORY_CHAR) {
+            setSelection(0);
             doHistory();
             repaint = true;
         } else if ((int) character == (int) CURRENT_CHAR) {
+            setSelection(1);
             doCurrent();
             repaint = true;
         } else if ((int) character == (int) HOMEWORK_CHAR) {
+            setSelection(2);
             doHomework();
             repaint = true;
+        } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(3);
+            doPick();
+            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(4);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(5);
             doQuit();
             repaint = true;
         }
@@ -215,6 +222,43 @@ final class ScreenCourse extends AbstractStudentScreen {
      */
     private void doHistory() {
 
+        final RawStudent stu = getStudent();
+        if (stu == null) {
+            doPick();
+        } else {
+            final Console console = getConsole();
+            final Cache cache = getCache();
+            try {
+                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, true);
+                final List<RawStcourse> stcCurr = RawStcourseLogic.queryByStudent(cache, stu.stuId, active.term, true,
+                        true);
+                final Iterator<RawStcourse> iter = stcCurr.iterator();
+                while (iter.hasNext()) {
+                    final RawStcourse row = iter.next();
+                    if ("Y".equals(row.iInProgress) || row.iInProgress == null) {
+                        iter.remove();
+                    }
+                }
+
+                final int stcCount = stcFull.size() - stcCurr.size();
+                if (stcCount < 1) {
+                    final TermKey oTerm = new TermKey(active.term.name, active.term.year - 8);
+                    final String msg = SimpleBuilder.concat(stu.firstName, " has not taken any PACe courses since ",
+                            oTerm.longString);
+                    console.print(msg, 13, 10);
+                    console.reverse(13, 10, msg.length());
+
+                    setError("Press any key to continue...");
+                    this.clearPressAnyKey = true;
+                } else {
+
+                }
+            } catch (final SQLException ex) {
+                final String msg = ex.getMessage();
+                setError("Unable to query course history", msg);
+            }
+        }
     }
 
     /**

@@ -32,9 +32,6 @@ final class ScreenSchedule extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenSchedule}.
      *
@@ -43,9 +40,7 @@ final class ScreenSchedule extends AbstractStudentScreen {
      */
     ScreenSchedule(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 7);
     }
 
     /**
@@ -58,7 +53,7 @@ final class ScreenSchedule extends AbstractStudentScreen {
         console.clear();
         console.print("SCHEDULE:   Registration  Deadlines  Weekly  Appeal  Pick  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(11, 0, 14);
                 console.print("View student's registration", 0, 1);
@@ -133,15 +128,17 @@ final class ScreenSchedule extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 0) {
+                final int sel = getSelection();
+
+                if (sel == 0) {
                     doRegistration();
-                } else if (this.selection == 1) {
+                } else if (sel == 1) {
                     doDeadlines();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doWeekly();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doAppeal();
-                } else if (this.selection == 4) {
+                } else if (sel == 4) {
                     doPick();
                 }
             }
@@ -150,38 +147,33 @@ final class ScreenSchedule extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 6) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 6;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doRegistration();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doDeadlines();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doWeekly();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doAppeal();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 6) {
+            } else if (sel == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -206,25 +198,32 @@ final class ScreenSchedule extends AbstractStudentScreen {
         } else if (isPicking()) {
             processKeyTypedInPick(character);
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
-            repaint = true;
         } else if ((int) character == (int) REGISTRATION_CHAR) {
+            setSelection(0);
             doRegistration();
             repaint = true;
         } else if ((int) character == (int) DEADLINES_CHAR) {
+            setSelection(1);
             doDeadlines();
             repaint = true;
         } else if ((int) character == (int) WEEKLY_CHAR) {
+            setSelection(2);
             doWeekly();
             repaint = true;
         } else if ((int) character == (int) APPEAL_CHAR) {
+            setSelection(3);
             doAppeal();
             repaint = true;
+        } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(4);
+            doPick();
+            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(5);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(6);
             doQuit();
             repaint = true;
         }

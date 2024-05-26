@@ -129,6 +129,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToMain() {
 
         this.activeScreen = this.main;
+        this.main.setSelection(0);
 
         this.activeScreen.draw();
     }
@@ -141,6 +142,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToCourse(final RawStudent student) {
 
         this.course.setStudent(student);
+        this.course.setSelection(0);
         this.activeScreen = this.course;
 
         this.activeScreen.draw();
@@ -154,6 +156,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToSchedule(final RawStudent student) {
 
         this.schedule.setStudent(student);
+        this.schedule.setSelection(0);
         this.activeScreen = this.schedule;
 
         this.activeScreen.draw();
@@ -167,6 +170,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToDiscipline(final RawStudent student) {
 
         this.discipline.setStudent(student);
+        this.discipline.setSelection(0);
         this.activeScreen = this.discipline;
 
         this.activeScreen.draw();
@@ -180,6 +184,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToHolds(final RawStudent student) {
 
         this.holds.setStudent(student);
+        this.holds.setSelection(0);
         this.activeScreen = this.holds;
 
         this.activeScreen.draw();
@@ -193,6 +198,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToExams(final RawStudent student) {
 
         this.exams.setStudent(student);
+        this.exams.setSelection(0);
         this.activeScreen = this.exams;
 
         this.activeScreen.draw();
@@ -206,6 +212,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToMPE(final RawStudent student) {
 
         this.mpe.setStudent(student);
+        this.mpe.setSelection(0);
         this.activeScreen = this.mpe;
 
         this.activeScreen.draw();
@@ -217,6 +224,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     void goToResource() {
 
         this.activeScreen = this.resource;
+        this.resource.setSelection(0);
 
         this.activeScreen.draw();
     }

@@ -1,11 +1,9 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.awt.event.KeyEvent;
-import java.util.Objects;
 
 /**
  * The main screen.
@@ -42,9 +40,6 @@ final class ScreenMain extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenMain}.
      *
@@ -53,9 +48,7 @@ final class ScreenMain extends AbstractStudentScreen {
      */
     ScreenMain(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 10);
     }
 
     /**
@@ -69,7 +62,7 @@ final class ScreenMain extends AbstractStudentScreen {
         console.print("MAIN ADMIN:   Pick  Course  Schedule  Discipline  Holds  Exams  MPE  Resource  locK  QUIT", 0,
                 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(13, 0, 6);
                 console.print("Select a student", 0, 1);
@@ -117,14 +110,7 @@ final class ScreenMain extends AbstractStudentScreen {
         } else if (isPicking()) {
             drawPickBox();
         } else {
-            final RawStudent stu = getStudent();
-
-            if (Objects.nonNull(stu)) {
-                final String name = getClippedStudentName();
-                console.print(name, 0, 4);
-                final String idMsg = SimpleBuilder.concat("Student ID: ", stu.stuId);
-                console.print(idMsg, 40, 4);
-            }
+            drawStudentNameId();
         }
 
         drawErrors();
@@ -148,19 +134,21 @@ final class ScreenMain extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 1) {
+                final int sel = getSelection();
+
+                if (sel == 1) {
                     doCourse();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doSchedule();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doDiscipline();
-                } else if (this.selection == 4) {
+                } else if (sel == 4) {
                     doHolds();
-                } else if (this.selection == 5) {
+                } else if (sel == 5) {
                     doExams();
-                } else if (this.selection == 6) {
+                } else if (sel == 6) {
                     doMpe();
-                } else if (this.selection == 7) {
+                } else if (sel == 7) {
                     doResource();
                 }
             }
@@ -169,46 +157,42 @@ final class ScreenMain extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 9) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 9;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
-            if (this.selection == 0) {
+            final int sel = getSelection();
+
+            if (sel == 0) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doCourse();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doSchedule();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doDiscipline();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doHolds();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doExams();
                 repaint = true;
-            } else if (this.selection == 6) {
+            } else if (sel == 6) {
                 doMpe();
                 repaint = true;
-            } else if (this.selection == 7) {
+            } else if (sel == 7) {
                 doResource();
                 repaint = true;
-            } else if (this.selection == 8) {
+            } else if (sel == 8) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 9) {
+            } else if (sel == 9) {
                 getMainWindow().quit();
             }
         }
@@ -233,42 +217,43 @@ final class ScreenMain extends AbstractStudentScreen {
             processKeyTypedInPick(character);
             repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(0);
             doPick();
             repaint = true;
         } else if ((int) character == (int) COURSE_CHAR) {
-            this.selection = 1;
+            setSelection(1);
             doCourse();
             repaint = true;
         } else if ((int) character == (int) SCHEDULE_CHAR) {
-            this.selection = 2;
+            setSelection(2);
             doSchedule();
             repaint = true;
         } else if ((int) character == (int) DISCIPLINE_CHAR) {
-            this.selection = 3;
+            setSelection(3);
             doDiscipline();
             repaint = true;
         } else if ((int) character == (int) HOLDS_CHAR) {
-            this.selection = 4;
+            setSelection(4);
             doHolds();
             repaint = true;
         } else if ((int) character == (int) EXAMS_CHAR) {
-            this.selection = 5;
+            setSelection(5);
             doExams();
             repaint = true;
         } else if ((int) character == (int) MPE_CHAR) {
-            this.selection = 6;
+            setSelection(6);
             doMpe();
             repaint = true;
         } else if ((int) character == (int) RESOURCE_CHAR) {
-            this.selection = 7;
+            setSelection(7);
             doResource();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
-            this.selection = 8;
+            setSelection(8);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
-            this.selection = 9;
+            setSelection(9);
             getMainWindow().quit();
         }
 

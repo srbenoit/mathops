@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -33,9 +32,6 @@ final class ScreenDiscipline extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenDiscipline}.
      *
@@ -44,9 +40,7 @@ final class ScreenDiscipline extends AbstractStudentScreen {
      */
     ScreenDiscipline(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 7);
     }
 
     /**
@@ -58,7 +52,7 @@ final class ScreenDiscipline extends AbstractStudentScreen {
         console.clear();
         console.print("DISCIPLINE:   Next  preVious  Add  Update  Pick  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(13, 0, 6);
                 console.print("View the next incident on record", 0, 1);
@@ -94,14 +88,10 @@ final class ScreenDiscipline extends AbstractStudentScreen {
         } else if (isPicking()) {
             drawPickBox();
         } else {
+            drawStudentNameId();
             final RawStudent stu = getStudent();
 
             if (Objects.nonNull(stu)) {
-                final String name = getClippedStudentName();
-                console.print(name, 0, 4);
-                final String idMsg = SimpleBuilder.concat("Student ID: ", stu.stuId);
-                console.print(idMsg, 41, 4);
-
                 console.print("*************************************************************************", 0, 6);
 
                 console.print("   date of incident:                  interviewer:", 0, 8);
@@ -142,15 +132,17 @@ final class ScreenDiscipline extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 0) {
+                final int sel = getSelection();
+
+                if (sel == 0) {
                     doNext();
-                } else if (this.selection == 1) {
+                } else if (sel == 1) {
                     doPrevious();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doAdd();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doUpdate();
-                } else if (this.selection == 4) {
+                } else if (sel == 4) {
                     doPick();
                 }
             }
@@ -159,38 +151,33 @@ final class ScreenDiscipline extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 6) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 6;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doNext();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doPrevious();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doAdd();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doUpdate();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 6) {
+            } else if (sel == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -215,25 +202,32 @@ final class ScreenDiscipline extends AbstractStudentScreen {
         } else if (isPicking()) {
             processKeyTypedInPick(character);
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
-            repaint = true;
         } else if ((int) character == (int) NEXT_CHAR) {
+            setSelection(0);
             doNext();
             repaint = true;
         } else if ((int) character == (int) PREVIOUS_CHAR) {
+            setSelection(1);
             doPrevious();
             repaint = true;
         } else if ((int) character == (int) ADD_CHAR) {
+            setSelection(2);
             doAdd();
             repaint = true;
         } else if ((int) character == (int) UPDATE_CHAR) {
+            setSelection(3);
             doUpdate();
             repaint = true;
+        } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(4);
+            doPick();
+            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(5);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(6);
             doQuit();
             repaint = true;
         }

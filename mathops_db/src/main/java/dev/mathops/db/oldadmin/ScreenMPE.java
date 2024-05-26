@@ -1,11 +1,8 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.awt.event.KeyEvent;
-import java.util.Objects;
 
 /**
  * The MPE screen.
@@ -33,9 +30,6 @@ final class ScreenMPE  extends AbstractStudentScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The current selection (0 through 9). */
-    private int selection;
-
     /**
      * Constructs a new {@code ScreenMPE}.
      *
@@ -44,9 +38,7 @@ final class ScreenMPE  extends AbstractStudentScreen {
      */
     ScreenMPE(final Cache theCache, final MainWindow theMainWindow) {
 
-        super(theCache, theMainWindow);
-
-        this.selection = 0;
+        super(theCache, theMainWindow, 7);
     }
 
     /**
@@ -59,7 +51,7 @@ final class ScreenMPE  extends AbstractStudentScreen {
         console.clear();
         console.print("PLACEMENT OPTIONS:   Credit  cHallenge  Transfer  Bypass  Pick  locK  QUIT", 0, 0);
 
-        switch (this.selection) {
+        switch (getSelection()) {
             case 0:
                 console.reverse(20, 0, 8);
                 console.print("View results on record from all sources", 0, 1);
@@ -95,14 +87,7 @@ final class ScreenMPE  extends AbstractStudentScreen {
         } else if (isPicking()) {
             drawPickBox();
         } else {
-            final RawStudent stu = getStudent();
-
-            if (Objects.nonNull(stu)) {
-                final String name = getClippedStudentName();
-                console.print(name, 0, 4);
-                final String idMsg = SimpleBuilder.concat("Student ID: ", stu.stuId);
-                console.print(idMsg, 41, 4);
-            }
+            drawStudentNameId();
         }
 
         drawErrors();
@@ -126,15 +111,17 @@ final class ScreenMPE  extends AbstractStudentScreen {
             repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
-                if (this.selection == 0) {
+                final int sel = getSelection();
+
+                if (sel == 0) {
                     doCredit();
-                } else if (this.selection == 1) {
+                } else if (sel == 1) {
                     doChallenge();
-                } else if (this.selection == 2) {
+                } else if (sel == 2) {
                     doTransfer();
-                } else if (this.selection == 3) {
+                } else if (sel == 3) {
                     doBypass();
-                } else if (this.selection == 4) {
+                } else if (sel == 4) {
                     doPick();
                 }
             }
@@ -143,38 +130,33 @@ final class ScreenMPE  extends AbstractStudentScreen {
             processKeyPressInPick(key, modifiers);
             repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
-            ++this.selection;
-            if (this.selection > 6) {
-                this.selection = 0;
-            }
+            incrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
-            --this.selection;
-            if (this.selection < 0) {
-                this.selection = 6;
-            }
+            decrementSelection();
             repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
+            final int sel = getSelection();
 
-            if (this.selection == 0) {
+            if (sel == 0) {
                 doCredit();
                 repaint = true;
-            } else if (this.selection == 1) {
+            } else if (sel == 1) {
                 doChallenge();
                 repaint = true;
-            } else if (this.selection == 2) {
+            } else if (sel == 2) {
                 doTransfer();
                 repaint = true;
-            } else if (this.selection == 3) {
+            } else if (sel == 3) {
                 doBypass();
                 repaint = true;
-            } else if (this.selection == 4) {
+            } else if (sel == 4) {
                 doPick();
                 repaint = true;
-            } else if (this.selection == 5) {
+            } else if (sel == 5) {
                 doLock();
                 repaint = true;
-            } else if (this.selection == 6) {
+            } else if (sel == 6) {
                 doQuit();
                 repaint = true;
             }
@@ -199,28 +181,32 @@ final class ScreenMPE  extends AbstractStudentScreen {
         } else if (isPicking()) {
             processKeyTypedInPick(character);
             repaint = true;
-        } else if ((int) character == (int) PICK_CHAR) {
-            doPick();
-            repaint = true;
         } else if ((int) character == (int) CREDIT_CHAR) {
+            setSelection(0);
             doCredit();
             repaint = true;
         } else if ((int) character == (int) CHALLENGE_CHAR) {
+            setSelection(1);
             doChallenge();
             repaint = true;
         } else if ((int) character == (int) TRANSFER_CHAR) {
+            setSelection(2);
             doTransfer();
             repaint = true;
         } else if ((int) character == (int) BYPASS_CHAR) {
+            setSelection(3);
             doBypass();
             repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
+            setSelection(4);
             doPick();
             repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
+            setSelection(5);
             doLock();
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
+            setSelection(6);
             doQuit();
             repaint = true;
         }

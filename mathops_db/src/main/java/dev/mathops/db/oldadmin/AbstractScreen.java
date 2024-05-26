@@ -34,13 +34,20 @@ abstract class AbstractScreen implements IScreen {
     /** An error message line 2. */
     private String errorMessage2;
 
+    /** The current selection index. */
+    private int selection;
+
+    /** The number of possible selections. */
+    private int numSelections;
+
     /**
      * Constructs a new {@code AbstractScreen}.
      *
-     * @param theCache      the cache
-     * @param theMainWindow the main window
+     * @param theCache         the cache
+     * @param theMainWindow    the main window
+     * @param theNumSelections the number of selections
      */
-    AbstractScreen(final Cache theCache, final MainWindow theMainWindow) {
+    AbstractScreen(final Cache theCache, final MainWindow theMainWindow, final int theNumSelections) {
 
         this.cache = theCache;
         this.mainWindow = theMainWindow;
@@ -51,6 +58,9 @@ abstract class AbstractScreen implements IScreen {
 
         this.errorMessage1 = CoreConstants.EMPTY;
         this.errorMessage2 = CoreConstants.EMPTY;
+
+        this.selection = 0;
+        this.numSelections = theNumSelections;
     }
 
     /**
@@ -104,6 +114,48 @@ abstract class AbstractScreen implements IScreen {
     }
 
     /**
+     * Sets the selected menu item index.
+     *
+     * @param newSelection the new selection index
+     */
+    void setSelection(final int newSelection) {
+
+        this.selection = 0;
+    }
+
+    /**
+     * Gets the current selection.
+     *
+     * @return the selection
+     */
+    int getSelection() {
+
+        return this.selection;
+    }
+
+    /**
+     * Increments the selection index, wrapping to zero beyond the last selection.
+     */
+    void incrementSelection() {
+
+        ++this.selection;
+        if (this.selection >= this.numSelections) {
+            this.selection = 0;
+        }
+    }
+
+    /**
+     * Decrements the selection index, wrapping to the last item to the left of zero.
+     */
+    void decrementSelection() {
+
+        --this.selection;
+        if (this.selection < 0) {
+            this.selection = this.numSelections - 1;
+        }
+    }
+
+    /**
      * Processes a key press in the locked state.
      *
      * @param key the key
@@ -149,8 +201,9 @@ abstract class AbstractScreen implements IScreen {
 
     /**
      * Draws a box.
-     * @param x the x position of the top left corner
-     * @param y the y position of the top left corner
+     *
+     * @param x       the x position of the top left corner
+     * @param y       the y position of the top left corner
      * @param numCols the number of columns (including border)
      * @param numRows the number of rows (including border)
      */
