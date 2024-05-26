@@ -124,6 +124,16 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     }
 
     /**
+     * Jumps to the Main screen.
+     */
+    void goToMain() {
+
+        this.activeScreen = this.main;
+
+        this.activeScreen.draw();
+    }
+
+    /**
      * Jumps to the Course screen.
      *
      * @param student the student
@@ -208,7 +218,6 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
      */
     void goToResource(final RawStudent student) {
 
-        this.resource.setStudent(student);
         this.activeScreen = this.resource;
 
         this.activeScreen.draw();

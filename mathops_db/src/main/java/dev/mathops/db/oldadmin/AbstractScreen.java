@@ -3,6 +3,8 @@ package dev.mathops.db.oldadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.Cache;
 
+import java.awt.event.KeyEvent;
+
 /**
  * A base class for screens.
  */
@@ -16,6 +18,15 @@ abstract class AbstractScreen implements IScreen {
 
     /** The console. */
     private final Console console;
+
+    /** Flag indicating lock screen is being shown. */
+    private boolean showingLock = false;
+
+    /** The lock-screen password. */
+    private final String lockPassword;
+
+    /** The lock password being typed. */
+    private final Field lockPasswordField;
 
     /** An error message. */
     private String errorMessage1;
@@ -34,6 +45,9 @@ abstract class AbstractScreen implements IScreen {
         this.cache = theCache;
         this.mainWindow = theMainWindow;
         this.console = this.mainWindow.getConsole();
+
+        this.lockPassword = theMainWindow.getUserData().getClearPassword("LOCK");
+        this.lockPasswordField = new Field(this.console, 21, 11, 8, true, null);
 
         this.errorMessage1 = CoreConstants.EMPTY;
         this.errorMessage2 = CoreConstants.EMPTY;
@@ -54,7 +68,7 @@ abstract class AbstractScreen implements IScreen {
      *
      * @return the main window
      */
-    protected final MainWindow getMainWindow() {
+    final MainWindow getMainWindow() {
 
         return this.mainWindow;
     }
@@ -70,13 +84,77 @@ abstract class AbstractScreen implements IScreen {
     }
 
     /**
+     * Tests whether the "locked" box is showing.
+     *
+     * @return true if locked
+     */
+    protected boolean isLocked() {
+
+        return this.showingLock;
+    }
+
+    /**
+     * Draws the "locked" box with password entry.
+     */
+    protected void drawLocked() {
+
+        drawBox(18, 8, 39, 6);
+        this.console.print("Enter your ADMIN screen password:", 21, 10);
+        this.lockPasswordField.draw();
+    }
+
+    /**
+     * Processes a key press in the locked state.
+     *
+     * @param key the key
+     */
+    protected void processKeyPressInLocked(final int key) {
+
+        if (key == KeyEvent.VK_ENTER) {
+            final String entered = this.lockPasswordField.getValue();
+            if (entered.equals(this.lockPassword)) {
+                this.showingLock = false;
+                clearErrors();
+                console.setCursor(-1, -1);
+            } else {
+                setError("Invalid password");
+            }
+        } else {
+            clearErrors();
+            this.lockPasswordField.processKey(key);
+        }
+    }
+
+    /**
+     * Processes a key typed in the locked state.
+     *
+     * @param character the character
+     */
+    protected void processKeyTypedInLocked(final char character) {
+
+        this.lockPasswordField.processChar(character);
+    }
+
+    /**
+     * Handles the selection of the "Lock" item.
+     */
+    protected void doLock() {
+
+        if (this.lockPassword != null) {
+            this.showingLock = true;
+            this.lockPasswordField.clear();
+            this.lockPasswordField.activate();
+        }
+    }
+
+    /**
      * Draws a box.
      * @param x the x position of the top left corner
      * @param y the y position of the top left corner
      * @param numCols the number of columns (including border)
      * @param numRows the number of rows (including border)
      */
-    protected final void drawBox(final int x, final int y, final int numCols, final int numRows) {
+    final void drawBox(final int x, final int y, final int numCols, final int numRows) {
 
         final StringBuilder builder = new StringBuilder(numCols);
         final int numHorizontal = numCols - 2;
