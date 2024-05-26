@@ -1,5 +1,6 @@
 package dev.mathops.db.oldadmin;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -19,10 +20,10 @@ abstract class AbstractStudentScreen extends AbstractScreen {
     private final Field studentIdField;
 
     /** Flag indicating "Pick student" is being shown. */
-    private boolean showingPick = false;
+    private boolean picking = false;
 
     /** Flag indicating "Press RETURN to select, or F5 to cancel" is being shown. */
-    private boolean showingAccept = false;
+    private boolean acceptingPick = false;
 
     /** The current student record. */
     private RawStudent student = null;
@@ -66,9 +67,9 @@ abstract class AbstractStudentScreen extends AbstractScreen {
      *
      * @return true if accepting a picked student
      */
-    public final boolean isAcceptingPick() {
+    final boolean isAcceptingPick() {
 
-        return this.showingAccept;
+        return this.acceptingPick;
     }
 
     /**
@@ -76,15 +77,15 @@ abstract class AbstractStudentScreen extends AbstractScreen {
      *
      * @return true if picking a new student
      */
-    public final boolean isPicking() {
+    final boolean isPicking() {
 
-        return this.showingPick;
+        return this.picking;
     }
 
     /**
      * Draws the box where the user can enter a student ID.
      */
-    protected final void drawPickBox() {
+    final void drawPickBox() {
 
         final Console console = getConsole();
 
@@ -104,7 +105,7 @@ abstract class AbstractStudentScreen extends AbstractScreen {
             }
         }
 
-        if (this.showingAccept) {
+        if (this.acceptingPick) {
             console.print("Press RETURN to select or F5 to cancel...", 15, 16);
         }
     }
@@ -115,13 +116,13 @@ abstract class AbstractStudentScreen extends AbstractScreen {
      * @param key the key
      * @return true if the pick was accepted
      */
-    protected final boolean processKeyPressInAcceptingPick(final int key) {
+    final boolean processKeyPressInAcceptingPick(final int key) {
 
         boolean accepted = false;
 
         if (key == KeyEvent.VK_ENTER) {
-            this.showingPick = false;
-            this.showingAccept = false;
+            this.picking = false;
+            this.acceptingPick = false;
             clearErrors();
             this.studentIdField.clear();
             getConsole().setCursor(-1, -1);
@@ -129,8 +130,8 @@ abstract class AbstractStudentScreen extends AbstractScreen {
             accepted = true;
         } else if (key == KeyEvent.VK_F5) {
             this.student = null;
-            this.showingPick = false;
-            this.showingAccept = false;
+            this.picking = false;
+            this.acceptingPick = false;
             clearErrors();
             this.studentIdField.clear();
             getConsole().setCursor(-1, -1);
@@ -145,13 +146,14 @@ abstract class AbstractStudentScreen extends AbstractScreen {
      * @param key the key
      * @param modifiers key modifiers
      */
-    protected final void processKeyPressInPick(final int key, final int modifiers) {
+    final void processKeyPressInPick(final int key, final int modifiers) {
 
         if (key == KeyEvent.VK_ENTER) {
             final String entered = this.studentIdField.getValue();
             try {
-                this.student = RawStudentLogic.query(getCache(), entered, false);
-                this.showingAccept = true;
+                final Cache cache = getCache();
+                this.student = RawStudentLogic.query(cache, entered, false);
+                this.acceptingPick = true;
                 clearErrors();
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -160,7 +162,7 @@ abstract class AbstractStudentScreen extends AbstractScreen {
             }
         } else if (key == KeyEvent.VK_C && (modifiers & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) {
             this.student = null;
-            this.showingPick = false;
+            this.picking = false;
             clearErrors();
             this.studentIdField.clear();
             getConsole().setCursor(-1, -1);
@@ -174,7 +176,7 @@ abstract class AbstractStudentScreen extends AbstractScreen {
      *
      * @param character the character
      */
-    protected final void processKeyTypedInPick(final char character) {
+    final void processKeyTypedInPick(final char character) {
 
         this.studentIdField.processChar(character);
     }
@@ -182,13 +184,36 @@ abstract class AbstractStudentScreen extends AbstractScreen {
     /**
      * Starts a pick operation.
      */
-    protected final void doPick() {
+    final void doPick() {
 
         this.student = null;
-        this.showingPick = true;
-        this.showingAccept = false;
+        this.picking = true;
+        this.acceptingPick = false;
         clearErrors();
         this.studentIdField.clear();
         this.studentIdField.activate();
+    }
+
+    /**
+     * Gets the student's name clipped to 34 characters.
+     *
+     * @return the clipped name
+     */
+    final String getClippedStudentName() {
+
+        final String result;
+
+        if (this.student == null) {
+            result = CoreConstants.EMPTY;
+        } else {
+            final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
+            if (name.length() > 34) {
+                result = name.substring(0, 34);
+            } else {
+                result = name;
+            }
+        }
+
+        return result;
     }
 }

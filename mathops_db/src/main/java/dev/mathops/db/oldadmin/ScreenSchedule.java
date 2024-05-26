@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -105,14 +104,8 @@ final class ScreenSchedule extends AbstractStudentScreen {
                 console.print("Passed User's Exam:", 37, 4);
                 console.print("Earned TC Bonus:", 40, 5);
 
-                final String name = SimpleBuilder.concat(stu.lastName, ", ", stu.firstName);
-                if (name.length() > 34) {
-                    final String shortened = name.substring(0, 34);
-                    console.print(shortened, 10, 3);
-                } else {
-                    console.print(name, 10, 3);
-                }
-
+                final String name = getClippedStudentName();
+                console.print(name, 10, 3);
                 console.print(stu.stuId, 10, 4);
 
                 // TODO: Print the "Format", "Passed User's Exam", and "Earned TC Bonus" fields

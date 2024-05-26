@@ -58,7 +58,7 @@ abstract class AbstractScreen implements IScreen {
      *
      * @return the cache
      */
-    protected final Cache getCache() {
+    final Cache getCache() {
 
         return this.cache;
     }
@@ -96,7 +96,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Draws the "locked" box with password entry.
      */
-    protected void drawLocked() {
+    void drawLocked() {
 
         drawBox(18, 8, 39, 6);
         this.console.print("Enter your ADMIN screen password:", 21, 10);
@@ -108,14 +108,14 @@ abstract class AbstractScreen implements IScreen {
      *
      * @param key the key
      */
-    protected void processKeyPressInLocked(final int key) {
+    void processKeyPressInLocked(final int key) {
 
         if (key == KeyEvent.VK_ENTER) {
             final String entered = this.lockPasswordField.getValue();
             if (entered.equals(this.lockPassword)) {
                 this.showingLock = false;
                 clearErrors();
-                console.setCursor(-1, -1);
+                this.console.setCursor(-1, -1);
             } else {
                 setError("Invalid password");
             }
@@ -130,7 +130,7 @@ abstract class AbstractScreen implements IScreen {
      *
      * @param character the character
      */
-    protected void processKeyTypedInLocked(final char character) {
+    void processKeyTypedInLocked(final char character) {
 
         this.lockPasswordField.processChar(character);
     }
@@ -138,7 +138,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Handles the selection of the "Lock" item.
      */
-    protected void doLock() {
+    void doLock() {
 
         if (this.lockPassword != null) {
             this.showingLock = true;
@@ -192,7 +192,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Draws the error messages, if thee is an error indicated.
      */
-    protected final void drawErrors() {
+    final void drawErrors() {
 
         if (!this.errorMessage1.isBlank()) {
             this.console.print(this.errorMessage1, 1, 21);
@@ -210,7 +210,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Clears all error messages.
      */
-    protected final void clearErrors() {
+    final void clearErrors() {
 
         this.errorMessage1 = CoreConstants.EMPTY;
         this.errorMessage2 = CoreConstants.EMPTY;
@@ -219,7 +219,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Sets a single error message.
      */
-    protected final void setError(final String error1) {
+    final void setError(final String error1) {
 
         this.errorMessage1 = error1;
         this.errorMessage2 = CoreConstants.EMPTY;
@@ -228,7 +228,7 @@ abstract class AbstractScreen implements IScreen {
     /**
      * Sets a double error message.
      */
-    protected final void setError(final String error1, final String error2) {
+    final void setError(final String error1, final String error2) {
 
         this.errorMessage1 = error1;
         this.errorMessage2 = error2;

@@ -113,14 +113,8 @@ final class ScreenHolds extends AbstractStudentScreen {
                 console.print("Order Enforced for Calculus:", 37, 4);
                 console.print("Passed User's Exam:", 46, 5);
 
-                final String name = SimpleBuilder.concat(stu.lastName, ", ", stu.firstName);
-                if (name.length() > 34) {
-                    final String shortened = name.substring(0, 34);
-                    console.print(shortened, 10, 3);
-                } else {
-                    console.print(name, 10, 3);
-                }
-
+                final String name = getClippedStudentName();
+                console.print(name, 10, 3);
                 console.print(stu.stuId, 10, 4);
 
                 // TODO: Print the format at (10, 5);

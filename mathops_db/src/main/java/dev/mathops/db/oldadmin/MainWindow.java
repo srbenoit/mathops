@@ -22,40 +22,40 @@ import java.io.IOException;
 public final class MainWindow extends JFrame implements KeyListener, MouseListener {
 
     /** The console. */
-    private Console console = null;
+    private final Console console;
 
     /** The cache. */
     private final Cache cache;
 
-    /** Data on the logged in user. */
+    /** Data on the logged-in user. */
     private final UserData userData;
 
     /** The main screen. */
-    private ScreenMain main;
+    private ScreenMain main = null;
 
     /** The Course screen. */
-    private ScreenCourse course;
+    private ScreenCourse course = null;
 
     /** The Schedule screen. */
-    private ScreenSchedule schedule;
+    private ScreenSchedule schedule = null;
 
     /** The Discipline screen. */
-    private ScreenDiscipline discipline;
+    private ScreenDiscipline discipline = null;
 
     /** The Holds screen. */
-    private ScreenHolds holds;
+    private ScreenHolds holds = null;
 
     /** The Exams screen. */
-    private ScreenExams exams;
+    private ScreenExams exams = null;
 
     /** The MPE screen. */
-    private ScreenMPE mpe;
+    private ScreenMPE mpe = null;
 
     /** The Resource screen. */
-    private ScreenResource resource;
+    private ScreenResource resource = null;
 
     /** The currently active screen. */
-    private IScreen activeScreen;
+    private IScreen activeScreen = null;
 
     /**
      * Constructs a new {@code MainWindow}.
@@ -281,7 +281,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
 
         final int btn = e.getButton();
 
-        Log.info("Mouse clicked: Btn = " + btn);
+//        Log.info("Mouse clicked: Btn = " + btn);
 
         if (btn == 3) {
             try {

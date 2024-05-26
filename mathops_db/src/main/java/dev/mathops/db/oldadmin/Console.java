@@ -2,7 +2,6 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.commons.log.Log;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -45,7 +44,7 @@ public final class Console extends JPanel implements Runnable {
     private final int numLines;
 
     /** The cursor location. */
-    private final Point cursor;
+    private final Point cursorPoint;
 
     /** The labels that display the characters in [y][x] order. */
     private final JLabel[][] labels;
@@ -70,7 +69,7 @@ public final class Console extends JPanel implements Runnable {
 
         this.numColumns = theNumColumns;
         this.numLines = theNumLines;
-        this.cursor = new Point(-1, -1);
+        this.cursorPoint = new Point(-1, -1);
 
         setBackground(Color.BLACK);
         final Border edgeBorder = BorderFactory.createEmptyBorder(TOP_BOTTOM_MARGIN, LEFT_RIGHT_MARGIN,
@@ -127,7 +126,7 @@ public final class Console extends JPanel implements Runnable {
      */
     void setCursor(final int x, final int y) {
 
-        this.cursor.setLocation(x, y);
+        this.cursorPoint.setLocation(x, y);
     }
 
     /**
@@ -137,7 +136,7 @@ public final class Console extends JPanel implements Runnable {
      */
     Point getCursorPoint() {
 
-        return this.cursor;
+        return this.cursorPoint;
     }
 
     /**
@@ -196,8 +195,8 @@ public final class Console extends JPanel implements Runnable {
 
         setVisible(false);
 
-        final int cx = this.cursor.x;
-        final int cy = this.cursor.y;
+        final int cx = this.cursorPoint.x;
+        final int cy = this.cursorPoint.y;
 
         for (int line = 0; line < this.numLines; ++line) {
             for (int col = 0; col < this.numColumns; ++col) {

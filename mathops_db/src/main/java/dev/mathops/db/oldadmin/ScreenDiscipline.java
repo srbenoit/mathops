@@ -97,15 +97,8 @@ final class ScreenDiscipline extends AbstractStudentScreen {
             final RawStudent stu = getStudent();
 
             if (Objects.nonNull(stu)) {
-
-                final String name = SimpleBuilder.concat(stu.lastName, ", ", stu.firstName);
-                if (name.length() > 34) {
-                    final String shortened = name.substring(0, 34);
-                    console.print(shortened, 0, 4);
-                } else {
-                    console.print(name, 0, 4);
-                }
-
+                final String name = getClippedStudentName();
+                console.print(name, 0, 4);
                 final String idMsg = SimpleBuilder.concat("Student ID: ", stu.stuId);
                 console.print(idMsg, 41, 4);
 
