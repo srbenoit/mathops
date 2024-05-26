@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -14,7 +13,7 @@ import java.util.Objects;
 /**
  * The Holds screen.
  */
-final class ScreenHolds implements IScreen {
+final class ScreenHolds extends AbstractScreen {
 
     /** The character to select "Delete". */
     private static final char DELETE_CHAR = 'd';
@@ -40,15 +39,6 @@ final class ScreenHolds implements IScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The cache. */
-    private final Cache cache;
-
-    /** The main window. */
-    private final MainWindow mainWindow;
-
-    /** The console. */
-    private final Console console;
-
     /** The lock-screen password. */
     private final String lockPassword;
 
@@ -70,12 +60,6 @@ final class ScreenHolds implements IScreen {
     /** The current student record. */
     private RawStudent student = null;
 
-    /** An error message. */
-    private String errorMessage1;
-
-    /** An error message line 2. */
-    private String errorMessage2;
-
     /** Flag indicating lock screen is being shown. */
     private boolean showingLock = false;
 
@@ -87,18 +71,15 @@ final class ScreenHolds implements IScreen {
      */
     ScreenHolds(final Cache theCache, final MainWindow theMainWindow) {
 
-        this.cache = theCache;
-        this.mainWindow = theMainWindow;
-        this.console = this.mainWindow.getConsole();
+        super(theCache, theMainWindow);
 
-        this.lockPassword = this.mainWindow.getUserData().getClearPassword("LOCK");
+        this.lockPassword = theMainWindow.getUserData().getClearPassword("LOCK");
 
-        this.lockPasswordField = new Field(this.console, 21, 11, 8, true, null);
-        this.studentIdField = new Field(this.console, 28, 11, 9, false, "0123456789");
+        final Console console = getConsole();
+        this.lockPasswordField = new Field(console, 21, 11, 8, true, null);
+        this.studentIdField = new Field(console, 28, 11, 9, false, "0123456789");
 
         this.selection = 0;
-        this.errorMessage1 = CoreConstants.EMPTY;
-        this.errorMessage2 = CoreConstants.EMPTY;
     }
 
     /**
@@ -116,154 +97,105 @@ final class ScreenHolds implements IScreen {
      */
     public void draw() {
 
-        this.console.clear();
-        this.console.print("HOLDS:   Delete  Add  Registration  Order  Screen  Pick  locK  QUIT", 0, 0);
+        final Console console = getConsole();
+
+        console.clear();
+        console.print("HOLDS:   Delete  Add  Registration  Order  Screen  Pick  locK  QUIT", 0, 0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(8, 0, 8);
-                this.console.print("Select and delete administrative holds", 0, 1);
+                console.reverse(8, 0, 8);
+                console.print("Select and delete administrative holds", 0, 1);
                 break;
             case 1:
-                this.console.reverse(16, 0, 5);
-                this.console.print("Add administrative holds", 0, 1);
+                console.reverse(16, 0, 5);
+                console.print("Add administrative holds", 0, 1);
                 break;
             case 2:
-                this.console.reverse(21, 0, 14);
-                this.console.print("View student's registration", 0, 1);
+                console.reverse(21, 0, 14);
+                console.print("View student's registration", 0, 1);
                 break;
             case 3:
-                this.console.reverse(35, 0, 7);
-                this.console.print("Change the order courses should be completed for calculus", 0, 1);
+                console.reverse(35, 0, 7);
+                console.print("Change the order courses should be completed for calculus", 0, 1);
                 break;
             case 4:
-                this.console.reverse(42, 0, 8);
-                this.console.print("View additional administrative holds", 0, 1);
+                console.reverse(42, 0, 8);
+                console.print("View additional administrative holds", 0, 1);
                 break;
             case 5:
-                this.console.reverse(50, 0, 6);
-                this.console.print("Select a different student", 0, 1);
+                console.reverse(50, 0, 6);
+                console.print("Select a different student", 0, 1);
                 break;
             case 6:
-                this.console.reverse(56, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                console.reverse(56, 0, 6);
+                console.print("Lock the terminal to restrict unauthorized use", 0, 1);
                 break;
             case 7:
-                this.console.reverse(62, 0, 6);
-                this.console.print("Return to MAIN ADMIN menu", 0, 1);
+                console.reverse(62, 0, 6);
+                console.print("Return to MAIN ADMIN menu", 0, 1);
                 break;
         }
 
         if (this.showingLock) {
-            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 18, 8);
-            this.console.print("\u2551                                     \u2551", 18, 9);
-            this.console.print("\u2551  Enter your ADMIN screen password:  \u2551", 18, 10);
-            this.console.print("\u2551                                     \u2551", 18, 11);
-            this.console.print("\u2551                                     \u2551", 18, 12);
-            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 18, 13);
-
+            drawBox(18, 8, 39, 6);
+            console.print("Enter your ADMIN screen password:", 21, 10);
             this.lockPasswordField.draw();
         } else if (this.showingPick) {
-            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 10, 7);
-            this.console.print("\u2551                                                    \u2551", 10, 8);
-            this.console.print("\u2551          -----Student Identification-----          \u2551", 10, 9);
-            this.console.print("\u2551                                                    \u2551", 10, 10);
-            this.console.print("\u2551    Student ID:                                     \u2551", 10, 11);
-            this.console.print("\u2551                                                    \u2551", 10, 12);
-            this.console.print("\u2551    Name:                                           \u2551", 10, 13);
-            this.console.print("\u2551                                                    \u2551", 10, 14);
-            this.console.print("\u2551                                                    \u2551", 10, 15);
-            this.console.print("\u2551                                                    \u2551", 10, 16);
-            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 10, 17);
-
+            drawBox(10, 7, 54, 11);
+            console.print("-----Student Identification-----", 21, 9);
+            console.print("Student ID:", 15, 11);
+            console.print("Name:", 15, 13);
             this.studentIdField.draw();
 
             if (Objects.nonNull(this.student)) {
                 final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
                 if (name.length() > 34) {
                     final String shortened = name.substring(0, 34);
-                    this.console.print(shortened, 28, 13);
+                    console.print(shortened, 28, 13);
                 } else {
-                    this.console.print(name, 28, 13);
+                    console.print(name, 28, 13);
                 }
             }
 
             if (this.showingAccept) {
-                this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
+                console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
         } else if (Objects.nonNull(this.student)) {
 
-            this.console.print("NAME:", 4, 3);
-            this.console.print("ID:", 6, 4);
-            this.console.print("Format:", 2, 5);
+            console.print("NAME:", 4, 3);
+            console.print("ID:", 6, 4);
+            console.print("Format:", 2, 5);
 
-            this.console.print("Max # of Courses Allowed:", 40, 3);
-            this.console.print("Order Enforced for Calculus:", 37, 4);
-            this.console.print("Passed User's Exam:", 46, 5);
+            console.print("Max # of Courses Allowed:", 40, 3);
+            console.print("Order Enforced for Calculus:", 37, 4);
+            console.print("Passed User's Exam:", 46, 5);
 
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
                 final String shortened = name.substring(0, 34);
-                this.console.print(shortened, 10, 3);
+                console.print(shortened, 10, 3);
             } else {
-                this.console.print(name, 10, 3);
+                console.print(name, 10, 3);
             }
 
-            this.console.print(this.student.stuId, 10, 4);
+            console.print(this.student.stuId, 10, 4);
 
             // TODO: Print the format at (10, 5);
             // TODO: Print the max courses allowed at (66, 3);
             // TODO: Print the order enforced flag at (66, 4);
             // TODO: Print the passed user's exam at (66, 5);
 
-            this.console.print("Administrative Holds", 24, 7);
+            console.print("Administrative Holds", 24, 7);
 
             // TODO: Following applies if there are no holds - different display if there are...
-            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + " \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 4,
-                    8);
-            this.console.print("\u2551                                                         \u2551", 4, 9);
-            this.console.print("\u2551                                                         \u2551", 4, 10);
-            this.console.print("\u2551                                                         \u2551", 4, 11);
-            this.console.print("\u2551                                                         \u2551", 4, 12);
-            this.console.print("\u2551             No Administrative Holds on record           \u2551", 4, 13);
-            this.console.print("\u2551                                                         \u2551", 4, 14);
-            this.console.print("\u2551                                                         \u2551", 4, 15);
-            this.console.print("\u2551                                                         \u2551", 4, 16);
-            this.console.print("\u2551                                                         \u2551", 4, 17);
-            this.console.print("\u2551                                                         \u2551", 4, 18);
-            this.console.print("\u2551                                                         \u2551", 4, 19);
-            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 4,
-                    20);
+            drawBox(4, 8, 59, 13);
+            console.print("No Administrative Holds on record", 18, 13);
         }
 
-        if (!this.errorMessage1.isBlank()) {
-            this.console.print(this.errorMessage1, 1, 21);
-            final int len = this.errorMessage1.length();
-            this.console.reverse(0, 21, len + 2);
-        }
-        if (!this.errorMessage2.isBlank()) {
-            this.console.print(this.errorMessage2, 1, 22);
-            final int len = this.errorMessage2.length();
-            this.console.reverse(0, 22, len + 2);
-        }
+        drawErrors();
 
-        this.console.commit();
+        console.commit();
     }
 
     /**
@@ -276,20 +208,20 @@ final class ScreenHolds implements IScreen {
     public boolean processKeyPressed(final int key, final int modifiers) {
 
         boolean repaint = false;
+        final Console console = getConsole();
 
         if (this.showingLock) {
             if (key == KeyEvent.VK_ENTER) {
                 final String entered = this.lockPasswordField.getValue();
                 if (entered.equals(this.lockPassword)) {
                     this.showingLock = false;
-                    this.errorMessage1 = CoreConstants.EMPTY;
-                    this.console.setCursor(-1, -1);
+                    clearErrors();
+                    console.setCursor(-1, -1);
                 } else {
-                    this.errorMessage1 = "Invalid password";
+                    setError("Invalid password");
                 }
-                this.errorMessage2 = CoreConstants.EMPTY;
             } else {
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.lockPasswordField.processKey(key);
             }
             repaint = true;
@@ -297,10 +229,9 @@ final class ScreenHolds implements IScreen {
             if (key == KeyEvent.VK_ENTER) {
                 this.showingPick = false;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
 
                 if (this.selection == 0) {
                     doDelete();
@@ -321,35 +252,31 @@ final class ScreenHolds implements IScreen {
                 this.student = null;
                 this.showingPick = false;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
                 repaint = true;
             }
         } else if (this.showingPick) {
             if (key == KeyEvent.VK_ENTER) {
                 final String entered = this.studentIdField.getValue();
                 try {
-                    this.student = RawStudentLogic.query(this.cache, entered, false);
+                    this.student = RawStudentLogic.query(getCache(), entered, false);
                     this.showingAccept = true;
-                    this.errorMessage1 = CoreConstants.EMPTY;
-                    this.errorMessage2 = CoreConstants.EMPTY;
+                    clearErrors();
                     repaint = true;
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     this.studentIdField.clear();
-                    this.errorMessage1 = "ERROR:  Student not found.";
-                    this.errorMessage2 = CoreConstants.EMPTY;
+                    setError("ERROR:  Student not found.");
                     repaint = true;
                 }
             } else if (key == KeyEvent.VK_C && (modifiers & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) {
                 this.student = null;
                 this.showingPick = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
                 repaint = true;
             } else {
                 this.studentIdField.processKey(key);
@@ -388,8 +315,7 @@ final class ScreenHolds implements IScreen {
             } else if (this.selection == 5) {
                 this.student = null;
                 this.showingPick = true;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
@@ -425,8 +351,7 @@ final class ScreenHolds implements IScreen {
             this.student = null;
             this.showingPick = true;
             this.showingAccept = false;
-            this.errorMessage1 = CoreConstants.EMPTY;
-            this.errorMessage2 = CoreConstants.EMPTY;
+            clearErrors();
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;

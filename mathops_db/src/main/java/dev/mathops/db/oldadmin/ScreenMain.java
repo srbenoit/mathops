@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -14,7 +13,7 @@ import java.util.Objects;
 /**
  * The main screen.
  */
-final class ScreenMain implements IScreen {
+final class ScreenMain extends AbstractScreen {
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
@@ -46,15 +45,6 @@ final class ScreenMain implements IScreen {
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
 
-    /** The cache. */
-    private final Cache cache;
-
-    /** The main window. */
-    private final MainWindow mainWindow;
-
-    /** The console. */
-    private final Console console;
-
     /** The lock-screen password. */
     private final String lockPassword;
 
@@ -76,12 +66,6 @@ final class ScreenMain implements IScreen {
     /** The current student record. */
     private RawStudent student = null;
 
-    /** An error message. */
-    private String errorMessage1;
-
-    /** An error message line 2. */
-    private String errorMessage2;
-
     /** Flag indicating lock screen is being shown. */
     private boolean showingLock = false;
 
@@ -93,18 +77,15 @@ final class ScreenMain implements IScreen {
      */
     ScreenMain(final Cache theCache, final MainWindow theMainWindow) {
 
-        this.cache = theCache;
-        this.mainWindow = theMainWindow;
-        this.console = this.mainWindow.getConsole();
+        super(theCache, theMainWindow);
 
-        this.lockPassword = this.mainWindow.getUserData().getClearPassword("LOCK");
+        this.lockPassword = theMainWindow.getUserData().getClearPassword("LOCK");
 
-        this.lockPasswordField = new Field(this.console, 21, 11, 8, true, null);
-        this.studentIdField = new Field(this.console, 28, 11, 9, false, "0123456789");
+        final Console console = getConsole();
+        this.lockPasswordField = new Field(console, 21, 11, 8, true, null);
+        this.studentIdField = new Field(console, 28, 11, 9, false, "0123456789");
 
         this.selection = 0;
-        this.errorMessage1 = CoreConstants.EMPTY;
-        this.errorMessage2 = CoreConstants.EMPTY;
     }
 
     /**
@@ -112,126 +93,95 @@ final class ScreenMain implements IScreen {
      */
     public void draw() {
 
-        this.console.clear();
-        this.console.print(
-                "MAIN ADMIN:   Pick  Course  Schedule  Discipline  Holds  Exams  MPE  Resource  locK  QUIT", 0, 0);
+        final Console console = getConsole();
+
+        console.clear();
+        console.print("MAIN ADMIN:   Pick  Course  Schedule  Discipline  Holds  Exams  MPE  Resource  locK  QUIT", 0,
+                0);
 
         switch (this.selection) {
             case 0:
-                this.console.reverse(13, 0, 6);
-                this.console.print("Select a student", 0, 1);
+                console.reverse(13, 0, 6);
+                console.print("Select a student", 0, 1);
                 break;
             case 1:
-                this.console.reverse(19, 0, 8);
-                this.console.print("View registration history in PACe courses", 0, 1);
+                console.reverse(19, 0, 8);
+                console.print("View registration history in PACe courses", 0, 1);
                 break;
             case 2:
-                this.console.reverse(27, 0, 10);
-                this.console.print("View student testing and deadline history", 0, 1);
+                console.reverse(27, 0, 10);
+                console.print("View student testing and deadline history", 0, 1);
                 break;
             case 3:
-                this.console.reverse(37, 0, 12);
-                this.console.print("View/add/update disciplinary incidents", 0, 1);
+                console.reverse(37, 0, 12);
+                console.print("View/add/update disciplinary incidents", 0, 1);
                 break;
             case 4:
-                this.console.reverse(49, 0, 7);
-                this.console.print("View/Add/Delete administrative holds and participation info", 0, 1);
+                console.reverse(49, 0, 7);
+                console.print("View/Add/Delete administrative holds and participation info", 0, 1);
                 break;
             case 5:
-                this.console.reverse(56, 0, 7);
-                this.console.print("Add/Modify/Delete exams, check answers, issue calculators & make-up exams", 0, 1);
+                console.reverse(56, 0, 7);
+                console.print("Add/Modify/Delete exams, check answers, issue calculators & make-up exams", 0, 1);
                 break;
             case 6:
-                this.console.reverse(63, 0, 5);
-                this.console.print("Verify MPE, ELM Exam & Intensive Review results, plus transfer and AP credit", 0,
-                        1);
+                console.reverse(63, 0, 5);
+                console.print("Verify MPE, ELM Exam & Intensive Review results, plus transfer and AP credit", 0, 1);
                 break;
             case 7:
-                this.console.reverse(68, 0, 10);
-                this.console.print("Record loan of Resource items", 0, 1);
+                console.reverse(68, 0, 10);
+                console.print("Record loan of Resource items", 0, 1);
                 break;
             case 8:
-                this.console.reverse(78, 0, 6);
-                this.console.print("Lock the terminal to restrict unauthorized use", 0, 1);
+                console.reverse(78, 0, 6);
+                console.print("Lock the terminal to restrict unauthorized use", 0, 1);
                 break;
             case 9:
-                this.console.reverse(84, 0, 6);
-                this.console.print("Exit this program and return to login", 0, 1);
+                console.reverse(84, 0, 6);
+                console.print("Exit this program and return to login", 0, 1);
                 break;
         }
 
         if (this.showingLock) {
-            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 18, 8);
-            this.console.print("\u2551                                     \u2551", 18, 9);
-            this.console.print("\u2551  Enter your ADMIN screen password:  \u2551", 18, 10);
-            this.console.print("\u2551                                     \u2551", 18, 11);
-            this.console.print("\u2551                                     \u2551", 18, 12);
-            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 18, 13);
-
+            drawBox(18, 8, 39, 6);
+            console.print("Enter your ADMIN screen password:", 21, 10);
             this.lockPasswordField.draw();
         } else if (this.showingPick) {
-            this.console.print("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557", 10, 7);
-            this.console.print("\u2551                                                    \u2551", 10, 8);
-            this.console.print("\u2551          -----Student Identification-----          \u2551", 10, 9);
-            this.console.print("\u2551                                                    \u2551", 10, 10);
-            this.console.print("\u2551    Student ID:                                     \u2551", 10, 11);
-            this.console.print("\u2551                                                    \u2551", 10, 12);
-            this.console.print("\u2551    Name:                                           \u2551", 10, 13);
-            this.console.print("\u2551                                                    \u2551", 10, 14);
-            this.console.print("\u2551                                                    \u2551", 10, 15);
-            this.console.print("\u2551                                                    \u2551", 10, 16);
-            this.console.print("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
-                    + "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D", 10, 17);
-
+            drawBox(10, 7, 54, 11);
+            console.print("-----Student Identification-----", 21, 9);
+            console.print("Student ID:", 15, 11);
+            console.print("Name:", 15, 13);
             this.studentIdField.draw();
 
             if (Objects.nonNull(this.student)) {
                 final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
                 if (name.length() > 34) {
                     final String shortened = name.substring(0, 34);
-                    this.console.print(shortened, 28, 13);
+                    console.print(shortened, 28, 13);
                 } else {
-                    this.console.print(name, 28, 13);
+                    console.print(name, 28, 13);
                 }
             }
 
             if (this.showingAccept) {
-                this.console.print("Press RETURN to select or F5 to cancel...", 15, 16);
+                console.print("Press RETURN to select or F5 to cancel...", 15, 16);
             }
         } else if (Objects.nonNull(this.student)) {
             final String name = SimpleBuilder.concat(this.student.lastName, ", ", this.student.firstName);
             if (name.length() > 34) {
                 final String shortened = name.substring(0, 34);
-                this.console.print(shortened, 0, 4);
+                console.print(shortened, 0, 4);
             } else {
-                this.console.print(name, 0, 4);
+                console.print(name, 0, 4);
             }
 
             final String idMsg = SimpleBuilder.concat("Student ID: ", this.student.stuId);
-            this.console.print(idMsg, 40, 4);
+            console.print(idMsg, 40, 4);
         }
 
-        if (!this.errorMessage1.isBlank()) {
-            this.console.print(this.errorMessage1, 1, 21);
-            final int len = this.errorMessage1.length();
-            this.console.reverse(0, 21, len + 2);
-        }
-        if (!this.errorMessage2.isBlank()) {
-            this.console.print(this.errorMessage2, 1, 22);
-            final int len = this.errorMessage2.length();
-            this.console.reverse(0, 22, len + 2);
-        }
+        drawErrors();
 
-        this.console.commit();
+        console.commit();
     }
 
     /**
@@ -244,20 +194,20 @@ final class ScreenMain implements IScreen {
     public boolean processKeyPressed(final int key, final int modifiers) {
 
         boolean repaint = false;
+        final Console console = getConsole();
 
         if (this.showingLock) {
             if (key == KeyEvent.VK_ENTER) {
                 final String entered = this.lockPasswordField.getValue();
                 if (entered.equals(this.lockPassword)) {
                     this.showingLock = false;
-                    this.errorMessage1 = CoreConstants.EMPTY;
-                    this.console.setCursor(-1, -1);
+                    clearErrors();
+                    console.setCursor(-1, -1);
                 } else {
-                    this.errorMessage1 = "Invalid password";
+                    setError("Invalid password");
                 }
-                this.errorMessage2 = CoreConstants.EMPTY;
             } else {
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.lockPasswordField.processKey(key);
             }
             repaint = true;
@@ -265,10 +215,9 @@ final class ScreenMain implements IScreen {
             if (key == KeyEvent.VK_ENTER) {
                 this.showingPick = false;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
 
                 if (this.selection == 1) {
                     doCourse();
@@ -291,36 +240,31 @@ final class ScreenMain implements IScreen {
                 this.student = null;
                 this.showingPick = false;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
                 repaint = true;
             }
         } else if (this.showingPick) {
             if (key == KeyEvent.VK_ENTER) {
                 final String entered = this.studentIdField.getValue();
                 try {
-                    this.student = RawStudentLogic.query(this.cache, entered, false);
+                    this.student = RawStudentLogic.query(getCache(), entered, false);
                     this.showingAccept = true;
-                    this.errorMessage1 = CoreConstants.EMPTY;
-                    this.errorMessage2 = CoreConstants.EMPTY;
+                    clearErrors();
                     repaint = true;
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     this.studentIdField.clear();
-                    this.errorMessage1 = "ERROR:  Student not found.";
-                    ;
-                    this.errorMessage2 = CoreConstants.EMPTY;
+                    setError("ERROR:  Student not found.");
                     repaint = true;
                 }
             } else if (key == KeyEvent.VK_C && (modifiers & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) {
                 this.student = null;
                 this.showingPick = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
-                this.console.setCursor(-1, -1);
+                console.setCursor(-1, -1);
                 repaint = true;
             } else {
                 this.studentIdField.processKey(key);
@@ -343,8 +287,7 @@ final class ScreenMain implements IScreen {
             if (this.selection == 0) {
                 this.student = null;
                 this.showingPick = true;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
                 repaint = true;
@@ -373,7 +316,7 @@ final class ScreenMain implements IScreen {
                 doLock();
                 repaint = true;
             } else if (this.selection == 9) {
-                this.mainWindow.quit();
+                getMainWindow().quit();
             }
         }
 
@@ -400,8 +343,7 @@ final class ScreenMain implements IScreen {
             this.student = null;
             this.showingPick = true;
             this.showingAccept = false;
-            this.errorMessage1 = CoreConstants.EMPTY;
-            this.errorMessage2 = CoreConstants.EMPTY;
+            clearErrors();
             this.studentIdField.clear();
             this.studentIdField.activate();
             repaint = true;
@@ -439,7 +381,7 @@ final class ScreenMain implements IScreen {
             repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             this.selection = 9;
-            this.mainWindow.quit();
+            getMainWindow().quit();
         }
 
         return repaint;
@@ -454,12 +396,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToCourse(this.student);
+                getMainWindow().goToCourse(this.student);
             }
         }
     }
@@ -473,12 +414,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToSchedule(this.student);
+                getMainWindow().goToSchedule(this.student);
             }
         }
     }
@@ -492,12 +432,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToDiscipline(this.student);
+                getMainWindow().goToDiscipline(this.student);
             }
         }
     }
@@ -511,12 +450,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToHolds(this.student);
+                getMainWindow().goToHolds(this.student);
             }
         }
     }
@@ -530,12 +468,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToExams(this.student);
+                getMainWindow().goToExams(this.student);
             }
         }
     }
@@ -549,12 +486,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToMPE(this.student);
+                getMainWindow().goToMPE(this.student);
             }
         }
     }
@@ -568,12 +504,11 @@ final class ScreenMain implements IScreen {
             if (this.student == null) {
                 this.showingPick = true;
                 this.showingAccept = false;
-                this.errorMessage1 = CoreConstants.EMPTY;
-                this.errorMessage2 = CoreConstants.EMPTY;
+                clearErrors();
                 this.studentIdField.clear();
                 this.studentIdField.activate();
             } else {
-                this.mainWindow.goToResource(this.student);
+                getMainWindow().goToResource(this.student);
             }
         }
     }
@@ -601,14 +536,10 @@ final class ScreenMain implements IScreen {
 
         boolean ok = false;
 
-        final Integer clearType = this.mainWindow.getUserData().getClearType(clearFunction);
+        final Integer clearType = getMainWindow().getUserData().getClearType(clearFunction);
 
-        if (clearType == null) {
-            this.errorMessage1 = "You don't have clearance to use this option.";
-            this.errorMessage2 = " Press any key to continue...";
-        } else if (clearType.intValue() >= comparisonValue) {
-            this.errorMessage1 = "You don't have clearance to use this option.";
-            this.errorMessage2 = " Press any key to continue...";
+        if (clearType == null || clearType.intValue() >= comparisonValue) {
+            setError("You don't have clearance to use this option.", " Press any key to continue...");
         } else {
             ok = true;
         }
