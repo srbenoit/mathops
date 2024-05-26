@@ -2,15 +2,24 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawCusectionLogic;
+import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rec.RecBase;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
+import oracle.sql.ARRAY;
 
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,6 +27,9 @@ import java.util.List;
  * The Course screen.
  */
 final class ScreenCourse extends AbstractStudentScreen {
+
+    /** A single instance. */
+    private static final StCourseSort COURSE_SORT = new StCourseSort();
 
     /** The character to select "Pick". */
     private static final char PICK_CHAR = 'p';
@@ -36,6 +48,9 @@ final class ScreenCourse extends AbstractStudentScreen {
 
     /** The character to select "Quit". */
     private static final char QUIT_CHAR = 'q';
+
+    /** The display. */
+    private ScreenCourseDisplay display = ScreenCourseDisplay.NONE;
 
     /** Flag indicating there is an active "Press any key to continue" prompt. */
     private boolean clearPressAnyKey;
@@ -94,13 +109,136 @@ final class ScreenCourse extends AbstractStudentScreen {
             drawLocked();
         } else if (isPicking()) {
             drawPickBox();
-        } else {
+        } else if (getStudent() != null) {
             drawStudentNameId();
+
+            switch (this.display) {
+                case HISTORY -> drawHistory();
+            }
         }
 
         drawErrors();
 
         console.commit();
+    }
+
+    /**
+     * Draws the history display.
+     */
+    private void drawHistory() {
+
+        final Console console = getConsole();
+        final RawStudent stu = getStudent();
+
+        final Cache cache = getCache();
+        try {
+            final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+            final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, true);
+            final List<RawStcourse> stcCurr = RawStcourseLogic.queryByStudent(cache, stu.stuId, active.term,
+                    true, true);
+            final Iterator<RawStcourse> iter = stcCurr.iterator();
+            while (iter.hasNext()) {
+                final RawStcourse row = iter.next();
+                if ("Y".equals(row.iInProgress) || row.iInProgress == null) {
+                    iter.remove();
+                }
+            }
+
+            final int stcCount = stcFull.size() - stcCurr.size();
+            if (stcCount < 1) {
+                final TermKey oTerm = new TermKey(active.term.name, active.term.year.intValue() - 8);
+                final String msg = SimpleBuilder.concat(stu.firstName, " has not taken any PACe courses since ",
+                        oTerm.longString);
+                console.print(msg, 13, 10);
+                console.reverse(13, 10, msg.length());
+
+                setError("Press any key to continue...");
+                this.clearPressAnyKey = true;
+            } else {
+                // Sort full list by course, then by term
+                stcFull.sort(COURSE_SORT);
+
+                final List<String> rowsToShow = new ArrayList<>(10);
+                final StringBuilder builder = new StringBuilder(40);
+
+                for (final RawStcourse stc : stcFull) {
+                    String pacing = null;
+                    final RawCsection csect = RawCsectionLogic.query(cache, stc.course, stc.sect, stc.termKey);
+                    if (csect != null) {
+                        pacing = csect.pacingStructure;
+                    }
+
+                    final String pacingName;
+                    if ("M".equals(pacing)) {
+                        pacingName = "PACe ";
+                    } else if ("O".equals(pacing)) {
+                        pacingName = "CSUOnline ";
+                    } else if ("K".equals(pacing)) {
+                        pacingName = "KEY Acad ";
+                    } else if ("I".equals(pacing)) {
+                        pacingName = "Instr Led ";
+                    } else {
+                        pacingName = "Unknown ";
+                    }
+
+                    final TermKey dispTerm;
+                    if (active.equals(stc.termKey)) {
+                        if ("Y".equals(stc.iInProgress)) {
+                            dispTerm = stc.iTermKey;
+                        } else {
+                            dispTerm = stc.termKey;
+                        }
+                    } else {
+                        dispTerm = stc.termKey;
+                    }
+
+                    builder.append(stc.course);
+                    for (int i = stc.course.length(); i < 10; ++i) {
+                        builder.append(' ');
+                    }
+                    builder.append(stc.sect);
+                    for (int i = stc.sect.length(); i < 10; ++i) {
+                        builder.append(' ');
+                    }
+                    builder.append(dispTerm.name.termName);
+                    builder.append("  ");
+                    builder.append(dispTerm.year);
+                    builder.append("     ");
+                    if (stc.courseGrade == null) {
+                        builder.append("      ");
+                    } else {
+                        builder.append(stc.courseGrade);
+                        for (int i = stc.courseGrade.length(); i < 6; ++i) {
+                            builder.append(' ');
+                        }
+                    }
+                    builder.append(pacingName);
+
+                    final String regString = builder.toString();
+                    rowsToShow.add(regString);
+
+                    builder.setLength(0);
+                }
+
+                setError("F5 (or ctrl-e) = Exit");
+
+                drawBox(6, 6, 54, 15);
+                console.print("PACe COURSE REGISTRATION HISTORY", 17, 8);
+                console.print("Course   Section   Term Year   Grade   Format", 9, 10);
+                console.print("Use the arrow keys to view more rows...", 8, 19);
+
+                int row = 11;
+                for (final String str : rowsToShow) {
+                    console.print(str, 9, row);
+                    ++row;
+                }
+                console.setCursor(9, 11);
+            }
+        } catch (final SQLException ex) {
+            final String msg = ex.getMessage();
+            setError("Unable to query course history", msg);
+        }
     }
 
     /**
@@ -146,23 +284,18 @@ final class ScreenCourse extends AbstractStudentScreen {
 
             if (sel == 0) {
                 doHistory();
-                repaint = true;
             } else if (sel == 1) {
                 doCurrent();
-                repaint = true;
             } else if (sel == 2) {
                 doHomework();
-                repaint = true;
             } else if (sel == 3) {
                 doPick();
-                repaint = true;
             } else if (sel == 4) {
                 doLock();
-                repaint = true;
             } else if (sel == 5) {
                 doQuit();
-                repaint = true;
             }
+            repaint = true;
         }
 
         return repaint;
@@ -176,42 +309,35 @@ final class ScreenCourse extends AbstractStudentScreen {
      */
     public boolean processKeyTyped(final char character) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyTypedInLocked(character);
-            repaint = true;
         } else if (isPicking()) {
             processKeyTypedInPick(character);
-            repaint = true;
         } else if (this.clearPressAnyKey) {
             clearErrors();
             this.clearPressAnyKey = false;
-            repaint = true;
         } else if ((int) character == (int) HISTORY_CHAR) {
             setSelection(0);
             doHistory();
-            repaint = true;
         } else if ((int) character == (int) CURRENT_CHAR) {
             setSelection(1);
             doCurrent();
-            repaint = true;
         } else if ((int) character == (int) HOMEWORK_CHAR) {
             setSelection(2);
             doHomework();
-            repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
             setSelection(3);
             doPick();
-            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             setSelection(4);
             doLock();
-            repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             setSelection(5);
             doQuit();
-            repaint = true;
+        } else {
+            repaint = false;
         }
 
         return repaint;
@@ -222,42 +348,10 @@ final class ScreenCourse extends AbstractStudentScreen {
      */
     private void doHistory() {
 
-        final RawStudent stu = getStudent();
-        if (stu == null) {
+        if (getStudent() == null) {
             doPick();
         } else {
-            final Console console = getConsole();
-            final Cache cache = getCache();
-            try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
-                final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, true);
-                final List<RawStcourse> stcCurr = RawStcourseLogic.queryByStudent(cache, stu.stuId, active.term, true,
-                        true);
-                final Iterator<RawStcourse> iter = stcCurr.iterator();
-                while (iter.hasNext()) {
-                    final RawStcourse row = iter.next();
-                    if ("Y".equals(row.iInProgress) || row.iInProgress == null) {
-                        iter.remove();
-                    }
-                }
-
-                final int stcCount = stcFull.size() - stcCurr.size();
-                if (stcCount < 1) {
-                    final TermKey oTerm = new TermKey(active.term.name, active.term.year - 8);
-                    final String msg = SimpleBuilder.concat(stu.firstName, " has not taken any PACe courses since ",
-                            oTerm.longString);
-                    console.print(msg, 13, 10);
-                    console.reverse(13, 10, msg.length());
-
-                    setError("Press any key to continue...");
-                    this.clearPressAnyKey = true;
-                } else {
-
-                }
-            } catch (final SQLException ex) {
-                final String msg = ex.getMessage();
-                setError("Unable to query course history", msg);
-            }
+            this.display = ScreenCourseDisplay.HISTORY;
         }
     }
 
@@ -281,5 +375,48 @@ final class ScreenCourse extends AbstractStudentScreen {
     private void doQuit() {
 
         getMainWindow().goToMain();
+    }
+
+    /**
+     * Possible displays on this screen.
+     */
+    private enum ScreenCourseDisplay {
+
+        NONE,
+        HISTORY,
+    }
+
+    /**
+     * A comparator that sorts {@code RawStcourse} records on course ID then term.
+     */
+    private static class StCourseSort implements Comparator<RawStcourse> {
+
+        /**
+         * Constructs a new {@code StCourseSort}.
+         */
+        private StCourseSort() {
+
+            // No action
+        }
+
+        /**
+         * Compares two records for order.
+         *
+         * @param o1 the first object to be compared
+         * @param o2 the second object to be compared
+         * @return a negative integer, zero, or a positive integer as the first object is less than, equal to, or
+         *         greater than the second object
+         */
+        @Override
+        public final int compare(final RawStcourse o1, final RawStcourse o2) {
+
+            int result = RecBase.compareAllowingNull(o1.course, o2.course);
+
+            if (result == 0) {
+                result = RecBase.compareAllowingNull(o1.termKey, o2.termKey);
+            }
+
+            return result;
+        }
     }
 }

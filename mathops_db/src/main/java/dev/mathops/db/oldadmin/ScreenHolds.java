@@ -138,11 +138,10 @@ final class ScreenHolds extends AbstractStudentScreen {
      */
     public boolean processKeyPressed(final int key, final int modifiers) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyPressInLocked(key);
-            repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
                 final int sel = getSelection();
@@ -161,44 +160,34 @@ final class ScreenHolds extends AbstractStudentScreen {
                     doPick();
                 }
             }
-            repaint = true;
         } else if (isPicking()) {
             processKeyPressInPick(key, modifiers);
-            repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             incrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             decrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
             final int sel = getSelection();
 
             if (sel == 0) {
                 doDelete();
-                repaint = true;
             } else if (sel == 1) {
                 doAdd();
-                repaint = true;
             } else if (sel == 2) {
                 doRegistration();
-                repaint = true;
             } else if (sel == 3) {
                 doOrder();
-                repaint = true;
             } else if (sel == 4) {
                 doScreen();
-                repaint = true;
             } else if (sel == 5) {
                 doPick();
-                repaint = true;
             } else if (sel == 6) {
                 doLock();
-                repaint = true;
             } else if (sel == 7) {
                 doQuit();
-                repaint = true;
             }
+        } else {
+            repaint = false;
         }
 
         return repaint;
@@ -212,46 +201,38 @@ final class ScreenHolds extends AbstractStudentScreen {
      */
     public boolean processKeyTyped(final char character) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyTypedInLocked(character);
-            repaint = true;
         } else if (isPicking()) {
             processKeyTypedInPick(character);
-            repaint = true;
         } else if ((int) character == (int) DELETE_CHAR) {
             setSelection(0);
             doDelete();
-            repaint = true;
         } else if ((int) character == (int) ADD_CHAR) {
             setSelection(1);
             doAdd();
-            repaint = true;
         } else if ((int) character == (int) REGISTRATION_CHAR) {
             setSelection(2);
             doRegistration();
-            repaint = true;
         } else if ((int) character == (int) ORDER_CHAR) {
             setSelection(3);
             doOrder();
-            repaint = true;
         } else if ((int) character == (int) SCREEN_CHAR) {
             setSelection(4);
             doScreen();
-            repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
             setSelection(5);
             doPick();
-            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             setSelection(6);
             doLock();
-            repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             setSelection(7);
             doQuit();
-            repaint = true;
+        } else {
+            repaint = false;
         }
 
         return repaint;

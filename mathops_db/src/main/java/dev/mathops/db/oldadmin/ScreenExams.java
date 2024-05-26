@@ -118,11 +118,10 @@ final class ScreenExams extends AbstractStudentScreen {
      */
     public boolean processKeyPressed(final int key, final int modifiers) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyPressInLocked(key);
-            repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
                 final int sel = getSelection();
@@ -143,47 +142,36 @@ final class ScreenExams extends AbstractStudentScreen {
                     doPick();
                 }
             }
-            repaint = true;
         } else if (isPicking()) {
             processKeyPressInPick(key, modifiers);
-            repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             incrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             decrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
             final int sel = getSelection();
 
             if (sel == 0) {
                 doAdd();
-                repaint = true;
             } else if (sel == 1) {
                 doDelete();
-                repaint = true;
             } else if (sel == 2) {
                 doCheckAns();
-                repaint = true;
             } else if (sel == 3) {
                 doMakeUp();
-                repaint = true;
             } else if (sel == 4) {
                 doExams();
-                repaint = true;
             } else if (sel == 5) {
                 doHomework();
-                repaint = true;
             } else if (sel == 6) {
                 doPick();
-                repaint = true;
             } else if (sel == 7) {
                 doLock();
-                repaint = true;
             } else if (sel == 8) {
                 doQuit();
-                repaint = true;
             }
+        } else {
+            repaint = false;
         }
 
         return repaint;
@@ -197,50 +185,41 @@ final class ScreenExams extends AbstractStudentScreen {
      */
     public boolean processKeyTyped(final char character) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyTypedInLocked(character);
-            repaint = true;
         } else if (isPicking()) {
             processKeyTypedInPick(character);
-            repaint = true;
         } else if ((int) character == (int) ADD_CHAR) {
             setSelection(0);
             doAdd();
-            repaint = true;
         } else if ((int) character == (int) DELETE_CHAR) {
             setSelection(1);
             doDelete();
-            repaint = true;
         } else if ((int) character == (int) CHECK_ANS_CHAR) {
             setSelection(2);
             doCheckAns();
-            repaint = true;
         } else if ((int) character == (int) MAKE_UP_CHAR) {
             setSelection(3);
             doMakeUp();
-            repaint = true;
         } else if ((int) character == (int) EXAMS_CHAR) {
             setSelection(4);
             doExams();
-            repaint = true;
         } else if ((int) character == (int) HOMEWORK_CHAR) {
             setSelection(5);
             doHomework();
-            repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
             setSelection(6);
             doPick();
-            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             setSelection(7);
             doLock();
-            repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             setSelection(8);
             doQuit();
-            repaint = true;
+        } else {
+            repaint = false;
         }
 
         return repaint;

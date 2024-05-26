@@ -120,7 +120,7 @@ abstract class AbstractScreen implements IScreen {
      */
     void setSelection(final int newSelection) {
 
-        this.selection = 0;
+        this.selection = newSelection;
     }
 
     /**

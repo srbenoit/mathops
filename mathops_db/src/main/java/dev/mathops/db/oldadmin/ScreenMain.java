@@ -1,5 +1,6 @@
 package dev.mathops.db.oldadmin;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -127,14 +128,14 @@ final class ScreenMain extends AbstractStudentScreen {
      */
     public boolean processKeyPressed(final int key, final int modifiers) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyPressInLocked(key);
-            repaint = true;
         } else if (isAcceptingPick()) {
             if (processKeyPressInAcceptingPick(key)) {
                 final int sel = getSelection();
+                Log.info("Pick accepted, selection = " + sel);
 
                 if (sel == 1) {
                     doCourse();
@@ -152,49 +153,38 @@ final class ScreenMain extends AbstractStudentScreen {
                     doResource();
                 }
             }
-            repaint = true;
         } else if (isPicking()) {
             processKeyPressInPick(key, modifiers);
-            repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             incrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             decrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
             final int sel = getSelection();
 
             if (sel == 0) {
                 doPick();
-                repaint = true;
             } else if (sel == 1) {
                 doCourse();
-                repaint = true;
             } else if (sel == 2) {
                 doSchedule();
-                repaint = true;
             } else if (sel == 3) {
                 doDiscipline();
-                repaint = true;
             } else if (sel == 4) {
                 doHolds();
-                repaint = true;
             } else if (sel == 5) {
                 doExams();
-                repaint = true;
             } else if (sel == 6) {
                 doMpe();
-                repaint = true;
             } else if (sel == 7) {
                 doResource();
-                repaint = true;
             } else if (sel == 8) {
                 doLock();
-                repaint = true;
             } else if (sel == 9) {
                 getMainWindow().quit();
             }
+        } else {
+            repaint = false;
         }
 
         return repaint;
@@ -208,53 +198,44 @@ final class ScreenMain extends AbstractStudentScreen {
      */
     public boolean processKeyTyped(final char character) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyTypedInLocked(character);
-            repaint = true;
         } else if (isPicking()) {
             processKeyTypedInPick(character);
-            repaint = true;
         } else if ((int) character == (int) PICK_CHAR) {
             setSelection(0);
             doPick();
-            repaint = true;
         } else if ((int) character == (int) COURSE_CHAR) {
             setSelection(1);
             doCourse();
-            repaint = true;
         } else if ((int) character == (int) SCHEDULE_CHAR) {
             setSelection(2);
             doSchedule();
-            repaint = true;
         } else if ((int) character == (int) DISCIPLINE_CHAR) {
             setSelection(3);
             doDiscipline();
-            repaint = true;
         } else if ((int) character == (int) HOLDS_CHAR) {
             setSelection(4);
             doHolds();
-            repaint = true;
         } else if ((int) character == (int) EXAMS_CHAR) {
             setSelection(5);
             doExams();
-            repaint = true;
         } else if ((int) character == (int) MPE_CHAR) {
             setSelection(6);
             doMpe();
-            repaint = true;
         } else if ((int) character == (int) RESOURCE_CHAR) {
             setSelection(7);
             doResource();
-            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             setSelection(8);
             doLock();
-            repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             setSelection(9);
             getMainWindow().quit();
+        } else {
+            repaint = false;
         }
 
         return repaint;

@@ -86,36 +86,30 @@ final class ScreenResource extends AbstractScreen {
      */
     public boolean processKeyPressed(final int key, final int modifiers) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyPressInLocked(key);
-            repaint = true;
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_KP_RIGHT) {
             incrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_KP_LEFT) {
             decrementSelection();
-            repaint = true;
         } else if (key == KeyEvent.VK_ENTER) {
             final int sel = getSelection();
 
             if (sel == 0) {
                 doLoan();
-                repaint = true;
             } else if (sel == 1) {
                 doReturn();
-                repaint = true;
             } else if (sel == 2) {
                 doOutstanding();
-                repaint = true;
             } else if (sel == 3) {
                 doLock();
-                repaint = true;
             } else if (sel == 4) {
                 doQuit();
-                repaint = true;
             }
+        } else {
+            repaint = false;
         }
 
         return repaint;
@@ -129,31 +123,27 @@ final class ScreenResource extends AbstractScreen {
      */
     public boolean processKeyTyped(final char character) {
 
-        boolean repaint = false;
+        boolean repaint = true;
 
         if (isLocked()) {
             processKeyTypedInLocked(character);
-            repaint = true;
         } else if ((int) character == (int) LOAN_CHAR) {
             setSelection(0);
             doLoan();
-            repaint = true;
         } else if ((int) character == (int) RETURN_CHAR) {
             setSelection(1);
             doReturn();
-            repaint = true;
         } else if ((int) character == (int) OUTSTANDING_CHAR) {
             setSelection(2);
             doOutstanding();
-            repaint = true;
         } else if ((int) character == (int) LOCK_CHAR) {
             setSelection(3);
             doLock();
-            repaint = true;
         } else if ((int) character == (int) QUIT_CHAR) {
             setSelection(4);
             doQuit();
-            repaint = true;
+        } else {
+            repaint = false;
         }
 
         return repaint;
