@@ -213,10 +213,8 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
 
     /**
      * Jumps to the Resource screen.
-     *
-     * @param student the student
      */
-    void goToResource(final RawStudent student) {
+    void goToResource() {
 
         this.activeScreen = this.resource;
 

@@ -383,13 +383,7 @@ final class ScreenMain extends AbstractStudentScreen {
     private void doResource() {
 
         if (isClearedFor("LOAN", 5)) {
-            final RawStudent stu = getStudent();
-
-            if (stu == null) {
-                doPick();
-            } else {
-                getMainWindow().goToResource(stu);
-            }
+            getMainWindow().goToResource();
         }
     }
 
