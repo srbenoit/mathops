@@ -1,6 +1,7 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
@@ -20,6 +21,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,8 +59,7 @@ import java.util.Set;
  * END IF
  * </pre>
  */
-public enum BulkUpdateMPLTestScores {
-    ;
+public class BulkUpdateMPLTestScores {
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
     private static final boolean DEBUG = false;
@@ -69,25 +70,95 @@ public enum BulkUpdateMPLTestScores {
     /** A commonly used integer. */
     private static final Integer ONE = Integer.valueOf(1);
 
-    /** A commonly used integer. */
-    private static final Integer TWO = Integer.valueOf(2);
+    /** The database profile through which to access the database. */
+    private final DbProfile dbProfile;
+
+    /** The Primary database context. */
+    private final DbContext primaryCtx;
+
+    /** The live data database context. */
+    private final DbContext liveCtx;
+
+    /**
+     * Constructs a new {@code BulkUpdateMPLTestScores}.
+     */
+    public BulkUpdateMPLTestScores() {
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+
+        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+    }
+
+    /**
+     * Executes the job.
+     *
+     * @return the report
+     */
+    public String execute() {
+
+        final Collection<String> report = new ArrayList<>(10);
+
+        if (this.dbProfile == null) {
+            final String msg = "Unable to create production context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else if (this.primaryCtx == null) {
+            final String msg = "Unable to create PRIMARY database context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else if (this.liveCtx == null) {
+            final String msg = "Unable to create LIVE database context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else {
+            try {
+                final DbConnection conn = this.primaryCtx.checkOutConnection();
+                final Cache cache = new Cache(this.dbProfile, conn);
+                try {
+                    execute(cache, report);
+                } finally {
+                    this.primaryCtx.checkInConnection(conn);
+                }
+            } catch (final SQLException ex) {
+                final String msg = HtmlBuilder.concat("EXCEPTION: ", ex.getMessage());
+                Log.warning(msg);
+                report.add(msg);
+            }
+        }
+
+        final HtmlBuilder htm = new HtmlBuilder(1000);
+        htm.addln("<pre>");
+        for (final String rep : report) {
+            htm.addln(rep);
+        }
+        htm.addln("</pre>");
+
+        return htm.toString();
+    }
 
     /**
      * Executes the job.
      *
      * @param cache the data cache
-     * @param liveCtx the "LIVE" database context
+     * @param report a list of strings to which to add report output lines
      * @throws SQLException if there is an error accessing the database
      */
-    public static void execute(final Cache cache, final DbContext liveCtx) throws SQLException {
+    public void execute(final Cache cache, final Collection<? super String> report) throws SQLException {
 
         // Determine the list of students who should have MPL test scores of some kind
-        Log.fine("Scanning student MathPlan status...");
+        final String msg1 = "Scanning student MathPlan status...";
+        Log.fine(msg1);
+        report.add(msg1);
 
         final List<RawStmathplan> allStMathPlan = RawStmathplanLogic.INSTANCE.queryAll(cache);
         final int size = allStMathPlan.size();
         final String sizeStr = Integer.toString(size);
-        Log.fine("    Found ", sizeStr, " MathPlan responses");
+
+        final String msg2 = HtmlBuilder.concat("    Found ", sizeStr, " MathPlan responses");
+        report.add(msg2);
+        Log.fine(msg2);
 
         final Map<String, RawStmathplan> latest1 = new HashMap<>(25000);
 
@@ -112,7 +183,9 @@ public enum BulkUpdateMPLTestScores {
 
         final int size1 = latest1.size();
         final String size1Str = Integer.toString(size1);
-        Log.fine("    Found ", size1Str, " 'WLCM5' question 1 responses");
+        final String msg3 = HtmlBuilder.concat("    Found ", size1Str, " 'WLCM5' question 1 responses");
+        Log.fine(msg3);
+        report.add(msg3);
 
         final Collection<String> stuIds = new HashSet<>(25000);
         final Set<String> keys1 = latest1.keySet();
@@ -120,13 +193,17 @@ public enum BulkUpdateMPLTestScores {
 
         final int sizeAll = stuIds.size();
         final String sizeAllStr = Integer.toString(sizeAll);
-        Log.fine("    Found ", sizeAllStr, " distinct students with responses");
+        final String msg4 = HtmlBuilder.concat("    Found ", sizeAllStr, " distinct students with responses");
+        Log.fine(msg4);
+        report.add(msg4);
 
         // Compare results with SORTEST table
         Log.fine(CoreConstants.EMPTY);
-        Log.fine("Scanning SORTEST table...");
+        final String msg5 = "Scanning SORTEST table...";
+        Log.fine(msg5);
+        report.add(msg5);
 
-        final DbConnection liveConn = liveCtx.checkOutConnection();
+        final DbConnection liveConn = this.liveCtx.checkOutConnection();
         final LocalDateTime now = LocalDateTime.now();
         try {
             int count1 = 0;
@@ -137,14 +214,20 @@ public enum BulkUpdateMPLTestScores {
 
                 RawStudent student = RawStudentLogic.query(cache, stuId, false);
                 if (student == null) {
-                    Log.fine("   WARNING: Student ", stuId, " needed to be retrieved");
+                    final String msg = HtmlBuilder.concat("   WARNING: Student ", stuId, " needed to be retrieved");
+                    Log.fine(msg);
+                    report.add(msg);
                     student = RawStudentLogic.query(cache, stuId, true);
                 }
 
                 if (student == null) {
-                    Log.fine("   ERROR: Student ", stuId, " not found!");
+                    final String msg = HtmlBuilder.concat("   ERROR: Student ", stuId, " not found!");
+                    Log.warning(msg);
+                    report.add(msg);
                 } else if (student.pidm == null) {
-                    Log.fine("   ERROR: Student ", stuId, " has no PIDM!");
+                    final String msg = HtmlBuilder.concat("   ERROR: Student ", stuId, " has no PIDM!");
+                    Log.warning(msg);
+                    report.add(msg);
                 } else {
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
                             student.pidm);
@@ -174,8 +257,10 @@ public enum BulkUpdateMPLTestScores {
                     boolean doInsert = false;
                     if (wantValue == null) {
                         if (mostRecent != null) {
-                            Log.warning("Student ", stuId, " who has not completed MathPlan has a MPL score of ",
-                                    mostRecent.testScore);
+                            final String msg = HtmlBuilder.concat("Student ", stuId,
+                                    " who has not completed MathPlan has a MPL score of ", mostRecent.testScore);
+                            Log.warning(msg);
+                            report.add(msg);
                         }
                     } else if (mostRecent == null) {
                         // Insert the new score
@@ -188,13 +273,23 @@ public enum BulkUpdateMPLTestScores {
                     if (doInsert) {
                         // Score has changed - insert a new score
                         if (DEBUG) {
-                            Log.fine("   Need to insert MPL=", wantValue, " test score for ", stuId);
+                            final String msg = HtmlBuilder.concat("   Need to insert MPL=", wantValue,
+                                    " test score for ", stuId);
+                            Log.fine(msg);
+                            report.add(msg);
                         } else {
-                            Log.fine("   Inserting MPL=", wantValue, " test score for ", stuId);
+                            final String msg = HtmlBuilder.concat("   Inserting MPL=", wantValue, " test score for ",
+                                    stuId);
+                            Log.fine(msg);
+                            report.add(msg);
+
                             final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, now,
                                     wantValue);
                             if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                Log.fine("   ERROR: Failed to insert MPL=", wantValue, " test score for ", stuId);
+                                final String msg6 = HtmlBuilder.concat("   ERROR: Failed to insert MPL=", wantValue,
+                                        " test score for ", stuId);
+                                Log.warning(msg6);
+                                report.add(msg6);
                             }
                         }
                         if ("2".equals(wantValue)) {
@@ -207,18 +302,26 @@ public enum BulkUpdateMPLTestScores {
             }
 
             final String count1Str = Integer.toString(count1);
-            Log.fine("    Found ", count1Str, " to update to score 1");
+            final String msg6 = HtmlBuilder.concat("    Found ", count1Str, " to update to score 1");
+            Log.fine(msg6);
+            report.add(msg6);
 
             final String count2Str = Integer.toString(count2);
-            Log.fine("    Found ", count2Str, " to update to score 2");
+            final String msg7 = HtmlBuilder.concat("    Found ", count2Str, " to update to score 2");
+            Log.fine(msg7);
+            report.add(msg7);
 
             final String already1Str = Integer.toString(already1);
-            Log.fine("    Found ", already1Str, " already with score 1");
+            final String msg8 = HtmlBuilder.concat("    Found ", already1Str, " already with score 1");
+            Log.fine(msg8);
+            report.add(msg8);
 
             final String already2Str = Integer.toString(already2);
-            Log.fine("    Found ", already2Str, " already with score 2");
+            final String msg9 = HtmlBuilder.concat("    Found ", already2Str, " already with score 2");
+            Log.fine(msg9);
+            report.add(msg9);
         } finally {
-            liveCtx.checkInConnection(liveConn);
+            this.liveCtx.checkInConnection(liveConn);
         }
     }
 
@@ -229,23 +332,8 @@ public enum BulkUpdateMPLTestScores {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        final DbContext liveCtx = dbProfile.getDbContext(ESchemaUse.LIVE);
+        final BulkUpdateMPLTestScores job = new BulkUpdateMPLTestScores();
 
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                execute(cache, liveCtx);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-        }
-
+        Log.fine(job.execute());
     }
 }

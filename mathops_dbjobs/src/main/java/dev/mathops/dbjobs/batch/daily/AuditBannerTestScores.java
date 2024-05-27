@@ -716,7 +716,6 @@ public final class AuditBannerTestScores {
         return studentIds;
     }
 
-
     /**
      * Main method to execute the batch job.
      *
