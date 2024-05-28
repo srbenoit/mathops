@@ -267,6 +267,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                         && (weekday == DayOfWeek.MONDAY || weekday == DayOfWeek.TUESDAY
                         || weekday == DayOfWeek.WEDNESDAY || weekday == DayOfWeek.THURSDAY)) {
                     end = row.closeTime1;
+                } else if ("Monday - Friday".equals(row.weekdays1)) {
+                    end = row.closeTime1;
                 } else if ("Friday".equals(row.weekdays2) && weekday == DayOfWeek.FRIDAY) {
                     end = row.closeTime2;
                 } else {
