@@ -50,7 +50,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Logic module for the welcome website. This class is thread-safe and may be queried by multiple servlet threads.
+ * Logic module for the Math Plan website. This class is thread-safe and may be queried by multiple servlet threads.
  *
  * <p>
  * LAST REVIEW AGAINST CIM/Catalog: April 29, 2024

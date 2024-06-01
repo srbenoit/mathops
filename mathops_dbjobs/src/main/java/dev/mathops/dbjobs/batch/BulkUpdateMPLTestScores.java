@@ -122,7 +122,8 @@ public class BulkUpdateMPLTestScores {
                     this.primaryCtx.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
-                final String msg = HtmlBuilder.concat("EXCEPTION: ", ex.getMessage());
+                final String exMsg = ex.getMessage();
+                final String msg = HtmlBuilder.concat("EXCEPTION: ", exMsg);
                 Log.warning(msg);
                 report.add(msg);
             }
@@ -210,6 +211,7 @@ public class BulkUpdateMPLTestScores {
             int count2 = 0;
             int already1 = 0;
             int already2 = 0;
+
             for (final String stuId : stuIds) {
 
                 RawStudent student = RawStudentLogic.query(cache, stuId, false);
