@@ -272,12 +272,65 @@ final class LogicCheckInCourseExams {
         if (studentTerm == null) {
             // Set all exams as "unavailable" - student is not registered, and changes to "enforceEligibility" cannot
             // make such exams available.
-
             for (final CourseNumbers numbers : CourseNumbers.COURSES) {
                 final DataCourseExams data = this.checkInData.getCourseExams(numbers);
                 makeCourseUnavailable(data, numbers, NOT_REGISTERED);
                 data.registeredInOld = false;
                 data.registeredInNew = false;
+            }
+
+            // Student might not be registered this term, but still could have an Incomplete from a prior term.
+            for (final RawStcourse reg : activeRegs) {
+                if ("Y".equals(reg.iInProgress) && "N".equals(reg.iCounted)) {
+                    CourseNumbers numbers = null;
+                    for (final CourseNumbers test : CourseNumbers.COURSES) {
+                        if (test.oldCourseId().equals(reg.course) || test.newCourseId().equals(reg.course)) {
+                            numbers = test;
+                            break;
+                        }
+                    }
+
+                    if (numbers != null) {
+                        final boolean isNew = numbers.isNew(reg.course);
+                        final DataCourseExams data = this.checkInData.getCourseExams(numbers);
+
+                        boolean eligible = true;
+                        if (enforceEligibility) {
+                            final LocalDate today = LocalDate.now();
+                            if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(today)) {
+                                makeCourseUnavailable(data, numbers, PAST_DEADLINE);
+                                eligible = false;
+                            }
+                        }
+
+                        if (eligible) {
+                            final String newCourseId = numbers.newCourseId();
+                            final String oldCourseId = numbers.oldCourseId();
+
+                            data.registeredInOld = reg.course.equals(oldCourseId);
+                            data.registeredInNew = reg.course.equals(newCourseId);
+
+                            if (reg.openStatus == null) {
+                                // "enforceEligibility" cannot make exams available in unopened courses
+                                makeCourseUnavailable(data, numbers, "Not Yet Open");
+                            } else if ("G".equals(reg.openStatus)) {
+                                // "enforceEligibility" cannot make exams available in forfeit courses
+                                makeCourseUnavailable(data, numbers, "Course is Forfeit");
+                            } else if ("Y".equals(reg.openStatus)) {
+
+                                final Map<RawStcourse, SectionData> sections = new HashMap<>(1);
+                                loadSectionData(cache, activeRegs, sections);
+
+                                final SectionData sectData = sections.get(reg);
+
+                                testSingleIncomplete(cache, data, reg, 1, "A", sectData, enforceEligibility);
+                            } else {
+                                // "enforceEligibility" cannot make exams available in course that is not open
+                                makeCourseUnavailable(data, numbers, "Course Not Open");
+                            }
+                        }
+                    }
+                }
             }
         } else {
             final int pace = studentTerm.pace.intValue();
