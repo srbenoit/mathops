@@ -139,6 +139,7 @@ public final class CronJobs implements ICronJob {
         }
 
         if (now.isAfter(this.earlyMorning)) {
+            new BulkUpdateMPLTestScores().execute();
             new ImportOdsApplicants().execute();
             new ImportOdsTransferCredit().execute();
             new ImportOdsPastCourses().execute();
@@ -147,7 +148,6 @@ public final class CronJobs implements ICronJob {
             new CheckStudentTerm().execute();
             new SendQueuedBannerTestScores().execute();
             new AuditBannerTestScores().execute();
-            new BulkUpdateMPLTestScores().execute();
             this.earlyMorning = LocalDateTime.of(tomorrow, THREE_AM);
         }
     }

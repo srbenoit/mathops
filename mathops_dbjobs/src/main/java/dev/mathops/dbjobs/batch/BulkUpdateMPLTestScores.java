@@ -62,7 +62,7 @@ import java.util.Set;
 public class BulkUpdateMPLTestScores {
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     /** The test code. */
     private static final String TEST_CODE = "MPL";

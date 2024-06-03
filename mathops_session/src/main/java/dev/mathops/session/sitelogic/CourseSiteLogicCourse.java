@@ -803,6 +803,11 @@ public final class CourseSiteLogicCourse {
                     continue;
                 }
 
+                // Pacing structure is not relevant for a non-counted Incomplete
+                if ("Y".equals(stcourse.iInProgress) && "N".equals(stcourse.iCounted)) {
+                    continue;
+                }
+
                 final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
                 if ((cfg == null) || "Y".equals(cfg.course.isTutorial)) {
                     continue;
