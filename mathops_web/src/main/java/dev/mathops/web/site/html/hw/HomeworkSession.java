@@ -370,9 +370,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                             }
                         }
 
-                        if (isSpecial) {
-                            sect = "001";
-                        } else {
+                        if (!isSpecial) {
                             error = "You are not registered in this course";
                         }
                     } else {
@@ -1084,6 +1082,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                     return "No sections configured";
                 } else {
                     // Create a fake STCOURSE record
+                    sections.sort(null);
                     final RawCsection sect = sections.getFirst();
 
                     stcourse = new RawStcourse(activeTerm.term, // term
