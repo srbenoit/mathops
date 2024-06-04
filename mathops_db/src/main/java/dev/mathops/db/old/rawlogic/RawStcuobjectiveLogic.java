@@ -134,17 +134,24 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
 
         final String sql = "SELECT * FROM stcuobjective";
 
-        final List<RawStcuobjective> result = new ArrayList<>(50);
+        return doListQuery(cache, sql);
+    }
 
-        try (final Statement stmt = cache.conn.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
+    /**
+     * Gets all records for a student.
+     *
+     * @param cache the data cache
+     * @param studentId the ID of the student to query
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawStcuobjective> queryByStudent(final Cache cache, final String studentId) throws SQLException {
 
-            while (rs.next()) {
-                result.add(RawStcuobjective.fromResultSet(rs));
-            }
-        }
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM stcuobjective",
+                " WHERE stu_id=", sqlStringValue(studentId));
 
-        return result;
+        return doListQuery(cache, sql);
     }
 
     /**
@@ -168,7 +175,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
                 " AND unit=", sqlIntegerValue(unit),
                 " AND objective=", sqlIntegerValue(objective));
 
-        return executeSingleQuery(cache.conn, sql);
+        return doSingleQuery(cache.conn, sql);
     }
 
     /**
@@ -257,7 +264,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawStcuobjective executeSingleQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static RawStcuobjective doSingleQuery(final DbConnection conn, final String sql) throws SQLException {
 
         RawStcuobjective result = null;
 
@@ -266,6 +273,29 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
 
             if (rs.next()) {
                 result = RawStcuobjective.fromResultSet(rs);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Executes a query that returns a list of records.
+     *
+     * @param cache the cache
+     * @param sql  the SQL to execute
+     * @return the list of matching records
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static List<RawStcuobjective> doListQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawStcuobjective> result = new ArrayList<>(50);
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.add(RawStcuobjective.fromResultSet(rs));
             }
         }
 

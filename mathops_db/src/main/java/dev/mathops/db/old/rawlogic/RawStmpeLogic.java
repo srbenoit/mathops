@@ -286,6 +286,30 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return the list of placement exams
      * @throws SQLException if there is an error accessing the database
      */
+    public static List<RawStmpe> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        final List<RawStmpe> result;
+
+        if (stuId.startsWith("99")) {
+            result = queryByTestStudent(stuId);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM stmpe ",
+                    "WHERE stu_id=", sqlStringValue(stuId));
+
+            return executeQuery(cache.conn, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Retrieves all placement exams for a student.
+     *
+     * @param cache the data cache
+     * @param stuId the student ID
+     * @return the list of placement exams
+     * @throws SQLException if there is an error accessing the database
+     */
     public static List<RawStmpe> queryLegalByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final List<RawStmpe> result;

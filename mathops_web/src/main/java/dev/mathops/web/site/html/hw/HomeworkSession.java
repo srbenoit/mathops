@@ -16,14 +16,12 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -300,7 +298,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                     this.minMastery = Integer.valueOf(numProblems);
                 }
                 Log.info("Homework assignment has " + numProblems + " problems, minMoveOn=" + this.minMoveOn
-                                + ", minMastery=" + this.minMastery);
+                        + ", minMastery=" + this.minMastery);
 
                 theHomework.realizationTime = System.currentTimeMillis();
                 theHomework.serialNumber = serial;
@@ -704,7 +702,7 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         if (req.getParameter("grade") != null) {
 
-             Log.info(" Grading assignment question");
+            Log.info(" Grading assignment question");
 
             // Let the current problem process the POST and extract answers
             final ExamObj exam = getExam();
@@ -979,7 +977,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             Log.info(" Score = " + score + ", min move-on = " + actualMinMoveOn + ", correct = " + correct +
-                    ", min mastery = ",+ actualMinMastery + ", mastered = " + sect.mastered);
+                    ", min mastery = ", +actualMinMastery + ", mastered = " + sect.mastered);
         }
 
         return correct;
@@ -1079,62 +1077,49 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             if (isSpecial) {
-                // Create a fake STCOURSE record
-                stcourse = new RawStcourse(activeTerm.term, // term
-                        this.studentId, // stuId
-                        hw.courseId, // course
-                        "001", // sect
-                        null, // paceOrder
-                        "Y", // openStatus
-                        null, // gradingOption,
-                        "N", // completed
-                        null, // score
-                        null, // courseGrade
-                        "Y", // prereqSatis
-                        "N", // initialClassRoll
-                        "N", // stuProvided
-                        "N", // finalClassRoll
-                        null, // examPlaced
-                        null, // zeroUnit
-                        null, // timeoutFactor
-                        null, // forfeitI
-                        "N", // iInProgress
-                        null, // iCounted
-                        "N", // ctrlText
-                        null, // deferredFDt
-                        Integer.valueOf(0), // bypassTimeout
-                        null, // instrnType
-                        null, // registrationStatus
-                        null, // lastClassRollDate
-                        null, // iTermKey
-                        null); // iDeadlineDt
+                final List<RawCsection> sections = RawCsectionLogic.queryByCourseTerm(cache, hw.courseId,
+                        activeTerm.term);
 
-                stcourse.synthetic = true;
+                if (sections.isEmpty()) {
+                    return "No sections configured";
+                } else {
+                    // Create a fake STCOURSE record
+                    final RawCsection sect = sections.getFirst();
+
+                    stcourse = new RawStcourse(activeTerm.term, // term
+                            this.studentId, // stuId
+                            hw.courseId, // course
+                            sect.sect, // sect
+                            null, // paceOrder
+                            "Y", // openStatus
+                            null, // gradingOption,
+                            "N", // completed
+                            null, // score
+                            null, // courseGrade
+                            "Y", // prereqSatis
+                            "N", // initialClassRoll
+                            "N", // stuProvided
+                            "N", // finalClassRoll
+                            null, // examPlaced
+                            null, // zeroUnit
+                            null, // timeoutFactor
+                            null, // forfeitI
+                            "N", // iInProgress
+                            null, // iCounted
+                            "N", // ctrlText
+                            null, // deferredFDt
+                            Integer.valueOf(0), // bypassTimeout
+                            null, // instrnType
+                            null, // registrationStatus
+                            null, // lastClassRollDate
+                            null, // iTermKey
+                            null); // iDeadlineDt
+
+                    stcourse.synthetic = true;
+                }
             } else {
                 return "You are not registered in this course!";
             }
-        }
-
-        TermRec effTerm = activeTerm;
-        if (!effTerm.term.equals(stcourse.termKey)) {
-            final TermRec incTerm = TermLogic.get(cache).query(cache, stcourse.termKey);
-            if (incTerm != null) {
-                effTerm = incTerm;
-            }
-        }
-
-        final List<RawCusection> cusects = RawCusectionLogic.queryByCourseSection(cache, stcourse.course,
-                stcourse.sect, effTerm.term);
-
-        RawCusection cusect = null;
-        for (final RawCusection rawCusection : cusects) {
-            if (rawCusection.unit != null && rawCusection.unit.equals(hw.unit)) {
-                cusect = rawCusection;
-                break;
-            }
-        }
-        if (cusect == null) {
-            return "Course section information not found!";
         }
 
         // Compute the score

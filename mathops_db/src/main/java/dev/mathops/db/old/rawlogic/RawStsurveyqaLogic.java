@@ -132,6 +132,35 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
     }
 
     /**
+     * Gets the most recent set of survey responses submitted by a student. Responses are ordered by question number.
+     *
+     * @param cache   the data cache
+     * @param stuId   the ID of the student whose responses to retrieve
+     * @return the list of records that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawStsurveyqa> queryLatestByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("SELECT * FROM stsurveyqa ",
+                "WHERE stu_id=", sqlStringValue(stuId));
+
+        final List<RawStsurveyqa> all = executeListQuery(cache.conn, sql);
+
+        // Filter for only the most recent response for each question
+        final Map<Integer, RawStsurveyqa> questions = new TreeMap<>();
+
+        for (final RawStsurveyqa record : all) {
+            final RawStsurveyqa existing = questions.get(record.surveyNbr);
+
+            if ((existing == null) || (record.compareTo(existing) > 0)) {
+                questions.put(record.surveyNbr, record);
+            }
+        }
+
+        return new ArrayList<>(questions.values());
+    }
+
+    /**
      * Gets the most recent set of survey responses submitted by a student for a particular survey version. Responses
      * are ordered by question number.
      *
