@@ -3,8 +3,8 @@ package dev.mathops.web.site;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.io.File;
@@ -371,7 +371,7 @@ public enum Page {
      *
      * @param htm         the {@code HtmlBuilder} to which to append
      * @param minimizeUrl to allow minimizing, the URL to which the minimize button should link; null to prevent
-     *                   minimizing
+     *                    minimizing
      */
     private static void emitMaxHeader(final HtmlBuilder htm, final String minimizeUrl) {
 
@@ -562,20 +562,21 @@ public enum Page {
     /**
      * Emits the footer (Contact, OEO, Privacy, Disclaimer and Copyright).
      *
-     * @param cache     the data cache
-     * @param site      the owning site
-     * @param secondary an optional secondary footer
-     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param systemData the system data object
+     * @param site       the owning site
+     * @param secondary  an optional secondary footer
+     * @param htm        the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitFooter(final Cache cache, final AbstractSite site, final ISecondaryFooter secondary,
+    private static void emitFooter(final SystemData systemData, final AbstractSite site,
+                                   final ISecondaryFooter secondary,
                                    final HtmlBuilder htm) throws SQLException {
 
         if (secondary == null) {
             htm.addln("<footer class='empty' id='page_footer'>");
         } else {
             htm.addln("<footer id='page_footer'>");
-            secondary.emitSecondaryFooter(cache, site, htm);
+            secondary.emitSecondaryFooter(systemData, site, htm);
         }
 
         htm.sDiv("bottom-footer");
@@ -938,9 +939,8 @@ public enum Page {
      */
     private static void startOrdinaryMaxPage(final HtmlBuilder htm, final String title,
                                              final ImmutableSessionInfo session, final boolean allowIndex,
-                                             final String subtitle,
-                                             final int showBars, final String minimizeUrl, final boolean showDetails,
-                                             final boolean includeLayer) {
+                                             final String subtitle, final int showBars, final String minimizeUrl,
+                                             final boolean showDetails, final boolean includeLayer) {
 
         final boolean isAdmin = session != null && session.role.canActAs(ERole.ADMINISTRATOR);
         final boolean isAdviser = session != null && session.role.canActAs(ERole.ADVISER);
@@ -987,29 +987,30 @@ public enum Page {
     /**
      * Writes the end of an ordinary page, including the closing of the "maincontent" div.
      *
-     * @param cache        the data cache
+     * @param data         the web view data
      * @param site         the owning site
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param includeLayer true to include the "layer" div that snaps widths
      * @throws SQLException if there is an error accessing the database
      */
-    public static void endOrdinaryPage(final Cache cache, final AbstractSite site, final HtmlBuilder htm,
+    public static void endOrdinaryPage(final SystemData data, final AbstractSite site, final HtmlBuilder htm,
                                        final boolean includeLayer) throws SQLException {
 
-        endOrdinaryPage(cache, site, null, htm, includeLayer);
+        endOrdinaryPage(data, site, null, htm, includeLayer);
     }
 
     /**
      * Writes the end of an ordinary page, including the closing of the "maincontent" div.
      *
-     * @param cache        the data cache
+     * @param data         the web view data
      * @param site         the owning site
      * @param secondary    an optional secondary footer
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param includeLayer true to include the "layer" div that snaps widths
      * @throws SQLException if there is an error accessing the database
      */
-    public static void endOrdinaryPage(final Cache cache, final AbstractSite site, final ISecondaryFooter secondary,
+    public static void endOrdinaryPage(final SystemData data, final AbstractSite site,
+                                       final ISecondaryFooter secondary,
                                        final HtmlBuilder htm, final boolean includeLayer)
             throws SQLException {
 
@@ -1018,7 +1019,7 @@ public enum Page {
             htm.eDiv(); // layer
         }
         htm.eDiv(); // page-wrapper
-        emitFooter(cache, site, secondary, htm);
+        emitFooter(data, site, secondary, htm);
         htm.addln("</body>");
         endPage(htm);
     }

@@ -1,7 +1,7 @@
 package dev.mathops.web.site.admin.sysadmin;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AbstractSubsite;
@@ -22,6 +22,7 @@ import dev.mathops.web.site.admin.sysadmin.web.PageWebServers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -44,49 +45,49 @@ public final class SysAdminSubsite extends AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param session the login session (known not to be null)
-     * @param req     the request
-     * @param resp    the response
+     * @param studentData the student data object
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param session     the login session (known not to be null)
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsiteGet(final Cache cache, final String subpath,
+    public void subsiteGet(final StudentData studentData, final String subpath,
                            final ImmutableSessionInfo session, final HttpServletRequest req,
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.SYSADMIN)) {
             if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session);
+                PageHome.doGet(studentData, this.site, req, resp, session);
 
             } else if ("db.html".equals(subpath)) {
-                PageDb.doGet(cache, this.site, req, resp, session);
+                PageDb.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv.html".equals(subpath)) {
-                PageDbSrv.doGet(cache, this.site, req, resp, session);
+                PageDbSrv.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_add.html".equals(subpath)) {
-                PageDbSrvAdd.doGet(cache, this.site, req, resp, session);
+                PageDbSrvAdd.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_del.html".equals(subpath)) {
-                PageDbSrvDel.doGet(cache, this.site, req, resp, session);
+                PageDbSrvDel.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd.html".equals(subpath)) {
-                PageDbSrvPrd.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrd.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_add.html".equals(subpath)) {
-                PageDbSrvPrdAdd.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrdAdd.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_del.html".equals(subpath)) {
-                PageDbSrvPrdDel.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrdDel.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_adm.html".equals(subpath)) {
-                PageDbSrvPrdAdm.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrdAdm.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_adm_dba.html".equals(subpath)) {
-                PageDbSrvPrdAdmDba.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrdAdmDba.doGet(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_adm_sys.html".equals(subpath)) {
-                PageDbSrvPrdAdmSys.doGet(cache, this.site, req, resp, session);
+                PageDbSrvPrdAdmSys.doGet(studentData, this.site, req, resp, session);
 
             } else if ("web_servers.html".equals(subpath)) {
-                PageWebServers.doGet(cache, this.site, req, resp, session);
+                PageWebServers.doGet(studentData, this.site, req, resp, session);
             } else if ("media_servers.html".equals(subpath)) {
-                PageMediaServers.doGet(cache, this.site, req, resp, session);
+                PageMediaServers.doGet(studentData, this.site, req, resp, session);
             } else if ("turn_servers.html".equals(subpath)) {
-                PageTurnServers.doGet(cache, this.site, req, resp, session);
+                PageTurnServers.doGet(studentData, this.site, req, resp, session);
             } else {
                 Log.warning("GET: unknown path '", subpath, "'");
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -101,27 +102,27 @@ public final class SysAdminSubsite extends AbstractSubsite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param session the login session (known not to be null)
-     * @param req     the request
-     * @param resp    the response
+     * @param studentData the student data object
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param session     the login session (known not to be null)
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsitePost(final Cache cache, final String subpath,
+    public void subsitePost(final StudentData studentData, final String subpath,
                             final ImmutableSessionInfo session, final HttpServletRequest req,
                             final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.SYSADMIN)) {
             if ("db_srv_add.html".equals(subpath)) {
-                PageDbSrvAdd.doPost(cache, this.site, req, resp, session);
+                PageDbSrvAdd.doPost(studentData, this.site, req, resp, session);
             } else if ("db_srv_del.html".equals(subpath)) {
-                PageDbSrvDel.doPost(cache, this.site, req, resp, session);
+                PageDbSrvDel.doPost(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_add.html".equals(subpath)) {
-                PageDbSrvPrdAdd.doPost(cache, this.site, req, resp, session);
+                PageDbSrvPrdAdd.doPost(studentData, this.site, req, resp, session);
             } else if ("db_srv_prd_del.html".equals(subpath)) {
-                PageDbSrvPrdDel.doPost(cache, this.site, req, resp, session);
+                PageDbSrvPrdDel.doPost(studentData, this.site, req, resp, session);
             } else {
                 Log.warning("POST: unknown path '", subpath, "'");
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);

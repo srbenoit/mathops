@@ -4,12 +4,12 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -18,7 +18,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,14 +42,14 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * A panel that shows student deadlines.
  */
-final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListener, IZTableCommandListener<DeadlineListRow> {
+final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListener,
+        IZTableCommandListener<DeadlineListRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -312,122 +312,128 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
 
         this.studentData = data;
 
-        final RawStterm stterm = data.studentTerm;
+        try {
+            final TermRec activeTerm = data.getActiveTerm();
+            final RawStterm stterm = data.getStudentTerm(activeTerm.term);
 
-        if (stterm != null) {
-            if (stterm.pace == null) {
-                this.paceDisplay.setText("?");
-            } else {
-                this.paceDisplay.setText(stterm.pace.toString());
-            }
-            this.paceTrackDisplay.setText(stterm.paceTrack);
-
-            final Collection<RawStcourse> currentTermRegs = new ArrayList<>(data.studentCoursesPastAndCurrent);
-
-            // Remove any not in the current term
-            currentTermRegs.removeIf(next -> !next.termKey.equals(stterm.termKey));
-
-            // Assign pace order if any regs do not yet have a pace order
-            final List<RawStcourse> toassign = new ArrayList<>(currentTermRegs.size());
-            final List<Integer> orders = new ArrayList<>(currentTermRegs.size());
-            for (int i = 1; i <= currentTermRegs.size(); ++i) {
-                orders.add(Integer.valueOf(i));
-            }
-
-            for (final RawStcourse reg : currentTermRegs) {
-                final Integer order = reg.paceOrder;
-                if (order == null) {
-                    toassign.add(reg);
-                } else if (order.intValue() >= currentTermRegs.size()) {
-                    reg.paceOrder = null;
-                    toassign.add(reg);
+            if (stterm != null) {
+                if (stterm.pace == null) {
+                    this.paceDisplay.setText("?");
                 } else {
-                    orders.remove(order);
+                    this.paceDisplay.setText(stterm.pace.toString());
                 }
-            }
+                this.paceTrackDisplay.setText(stterm.paceTrack);
 
-            if (!toassign.isEmpty()) {
-                Collections.sort(toassign);
-                for (final RawStcourse row : toassign) {
-                    row.paceOrder = orders.remove(0);
-                }
-            }
-            toassign.clear();
-            orders.clear();
+                final List<RawStcourse> currentTermRegs = data.getRegistrations();
 
-            final List<RawStexam> exams = data.studentExams;
+                // Remove any not in the current term
+                currentTermRegs.removeIf(next -> !next.termKey.equals(stterm.termKey));
 
-            final List<RawMilestone> milestones = data.milestones;
-            final List<RawStmilestone> stmilestones = data.studentMilestones;
-            final List<RawPaceAppeals> paceAppeals = data.paceAppeals;
-            final List<DeadlineListRow> rows = new ArrayList<>(10);
-
-            for (final RawMilestone ms : milestones) {
-                RawStmilestone stms = null;
-                for (final RawStmilestone test : stmilestones) {
-                    if (test.paceTrack.equals(ms.paceTrack) && test.msNbr.equals(ms.msNbr)
-                            && test.msType.equals(ms.msType)) {
-                        stms = test;
-                        break;
-                    }
+                // Assign pace order if any regs do not yet have a pace order
+                final List<RawStcourse> toassign = new ArrayList<>(currentTermRegs.size());
+                final List<Integer> orders = new ArrayList<>(currentTermRegs.size());
+                for (int i = 1; i <= currentTermRegs.size(); ++i) {
+                    orders.add(Integer.valueOf(i));
                 }
 
-                // Milestone number is [pace][order][unit]
-                final int order = ms.msNbr.intValue() / 10 % 10;
-                final int unit = ms.msNbr.intValue() % 10;
-                final LocalDate newDate = stms == null ? null : stms.msDate;
-                final LocalDate effDate = newDate == null ? ms.msDate : newDate;
-
-                String course = null;
                 for (final RawStcourse reg : currentTermRegs) {
-                    if (reg.paceOrder != null && reg.paceOrder.intValue() == order) {
-                        course = reg.course;
-                    }
-                }
-
-                final String examType;
-                if ("FE".equals(ms.msType) || "F1".equals(ms.msType)) {
-                    examType = "F";
-                } else {
-                    examType = "R";
-                }
-
-                // See if the exam was completed
-                LocalDate earliestCompletion = null;
-                Boolean onTime = null;
-
-                for (final RawStexam exam : exams) {
-                    if (exam.course.equals(course) && exam.unit.intValue() == unit && exam.examType.equals(examType)
-                            && "Y".equals(exam.passed)) {
-                        if (earliestCompletion == null || exam.examDt.isBefore(earliestCompletion)) {
-                            earliestCompletion = exam.examDt;
-                        }
-                    }
-                }
-                if (earliestCompletion != null) {
-                    if ("F".equals(examType)) {
-                        // If a Passed final is on record, assume it was on time.
-                        onTime = Boolean.TRUE;
+                    final Integer order = reg.paceOrder;
+                    if (order == null) {
+                        toassign.add(reg);
+                    } else if (order.intValue() >= currentTermRegs.size()) {
+                        reg.paceOrder = null;
+                        toassign.add(reg);
                     } else {
-                        onTime = Boolean.valueOf(!earliestCompletion.isAfter(effDate));
+                        orders.remove(order);
                     }
                 }
 
-                RawPaceAppeals appeal = null;
-                if (stterm.pace != null && stterm.paceTrack != null) {
-                    for (final RawPaceAppeals test : paceAppeals) {
-                        if (stterm.pace.equals(test.pace) && stterm.paceTrack.equals(test.paceTrack)
-                                && ms.msNbr.equals(test.msNbr) && ms.msType.equals(test.msType)) {
-                            appeal = test;
+                if (!toassign.isEmpty()) {
+                    Collections.sort(toassign);
+                    for (final RawStcourse row : toassign) {
+                        row.paceOrder = orders.removeFirst();
+                    }
+                }
+                toassign.clear();
+                orders.clear();
+
+                final List<RawStexam> exams = data.getStudentExams();
+
+                final List<RawMilestone> milestones = data.getMilestones(activeTerm.term, stterm.pace,
+                        stterm.paceTrack);
+                final List<RawStmilestone> stmilestones = data.getStudentMilestones(activeTerm.term, stterm.paceTrack);
+                final List<RawPaceAppeals> paceAppeals = data.getDeadlineAppeals();
+                final List<DeadlineListRow> rows = new ArrayList<>(10);
+
+                for (final RawMilestone ms : milestones) {
+                    RawStmilestone stms = null;
+                    for (final RawStmilestone test : stmilestones) {
+                        if (test.paceTrack.equals(ms.paceTrack) && test.msNbr.equals(ms.msNbr)
+                                && test.msType.equals(ms.msType)) {
+                            stms = test;
                             break;
                         }
                     }
+
+                    // Milestone number is [pace][order][unit]
+                    final int order = ms.msNbr.intValue() / 10 % 10;
+                    final int unit = ms.msNbr.intValue() % 10;
+                    final LocalDate newDate = stms == null ? null : stms.msDate;
+                    final LocalDate effDate = newDate == null ? ms.msDate : newDate;
+
+                    String course = null;
+                    for (final RawStcourse reg : currentTermRegs) {
+                        if (reg.paceOrder != null && reg.paceOrder.intValue() == order) {
+                            course = reg.course;
+                        }
+                    }
+
+                    final String examType;
+                    if ("FE".equals(ms.msType) || "F1".equals(ms.msType)) {
+                        examType = "F";
+                    } else {
+                        examType = "R";
+                    }
+
+                    // See if the exam was completed
+                    LocalDate earliestCompletion = null;
+                    Boolean onTime = null;
+
+                    for (final RawStexam exam : exams) {
+                        if (exam.course.equals(course) && exam.unit.intValue() == unit && exam.examType.equals(examType)
+                                && "Y".equals(exam.passed)) {
+                            if (earliestCompletion == null || exam.examDt.isBefore(earliestCompletion)) {
+                                earliestCompletion = exam.examDt;
+                            }
+                        }
+                    }
+                    if (earliestCompletion != null) {
+                        if ("F".equals(examType)) {
+                            // If a Passed final is on record, assume it was on time.
+                            onTime = Boolean.TRUE;
+                        } else {
+                            onTime = Boolean.valueOf(!earliestCompletion.isAfter(effDate));
+                        }
+                    }
+
+                    RawPaceAppeals appeal = null;
+                    if (stterm.pace != null && stterm.paceTrack != null) {
+                        for (final RawPaceAppeals test : paceAppeals) {
+                            if (stterm.pace.equals(test.pace) && stterm.paceTrack.equals(test.paceTrack)
+                                    && ms.msNbr.equals(test.msNbr) && ms.msType.equals(test.msType)) {
+                                appeal = test;
+                                break;
+                            }
+                        }
+                    }
+
+                    rows.add(new DeadlineListRow(course, ms, stms, appeal, earliestCompletion, onTime));
                 }
 
-                rows.add(new DeadlineListRow(course, ms, stms, appeal, earliestCompletion, onTime));
+                this.deadlinesTable.setData(rows);
             }
-
-            this.deadlinesTable.setData(rows);
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query for current student term record.");
         }
     }
 
@@ -457,20 +463,18 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
             this.circumstancesArea.setEnabled(true);
             this.commentsArea.setEnabled(true);
 
-            if (this.studentData != null && this.studentData.studentTerm != null) {
-                this.applyBtn.setEnabled(true);
+            this.applyBtn.setEnabled(true);
 
-                this.interviewerField.setText(this.fixed.username);
-                final LocalDate today = LocalDate.now();
-                this.appealDateField.setText(TemporalUtils.FMT_MDY_COMPACT.format(today));
-                final String deadlineStr;
-                if (rowData.stmilestoneRecord == null) {
-                    deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.milestoneRecord.msDate);
-                } else {
-                    deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.stmilestoneRecord.msDate);
-                }
-                this.newDeadlineField.setText(deadlineStr);
+            this.interviewerField.setText(this.fixed.username);
+            final LocalDate today = LocalDate.now();
+            this.appealDateField.setText(TemporalUtils.FMT_MDY_COMPACT.format(today));
+            final String deadlineStr;
+            if (rowData.stmilestoneRecord == null) {
+                deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.milestoneRecord.msDate);
+            } else {
+                deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.stmilestoneRecord.msDate);
             }
+            this.newDeadlineField.setText(deadlineStr);
 
         } else if (ZTableDeadlines.CMD_EDIT.equals(cmd)) {
 
@@ -519,7 +523,7 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
         final String cmd = e.getActionCommand();
 
         if (APPLY_CMD.equals(cmd)) {
-            if (this.studentData == null || this.studentData.studentTerm == null || this.currentRow == null) {
+            if (this.studentData == null || this.currentRow == null) {
                 JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
                         "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
             } else if (this.reliefGiven.isSelected()) {
@@ -530,6 +534,9 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
         }
     }
 
+    /**
+     * Applies an appeal where relief was given.
+     */
     private void applyAppealReliefGiven() {
 
         final String interviewer = this.interviewerField.getText();
@@ -562,62 +569,68 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                     RawPaceAppeals appealRec = null;
                     RawStmilestone stmilestoneRec = null;
 
-                    if (attemptsStr == null || attemptsStr.isBlank()) {
-                        appealRec = new RawPaceAppeals(this.fixed.activeTerm.term,
-                                this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm.pace,
-                                this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-                                this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
-                                newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
-                                interviewer);
-                        stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, this.studentData.student.stuId,
-                                this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-                                this.currentRow.milestoneRecord.msType, newDate, null);
-                    } else {
-                        try {
-                            final Integer attempts = Integer.valueOf(attemptsStr);
+                    final String studentId = this.studentData.getStudentId();
+                    try {
+                        final TermRec activeTerm = this.studentData.getActiveTerm();
+                        final RawStterm stterm = this.studentData.getStudentTerm(activeTerm.term);
 
-                            appealRec = new RawPaceAppeals(this.fixed.activeTerm.term,
-                                    this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm.pace,
-                                    this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
+                        if (attemptsStr == null || attemptsStr.isBlank()) {
+                            appealRec = new RawPaceAppeals(this.fixed.activeTerm.term, studentId, appealDate, "Y",
+                                    stterm.pace, stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                     this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
-                                    newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
+                                    newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                     interviewer);
-                            stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term,
-                                    this.studentData.student.stuId,
-                                    this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-                                    this.currentRow.milestoneRecord.msType, newDate, attempts);
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts",
-                                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
+                            stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, studentId, stterm.paceTrack,
+                                    this.currentRow.milestoneRecord.msNbr, this.currentRow.milestoneRecord.msType,
+                                    newDate, null);
+                        } else {
+                            try {
+                                final Integer attempts = Integer.valueOf(attemptsStr);
 
-                    if (appealRec != null && stmilestoneRec != null) {
-                        try {
-                            RawPaceAppealsLogic.INSTANCE.insert(this.cache, appealRec);
-                            if (this.currentRow != null && this.currentRow.stmilestoneRecord != null) {
-                                this.studentData.studentMilestones.remove(this.currentRow.stmilestoneRecord);
-                                RawStmilestoneLogic.INSTANCE.delete(this.cache, this.currentRow.stmilestoneRecord);
+                                appealRec = new RawPaceAppeals(this.fixed.activeTerm.term, studentId, appealDate, "Y",
+                                        stterm.pace, stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
+                                        this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
+                                        newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
+                                        interviewer);
+                                stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, studentId,
+                                        stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
+                                        this.currentRow.milestoneRecord.msType, newDate, attempts);
+                            } catch (final NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts",
+                                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
                             }
-                            RawStmilestoneLogic.INSTANCE.insert(this.cache, stmilestoneRec);
-
-                            this.appealHeading.setText(CoreConstants.EMPTY);
-                            this.interviewerField.setText(CoreConstants.EMPTY);
-                            this.appealDateField.setText(CoreConstants.EMPTY);
-                            this.reliefGiven.setSelected(false);
-                            this.newDeadlineField.setText(CoreConstants.EMPTY);
-                            this.nbrAttemptsField.setText(CoreConstants.EMPTY);
-                            this.circumstancesArea.setText(CoreConstants.EMPTY);
-                            this.commentsArea.setText(CoreConstants.EMPTY);
-                            this.applyBtn.setEnabled(false);
-
-                            // Refresh
-                            this.studentData.studentMilestones.add(stmilestoneRec);
-                            populateDisplay(this.studentData);
-                        } catch (final SQLException ex) {
-                            JOptionPane.showMessageDialog(this, "Failed to insert appeal: " + ex.getMessage(),
-                                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
                         }
+
+
+                        if (appealRec != null && stmilestoneRec != null) {
+                            try {
+                                RawPaceAppealsLogic.INSTANCE.insert(this.cache, appealRec);
+                                if (this.currentRow != null && this.currentRow.stmilestoneRecord != null) {
+                                    RawStmilestoneLogic.INSTANCE.delete(this.cache, this.currentRow.stmilestoneRecord);
+                                }
+                                RawStmilestoneLogic.INSTANCE.insert(this.cache, stmilestoneRec);
+                                this.studentData.forgetStudentMilestones();
+
+                                this.appealHeading.setText(CoreConstants.EMPTY);
+                                this.interviewerField.setText(CoreConstants.EMPTY);
+                                this.appealDateField.setText(CoreConstants.EMPTY);
+                                this.reliefGiven.setSelected(false);
+                                this.newDeadlineField.setText(CoreConstants.EMPTY);
+                                this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+                                this.circumstancesArea.setText(CoreConstants.EMPTY);
+                                this.commentsArea.setText(CoreConstants.EMPTY);
+                                this.applyBtn.setEnabled(false);
+
+                                // Refresh
+                                populateDisplay(this.studentData);
+                            } catch (final SQLException ex) {
+                                JOptionPane.showMessageDialog(this, "Failed to insert appeal: " + ex.getMessage(),
+                                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    } catch (final SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Error accessing database", "Deadline Appeal",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -626,7 +639,8 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
 
     /**
      * Attempts to interpret a date string
-     * @param dateString  the date string
+     *
+     * @param dateString the date string
      * @return the parsed date; null if unable to interpret
      */
     private static LocalDate interpretDate(final CharSequence dateString) {

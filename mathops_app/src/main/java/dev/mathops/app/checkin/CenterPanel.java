@@ -1,12 +1,12 @@
 package dev.mathops.app.checkin;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;

@@ -3,7 +3,7 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStqa;
@@ -14,6 +14,7 @@ import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.Objects;
 /**
  * A card within the list of all exams on the student's record (all "STEXAM" rows, not "STMPE" rows).
  */
-/* default */ class ExamListCard extends JPanel {
+/* default */ final class ExamListCard extends JPanel {
 
     /** Version number for serialization. */
     @Serial
@@ -78,42 +79,51 @@ import java.util.Objects;
      */
     /* default */ void populateDisplay(final StudentData data) {
 
-        if (data.studentExams.isEmpty()) {
+        try {
+            final List<RawStexam> studentExams = data.getStudentExams();
+
+            if (studentExams.isEmpty()) {
+                final List<ExamListRow> rows = new ArrayList<>(0);
+                this.examsTable.setData(rows);
+            } else {
+                final List<RawSemesterCalendar> weeks = this.fixed.termWeeks;
+                final int count = studentExams.size();
+                final List<ExamListRow> rows = new ArrayList<>(count);
+                final List<RawStqa> answers = new ArrayList<>(20);
+
+                for (final RawStexam stexam : studentExams) {
+
+                    int week = 0;
+                    for (int i = weeks.size() - 1; i >= 0; --i) {
+                        final RawSemesterCalendar test = weeks.get(i);
+                        if (!stexam.examDt.isBefore(test.startDt)) {
+                            week = test.weekNbr.intValue();
+                            break;
+                        }
+                    }
+                    final List<RawStqa> studentExamAnswers = data.getStudentExamAnswers();
+
+                    for (final RawStqa ansrec : studentExamAnswers) {
+                        if (Objects.equals(ansrec.serialNbr, stexam.serialNbr)) {
+                            answers.add(ansrec);
+                        }
+                    }
+
+                    Collections.sort(answers);
+                    rows.add(new ExamListRow(week, stexam, answers));
+                    answers.clear();
+                }
+
+                this.examsTable.setData(rows);
+
+                final int prefWidth = this.examsTable.getPreferredSize().width
+                        + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+
+                this.examsScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
+            }
+        } catch (final SQLException ex) {
             final List<ExamListRow> rows = new ArrayList<>(0);
             this.examsTable.setData(rows);
-        } else {
-            final List<RawSemesterCalendar> weeks = this.fixed.termWeeks;
-            final List<ExamListRow> rows = new ArrayList<>(data.studentExams.size());
-            final List<RawStqa> answers = new ArrayList<>(20);
-
-            for (final RawStexam stexam : data.studentExams) {
-
-                int week = 0;
-                for (int i = weeks.size() - 1; i >= 0; --i) {
-                    final RawSemesterCalendar test = weeks.get(i);
-                    if (!stexam.examDt.isBefore(test.startDt)) {
-                        week = test.weekNbr.intValue();
-                        break;
-                    }
-                }
-
-                for (final RawStqa ansrec : data.studentExamAnswers) {
-                    if (Objects.equals(ansrec.serialNbr, stexam.serialNbr)) {
-                        answers.add(ansrec);
-                    }
-                }
-
-                Collections.sort(answers);
-                rows.add(new ExamListRow(week, stexam, answers));
-                answers.clear();
-            }
-
-            this.examsTable.setData(rows);
-
-            final int prefWidth = this.examsTable.getPreferredSize().width
-                    + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
-
-            this.examsScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
         }
 
         invalidate();

@@ -5,7 +5,7 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;

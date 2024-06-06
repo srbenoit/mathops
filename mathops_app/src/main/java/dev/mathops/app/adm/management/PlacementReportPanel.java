@@ -7,7 +7,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;

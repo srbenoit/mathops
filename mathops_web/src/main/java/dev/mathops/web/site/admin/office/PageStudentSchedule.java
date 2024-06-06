@@ -4,12 +4,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -21,11 +20,9 @@ import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -38,6 +35,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -57,15 +55,15 @@ enum PageStudentSchedule {
     /**
      * Shows the student information page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -76,14 +74,14 @@ enum PageStudentSchedule {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+            PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+                PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
             } else {
-                doStudentSchedulePage(cache, site, req, resp, session, student);
+                doStudentSchedulePage(studentData, site, req, resp, session, student);
             }
         }
     }
@@ -91,21 +89,21 @@ enum PageStudentSchedule {
     /**
      * Shows the student schedule page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param student the student for which to present information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param student     the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStudentSchedulePage(final Cache cache, final AdminSite site,
+    private static void doStudentSchedulePage(final StudentData studentData, final AdminSite site,
                                               final ServletRequest req, final HttpServletResponse resp,
                                               final ImmutableSessionInfo session, final RawStudent student)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
         htm.sP("studentname")
                 .add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>", student.stuId,
@@ -141,24 +139,24 @@ enum PageStudentSchedule {
             htm.eDiv(); // narrowstack
 
             htm.sDiv("detail");
-            emitStudentSchedule(cache, site, htm, student);
+            emitStudentSchedule(studentData, site, htm, student);
             htm.eDiv(); // detail
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * Emits the student's schedule history.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student
+     * @param studentData the student data object
+     * @param site        the site
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param student     the student
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentSchedule(final Cache cache, final AdminSite site, final HtmlBuilder htm,
+    private static void emitStudentSchedule(final StudentData studentData, final AdminSite site, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
         final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now(),
@@ -173,7 +171,7 @@ enum PageStudentSchedule {
 
         final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
         if (data.load(session)) {
-            emitStudentSchedule(cache, data, student.stuId, htm);
+            emitStudentSchedule(studentData, data, student.stuId, htm);
         } else {
             htm.sP("red").addln("Failed to load student data: ", data.getError()).eP();
         }
@@ -182,13 +180,13 @@ enum PageStudentSchedule {
     /**
      * Emits the student's schedule history.
      *
-     * @param cache     the data cache
-     * @param data      the site data
-     * @param studentId the student ID
-     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
+     * @param data        the site data
+     * @param studentId   the student ID
+     * @param htm         the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentSchedule(final Cache cache, final SiteData data,
+    private static void emitStudentSchedule(final StudentData studentData, final SiteData data,
                                             final String studentId, final HtmlBuilder htm) throws SQLException {
 
         final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
@@ -232,25 +230,26 @@ enum PageStudentSchedule {
         }
 
         if (newCourses) {
-            emitStudentScheduleNew(cache, data, studentId, max, htm);
+            emitStudentScheduleNew(studentData, data, studentId, max, htm);
         } else {
-            emitStudentScheduleOld(cache, data, studentId, max, htm);
+            emitStudentScheduleOld(studentData, data, studentId, max, htm);
         }
     }
 
     /**
      * Emits the student's schedule for an "old" course.
      *
-     * @param cache     the data cache
-     * @param data      the site data
-     * @param studentId the student ID
-     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
+     * @param data        the site data
+     * @param studentId   the student ID
+     * @param htm         the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentScheduleOld(final Cache cache, final SiteData data, final String studentId,
+    private static void emitStudentScheduleOld(final StudentData studentData, final SiteData data,
+                                               final String studentId,
                                                final int max, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
         final String key = active.term.shortString;
 
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
@@ -418,8 +417,7 @@ enum PageStudentSchedule {
 
         htm.sH(4).add("Deadline Appeals").eH(4);
 
-        final List<RawPaceAppeals> appeals =
-                RawPaceAppealsLogic.queryByStudent(cache, data.studentData.getStudent().stuId);
+        final List<RawPaceAppeals> appeals = studentData.getDeadlineAppeals();
 
         if (appeals.isEmpty()) {
             htm.sP().add("(none)").eP();
@@ -513,32 +511,33 @@ enum PageStudentSchedule {
     /**
      * Emits the student's schedule for a "new" course.
      *
-     * @param cache     the data cache
-     * @param data      the site data
-     * @param studentId the student ID
-     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
+     * @param data        the site data
+     * @param studentId   the student ID
+     * @param htm         the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentScheduleNew(final Cache cache, final SiteData data, final String studentId,
-                                               final int max, final HtmlBuilder htm) throws SQLException {
+    private static void emitStudentScheduleNew(final StudentData studentData, final SiteData data,
+                                               final String studentId, final int max, final HtmlBuilder htm)
+            throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
         final String key = active.term.shortString;
 
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
         if (stterm == null) {
             htm.sP().add("No STTERM record found").eP();
         } else {
-            final List<StandardMilestoneRec>  milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
+            final List<StandardMilestoneRec> milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
                     stterm.paceTrack, stterm.pace);
             milestones.sort(null);
 
-            final List<StudentStandardMilestoneRec>  overrides =
+            final List<StudentStandardMilestoneRec> overrides =
                     StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
-                    stterm.paceTrack, stterm.pace);
+                            stterm.paceTrack, stterm.pace);
 
             final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
-            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
+            final List<MasteryAttemptRec> allAttempts = studentData.getMasteryAttempts();
 
             htm.sTable("report");
             htm.sTr().sTh().add("Course").eTh()
@@ -628,7 +627,7 @@ enum PageStudentSchedule {
                         "<input type='hidden' name='unt' value='", ms.unit, "'/>",
                         "<input type='hidden' name='obj' value='", ms.objective, "'/>",
                         "<input type='hidden' name='typ' value='", ms.msType, "'/>",
-                        "<input type='hidden' name='dat' value='",TemporalUtils.FMT_MDY.format(ms.msDate), "'/>",
+                        "<input type='hidden' name='dat' value='", TemporalUtils.FMT_MDY.format(ms.msDate), "'/>",
                         "<input type='submit' value='Appeal'/>",
                         "</form>").eTd().eTr();
             }
@@ -639,7 +638,8 @@ enum PageStudentSchedule {
 
     /**
      * Gets the course ID having a specified pace index.
-     * @param data the site data
+     *
+     * @param data      the site data
      * @param paceIndex the pace index (1 for first course)
      * @return the registration record
      */
@@ -663,15 +663,15 @@ enum PageStudentSchedule {
     /**
      * Processes a POST to the student schedule page.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final AdminSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -684,26 +684,26 @@ enum PageStudentSchedule {
             Log.warning("  act='", action, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if ("appealform".equals(action)) {
-            presentAppealForm(cache, site, req, resp, session);
+            presentAppealForm(studentData, site, req, resp, session);
         } else if ("appeal".equals(action)) {
-            processAppeal(cache, site, req, resp, session);
+            processAppeal(studentData, site, req, resp, session);
         } else {
-            doGet(cache, site, req, resp, session);
+            doGet(studentData, site, req, resp, session);
         }
     }
 
     /**
      * Presents the form through which to enter an appeal.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void presentAppealForm(final Cache cache, final AdminSite site,
+    private static void presentAppealForm(final StudentData studentData, final AdminSite site,
                                           final ServletRequest req, final HttpServletResponse resp,
                                           final ImmutableSessionInfo session) throws IOException, SQLException {
 
@@ -729,14 +729,14 @@ enum PageStudentSchedule {
             Log.warning("  x='", origDate, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (pace == null || track == null || order == null || milestone == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Missing data to take action.");
+            PageHome.doGet(studentData, site, req, resp, session, "Missing data to take action.");
         } else if (studentId == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+            PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+                PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
             } else {
                 final HtmlBuilder htm = new HtmlBuilder(2000);
                 Page.startOrdinaryPage(htm, OfficePage.getSiteTitle(), null, false, "Precalculus Center",
@@ -753,7 +753,8 @@ enum PageStudentSchedule {
 
                 htm.div("vgap");
 
-                htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>", student.stuId,
+                htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
+                        student.stuId,
                         "</code></strong>").eP();
 
                 if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
@@ -785,7 +786,7 @@ enum PageStudentSchedule {
                     htm.eDiv(); // detail
                 }
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                Page.endOrdinaryPage(studentData, site, htm, true);
                 AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -869,15 +870,15 @@ enum PageStudentSchedule {
     /**
      * Presents the form through which to enter an appeal.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void processAppeal(final Cache cache, final AdminSite site,
+    private static void processAppeal(final StudentData studentData, final AdminSite site,
                                       final ServletRequest req, final HttpServletResponse resp,
                                       final ImmutableSessionInfo session) throws IOException, SQLException {
 
@@ -908,9 +909,9 @@ enum PageStudentSchedule {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null || pace == null || track == null || order == null || milestone == null
                 || type == null) {
-            doGet(cache, site, req, resp, session);
+            doGet(studentData, site, req, resp, session);
         } else {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = studentData.getActiveTerm();
 
             try {
                 final Integer intPace = Integer.valueOf(pace);
@@ -918,8 +919,7 @@ enum PageStudentSchedule {
 
                 // Find the original milestone record
                 RawMilestone ms = null;
-                final List<RawMilestone> all = RawMilestoneLogic.getAllMilestones(cache, active.term,
-                        intPace.intValue(), track);
+                final List<RawMilestone> all = studentData.getMilestones(active.term, intPace, track);
 
                 for (final RawMilestone test : all) {
                     if (test.msNbr.equals(intMs) && test.msType.equals(type)) {
@@ -937,17 +937,19 @@ enum PageStudentSchedule {
                         attempts = Integer.valueOf(aa);
                     }
 
-                    final RawPaceAppeals appeal = new RawPaceAppeals(active.term, studentId, LocalDate.now(), relief,
+                    final LocalDate now = LocalDate.now();
+                    final RawPaceAppeals appeal = new RawPaceAppeals(active.term, studentId, now, relief,
                             intPace, track, intMs, type, ms.msDate, newDate, attempts, ci, co, iv);
 
+                    final Cache cache = studentData.getCache();
                     RawPaceAppealsLogic.INSTANCE.insert(cache, appeal);
+                    studentData.forgetDeadlineAppeals();
 
                     // If there is an existing STMILESTONE, update it (if the new deadline later)
                     // Otherwise, create new one.
 
                     RawStmilestone sms = null;
-                    final List<RawStmilestone> allsms = RawStmilestoneLogic.getStudentMilestones(cache, active.term,
-                            track, studentId);
+                    final List<RawStmilestone> allsms = studentData.getStudentMilestones(active.term, track);
                     for (final RawStmilestone test : allsms) {
                         if (test.msNbr.equals(intMs) && test.msType.equals(type)) {
                             sms = test;
@@ -970,11 +972,12 @@ enum PageStudentSchedule {
                         Log.warning("New appeal for exam that has already been appealed, but with same or earlier ",
                                 "deadline - not update StudentMilestone");
                     }
+                    studentData.forgetStudentMilestones();
                 }
 
-                doGet(cache, site, req, resp, session);
+                doGet(studentData, site, req, resp, session);
             } catch (final NumberFormatException | DateTimeParseException ex) {
-                doGet(cache, site, req, resp, session);
+                doGet(studentData, site, req, resp, session);
                 Log.warning(ex);
             }
         }

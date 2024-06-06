@@ -2,7 +2,7 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;

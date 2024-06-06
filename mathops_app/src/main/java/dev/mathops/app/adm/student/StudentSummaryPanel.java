@@ -2,13 +2,13 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -16,12 +16,17 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -80,7 +85,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Constructs a new {@code StudentSummaryPanel}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     StudentSummaryPanel(final Cache theCache) {
 
@@ -176,7 +181,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Creates the block that displays placement result.
      *
-     * @param blockTitle       the block title label
+     * @param blockTitle the block title label
      * @return the placement results block panel
      */
     private JPanel makePlacementBlock(final JLabel blockTitle) {
@@ -380,14 +385,18 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populateDisplay(final StudentData data) {
 
-        populatePlacement(data);
-        populateCourses(data);
-        populateHolds(data);
-        populateAccommodations(data);
+        try {
+            populatePlacement(data);
+            populateCourses(data);
+            populateHolds(data);
+            populateAccommodations(data);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
 
         invalidate();
         revalidate();
@@ -397,16 +406,19 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Populates the "Placement" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
+     * @throws SQLException if there is an error accessing the database
      */
-    private void populatePlacement(final StudentData data) {
+    private void populatePlacement(final StudentData data) throws SQLException {
 
         final StringBuilder placedOut = new StringBuilder(50);
 
+        final List<RawMpeCredit> placementCredit = data.getPlacementCredit();
+
         int added = 0;
-        final int count = data.studentPlacementCredit.size();
+        final int count = placementCredit.size();
         for (int i = 0; i < count; ++i) {
-            final String name = nameForCourse(data.studentPlacementCredit.get(i).course);
+            final String name = nameForCourse(placementCredit.get(i).course);
             if (name != null) {
                 if (added > 0) {
                     placedOut.append(", ");
@@ -423,7 +435,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
 
         final StringBuilder eligibleFor = new StringBuilder(50);
         try {
-            final PrerequisiteLogic prereq = new PrerequisiteLogic(this.cache, data.student.stuId);
+            final PrerequisiteLogic prereq = new PrerequisiteLogic(data);
 
             int numEligible = 0;
             if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
@@ -467,7 +479,9 @@ final class StudentSummaryPanel extends AdminPanelBase {
             }
 
             if (numEligible == 0) {
-                final int numPlacement = data.studentPlacementAttempts.size();
+                final List<RawStmpe> placementAttempts = data.getPlacementAttempts();
+
+                final int numPlacement = placementAttempts.size();
 
                 if (numPlacement == 0) {
                     eligibleFor.append("Math Placement Tool");
@@ -486,7 +500,11 @@ final class StudentSummaryPanel extends AdminPanelBase {
 
         final StringBuilder remaining = new StringBuilder(50);
         try {
-            final PlacementLogic plcLogic = new PlacementLogic(this.cache, data.student.stuId, data.student.aplnTerm,
+            final TermRec active = data.getActiveTerm();
+            final RawStudent student = data.getStudentRecord();
+
+            final String studentId = data.getStudentId();
+            final PlacementLogic plcLogic = new PlacementLogic(this.cache, studentId, student.aplnTerm,
                     ZonedDateTime.now());
 
             final PlacementStatus status = plcLogic.status;
@@ -511,7 +529,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
 
         // Populate ELM Tutorial or Precalculus Tutorial status
         boolean usingElm = false;
-        for (final RawStexam exam : data.studentExams) {
+        final List<RawStexam> studentExams = data.getStudentExams();
+        for (final RawStexam exam : studentExams) {
             if (RawRecordConstants.M100T.equals(exam.course)) {
                 usingElm = true;
                 break;
@@ -534,18 +553,21 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Populates the "Courses" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
+     * @throws SQLException if there is an error accessing the database
      */
-    private void populateCourses(final StudentData data) {
+    private void populateCourses(final StudentData data) throws SQLException {
 
         this.currentCoursePane.removeAll();
 
         boolean allIncompletes = true;
-        final List<RawStcourse> regs = data.studentCoursesPastAndCurrent;
+        final List<RawStcourse> regs = data.getRegistrations();
         final Collection<RawStcourse> current = new ArrayList<>(regs.size());
 
+        final TermRec active = data.getActiveTerm();
+
         for (final RawStcourse reg : regs) {
-            if (reg.termKey.equals(data.activeKey)) {
+            if (reg.termKey.equals(active.term)) {
                 current.add(reg);
                 if (!"Y".equals(reg.iInProgress)) {
                     allIncompletes = false;
@@ -560,17 +582,21 @@ final class StudentSummaryPanel extends AdminPanelBase {
         } else {
             final StringBuilder header = new StringBuilder(50);
 
+            final RawStterm studentTerm = data.getStudentTerm(active.term);
+
             if (allIncompletes) {
                 header.append("Finishing Only Incompletes");
-            } else if (data.studentTerm == null) {
+            } else if (studentTerm == null) {
                 header.append("(No STTERM record)");
             } else {
-                header.append(data.studentTerm.pace);
+                header.append(studentTerm.pace);
                 header.append(" course pace, track ");
-                header.append(data.studentTerm.paceTrack);
+                header.append(studentTerm.paceTrack);
             }
 
-            if ("Y".equals(data.student.licensed)) {
+            final RawStudent student = data.getStudentRecord();
+
+            if ("Y".equals(student.licensed)) {
                 header.append(" [Passed User's Exam]");
             } else {
                 header.append(" [Still needs to pass User's Exam]");
@@ -595,13 +621,16 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Populates the "Holds" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
+     * @throws SQLException if there is an error accessing the database
      */
-    private void populateHolds(final StudentData data) {
+    private void populateHolds(final StudentData data) throws SQLException {
 
         this.holdsPane.removeAll();
 
-        if (data.studentHolds.isEmpty()) {
+        final List<RawAdminHold> holds = data.getHolds();
+
+        if (holds.isEmpty()) {
             final JLabel lbl = new JLabel("No holds active.");
             lbl.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
             lbl.setFont(Skin.BUTTON_13_FONT);
@@ -611,7 +640,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
             this.holdsPane.add(left);
         } else {
             final HtmlBuilder msg = new HtmlBuilder(100);
-            for (final RawAdminHold hold : data.studentHolds) {
+            for (final RawAdminHold hold : holds) {
                 msg.add("HOLD ");
                 msg.add(hold.holdId);
                 if ("F".equals(hold.sevAdminHold)) {
@@ -634,15 +663,19 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Populates the "Accommodations" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
+     * @throws SQLException if there is an error accessing the database
      */
-    private void populateAccommodations(final StudentData data) {
+    private void populateAccommodations(final StudentData data) throws SQLException {
 
         this.accommodationsPane.removeAll();
 
-        final Float factor = data.student.timelimitFactor;
+        final RawStudent student = data.getStudentRecord();
+        final List<RawPaceAppeals> deadlineAppeals = data.getDeadlineAppeals();
 
-        if (data.paceAppeals.isEmpty() && (factor == null || factor.floatValue() <= 1.0f)) {
+        final Float factor = student.timelimitFactor;
+
+        if (deadlineAppeals.isEmpty() && (factor == null || factor.floatValue() <= 1.0f)) {
             final JLabel lbl = new JLabel("No accommodations.");
             lbl.setFont(Skin.BUTTON_13_FONT);
             final JPanel left = new JPanel(new BorderLayout());
@@ -665,7 +698,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
                 msg.reset();
             }
 
-            for (final RawPaceAppeals appeal : data.paceAppeals) {
+            for (final RawPaceAppeals appeal : deadlineAppeals) {
                 if ("N".equals(appeal.reliefGiven)) {
                     msg.add(TemporalUtils.FMT_MDY.format(appeal.appealDt));
                     msg.add(": ");
@@ -691,15 +724,18 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Creates a panel to display current status in a single course.
      *
-     * @param reg              the course registration
-     * @param data             the student data
+     * @param reg  the course registration
+     * @param data the student data
      * @return the panel
+     * @throws SQLException if there is an error accessing the database
      */
-    private static JPanel makeCourseRow(final RawStcourse reg, final StudentData data) {
+    private static JPanel makeCourseRow(final RawStcourse reg, final StudentData data) throws SQLException {
+
+        final List<RawStexam> studentExams = data.getStudentExams();
 
         // See of the final exam has been passed
         boolean finalPassed = false;
-        for (final RawStexam exam : data.studentExams) {
+        for (final RawStexam exam : studentExams) {
             if (exam.course.equals(reg.course) && exam.unit.intValue() == 5 && "F".equals(exam.examType)
                     && "Y".equals(exam.passed)) {
                 finalPassed = true;
@@ -707,23 +743,29 @@ final class StudentSummaryPanel extends AdminPanelBase {
             }
         }
 
+        final TermRec active = data.getActiveTerm();
+
         // See if student is blocked
         boolean blocked = false;
         if (!finalPassed) {
             LocalDate finalDueDate = null;
+            final RawStterm studentTerm = data.getStudentTerm(active.term);
 
-            if (data.studentTerm != null && reg.paceOrder != null) {
+            if (studentTerm != null && reg.paceOrder != null) {
                 final int paceOrder = reg.paceOrder.intValue();
-                final int pace = data.studentTerm.pace.intValue();
-                final String track = data.studentTerm.paceTrack;
+                final int pace = studentTerm.pace.intValue();
+                final String track = studentTerm.paceTrack;
                 final int msNbr = pace * 100 + paceOrder * 10 + 5;
 
-                for (final RawMilestone ms : data.milestones) {
+                final List<RawMilestone> milestones = data.getMilestones(active.term, studentTerm.pace,
+                        studentTerm.paceTrack);
+
+                for (final RawMilestone ms : milestones) {
                     if (ms.paceTrack.equals(track) && "FE".equals(ms.msType) && ms.msNbr.intValue() == msNbr) {
                         finalDueDate = ms.msDate;
                     }
                 }
-                for (final RawMilestone ms : data.milestones) {
+                for (final RawMilestone ms : milestones) {
                     if (ms.paceTrack.equals(track) && "F1".equals(ms.msType) && ms.msNbr.intValue() == msNbr) {
                         if (finalDueDate == null || finalDueDate.isBefore(ms.msDate)) {
                             finalDueDate = ms.msDate;
@@ -731,12 +773,16 @@ final class StudentSummaryPanel extends AdminPanelBase {
                     }
                 }
                 if (finalDueDate != null) {
-                    for (final RawStmilestone sms : data.studentMilestones) {
+
+                    final List<RawStmilestone> studentMilestones = data.getStudentMilestones(active.term,
+                            studentTerm.paceTrack);
+
+                    for (final RawStmilestone sms : studentMilestones) {
                         if (sms.paceTrack.equals(track) && "FE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                             finalDueDate = sms.msDate;
                         }
                     }
-                    for (final RawStmilestone sms : data.studentMilestones) {
+                    for (final RawStmilestone sms : studentMilestones) {
                         if ((sms.paceTrack.equals(track) && "F1".equals(sms.msType) && sms.msNbr.intValue() == msNbr)
                                 && finalDueDate.isBefore(sms.msDate)) {
                             finalDueDate = sms.msDate;
@@ -776,8 +822,12 @@ final class StudentSummaryPanel extends AdminPanelBase {
             label.append(", Section ");
             label.append(reg.sect);
 
+            // FIXME: This will fail for incompletes where section does not exist in this term.
+
+            final List<RawCsection> courseSections = data.getCourseSections(active.term);
+
             RawCsection csect = null;
-            for (final RawCsection test : data.currentTermCourseSections) {
+            for (final RawCsection test : courseSections) {
                 if (test.course.equals(reg.course) && test.sect.equals(reg.sect)) {
                     csect = test;
                     break;
@@ -896,8 +946,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
             constraints.gridy = 1;
 
             constraints.gridx = 0;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 0, RawStexam.REVIEW_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 0, RawStexam.REVIEW_EXAM), 3), constraints);
             constraints.gridx = 1;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 1, 1), 1), constraints);
             constraints.gridx = 2;
@@ -907,11 +956,9 @@ final class StudentSummaryPanel extends AdminPanelBase {
             constraints.gridx = 4;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 1, 4), 1), constraints);
             constraints.gridx = 5;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 6;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 7;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 2, 1), 1), constraints);
             constraints.gridx = 8;
@@ -921,11 +968,9 @@ final class StudentSummaryPanel extends AdminPanelBase {
             constraints.gridx = 10;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 2, 4), 1), constraints);
             constraints.gridx = 11;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 12;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 13;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 3, 1), 1), constraints);
             constraints.gridx = 14;
@@ -935,11 +980,9 @@ final class StudentSummaryPanel extends AdminPanelBase {
             constraints.gridx = 16;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 3, 4), 1), constraints);
             constraints.gridx = 17;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 18;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 19;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 4, 1), 1), constraints);
             constraints.gridx = 20;
@@ -949,14 +992,11 @@ final class StudentSummaryPanel extends AdminPanelBase {
             constraints.gridx = 22;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 4, 4), 1), constraints);
             constraints.gridx = 23;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 24;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 25;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 5, RawStexam.FINAL_EXAM), 0),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 5, RawStexam.FINAL_EXAM), 0), constraints);
 
             row.add(grid, BorderLayout.CENTER);
         } else if (RawRecordConstants.M100T.equals(reg.course)) {
@@ -994,7 +1034,6 @@ final class StudentSummaryPanel extends AdminPanelBase {
             grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.UNIT_EXAM), 0), gbc);
 
             row.add(grid, BorderLayout.CENTER);
-
         } else {
             final JLabel errLbl = new JLabel("(Course not managed by this system)");
             row.add(errLbl, BorderLayout.PAGE_END);
@@ -1006,8 +1045,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Creates a label for a single step within the course status bar.
      *
-     * @param txt              the label text
-     * @param borderRight      the width of border to add on the right
+     * @param txt         the label text
+     * @param borderRight the width of border to add on the right
      * @return the label
      */
     private static JLabel makeStepLabel(final String txt, final int borderRight) {
@@ -1041,37 +1080,47 @@ final class StudentSummaryPanel extends AdminPanelBase {
      * @param unit     the unit number
      * @param examType the exam type
      * @return the status
+     * @throws SQLException if there is an error accessing the database
      */
     private static StepStatus getExamStatus(final StudentData data, final RawStcourse reg, final int unit,
-                                            final String examType) {
+                                            final String examType) throws SQLException {
 
         // Find the due date
         LocalDate dueDate = null;
 
-        if (data.studentTerm != null && reg.paceOrder != null) {
+        final TermRec active = data.getActiveTerm();
+        final RawStterm studentTerm = data.getStudentTerm(active.term);
+
+        if (studentTerm != null && reg.paceOrder != null) {
             final int paceOrder = reg.paceOrder.intValue();
-            final int pace = data.studentTerm.pace.intValue();
-            final String track = data.studentTerm.paceTrack;
+            final int pace = studentTerm.pace.intValue();
+            final String track = studentTerm.paceTrack;
             final int msNbr = pace * 100 + paceOrder * 10 + unit;
 
+            final List<RawMilestone> milestones = data.getMilestones(active.term, studentTerm.pace,
+                    studentTerm.paceTrack);
+            final List<RawStmilestone> studentMilestones = data.getStudentMilestones(active.term,
+                    studentTerm.paceTrack);
+
             if ("F".equals(examType)) {
-                for (final RawMilestone ms : data.milestones) {
+
+                for (final RawMilestone ms : milestones) {
                     if (ms.paceTrack.equals(track) && "FE".equals(ms.msType) && ms.msNbr.intValue() == msNbr) {
                         dueDate = ms.msDate;
                     }
                 }
-                for (final RawStmilestone sms : data.studentMilestones) {
+                for (final RawStmilestone sms : studentMilestones) {
                     if (sms.paceTrack.equals(track) && "FE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                         dueDate = sms.msDate;
                     }
                 }
             } else if ("R".equals(examType)) {
-                for (final RawMilestone ms : data.milestones) {
+                for (final RawMilestone ms : milestones) {
                     if (ms.paceTrack.equals(track) && "RE".equals(ms.msType) && ms.msNbr.intValue() == msNbr) {
                         dueDate = ms.msDate;
                     }
                 }
-                for (final RawStmilestone sms : data.studentMilestones) {
+                for (final RawStmilestone sms : studentMilestones) {
                     if (sms.paceTrack.equals(track) && "RE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                         dueDate = sms.msDate;
                     }
@@ -1084,7 +1133,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
         int maxScore = -1;
         LocalDate firstPassed = null;
 
-        for (final RawStexam exam : data.studentExams) {
+        for (final RawStexam exam : data.getStudentExams()) {
             if (exam.course.equals(reg.course) && exam.unit.intValue() == unit && exam.examType.equals(examType)) {
                 attempted = true;
                 if ("Y".equals(exam.passed)) {
@@ -1131,14 +1180,15 @@ final class StudentSummaryPanel extends AdminPanelBase {
      * @param unit      the unit number
      * @param objective the objective number
      * @return the status
+     * @throws SQLException if there is an error accessing the database
      */
     private static StepStatus getHomeworkStatus(final StudentData data, final RawStcourse reg, final int unit,
-                                                final int objective) {
+                                                final int objective) throws SQLException {
 
         boolean attempted = false;
         boolean passed = false;
 
-        for (final RawSthomework hw : data.studentHomeworks) {
+        for (final RawSthomework hw : data.getStudentHomework()) {
             if (hw.course.equals(reg.course) && hw.unit.intValue() == unit && hw.objective.intValue() == objective) {
                 attempted = true;
                 if ("Y".equals(hw.passed)) {
@@ -1156,8 +1206,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
     /**
      * Creates a panel that shows the status of a step.
      *
-     * @param status           the status
-     * @param borderRight      the width of border to add on the right
+     * @param status      the status
+     * @param borderRight the width of border to add on the right
      * @return the panel
      */
     private static JPanel makeStepStatus(final StepStatus status, final int borderRight) {

@@ -419,7 +419,7 @@ public final class CourseSequence {
      *
      * @param data the student data with past word on record
      */
-    void markStatus(final StudentData data) {
+    void markStatus(final MPStudentData data) {
 
         for (final CourseInfo info : this.preArrivalCourses.values()) {
             markStatus(info, data);
@@ -452,7 +452,7 @@ public final class CourseSequence {
      * @param group the course group info object
      * @param data  the student data with past word on record
      */
-    private static void markStatus(final CourseInfoGroup group, final StudentData data) {
+    private static void markStatus(final CourseInfoGroup group, final MPStudentData data) {
 
         for (final CourseInfo info : group.getCourseInfos()) {
             markStatus(info, data);
@@ -498,7 +498,7 @@ public final class CourseSequence {
      * @param info the course info object
      * @param data the student data with past word on record
      */
-    private static void markStatus(final CourseInfo info, final StudentData data) {
+    private static void markStatus(final CourseInfo info, final MPStudentData data) {
 
         final String courseId = info.course.course;
 
@@ -579,7 +579,7 @@ public final class CourseSequence {
      * @param data       the student data with past word on record
      */
     void ensurePrerequisitesMet(final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                final Map<String, RawCourse> courseData, final StudentData data) {
+                                final Map<String, RawCourse> courseData, final MPStudentData data) {
 
         checkSemester1Prerequisites(prereqData, courseData, data);
         checkSemester2Prerequisites(prereqData, courseData, data);
@@ -597,7 +597,7 @@ public final class CourseSequence {
      */
     private void checkSinglePreArrivalPrerequisite(final String course,
                                                    final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                                   final Map<String, RawCourse> courseData, final StudentData data) {
+                                                   final Map<String, RawCourse> courseData, final MPStudentData data) {
 
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
@@ -630,7 +630,7 @@ public final class CourseSequence {
      */
     private void checkSingleSem1Prerequisite(final String course,
                                              final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                             final Map<String, RawCourse> courseData, final StudentData data) {
+                                             final Map<String, RawCourse> courseData, final MPStudentData data) {
 
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
@@ -669,7 +669,7 @@ public final class CourseSequence {
      */
     private void checkSingleSem2Prerequisite(final String course,
                                              final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                             final Map<String, RawCourse> courseData, final StudentData data) {
+                                             final Map<String, RawCourse> courseData, final MPStudentData data) {
 
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester1Courses);
         prior.putAll(this.preArrivalCourses);
@@ -712,7 +712,7 @@ public final class CourseSequence {
     private void checkSingleAdditionalPrerequisite(final String course,
                                                    final Map<String, ? extends List<RequiredPrereq>> prereqData,
                                                    final Map<String, RawCourse> courseData,
-                                                   final StudentData data) {
+                                                   final MPStudentData data) {
 
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester2Courses);
         prior.putAll(this.semester1Courses);
@@ -751,7 +751,7 @@ public final class CourseSequence {
      */
     private void checkSemester1Prerequisites(final Map<String, ? extends List<RequiredPrereq>> prereqData,
                                              final Map<String, RawCourse> courseData,
-                                             final StudentData data) {
+                                             final MPStudentData data) {
 
         final Map<String, CourseInfo> current = new HashMap<>(this.semester1Courses);
         final Map<String, CourseInfo> prior = new HashMap<>(10);
@@ -860,7 +860,7 @@ public final class CourseSequence {
      */
     private void checkSemester2Prerequisites(final Map<String, ? extends List<RequiredPrereq>> prereqData,
                                              final Map<String, RawCourse> courseData,
-                                             final StudentData data) {
+                                             final MPStudentData data) {
 
         final Map<String, CourseInfo> current = new HashMap<>(this.semester2Courses);
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester1Courses);
@@ -969,7 +969,7 @@ public final class CourseSequence {
      * @param data       the student data with past word on record
      */
     private void checkAdditionalPrerequisites(final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                              final Map<String, RawCourse> courseData, final StudentData data) {
+                                              final Map<String, RawCourse> courseData, final MPStudentData data) {
 
         final Map<String, CourseInfo> current = new HashMap<>(this.additionalCourses);
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester2Courses);
@@ -1191,7 +1191,7 @@ public final class CourseSequence {
      * @return a course status indicating how the prerequisite was satisfied, or {@code ECourseStatus.NONE} if the
      *         prerequisite has not been satisfied
      */
-    private static ECourseStatus isAlreadySatisfied(final CourseInfo info, final StudentData data) {
+    private static ECourseStatus isAlreadySatisfied(final CourseInfo info, final MPStudentData data) {
 
         final String courseId = info.course.course;
 

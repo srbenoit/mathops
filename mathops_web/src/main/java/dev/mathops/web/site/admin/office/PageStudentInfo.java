@@ -4,14 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -28,7 +24,6 @@ import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -60,15 +55,15 @@ enum PageStudentInfo {
     /**
      * Shows the student information page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -79,14 +74,13 @@ enum PageStudentInfo {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+            PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
-
+            final RawStudent student = studentData.getStudentRecord();
             if (student == null) {
-                PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+                PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
             } else {
-                doStudentInfoPage(cache, site, req, resp, session, student);
+                doStudentInfoPage(studentData, site, req, resp, session, student);
             }
         }
     }
@@ -94,21 +88,21 @@ enum PageStudentInfo {
     /**
      * Shows the student information page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param student the student for which to present information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param student     the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doStudentInfoPage(final Cache cache, final AdminSite site,
+    static void doStudentInfoPage(final StudentData studentData, final AdminSite site,
                                   final ServletRequest req, final HttpServletResponse resp,
                                   final ImmutableSessionInfo session, final RawStudent student)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
         htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
                 student.stuId, "</code></strong>").eP();
@@ -144,36 +138,35 @@ enum PageStudentInfo {
             htm.eDiv(); // narrowstack
 
             htm.sDiv("detail");
-            emitStudentInfo(cache, site, session, htm, student);
+            emitStudentInfo(studentData, site, session, htm, student);
             htm.eDiv(); // detail
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * Emits general student information and status.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param session the login session
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student record
+     * @param studentData the student data object
+     * @param site        the site
+     * @param session     the login session
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param student     the student record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentInfo(final Cache cache, final AdminSite site,
+    private static void emitStudentInfo(final StudentData studentData, final AdminSite site,
                                         final ImmutableSessionInfo session, final HtmlBuilder htm,
                                         final RawStudent student) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
 
         if (active == null) {
             htm.addln("ERROR: unable to query active term");
         } else {
             // This query returns Forfeit and placement credit rows, but not Dropped rows
-            final List<RawStcourse> allPastAndCurrent = RawStcourseLogic.queryByStudent(cache, student.stuId, true,
-                    true);
+            final List<RawStcourse> allPastAndCurrent = studentData.getRegistrations();
             Collections.sort(allPastAndCurrent);
 
             int numCurrent = 0;
@@ -261,9 +254,9 @@ enum PageStudentInfo {
                             if ((!"Y".equals(pre) && !"P".equals(pre))) {
                                 htm.addln("<strong>Prerequisite not satisfied.</strong>").br();
                                 status = true;
-                                if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
+                                if (stat.gatherData(studentData, session, student.stuId, reg.course, false, false)) {
                                     if (reg.course.startsWith("MATH ")) {
-                                        emitNewCourseDeadlines(cache, htm, reg);
+                                        emitNewCourseDeadlines(studentData, htm, reg);
                                     } else {
                                         emitOldCourseDeadlines(htm, stat);
                                     }
@@ -277,20 +270,21 @@ enum PageStudentInfo {
                             if (reg.openStatus == null) {
                                 if (!status) {
                                     htm.addln("<strong>Course not started.</strong>").br();
-                                    if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
+                                    if (stat.gatherData(studentData, session, student.stuId, reg.course, false,
+                                            false)) {
                                         if (reg.course.startsWith("MATH ")) {
-                                            emitNewCourseDeadlines(cache, htm, reg);
+                                            emitNewCourseDeadlines(studentData, htm, reg);
                                         } else {
                                             emitOldCourseDeadlines(htm, stat);
                                         }
                                     }
                                 }
-                            } else if (stat.gatherData(cache, session, student.stuId, reg.course, false, false)) {
+                            } else if (stat.gatherData(studentData, session, student.stuId, reg.course, false, false)) {
 
                                 if (reg.course.startsWith("MATH ")) {
-                                    emitNewCourseDeadlines(cache, htm, reg);
+                                    emitNewCourseDeadlines(studentData, htm, reg);
                                 } else {
-                                    emitOldCourseProgress(cache, htm, stat, reg, compl);
+                                    emitOldCourseProgress(studentData, htm, stat, reg, compl);
                                     htm.div("vgap");
                                     emitOldCourseDeadlines(htm, stat);
                                 }
@@ -336,19 +330,20 @@ enum PageStudentInfo {
     /**
      * Emits a table that shows a summary of the student's progress in the course.
      *
-     * @param cache     the data cache
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param stat      the course status data container
-     * @param reg       the registration
-     * @param completed true if course is completed
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param stat        the course status data container
+     * @param reg         the registration
+     * @param completed   true if course is completed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitOldCourseProgress(final Cache cache, final HtmlBuilder htm, final StudentCourseStatus stat,
+    private static void emitOldCourseProgress(final StudentData studentData, final HtmlBuilder htm,
+                                              final StudentCourseStatus stat,
                                               final RawStcourse reg, final boolean completed) throws SQLException {
 
         final int maxUnit = stat.getMaxUnit();
         final RawCsection csect = stat.getCourseSection();
-        final EExamStructure examStruct = csect == null ? null : RawCsectionLogic.getExamStructure(csect);
+        final EExamStructure examStruct = csect == null ? null : EExamStructure.UNIT_FINAL;
 
         // Show student progress in the class
         htm.sTable("report", "style='margin:0;line-height:1;min-width:678px;'");
@@ -557,8 +552,7 @@ enum PageStudentInfo {
                     htm.eTd();
                 }
 
-                if ((examStruct == EExamStructure.UNIT_ONLY
-                        || examStruct == EExamStructure.UNIT_FINAL)
+                if ((examStruct == EExamStructure.UNIT_ONLY || examStruct == EExamStructure.UNIT_FINAL)
                         && (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
                         Integer.valueOf(i), "U") != null)) {
 
@@ -591,8 +585,7 @@ enum PageStudentInfo {
                     && (examStruct == EExamStructure.UNIT_FINAL)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i),
-                        "F") != null) {
+                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "F") != null) {
                     if (stat.isProctoredPassed(i)) {
                         final boolean ontime = stat.isProctoredPassedOnTime(i);
                         final int score = scores.getRawUnitExamScore(i);
@@ -753,15 +746,15 @@ enum PageStudentInfo {
     /**
      * Emits a table that shows deadlines for the course (with overrides, if any).
      *
-     * @param cache the cache
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param reg   the student registration record
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param reg         the student registration record
      */
-    private static void emitNewCourseDeadlines(final Cache cache, final HtmlBuilder htm,
+    private static void emitNewCourseDeadlines(final StudentData studentData, final HtmlBuilder htm,
                                                final RawStcourse reg) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
+        final TermRec active = studentData.getActiveTerm();
+        final RawStterm stterm = studentData.getStudentTerm(active.term);
 
         if (stterm == null) {
             htm.sP().add("No STTERM record found").eP();

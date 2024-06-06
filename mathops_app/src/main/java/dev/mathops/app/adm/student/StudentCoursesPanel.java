@@ -2,10 +2,10 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -174,9 +174,8 @@ import java.util.List;
 
         TermKey active = null;
 
-        try (final Statement s = this.conn.createStatement()) {
-            try (final ResultSet rs = s.executeQuery(//
-                    "SELECT term, term_yr FROM term WHERE active='Y'")) {
+        try (final Statement statement = this.conn.createStatement()) {
+            try (final ResultSet rs = statement.executeQuery("SELECT term, term_yr FROM term WHERE active='Y'")) {
                 if (rs.next()) {
                     final ETermName name = ETermName.forName(rs.getString(1));
                     final int y = rs.getInt(2);
@@ -196,37 +195,41 @@ import java.util.List;
         } else {
             this.currentHeader.setText(active.longString + " Courses");
 
-            final List<RawStcourse> regs = data.studentCoursesPastAndCurrent;
+            try {
+                final List<RawStcourse> regs = data.getRegistrations();
 
-            final List<RawStcourse> currentTerm = new ArrayList<>(10);
-            final List<RawStcourse> priorTerms = new ArrayList<>(10);
-            final List<RawStcourse> dropped = new ArrayList<>(10);
+                final List<RawStcourse> currentTerm = new ArrayList<>(10);
+                final List<RawStcourse> priorTerms = new ArrayList<>(10);
+                final List<RawStcourse> dropped = new ArrayList<>(10);
 
-            for (final RawStcourse reg : regs) {
-                if (active.equals(reg.termKey)) {
-                    if ("D".equals(reg.openStatus)
-                            || "G".equals(reg.openStatus)) {
-                        dropped.add(reg);
-                    } else if ("N".equals(reg.openStatus)
-                            && "N".equals(reg.completed)) {
-                        dropped.add(reg);
-                    } else {
-                        currentTerm.add(reg);
+                for (final RawStcourse reg : regs) {
+                    if (active.equals(reg.termKey)) {
+                        if ("D".equals(reg.openStatus)
+                                || "G".equals(reg.openStatus)) {
+                            dropped.add(reg);
+                        } else if ("N".equals(reg.openStatus)
+                                && "N".equals(reg.completed)) {
+                            dropped.add(reg);
+                        } else {
+                            currentTerm.add(reg);
+                        }
+                    } else if (!"D".equals(reg.openStatus)) {
+                        priorTerms.add(reg);
                     }
-                } else if (!"D".equals(reg.openStatus)) {
-                    priorTerms.add(reg);
                 }
+
+                Collections.sort(currentTerm);
+                Collections.sort(priorTerms);
+                Collections.sort(dropped);
+
+                this.currentTable.addData(currentTerm, 2);
+                this.historyTable.addData(priorTerms, 2);
+                this.droppedTable.addData(dropped, 2);
+
+                this.split.setDividerLocation(0.5);
+            } catch (final SQLException ex) {
+                this.error.setText("Unable to query registrations.");
             }
-
-            Collections.sort(currentTerm);
-            Collections.sort(priorTerms);
-            Collections.sort(dropped);
-
-            this.currentTable.addData(currentTerm, 2);
-            this.historyTable.addData(priorTerms, 2);
-            this.droppedTable.addData(dropped, 2);
-
-            this.split.setDividerLocation(0.5);
         }
     }
 }

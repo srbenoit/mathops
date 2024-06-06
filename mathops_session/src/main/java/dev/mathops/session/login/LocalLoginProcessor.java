@@ -2,7 +2,7 @@ package dev.mathops.session.login;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawLoginsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;

@@ -2,9 +2,13 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.rawrecord.RawChallengeFee;
+import dev.mathops.db.old.rawrecord.RawPlcFee;
+import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 
 import javax.swing.BorderFactory;
@@ -14,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.io.Serial;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A panel that shows student placement status.
@@ -65,7 +71,6 @@ import java.io.Serial;
 
     /**
      * Constructs a new {@code StudentPlacementPanel}.
-     *
      */
     StudentPlacementPanel() {
 
@@ -212,39 +217,47 @@ import java.io.Serial;
      */
     private void populateDisplay(final StudentData data) {
 
-        int remain = 2;
-        for (final RawStmpe rec : data.studentPlacementAttempts) {
-            if (remain > 0 && !"POOOO".equals(rec.version)) {
-                --remain;
+        try {
+            final List<RawStmpe> placementAttempts = data.getLegalPlacementAttempts();
+
+            int remain = 2;
+            for (final RawStmpe rec : placementAttempts) {
+                if (remain > 0 && !"POOOO".equals(rec.version)) {
+                    --remain;
+                }
             }
-        }
 
-        if (!data.studentPlacementAttempts.isEmpty()) {
-            if (data.placementFee == null || data.placementFee.billDt == null) {
-                this.placementHeader.setText(
-                        "Placement Tool Attempts (not yet billed, " + remain + " attempts remain)");
-            } else {
-                this.placementHeader.setText("Placement Tool Attempts (billed on "
-                        + TemporalUtils.FMT_MDY.format(data.placementFee.billDt) + ", " + remain
-                        + " attempts remain)");
+            if (!placementAttempts.isEmpty()) {
+                final RawPlcFee placementFee = data.getPlacementFee();
+
+                if (placementFee == null || placementFee.billDt == null) {
+                    this.placementHeader.setText(
+                            "Placement Tool Attempts (not yet billed, " + remain + " attempts remain)");
+                } else {
+                    this.placementHeader.setText("Placement Tool Attempts (billed on "
+                            + TemporalUtils.FMT_MDY.format(placementFee.billDt) + ", " + remain + " attempts remain)");
+                }
             }
-        }
 
-        if (!data.studentChallengeAttempts.isEmpty()) {
-            if (data.challengeFees == null || data.challengeFees.isEmpty()) {
-                this.challengeHeader.setText("Challenge Exam Attempts (not yet billed)");
-            } else {
-                this.challengeHeader.setText(
-                        "Challenge Exam Attempts (" + data.challengeFees.size() + " attempts billed)");
+            final List<RawStchallenge> challengeAttempts = data.getChallengeExams();
+            if (!challengeAttempts.isEmpty()) {
+                final List<RawChallengeFee> challengeFees = data.getChallengeFees();
+
+                if (challengeFees == null || challengeFees.isEmpty()) {
+                    this.challengeHeader.setText("Challenge Exam Attempts (not yet billed)");
+                } else {
+                    this.challengeHeader.setText("Challenge Exam Attempts (" + challengeFees.size()
+                            + " attempts billed)");
+                }
             }
+
+            this.placementAttemptsTable.addData(placementAttempts, placementAttempts.size() + remain);
+            this.challengeAttemptsTable.addData(challengeAttempts, 2);
+            this.earedPlacementTable.addData(data.getPlacementCredit(), 5);
+            this.tutorialsTable.addData(data.getStudentExams(), 2);
+            this.transferTable.addData(data.getTransferCredit(), 2);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
         }
-
-        this.placementAttemptsTable.addData(data.studentPlacementAttempts,
-                data.studentPlacementAttempts.size() + remain);
-        this.challengeAttemptsTable.addData(data.studentChallengeAttempts, 2);
-        this.earedPlacementTable.addData(data.studentPlacementCredit, 5);
-        this.tutorialsTable.addData(data.studentExams, 2);
-        this.transferTable.addData(data.studentTransferCredit, 2);
-
     }
 }

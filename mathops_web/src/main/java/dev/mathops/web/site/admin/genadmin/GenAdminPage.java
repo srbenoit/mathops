@@ -1,8 +1,7 @@
 package dev.mathops.web.site.admin.genadmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.Page;
@@ -21,21 +20,22 @@ public enum GenAdminPage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
-     * @param cache    the data cache
+     * @param data     the web view data
      * @param site     the owning site
      * @param session  the login session
      * @param showHome true to show a "Home" link
      * @return the created {@code HtmlBuilder}
      * @throws SQLException if there is an error accessing the database
      */
-    public static HtmlBuilder startGenAdminPage(final Cache cache, final AdminSite site,
+    public static HtmlBuilder startGenAdminPage(final WebViewData data, final AdminSite site,
                                                 final ImmutableSessionInfo session, final boolean showHome)
             throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = data.getSystemData().getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, null, false, null, "home.html", Page.NO_BARS, null, false, true);
 
         AdminPage.emitPageHeader(htm, session, whichDb, showHome);
 

@@ -3,10 +3,11 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -635,8 +636,8 @@ public final class StudentCourseStatus extends LogicBase {
     }
 
     /**
-     * Determines whether a homework is available. This test also can be used to indicate whether instructional
-     * material is to be made available for a particular objective.
+     * Determines whether a homework is available. This test also can be used to indicate whether instructional material
+     * is to be made available for a particular objective.
      *
      * @param unit      the unit to test
      * @param objective the objective to test
@@ -1020,7 +1021,7 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Gathers the data for a particular course, with content tailored to a particular student.
      *
-     * @param cache          the data cache
+     * @param studentData    the student data object
      * @param session        the login session
      * @param theStudentId   the ID of the student
      * @param theCourseId    the ID of the course whose data to gather
@@ -1029,7 +1030,8 @@ public final class StudentCourseStatus extends LogicBase {
      * @return {@code true} if data was gathered successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean gatherData(final Cache cache, final ImmutableSessionInfo session, final String theStudentId,
+    public boolean gatherData(final StudentData studentData, final ImmutableSessionInfo session,
+                              final String theStudentId,
                               final String theCourseId, final boolean isSkillsReview, final boolean isPractice)
             throws SQLException {
 
@@ -1037,9 +1039,9 @@ public final class StudentCourseStatus extends LogicBase {
 
         reset();
 
-        if (queryActiveTerm(cache) && queryCourse(cache, theCourseId)
-                && queryCourseUnits(cache, theCourseId) && queryStudent(cache, theStudentId)
-                && queryStudentCourse(cache, session.getNow(), session.getEffectiveRole(), theStudentId,
+        if (queryActiveTerm(studentData) && queryCourse(studentData, theCourseId)
+                && queryCourseUnits(studentData, theCourseId) && queryStudent(studentData, theStudentId)
+                && queryStudentCourse(studentData, session.getNow(), session.getEffectiveRole(), theStudentId,
                 theCourseId, isSkillsReview, isPractice)) {
 
             // Allocate overall unit status variables
@@ -1071,10 +1073,10 @@ public final class StudentCourseStatus extends LogicBase {
 
             this.scores = new StudentCourseScores(this.maxUnit);
 
-            if (queryCourseSection(cache) && queryCourseSectionUnits(cache, session.getNow())
-                    && queryCourseUnitObjectives(cache) && queryExams(cache)) {
+            if (queryCourseSection(studentData) && queryCourseSectionUnits(studentData, session.getNow())
+                    && queryCourseUnitObjectives(studentData) && queryExams(studentData)) {
 
-                this.homeworks = AssignmentLogic.get(cache).queryActiveByCourse(cache,
+                this.homeworks = AssignmentLogic.get(studentData).queryActiveByCourse(studentData,
                         this.studentCourse.course, "HW");
 
                 // Allocate homework status variables
@@ -1084,14 +1086,14 @@ public final class StudentCourseStatus extends LogicBase {
                 this.unitObjMasteredHw = new int[this.maxUnit + 1][];
                 this.unitObjTotalHw = new int[this.maxUnit + 1][];
 
-                loadExamDeadlines(cache);
-                result = loadStudentHistory(cache);
+                loadExamDeadlines(studentData);
+                result = loadStudentHistory(studentData);
 
                 if (result) {
                     buildExamStatus();
-                    checkHomeworkAvailability(cache, session.getNow());
-                    checkExamAvailability(cache, session.getNow());
-                    calculateScore(cache);
+                    checkHomeworkAvailability(studentData, session.getNow());
+                    checkExamAvailability(studentData, session.getNow());
+                    calculateScore(studentData);
                 }
 
                 // FIXME: HARDCODES - MOVE INTO DATA (new course-media table?)
@@ -2664,16 +2666,16 @@ public final class StudentCourseStatus extends LogicBase {
 
             // Date-based constraints
             if (isIncomplete) {
-                 if (isUncounted) {
-                     // A non-counted Incomplete - only date constraint is incomplete deadline
-                     final LocalDate deadline = this.studentCourse.iDeadlineDt;
-                     if (deadline != null && deadline.isBefore(today)) {
-                         this.proctoredAvailable[unit] = false;
-                         this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
-                     } else {
-                         this.proctoredAvailable[unit] = true;
-                     }
-                 }
+                if (isUncounted) {
+                    // A non-counted Incomplete - only date constraint is incomplete deadline
+                    final LocalDate deadline = this.studentCourse.iDeadlineDt;
+                    if (deadline != null && deadline.isBefore(today)) {
+                        this.proctoredAvailable[unit] = false;
+                        this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
+                    } else {
+                        this.proctoredAvailable[unit] = true;
+                    }
+                }
             } else {
                 // Only for non-Incompletes, since test dates would be from earlier term
                 final LocalDate firstTest = sectionUnit.firstTestDt;
@@ -3050,7 +3052,8 @@ public final class StudentCourseStatus extends LogicBase {
                             }
 
                             if (status.isReviewExamAvailable(i)) {
-                                Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") On-time: "
+                                Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") " +
+                                 "On-time: "
                                         + status.isReviewPassedOnTime(i));
                             } else {
                                 Log.info(" Review Exam " + i + " unavailable (" + status.getReviewReason(i) + ")");
@@ -3076,7 +3079,8 @@ public final class StudentCourseStatus extends LogicBase {
                                 Log.info(" Proctored Exam " + i + " deadline: " + status.getUnitExamDeadline(i)
                                         + " last try: " + status.getUnitExamLastTry(i));
                             } else {
-                                Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) + ")");
+                                Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) +
+")");
                             }
                         }
                     } else {

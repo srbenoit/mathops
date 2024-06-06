@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.genadmin.reports;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;

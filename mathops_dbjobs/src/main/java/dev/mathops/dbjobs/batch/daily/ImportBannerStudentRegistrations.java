@@ -3,10 +3,12 @@ package dev.mathops.dbjobs.batch.daily;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -1076,7 +1078,9 @@ public final class ImportBannerStudentRegistrations {
         if ("888".equals(bannerReg.sect)) {
             placedByExam = "A";
         } else {
-            final PrerequisiteLogic logic = new PrerequisiteLogic(cache, bannerReg.stuId);
+            final StudentData studentData = new StudentData(cache, bannerReg.stuId, ELiveRefreshes.NONE);
+
+            final PrerequisiteLogic logic = new PrerequisiteLogic(studentData);
             if (logic.hasSatisfiedPrereqsFor(bannerReg.course)) {
                 prereq = "Y";
             }

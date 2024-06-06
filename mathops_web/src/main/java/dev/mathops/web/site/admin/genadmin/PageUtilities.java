@@ -2,7 +2,8 @@ package dev.mathops.web.site.admin.genadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -10,6 +11,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -23,7 +25,7 @@ enum PageUtilities {
     /**
      * Generates the page with a list of links to launch available utilities.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -31,11 +33,11 @@ enum PageUtilities {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doUtilitiesPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doUtilitiesPage(final WebViewData data, final AdminSite site, final ServletRequest req,
                                 final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.UTILITIES, htm);
 
@@ -63,8 +65,11 @@ enum PageUtilities {
         htm.addln("  | <a href='/www/jars/TI-86.rom'>86</a></li>");
         htm.addln("</ul>");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -75,13 +80,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doXmlAuthor(final AdminSite site, final ServletRequest req,
-                            final HttpServletResponse resp) throws IOException {
+    static void doXmlAuthor(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -103,8 +109,7 @@ enum PageUtilities {
 
         htm.addln("  <resources>");
         htm.addln("    <jfx:javafx-runtime version='2.2+' ",
-                "href='http://javadl.sun.com/webapps/download/GetFile/javafx-latest/",
-                "windows-i586/javafx2.jnlp'/>");
+                "href='http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp'/>");
         htm.addln("    <j2se version='1.7+'/>");
         htm.addln("    <jar href='/www/jars/xmlauthor.jar'/>");
         htm.addln("    <jar href='/www/jars/jfxrt.jar'/>");
@@ -119,11 +124,12 @@ enum PageUtilities {
                 "main-class='edu.colostate.math.doc.author.XmlAuthor' name='XmlAuthor'/>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -140,7 +146,8 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -168,14 +175,15 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.instruction.problem.ui.ProblemTester'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.instruction.problem.ui.ProblemTester'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis() - (long) (86400 * 1000 * 7));
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now - (long) (86400 * 1000 * 7));
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -186,13 +194,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doExamTester(final AdminSite site, final ServletRequest req,
-                             final HttpServletResponse resp) throws IOException {
+    static void doExamTester(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -220,14 +229,15 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.app.localtesting.LocalTestingApp'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.app.localtesting.LocalTestingApp'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis() - (long) (86400 * 1000 * 7));
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now - (long) (86400 * 1000 * 7));
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -238,13 +248,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doExamPrinter(final AdminSite site, final ServletRequest req,
-                              final HttpServletResponse resp) throws IOException {
+    static void doExamPrinter(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -272,16 +283,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.app.examprinter.ExamPrinterApp'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.app.examprinter.ExamPrinterApp'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -292,13 +303,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doInstructionTester(final AdminSite site, final ServletRequest req,
-                                    final HttpServletResponse resp) throws IOException {
+    static void doInstructionTester(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -326,17 +338,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.instruction.problem.",
-                "ui.InstructionTester'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.instruction.problem.ui.InstructionTester'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -347,13 +358,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doGlyphViewer(final AdminSite site, final ServletRequest req,
-                              final HttpServletResponse resp) throws IOException {
+    static void doGlyphViewer(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -380,16 +392,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc "
-                + "main-class='edu.colostate.math.font.GlyphViewer'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.font.GlyphViewer'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -400,13 +412,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doKeyConfig(final AdminSite site, final ServletRequest req,
-                            final HttpServletResponse resp) throws IOException {
+    static void doKeyConfig(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -434,16 +447,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.txn.document.KeyConfigApp'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.txn.document.KeyConfigApp'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -454,13 +467,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doPasswordHash(final AdminSite site, final ServletRequest req,
-                               final HttpServletResponse resp) throws IOException {
+    static void doPasswordHash(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -487,16 +501,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.app.passwordhash.PasswordHash'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.app.passwordhash.PasswordHash'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -507,13 +521,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doRenameDirs(final AdminSite site, final ServletRequest req,
-                             final HttpServletResponse resp) throws IOException {
+    static void doRenameDirs(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -539,16 +554,16 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.txn.object.RenameDirs'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.txn.object.RenameDirs'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 
     /**
@@ -559,13 +574,14 @@ enum PageUtilities {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doJWabbit(final AdminSite site, final ServletRequest req,
-                          final HttpServletResponse resp) throws IOException {
+    static void doJWabbit(final AdminSite site, final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -591,15 +607,15 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='jwabbit.Launcher'>");
+        htm.addln("  <application-desc main-class='jwabbit.Launcher'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long now = System.currentTimeMillis();
+        resp.setDateHeader("Expires", now);
+        resp.setDateHeader("Last-Modified", now);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
     }
 }

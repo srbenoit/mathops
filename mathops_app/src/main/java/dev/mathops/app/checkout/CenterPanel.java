@@ -2,9 +2,9 @@ package dev.mathops.app.checkout;
 
 import dev.mathops.app.checkin.TestingCenterMap;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;

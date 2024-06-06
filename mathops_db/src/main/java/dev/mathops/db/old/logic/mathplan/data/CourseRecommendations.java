@@ -31,7 +31,7 @@ public final class CourseRecommendations {
      * @param data         the student data with past word on record
      * @param logic        the logic object
      */
-    CourseRecommendations(final Iterable<MajorMathRequirement> requirements, final StudentData data,
+    CourseRecommendations(final Iterable<MajorMathRequirement> requirements, final MPStudentData data,
                           final MathPlanLogic logic) {
 
         final CourseGroup core = logic.getCourseGroups().get("AUCC3");
@@ -250,7 +250,7 @@ public final class CourseRecommendations {
      *
      * @param data student data
      */
-    private void mark60CreditCriticals(final StudentData data) {
+    private void mark60CreditCriticals(final MPStudentData data) {
 
         final double coreCompleted = data.getCreditsOfCoreCompleted();
         final int coreRemaining = (int) Math.ceil(3.0 - coreCompleted);

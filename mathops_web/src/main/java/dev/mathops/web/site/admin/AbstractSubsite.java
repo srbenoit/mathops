@@ -1,13 +1,15 @@
 package dev.mathops.web.site.admin;
 
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -33,7 +35,7 @@ public abstract class AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -41,8 +43,9 @@ public abstract class AbstractSubsite {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public final void doGet(final Cache cache, final String subpath, final ImmutableSessionInfo session,
-                            final HttpServletRequest req, final HttpServletResponse resp) throws IOException, SQLException {
+    public final void doGet(final WebViewData data, final String subpath, final ImmutableSessionInfo session,
+                            final HttpServletRequest req, final HttpServletResponse resp) throws IOException,
+            SQLException {
 
         if ("basestyle.css".equals(subpath)) {
             AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css",
@@ -53,7 +56,7 @@ public abstract class AbstractSubsite {
         } else if (subpath.startsWith("images/")) {
             this.site.serveImage(subpath.substring(7), req, resp);
         } else {
-            subsiteGet(cache, subpath, session, req, resp);
+            subsiteGet(data, subpath, session, req, resp);
         }
     }
 
@@ -61,7 +64,7 @@ public abstract class AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -69,7 +72,7 @@ public abstract class AbstractSubsite {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    protected abstract void subsiteGet(final Cache cache, final String subpath,
+    protected abstract void subsiteGet(final WebViewData data, final String subpath,
                                        final ImmutableSessionInfo session, final HttpServletRequest req,
                                        final HttpServletResponse resp) throws IOException, SQLException;
 
@@ -77,7 +80,7 @@ public abstract class AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -85,20 +88,20 @@ public abstract class AbstractSubsite {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public final void doPost(final Cache cache, final String subpath,
+    public final void doPost(final WebViewData data, final String subpath,
                              final ImmutableSessionInfo session, final HttpServletRequest req,
                              final HttpServletResponse resp) throws IOException, SQLException {
 
         // We could intercept common POST requests here, such as "act as" requests
 
-        subsitePost(cache, subpath, session, req, resp);
+        subsitePost(data, subpath, session, req, resp);
     }
 
     /**
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -106,7 +109,7 @@ public abstract class AbstractSubsite {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    protected abstract void subsitePost(final Cache cache, final String subpath,
+    protected abstract void subsitePost(final WebViewData data, final String subpath,
                                         final ImmutableSessionInfo session, final HttpServletRequest req,
                                         final HttpServletResponse resp) throws IOException, SQLException;
 }

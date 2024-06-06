@@ -4,19 +4,14 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -26,6 +21,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -44,15 +40,15 @@ enum PageStudentExams {
     /**
      * Shows the student exams page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -63,14 +59,14 @@ enum PageStudentExams {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+            PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+                PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
             } else {
-                doStudentExamsPage(cache, site, req, resp, session, student);
+                doStudentExamsPage(studentData, site, req, resp, session, student);
             }
         }
     }
@@ -78,20 +74,21 @@ enum PageStudentExams {
     /**
      * Shows the student activity page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param student the student for which to present information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param student     the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStudentExamsPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    private static void doStudentExamsPage(final StudentData studentData, final AdminSite site,
+                                           final ServletRequest req,
                                            final HttpServletResponse resp, final ImmutableSessionInfo session,
                                            final RawStudent student) throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
         htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
                 student.stuId, "</code></strong>").eP();
@@ -126,29 +123,28 @@ enum PageStudentExams {
             htm.eDiv(); // narrowstack
 
             htm.sDiv("detail");
-            emitStudentExams(cache, htm, student, session.getEffectiveRole());
+            emitStudentExams(studentData, htm, session.getEffectiveRole());
             htm.eDiv(); // detail
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * Emits the student's exam record.
      *
-     * @param cache   the data cache
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student
-     * @param role    the user role
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param role        the user role
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentExams(final Cache cache, final HtmlBuilder htm,
-                                         final RawStudent student, final ERole role) throws SQLException {
+    private static void emitStudentExams(final StudentData studentData, final HtmlBuilder htm,
+                                         final ERole role) throws SQLException {
 
-        final List<RawStexam> exams = RawStexamLogic.queryByStudent(cache, student.stuId, true);
-        final List<RawStmpe> mpes = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
-        final List<RawStchallenge> chals = RawStchallengeLogic.queryByStudent(cache, student.stuId);
+        final List<RawStexam> exams = studentData.getStudentExams();
+        final List<RawStmpe> mpes = studentData.getPlacementAttempts();
+        final List<RawStchallenge> chals = studentData.getChallengeExams();
 
         if (exams.isEmpty() && mpes.isEmpty() && chals.isEmpty()) {
             htm.sP().add("(No exams found)").eP();
@@ -157,7 +153,7 @@ enum PageStudentExams {
             mpes.sort(new RawStmpe.FinishDateTimeComparator());
             chals.sort(new RawStchallenge.FinishDateTimeComparator());
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = studentData.getActiveTerm();
 
             emitPlacementExamTable(active, htm, mpes, role);
             emitChallengeExamTable(active, htm, chals, role);

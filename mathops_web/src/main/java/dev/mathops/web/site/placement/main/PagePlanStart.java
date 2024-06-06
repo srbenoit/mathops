@@ -1,16 +1,18 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
@@ -30,41 +32,42 @@ enum PagePlanStart {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
-        doGet(cache, site, req, resp, session, logic);
+        doGet(studentData, site, req, resp, session, logic);
     }
 
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
-     * @param logic   the site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
+     * @param logic       the site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    private static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session,
                               final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MPStudentData data = logic.getStudentData(studentData, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -95,7 +98,7 @@ enum PagePlanStart {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data student math plan data
      */
-    private static void emitPlanSteps(final HtmlBuilder htm, final StudentData data) {
+    private static void emitPlanSteps(final HtmlBuilder htm, final MPStudentData data) {
 
         final Map<Integer, RawStmathplan> majorResponses = data.getMajorProfileResponses();
         final boolean viewedExisting = data.viewedExisting;
@@ -215,15 +218,15 @@ enum PagePlanStart {
     /**
      * Called when a POST is received to the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -234,15 +237,15 @@ enum PagePlanStart {
         if (session.actAsUserId == null) {
             final String studentId = session.getEffectiveUserId();
 
-            final StudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
+            final MPStudentData data = logic.getStudentData(studentData, now, session.loginSessionTag,
                     session.actAsUserId == null);
 
             if (req.getParameter(INPUT_NAME) != null) {
 
                 final Integer key = Integer.valueOf(1);
 
-                final Map<Integer, RawStmathplan> existing = MathPlanLogic
-                        .getMathPlanResponses(cache, studentId, MathPlanConstants.ONLY_RECOM_PROFILE);
+                final Map<Integer, RawStmathplan> existing = studentData.getLatestMathPlanResponsesByPage(
+                        MathPlanConstants.ONLY_RECOM_PROFILE);
 
                 if (!existing.containsKey(key)) {
 
@@ -251,14 +254,14 @@ enum PagePlanStart {
 
                     questions.add(key);
                     answers.add("Y");
-                    logic.storeMathPlanResponses(cache, data.student,
+                    logic.storeMathPlanResponses(studentData,
                             MathPlanConstants.ONLY_RECOM_PROFILE, questions, answers, now, session.loginSessionTag);
 
-                    data.recordPlan(cache, logic, now, session.getEffectiveUserId(), session.loginSessionTag);
+                    data.recordPlan(studentData, logic, now, session.loginSessionTag);
                 }
             }
         }
 
-        doGet(cache, site, req, resp, session, logic);
+        doGet(studentData, site, req, resp, session, logic);
     }
 }

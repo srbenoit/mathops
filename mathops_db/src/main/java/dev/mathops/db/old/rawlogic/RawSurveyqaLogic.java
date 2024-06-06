@@ -1,7 +1,7 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;

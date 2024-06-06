@@ -3,8 +3,7 @@ package dev.mathops.web.site.admin.proctor;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -15,6 +14,7 @@ import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -28,15 +28,15 @@ enum PageProctoringChallengeTeams {
     /**
      * Generates the page that gathers information to issue a testing center calculator.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -47,7 +47,7 @@ enum PageProctoringChallengeTeams {
             Log.warning("  stuId='", stuId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+            final RawWhichDb whichDb = studentData.getWhichDb();
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
             final String siteTitle = site.getTitle();
@@ -59,7 +59,7 @@ enum PageProctoringChallengeTeams {
 
             doPageContent(req, htm, stuId);
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(studentData, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         }
     }
@@ -71,8 +71,7 @@ enum PageProctoringChallengeTeams {
      * @param htm   the {@code HtmlBuilder} to which to write
      * @param stuId the student ID
      */
-    private static void doPageContent(final ServletRequest req, final HtmlBuilder htm,
-                                      final String stuId) {
+    private static void doPageContent(final ServletRequest req, final HtmlBuilder htm, final String stuId) {
 
         final boolean isDev = req.getServerName().contains("dev.");
 
@@ -146,18 +145,18 @@ enum PageProctoringChallengeTeams {
      * Processes the POST from the form to issue a make-up exam. This method validates the request parameters, and
      * inserts a new record of an in-progress make-up exam, then prints status.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final AdminSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        doGet(cache, site, req, resp, session);
+        doGet(studentData, site, req, resp, session);
     }
 }

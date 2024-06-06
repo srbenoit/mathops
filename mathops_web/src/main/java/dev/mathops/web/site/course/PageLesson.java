@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;

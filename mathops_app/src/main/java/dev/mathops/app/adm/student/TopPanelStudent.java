@@ -3,11 +3,11 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -103,11 +103,9 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
         buttonRow.setBackground(Skin.OFF_WHITE_GRAY);
         add(buttonRow, BorderLayout.PAGE_START);
 
-        buttonRow.add(makeTopButton("Pick Student", PICK_CMD, Skin.LT_GREEN, btn),
-                StackedBorderLayout.WEST);
+        buttonRow.add(makeTopButton("Pick Student", PICK_CMD, Skin.LT_GREEN, btn), StackedBorderLayout.WEST);
 
-        buttonRow.add(makeTopButton("Student Detail", CURSTU_CMD, Skin.LT_RED, btn),
-                StackedBorderLayout.WEST);
+        buttonRow.add(makeTopButton("Student Detail", CURSTU_CMD, Skin.LT_RED, btn), StackedBorderLayout.WEST);
 
         this.stuDetailButton = btn[0];
         this.stuDetailButton.setEnabled(false);
@@ -237,7 +235,8 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
         this.stuDetailButton.setEnabled(data != null);
 
         if (data != null) {
-            Log.info("Setting student: ", data.student.stuId);
+            final String studentId = data.getStudentId();
+            Log.info("Setting student: ", studentId);
 
             this.cards.show(this.cardPane, CURSTU_CMD);
             this.showing = CURSTU_CMD;

@@ -3,8 +3,8 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 
 import java.sql.ResultSet;
@@ -578,7 +578,7 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
      * @param pageId    the ID of the page whose responses to retrieve
      * @return the list of records that matched the criteria, a zero-length array if none matched
      */
-    private static List<RawStmathplan> queryLatestByTestStudentPage(final String studentId, final String pageId) {
+    public static List<RawStmathplan> queryLatestByTestStudentPage(final String studentId, final String pageId) {
 
         List<RawStmathplan> result;
 

@@ -2,9 +2,8 @@ package dev.mathops.web.site.admin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -25,7 +24,7 @@ enum PageHome {
     /**
      * Generates the page that prompts the user to log in.
      *
-     * @param cache   the data cache
+     * @param studentData   the student data object
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -33,11 +32,11 @@ enum PageHome {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = studentData.getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -50,7 +49,7 @@ enum PageHome {
 
             htm.div("vgap");
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(studentData, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         } else if (role == ERole.ADMINISTRATOR) {
             resp.sendRedirect("genadmin/home.html");

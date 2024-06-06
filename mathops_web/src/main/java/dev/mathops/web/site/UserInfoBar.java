@@ -2,9 +2,10 @@ package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.CsuLiveRegChecker;
@@ -14,7 +15,10 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 /**
  * A definition of a user information bar, to be loaded from a database. The information bar shows the currently
@@ -30,12 +34,12 @@ public enum UserInfoBar {
     /**
      * Processes any submissions by the role controls (call on POST).
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param req     the HTTP request
      * @param session the user session info
      * @throws SQLException if there was an error accessing the database
      */
-    public static void processRoleControls(final Cache cache, final ServletRequest req,
+    public static void processRoleControls(final WebViewData data, final ServletRequest req,
                                            final ImmutableSessionInfo session) throws SQLException {
 
         final ISessionManager sessMgr = SessionManager.getInstance();
@@ -57,11 +61,21 @@ public enum UserInfoBar {
             String become2 = becomeStu == null ? null
                     : becomeStu.trim().replace(CoreConstants.DASH, CoreConstants.EMPTY);
 
-            if (actAs2 != null && !actAs2.isEmpty() && Character.isLetter(actAs2.charAt(0))) {
-                actAs2 = idFromStudentName(cache, actAs2);
+            if (actAs2 != null && !actAs2.isEmpty()) {
+                final char firstChar = actAs2.charAt(0);
+
+                if (Character.isLetter(firstChar)) {
+                    final Cache cache = data.getCache();
+                    actAs2 = idFromStudentName(cache, actAs2);
+                }
             }
-            if (become2 != null && !become2.isEmpty() && Character.isLetter(become2.charAt(0))) {
-                become2 = idFromStudentName(cache, become2);
+            if (become2 != null && !become2.isEmpty()) {
+                final char firstChar = become2.charAt(0);
+
+                if (Character.isLetter(firstChar)) {
+                    final Cache cache = data.getCache();
+                    become2 = idFromStudentName(cache, become2);
+                }
             }
 
             if (dateAdjust != null) {
@@ -75,10 +89,10 @@ public enum UserInfoBar {
 
             if (become2 == null) {
                 if (actAs2 != null) {
-                    actAsStudent(cache, sessMgr, actAs2, sess);
+                    actAsStudent(data, sessMgr, actAs2, sess);
                 }
             } else {
-                becomeStudent(cache, sessMgr, become2, sess);
+                becomeStudent(data, sessMgr, become2, sess);
             }
         }
     }
@@ -91,8 +105,7 @@ public enum UserInfoBar {
      * @return the ID if successful, null if not
      * @throws SQLException if there was an error accessing the database
      */
-    private static String idFromStudentName(final Cache cache, final String name)
-            throws SQLException {
+    private static String idFromStudentName(final Cache cache, final String name) throws SQLException {
 
         final int space = name.indexOf(' ');
 
@@ -117,55 +130,59 @@ public enum UserInfoBar {
     /**
      * Processes a request to act as a new student.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param sessMgr the session manager
      * @param newStu  the new student ID
      * @param session the current session information
      * @throws SQLException if there was an error accessing the database
      */
-    private static void actAsStudent(final Cache cache, final ISessionManager sessMgr, final String newStu,
+    private static void actAsStudent(final WebViewData data, final ISessionManager sessMgr, final String newStu,
                                      final ImmutableSessionInfo session) throws SQLException {
 
         if (session.role.canActAs(ERole.STUDENT)) {
-            final SessionResult res = sessMgr.setEffectiveUserId(cache, session.loginSessionId, newStu);
+            final SessionResult res = sessMgr.setEffectiveUserId(data, session.loginSessionId, newStu);
 
+            final Cache cache = data.getCache();
             CsuLiveRegChecker.checkLiveReg(cache, newStu);
 
             if (res != null && res.session != null) {
                 Log.info("Acting as student ID ", newStu);
             }
         }
-
     }
 
     /**
      * Processes a request to become a new student.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param sessMgr the session manager
      * @param newStu  the new student ID
      * @param session the current session information
      * @throws SQLException if there was an error accessing the database
      */
-    private static void becomeStudent(final Cache cache, final ISessionManager sessMgr, final String newStu,
+    private static void becomeStudent(final WebViewData data, final ISessionManager sessMgr, final String newStu,
                                       final ImmutableSessionInfo session) throws SQLException {
 
         Log.info("Request to become ", newStu, " from ", session.role);
 
         if (session.role.canActAs(ERole.STUDENT)) {
             ERole newRole = ERole.STUDENT;
-            if (RawSpecialStusLogic.isSpecialType(cache, newStu, session.getNow().toLocalDate(), "ADVISER")) {
+            final StudentData loggedInUser = data.getLoggedInUser();
+            final ZonedDateTime now = session.getNow();
+            final LocalDate today = now.toLocalDate();
+
+            if (loggedInUser.isSpecialCategory(today, "ADVISER")) {
                 newRole = ERole.ADVISER;
             }
 
             Log.info("Setting user ID to ", newStu, " and role to ", newRole);
-            final SessionResult res = sessMgr.setUserId(cache, session.loginSessionId, newStu, newRole);
+            final SessionResult res = sessMgr.setUserId(data, session.loginSessionId, newStu, newRole);
 
+            final Cache cache = data.getCache();
             CsuLiveRegChecker.checkLiveReg(cache, newStu);
-            // StudentCache.get(primary, secondary).liveQueryStudent(newStu);
 
-            // TODO: If role is INSTRUCTOR, limit students we alloy to those in that instructor's
-            // courses, and if DEVELOPER, allow access only to test students
+            // TODO: If role is INSTRUCTOR, limit students we alloy to those in that instructor's courses, and if
+            //  DEVELOPER, allow access only to test students
 
             if (res != null && res.session != null) {
                 Log.info("Becoming user ID ", newStu);

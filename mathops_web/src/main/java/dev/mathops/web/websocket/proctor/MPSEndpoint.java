@@ -4,10 +4,12 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -19,15 +21,11 @@ import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -160,7 +158,7 @@ public final class MPSEndpoint {
     private final MPSSessionManager mgr;
 
     /** The student. */
-    private RawStudent student;
+    private StudentData studentData;
 
     /** The proctoring session. */
     private MPSSession ps;
@@ -201,6 +199,7 @@ public final class MPSEndpoint {
         Log.info(LOG_PREFIX, "websocket closed");
 
         this.session = null;
+        this.studentData = null;
     }
 
     /**
@@ -210,8 +209,7 @@ public final class MPSEndpoint {
      * @throws IOException if there is an error writing the response
      */
     @OnMessage
-    public void incoming(final String message)
-            throws IOException {
+    public void incoming(final String message) throws IOException {
 
         Log.info(LOG_PREFIX, "websocket received message: ", message);
 
@@ -219,34 +217,34 @@ public final class MPSEndpoint {
 
         if (!message.isEmpty()) {
             try {
-                final char ch = message.charAt(0);
+                final int firstChar = (int) message.charAt(0);
 
-                if (ch == '!') {
+                if (firstChar == '!') {
                     processConnect(message.substring(1));
-                } else if (ch == '?') {
+                } else if (firstChar == '?') {
                     processQuery();
-                } else if (ch == 'S') {
+                } else if (firstChar == 'S') {
                     processStart(message.substring(1));
-                } else if (ch == 'P') {
+                } else if (firstChar == 'P') {
                     processPhoto();
-                } else if (ch == 'I') {
+                } else if (firstChar == 'I') {
                     processId();
-                } else if (ch == 'E') {
+                } else if (firstChar == 'E') {
                     processEnvironment();
-                } else if (ch == 'A') {
+                } else if (firstChar == 'A') {
                     processAssessment();
-                } else if (ch == 'F') {
+                } else if (firstChar == 'F') {
                     processFinished();
-                } else if (ch == 'X') {
+                } else if (firstChar == 'X') {
                     processStartOver(message.substring(1));
-                } else if (ch == 'R') {
+                } else if (firstChar == 'R') {
                     processRejoin();
-                } else if (ch == '~') {
+                } else if (firstChar == '~') {
                     processPing();
-                } else if (ch == '.') {
+                } else if (firstChar == '.') {
                     processKeepalive();
                 } else {
-                    Log.warning(LOG_PREFIX, "Unexpected message type :" + ch);
+                    Log.warning(LOG_PREFIX, "Unexpected message type :" + firstChar);
                 }
             } catch (final Exception ex) {
                 Log.warning(ex);
@@ -271,8 +269,7 @@ public final class MPSEndpoint {
         final SessionResult result = SessionManager.getInstance().validate(lsid);
 
         if (result.error != null) {
-            Log.warning(LOG_PREFIX, "Unable to validate login session:",
-                    result.error);
+            Log.warning(LOG_PREFIX, "Unable to validate login session:", result.error);
             this.session.getBasicRemote().sendText("ERROR");
         } else if (result.session == null) {
             Log.warning(LOG_PREFIX, "Unable to validate login session.");
@@ -285,18 +282,19 @@ public final class MPSEndpoint {
             try {
                 final DbConnection conn = ctx.checkOutConnection();
                 final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
+                this.studentData = new StudentData(cache, studentId, ELiveRefreshes.NONE);
 
                 try {
-                    this.student = RawStudentLogic.query(cache, studentId, false);
+                    final RawStudent student = this.studentData.getStudentRecord();
 
-                    if (this.student == null) {
+                    if (student == null) {
                         Log.warning(LOG_PREFIX, "Unable to look up student ", studentId);
                         this.session.getBasicRemote().sendText("ERROR");
                     } else {
                         this.ps = this.mgr.getSessionForStudent(studentId);
 
                         if (this.ps == null) {
-                            final List<ExamCategory> avail = findAvailableExams(cache, result.session);
+                            final List<ExamCategory> avail = findAvailableExams(result.session);
 
                             final HtmlBuilder msg = new HtmlBuilder(100);
                             msg.addln("CONNECTED-NO-SESSION{");
@@ -315,16 +313,13 @@ public final class MPSEndpoint {
                                     final ExamEntry exam = cat.exams.get(j);
 
                                     msg.addln("    {");
-                                    msg.addln("     \"id\" : \"", exam.examId,
-                                            "\",");
-                                    msg.add("     \"label\" : \"", exam.buttonLabel,
-                                            CoreConstants.QUOTE);
+                                    msg.addln("     \"id\" : \"", exam.examId, "\",");
+                                    msg.add("     \"label\" : \"", exam.buttonLabel, CoreConstants.QUOTE);
                                     if (exam.note == null) {
                                         msg.addln();
                                     } else {
                                         msg.addln(",");
-                                        msg.addln("     \"note\" : \"", exam.note,
-                                                CoreConstants.QUOTE);
+                                        msg.addln("     \"note\" : \"", exam.note, CoreConstants.QUOTE);
                                     }
                                     if (j == numExams - 1) {
                                         msg.addln("    }");
@@ -343,8 +338,7 @@ public final class MPSEndpoint {
                             msg.addln(" ]");
                             msg.addln("}");
 
-                            Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                    "'");
+                            Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
                             this.session.getBasicRemote().sendText(msg.toString());
 
                         } else {
@@ -358,8 +352,7 @@ public final class MPSEndpoint {
                                     .addln(" \"state\" : \"", this.ps.state.name(), CoreConstants.QUOTE)
                                     .addln("}");
 
-                            Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                    "'");
+                            Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
 
                             this.session.getBasicRemote().sendText(msg.toString());
                         }
@@ -379,12 +372,11 @@ public final class MPSEndpoint {
      * <p>
      * The message data should consist of the login ID of the login session under which the connection is being made.
      *
-     * @param cache the data cache
-     * @param lsid  the login session ID
+     * @param lsid        the login session ID
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private void processTerminate(final Cache cache, final String lsid) throws IOException, SQLException {
+    private void processTerminate(final String lsid) throws IOException, SQLException {
 
         // Log.info("Connect message with login session ID: ", lsid);
 
@@ -396,62 +388,60 @@ public final class MPSEndpoint {
         } else if (result.session == null) {
             Log.warning(LOG_PREFIX, "Unable to validate login session.");
             this.session.getBasicRemote().sendText("ERROR");
+        } else if (this.studentData == null) {
+            Log.warning(LOG_PREFIX, "Terminate message received with no active student data.");
+            this.session.getBasicRemote().sendText("ERROR");
+        } else if (this.studentData.getStudentRecord() == null) {
+            Log.warning(LOG_PREFIX, "Unable to look up student ", this.studentData.getStudentId());
+            this.session.getBasicRemote().sendText("ERROR");
         } else {
-            final String studentId = result.session.getEffectiveUserId();
+            final List<ExamCategory> avail = findAvailableExams(result.session);
 
-            this.student = RawStudentLogic.query(cache, studentId, false);
-            if (this.student == null) {
-                Log.warning(LOG_PREFIX, "Unable to look up student " + studentId);
-                this.session.getBasicRemote().sendText("ERROR");
-            } else {
-                final List<ExamCategory> avail = findAvailableExams(cache, result.session);
+            final HtmlBuilder msg = new HtmlBuilder(100);
+            msg.addln("TERMINATED{");
+            msg.addln(" \"categories\" : [");
 
-                final HtmlBuilder msg = new HtmlBuilder(100);
-                msg.addln("TERMINATED{");
-                msg.addln(" \"categories\" : [");
+            final int numCategories = avail.size();
+            for (int i = 0; i < numCategories; ++i) {
+                final ExamCategory cat = avail.get(i);
 
-                final int numCategories = avail.size();
-                for (int i = 0; i < numCategories; ++i) {
-                    final ExamCategory cat = avail.get(i);
+                msg.addln("  {");
+                msg.addln("   \"title\" : \"", cat.name, "\",");
+                msg.addln("   \"exams\" : [");
 
-                    msg.addln("  {");
-                    msg.addln("   \"title\" : \"", cat.name, "\",");
-                    msg.addln("   \"exams\" : [");
+                final int numExams = cat.exams.size();
+                for (int j = 0; j < numExams; ++j) {
+                    final ExamEntry exam = cat.exams.get(j);
 
-                    final int numExams = cat.exams.size();
-                    for (int j = 0; j < numExams; ++j) {
-                        final ExamEntry exam = cat.exams.get(j);
-
-                        msg.addln("    {");
-                        msg.addln("     \"id\" : \"", exam.examId, "\",");
-                        msg.add("     \"label\" : \"", exam.buttonLabel, CoreConstants.QUOTE);
-                        if (exam.note == null) {
-                            msg.addln();
-                        } else {
-                            msg.addln(CoreConstants.COMMA);
-                            msg.addln("     \"note\" : \"", exam.note, CoreConstants.QUOTE);
-                        }
-                        if (j == numExams - 1) {
-                            msg.addln("    }");
-                        } else {
-                            msg.addln("    },");
-                        }
-                    }
-                    msg.addln("   ]");
-
-                    if (i == numCategories - 1) {
-                        msg.addln("  }");
+                    msg.addln("    {");
+                    msg.addln("     \"id\" : \"", exam.examId, "\",");
+                    msg.add("     \"label\" : \"", exam.buttonLabel, CoreConstants.QUOTE);
+                    if (exam.note == null) {
+                        msg.addln();
                     } else {
-                        msg.addln("  },");
+                        msg.addln(CoreConstants.COMMA);
+                        msg.addln("     \"note\" : \"", exam.note, CoreConstants.QUOTE);
+                    }
+                    if (j == numExams - 1) {
+                        msg.addln("    }");
+                    } else {
+                        msg.addln("    },");
                     }
                 }
+                msg.addln("   ]");
 
-                msg.addln(" ]");
-                msg.addln("}");
-
-                // Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
-                this.session.getBasicRemote().sendText(msg.toString());
+                if (i == numCategories - 1) {
+                    msg.addln("  }");
+                } else {
+                    msg.addln("  },");
+                }
             }
+
+            msg.addln(" ]");
+            msg.addln("}");
+
+            // Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
+            this.session.getBasicRemote().sendText(msg.toString());
         }
     }
 
@@ -490,26 +480,27 @@ public final class MPSEndpoint {
     /**
      * Determines the list of exams for which the student is eligible.
      *
-     * @param cache        the data cache
      * @param loginSession the session
      * @return a map from category to the list of available exam IDs
      * @throws SQLException if there is an error accessing the database
      */
-    private List<ExamCategory> findAvailableExams(final Cache cache, final ImmutableSessionInfo loginSession)
-            throws SQLException {
+    private List<ExamCategory> findAvailableExams(final ImmutableSessionInfo loginSession) throws SQLException {
 
-        final String studentId = this.student.stuId;
+        // This method is called only when "studentData" is known to exist.
+
+        final String studentId = this.studentData.getStudentId();
 
         final List<ExamCategory> result = new ArrayList<>(3);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = this.studentData.getActiveTerm();
 
         // Check for course exams
         final List<ExamEntry> courseExams = new ArrayList<>(10);
 
-        final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, studentId, active.term);
+        final List<RawStcourse> regs = this.studentData.getActiveRegistrations(active.term);
 
-        final boolean notRamwork = !RawSpecialStusLogic.isSpecialType(cache, studentId, LocalDate.now(), "RAMWORK");
+        final LocalDate today = LocalDate.now();
+        final boolean notRamwork = !this.studentData.isSpecialCategory(today, "RAMWORK");
 
         // Eliminate placement credit registrations, and (if not RAMWORK), RI courses
         final Iterator<RawStcourse> regIter = regs.iterator();
@@ -529,8 +520,8 @@ public final class MPSEndpoint {
         }
 
         if (!regs.isEmpty()) {
-            // Put all the course-related exams first, since that's the most likely goal for
-            // students who are eligible for such exams
+            // Put all the course-related exams first, since that's the most likely goal for students who are
+            // eligible for such exams
 
             final UnitExamEligibilityTester unitElig = new UnitExamEligibilityTester(studentId);
             final FinalExamEligibilityTester finalElig = new FinalExamEligibilityTester(studentId);
@@ -546,6 +537,7 @@ public final class MPSEndpoint {
                     final String lbl = course.replace("M ", "MATH ");
 
                     final RawExam u1 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(1), "U");
+
                     if (u1 != null && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(1)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u1.version, lbl + " - " + u1.buttonLabel, null));
@@ -554,6 +546,7 @@ public final class MPSEndpoint {
                     }
 
                     final RawExam u2 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(2), "U");
+
                     if ((u2 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(2)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u2.version, lbl + " - " + u2.buttonLabel, null));
@@ -562,6 +555,7 @@ public final class MPSEndpoint {
                     }
 
                     final RawExam u3 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(3), "U");
+
                     if ((u3 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(3)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u3.version, lbl + " - " + u3.buttonLabel, null));
@@ -570,6 +564,7 @@ public final class MPSEndpoint {
                     }
 
                     final RawExam u4 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(4), "U");
+
                     if ((u4 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(4)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u4.version, lbl + " - " + u4.buttonLabel, null));
@@ -578,6 +573,7 @@ public final class MPSEndpoint {
                     }
 
                     final RawExam fe = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(5), "F");
+
                     if ((fe != null) && finalElig.isExamEligible(cache, loginSession,
                             new FinalExamAvailability(course, Integer.valueOf(5)), reasons, holds)) {
                         courseExams.add(new ExamEntry(fe.version, lbl + " - " + fe.buttonLabel, null));
@@ -601,9 +597,9 @@ public final class MPSEndpoint {
             tutorialExams.add(new ExamEntry("MT4UE", "ELM Exam", null));
         }
 
-        final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, studentId);
+        final PrerequisiteLogic prereq = new PrerequisiteLogic(studentData);
         final PrecalcTutorialLogic precalc =
-                new PrecalcTutorialLogic(cache, studentId, loginSession.getNow().toLocalDate(), prereq);
+                new PrecalcTutorialLogic(studentData, loginSession.getNow().toLocalDate(), prereq);
         final PrecalcTutorialStatus precalcStatus = precalc.status;
         if (precalcStatus.eligiblePrecalcExamCourses != null) {
             final Collection<RawExam> exams = new ArrayList<>(10);
@@ -846,9 +842,10 @@ public final class MPSEndpoint {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
+            final StudentData n
 
             try {
-                processTerminate(cache, lsid);
+                processTerminate(studentData, lsid);
             } finally {
                 ctx.checkInConnection(conn);
             }

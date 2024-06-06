@@ -1,7 +1,8 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
@@ -327,15 +328,18 @@ public final class SiteDataRegistration {
     /**
      * Updates the pace order in the database for a registration record.
      *
-     * @param cache        the data cache
+     * @param studentData  the student data object
      * @param reg          the registration record
      * @param newPaceOrder the new pace order
      * @throws SQLException if there is an error accessing the database
      */
-    public static void updatePaceOrder(final Cache cache, final RawStcourse reg,
+    public static void updatePaceOrder(final StudentData studentData, final RawStcourse reg,
                                        final Integer newPaceOrder) throws SQLException {
 
+        final Cache cache = studentData.getCache();
+
         if (RawStcourseLogic.updatePaceOrder(cache, reg.stuId, reg.course, reg.sect, reg.termKey, newPaceOrder)) {
+            studentData.forgetRegistrations();
             reg.paceOrder = newPaceOrder;
         }
     }
@@ -795,8 +799,7 @@ public final class SiteDataRegistration {
 
         // If no rules matched, assign the default track based on the student's rule set
         if (track == null) {
-            final RawPacingStructure pacingstructure =
-                    this.owner.studentData.getStudentPacingStructure();
+            final RawPacingStructure pacingstructure = this.owner.studentData.getStudentPacingStructure();
             track = pacingstructure == null ? "A" : pacingstructure.defPaceTrack;
         }
 

@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
@@ -57,6 +57,7 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -78,17 +79,17 @@ enum PageOutline {
     /**
      * Starts the page that shows the course outline with student progress.
      *
-     * @param cache    the data cache
-     * @param siteType the site type
-     * @param site     the owning site
-     * @param req      the request
-     * @param resp     the response
-     * @param session  the user's login session information
-     * @param logic    the course site logic
+     * @param studentData the student data object
+     * @param siteType    the site type
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param logic       the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final ESiteType siteType, final CourseSite site,
+    static void doGet(final StudentData studentData, final ESiteType siteType, final CourseSite site,
                       final ServletRequest req, final HttpServletResponse resp,
                       final ImmutableSessionInfo session, final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -105,10 +106,10 @@ enum PageOutline {
             Log.warning("  mode='", mode, "'");
             Log.warning("  errorExam='", errorExam, "'");
             Log.warning("  error='", error, "'");
-            PageError.doGet(cache, site, req, resp, session,
+            PageError.doGet(studentData, site, req, resp, session,
                     "No course and mode provided for course outline");
         } else if (course == null || mode == null) {
-            PageError.doGet(cache, site, req, resp, session,
+            PageError.doGet(studentData, site, req, resp, session,
                     "No course and mode provided for course outline");
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -116,15 +117,15 @@ enum PageOutline {
                     false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(studentData, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            doOutline(cache, siteType, site, session, logic, course, mode, errorExam, error, htm, null);
+            doOutline(studentData, siteType, site, session, logic, course, mode, errorExam, error, htm, null);
 
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(studentData, site, htm, true);
 
             AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
                     htm.toString().getBytes(StandardCharsets.UTF_8));
@@ -134,7 +135,7 @@ enum PageOutline {
     /**
      * Creates the HTML of the course outline.
      *
-     * @param cache              the data cache
+     * @param studentData        the student data object
      * @param siteType           the site type
      * @param site               the owning site
      * @param session            the user's login session information
@@ -149,7 +150,7 @@ enum PageOutline {
      *                           this course is being presented on its own
      * @throws SQLException if there is an error accessing the database
      */
-    static void doOutline(final Cache cache, final ESiteType siteType, final CourseSite site,
+    static void doOutline(final StudentData studentData, final ESiteType siteType, final CourseSite site,
                           final ImmutableSessionInfo session, final CourseSiteLogic logic, final String courseId,
                           final String mode, final String errorExam, final String error, final HtmlBuilder htm,
                           final String skillsReviewCourse) throws SQLException {
@@ -161,7 +162,7 @@ enum PageOutline {
 
         boolean result;
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = studentData.getActiveTerm();
         final RawCourse course = RawCourseLogic.query(cache, courseId);
 
         String defaultSect;
@@ -204,7 +205,7 @@ enum PageOutline {
         }
 
         if (csection != null && "MAS".equals(csection.gradingStd)) {
-            PageStdsCourse.masteryCoursePanel(cache, logic, course, studentCourse, csection, htm);
+            PageStdsCourse.masteryCoursePanel(studentData, logic, course, studentCourse, csection, htm);
 
             if ("888888888".equals(session.getEffectiveUserId())) {
                 htm.div("vgap");
@@ -214,7 +215,7 @@ enum PageOutline {
         } else {
             final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
 
-            if (courseStatus.gatherData(cache, session, userId, courseId, false, isPractice)
+            if (courseStatus.gatherData(studentData, session, userId, courseId, false, isPractice)
                     && courseStatus.getCourse().courseName != null) {
 
                 csection = courseStatus.getCourseSection();
@@ -223,12 +224,12 @@ enum PageOutline {
                     if (skillsReviewCourse == null) {
 
                         // Normal course display (user's exam, e-text, status, course outline)
-                        doUsersExamLink(cache, now, courseStatus, htm);
+                        doUsersExamLink(studentData, now, courseStatus, htm);
 
-                        doBookPurchaseLink(cache, session, courseId, mode, htm);
+                        doBookPurchaseLink(studentData, session, courseId, mode, htm);
 
                         if (courseStatus.isStudentLicensed()
-                                && ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
+                                && ETextLogic.canStudentAccessCourse(studentData, session, courseId)) {
 
                             final String section = csection.sect;
 
@@ -243,16 +244,17 @@ enum PageOutline {
                             }
                             htm.eH(2);
 
-                            doCourseStatus(cache, logic, courseStatus, htm);
+                            doCourseStatus(studentData, logic, courseStatus, htm);
 
-                            doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam,
+                            doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
                                     error, htm, null);
                         }
-                    } else if (courseStatus.gatherData(cache, session, userId, courseId, true,
+                    } else if (courseStatus.gatherData(studentData, session, userId, courseId, true,
                             false) && courseStatus.getCourse().courseName != null) {
 
                         // Displaying the course as a Skills Review, so no checks
-                        doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam, error,
+                        doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
+                                error,
                                 htm, skillsReviewCourse);
                     } else {
                         htm.sP().add("FAILED TO GET COURSE DATA 2").br();
@@ -266,11 +268,11 @@ enum PageOutline {
 
                     // No users exam in practice, but keep it in locked out mode
                     if ("locked".equals(mode)) {
-                        doUsersExamLink(cache, now, courseStatus, htm);
+                        doUsersExamLink(studentData, now, courseStatus, htm);
                     }
 
                     // Require book purchased in all modes
-                    doBookPurchaseLink(cache, session, courseId, mode, htm);
+                    doBookPurchaseLink(studentData, session, courseId, mode, htm);
 
                     if ("locked".equals(mode)) {
                         // Require licensed in locked mode
@@ -279,17 +281,19 @@ enum PageOutline {
 
                             // TODO: Locked status display at top
 
-                            doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam,
+                            doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
                                     error, htm, null);
                         }
                     } else if (ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
                         // Don't require licensed in practice mode
-                        doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam, error,
+                        doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
+                                error,
                                 htm, null);
                     }
                 } else {
                     // Accessing course as a Skills Review in practice/locked out mode...
-                    doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam, error, htm,
+                    doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam, error
+                            , htm,
                             skillsReviewCourse);
                 }
             } else {
@@ -883,7 +887,7 @@ enum PageOutline {
     /**
      * Generates the course outline.
      *
-     * @param cache              the data cache
+     * @param studentData        the student data object
      * @param siteType           the site type
      * @param site               the course site
      * @param session            the user's login session information
@@ -897,7 +901,7 @@ enum PageOutline {
      *                           this course is being presented on its own
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doCourseOutline(final Cache cache, final ESiteType siteType,
+    private static void doCourseOutline(final StudentData studentData, final ESiteType siteType,
                                         final CourseSite site, final ImmutableSessionInfo session,
                                         final CourseSiteLogic logic,
                                         final StudentCourseStatus courseStatus, final String mode,
@@ -931,7 +935,7 @@ enum PageOutline {
         htm.div("vgap0").hr().div("vgap0");
 
         // Units
-        doUnits(cache, siteType, site, session, logic, courseStatus, mode, errorExam, error, htm,
+        doUnits(studentData, siteType, site, session, logic, courseStatus, mode, errorExam, error, htm,
                 skillsReviewCourse);
     }
 
@@ -1042,7 +1046,7 @@ enum PageOutline {
     /**
      * Present each unit's topics with status.
      *
-     * @param cache              the data cache
+     * @param studentData        the student data object
      * @param siteType           the site type
      * @param site               the course site
      * @param session            the user's login session information
@@ -1056,7 +1060,7 @@ enum PageOutline {
      *                           this course is being presented on its own
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doUnits(final Cache cache, final ESiteType siteType, final CourseSite site,
+    private static void doUnits(final StudentData studentData, final ESiteType siteType, final CourseSite site,
                                 final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                 final StudentCourseStatus courseStatus, final String mode, final String errorExam,
                                 final String error, final HtmlBuilder htm, final String skillsReviewCourse)
@@ -1073,12 +1077,12 @@ enum PageOutline {
             final String type = unit == null ? "SR" : unit.unitType;
 
             if ("SR".equals(type) && gwSecUnit != null) {
-                doSkillsReviewUnit(cache, logic, courseStatus, mode, gwSecUnit, htm);
+                doSkillsReviewUnit(studentData, logic, courseStatus, mode, gwSecUnit, htm);
             } else if ("INST".equals(type)) {
-                told = doInstructionUnit(cache, siteType, site, session, logic, courseStatus, unit,
+                told = doInstructionUnit(studentData, siteType, site, session, logic, courseStatus, unit,
                         mode, gwSecUnit, told, htm, skillsReviewCourse);
             } else if ("FIN".equals(type)) {
-                doFinalUnit(cache, siteType, session, logic, courseStatus, unit, mode,
+                doFinalUnit(studentData, siteType, session, logic, courseStatus, unit, mode,
                         gwSecUnit, told, errorExam, error, htm);
             }
         }
@@ -1087,7 +1091,7 @@ enum PageOutline {
     /**
      * Present the link to access the Skills Review exam, if configured.
      *
-     * @param cache        the data cache
+     * @param studentData  the student data object
      * @param logic        the course site logic
      * @param courseStatus the student's status in the course
      * @param mode         the mode ("course", "practice", or "locked")
@@ -1095,7 +1099,7 @@ enum PageOutline {
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doSkillsReviewUnit(final Cache cache, final CourseSiteLogic logic,
+    private static void doSkillsReviewUnit(final StudentData studentData, final CourseSiteLogic logic,
                                            final StudentCourseStatus courseStatus, final String mode,
                                            final RawCusection gwSecUnit,
                                            final HtmlBuilder htm) throws SQLException {
@@ -1251,7 +1255,7 @@ enum PageOutline {
 
         final String studentId = logic.data.studentData.getStudent().stuId;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
 
         final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId,
                 gwSecUnit.unit, false, RawStexamLogic.ALL_EXAM_TYPES);
@@ -1410,40 +1414,33 @@ enum PageOutline {
 
         if (skillsReviewCourse == null) {
 
-            final EExamStructure exStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
-
-            final boolean doUnitExams = (exStruct == EExamStructure.UNIT_FINAL)
-                    || (exStruct == EExamStructure.UNIT_ONLY);
-
             // Show information and links for exams associated with the unit
 
-            if (doUnitExams) {
-                // Sequence for an instructional unit without midterms:
-                // - Lessons (must be done in sequence as rule set rules dictate)
-                // - Unit Review Exam (done after homeworks, as rule set rules dictate)
-                // - Unit Exam (proctored, or online if "online unit exams" indicated)
-                // - After two failed units, must re-pass review exam
+            // Sequence for an instructional unit without midterms:
+            // - Lessons (must be done in sequence as rule set rules dictate)
+            // - Unit Review Exam (done after homeworks, as rule set rules dictate)
+            // - Unit Exam (proctored, or online if "online unit exams" indicated)
+            // - After two failed units, must re-pass review exam
 
-                final RawCusection cusect = courseStatus.getCourseSectionUnit(unitNum);
-                if (cusect == null) {
-                    Log.warning("No course section unit for unit " + unitNum);
-                } else {
-                    doUnitReviewExam(cache, session, courseStatus, unitNum, dimmed, actualMode, htm);
+            final RawCusection cusect = courseStatus.getCourseSectionUnit(unitNum);
+            if (cusect == null) {
+                Log.warning("No course section unit for unit " + unitNum);
+            } else {
+                doUnitReviewExam(cache, session, courseStatus, unitNum, dimmed, actualMode, htm);
 
-                    final String range = courseStatus.getProctoredRange(unitNum);
-                    if (range != null) {
-                        htm.sDiv("indent2").add(range).eDiv();
-                    }
+                final String range = courseStatus.getProctoredRange(unitNum);
+                if (range != null) {
+                    htm.sDiv("indent2").add(range).eDiv();
+                }
 
-                    // Show a link to take the exam with proctoring service
-                    if (RawRecordConstants.M117.equals(courseId)
-                            || RawRecordConstants.M118.equals(courseId)
-                            || RawRecordConstants.M124.equals(courseId)
-                            || RawRecordConstants.M125.equals(courseId)
-                            || RawRecordConstants.M126.equals(courseId)) {
-                        doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum,
-                                actualMode, htm);
-                    }
+                // Show a link to take the exam with proctoring service
+                if (RawRecordConstants.M117.equals(courseId)
+                        || RawRecordConstants.M118.equals(courseId)
+                        || RawRecordConstants.M124.equals(courseId)
+                        || RawRecordConstants.M125.equals(courseId)
+                        || RawRecordConstants.M126.equals(courseId)) {
+                    doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum,
+                            actualMode, htm);
                 }
             }
         }
@@ -1527,72 +1524,66 @@ enum PageOutline {
 
             final int unitNum = unit.unit.intValue();
 
-            // See if the section's exam structure indicates final exams included...
-            final EExamStructure examStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
+            doUnitTitle(courseStatus, unitNum, htm);
 
-            if (examStruct == EExamStructure.UNIT_FINAL || examStruct == EExamStructure.FINAL_ONLY) {
-
-                doUnitTitle(courseStatus, unitNum, htm);
-
-                if (courseStatus.isPassing(unitNum)) {
-                    final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
-                    if (deadline != null) {
-                        htm.sDiv("indent");
-                        htm.addln(" <img src='/images/info.png' alt=''/>");
-                        htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
-                        if (deadline.isBefore(session.getNow().toLocalDate())) {
-                            htm.add("was");
-                        } else {
-                            htm.add("is");
-                        }
-                        htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
-                        htm.eDiv();
-                        htm.div("vgap");
+            if (courseStatus.isPassing(unitNum)) {
+                final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
+                if (deadline != null) {
+                    htm.sDiv("indent");
+                    htm.addln(" <img src='/images/info.png' alt=''/>");
+                    htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
+                    if (deadline.isBefore(session.getNow().toLocalDate())) {
+                        htm.add("was");
+                    } else {
+                        htm.add("is");
                     }
+                    htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
+                    htm.eDiv();
+                    htm.div("vgap");
                 }
-
-                doUnitTopmatter(courseStatus, unitNum, htm);
-
-                doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
-                        session.getNow());
-
-                final String studentId = logic.data.studentData.getStudent().stuId;
-
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
-
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
-                        RawStexamLogic.ALL_EXAM_TYPES);
-
-                htm.sDiv("indent2");
-                if (exams.size() > 5) {
-                    htm.addln("<details>");
-                    htm.addln("<summary>Review your exams and solutions</summary>");
-                }
-
-                for (final RawStexam exam : exams) {
-                    if (!"SY".equals(exam.examSource)) {
-                        final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
-                                exam.serialNbr.longValue());
-                        final String course = courseId.replace(CoreConstants.SPC, "%20");
-
-                        htm.sDiv("indent1");
-                        htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
-                                "&mode=", mode,
-                                "&exam=", exam.version,
-                                "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
-                                "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
-                                "'>Review your ", exam.getExamLabel(), "</a>");
-                        htm.eDiv();
-                    }
-                }
-                if (exams.size() > 5) {
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv();
-
-                htm.hr();
             }
+
+            doUnitTopmatter(courseStatus, unitNum, htm);
+
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+                    session.getNow());
+
+            final String studentId = logic.data.studentData.getStudent().stuId;
+
+            final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+            final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
+                    RawStexamLogic.ALL_EXAM_TYPES);
+
+            htm.sDiv("indent2");
+            if (exams.size() > 5) {
+                htm.addln("<details>");
+                htm.addln("<summary>Review your exams and solutions</summary>");
+            }
+
+            for (final RawStexam exam : exams) {
+                if (!"SY".equals(exam.examSource)) {
+                    final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
+                            exam.serialNbr.longValue());
+                    final String course = courseId.replace(CoreConstants.SPC, "%20");
+
+                    htm.sDiv("indent1");
+                    htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
+                            "&mode=", mode,
+                            "&exam=", exam.version,
+                            "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
+                            "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
+                            "'>Review your ", exam.getExamLabel(), "</a>");
+                    htm.eDiv();
+                }
+            }
+            if (exams.size() > 5) {
+                htm.addln("</details>");
+            }
+
+            htm.eDiv();
+
+            htm.hr();
         } else {
             boolean dimmed = false;
 
@@ -1606,70 +1597,64 @@ enum PageOutline {
 
             final int unitNum = unit.unit.intValue();
 
-            // See if the section's exam structure indicates final exams included...
-            final EExamStructure examStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
+            doUnitTitle(courseStatus, unitNum, htm);
 
-            if (examStruct == EExamStructure.UNIT_FINAL || examStruct == EExamStructure.FINAL_ONLY) {
-
-                doUnitTitle(courseStatus, unitNum, htm);
-
-                if (courseStatus.isPassing(unitNum)) {
-                    final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
-                    if (deadline != null) {
-                        htm.sDiv("indent");
-                        htm.addln(" <img src='/images/info.png' alt=''/>");
-                        htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
-                        if (deadline.isBefore(session.getNow().toLocalDate())) {
-                            htm.add("was");
-                        } else {
-                            htm.add("is");
-                        }
-                        htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
-                        htm.eDiv();
-                        htm.div("vgap");
+            if (courseStatus.isPassing(unitNum)) {
+                final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
+                if (deadline != null) {
+                    htm.sDiv("indent");
+                    htm.addln(" <img src='/images/info.png' alt=''/>");
+                    htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
+                    if (deadline.isBefore(session.getNow().toLocalDate())) {
+                        htm.add("was");
+                    } else {
+                        htm.add("is");
                     }
+                    htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
+                    htm.eDiv();
+                    htm.div("vgap");
                 }
-
-                doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
-                        session.getNow());
-
-                final String studentId = logic.data.studentData.getStudent().stuId;
-
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
-
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
-                        RawStexamLogic.ALL_EXAM_TYPES);
-
-                htm.sDiv("indent2");
-                if (exams.size() > 5) {
-                    htm.addln("<details>");
-                    htm.addln("<summary>Review your exams and solutions</summary>");
-                }
-
-                for (final RawStexam exam : exams) {
-                    if (!"SY".equals(exam.examSource)) {
-                        final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
-                                exam.serialNbr.longValue());
-                        final String course = courseId.replace(CoreConstants.SPC, "%20");
-
-                        htm.sDiv("indent1");
-                        htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
-                                "&mode=", mode,
-                                "&exam=", exam.version,
-                                "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
-                                "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
-                                "'>Review your ", exam.getExamLabel(), "</a>");
-                        htm.eDiv();
-                    }
-                }
-                if (exams.size() > 5) {
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv();
-
-                htm.hr();
             }
+
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+                    session.getNow());
+
+            final String studentId = logic.data.studentData.getStudent().stuId;
+
+            final TermRec active = TermLogic.get(cache).queryActive(cache);
+
+            final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
+                    RawStexamLogic.ALL_EXAM_TYPES);
+
+            htm.sDiv("indent2");
+            if (exams.size() > 5) {
+                htm.addln("<details>");
+                htm.addln("<summary>Review your exams and solutions</summary>");
+            }
+
+            for (final RawStexam exam : exams) {
+                if (!"SY".equals(exam.examSource)) {
+                    final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
+                            exam.serialNbr.longValue());
+                    final String course = courseId.replace(CoreConstants.SPC, "%20");
+
+                    htm.sDiv("indent1");
+                    htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
+                            "&mode=", mode,
+                            "&exam=", exam.version,
+                            "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
+                            "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
+                            "'>Review your ", exam.getExamLabel(), "</a>");
+                    htm.eDiv();
+                }
+            }
+            if (exams.size() > 5) {
+                htm.addln("</details>");
+            }
+
+            htm.eDiv();
+
+            htm.hr();
         }
 
         return told;
@@ -1730,7 +1715,7 @@ enum PageOutline {
     /**
      * Present the list of lessons in a unit.
      *
-     * @param cache              the data cache
+     * @param studentData        the student data object
      * @param site               the course site
      * @param courseStatus       the student's status in the course
      * @param unit               the unit
@@ -1743,7 +1728,7 @@ enum PageOutline {
      * @return the new value for the {@code told} input
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean doUnitLessons(final Cache cache, final CourseSite site,
+    private static boolean doUnitLessons(final StudentData studentData, final CourseSite site,
                                          final StudentCourseStatus courseStatus, final int unit, final HtmlBuilder htm,
                                          final String mode, final boolean dimmed, final boolean told,
                                          final String skillsReviewCourse) throws SQLException {
@@ -1769,7 +1754,7 @@ enum PageOutline {
             final String status = courseStatus.getHomeworkStatus(unit, seqNum.intValue());
 
             // Show any "PREMED" media components for the lesson in the outline page
-            if (less.gatherData(cache, courseId, Integer.valueOf(unit), culesson.objective)) {
+            if (less.gatherData(studentData, courseId, Integer.valueOf(unit), culesson.objective)) {
                 final int numComp = less.getNumComponents();
 
                 boolean hasPre = false;

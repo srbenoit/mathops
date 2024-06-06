@@ -4,16 +4,16 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rec.MasteryAttemptQaRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
-import dev.mathops.db.old.rawlogic.RawEtextLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -40,10 +40,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -56,6 +53,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -64,7 +62,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,7 +105,7 @@ enum PageTestStudent {
     /**
      * Generates a page that shows the student's current configuration with controls to change that configuration.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -116,17 +113,20 @@ enum PageTestStudent {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doTestStudentsPage(final Cache cache, final AdminSite site,
+    static void doTestStudentsPage(final WebViewData data, final AdminSite site,
                                    final ServletRequest req, final HttpServletResponse resp,
                                    final ImmutableSessionInfo session) throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.TEST_STUDENTS, htm);
 
         htm.addln("<h1>Test Student</h1>");
 
-        final RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+        final Cache cache = data.getCache();
+        final SystemData systemData = data.getSystemData();
+        final StudentData testStudentData = new StudentData(cache, systemData, RawStudent.TEST_STUDENT_ID,
+                ELiveRefreshes.NONE);
 
         // Script functions used within
         htm.addln("<script>");
@@ -150,50 +150,52 @@ enum PageTestStudent {
 
         htm.sDiv("indent11");
 
-        if (student == null) {
+        if (testStudentData.getStudentRecord() == null) {
             htm.addln("<span class='redred'>Test student record not found in database...</span>");
         } else {
-            emitStudent(cache, htm, student);
-            emitSpecials(cache, htm);
-            emitPlacement(cache, htm);
-            emitTutorials(cache, htm);
-            emitRegistrations(cache, htm);
-            emitEtexts(cache, htm);
+            emitStudent(testStudentData, htm);
+            emitSpecials(testStudentData, htm);
+            emitPlacement(testStudentData, htm);
+            emitTutorials(testStudentData, htm);
+            emitRegistrations(testStudentData, htm);
+            emitETexts(testStudentData, htm);
         }
 
         htm.eDiv();
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
      * Emits the portion of the test student configuration with student configuration.
      *
-     * @param cache   the data cache
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student model
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudent(final Cache cache, final HtmlBuilder htm,
-                                    final RawStudent student) throws SQLException {
+    private static void emitStudent(final StudentData testStudentData, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
         final String shortAct = active.term.shortString;
 
-        htm.addln("<h3>Student Attributes <span class='dim'>(Student ID: ",
-                RawStudent.TEST_STUDENT_ID, ")</span></h3>");
+        htm.addln("<h3>Student Attributes <span class='dim'>(Student ID: ", RawStudent.TEST_STUDENT_ID,
+                ")</span></h3>");
         htm.addln("<form action='teststu_update_student.html' method='post'>");
+
+        final RawStudent student = testStudentData.getStudentRecord();
 
         htm.addln(" Appl.&nbsp;Term&nbsp;<select name='apln_term'>");
         htm.add("  <option id='term", shortAct, "'");
         if (student.aplnTerm != null && shortAct.equals(student.aplnTerm.shortString)) {
             htm.add(" selected='selected'");
         }
-        htm.addln(" value='", shortAct, "'>",
-                active.term.longString, "</option>");
+        htm.addln(" value='", shortAct, "'>", active.term.longString, "</option>");
 
-        final List<TermRec> future = TermLogic.get(cache).getFutureTerms(cache);
+        final List<TermRec> future = systemData.getFutureTerms();
         for (final TermRec fut : future) {
             final String shortFut = fut.term.shortString;
             htm.add("  <option id='term", shortFut, "'");
@@ -217,14 +219,15 @@ enum PageTestStudent {
                         CoreConstants.EMPTY,
                 ">x 2.0</option>");
         htm.addln("  <option id='tl25' value='25'", lim >= 2.25 && lim < 2.75 ? " selected='selected'" :
-         CoreConstants.EMPTY,
+                        CoreConstants.EMPTY,
                 ">x 2.5</option>");
         htm.addln("  <option id='tl30' value='30'", lim >= 2.75 ? " selected='selected'" : CoreConstants.EMPTY,
                 ">x 3.0</option>");
         htm.addln(" </select>&nbsp;&nbsp;");
 
         htm.add(" &nbsp;<input type='checkbox' id='lic' name='licensed'");
-        if ("Y".equals(student.licensed)) {
+        final boolean isLicensed = "Y".equals(student.licensed);
+        if (isLicensed) {
             htm.add(" checked='checked'");
         }
         htm.addln(">&nbsp;<label for='lic'>Licensed</label>&nbsp;&nbsp;");
@@ -260,7 +263,7 @@ enum PageTestStudent {
             htm.addln("  document.getElementById(\"tl30\").selected=true;");
         }
 
-        htm.addln("  document.getElementById(\"lic\").checked=", "Y".equals(student.licensed) ? "true" : "false", ";");
+        htm.addln("  document.getElementById(\"lic\").checked=", isLicensed ? "true" : "false", ";");
 
         final Integer actScore = student.actScore;
         htm.addln("  document.getElementById(\"act\").value=\"",
@@ -278,11 +281,11 @@ enum PageTestStudent {
     /**
      * Emits the portion of the test student configuration with special student configuration.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitSpecials(final Cache cache, final HtmlBuilder htm) throws SQLException {
+    private static void emitSpecials(final StudentData testStudentData, final HtmlBuilder htm) throws SQLException {
 
         htm.addln("<h3>Special Student Categories</h3>");
         htm.addln("<form action='teststu_update_special.html' method='post'>");
@@ -311,10 +314,11 @@ enum PageTestStudent {
         htm.div("clear");
         htm.addln("</form>");
 
-        final List<RawSpecialStus> allSpec =
-                RawSpecialStusLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
-        final Collection<String> types = new ArrayList<>(allSpec.size());
-        for (final RawSpecialStus spec : allSpec) {
+        final List<RawSpecialStus> allCategories = testStudentData.getSpecialCategories();
+        final int numCategories = allCategories.size();
+
+        final Collection<String> types = new ArrayList<>(numCategories);
+        for (final RawSpecialStus spec : allCategories) {
             types.add(spec.stuType);
         }
 
@@ -332,19 +336,18 @@ enum PageTestStudent {
     /**
      * Emits the portion of the test student configuration with placement exam configuration.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitPlacement(final Cache cache, final HtmlBuilder htm)
+    private static void emitPlacement(final StudentData testStudentData, final HtmlBuilder htm)
             throws SQLException {
 
         // Get existing placement attempts
-        final List<RawStmpe> placements = RawStmpeLogic.queryLegalByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawStmpe> placements = testStudentData.getLegalPlacementAttempts();
         placements.sort(new RawStmpe.FinishDateTimeComparator());
 
-        final List<RawMpeCredit> results =
-                RawMpeCreditLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawMpeCredit> results = testStudentData.getPlacementCredit();
 
         final int numPts = PTS.length;
         final RawStmpe[] attempts = new RawStmpe[numPts];
@@ -497,17 +500,17 @@ enum PageTestStudent {
     /**
      * Emits the portion of the test student configuration with Tutorial configurations.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitTutorials(final Cache cache, final HtmlBuilder htm)
+    private static void emitTutorials(final StudentData testStudentData, final HtmlBuilder htm)
             throws SQLException {
 
         final Map<String, String[]> results = new HashMap<>(6);
 
         for (final String tutorial : TUTORIALS) {
-            final List<RawStexam> exams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID, tutorial, false,
+            final List<RawStexam> exams = testStudentData.getStudentExamsByCourseType(tutorial, false,
                     RawStexamLogic.ALL_EXAM_TYPES);
 
             // Extract student's current status in each exam for the current tutorial
@@ -543,90 +546,77 @@ enum PageTestStudent {
         htm.addln("<form action='teststu_update_tutorial.html' method='post'>");
 
         htm.addln(" <table>");
-        htm.addln("  <tr><td colspan='2'></td>");
-        htm.addln("      <th colspan='3' class='blr'>Skills Rev.</th> <td></td>");
-        htm.addln("      <th colspan='3' class='blr'>Review 1</th> <td></td>");
-        htm.addln("      <th colspan='3' class='blr'>Review 2</th> <td></td>");
-        htm.addln("      <th colspan='3' class='blr'>Review 3</th> <td></td>");
-        htm.addln("      <th colspan='3' class='blr'>Review 4</th> <td></td>");
-        htm.addln("      <th colspan='3' class='blr'>Tutorial Exam</th>");
+        htm.addln("  <tr>");
+        htm.addln("    <td colspan='2'></td>");
+        htm.addln("    <th colspan='3' class='blr'>Skills Rev.</th> <td></td>");
+        htm.addln("    <th colspan='3' class='blr'>Review 1</th> <td></td>");
+        htm.addln("    <th colspan='3' class='blr'>Review 2</th> <td></td>");
+        htm.addln("    <th colspan='3' class='blr'>Review 3</th> <td></td>");
+        htm.addln("    <th colspan='3' class='blr'>Review 4</th> <td></td>");
+        htm.addln("    <th colspan='3' class='blr'>Tutorial Exam</th>");
         htm.addln("  </tr>");
-        htm.addln("  <tr><td colspan='2'></td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td><td> &nbsp; </td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td><td> &nbsp; </td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td><td> &nbsp; </td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td><td> &nbsp; </td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td><td> &nbsp; </td>");
-        htm.addln("      <td class='tightbl'>N</td>");
-        htm.addln("      <td class='tight'  >F</td>");
-        htm.addln("      <td class='tightbr'>P</td>");
+        htm.addln("  <tr>");
+        htm.addln("    <td colspan='2'></td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td><td> &nbsp; </td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td><td> &nbsp; </td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td><td> &nbsp; </td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td><td> &nbsp; </td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td><td> &nbsp; </td>");
+        htm.addln("    <td class='tightbl'>N</td>");
+        htm.addln("    <td class='tight'  >F</td>");
+        htm.addln("    <td class='tightbr'>P</td>");
         htm.addln("  </tr>");
 
         for (final String tutorial : TUTORIALS) {
             final String key = tutorial.replace(CoreConstants.SPC, CoreConstants.EMPTY);
 
-            htm.addln("  <tr><td>", tutorial,
-                    "</td><td> &nbsp; </td>");
+            htm.addln("  <tr>");
+            htm.addln("    <td>", tutorial, "</td><td> &nbsp; </td>");
 
             if (RawRecordConstants.M100T.equals(tutorial)) {
-                htm.addln("      <td class='tightbl'></td>");
-                htm.addln("      <td class='tight'  ></td>");
-                htm.addln("      <td class='tightbr'></td>");
+                htm.addln("    <td class='tightbl'></td>");
+                htm.addln("    <td class='tight'  ></td>");
+                htm.addln("    <td class='tightbr'></td>");
             } else {
-                htm.addln("      <td class='tightbl'><input type='radio' id='", key, "0N' name='", key,
+                htm.addln("    <td class='tightbl'><input type='radio' id='", key, "0N' name='", key,
                         "0' value='N'></td>");
-                htm.addln("      <td class='tight'  ><input type='radio' id='", key, "0F' name='", key,
+                htm.addln("    <td class='tight'  ><input type='radio' id='", key, "0F' name='", key,
                         "0' value='F'></td>");
-                htm.addln("      <td class='tightbr'><input type='radio' id='", key, "0P' name='", key,
+                htm.addln("    <td class='tightbr'><input type='radio' id='", key, "0P' name='", key,
                         "0' value='P'></td>");
             }
-            htm.addln("      <td></td>");
+            htm.addln("    <td></td>");
 
-            htm.addln("      <td class='tightbl'><input type='radio' id='", key,
-                    "1N' name='", key, "1' value='N'></td>");
-            htm.addln("      <td class='tight'  ><input type='radio' id='", key,
-                    "1F' name='", key, "1' value='F'></td>");
-            htm.addln("      <td class='tightbr'><input type='radio' id='", key,
-                    "1P' name='", key, "1' value='P'></td>");
-            htm.addln("      <td></td>");
-            htm.addln("      <td class='tightbl'><input type='radio' id='", key,
-                    "2N' name='", key, "2' value='N'></td>");
-            htm.addln("      <td class='tight'  ><input type='radio' id='", key,
-                    "2F' name='", key, "2' value='F'></td>");
-            htm.addln("      <td class='tightbr'><input type='radio' id='", key,
-                    "2P' name='", key, "2' value='P'></td>");
-            htm.addln("      <td></td>");
-            htm.addln("      <td class='tightbl'><input type='radio' id='", key,
-                    "3N' name='", key, "3' value='N'></td>");
-            htm.addln("      <td class='tight'  ><input type='radio' id='", key,
-                    "3F' name='", key, "3' value='F'></td>");
-            htm.addln("      <td class='tightbr'><input type='radio' id='", key,
-                    "3P' name='", key, "3' value='P'></td>");
-            htm.addln("      <td></td>");
-            htm.addln("      <td class='tightbl'><input type='radio' id='", key,
-                    "4N' name='", key, "4' value='N'></td>");
-            htm.addln("      <td class='tight'  ><input type='radio' id='", key,
-                    "4F' name='", key, "4' value='F'></td>");
-            htm.addln("      <td class='tightbr'><input type='radio' id='", key,
-                    "4P' name='", key, "4' value='P'></td>");
-            htm.addln("      <td></td>");
-            htm.addln("      <td class='tightbl'><input type='radio' id='", key,
-                    "EN' name='", key, "E' value='N'></td>");
-            htm.addln("      <td class='tight'  ><input type='radio' id='", key,
-                    "EF' name='", key, "E' value='F'></td>");
-            htm.addln("      <td class='tightbr'><input type='radio' id='", key,
-                    "EP' name='", key, "E' value='P'></td>");
-            htm.addln("      <td></td>");
+            htm.addln("    <td class='tightbl'><input type='radio' id='", key, "1N' name='", key, "1' value='N'></td>");
+            htm.addln("    <td class='tight'  ><input type='radio' id='", key, "1F' name='", key, "1' value='F'></td>");
+            htm.addln("    <td class='tightbr'><input type='radio' id='", key, "1P' name='", key, "1' value='P'></td>");
+            htm.addln("    <td></td>");
+            htm.addln("    <td class='tightbl'><input type='radio' id='", key, "2N' name='", key, "2' value='N'></td>");
+            htm.addln("    <td class='tight'  ><input type='radio' id='", key, "2F' name='", key, "2' value='F'></td>");
+            htm.addln("    <td class='tightbr'><input type='radio' id='", key, "2P' name='", key, "2' value='P'></td>");
+            htm.addln("    <td></td>");
+            htm.addln("    <td class='tightbl'><input type='radio' id='", key, "3N' name='", key, "3' value='N'></td>");
+            htm.addln("    <td class='tight'  ><input type='radio' id='", key, "3F' name='", key, "3' value='F'></td>");
+            htm.addln("    <td class='tightbr'><input type='radio' id='", key, "3P' name='", key, "3' value='P'></td>");
+            htm.addln("    <td></td>");
+            htm.addln("    <td class='tightbl'><input type='radio' id='", key, "4N' name='", key, "4' value='N'></td>");
+            htm.addln("    <td class='tight'  ><input type='radio' id='", key, "4F' name='", key, "4' value='F'></td>");
+            htm.addln("    <td class='tightbr'><input type='radio' id='", key, "4P' name='", key, "4' value='P'></td>");
+            htm.addln("    <td></td>");
+            htm.addln("    <td class='tightbl'><input type='radio' id='", key, "EN' name='", key, "E' value='N'></td>");
+            htm.addln("    <td class='tight'  ><input type='radio' id='", key, "EF' name='", key, "E' value='F'></td>");
+            htm.addln("    <td class='tightbr'><input type='radio' id='", key, "EP' name='", key, "E' value='P'></td>");
+            htm.addln("    <td></td>");
             htm.addln("  </tr>");
         }
 
@@ -648,7 +638,8 @@ enum PageTestStudent {
             final String key = tutorial.replace(CoreConstants.SPC, CoreConstants.EMPTY);
 
             for (int i = 0; i < 5; ++i) {
-                htm.addln("  check(\"", key, Integer.toString(i), tutResults[i], "\");");
+                final String iStr = Integer.toString(i);
+                htm.addln("  check(\"", key, iStr, tutResults[i], "\");");
             }
             htm.addln("  check(\"", key, "E", tutResults[5], "\");");
         }
@@ -660,22 +651,20 @@ enum PageTestStudent {
     /**
      * Emits the portion of the test student configuration with course registration configuration.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitRegistrations(final Cache cache, final HtmlBuilder htm) throws SQLException {
+    private static void emitRegistrations(final StudentData testStudentData, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         // Get existing registrations
-        final List<RawStcourse> currentTermRegs = RawStcourseLogic.queryByStudent(cache,
-                RawStudent.TEST_STUDENT_ID, active.term, true, false);
+        final List<RawStcourse> currentTermRegs = testStudentData.getActiveRegistrations(active.term);
 
-        // Get all non-bogus courses
-        final List<RawCsection> sections = RawCsectionLogic.queryByTerm(cache, active.term);
-
-        // Extract a sorted set of course IDs that have non-bogus sections
+        // Get all non-bogus courses (except MATH 384)
+        final List<RawCsection> sections = systemData.getCourseSections(active.term);
         final Set<String> courseIds = new TreeSet<>();
         for (final RawCsection sect : sections) {
             if ("550".equals(sect.sect) || "Y".equals(sect.bogus)) {
@@ -789,7 +778,7 @@ enum PageTestStudent {
                 final String sect = sectArray[i][j];
                 for (final RawStcourse reg : currentTermRegs) {
                     if (courseId.equals(reg.course) && sect.equals(reg.sect)) {
-                        emitCourseWork(cache, htm, reg, span);
+                        emitCourseWork(testStudentData, htm, reg, span);
                         break;
                     }
                 }
@@ -883,17 +872,17 @@ enum PageTestStudent {
 
             for (int j = 0; j < max; ++j) {
                 if (sectArray[i].length > j) {
-                    htm.addln(isReg ? "  enable(\"" : "  disable(\"",
-                            key, sectArray[i][j], "reg\");");
+                    htm.addln(isReg ? "  enable(\"" : "  disable(\"", key, sectArray[i][j], "reg\");");
                 }
             }
 
             // See if student has an e-text
             final LiveSessionInfo live = new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN),
-                            "None", ERole.STUDENT);
+                    "None", ERole.STUDENT);
             live.setUserInfo(RawStudent.TEST_STUDENT_ID, "Test", "Student", "Test Student");
             final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
+            final Cache cache = testStudentData.getCache();
             final boolean etext = ETextLogic.canStudentAccessCourse(cache, session, courseId);
 
             if (etext) {
@@ -935,50 +924,52 @@ enum PageTestStudent {
     /**
      * Emits checkboxes and radio buttons to configure what course work the student has done in the course.
      *
-     * @param cache      the data cache
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param reg        the registration
-     * @param numColumns the number of columns in the table
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param reg             the registration
+     * @param numColumns      the number of columns in the table
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseWork(final Cache cache, final HtmlBuilder htm,
+    private static void emitCourseWork(final StudentData testStudentData, final HtmlBuilder htm,
                                        final RawStcourse reg, final int numColumns) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        final RawCsection csection = RawCsectionLogic.query(cache, reg.course, reg.sect, active.term);
+        final SystemData systemData = testStudentData.getSystemData();
 
-        if ("MAS".equals(csection.gradingStd)) {
-            emitCourseWorkNew(cache, htm, reg, numColumns);
+        final TermRec active = systemData.getActiveTerm();
+        final RawCsection courseSection = systemData.getCourseSection(reg.course, reg.sect, active.term);
+
+        if ("MAS".equals(courseSection.gradingStd)) {
+            emitCourseWorkNew(testStudentData, htm, reg, numColumns);
         } else {
-            emitCourseWorkOld(cache, htm, reg);
+            emitCourseWorkOld(testStudentData, htm, reg);
         }
     }
 
     /**
      * Emits checkboxes and radio buttons to configure what course work the student has done in the course.
      *
-     * @param cache      the data cache
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param reg        the registration
-     * @param numColumns the number of columns in the table
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param reg             the registration
+     * @param numColumns      the number of columns in the table
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseWorkNew(final Cache cache, final HtmlBuilder htm, final RawStcourse reg,
-                                          final int numColumns) throws SQLException {
+    private static void emitCourseWorkNew(final StudentData testStudentData, final HtmlBuilder htm,
+                                          final RawStcourse reg, final int numColumns) throws SQLException {
 
-        final List<AssignmentRec> allAssignments = AssignmentLogic.get(cache).queryActiveByCourse(cache, reg.course,
-                "ST");
+        final SystemData systemData = testStudentData.getSystemData();
 
-        final List<MasteryExamRec> allExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, reg.course);
+        final List<AssignmentRec> allAssignments = systemData.getActiveAssignmentsByCourse(reg.course, "ST");
+        final List<MasteryExamRec> allExams = systemData.getActiveMasteryExamsByCourse(reg.course);
         allExams.sort(null);
 
-        final List<RawSthomework> allHw = RawSthomeworkLogic.getHomeworks(cache, RawStudent.TEST_STUDENT_ID,
-                reg.course, false);
+        final List<RawSthomework> allHw = testStudentData.getStudentHomeworkForCourse(reg.course);
+        final List<MasteryAttemptRec> allAttempts = testStudentData.getMasteryAttempts();
 
-        final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
+        final String colSpanStr = Integer.toString(numColumns);
 
         htm.addln("  <tr><td></td>");
-        htm.addln("    <td colspan='", Integer.valueOf(numColumns), "' style='background:#007400;height:1px;'></td>");
+        htm.addln("    <td colspan='", colSpanStr, "' style='background:#007400;height:1px;'></td>");
         htm.addln("  </tr>");
 
         for (int unit = 1; unit <= 8; ++unit) {
@@ -1172,18 +1163,19 @@ enum PageTestStudent {
     /**
      * Emits checkboxes and radio buttons to configure what course work the student has done in the course.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param reg   the registration
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param reg             the registration
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseWorkOld(final Cache cache, final HtmlBuilder htm, final RawStcourse reg)
+    private static void emitCourseWorkOld(final StudentData testStudentData, final HtmlBuilder htm,
+                                          final RawStcourse reg)
             throws SQLException {
 
         final String key = reg.course.replace(' ', '_');
         final String prefix = key.substring(key.length() - 2);
 
-        final List<RawStexam> allExams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID, reg.course, true);
+        final List<RawStexam> allExams = testStudentData.getStudentExamsForCourse(reg.course);
 
         htm.addln("  <tr><td></td>");
         htm.addln("    <td colspan='9' style='background:#007400;height:1px;'></td>");
@@ -1223,10 +1215,10 @@ enum PageTestStudent {
         htm.addln("</select>");
         htm.addln("  </td></tr>");
 
-        emitUnitOld(cache, htm, reg.course, Long.valueOf(1L));
-        emitUnitOld(cache, htm, reg.course, Long.valueOf(2L));
-        emitUnitOld(cache, htm, reg.course, Long.valueOf(3L));
-        emitUnitOld(cache, htm, reg.course, Long.valueOf(4L));
+        emitUnitOld(testStudentData, htm, reg.course, Long.valueOf(1L));
+        emitUnitOld(testStudentData, htm, reg.course, Long.valueOf(2L));
+        emitUnitOld(testStudentData, htm, reg.course, Long.valueOf(3L));
+        emitUnitOld(testStudentData, htm, reg.course, Long.valueOf(4L));
 
         final String feExamId = prefix + "FIN";
         boolean triedFe = false;
@@ -1270,8 +1262,7 @@ enum PageTestStudent {
         htm.addln("  </tr>");
 
         // Build the script that will set the checkbox and select states
-        final List<RawSthomework> allHw =
-                RawSthomeworkLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID, false);
+        final List<RawSthomework> allHw = testStudentData.getStudentHomework();
 
         htm.addln("<script>");
         if (hasHw(allHw, prefix + "11H")) {
@@ -1343,16 +1334,16 @@ enum PageTestStudent {
     /**
      * Emit the controls to set the homework and exam state for a unit.
      *
-     * @param cache    the data cache
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param courseId the course ID
-     * @param unit     the unit number
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param courseId        the course ID
+     * @param unit            the unit number
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitUnitOld(final Cache cache, final HtmlBuilder htm, final String courseId,
+    private static void emitUnitOld(final StudentData testStudentData, final HtmlBuilder htm, final String courseId,
                                     final Long unit) throws SQLException {
 
-        final List<RawStexam> allExams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID, courseId, true);
+        final List<RawStexam> allExams = testStudentData.getStudentExamsForCourse(courseId);
 
         final String key = courseId.replace(' ', '_');
         final String prefix = key.substring(key.length() - 2);
@@ -1511,11 +1502,11 @@ enum PageTestStudent {
     /**
      * Emits the portion of the test student configuration with e-texts.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitEtexts(final Cache cache, final HtmlBuilder htm) throws SQLException {
+    private static void emitETexts(final StudentData testStudentData, final HtmlBuilder htm) throws SQLException {
 
         htm.addln("<h3>E-Texts</h3>");
         htm.addln("<form action='teststu_update_etext.html' method='post'>");
@@ -1527,19 +1518,20 @@ enum PageTestStudent {
         htm.addln("      <th class='blr'>Status</th>");
         htm.addln("  </tr>");
 
-        final List<RawEtext> allEtexts = RawEtextLogic.INSTANCE.queryAll(cache);
-        final List<RawStetext> stEtexts =
-                RawStetextLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final List<RawEtext> allEtexts = systemData.getETexts();
+        final List<RawStetext> stEtexts = testStudentData.getStudentETexts();
 
         // Emit active rows first, then inactive rows
         for (final RawEtext etext : allEtexts) {
             if ("Y".equals(etext.active)) {
-                emitEtextRow(cache, htm, etext, stEtexts);
+                emitEtextRow(testStudentData, htm, etext, stEtexts);
             }
         }
         for (final RawEtext etext : allEtexts) {
             if ("N".equals(etext.active)) {
-                emitEtextRow(cache, htm, etext, stEtexts);
+                emitEtextRow(testStudentData, htm, etext, stEtexts);
             }
         }
 
@@ -1557,27 +1549,28 @@ enum PageTestStudent {
     /**
      * Emits a single row in the e-text record.
      *
-     * @param cache    the data cache
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param etext    the e-text record
-     * @param stEtexts the list of student e-texts
+     * @param testStudentData the test student data object
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param eText           the e-text record
+     * @param stETexts        the list of student e-texts
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitEtextRow(final Cache cache, final HtmlBuilder htm, final RawEtext etext,
-                                     final Iterable<RawStetext> stEtexts) throws SQLException {
+    private static void emitEtextRow(final StudentData testStudentData, final HtmlBuilder htm, final RawEtext eText,
+                                     final Iterable<RawStetext> stETexts) throws SQLException {
 
-        final String etextId = etext.etextId;
+        final String etextId = eText.etextId;
 
         // emit the e-text ID
-        if ("Y".equals(etext.active)) {
+        if ("Y".equals(eText.active)) {
             htm.addln("  <tr><td>", etextId, "</td><td> &nbsp; </td>");
         } else {
             htm.addln("  <tr><td>", etextId, " (inactive)</td><td> &nbsp; </td>");
         }
 
         // emit the courses that e-text grants access to
+        final SystemData systemData = testStudentData.getSystemData();
 
-        final List<RawEtextCourse> etc = RawEtextCourseLogic.queryByEtext(cache, etextId);
+        final List<RawEtextCourse> etc = systemData.getETextCoursesByETextId(etextId);
         final int numEtc = etc.size();
         final HtmlBuilder builder = new HtmlBuilder(10 * numEtc);
         for (int j = 0; j < numEtc; ++j) {
@@ -1587,16 +1580,19 @@ enum PageTestStudent {
             builder.add(etc.get(j).course);
         }
 
-        htm.addln("  <td class='blr'>", builder.toString(), "</td><td> &nbsp; </td>");
+        final String str = builder.toString();
+        htm.addln("  <td class='blr'>", str, "</td><td> &nbsp; </td>");
 
         // emit the student's status with respect to the e-text
         int numActive = 0;
         int numRefunded = 0;
         int numExpired = 0;
-        for (final RawStetext stetext : stEtexts) {
+        final LocalDate today = LocalDate.now();
+
+        for (final RawStetext stetext : stETexts) {
             if (stetext.etextId.equals(etextId)) {
                 if (stetext.refundDt == null) {
-                    if ((stetext.expirationDt == null) || !LocalDate.now().isAfter(stetext.expirationDt)) {
+                    if ((stetext.expirationDt == null) || !today.isAfter(stetext.expirationDt)) {
                         ++numActive;
                     } else {
                         ++numExpired;
@@ -1645,13 +1641,13 @@ enum PageTestStudent {
     /**
      * Updates the test student data.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateStudent(final Cache cache, final ServletRequest req,
+    static void updateStudent(final StudentData testStudentData, final ServletRequest req,
                               final HttpServletResponse resp) throws IOException, SQLException {
 
         final String aplnTerm = req.getParameter("apln_term");
@@ -1694,17 +1690,21 @@ enum PageTestStudent {
                 newSat = null;
             }
 
-            final RawStudent stuModel =
-                    RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+            final RawStudent stuModel = testStudentData.getStudentRecord();
 
             if (stuModel != null) {
-                if (aplnTerm != null && stuModel.aplnTerm != null
-                        && !aplnTerm.equals(stuModel.aplnTerm.shortString)) {
+                final Cache cache = testStudentData.getCache();
 
-                    final ETermName termName = ETermName.forName(aplnTerm.substring(0, 2));
+                if (aplnTerm != null && stuModel.aplnTerm != null && !aplnTerm.equals(stuModel.aplnTerm.shortString)) {
+
+                    final String termSubstring = aplnTerm.substring(0, 2);
+                    final ETermName termName = ETermName.forName(termSubstring);
                     try {
+                        final String yearSubstring = aplnTerm.substring(2);
+                        final int shortYear = Integer.parseInt(yearSubstring);
                         RawStudentLogic.updateApplicationTerm(cache, stuModel.stuId,
-                                new TermKey(termName, 2000 + Integer.parseInt(aplnTerm.substring(2))));
+                                new TermKey(termName, 2000 + shortYear));
+                        testStudentData.forgetStudentRecord();
                     } catch (final NumberFormatException ex) {
                         Log.warning("Unable to parse term string ", aplnTerm);
                     }
@@ -1715,22 +1715,27 @@ enum PageTestStudent {
                     if ("10".equals(timeLimit)) {
                         if (existing != null) {
                             RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, null);
+                            testStudentData.forgetStudentRecord();
                         }
                     } else if ("15".equals(timeLimit)) {
                         if (existing == null || Math.abs(existing.doubleValue() - 1.5) > 0.01) {
                             RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(1.5f));
+                            testStudentData.forgetStudentRecord();
                         }
                     } else if ("20".equals(timeLimit)) {
                         if (existing == null || Math.abs(existing.doubleValue() - 2.0) > 0.01) {
                             RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(2.0f));
+                            testStudentData.forgetStudentRecord();
                         }
                     } else if ("25".equals(timeLimit)) {
                         if (existing == null || Math.abs(existing.doubleValue() - 2.5) > 0.01) {
                             RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(2.5f));
+                            testStudentData.forgetStudentRecord();
                         }
                     } else if ("30".equals(timeLimit)
                             && (existing == null || Math.abs(existing.doubleValue() - 3.0) > 0.01)) {
                         RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(3.0f));
+                        testStudentData.forgetStudentRecord();
                     }
                 }
 
@@ -1738,18 +1743,19 @@ enum PageTestStudent {
                 if ("on".equals(licensed)) {
                     if (oldLic == null || "N".equals(oldLic)) {
                         RawStudentLogic.updateLicensed(cache, stuModel.stuId, "Y");
+                        testStudentData.forgetStudentRecord();
                     }
                 } else if (oldLic == null || "Y".equals(oldLic)) {
                     RawStudentLogic.updateLicensed(cache, stuModel.stuId, "N");
+                    testStudentData.forgetStudentRecord();
                 }
 
                 final Integer oldAct = stuModel.actScore;
                 final Integer oldSat = stuModel.satScore;
 
-                if ((!Objects.equals(oldAct, newAct)
-                        || !Objects.equals(oldSat, newSat))) {
-
+                if ((!Objects.equals(oldAct, newAct) || !Objects.equals(oldSat, newSat))) {
                     RawStudentLogic.updateTestScores(cache, stuModel.stuId, newAct, newSat, stuModel.apScore);
+                    testStudentData.forgetStudentRecord();
                 }
 
                 resp.sendRedirect("test_student.html");
@@ -1760,38 +1766,44 @@ enum PageTestStudent {
     /**
      * Updates the test student special student categories.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateSpecial(final Cache cache, final ServletRequest req,
+    static void updateSpecial(final StudentData testStudentData, final ServletRequest req,
                               final HttpServletResponse resp) throws IOException, SQLException {
 
         final int numSpec = SPECIAL.length;
         final boolean[] want = new boolean[numSpec];
         for (int i = 0; i < numSpec; ++i) {
             final String lower = SPECIAL[i].toLowerCase(Locale.ROOT);
-            want[i] = "on".equals(req.getParameter(lower));
+            final String param = req.getParameter(lower);
+            want[i] = "on".equals(param);
         }
 
-        final List<RawSpecialStus> existing = RawSpecialStusLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
-        final Collection<String> curTypes = new ArrayList<>(existing.size());
+        final List<RawSpecialStus> existing = testStudentData.getSpecialCategories();
+        final int count = existing.size();
+        final Collection<String> curTypes = new ArrayList<>(count);
         for (final RawSpecialStus test : existing) {
             curTypes.add(test.stuType);
         }
+
+        final Cache cache = testStudentData.getCache();
 
         for (int i = 0; i < numSpec; ++i) {
             if (want[i]) {
                 if (!curTypes.contains(SPECIAL[i])) {
                     RawSpecialStusLogic.INSTANCE.insert(cache, new RawSpecialStus(RawStudent.TEST_STUDENT_ID,
                             SPECIAL[i], null, null));
+                    testStudentData.forgetSpecialCategories();
                 }
             } else if (curTypes.contains(SPECIAL[i])) {
                 for (final RawSpecialStus test : existing) {
                     if (SPECIAL[i].equals(test.stuType)) {
                         RawSpecialStusLogic.INSTANCE.delete(cache, test);
+                        testStudentData.forgetSpecialCategories();
                         break;
                     }
                 }
@@ -1804,18 +1816,19 @@ enum PageTestStudent {
     /**
      * Updates the test student placement data.
      *
-     * @param cache the data cache
-     * @param site  the owning site
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param site            the owning site
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updatePlacement(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void updatePlacement(final StudentData testStudentData, final AdminSite site, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        final RawStudent testStu = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         final int numPts = PTS.length;
         final int numOutcomes = PT_OUTCOMES.length;
@@ -1838,11 +1851,10 @@ enum PageTestStudent {
         }
 
         // Fetch the current configuration
-        final List<RawStmpe> placements = RawStmpeLogic.queryLegalByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawStmpe> placements = testStudentData.getLegalPlacementAttempts();
         placements.sort(new RawStmpe.FinishDateTimeComparator());
 
-        final List<RawMpeCredit> results =
-                RawMpeCreditLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawMpeCredit> results = testStudentData.getPlacementCredit();
 
         final RawStmpe[] attempts = new RawStmpe[numPts];
 
@@ -1854,13 +1866,15 @@ enum PageTestStudent {
 
         boolean error = false;
 
+        final Cache cache = testStudentData.getCache();
+
         // See what changes need to be made
         for (int i = 0; i < numPts; ++i) {
 
             if (wantExam[i]) {
                 if (attempts[i] == null) {
                     // Build the attempt
-                    insertPlacement(cache, active, testStu, i, wantOutcomes[i]);
+                    insertPlacement(testStudentData, active, i, wantOutcomes[i]);
                 } else {
                     final LocalDateTime examDt = attempts[i].getFinishDateTime();
                     final Long serial = attempts[i].serialNbr;
@@ -1878,6 +1892,7 @@ enum PageTestStudent {
                                     error = true;
                                 }
                             }
+                            testStudentData.forgetPlacementCredit();
 
                         } else if ("P".equals(wantOutcomes[i][j]) || "C".equals(wantOutcomes[i][j])) {
 
@@ -1891,7 +1906,7 @@ enum PageTestStudent {
                             }
 
                             if (searching && examDt != null) {
-                                insertResult(cache, serial.longValue(), PT_OUTCOMES[j], examDt.toLocalDate(),
+                                insertResult(testStudentData, serial.longValue(), PT_OUTCOMES[j], examDt.toLocalDate(),
                                         wantOutcomes[i][j]);
                             }
                         }
@@ -1911,6 +1926,9 @@ enum PageTestStudent {
                             }
                         }
                     }
+
+                    testStudentData.forgetPlacementAttempts();
+                    testStudentData.forgetPlacementCredit();
                 } else {
                     Log.warning("Failed to delete test student STMPE with answers");
                     error = true;
@@ -1929,7 +1947,7 @@ enum PageTestStudent {
             htm.eDiv();
             htm.eDiv();
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(systemData, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
 
         } else {
@@ -1940,14 +1958,13 @@ enum PageTestStudent {
     /**
      * Constructs a placement attempt and inserts it along with associated placement credit records.
      *
-     * @param cache      the data cache
-     * @param activeTerm the active term
-     * @param testStu    the test student
-     * @param index      the index of the attempt, to ensure different timestamps
-     * @param outcomes   the outcomes
+     * @param testStudentData the test student data object
+     * @param activeTerm      the active term
+     * @param index           the index of the attempt, to ensure different timestamps
+     * @param outcomes        the outcomes
      * @throws SQLException if there was an error accessing the database
      */
-    private static void insertPlacement(final Cache cache, final TermRec activeTerm, final RawStudent testStu,
+    private static void insertPlacement(final StudentData testStudentData, final TermRec activeTerm,
                                         final int index, final String[] outcomes) throws SQLException {
 
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
@@ -1968,12 +1985,14 @@ enum PageTestStudent {
         for (int i = 0; i < numOutcomes; ++i) {
             final String outcome = outcomes[i];
             if ("P".equals(outcome) || "C".equals(outcome)) {
-                insertResult(cache, serial, PT_OUTCOMES[i], examDt, outcome);
+                insertResult(testStudentData, serial, PT_OUTCOMES[i], examDt, outcome);
                 placed = true;
             }
         }
 
         final int finish = (index + 8) * 60;
+
+        final RawStudent testStu = testStudentData.getStudentRecord();
 
         final RawStmpe record = new RawStmpe(RawStudent.TEST_STUDENT_ID, "MPTTC",
                 academic, examDt, Integer.valueOf(finish - 1), Integer.valueOf(finish),
@@ -1982,38 +2001,44 @@ enum PageTestStudent {
                 Integer.valueOf(0), Integer.valueOf(0), placed ? "Y" : "N",
                 "P");
 
+        final Cache cache = testStudentData.getCache();
+
         RawStmpeLogic.INSTANCE.insert(cache, record);
+        testStudentData.forgetPlacementAttempts();
     }
 
     /**
      * Inserts a placement credit record.
      *
-     * @param cache   the data cache
-     * @param serial  the serial number
-     * @param course  the course in which credit was earned
-     * @param examDt  the exam date/time
-     * @param outcome the outcome
+     * @param testStudentData the test student data object
+     * @param serial          the serial number
+     * @param course          the course in which credit was earned
+     * @param examDt          the exam date/time
+     * @param outcome         the outcome
      * @throws SQLException if there was an error accessing the database
      */
-    private static void insertResult(final Cache cache, final long serial, final String course,
+    private static void insertResult(final StudentData testStudentData, final long serial, final String course,
                                      final LocalDate examDt, final String outcome) throws SQLException {
 
         final RawMpeCredit credit = new RawMpeCredit(RawStudent.TEST_STUDENT_ID, course, outcome,
                 examDt, null, Long.valueOf(serial), "MPTTC", "TC");
 
+        final Cache cache = testStudentData.getCache();
+
         RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+        testStudentData.forgetPlacementCredit();
     }
 
     /**
      * Updates the test student Tutorial data.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateTutorials(final Cache cache, final ServletRequest req,
+    static void updateTutorials(final StudentData testStudentData, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException, SQLException {
 
         for (final String tutorial : TUTORIALS) {
@@ -2027,26 +2052,32 @@ enum PageTestStudent {
             final String unit = req.getParameter(key + "E");
 
             // Delete all existing tutorial exams for the test user first
-            final List<RawStexam> exams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID,
-                    tutorial, false, RawStexamLogic.ALL_EXAM_TYPES);
+            final List<RawStexam> exams = testStudentData.getStudentExamsByCourseType(tutorial, false,
+                    RawStexamLogic.ALL_EXAM_TYPES);
+
+            final Cache cache = testStudentData.getCache();
+
             for (final RawStexam exam : exams) {
                 RawStexamLogic.INSTANCE.delete(cache, exam);
             }
+            testStudentData.forgetStudentExams();
 
             for (int i = 0; i < 5; ++i) {
                 if ("F".equals(review[i])) {
-                    insertTutorialReview(cache, tutorial, Integer.valueOf(i), false);
+                    insertTutorialReview(testStudentData, tutorial, Integer.valueOf(i), false);
                 } else if ("P".equals(review[i])) {
-                    insertTutorialReview(cache, tutorial, Integer.valueOf(i), true);
+                    insertTutorialReview(testStudentData, tutorial, Integer.valueOf(i), true);
                 }
             }
 
             if ("F".equals(unit)) {
-                insertTutorialExam(cache, tutorial, false);
+                insertTutorialExam(testStudentData, tutorial, false);
             } else if ("P".equals(unit)) {
-                insertTutorialExam(cache, tutorial, true);
+                insertTutorialExam(testStudentData, tutorial, true);
             }
         }
+
+        testStudentData.forgetStudentExams();
 
         resp.sendRedirect("test_student.html");
     }
@@ -2054,13 +2085,13 @@ enum PageTestStudent {
     /**
      * Constructs a tutorial review exam and inserts it.
      *
-     * @param cache    the data cache
-     * @param tutorial the tutorial course ID
-     * @param unit     the unit
-     * @param passing  {@code true} to insert a passing exam; {@code false} for a non-passing exam
+     * @param testStudentData the test student data object
+     * @param tutorial        the tutorial course ID
+     * @param unit            the unit
+     * @param passing         {@code true} to insert a passing exam; {@code false} for a non-passing exam
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertTutorialReview(final Cache cache, final String tutorial,
+    private static void insertTutorialReview(final StudentData testStudentData, final String tutorial,
                                              final Integer unit, final boolean passing) throws SQLException {
 
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
@@ -2068,7 +2099,8 @@ enum PageTestStudent {
         // Use passing scores of 8, 12, 16, 20, to make sane values easy to calculate
         final int passingScore = 4 + (unit.intValue() << 2);
 
-        final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, tutorial, unit, "R");
+        final SystemData systemData = testStudentData.getSystemData();
+        final RawExam exam = systemData.getActiveExamByCourseUnitType(tutorial, unit, "R");
 
         if (exam != null) {
             final int time = examDt.getHour() * 60 + examDt.getMinute();
@@ -2078,8 +2110,10 @@ enum PageTestStudent {
                     Integer.valueOf(time), Integer.valueOf(time), "Y", passing ? "Y" : "N", null, tutorial, unit,
                     "R", passing ? "Y" : "N", null, null);
 
+            final Cache cache = testStudentData.getCache();
+
             RawStexamLogic.INSTANCE.insert(cache, record);
-            // this is committed by the caller...
+            testStudentData.forgetStudentExams();
         } else {
             Log.warning("No unit review exam found for ", tutorial, " unit ", unit);
         }
@@ -2088,18 +2122,19 @@ enum PageTestStudent {
     /**
      * Constructs a tutorial exam and inserts it.
      *
-     * @param cache    the data cache
-     * @param tutorial the tutorial course ID
-     * @param passing  {@code true} to insert a passing exam; {@code false} for a non-passing exam
+     * @param testStudentData the test student data object
+     * @param tutorial        the tutorial course ID
+     * @param passing         {@code true} to insert a passing exam; {@code false} for a non-passing exam
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertTutorialExam(final Cache cache, final String tutorial,
+    private static void insertTutorialExam(final StudentData testStudentData, final String tutorial,
                                            final boolean passing) throws SQLException {
 
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
         final LocalDateTime examDt = LocalDateTime.now();
 
-        final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, tutorial, Integer.valueOf(4), "U");
+        final SystemData systemData = testStudentData.getSystemData();
+        final RawExam exam = systemData.getActiveExamByCourseUnitType(tutorial, Integer.valueOf(4), "U");
 
         if (exam != null) {
             final int time = examDt.getHour() * 60 + examDt.getMinute();
@@ -2108,8 +2143,10 @@ enum PageTestStudent {
                     Integer.valueOf(time), Integer.valueOf(time), "Y", passing ? "Y" : "N", null, tutorial,
                     Integer.valueOf(4), "R", passing ? "Y" : "N", null, null);
 
+            final Cache cache = testStudentData.getCache();
+
             RawStexamLogic.INSTANCE.insert(cache, record);
-            // this is committed by the caller...
+            testStudentData.forgetStudentExams();
         } else {
             Log.warning("No unit exam found for ", tutorial, " unit 4");
         }
@@ -2118,18 +2155,19 @@ enum PageTestStudent {
     /**
      * Updates the test student e-text records.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateETexts(final Cache cache, final ServletRequest req,
+    static void updateETexts(final StudentData testStudentData, final ServletRequest req,
                              final HttpServletResponse resp) throws IOException, SQLException {
 
-        final List<RawEtext> allEtexts = RawEtextLogic.INSTANCE.queryAll(cache);
+        final SystemData systemData = testStudentData.getSystemData();
 
-        final List<RawStetext> stEtexts = RawStetextLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawEtext> allEtexts = systemData.getETexts();
+        final List<RawStetext> stEtexts = testStudentData.getStudentETexts();
 
         for (final RawEtext etext : allEtexts) {
             final String etextId = etext.etextId;
@@ -2155,21 +2193,21 @@ enum PageTestStudent {
 
             if ("none".equals(want)) {
                 if (numActive + numRefunded + numExpired > 0) {
-                    deleteStudentEtexts(cache, stEtexts, etextId);
+                    deleteStudentETexts(testStudentData, stEtexts, etextId);
                 }
             } else if ("active".equals(want)) {
                 if (numActive == 0 || numExpired > 0 || numRefunded > 0) {
-                    deleteStudentEtexts(cache, stEtexts, etextId);
-                    insertStudentEText(cache, etextId, false, false);
+                    deleteStudentETexts(testStudentData, stEtexts, etextId);
+                    insertStudentEText(testStudentData, etextId, false, false);
                 }
             } else if ("refunded".equals(want)) {
                 if (numActive > 0 || numExpired > 0 || numRefunded == 0) {
-                    deleteStudentEtexts(cache, stEtexts, etextId);
-                    insertStudentEText(cache, etextId, true, false);
+                    deleteStudentETexts(testStudentData, stEtexts, etextId);
+                    insertStudentEText(testStudentData, etextId, true, false);
                 }
             } else if ("expired".equals(want) && (numActive > 0 || numRefunded > 0 || numExpired == 0)) {
-                deleteStudentEtexts(cache, stEtexts, etextId);
-                insertStudentEText(cache, etextId, false, true);
+                deleteStudentETexts(testStudentData, stEtexts, etextId);
+                insertStudentEText(testStudentData, etextId, false, true);
             }
         }
 
@@ -2179,34 +2217,38 @@ enum PageTestStudent {
     /**
      * Deletes all student e-texts for a particular e-text ID.
      *
-     * @param cache    the data cache
-     * @param stEtexts the student e-texts
-     * @param etextId  the e-text ID
+     * @param testStudentData the test student data object
+     * @param stETexts        the student e-texts
+     * @param eTextId         the e-text ID
      * @throws SQLException if there is an error accessing the database
      */
-    private static void deleteStudentEtexts(final Cache cache, final Iterable<RawStetext> stEtexts,
-                                            final String etextId) throws SQLException {
+    private static void deleteStudentETexts(final StudentData testStudentData, final Iterable<RawStetext> stETexts,
+                                            final String eTextId) throws SQLException {
 
-        final Iterator<RawStetext> iter = stEtexts.iterator();
+        final Cache cache = testStudentData.getCache();
+
+        final Iterator<RawStetext> iter = stETexts.iterator();
         while (iter.hasNext()) {
             final RawStetext stetext = iter.next();
-            if (etextId.equals(stetext.etextId)) {
+            if (eTextId.equals(stetext.etextId)) {
                 RawStetextLogic.INSTANCE.delete(cache, stetext);
                 iter.remove();
             }
         }
+        testStudentData.forgetStudentETexts();
     }
 
     /**
      * Inserts a student e-text record.
      *
-     * @param cache    the data cache
-     * @param etextId  the e-text ID
-     * @param refunded true if record was refunded
-     * @param expired  true if record has expired
+     * @param testStudentData the test student data object
+     * @param etextId         the e-text ID
+     * @param refunded        true if record was refunded
+     * @param expired         true if record has expired
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertStudentEText(final Cache cache, final String etextId, final boolean refunded,
+    private static void insertStudentEText(final StudentData testStudentData, final String etextId,
+                                           final boolean refunded,
                                            final boolean expired) throws SQLException {
 
         final LocalDate today = LocalDate.now();
@@ -2216,24 +2258,28 @@ enum PageTestStudent {
         final RawStetext model = new RawStetext(RawStudent.TEST_STUDENT_ID, etextId, dayBef, "88888888", expired ?
                 yester : null, yester, refunded ? yester : null, refunded ? "Admin Web Site config" : null);
 
+        final Cache cache = testStudentData.getCache();
+
         RawStetextLogic.INSTANCE.insert(cache, model);
+        testStudentData.forgetStudentETexts();
     }
 
     /**
      * Updates the test student registrations.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
+     * @param testStudentData the test student data object
+     * @param req             the request
+     * @param resp            the response
      * @throws IOException  if there was an error writing the response
      * @throws SQLException if there was an error accessing the database
      */
-    static void updateRegistrations(final Cache cache, final ServletRequest req,
+    static void updateRegistrations(final StudentData testStudentData, final ServletRequest req,
                                     final HttpServletResponse resp) throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
 
-        final List<RawCsection> sections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final TermRec active = systemData.getActiveTerm();
+        final List<RawCsection> sections = systemData.getCourseSections(active.term);
 
         final Collection<String> courseIds = new TreeSet<>();
         for (final RawCsection sect : sections) {
@@ -2246,16 +2292,14 @@ enum PageTestStudent {
             }
         }
 
-        final List<RawStcourse> curReg = RawStcourseLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID, true,
-                false);
+        final List<RawStcourse> curReg = testStudentData.getNonDroppedRegistrations();
         int order = 1;
 
         for (final String courseId : courseIds) {
             final String crs = courseId.replace(' ', '_');
 
-            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache, courseId,
-                    null);
-            final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
+            final List<AssignmentRec> assignments = systemData.getActiveAssignmentsByCourse(courseId);
+            final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
 
             final boolean isReg = "on".equals(req.getParameter(crs + "reg"));
             final boolean hasPrereq = "on".equals(req.getParameter(crs + "prereq"));
@@ -2264,21 +2308,25 @@ enum PageTestStudent {
             final boolean isInProg = isInc && "on".equals(req.getParameter(crs + "incip"));
             final boolean isCounted = isInc && "on".equals(req.getParameter(crs + "incc"));
 
-            deleteHwExam(cache, courseId);
+            deleteHwExam(testStudentData, courseId);
+
+            final Cache cache = testStudentData.getCache();
 
             if (isReg) {
                 final String sect = req.getParameter(crs);
                 if (sect != null) {
                     // Delete any existing row in case parameters have changed
+
                     for (final RawStcourse test : curReg) {
                         if (courseId.equals(test.course)) {
                             RawStcourseLogic.INSTANCE.delete(cache, test);
                         }
                     }
+                    testStudentData.forgetRegistrations();
 
-                    insertReg(cache, courseId, sect, order, isStarted, hasPrereq, isInc, isCounted, isInProg);
+                    insertReg(testStudentData, courseId, sect, order, isStarted, hasPrereq, isInc, isCounted, isInProg);
                     ++order;
-                    insertHWExam(cache, courseId, sect, req, assignments, masteryExams);
+                    insertHWExam(testStudentData, courseId, sect, req, assignments, masteryExams);
                 }
             } else {
                 for (final RawStcourse test : curReg) {
@@ -2286,6 +2334,7 @@ enum PageTestStudent {
                         RawStcourseLogic.INSTANCE.delete(cache, test);
                     }
                 }
+                testStudentData.forgetRegistrations();
             }
         }
 
@@ -2295,24 +2344,28 @@ enum PageTestStudent {
     /**
      * Constructs a student registration record.
      *
-     * @param cache        the database cache
-     * @param courseId     the course ID
-     * @param sect         the section number
-     * @param order        the pace order
-     * @param isStarted    {@code true} if the course should be marked as started
-     * @param hasPrereq    {@code true} if the prerequisite is satisfied
-     * @param isInc        {@code true} to create an incomplete
-     * @param isCounted    {@code true} if incomplete should count toward pace
-     * @param isInProgress {@code true} if incomplete is in progress
+     * @param testStudentData the test student data object
+     * @param courseId        the course ID
+     * @param sect            the section number
+     * @param order           the pace order
+     * @param isStarted       {@code true} if the course should be marked as started
+     * @param hasPrereq       {@code true} if the prerequisite is satisfied
+     * @param isInc           {@code true} to create an incomplete
+     * @param isCounted       {@code true} if incomplete should count toward pace
+     * @param isInProgress    {@code true} if incomplete is in progress
      * @throws SQLException of there was an error accessing the database
      */
-    private static void insertReg(final Cache cache, final String courseId, final String sect, final int order,
-                                  final boolean isStarted, final boolean hasPrereq, final boolean isInc,
-                                  final boolean isCounted, final boolean isInProgress) throws SQLException {
+    private static void insertReg(final StudentData testStudentData, final String courseId, final String sect,
+                                  final int order, final boolean isStarted, final boolean hasPrereq,
+                                  final boolean isInc, final boolean isCounted, final boolean isInProgress)
+            throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
-        final TermRec priorTerm = TermLogic.get(cache).queryPrior(cache);
-        final String instrnType = RawCsectionLogic.getInstructionType(cache, courseId, sect, activeTerm.term);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final TermRec activeTerm = systemData.getActiveTerm();
+        final TermRec priorTerm = systemData.getPriorTerm();
+        final RawCsection courseSection = systemData.getCourseSection(courseId, sect, activeTerm.term);
+        final String instructionType = courseSection == null ? null : courseSection.instrnType;
 
         final TermKey term;
         if (!isInc || isInProgress) {
@@ -2348,7 +2401,7 @@ enum PageTestStudent {
                         "N", // ctrlTest
                         null, // deferredFDt
                         Integer.valueOf(0), // bypassTimeout
-                        instrnType == null ? "RI" : instrnType, // instrnType
+                        instructionType == null ? "RI" : instructionType, // instrnType
                         null, // registrationStatus
                         LocalDate.of(2013, Month.DECEMBER, 30), // lastClassRollDt
                         priorTerm.term, // iTermKey
@@ -2377,7 +2430,7 @@ enum PageTestStudent {
                         "N", // ctrlTest
                         null, // deferredFDt
                         Integer.valueOf(0), // bypassTimeout
-                        instrnType == null ? "RI" : instrnType, // instrnType
+                        instructionType == null ? "RI" : instructionType, // instrnType
                         null, // registrationStatus
                         LocalDate.of(2013, Month.DECEMBER, 30), // lastClassRollDt
                         priorTerm.term, // iTermKey
@@ -2407,50 +2460,60 @@ enum PageTestStudent {
                     "N", // ctrlTest
                     null, // deferredFDt
                     Integer.valueOf(0), // bypassTimeout
-                    instrnType == null ? "RI" : instrnType, // instrnType
+                    instructionType == null ? "RI" : instructionType, // instrnType
                     null, // registrationStatus
                     LocalDate.of(2013, Month.DECEMBER, 30), // lastClassRollDt
                     null, // iTermKey
                     null); // iDeadlineDt
         }
 
+        final Cache cache = testStudentData.getCache();
+
         final boolean success = RawStcourseLogic.INSTANCE.insert(cache, stcourse);
+        testStudentData.forgetRegistrations();
 
         if (success && isInc) {
             final RawStterm stTerm = new RawStterm(priorTerm.term, RawStudent.TEST_STUDENT_ID, Integer.valueOf(1), "A",
                     courseId, null, null, null);
 
             RawSttermLogic.INSTANCE.insert(cache, stTerm);
+            testStudentData.forgetStudentTerm();
         }
     }
 
     /**
      * Deletes all homework and exam records on the test student's record for a particular course.
      *
-     * @param cache    the data cache
-     * @param courseId the course ID
+     * @param testStudentData the test student data object
+     * @param courseId        the course ID
      * @throws SQLException if there is an error accessing the database
      */
-    private static void deleteHwExam(final Cache cache, final String courseId) throws SQLException {
+    private static void deleteHwExam(final StudentData testStudentData, final String courseId) throws SQLException {
+
+        final Cache cache = testStudentData.getCache();
 
         // Delete homeworks on record
-        final List<RawSthomework> hws = RawSthomeworkLogic.queryByStudentCourse(cache, RawStudent.TEST_STUDENT_ID,
-                courseId, true);
+        final List<RawSthomework> hws = testStudentData.getStudentHomeworkForCourse(courseId);
         for (final RawSthomework hw : hws) {
             RawSthomeworkLogic.INSTANCE.delete(cache, hw);
         }
+        testStudentData.forgetStudentHomeworks();
 
         // Delete exams on record
-        final List<RawStexam> exams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID, courseId, true);
+        final List<RawStexam> exams = testStudentData.getStudentExamsForCourse(courseId);
         for (final RawStexam exam : exams) {
             RawStexamLogic.INSTANCE.delete(cache, exam);
         }
+        testStudentData.forgetStudentExams();
+
+        final SystemData systemData = testStudentData.getSystemData();
 
         // Delete mastery attempts on record
-        final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
+        final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
 
         final MasteryAttemptLogic attemptLogic = MasteryAttemptLogic.get(cache);
         final MasteryAttemptQaLogic attemptQaLogic = MasteryAttemptQaLogic.get(cache);
+
         for (final MasteryExamRec exam : masteryExams) {
             final List<MasteryAttemptRec> attempts = attemptLogic.queryByStudentExam(cache, RawStudent.TEST_STUDENT_ID,
                     exam.examId, false);
@@ -2465,21 +2528,22 @@ enum PageTestStudent {
                 attemptLogic.delete(cache, attempt);
             }
         }
+        testStudentData.forgetMasteryAttempts();
     }
 
     /**
      * Inserts the homeworks and exams on the test student record to match the checkboxes selected when the form is
      * submitted.
      *
-     * @param cache        the data cache
-     * @param courseId     the course ID
-     * @param sect         the section number
-     * @param req          the request
-     * @param assignments  all assignments for the course
-     * @param masteryExams all mastery exams for the course
+     * @param testStudentData the test student data object
+     * @param courseId        the course ID
+     * @param sect            the section number
+     * @param req             the request
+     * @param assignments     all assignments for the course
+     * @param masteryExams    all mastery exams for the course
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertHWExam(final Cache cache, final String courseId, final String sect,
+    private static void insertHWExam(final StudentData testStudentData, final String courseId, final String sect,
                                      final ServletRequest req, final Iterable<AssignmentRec> assignments,
                                      final Iterable<MasteryExamRec> masteryExams) throws SQLException {
 
@@ -2522,53 +2586,56 @@ enum PageTestStudent {
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Skills Review assignment ID");
-                    } else{
-                        insertHW(cache, u, 0, courseId, sect, assignId, "ST", sr);
+                    } else {
+                        insertHW(testStudentData, u, 0, courseId, sect, assignId, "ST", sr);
                     }
                 }
 
                 if ("Y".equals(a1) || "N".equals(a1)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1
+                                && "ST".equals(rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 1 assignment ID");
-                    } else{
-                        insertHW(cache, u, 1, courseId, sect, assignId, "ST", a1);
+                    } else {
+                        insertHW(testStudentData, u, 1, courseId, sect, assignId, "ST", a1);
                     }
                 }
 
                 if ("Y".equals(a2) || "N".equals(a2)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2
+                                && "ST".equals(rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 2 assignment ID");
-                    } else{
-                        insertHW(cache, u, 2, courseId, sect, assignId, "ST", a2);
+                    } else {
+                        insertHW(testStudentData, u, 2, courseId, sect, assignId, "ST", a2);
                     }
                 }
 
                 if ("Y".equals(a3) || "N".equals(a3)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3
+                                && "ST".equals(rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 3 assignment ID");
-                    } else{
-                        insertHW(cache, u, 3, courseId, sect, assignId, "ST", a3);
+                    } else {
+                        insertHW(testStudentData, u, 3, courseId, sect, assignId, "ST", a3);
                     }
                 }
 
@@ -2583,7 +2650,7 @@ enum PageTestStudent {
                     if (examId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 1 mastery ID");
                     } else {
-                        insertMastery(cache, u, 1, examId, m1);
+                        insertMastery(testStudentData, u, 1, examId, m1);
                     }
                 }
 
@@ -2598,7 +2665,7 @@ enum PageTestStudent {
                     if (examId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 2 mastery ID");
                     } else {
-                        insertMastery(cache, u, 2, examId, m2);
+                        insertMastery(testStudentData, u, 2, examId, m2);
                     }
                 }
 
@@ -2613,7 +2680,7 @@ enum PageTestStudent {
                     if (examId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 3 mastery ID");
                     } else {
-                        insertMastery(cache, u, 3, examId, m3);
+                        insertMastery(testStudentData, u, 3, examId, m3);
                     }
                 }
             }
@@ -2626,28 +2693,28 @@ enum PageTestStudent {
 
             final String srExam = req.getParameter(key + "exams0");
             if ("F".equals(srExam)) {
-                insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", false, false);
+                insertExam(testStudentData, Integer.valueOf(0), 1, courseId, srExamId, "R", false, false);
             } else if ("P".equals(srExam)) {
-                insertExam(cache, Integer.valueOf(0), 1, courseId, srExamId, "R", true, true);
+                insertExam(testStudentData, Integer.valueOf(0), 1, courseId, srExamId, "R", true, true);
             }
 
             for (int u = 1; u < 5; ++u) {
                 final Integer unit = Integer.valueOf(u);
 
                 if ("on".equals(req.getParameter(key + "hw" + u + "1"))) {
-                    insertHW(cache, u, 1, courseId, sect, prefix + u + "1H", "HW", "Y");
+                    insertHW(testStudentData, u, 1, courseId, sect, prefix + u + "1H", "HW", "Y");
                 }
                 if ("on".equals(req.getParameter(key + "hw" + u + "2"))) {
-                    insertHW(cache, u, 2, courseId, sect, prefix + u + "2H", "HW", "Y");
+                    insertHW(testStudentData, u, 2, courseId, sect, prefix + u + "2H", "HW", "Y");
                 }
                 if ("on".equals(req.getParameter(key + "hw" + u + "3"))) {
-                    insertHW(cache, u, 3, courseId, sect, prefix + u + "3H", "HW", "Y");
+                    insertHW(testStudentData, u, 3, courseId, sect, prefix + u + "3H", "HW", "Y");
                 }
                 if ("on".equals(req.getParameter(key + "hw" + u + "4"))) {
-                    insertHW(cache, u, 4, courseId, sect, prefix + u + "4H", "HW", "Y");
+                    insertHW(testStudentData, u, 4, courseId, sect, prefix + u + "4H", "HW", "Y");
                 }
                 if ("on".equals(req.getParameter(key + "hw" + u + "5"))) {
-                    insertHW(cache, u, 5, courseId, sect, prefix + u + "5H", "HW", "Y");
+                    insertHW(testStudentData, u, 5, courseId, sect, prefix + u + "5H", "HW", "Y");
                 }
 
                 final String reExamId = prefix + u + "RE";
@@ -2659,35 +2726,35 @@ enum PageTestStudent {
 
                 final String unitExam = req.getParameter(key + "exams" + u);
                 if ("F".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, false, false);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, false, false);
                 } else if ("P".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
                 } else if ("PF".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, false, false);
                 } else if ("PFF".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 3, courseId, ueExamId, proctoredType, false, false);
                 } else if ("PP".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, true, true);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, true, true);
                 } else if ("PFFF".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, false, false);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 4, courseId, reExamId, reviewType2, false, false);
                 } else if ("PFFP".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, true);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 4, courseId, reExamId, reviewType2, true, true);
                 } else if ("PFFPP".equals(unitExam)) {
-                    insertExam(cache, unit, 1, courseId, reExamId, reviewType1, true, true);
-                    insertExam(cache, unit, 2, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 3, courseId, ueExamId, proctoredType, false, false);
-                    insertExam(cache, unit, 4, courseId, reExamId, reviewType2, true, false);
-                    insertExam(cache, unit, 5, courseId, ueExamId, proctoredType, true, true);
+                    insertExam(testStudentData, unit, 1, courseId, reExamId, reviewType1, true, true);
+                    insertExam(testStudentData, unit, 2, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 3, courseId, ueExamId, proctoredType, false, false);
+                    insertExam(testStudentData, unit, 4, courseId, reExamId, reviewType2, true, false);
+                    insertExam(testStudentData, unit, 5, courseId, ueExamId, proctoredType, true, true);
                 }
             }
 
@@ -2696,9 +2763,9 @@ enum PageTestStudent {
             final String feExamId = prefix + "FIN";
 
             if ("F".equals(finExam)) {
-                insertExam(cache, finUnit, 1, courseId, feExamId, "F", false, false);
+                insertExam(testStudentData, finUnit, 1, courseId, feExamId, "F", false, false);
             } else if ("P".equals(finExam)) {
-                insertExam(cache, finUnit, 1, courseId, feExamId, "F", true, true);
+                insertExam(testStudentData, finUnit, 1, courseId, feExamId, "F", true, true);
             }
         }
     }
@@ -2706,22 +2773,23 @@ enum PageTestStudent {
     /**
      * Inserts a record of an exam.
      *
-     * @param cache       the data cache
-     * @param unit        the unit (0 for the Skills Review, 5 for the Final)
-     * @param index       the index within the unit, used to ensure exam order
-     * @param courseId    the course ID
-     * @param examId      the exam ID
-     * @param examType    the exam type
-     * @param passed      {@code true} to mark the exam as passed
-     * @param firstPassed {@code true} to mark the exam as the first passed
+     * @param testStudentData the test student data object
+     * @param unit            the unit (0 for the Skills Review, 5 for the Final)
+     * @param index           the index within the unit, used to ensure exam order
+     * @param courseId        the course ID
+     * @param examId          the exam ID
+     * @param examType        the exam type
+     * @param passed          {@code true} to mark the exam as passed
+     * @param firstPassed     {@code true} to mark the exam as the first passed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertExam(final Cache cache, final Integer unit, final int index,
+    private static void insertExam(final StudentData testStudentData, final Integer unit, final int index,
                                    final String courseId, final String examId, final String examType,
-                                   final boolean passed,
-                                   final boolean firstPassed) throws SQLException {
+                                   final boolean passed, final boolean firstPassed) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         final int days = unit.intValue() * 5 + index;
         LocalDate day = active.startDate;
@@ -2758,26 +2826,32 @@ enum PageTestStudent {
                 Integer.valueOf(startInt), Integer.valueOf(endInt), "Y", passed ? "Y" : "N", null, courseId, unit,
                 examType, firstPassed ? "Y" : "N", null, null);
 
+        final Cache cache = testStudentData.getCache();
+
         RawStexamLogic.INSTANCE.insert(cache, exam);
+        testStudentData.forgetStudentExams();
     }
 
     /**
      * Inserts a record of a homework assignment.
      *
-     * @param cache     the data cache
-     * @param unit      the unit (0 for the Skills Review, 5 for the Final)
-     * @param objective the objective within the unit (used to order assignments)
-     * @param courseId  the course ID
-     * @param sect      the section number
-     * @param hwId      the homework ID
-     * @param passed    "Y" if passed, "N" if not
+     * @param testStudentData the test student data object
+     * @param unit            the unit (0 for the Skills Review, 5 for the Final)
+     * @param objective       the objective within the unit (used to order assignments)
+     * @param courseId        the course ID
+     * @param sect            the section number
+     * @param hwId            the homework ID
+     * @param passed          "Y" if passed, "N" if not
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertHW(final Cache cache, final int unit, final int objective, final String courseId,
+    private static void insertHW(final StudentData testStudentData, final int unit, final int objective,
+                                 final String courseId,
                                  final String sect, final String hwId, final String type, final String passed)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         final int days = unit * 5 + objective;
         LocalDate day = active.startDate;
@@ -2793,23 +2867,28 @@ enum PageTestStudent {
                 Integer.valueOf(3), time, time, "Y", passed, type, courseId, sect, Integer.valueOf(unit),
                 Integer.valueOf(objective), "N", null, null);
 
+        final Cache cache = testStudentData.getCache();
+
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
+        testStudentData.forgetStudentHomeworks();
     }
 
     /**
      * Inserts a record of a mastery attempt.
      *
-     * @param cache     the data cache
-     * @param unit      the unit
-     * @param objective the objective
-     * @param examId    the exam ID
-     * @param passed    {@code true} to mark the exam as passed
+     * @param testStudentData the test student data object
+     * @param unit            the unit
+     * @param objective       the objective
+     * @param examId          the exam ID
+     * @param passed          {@code true} to mark the exam as passed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertMastery(final Cache cache, final int unit, final int objective,
+    private static void insertMastery(final StudentData testStudentData, final int unit, final int objective,
                                       final String examId, final String passed) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = testStudentData.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         final int days = unit * 3 + objective;
         LocalDate day = active.startDate;
@@ -2826,6 +2905,9 @@ enum PageTestStudent {
         final MasteryAttemptRec attempt = new MasteryAttemptRec(Integer.valueOf(sn), examId, RawStudent.TEST_STUDENT_ID,
                 start, end, Integer.valueOf(score), Integer.valueOf(2), passed, passed, "TC");
 
+        final Cache cache = testStudentData.getCache();
+
         MasteryAttemptLogic.get(cache).insert(cache, attempt);
+        testStudentData.forgetMasteryAttempts();
     }
 }

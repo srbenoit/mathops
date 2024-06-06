@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -454,7 +454,9 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         final List<RawStcourse> result = queryByStudent(cache, studentId, termKey, true, false);
 
-        result.removeIf(reg -> "G".equals(reg.openStatus));
+        if (!result.isEmpty()) {
+            result.removeIf(reg -> "G".equals(reg.openStatus));
+        }
 
         return result;
     }
@@ -557,7 +559,9 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         final List<RawStcourse> result = queryByStudent(cache, studentId, true, false);
 
-        result.removeIf(rawStcourse -> !"Y".equals(rawStcourse.completed));
+        if (!result.isEmpty()) {
+            result.removeIf(rawStcourse -> !"Y".equals(rawStcourse.completed));
+        }
 
         return result;
     }
@@ -576,7 +580,9 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         final List<RawStcourse> result = queryByStudent(cache, studentId, true, false);
 
-        result.removeIf(reg -> theActiveTerm.equals(reg.termKey));
+        if (!result.isEmpty()) {
+            result.removeIf(reg -> theActiveTerm.equals(reg.termKey));
+        }
 
         return result;
     }

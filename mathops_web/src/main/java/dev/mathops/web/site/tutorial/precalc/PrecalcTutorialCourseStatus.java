@@ -1,7 +1,7 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;

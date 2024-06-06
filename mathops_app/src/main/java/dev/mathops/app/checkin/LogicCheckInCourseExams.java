@@ -2,19 +2,14 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
-import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -124,22 +119,21 @@ final class LogicCheckInCourseExams {
     /**
      * Determines exam status for all courses.
      *
-     * @param cache the data cache
+     * @param data               the student data object
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    void execute(final Cache cache, final boolean enforceEligibility) throws SQLException {
+    void execute(final StudentData data, final boolean enforceEligibility) throws SQLException {
 
         if (isSpecial()) {
             setSpecialStudentStatus();
         } else {
-            final String stuId = this.checkInData.studentData.stuId;
-            final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, stuId, this.activeTerm.term);
+            final List<RawStcourse> regs = data.getActiveRegistrations(this.activeTerm.term);
 
-            determineAvailableChallengeExams(cache, regs, enforceEligibility);
-            determineAvailableCourseExams(cache, regs, enforceEligibility);
+            determineAvailableChallengeExams(data, regs, enforceEligibility);
+            determineAvailableCourseExams(data, regs, enforceEligibility);
         }
     }
 
@@ -202,20 +196,17 @@ final class LogicCheckInCourseExams {
      * <li>they do not have a fatal hold other than hold 30 (tested before this class is used)
      * </ul>
      *
-     * @param cache      the data cache
-     * @param activeRegs the student's current-term registrations
+     * @param studentData        the student data object
+     * @param activeRegs         the student's current-term registrations
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineAvailableChallengeExams(final Cache cache, final Iterable<RawStcourse> activeRegs,
+    private void determineAvailableChallengeExams(final StudentData studentData, final Iterable<RawStcourse> activeRegs,
                                                   final boolean enforceEligibility) throws SQLException {
 
-        final String stuId = this.checkInData.studentData.stuId;
-
-        final List<RawStcourse> priorRegs = RawStcourseLogic.getAllPrior(cache, stuId, this.activeTerm.term);
-        final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(cache, stuId);
+        final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(studentData);
 
         for (final CourseNumbers numbers : CourseNumbers.COURSES) {
 
@@ -237,7 +228,7 @@ final class LogicCheckInCourseExams {
                 }
             }
 
-            final List<RawStchallenge> att = RawStchallengeLogic.queryByStudent(cache, stuId);
+            final List<RawStchallenge> att = studentData.getChallengeExams();
 
             for (final RawStchallenge test : att) {
                 if (numbers.isMatching(test.course) && challengeId.equals(test.version)) {
@@ -258,14 +249,14 @@ final class LogicCheckInCourseExams {
      * compiled into the {@code mAvailableExams} field in the {@code StudentCheckInInfo} object, with the availability
      * of each exam noted.
      *
-     * @param cache      the data cache
-     * @param activeRegs the student's current-term registrations
+     * @param studentData        the student data object
+     * @param activeRegs         the student's current-term registrations
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineAvailableCourseExams(final Cache cache, final Collection<RawStcourse> activeRegs,
+    private void determineAvailableCourseExams(final StudentData studentData, final Collection<RawStcourse> activeRegs,
                                                final boolean enforceEligibility) throws SQLException {
 
         final RawStterm studentTerm = this.checkInData.studentData.studentTerm;
@@ -296,8 +287,7 @@ final class LogicCheckInCourseExams {
 
                         boolean eligible = true;
                         if (enforceEligibility) {
-                            final LocalDate today = LocalDate.now();
-                            if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(today)) {
+                            if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(this.today)) {
                                 makeCourseUnavailable(data, numbers, PAST_DEADLINE);
                                 eligible = false;
                             }
@@ -319,11 +309,11 @@ final class LogicCheckInCourseExams {
                             } else if ("Y".equals(reg.openStatus)) {
 
                                 final Map<RawStcourse, SectionData> sections = new HashMap<>(1);
-                                loadSectionData(cache, activeRegs, sections);
+                                loadSectionData(studentData, activeRegs, sections);
 
                                 final SectionData sectData = sections.get(reg);
 
-                                testSingleIncomplete(cache, data, reg, 1, "A", sectData, enforceEligibility);
+                                testSingleIncomplete(studentData, data, reg, 1, "A", sectData, enforceEligibility);
                             } else {
                                 // "enforceEligibility" cannot make exams available in course that is not open
                                 makeCourseUnavailable(data, numbers, "Course Not Open");
@@ -338,7 +328,7 @@ final class LogicCheckInCourseExams {
 
             final int numRegs = activeRegs.size();
             final Map<RawStcourse, SectionData> sections = new HashMap<>(numRegs);
-            loadSectionData(cache, activeRegs, sections);
+            loadSectionData(studentData, activeRegs, sections);
 
             for (final CourseNumbers numbers : CourseNumbers.COURSES) {
                 final String newCourseId = numbers.newCourseId();
@@ -381,9 +371,9 @@ final class LogicCheckInCourseExams {
                             // "enforceEligibility" cannot make exams available with bad configuration data
                             makeCourseUnavailable(data, numbers, "No Pacing Data");
                         } else if ("Y".equals(reg.iInProgress)) {
-                            testSingleIncomplete(cache, data, reg, pace, track, sectData, enforceEligibility);
+                            testSingleIncomplete(studentData, data, reg, pace, track, sectData, enforceEligibility);
                         } else {
-                            testSingleCourse(cache, data, reg, pace, track, sectData, enforceEligibility);
+                            testSingleCourse(studentData, data, reg, pace, track, sectData, enforceEligibility);
                         }
                     } else {
                         // "enforceEligibility" cannot make exams available in course that is not open
@@ -399,18 +389,19 @@ final class LogicCheckInCourseExams {
      * not "G" or "N".  If the course section's instruction type is "OT", the pacing structure and rules are not
      * populated, but the course section record is included.
      *
-     * @param cache         the data cache
+     * @param studentData   the student data object
      * @param registrations the list of courses
      * @param sections      the section data objects map to populate
      * @throws SQLException if there was an error accessing the database
      */
-    private void loadSectionData(final Cache cache, final Iterable<RawStcourse> registrations,
+    private void loadSectionData(final StudentData studentData, final Iterable<RawStcourse> registrations,
                                  final Map<? super RawStcourse, ? super SectionData> sections)
             throws SQLException {
 
         // NOTE: we attempt to use the rule set from the term when an incomplete was earned rather than the active term,
         // if that data is available.  This is flawed since we can't query the prior term's pacing structure data.
 
+        final Cache cache = studentData.getCache();
         final List<RawPacingStructure> allPacing = RawPacingStructureLogic.queryByTerm(cache, this.activeTerm.term);
 
         for (final RawStcourse reg : registrations) {
@@ -475,18 +466,18 @@ final class LogicCheckInCourseExams {
     /**
      * Determines the availability of exams in an incomplete course.
      *
-     * @param cache     the data cache
-     * @param data      the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param reg       the registration (known to be open, and not an "OT" section)
-     * @param pace      the student's pace
-     * @param paceTrack the student's pace track
-     * @param sectData  the section data
+     * @param studentData        the student data object
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param reg                the registration (known to be open, and not an "OT" section)
+     * @param pace               the student's pace
+     * @param paceTrack          the student's pace track
+     * @param sectData           the section data
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void testSingleIncomplete(final Cache cache, final DataCourseExams data, final RawStcourse reg,
+    private void testSingleIncomplete(final StudentData studentData, final DataCourseExams data, final RawStcourse reg,
                                       final int pace, final String paceTrack, final SectionData sectData,
                                       final boolean enforceEligibility) throws SQLException {
 
@@ -500,16 +491,16 @@ final class LogicCheckInCourseExams {
             indicateCourseUnavailable(data, "Need User's Exam", enforceEligibility);
         }
 
-        final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
+        final CourseDeadlines courseDeadlines = getCourseDeadlines(studentData, reg, pace, paceTrack, sectData.numbers);
 
         final boolean isNew = sectData.numbers.isNew(reg.course);
         OldCourseWorkRecord oldWorkRecord = null;
         StandardsMasteryLogic standardsLogic = null;
 
         if (isNew) {
-            standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
+            standardsLogic = new StandardsMasteryLogic(studentData, reg.course);
         } else {
-            oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+            oldWorkRecord = gatherOldCourseWorkRecord(studentData, reg);
         }
 
         if ("Y".equals(reg.iCounted)) {
@@ -548,18 +539,18 @@ final class LogicCheckInCourseExams {
     /**
      * Determines the availability of exams in a current-term (not incomplete) course.
      *
-     * @param cache     the data cache
-     * @param data      the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param reg       the registration (known to be open, and not an "OT" section)
-     * @param pace      the student's pace
-     * @param paceTrack the student's pace track
-     * @param sectData  the section data
+     * @param studentData        the student data object
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param reg                the registration (known to be open, and not an "OT" section)
+     * @param pace               the student's pace
+     * @param paceTrack          the student's pace track
+     * @param sectData           the section data
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
      * @throws SQLException if there is an error accessing the database
      */
-    private void testSingleCourse(final Cache cache, final DataCourseExams data, final RawStcourse reg,
+    private void testSingleCourse(final StudentData studentData, final DataCourseExams data, final RawStcourse reg,
                                   final int pace, final String paceTrack, final SectionData sectData,
                                   final boolean enforceEligibility) throws SQLException {
 
@@ -571,16 +562,16 @@ final class LogicCheckInCourseExams {
             indicateCourseUnavailable(data, "Need User's Exam", enforceEligibility);
         }
 
-        final CourseDeadlines courseDeadlines = getCourseDeadlines(cache, reg, pace, paceTrack, sectData.numbers);
+        final CourseDeadlines courseDeadlines = getCourseDeadlines(studentData, reg, pace, paceTrack, sectData.numbers);
 
         final boolean isNew = sectData.numbers.isNew(reg.course);
         OldCourseWorkRecord oldWorkRecord = null;
         StandardsMasteryLogic standardsLogic = null;
 
         if (isNew) {
-            standardsLogic = new StandardsMasteryLogic(cache, reg.stuId, reg.course);
+            standardsLogic = new StandardsMasteryLogic(studentData, reg.course);
         } else {
-            oldWorkRecord = gatherOldCourseWorkRecord(cache, reg);
+            oldWorkRecord = gatherOldCourseWorkRecord(studentData, reg);
         }
 
         checkCourseDeadline(reg, data, sectData, courseDeadlines, oldWorkRecord, standardsLogic, enforceEligibility);
@@ -619,26 +610,30 @@ final class LogicCheckInCourseExams {
     /**
      * Determines the course deadlines for a registration.
      *
-     * @param cache     the cache
-     * @param reg       the registration
-     * @param numbers   the course numbers for the course associated with the registration
-     * @param pace      the student's pace
-     * @param paceTrack the student's pace track
+     * @param studentData the student data object
+     * @param reg         the registration
+     * @param numbers     the course numbers for the course associated with the registration
+     * @param pace        the student's pace
+     * @param paceTrack   the student's pace track
      * @return the course deadlines; {@code null} if they could not be determined
      * @throws SQLException if there was an error accessing the database
      */
-    private CourseDeadlines getCourseDeadlines(final Cache cache, final RawStcourse reg, final int pace,
+    private CourseDeadlines getCourseDeadlines(final StudentData studentData, final RawStcourse reg, final int pace,
                                                final String paceTrack, final CourseNumbers numbers)
             throws SQLException {
 
         // Check the course deadline date based on pace track, pace, and pace order
         final CourseDeadlines courseDeadlines;
 
+        final Integer paceObj = Integer.valueOf(pace);
+
         if (reg.paceOrder == null) {
             courseDeadlines = new CourseDeadlines(null, null, null, null, null, null, 0, null);
         } else if (numbers.isNew(reg.course)) {
             // New course - look for course deadline
-            final Integer paceObj = Integer.valueOf(pace);
+
+            final Cache cache = studentData.getCache();
+
             final List<StandardMilestoneRec> allMilestones =
                     StandardMilestoneLogic.get(cache).queryByPaceTrackPaceIndex(cache, paceTrack, paceObj,
                             reg.paceOrder);
@@ -661,10 +656,10 @@ final class LogicCheckInCourseExams {
             courseDeadlines = new CourseDeadlines(null, null, null, null, null, null, 0, deadline);
         } else {
             // Old course - look for "FE" and "F1" milestones
-            final List<RawMilestone> allMilestones =
-                    RawMilestoneLogic.getAllMilestones(cache, this.activeTerm.term, pace, paceTrack);
-            final List<RawStmilestone> allStMilestones =
-                    RawStmilestoneLogic.getStudentMilestones(cache, this.activeTerm.term, paceTrack, reg.stuId);
+            final List<RawMilestone> allMilestones = studentData.getMilestones(this.activeTerm.term, paceObj,
+                    paceTrack);
+            final List<RawStmilestone> allStMilestones = studentData.getStudentMilestones(this.activeTerm.term,
+                    paceTrack);
 
             final int msNumber = pace * 100 + reg.paceOrder.intValue() * 10 + 5;
             int attempts = 0;
@@ -727,19 +722,16 @@ final class LogicCheckInCourseExams {
     /**
      * Gathers the student's work record.
      *
-     * @param cache the data cache
-     * @param reg   the registration
+     * @param studentData the student data object
+     * @param reg         the registration
      * @return the work record
      * @throws SQLException if there is an error accessing the database
      */
-    private static OldCourseWorkRecord gatherOldCourseWorkRecord(final Cache cache, final RawStcourse reg)
+    private static OldCourseWorkRecord gatherOldCourseWorkRecord(final StudentData studentData, final RawStcourse reg)
             throws SQLException {
 
-        final List<RawStexam> stexams = RawStexamLogic.getExams(cache, reg.stuId, reg.course, false,
-                RawStexamLogic.ALL_EXAM_TYPES);
-
-        final List<RawSthomework> sthws = RawSthomeworkLogic.getHomeworks(cache, reg.stuId, reg.course, false,
-                RawSthomeworkLogic.ALL_HW_TYPES);
+        final List<RawStexam> stexams = studentData.getStudentExamsForCourse(reg.course);;
+        final List<RawSthomework> sthws = studentData.getStudentHomeworkForCourse(reg.course);
 
         return new OldCourseWorkRecord(sthws, stexams);
     }
@@ -750,13 +742,13 @@ final class LogicCheckInCourseExams {
      * deadline has passed, and the student has passed Unit 4, the number of final exam tries since the FE deadline is
      * counted and compared to the "attempts allowed" field.
      *
-     * @param reg             the course registration
-     * @param data            the {@code CheckInDataCourseExams} whose exam status values to update (exams in this
-     *                        object may be marked as unavailable already, or as available but with eligibility
-     *                        override notes.
-     * @param sectData        the section data
-     * @param courseDeadlines the course deadlines
-     * @param workRecord      the work record
+     * @param reg                the course registration
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update (exams in this
+     *                           object may be marked as unavailable already, or as available but with eligibility
+     *                           override notes.
+     * @param sectData           the section data
+     * @param courseDeadlines    the course deadlines
+     * @param workRecord         the work record
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -811,8 +803,8 @@ final class LogicCheckInCourseExams {
     /**
      * Makes all exams in a course (except possibly the challenge exam) as available.
      *
-     * @param data     the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param sectData the section data
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param sectData           the section data
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -839,8 +831,8 @@ final class LogicCheckInCourseExams {
     /**
      * Checks whether the current date is outside the testing window for a unit, and marks the exam status accordingly.
      *
-     * @param unit the unit section configuration
-     * @param exam  the exam object to update
+     * @param unit               the unit section configuration
+     * @param exam               the exam object to update
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -864,9 +856,9 @@ final class LogicCheckInCourseExams {
      * apply, and the student can re-test.  If it has not been passed and this deadline is in the past, the exam is not
      * available.
      *
-     * @param data            the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param courseDeadlines the course deadlines
-     * @param workRecord      the student's work record
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param courseDeadlines    the course deadlines
+     * @param workRecord         the student's work record
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -910,10 +902,10 @@ final class LogicCheckInCourseExams {
     /**
      * Ensures that requirements specified in the pacing rules for the section are satisfied.
      *
-     * @param reg        the course registration
-     * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param sectData   the section data
-     * @param workRecord the student's work record
+     * @param reg                the course registration
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param sectData           the section data
+     * @param workRecord         the student's work record
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -1011,10 +1003,10 @@ final class LogicCheckInCourseExams {
      * enforce limits on the number of times the student may take the proctored exam after each successful attempt on
      * the review exam.
      *
-     * @param reg        the course registration
-     * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param sectData   the section data
-     * @param workRecord the student's work record
+     * @param reg                the course registration
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param sectData           the section data
+     * @param workRecord         the student's work record
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -1079,10 +1071,10 @@ final class LogicCheckInCourseExams {
      * enforce limits on the number of times the student may take the proctored exam after each successful attempt on
      * the review exam.
      *
-     * @param reg        the course registration
-     * @param data       the {@code CheckInDataCourseExams} whose exam status values to update
-     * @param sectData   the section data
-     * @param workRecord the student's work record
+     * @param reg                the course registration
+     * @param data               the {@code CheckInDataCourseExams} whose exam status values to update
+     * @param sectData           the section data
+     * @param workRecord         the student's work record
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -1183,8 +1175,8 @@ final class LogicCheckInCourseExams {
      * marked as unavailable.  If eligibility is not being enforced, exams are not marked as unavailable, but the
      * message is added to all exams' lists of eligibility conditions that were not met.
      *
-     * @param data the course exams data object to update
-     * @param msg  the reason message
+     * @param data               the course exams data object to update
+     * @param msg                the reason message
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -1216,8 +1208,8 @@ final class LogicCheckInCourseExams {
      * exam is not marked as unavailable, but the message is added to that exam's list of eligibility conditions that
      * were not met.
      *
-     * @param exam the exam data object to update
-     * @param msg  the reason message
+     * @param exam               the exam data object to update
+     * @param msg                the reason message
      * @param enforceEligibility true to enforce all eligibility checks; false to override these checks to allow a
      *                           student to take an exam in special situations where an eligibility condition should be
      *                           waived
@@ -1323,7 +1315,7 @@ final class LogicCheckInCourseExams {
         public String toString() {
 
             return SimpleBuilder.concat("SectionData{numbers=", this.numbers, ", cSection=", this.cSection,
-                    ", pacing=", this.pacing, ", rules=", this.rules,", cuSections=", this.cuSections, "}");
+                    ", pacing=", this.pacing, ", rules=", this.rules, ", cuSections=", this.cuSections, "}");
         }
     }
 
@@ -1341,8 +1333,8 @@ final class LogicCheckInCourseExams {
         /**
          * Constructs a new {@code WorkRecord}.
          *
-         * @param theStHomeworks     homeworks the student has taken
-         * @param theStExams         exams the student has taken
+         * @param theStHomeworks homeworks the student has taken
+         * @param theStExams     exams the student has taken
          */
         OldCourseWorkRecord(final List<RawSthomework> theStHomeworks, final List<RawStexam> theStExams) {
 

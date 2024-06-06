@@ -3,7 +3,7 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
@@ -23,7 +23,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

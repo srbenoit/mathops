@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EffectiveMilestones;
@@ -30,12 +30,13 @@ public enum Factory1of1 {
     /**
      * Processes a student in a 1-course pace.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param context     the messaging context
      * @param instrName   the name of the instructor assigned to the student's pace/track
      * @param messagesDue a map from student ID to message to be sent
      */
-    public static void processPace1Student(final Cache cache, final MessagingContext context, final String instrName,
+    public static void processPace1Student(final StudentData studentData, final MessagingContext context,
+                                           final String instrName,
                                            final Map<? super String, ? super MessageToSend> messagesDue) {
 
         if (context.currentRegIndex != 0) {
@@ -43,7 +44,7 @@ public enum Factory1of1 {
         }
 
         final RawStcourse reg1 = context.sortedRegs.get(0);
-        final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 1, 1, context);
+        final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 1, 1, context);
         final MessagingCourseStatus current =
                 new MessagingCourseStatus(context, reg1, ms1, instrName);
 
@@ -66,18 +67,18 @@ public enum Factory1of1 {
                 }
             } else if (urgency <= MAX_URGENCY_EVERY_8_DAYS) {
                 if (msgDays > 7) {
-                    row = LateMessageFactory1of1.generate(cache, context, current);
+                    row = LateMessageFactory1of1.generate(studentData, context, current);
                 }
             } else if (urgency <= MAX_URGENCY_EVERY_6_DAYS) {
                 if (msgDays > 5) {
-                    row = LateMessageFactory1of1.generate(cache, context, current);
+                    row = LateMessageFactory1of1.generate(studentData, context, current);
                 }
             } else if (urgency <= MAX_URGENCY_EVERY_4_DAYS) {
                 if (msgDays > 3) {
-                    row = LateMessageFactory1of1.generate(cache, context, current);
+                    row = LateMessageFactory1of1.generate(studentData, context, current);
                 }
             } else if (msgDays > 2) {
-                row = LateMessageFactory1of1.generate(cache, context, current);
+                row = LateMessageFactory1of1.generate(studentData, context, current);
             }
         }
 

@@ -2,7 +2,7 @@ package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
@@ -26,12 +26,12 @@ enum LateMessagePrereqFactory1of1 {
     /**
      * Generates an appropriate message when the student has not satisfied the prerequisite.
      *
-     * @param cache   the data cache
-     * @param context the messaging context
-     * @param status  the student's status in their current course
+     * @param studentData the student data object
+     * @param context     the messaging context
+     * @param status      the student's status in their current course
      * @return a report row if a message is to be sent to the student; null if not
      */
-    static MessageToSend generate(final Cache cache, final MessagingContext context,
+    static MessageToSend generate(final StudentData studentData, final MessagingContext context,
                                   final MessagingCourseStatus status) {
 
         MessageToSend result = null;
@@ -39,8 +39,7 @@ enum LateMessagePrereqFactory1of1 {
         if (status.daysSinceLastMessage > 3) {
             int placementAvailable = 0;
             try {
-                final List<RawStmpe> attempts =
-                        RawStmpeLogic.queryLegalByStudent(cache, context.student.stuId);
+                final List<RawStmpe> attempts = studentData.getLegalPlacementAttempts();
                 placementAvailable = Math.max(0, 2 - attempts.size());
             } catch (final SQLException ex) {
                 Log.warning("Failed to query number of placement attempts.", ex);

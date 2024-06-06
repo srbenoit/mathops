@@ -18,7 +18,7 @@ import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.NonemptyElement;
 import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.commons.parser.xml.XmlEscaper;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 

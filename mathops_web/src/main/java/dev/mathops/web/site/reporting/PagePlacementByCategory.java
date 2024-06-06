@@ -2,7 +2,7 @@ package dev.mathops.web.site.reporting;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.dbjobs.report.ESortOrder;

@@ -2,7 +2,8 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -12,13 +13,15 @@ import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,26 +39,29 @@ enum PagePlanRecord {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final ZonedDateTime now = session.getNow();
+        final MPStudentData data = logic.getStudentData(studentData, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
 
@@ -100,7 +106,7 @@ enum PagePlanRecord {
      * @param data  the student data
      * @param logic the site logic
      */
-    private static void emitHistory(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic) {
+    private static void emitHistory(final HtmlBuilder htm, final MPStudentData data, final MathPlanLogic logic) {
 
         htm.sDiv("center");
         emitTransferCredit(htm, data, logic);
@@ -116,7 +122,7 @@ enum PagePlanRecord {
      * @param data  the student data
      * @param logic the site logic
      */
-    private static void emitTransferCredit(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic) {
+    private static void emitTransferCredit(final HtmlBuilder htm, final MPStudentData data, final MathPlanLogic logic) {
 
         // Query student's transfer credit and print out
         final List<LiveTransferCredit> xfer = data.getLiveTransferCredit();
@@ -189,7 +195,7 @@ enum PagePlanRecord {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
      */
-    private static void emitPlacement(final HtmlBuilder htm, final StudentData data) {
+    private static void emitPlacement(final HtmlBuilder htm, final MPStudentData data) {
 
         htm.sDiv("historyblock");
         htm.addln("<strong>Math Placement Results</strong>");
@@ -299,7 +305,7 @@ enum PagePlanRecord {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
      */
-    private static void emitEligibility(final HtmlBuilder htm, final StudentData data) {
+    private static void emitEligibility(final HtmlBuilder htm, final MPStudentData data) {
 
         htm.sDiv("historyblock last");
         htm.addln("<strong>Mathematics Eligibility</strong>");

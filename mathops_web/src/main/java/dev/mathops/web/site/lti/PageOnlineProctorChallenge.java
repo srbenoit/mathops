@@ -3,9 +3,11 @@ package dev.mathops.web.site.lti;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
-import dev.mathops.db.old.logic.ChallengeExamStatus;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.ChallengeExamStatus;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -201,12 +203,14 @@ enum PageOnlineProctorChallenge {
                 if (pwd == null || pwd.isEmpty()) {
                     proctorError = "Missing one-time proctor password.";
                     ok = false;
-                } else if (ChallengeExamSessionStore.getInstance()
-                        .validateOneTimeChallengeCodeNoDelete(stuId, pwd)) {
+                } else if (ChallengeExamSessionStore.getInstance().validateOneTimeChallengeCodeNoDelete(stuId, pwd)) {
 
                     if (course != null) {
+                        // FIXME: Move this up, use for student-related data throughout
+                        final StudentData studentData = new StudentData(cache, stuId, ELiveRefreshes.NONE);
+
                         // Test eligibility for selected exam
-                        final ChallengeExamLogic logic = new ChallengeExamLogic(cache, stuId);
+                        final ChallengeExamLogic logic = new ChallengeExamLogic(studentData);
                         final ChallengeExamStatus status = logic.getStatus(course);
 
                         actualExamId = status.availableExamId;

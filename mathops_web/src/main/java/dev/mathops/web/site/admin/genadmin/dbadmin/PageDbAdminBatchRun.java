@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;

@@ -1,4 +1,4 @@
-package dev.mathops.db.old;
+package dev.mathops.db.logic;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;

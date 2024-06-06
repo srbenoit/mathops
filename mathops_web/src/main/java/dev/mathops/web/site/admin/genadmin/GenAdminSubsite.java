@@ -4,8 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.admin.AbstractSubsite;
@@ -49,6 +49,7 @@ import dev.mathops.web.site.admin.genadmin.student.PageStudentPlacement;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -81,7 +82,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -89,83 +90,83 @@ public final class GenAdminSubsite extends AbstractSubsite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsiteGet(final Cache cache, final String subpath,
+    public void subsiteGet(final WebViewData data, final String subpath,
                            final ImmutableSessionInfo session, final HttpServletRequest req,
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session);
+                PageHome.doGet(data, this.site, req, resp, session);
             } else if ("student.html".equals(subpath)) {
-                PageStudent.doGet(cache, this.site, req, resp, session, null);
+                PageStudent.doGet(data, this.site, req, resp, session, null);
             } else if ("test_student.html".equals(subpath)) {
-                PageTestStudent.doTestStudentsPage(cache, this.site, req, resp, session);
+                PageTestStudent.doTestStudentsPage(data, this.site, req, resp, session);
             } else if ("utilities.html".equals(subpath)) {
-                PageUtilities.doUtilitiesPage(cache, this.site, req, resp, session);
+                PageUtilities.doUtilitiesPage(data, this.site, req, resp, session);
             } else if ("server_admin.html".equals(subpath)) {
-                PageServerAdmin.doServerAdminPage(cache, this.site, req, resp, session);
+                PageServerAdmin.doServerAdminPage(data, this.site, req, resp, session);
             } else if ("srvadm_sessions.html".equals(subpath)) {
-                PageServerAdminSessions.doGet(cache, this.site, req, resp, session);
+                PageServerAdminSessions.doGet(data, this.site, req, resp, session);
             } else if ("srvadm_maintenance.html".equals(subpath)) {
-                PageServerAdminMaintenance.doGet(cache, this.site, req, resp, session);
+                PageServerAdminMaintenance.doGet(data, this.site, req, resp, session);
             } else if ("srvadm_control.html".equals(subpath)) {
-                PageServerAdminControl.doGet(cache, this.site, req, resp, session);
+                PageServerAdminControl.doGet(data, this.site, req, resp, session);
             } else if ("srvadm_diagnostics.html".equals(subpath)) {
-                PageServerAdminDiagnostics.doGet(cache, this.site, req, resp, session);
+                PageServerAdminDiagnostics.doGet(data, this.site, req, resp, session);
             } else if ("db_admin.html".equals(subpath)) {
-                PageDbAdmin.doDbAdminPage(cache, this.site, req, resp, session);
+                PageDbAdmin.doDbAdminPage(data, this.site, req, resp, session);
             } else if ("dbadm_contexts.html".equals(subpath)) {
-                PageDbAdminContexts.doGet(cache, this.site, req, resp, session);
+                PageDbAdminContexts.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_batch.html".equals(subpath)) {
-                PageDbAdminBatch.doGet(cache, this.site, req, resp, session);
+                PageDbAdminBatch.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_batch_run.html".equals(subpath)) {
-                PageDbAdminBatchRun.doGet(cache, this.site, req, resp, session);
+                PageDbAdminBatchRun.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_reports.html".equals(subpath)) {
-                PageDbAdminReports.doGet(cache, this.site, req, resp, session);
+                PageDbAdminReports.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_report.html".equals(subpath)) {
-                PageDbAdminReport.doGet(cache, this.site, req, resp, session);
+                PageDbAdminReport.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_queries.html".equals(subpath)) {
-                PageDbAdminQueries.doGet(cache, this.site, req, resp, session);
+                PageDbAdminQueries.doGet(data, this.site, req, resp, session);
             } else if ("db_admin_server.html".equals(subpath)) {
-                PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session, null);
+                PageDbAdminContextsServer.doGet(data, this.site, req, resp, session, null);
             } else if ("db_admin_server_logout.html".equals(subpath)) {
-                PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session);
+                PageDbAdminContextsServer.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_metadata.html".equals(subpath)) {
-                PageDbAdminContextsMetadata.doGet(cache, this.site, req, resp, session);
+                PageDbAdminContextsMetadata.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_cache_metadata.html".equals(subpath)) {
-                PageDbAdminContextsTableMetadata.doGet(cache, this.site, req, resp, session);
+                PageDbAdminContextsTableMetadata.doGet(data, this.site, req, resp, session);
             } else if ("dbadm_prod_views.html".equals(subpath)) {
-                PageDbAdminContextsProdViews.doGet(cache, this.site, req, resp, session);
+                PageDbAdminContextsProdViews.doGet(data, this.site, req, resp, session);
             } else if ("site_admin.html".equals(subpath)) {
-                PageSiteAdmin.doGet(cache, this.site, req, resp, session);
+                PageSiteAdmin.doGet(data, this.site, req, resp, session);
             } else if ("automation.html".equals(subpath)) {
-                PageAutomation.doGet(cache, this.site, req, resp, session);
+                PageAutomation.doGet(data, this.site, req, resp, session);
             } else if ("automation_bot.html".equals(subpath)) {
-                PageAutomationBot.doGet(cache, this.site, req, resp, session);
+                PageAutomationBot.doGet(data, this.site, req, resp, session);
             } else if ("monitor.html".equals(subpath)) {
-                PageReports.doGet(cache, this.site, req, resp, session);
+                PageReports.doGet(data, this.site, req, resp, session);
             } else if ("report_mathplan.html".equals(subpath)) {
-                PageMathPlanReport.doGet(cache, this.site, req, resp, session);
+                PageMathPlanReport.doGet(data, this.site, req, resp, session);
             } else if ("report_placement.html".equals(subpath)) {
-                PagePlacementReport.doGet(cache, this.site, req, resp, session);
+                PagePlacementReport.doGet(data, this.site, req, resp, session);
             } else if ("report_elm.html".equals(subpath)) {
-                PageElmReport.doGet(cache, this.site, req, resp, session);
+                PageElmReport.doGet(data, this.site, req, resp, session);
             } else if ("report_precalc.html".equals(subpath)) {
-                PagePrecalcReport.doGet(cache, this.site, req, resp, session);
+                PagePrecalcReport.doGet(data, this.site, req, resp, session);
             } else if ("report_course_exams.html".equals(subpath)) {
-                PageCourseExamsReport.doGet(cache, this.site, req, resp, session);
+                PageCourseExamsReport.doGet(data, this.site, req, resp, session);
             } else if ("report_course_homework.html".equals(subpath)) {
-                PageCourseHomeworkReport.doGet(cache, this.site, req, resp, session);
+                PageCourseHomeworkReport.doGet(data, this.site, req, resp, session);
             } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                PageStudentInfo.doGet(data, this.site, req, resp, session);
             } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                PageStudentPlacement.doGet(data, this.site, req, resp, session);
             } else if ("student_course_status.html".equals(subpath)) {
-                PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
+                PageStudentCourseStatus.doGet(data, this.site, req, resp, session);
             } else if ("student_course_activity.html".equals(subpath)) {
-                PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
+                PageStudentCourseActivity.doGet(data, this.site, req, resp, session);
             } else if ("student_math_plan.html".equals(subpath)) {
-                PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
+                PageStudentMathPlan.doGet(data, this.site, req, resp, session);
             } else if ("xmlauthor.jnlp".equals(subpath)) {
                 PageUtilities.doXmlAuthor(this.site, req, resp);
             } else if ("problemtester.jnlp".equals(subpath)) {
@@ -202,7 +203,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param session the login session (known not to be null)
      * @param req     the request
@@ -210,57 +211,58 @@ public final class GenAdminSubsite extends AbstractSubsite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsitePost(final Cache cache, final String subpath, final ImmutableSessionInfo session,
+    public void subsitePost(final WebViewData data, final String subpath, final ImmutableSessionInfo session,
                             final HttpServletRequest req, final HttpServletResponse resp) throws IOException,
             SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
-            LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+            final String stuId = session.getEffectiveUserId();
+            LogBase.setSessionInfo(session.loginSessionId, stuId);
 
             if ("student_pick.html".equals(subpath)) {
-                PageStudentPick.doPost(cache, this.site, req, resp, session);
+                PageStudentPick.doPost(data, this.site, req, resp, session);
             } else if ("population_pick.html".equals(subpath)) {
-                PagePopulationPick.doPost(cache, this.site, req, resp, session);
+                PagePopulationPick.doPost(data, this.site, req, resp, session);
             } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                PageStudentInfo.doGet(data, this.site, req, resp, session);
             } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                PageStudentPlacement.doGet(data, this.site, req, resp, session);
             } else if ("student_course_status.html".equals(subpath)) {
-                PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
+                PageStudentCourseStatus.doGet(data, this.site, req, resp, session);
             } else if ("student_course_activity.html".equals(subpath)) {
-                PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
+                PageStudentCourseActivity.doGet(data, this.site, req, resp, session);
             } else if ("student_math_plan.html".equals(subpath)) {
-                PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
+                PageStudentMathPlan.doGet(data, this.site, req, resp, session);
             } else if ("student_view_past_exam.html".equals(subpath)) {
-                PageStudentPastExam.startPastExam(cache, this.site, req, resp, session);
+                PageStudentPastExam.startPastExam(data, this.site, req, resp, session);
             } else if ("student_update_past_exam.html".equals(subpath)) {
-                PageStudentPastExam.updatePastExam(cache, this.site, req, resp, session);
+                PageStudentPastExam.updatePastExam(data, this.site, req, resp, session);
             } else if ("maint_mode_update.html".equals(subpath)) {
                 PageServerAdminMaintenance.doMaintenanceModeUpdate(req, resp);
             } else if ("teststu_update_student.html".equals(subpath)) {
-                PageTestStudent.updateStudent(cache, req, resp);
+                PageTestStudent.updateStudent(data, req, resp);
             } else if ("teststu_update_special.html".equals(subpath)) {
-                PageTestStudent.updateSpecial(cache, req, resp);
+                PageTestStudent.updateSpecial(data, req, resp);
             } else if ("teststu_update_placement.html".equals(subpath)) {
-                PageTestStudent.updatePlacement(cache, this.site, req, resp);
+                PageTestStudent.updatePlacement(data, this.site, req, resp);
             } else if ("teststu_update_tutorial.html".equals(subpath)) {
-                PageTestStudent.updateTutorials(cache, req, resp);
+                PageTestStudent.updateTutorials(data, req, resp);
             } else if ("teststu_update_etext.html".equals(subpath)) {
-                PageTestStudent.updateETexts(cache, req, resp);
+                PageTestStudent.updateETexts(data, req, resp);
             } else if ("teststu_update_reg.html".equals(subpath)) {
-                PageTestStudent.updateRegistrations(cache, req, resp);
+                PageTestStudent.updateRegistrations(data, req, resp);
             } else if ("db_admin_server_login.html".equals(subpath)) {
-                PageDbAdminContextsServer.doPost(cache, this.site, req, resp, session);
+                PageDbAdminContextsServer.doPost(data, this.site, req, resp, session);
             } else if ("dbadm_update_banner.html".equals(subpath)) {
-                PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
+                PageDbAdminContexts.doPost(data, this.site, req, resp, session);
             } else if ("dbadm_batch_run.html".equals(subpath)) {
-                PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
+                PageDbAdminBatchRun.doPost(data, this.site, req, resp, session);
             } else if ("srvadm_sessions.html".equals(subpath)) {
-                PageServerAdminSessions.doPost(cache, this.site, req, resp, session);
+                PageServerAdminSessions.doPost(data, this.site, req, resp, session);
             } else if ("srvadm_control.html".equals(subpath)) {
-                PageServerAdminControl.doPost(cache, this.site, req, resp, session);
+                PageServerAdminControl.doPost(data, this.site, req, resp, session);
             } else if ("srvadm_diagnostics.html".equals(subpath)) {
-                PageServerAdminDiagnostics.doPost(cache, this.site, req, resp, session);
+                PageServerAdminDiagnostics.doPost(data, this.site, req, resp, session);
             } else {
                 Log.warning("POST: unknown path '", subpath, "'");
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -293,7 +295,8 @@ public final class GenAdminSubsite extends AbstractSubsite {
 
             final String scheme = req.getScheme();
             final String host = req.getServerName();
-            final String port = Integer.toString(req.getServerPort());
+            final int serverPort = req.getServerPort();
+            final String port = Integer.toString(serverPort);
 
             htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
@@ -330,11 +333,12 @@ public final class GenAdminSubsite extends AbstractSubsite {
             htm.addln("  </application-desc>");
             htm.addln("</jnlp>");
 
-            resp.setDateHeader("Expires", System.currentTimeMillis());
-            resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+            final long now = System.currentTimeMillis();
+            resp.setDateHeader("Expires", now);
+            resp.setDateHeader("Last-Modified", now);
 
-            AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", bytes);
         }
     }
 
@@ -409,29 +413,4 @@ public final class GenAdminSubsite extends AbstractSubsite {
             }
         }
     }
-
-//    /**
-//     * Removes all connections associated with a session ID.
-//     *
-//     * @param sessionId the session ID
-//     */
-//     public void removeConnections(final String sessionId) {
-//
-//     synchronized (this.connections) {
-//     Map<String, Connection> map = this.connections.get(sessionId);
-//
-//     if (map != null) {
-//     for (final Connection connection : map.values()) {
-//     try {
-//     connection.close();
-//     } catch (SQLException ex) {
-//     Log.warning(ex);
-//     }
-//     }
-//
-//     map.clear();
-//     this.connections.remove(sessionId);
-//     }
-//     }
-//     }
 }

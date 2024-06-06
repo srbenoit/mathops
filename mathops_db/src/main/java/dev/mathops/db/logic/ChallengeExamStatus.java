@@ -1,7 +1,9 @@
-package dev.mathops.db.old.logic;
+package dev.mathops.db.logic;
+
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
- * A data class containing student status relative to a challenge exam.
+ * A data class containing student status relative to the challenge exam for a single course.
  */
 public final class ChallengeExamStatus {
 
@@ -26,5 +28,17 @@ public final class ChallengeExamStatus {
 
         this.availableExamId = theAvailableExamId;
         this.reasonUnavailable = theReasonUnavailable;
+    }
+
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return SimpleBuilder.concat("ChallengeExamStatus{availableExamId='", this.availableExamId,
+                "', reasonUnavailable='", this.reasonUnavailable, "'}");
     }
 }

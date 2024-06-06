@@ -1,7 +1,8 @@
 package dev.mathops.session;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.login.IAuthenticationMethod;
 import dev.mathops.session.login.ILoginProcessor;
 
@@ -71,14 +72,15 @@ public interface ISessionManager {
      * system (any user with only the STUDENT role). A user acting under the INSTRUCTOR role can set this value to any
      * students enrolled any of the instructor's courses.
      *
-     * @param cache        the data cache
+     * @param data         the web view data (on success, this object's "act as" user is changed to match the supplied
+     *                     user ID)
      * @param secSessionId the ID of the session whose effective user ID to attempt to change
      * @param userId       the desired effective user ID (could be {@code null})
      * @return the result of the user ID selection, which will contain the updated login session information on success;
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
      */
-    SessionResult setEffectiveUserId(Cache cache, String secSessionId, String userId)
+    SessionResult setEffectiveUserId(WebViewData data, String secSessionId, String userId)
             throws SQLException;
 
     /**
@@ -86,7 +88,8 @@ public interface ISessionManager {
      * method completely converts the login session to that of the target user, preventing subsequent changes to the
      * effective user ID (unless the target user's role permits).
      *
-     * @param cache        the data cache
+     * @param data         the web view data (on success, this object's logged-in"user is changed to match the supplied
+     *                     user ID)
      * @param secSessionId the ID of the session whose user ID to attempt to change
      * @param userId       the desired user ID (could be {@code null})
      * @param newRole      the new role
@@ -94,7 +97,7 @@ public interface ISessionManager {
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
      */
-    SessionResult setUserId(Cache cache, String secSessionId, String userId, ERole newRole)
+    SessionResult setUserId(WebViewData data, String secSessionId, String userId, ERole newRole)
             throws SQLException;
 
     /**

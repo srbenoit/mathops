@@ -2,7 +2,9 @@ package dev.mathops.app.ops.snapin.messaging.tosend;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -236,8 +238,9 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
                 final String descr = "Processing student " + (completed - 3) + " out of " + (totalSteps - 3);
                 progress(descr, completed, totalSteps);
 
-                EmailsNeeded.processStudent(this.cache, studentId, regs, today, msMap, act, popSect.messagesDue,
-                        instructors);
+                final StudentData studentData = new StudentData(this.cache, studentId, ELiveRefreshes.NONE);
+
+                EmailsNeeded.processStudent(studentData, regs, today, msMap, act, popSect.messagesDue, instructors);
 
                 ++completed;
             }

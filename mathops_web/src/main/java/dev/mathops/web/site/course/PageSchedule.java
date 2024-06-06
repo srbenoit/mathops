@@ -4,12 +4,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
@@ -22,7 +21,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -34,9 +32,9 @@ import dev.mathops.session.sitelogic.data.SiteDataRegistration;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
-import dev.mathops.web.site.course.data.CourseData;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -58,16 +56,16 @@ enum PageSchedule {
     /**
      * Generates the page that shows the student's term schedule and deadlines.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
-     * @param logic   the site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
+     * @param logic       the site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -76,15 +74,15 @@ enum PageSchedule {
                 false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(studentData, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        doScheduleContent(cache, logic, htm);
+        doScheduleContent(studentData, logic, htm);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
@@ -92,12 +90,12 @@ enum PageSchedule {
     /**
      * Constructs the course schedule content.
      *
-     * @param cache the data cache
-     * @param logic the course site logic
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
+     * @param logic       the course site logic
+     * @param htm         the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    static void doScheduleContent(final Cache cache, final CourseSiteLogic logic,
+    static void doScheduleContent(final StudentData studentData, final CourseSiteLogic logic,
                                   final HtmlBuilder htm) throws SQLException {
 
         // Build list of registrations relevant to this context
@@ -153,9 +151,9 @@ enum PageSchedule {
         tempList.clear();
 
         if (sortPaceOrder(paceReg)) {
-            presentSchedule(cache, logic, htm, allReg, paceReg);
+            presentSchedule(studentData, logic, htm, allReg, paceReg);
         } else {
-            presentCourseOrderPage(cache, logic, htm, allReg, paceReg);
+            presentCourseOrderPage(studentData, logic, htm, allReg, paceReg);
         }
     }
 
@@ -281,14 +279,14 @@ enum PageSchedule {
     /**
      * Generates the page that shows the student's term schedule and deadlines.
      *
-     * @param cache   the data cache
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     * @param allReg  all student registrations (includes those not in pace)
-     * @param paceReg the student registrations that contribute toward pace
+     * @param studentData the student data object
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param allReg      all student registrations (includes those not in pace)
+     * @param paceReg     the student registrations that contribute toward pace
      * @throws SQLException if there is an error accessing the database
      */
-    private static void presentSchedule(final Cache cache, final CourseSiteLogic logic,
+    private static void presentSchedule(final StudentData studentData, final CourseSiteLogic logic,
                                         final HtmlBuilder htm, final Collection<RawStcourse> allReg,
                                         final Collection<RawStcourse> paceReg)
             throws SQLException {
@@ -302,9 +300,9 @@ enum PageSchedule {
         }
 
         if (!paceReg.isEmpty()) {
-            final boolean allMidterms = presentPaceCourses(cache, logic, htm, paceReg);
+            final boolean allMidterms = presentPaceCourses(studentData, logic, htm, paceReg);
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = studentData.getActiveTerm();
             htm.addln("<ul class='boxlist'>");
 
             if (!allMidterms) {
@@ -476,7 +474,7 @@ enum PageSchedule {
                 if (courseData == null) {
                     htm.addln(" <strong>", reg.course, "</strong> - unable to query course status.");
 
-                    final Map<String, Map<String, SiteDataCfgCourse>> courses =  logic.data.courseData.getCourses();
+                    final Map<String, Map<String, SiteDataCfgCourse>> courses = logic.data.courseData.getCourses();
                     for (final Map.Entry<String, Map<String, SiteDataCfgCourse>> e1 : courses.entrySet()) {
                         final String courseId = e1.getKey();
                         for (final Map.Entry<String, SiteDataCfgCourse> e2 : e1.getValue().entrySet()) {
@@ -488,7 +486,8 @@ enum PageSchedule {
                     final RawCourse course = courseData.course;
 
                     htm.sP();
-                    htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ", incTerm.name.fullName,
+                    htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ",
+                            incTerm.name.fullName,
                             ", ", incTerm.year, " semester) must be completed by <strong>",
                             TemporalUtils.FMT_WMDY.format(deadline), "</strong>.");
 
@@ -548,19 +547,19 @@ enum PageSchedule {
     /**
      * Presents information on the deadline dates, status, and scoring penalties of pace courses.
      *
-     * @param cache   the data cache
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     * @param paceReg the list of registrations that contribute toward pace
+     * @param studentData the student data object
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param paceReg     the list of registrations that contribute toward pace
      * @return {@code true} if all registrations are based on midterms rather than unit and final exams; {@code false}
      *         if at least one course uses unit and final exams
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean presentPaceCourses(final Cache cache, final CourseSiteLogic logic,
+    private static boolean presentPaceCourses(final StudentData studentData, final CourseSiteLogic logic,
                                               final HtmlBuilder htm, final Iterable<RawStcourse> paceReg)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
         htm.sH(3).add("Courses Scheduled for the ", active.term.longString, " Semester").eH(3);
 
         htm.sDiv("indent22");
@@ -593,7 +592,7 @@ enum PageSchedule {
                 htm.addln(" </span>");
                 htm.eP();
             } else {
-                presentPaceCourse(cache, logic, htm, reg, course, sect, csUnits, pacingStructure);
+                presentPaceCourse(studentData, logic, htm, reg, course, sect, csUnits, pacingStructure);
             }
         }
         htm.eDiv(); // indent22
@@ -604,7 +603,7 @@ enum PageSchedule {
     /**
      * Presents information on a single pace course.
      *
-     * @param cache           the data cache
+     * @param studentData     the student data object
      * @param logic           the site logic
      * @param htm             the {@code HtmlBuilder} to which to append the HTML
      * @param reg             the registration record
@@ -614,7 +613,7 @@ enum PageSchedule {
      * @param pacingStructure the pacing structure record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void presentPaceCourse(final Cache cache, final CourseSiteLogic logic,
+    private static void presentPaceCourse(final StudentData studentData, final CourseSiteLogic logic,
                                           final HtmlBuilder htm, final RawStcourse reg, final RawCourse course,
                                           final RawCsection courseSect, final RawCusection[] csUnits,
                                           final RawPacingStructure pacingStructure) throws SQLException {
@@ -622,13 +621,7 @@ enum PageSchedule {
         final String courseId = reg.course;
         final String sectionNum = reg.sect;
 
-        boolean doFinal = false;
-
-        final EExamStructure exStruct = RawCsectionLogic.getExamStructure(courseSect);
-
-        if (exStruct == EExamStructure.UNIT_FINAL) {
-            doFinal = true;
-        }
+        boolean doFinal = true;
 
         htm.sP();
 
@@ -652,7 +645,7 @@ enum PageSchedule {
         final SiteDataMilestone msData = logic.data.milestoneData;
 
         // Print all pace deadlines, including student override dates
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec term = studentData.getActiveTerm();
 
         final List<RawMilestone> allMilestones = msData.getMilestones(term.term);
         final List<RawStmilestone> stMilestones = msData.getStudentMilestones(term.term);
@@ -665,220 +658,218 @@ enum PageSchedule {
         int lastTriesTaken = 0;
         int lastTriesAllowed = 0;
 
-        if (allMilestones != null && stMilestones != null) {
-            for (final RawMilestone milestoneRec : allMilestones) {
-                final String type = milestoneRec.msType;
+        for (final RawMilestone milestoneRec : allMilestones) {
+            final String type = milestoneRec.msType;
 
-                if ("US".equals(type) || "SR".equals(type)
-                        || "H1".equals(type) || "H2".equals(type)
-                        || "H3".equals(type) || "H4".equals(type)
-                        || "H5".equals(type) || "UE".equals(type)) {
+            if ("US".equals(type) || "SR".equals(type)
+                    || "H1".equals(type) || "H2".equals(type)
+                    || "H3".equals(type) || "H4".equals(type)
+                    || "H5".equals(type) || "UE".equals(type)) {
+                continue;
+            }
+
+            final int msNumber = milestoneRec.msNbr.intValue();
+
+            // Skip any pace records for other courses
+            if (msNumber / 10 % 10 != paceOrder) {
+                continue;
+            }
+
+            // Get the milestone date, overriding as needed for student pace record
+            LocalDate milestoneDate = milestoneRec.msDate;
+            Integer milestoneAttempts = milestoneRec.nbrAtmptsAllow;
+            for (final RawStmilestone stpaceRec : stMilestones) {
+                if (stpaceRec.msNbr.equals(milestoneRec.msNbr) && stpaceRec.msType.equals(milestoneRec.msType)) {
+
+                    milestoneDate = stpaceRec.msDate;
+                    milestoneAttempts = stpaceRec.nbrAtmptsAllow;
+                }
+            }
+
+            final Integer unit = Integer.valueOf(msNumber % 10);
+
+            // Get the deadline and see if it has been overridden for the student
+            final LocalDate deadline = milestoneDate;
+
+            final String examType;
+            final Integer ontime;
+
+            RawCusection unitModel = null;
+            for (final RawCusection csUnit : csUnits) {
+                if (csUnit != null && csUnit.unit.intValue() == unit.intValue()) {
+                    unitModel = csUnit;
+                    break;
+                }
+            }
+
+            if (unitModel == null) {
+                continue;
+            }
+
+            if ("FE".equals(type)) {
+                if (!doFinal) {
+                    continue;
+                }
+                examType = "F";
+                ontime = null;
+
+                finalDeadline = deadline;
+
+            } else if ("F1".equals(type)) {
+
+                if (!doFinal) {
                     continue;
                 }
 
-                final int msNumber = milestoneRec.msNbr.intValue();
-
-                // Skip any pace records for other courses
-                if (msNumber / 10 % 10 != paceOrder) {
-                    continue;
-                }
-
-                // Get the milestone date, overriding as needed for student pace record
-                LocalDate milestoneDate = milestoneRec.msDate;
-                Integer milestoneAttempts = milestoneRec.nbrAtmptsAllow;
-                for (final RawStmilestone stpaceRec : stMilestones) {
-                    if (stpaceRec.msNbr.equals(milestoneRec.msNbr) && stpaceRec.msType.equals(milestoneRec.msType)) {
-
-                        milestoneDate = stpaceRec.msDate;
-                        milestoneAttempts = stpaceRec.nbrAtmptsAllow;
-                    }
-                }
-
-                final Integer unit = Integer.valueOf(msNumber % 10);
-
-                // Get the deadline and see if it has been overridden for the student
-                final LocalDate deadline = milestoneDate;
-
-                final String examType;
-                final Integer ontime;
-
-                RawCusection unitModel = null;
-                for (final RawCusection csUnit : csUnits) {
-                    if (csUnit != null && csUnit.unit.intValue() == unit.intValue()) {
-                        unitModel = csUnit;
+                RawStexam firstPassing = null;
+                // FIXME: Hardcoded unit number 4
+                final List<RawStexam> stuExams =
+                        actData.getStudentExams(courseId, Integer.valueOf(4));
+                for (final RawStexam stexam : stuExams) {
+                    if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
+                        firstPassing = stexam;
                         break;
                     }
                 }
 
-                if (unitModel == null) {
-                    continue;
-                }
+                if (firstPassing != null && finalDeadline != null) {
 
-                if ("FE".equals(type)) {
-                    if (!doFinal) {
-                        continue;
-                    }
-                    examType = "F";
-                    ontime = null;
+                    final LocalDate finishedOnDay = firstPassing.examDt;
 
-                    finalDeadline = deadline;
+                    if (!finishedOnDay.isAfter(finalDeadline)) {
 
-                } else if ("F1".equals(type)) {
+                        // Student is eligible for last-try - see if they have already used it!
+                        lastTry = milestoneDate;
+                        lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
 
-                    if (!doFinal) {
-                        continue;
-                    }
+                        final List<RawStexam> exams =
+                                actData.getStudentExams(courseId, Integer.valueOf(5));
 
-                    RawStexam firstPassing = null;
-                    // FIXME: Hardcoded unit number 4
-                    final List<RawStexam> stuExams =
-                            actData.getStudentExams(courseId, Integer.valueOf(4));
-                    for (final RawStexam stexam : stuExams) {
-                        if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
-                            firstPassing = stexam;
-                            break;
+                        // As before, count attempts finished in the first 5 minutes of a day
+                        // as if they happened on the day before
+                        for (final RawStexam exam : exams) {
+                            if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
+                                ++lastTriesTaken;
+                            }
                         }
                     }
+                }
+                // Emit no text for this type of milestone
+                continue;
+            } else if ("RE".equals(type)) {
+                examType = "R";
+                ontime = unitModel.rePointsOntime;
+            } else {
+                examType = "U";
+                ontime = null;
+            }
 
-                    if (firstPassing != null && finalDeadline != null) {
+            final boolean hasPointPenalty = ontime != null && ontime.intValue() > 0;
 
+            final List<RawExam> unitExams = courseData.getCourseUnit(courseId, unit).getExams();
+            RawExam theExam = null;
+            for (final RawExam exam : unitExams) {
+                if (exam.examType.equals(examType)) {
+                    theExam = exam;
+                    break;
+                }
+            }
+
+            if (theExam != null) {
+                final String examTitle = theExam.buttonLabel;
+
+                final List<RawStexam> unitStExams = actData.getStudentExams(courseId, unit);
+                RawStexam firstPassing = null;
+                int highestPassing = -1;
+                int highestRaw = -1;
+                for (final RawStexam test : unitStExams) {
+                    if (examType.equals(test.examType)) {
+                        if ("Y".equals(test.isFirstPassed)) {
+                            firstPassing = test;
+                        }
+                        final int score = test.examScore.intValue();
+                        if ("Y".equals(test.passed)) {
+                            highestPassing = Math.max(highestPassing, score);
+                        }
+                        highestRaw = Math.max(highestRaw, score);
+                    }
+                }
+
+                final HtmlBuilder xml = new HtmlBuilder(50);
+                if (highestPassing > -1) {
+                    if (firstPassing == null || !hasPointPenalty) {
+                        xml.add("<span class='green'>Passed</span>");
+                    } else {
                         final LocalDate finishedOnDay = firstPassing.examDt;
 
-                        if (!finishedOnDay.isAfter(finalDeadline)) {
-
-                            // Student is eligible for last-try - see if they have already used it!
-                            lastTry = milestoneDate;
-                            lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
-
-                            final List<RawStexam> exams =
-                                    actData.getStudentExams(courseId, Integer.valueOf(5));
-
-                            // As before, count attempts finished in the first 5 minutes of a day
-                            // as if they happened on the day before
-                            for (final RawStexam exam : exams) {
-                                if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
-                                    ++lastTriesTaken;
-                                }
-                            }
+                        if (finishedOnDay.isAfter(deadline)) {
+                            xml.add("<span class='green'>Passed</span> <span class='orange'>(on ",
+                                    TemporalUtils.FMT_MD.format(finishedOnDay), ", LATE)</span>");
+                        } else {
+                            xml.add("<span class='green'>Passed (on ", TemporalUtils.FMT_MD.format(finishedOnDay),
+                                    ", ON TIME)</span>");
                         }
                     }
-                    // Emit no text for this type of milestone
-                    continue;
-                } else if ("RE".equals(type)) {
-                    examType = "R";
-                    ontime = unitModel.rePointsOntime;
                 } else {
-                    examType = "U";
-                    ontime = null;
-                }
-
-                final boolean hasPointPenalty = ontime != null && ontime.intValue() > 0;
-
-                final List<RawExam> unitExams = courseData.getCourseUnit(courseId, unit).getExams();
-                RawExam theExam = null;
-                for (final RawExam exam : unitExams) {
-                    if (exam.examType.equals(examType)) {
-                        theExam = exam;
-                        break;
-                    }
-                }
-
-                if (theExam != null) {
-                    final String examTitle = theExam.buttonLabel;
-
-                    final List<RawStexam> unitStExams = actData.getStudentExams(courseId, unit);
-                    RawStexam firstPassing = null;
-                    int highestPassing = -1;
-                    int highestRaw = -1;
-                    for (final RawStexam test : unitStExams) {
-                        if (examType.equals(test.examType)) {
-                            if ("Y".equals(test.isFirstPassed)) {
-                                firstPassing = test;
-                            }
-                            final int score = test.examScore.intValue();
-                            if ("Y".equals(test.passed)) {
-                                highestPassing = Math.max(highestPassing, score);
-                            }
-                            highestRaw = Math.max(highestRaw, score);
-                        }
-                    }
-
-                    final HtmlBuilder xml = new HtmlBuilder(50);
-                    if (highestPassing > -1) {
-                        if (firstPassing == null || !hasPointPenalty) {
-                            xml.add("<span class='green'>Passed</span>");
-                        } else {
-                            final LocalDate finishedOnDay = firstPassing.examDt;
-
-                            if (finishedOnDay.isAfter(deadline)) {
-                                xml.add("<span class='green'>Passed</span> <span class='orange'>(on ",
-                                        TemporalUtils.FMT_MD.format(finishedOnDay), ", LATE)</span>");
-                            } else {
-                                xml.add("<span class='green'>Passed (on ", TemporalUtils.FMT_MD.format(finishedOnDay),
-                                        ", ON TIME)</span>");
-                            }
-                        }
+                    xml.add("<span class='orange'>");
+                    if (highestRaw > -1) {
+                        xml.add("Not yet passed");
                     } else {
-                        xml.add("<span class='orange'>");
-                        if (highestRaw > -1) {
-                            xml.add("Not yet passed");
-                        } else {
-                            xml.add("Not yet attempted");
-                        }
-
-                        if (deadline.isEqual(today)) {
-                            xml.add(" (<strong>DEADLINE IS TODAY</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(1L))) {
-                            xml.add(" (<strong>DEADLINE IS TOMORROW</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(2L))) {
-                            xml.add(" (<strong>DEADLINE IS 2 DAYS FROM TODAY</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(3L))) {
-                            xml.add(" (<strong>DEADLINE IS 3 DAYS FROM TODAY</strong>)");
-                        }
-
-                        xml.add("</span>");
+                        xml.add("Not yet attempted");
                     }
 
-                    if (!started) {
-                        htm.addln(" <div class='indent3'>");
-                        htm.addln(" <table class='pacetable'>");
-                        htm.addln("  <tr>");
-                        htm.addln("   <th class='paceh'>Exam:</th>");
-                        htm.addln("   <th class='paceh'>Deadline:</th>");
-                        htm.addln("   <th class='paceh'>Status:</th>");
-                        htm.addln("  </tr>");
-                        started = true;
+                    if (deadline.isEqual(today)) {
+                        xml.add(" (<strong>DEADLINE IS TODAY</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(1L))) {
+                        xml.add(" (<strong>DEADLINE IS TOMORROW</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(2L))) {
+                        xml.add(" (<strong>DEADLINE IS 2 DAYS FROM TODAY</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(3L))) {
+                        xml.add(" (<strong>DEADLINE IS 3 DAYS FROM TODAY</strong>)");
                     }
 
-                    // TODO: Do we want messaging to the student when they have earned the extended
-                    // final exam deadline? If so, test "if (extendedFinal != null)" and include
-                    // the messaging in the table.
-
-                    htm.addln("  <tr>");
-                    htm.addln("   <td class='paced'>", examTitle, "</td>");
-                    htm.add("   <td class='paced'>");
-                    if (!"UE".equals(type)) {
-                        if ((highestPassing > -1) || deadline.isAfter(today.plusDays(7L))) {
-                            // Already passed, so no need to bold and color the deadline date
-                            htm.add(TemporalUtils.FMT_WMDY.format(deadline));
-                        } else if (deadline.isAfter(today)) {
-                            htm.add("<span class='orange'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
-                                    "<strong></span>");
-                        } else {
-                            htm.add("<span class='redred'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
-                                    "<strong></span>");
-                        }
-                    }
-                    htm.addln("</td>");
-                    htm.addln("   <td class='paced'>", xml.toString(), "</td>");
-                    htm.addln("  </tr>");
+                    xml.add("</span>");
                 }
-            }
 
-            if (started) {
-                htm.addln(" </table>");
-                htm.addln(" </div>");
+                if (!started) {
+                    htm.addln(" <div class='indent3'>");
+                    htm.addln(" <table class='pacetable'>");
+                    htm.addln("  <tr>");
+                    htm.addln("   <th class='paceh'>Exam:</th>");
+                    htm.addln("   <th class='paceh'>Deadline:</th>");
+                    htm.addln("   <th class='paceh'>Status:</th>");
+                    htm.addln("  </tr>");
+                    started = true;
+                }
+
+                // TODO: Do we want messaging to the student when they have earned the extended
+                // final exam deadline? If so, test "if (extendedFinal != null)" and include
+                // the messaging in the table.
+
+                htm.addln("  <tr>");
+                htm.addln("   <td class='paced'>", examTitle, "</td>");
+                htm.add("   <td class='paced'>");
+                if (!"UE".equals(type)) {
+                    if ((highestPassing > -1) || deadline.isAfter(today.plusDays(7L))) {
+                        // Already passed, so no need to bold and color the deadline date
+                        htm.add(TemporalUtils.FMT_WMDY.format(deadline));
+                    } else if (deadline.isAfter(today)) {
+                        htm.add("<span class='orange'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
+                                "<strong></span>");
+                    } else {
+                        htm.add("<span class='redred'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
+                                "<strong></span>");
+                    }
+                }
+                htm.addln("</td>");
+                htm.addln("   <td class='paced'>", xml.toString(), "</td>");
+                htm.addln("  </tr>");
             }
+        }
+
+        if (started) {
+            htm.addln(" </table>");
+            htm.addln(" </div>");
         }
         htm.eP();
 
@@ -920,8 +911,7 @@ enum PageSchedule {
         // See if final exam has been passed, and if so, present a message
 
         if (rePenalty > 0) {
-            final String penaltyStr =
-                    rePenalty == 1 ? "1 point" : rePenalty + " points";
+            final String penaltyStr = rePenalty == 1 ? "1 point" : rePenalty + " points";
 
             htm.addln("<li class='boxlist'>");
             htm.addln(" Each <b>Review Exam</b> earns ", penaltyStr,
@@ -929,9 +919,9 @@ enum PageSchedule {
                     "deadline date. If a <b>Review Exam</b> is not passed by this time, you receive ",
                     "no points for the <b>Review Exam</b>.");
 
+            final TermRec active = studentData.getActiveTerm();
             final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(
-                    cache, TermLogic.get(cache).queryActive(cache).term,
-                    pacingStructure.pacingStructure);
+                    studentData.getCache(), active.term, pacingStructure.pacingStructure);
 
             boolean unitRequiresReview = false;
             for (final RawPacingRules rule : rsRules) {
@@ -960,8 +950,7 @@ enum PageSchedule {
 
         if (passedFinal != null) {
             htm.addln("<li class='boxlist'><span class='redred'>",
-                    "<span class='lightgold' ",
-                    "style='padding-top:2px;padding-bottom:2px;'>");
+                    "<span class='lightgold' style='padding-top:2px;padding-bottom:2px;'>");
             htm.addln(" You are now eligible to retest on any proctored exam through the last ",
                     "day of classes to improve your point total in this course.");
             htm.addln("</span></span></li>");
@@ -979,13 +968,9 @@ enum PageSchedule {
             }
 
             if (lastTry == null) {
-                final boolean earnedBonus =
-                        paceOrder == 1 && RawSpecialStusLogic.isSpecialType(cache,
-                                logic.sessionInfo.getEffectiveUserId(),
-                                logic.sessionInfo.getNow().toLocalDate(), "UBONUS");
+                final boolean earnedBonus = paceOrder == 1 && studentData.isSpecialCategory(today, "UBONUS");
 
-                final String count1 =
-                        earnedBonus ? "<b>TWO</b> more opportunities" : "<b>ONE</b> more opportunity";
+                final String count1 = earnedBonus ? "<b>TWO</b> more opportunities" : "<b>ONE</b> more opportunity";
                 final String count2 = earnedBonus ? "those attempts" : "that one attempt";
 
                 htm.addln("<li class='boxlist'>");
@@ -1041,14 +1026,14 @@ enum PageSchedule {
      * Generates a page that allows a user to place the set of courses which contribute towards their pace in order so
      * they can be assigned correct deadline dates. The order of any course that has been started is fixed.
      *
-     * @param cache   the data cache
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     * @param allReg  all student registrations (includes those not in pace)
-     * @param paceReg the list of courses that will contribute toward pace
+     * @param studentData the student data object
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param allReg      all student registrations (includes those not in pace)
+     * @param paceReg     the list of courses that will contribute toward pace
      * @throws SQLException if there is an error accessing the database
      */
-    private static void presentCourseOrderPage(final Cache cache, final CourseSiteLogic logic,
+    private static void presentCourseOrderPage(final StudentData studentData, final CourseSiteLogic logic,
                                                final HtmlBuilder htm, final List<RawStcourse> allReg,
                                                final List<RawStcourse> paceReg)
             throws SQLException {
@@ -1060,7 +1045,7 @@ enum PageSchedule {
 
             if (reg.paceOrder != null) {
                 Log.info("presentCourseOrderPage setting " + reg.course + " pace order to null for " + reg.stuId);
-                SiteDataRegistration.updatePaceOrder(cache, reg, null);
+                SiteDataRegistration.updatePaceOrder(studentData, reg, null);
                 paceReg.set(i, reg);
             }
         }
@@ -1070,12 +1055,12 @@ enum PageSchedule {
         // First in the list are counted incompletes from prior terms - those which are
         // completed first, then those which are not yet completed, ordered first by deadline
         // date, then by course ID
-        int order = orderIncompletes(cache, 1, paceReg, tempMap);
+        int order = orderIncompletes(studentData, 1, paceReg, tempMap);
 
         // Next, add any non-incomplete courses that have been completed, or which have not yet
         // been completed but are open. Ideally, this order would be based on the order in
         // which work was done in the courses.
-        order = orderCompletedOpen(cache, order, paceReg, tempMap);
+        order = orderCompletedOpen(studentData, order, paceReg, tempMap);
 
         // Store those remaining courses in tempMap
         findRemaining(paceReg, tempMap);
@@ -1085,12 +1070,12 @@ enum PageSchedule {
             final RawStcourse reg = tempMap.values().iterator().next();
             final int index = paceReg.indexOf(reg);
 
-            SiteDataRegistration.updatePaceOrder(cache, reg, Integer.valueOf(order));
+            SiteDataRegistration.updatePaceOrder(studentData, reg, Integer.valueOf(order));
             paceReg.set(index, reg);
             sortPaceOrder(paceReg);
-            presentSchedule(cache, logic, htm, allReg, paceReg);
+            presentSchedule(studentData, logic, htm, allReg, paceReg);
         } else {
-            orderTwoOrMore(cache, logic, htm, allReg, paceReg, order, tempMap);
+            orderTwoOrMore(studentData, logic, htm, allReg, paceReg, order, tempMap);
         }
     }
 
@@ -1098,16 +1083,16 @@ enum PageSchedule {
      * Generates a page that allows a user to place the set of courses which contribute towards their pace in order when
      * there are two or more courses whose order is not determined.
      *
-     * @param cache   the data cache
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     * @param allReg  all student registrations (includes those not in pace)
-     * @param paceReg the list of courses that will contribute toward pace
-     * @param order   the next order to use in the sequence
-     * @param tempMap a map from course to registration
+     * @param studentData the student data object
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param allReg      all student registrations (includes those not in pace)
+     * @param paceReg     the list of courses that will contribute toward pace
+     * @param order       the next order to use in the sequence
+     * @param tempMap     a map from course to registration
      * @throws SQLException if there is an error accessing the database
      */
-    private static void orderTwoOrMore(final Cache cache, final CourseSiteLogic logic,
+    private static void orderTwoOrMore(final StudentData studentData, final CourseSiteLogic logic,
                                        final HtmlBuilder htm, final Collection<RawStcourse> allReg,
                                        final List<RawStcourse> paceReg, final int order,
                                        final Map<String, RawStcourse> tempMap) throws SQLException {
@@ -1130,7 +1115,7 @@ enum PageSchedule {
             final int index = paceReg.indexOf(last);
             if (index >= 0) {
                 Log.info("orderTwoOrMore setting " + last.course + " to pace order " + next + " for " + last.stuId);
-                SiteDataRegistration.updatePaceOrder(cache, last, Integer.valueOf(next));
+                SiteDataRegistration.updatePaceOrder(studentData, last, Integer.valueOf(next));
                 paceReg.set(index, last);
             }
 
@@ -1145,16 +1130,16 @@ enum PageSchedule {
 
             final int index = paceReg.indexOf(last);
             if (index >= 0) {
-                SiteDataRegistration.updatePaceOrder(cache, reg, Integer.valueOf(next));
+                SiteDataRegistration.updatePaceOrder(studentData, reg, Integer.valueOf(next));
                 paceReg.set(index, reg);
             }
 
             sortPaceOrder(paceReg);
-            presentSchedule(cache, logic, htm, allReg, paceReg);
+            presentSchedule(studentData, logic, htm, allReg, paceReg);
         } else {
             // At this point, there are multiple courses to order, and either zero or more than one
             // have prerequisites satisfied.
-            orderN(cache, logic, htm, allReg, paceReg, next, tempMap);
+            orderN(studentData, logic, htm, allReg, paceReg, next, tempMap);
         }
     }
 
@@ -1175,14 +1160,14 @@ enum PageSchedule {
      * Gathers and orders all incompletes in the pace registrations list, in order of deadline date. Must be called from
      * within a block synchronized on {@code tempMap}.
      *
-     * @param cache      the data cache
-     * @param startOrder the next pace order to use in the sequence
-     * @param paceReg    the list of registrations that take part in the pace
-     * @param tempMap    a map from course to registration
+     * @param studentData the student data object
+     * @param startOrder  the next pace order to use in the sequence
+     * @param paceReg     the list of registrations that take part in the pace
+     * @param tempMap     a map from course to registration
      * @return the next pace order to use in the sequence after this group
      * @throws SQLException if there is an error accessing the database
      */
-    private static int orderIncompletes(final Cache cache, final int startOrder,
+    private static int orderIncompletes(final StudentData studentData, final int startOrder,
                                         final List<RawStcourse> paceReg, final Map<String, RawStcourse> tempMap)
             throws SQLException {
 
@@ -1198,7 +1183,7 @@ enum PageSchedule {
             }
         }
 
-        next = setOrders(cache, next, tempMap, paceReg);
+        next = setOrders(studentData, next, tempMap, paceReg);
 
         // Next, any incompletes that are not yet complete
         tempMap.clear();
@@ -1208,21 +1193,21 @@ enum PageSchedule {
             }
         }
 
-        return setOrders(cache, next, tempMap, paceReg);
+        return setOrders(studentData, next, tempMap, paceReg);
     }
 
     /**
      * Gathers and orders all completed courses and all courses that are already open. Must be called from within a
      * block synchronized on {@code tempMap}.
      *
-     * @param cache      the data cache
-     * @param startOrder the next pace order to use in the sequence
-     * @param paceReg    the list of registrations that take part in the pace
-     * @param tempMap    a map from course to registration
+     * @param studentData the student data object
+     * @param startOrder  the next pace order to use in the sequence
+     * @param paceReg     the list of registrations that take part in the pace
+     * @param tempMap     a map from course to registration
      * @return the next pace order to use in the sequence after this group
      * @throws SQLException if there is an error accessing the database
      */
-    private static int orderCompletedOpen(final Cache cache, final int startOrder,
+    private static int orderCompletedOpen(final StudentData studentData, final int startOrder,
                                           final List<RawStcourse> paceReg, final Map<String, RawStcourse> tempMap)
             throws SQLException {
 
@@ -1236,7 +1221,7 @@ enum PageSchedule {
             }
         }
 
-        next = setOrders(cache, next, tempMap, paceReg);
+        next = setOrders(studentData, next, tempMap, paceReg);
 
         // Next, any non-incompletes that are opened
         tempMap.clear();
@@ -1246,7 +1231,7 @@ enum PageSchedule {
             }
         }
 
-        return setOrders(cache, next, tempMap, paceReg);
+        return setOrders(studentData, next, tempMap, paceReg);
     }
 
     /**
@@ -1271,14 +1256,14 @@ enum PageSchedule {
      * Assigns pace orders to all records in the {@code tempMap} map, in the order given by the IDs list. Must be called
      * from within a block synchronized on {@code tempMap}.
      *
-     * @param cache      the data cache
-     * @param startOrder the next pace order to use in the sequence
-     * @param tempMap    a map from course to registration
-     * @param paceReg    all student registrations contributing toward pace
+     * @param studentData the student data object
+     * @param startOrder  the next pace order to use in the sequence
+     * @param tempMap     a map from course to registration
+     * @param paceReg     all student registrations contributing toward pace
      * @return the next pace order to use in the sequence after this group
      * @throws SQLException if there is an error accessing the database
      */
-    private static int setOrders(final Cache cache, final int startOrder,
+    private static int setOrders(final StudentData studentData, final int startOrder,
                                  final Map<String, RawStcourse> tempMap, final List<RawStcourse> paceReg)
             throws SQLException {
 
@@ -1286,7 +1271,7 @@ enum PageSchedule {
 
         for (final RawStcourse stcourse : tempMap.values()) {
             Log.info("Setting ", stcourse.course, " to order ", Integer.toString(next));
-            updatePaceOrder(cache, stcourse, Integer.valueOf(next), paceReg);
+            updatePaceOrder(studentData, stcourse, Integer.valueOf(next), paceReg);
             ++next;
         }
 
@@ -1297,21 +1282,22 @@ enum PageSchedule {
      * Updates the pace order of a record and replaces the existing record with the updated record in a list of
      * registrations.
      *
-     * @param cache    the data cache
-     * @param reg      the registration to update
-     * @param newOrder the new pace order
-     * @param paceRegs the list to update with the newly updated record
+     * @param studentData the student data object
+     * @param reg         the registration to update
+     * @param newOrder    the new pace order
+     * @param paceRegs    the list to update with the newly updated record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void updatePaceOrder(final Cache cache, final RawStcourse reg,
-                                        final Integer newOrder, final List<? super RawStcourse> paceRegs) throws SQLException {
+    private static void updatePaceOrder(final StudentData studentData, final RawStcourse reg,
+                                        final Integer newOrder, final List<? super RawStcourse> paceRegs)
+            throws SQLException {
 
         if (reg != null) {
             final int index = paceRegs.indexOf(reg);
             if (index >= 0) {
                 Log.info("presentCourseOrderPage setting " + reg.course + " pace order to " + newOrder + " for "
                         + reg.stuId);
-                SiteDataRegistration.updatePaceOrder(cache, reg, newOrder);
+                SiteDataRegistration.updatePaceOrder(studentData, reg, newOrder);
                 paceRegs.set(index, reg);
             }
         }
@@ -1322,16 +1308,16 @@ enum PageSchedule {
      * there are two or more courses whose order is not determined and there is not just one with prerequisites
      * satisfied. On input, {@code tempMap} holds the list of courses which remain to be ordered.
      *
-     * @param cache   the data cache
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     * @param allReg  all student registrations (includes those not in pace)
-     * @param paceReg the list of courses that will contribute toward pace
-     * @param order   the next order to use in the sequence
-     * @param tempMap a map from course to registration
+     * @param studentData the student data object
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param allReg      all student registrations (includes those not in pace)
+     * @param paceReg     the list of courses that will contribute toward pace
+     * @param order       the next order to use in the sequence
+     * @param tempMap     a map from course to registration
      * @throws SQLException if there is an error accessing the database
      */
-    private static void orderN(final Cache cache, final CourseSiteLogic logic, final HtmlBuilder htm,
+    private static void orderN(final StudentData studentData, final CourseSiteLogic logic, final HtmlBuilder htm,
                                final Collection<RawStcourse> allReg, final List<RawStcourse> paceReg,
                                final int order, final Map<String, RawStcourse> tempMap) throws SQLException {
 
@@ -1449,13 +1435,13 @@ enum PageSchedule {
                                     tempMap.get(RawRecordConstants.M118));
                             endChoosePage(htm);
                         } else {
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                     Integer.valueOf(order), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                     Integer.valueOf(order + 1), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                     Integer.valueOf(order + 2), paceReg);
-                            presentSchedule(cache, logic, htm, allReg, paceReg);
+                            presentSchedule(studentData, logic, htm, allReg, paceReg);
                         }
                 } else if (has125) {
                     if (has126) {
@@ -1474,15 +1460,15 @@ enum PageSchedule {
                                     tempMap.get(RawRecordConstants.M118));
                             endChoosePage(htm);
                         } else {
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                     Integer.valueOf(order), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                     Integer.valueOf(order + 1), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                     Integer.valueOf(order + 2), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                     Integer.valueOf(order + 3), paceReg);
-                            presentSchedule(cache, logic, htm, allReg, paceReg);
+                            presentSchedule(studentData, logic, htm, allReg, paceReg);
                         }
                     } else // Has 117, 118, 125
                         if (has125Pre) {
@@ -1497,13 +1483,13 @@ enum PageSchedule {
                                     tempMap.get(RawRecordConstants.M118));
                             endChoosePage(htm);
                         } else {
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                     Integer.valueOf(order), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                     Integer.valueOf(order + 1), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                     Integer.valueOf(order + 2), paceReg);
-                            presentSchedule(cache, logic, htm, allReg, paceReg);
+                            presentSchedule(studentData, logic, htm, allReg, paceReg);
                         }
                 } else if (has126) {
                     // Has 117, 118, 126
@@ -1519,21 +1505,21 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M118));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                 Integer.valueOf(order + 1), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order + 2), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else {
                     // Has 117, 118
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                             Integer.valueOf(order), paceReg);
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                             Integer.valueOf(order + 1), paceReg);
-                    presentSchedule(cache, logic, htm, allReg, paceReg);
+                    presentSchedule(studentData, logic, htm, allReg, paceReg);
                 }
             } else if (has124) {
                 if (has125) {
@@ -1600,13 +1586,13 @@ enum PageSchedule {
                             endChoosePage(htm);
                         } else {
                             // Must have 117 and 124 prerequisites, but not 125
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                     Integer.valueOf(order), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                     Integer.valueOf(order + 1), paceReg);
-                            updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                            updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                     Integer.valueOf(order + 2), paceReg);
-                            presentSchedule(cache, logic, htm, allReg, paceReg);
+                            presentSchedule(studentData, logic, htm, allReg, paceReg);
                         }
                 } else if (has126) {
                     // Has 117, 124, 126
@@ -1653,13 +1639,13 @@ enum PageSchedule {
                         endChoosePage(htm);
                     } else {
                         // Must have 117 and 124 prerequisites, but not 126
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order + 1), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order + 2), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else // Has 117, 124
                     if (has124Pre) {
@@ -1670,11 +1656,11 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M124), tempMap.get(RawRecordConstants.M117));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
             } else if (has125) {
                 if (has126) {
@@ -1691,13 +1677,13 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M117));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                 Integer.valueOf(order + 1), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order + 2), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else // Has 117, 125
                     if (has125Pre) {
@@ -1708,11 +1694,11 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M125), tempMap.get(RawRecordConstants.M117));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
             } else if (has126) {
                 // Has 117, 126
@@ -1724,15 +1710,15 @@ enum PageSchedule {
                             tempMap.get(RawRecordConstants.M126), tempMap.get(RawRecordConstants.M117));
                     endChoosePage(htm);
                 } else {
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M117),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M117),
                             Integer.valueOf(order), paceReg);
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                             Integer.valueOf(order + 1), paceReg);
-                    presentSchedule(cache, logic, htm, allReg, paceReg);
+                    presentSchedule(studentData, logic, htm, allReg, paceReg);
                 }
             } else {
                 Log.warning("Error: Only M 117 found in OrderN");
-                presentSchedule(cache, logic, htm, allReg, paceReg);
+                presentSchedule(studentData, logic, htm, allReg, paceReg);
             }
         } else if (has118) {
             if (has124) {
@@ -1841,13 +1827,13 @@ enum PageSchedule {
                         endChoosePage(htm);
                     } else {
                         // Must have 118 and 124 prerequisites, but not 126
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order + 1), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order + 2), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else // Has 118, 124
                     if (has124Pre) {
@@ -1858,11 +1844,11 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M124), tempMap.get(RawRecordConstants.M118));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
             } else if (has125) {
                 if (has126) {
@@ -1883,13 +1869,13 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M126));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                 Integer.valueOf(order + 1), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order + 2), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else // Has 118, 125
                     if (has125Pre) {
@@ -1900,11 +1886,11 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M125), tempMap.get(RawRecordConstants.M118));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
             } else if (has126) {
                 // Has 118, 126
@@ -1916,15 +1902,15 @@ enum PageSchedule {
                             tempMap.get(RawRecordConstants.M126), tempMap.get(RawRecordConstants.M118));
                     endChoosePage(htm);
                 } else {
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M118),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M118),
                             Integer.valueOf(order), paceReg);
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                             Integer.valueOf(order + 1), paceReg);
-                    presentSchedule(cache, logic, htm, allReg, paceReg);
+                    presentSchedule(studentData, logic, htm, allReg, paceReg);
                 }
             } else {
                 Log.warning("Error: Only M 118 found in OrderN");
-                presentSchedule(cache, logic, htm, allReg, paceReg);
+                presentSchedule(studentData, logic, htm, allReg, paceReg);
             }
         } else if (has124) {
             if (has125) {
@@ -1965,11 +1951,11 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M125), tempMap.get(RawRecordConstants.M124));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
             } else if (has126) {
                 // Has 124, 126
@@ -1984,30 +1970,30 @@ enum PageSchedule {
                                 tempMap.get(RawRecordConstants.M124));
                         endChoosePage(htm);
                     } else {
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                                 Integer.valueOf(order), paceReg);
-                        updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                        updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                                 Integer.valueOf(order + 1), paceReg);
-                        presentSchedule(cache, logic, htm, allReg, paceReg);
+                        presentSchedule(studentData, logic, htm, allReg, paceReg);
                     }
                 } else {
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M124),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M124),
                             Integer.valueOf(order), paceReg);
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                             Integer.valueOf(order + 1), paceReg);
-                    presentSchedule(cache, logic, htm, allReg, paceReg);
+                    presentSchedule(studentData, logic, htm, allReg, paceReg);
                 }
             } else {
                 Log.warning("Error: Only M 124 found in OrderN");
-                presentSchedule(cache, logic, htm, allReg, paceReg);
+                presentSchedule(studentData, logic, htm, allReg, paceReg);
             }
         } else {
             if (has125) {
                 if (has126) {
                     // Has 125, 126
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M125),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M125),
                             Integer.valueOf(order), paceReg);
-                    updatePaceOrder(cache, tempMap.get(RawRecordConstants.M126),
+                    updatePaceOrder(studentData, tempMap.get(RawRecordConstants.M126),
                             Integer.valueOf(order + 1), paceReg);
                 } else {
                     Log.warning("Error: Only M 125 found in OrderN");
@@ -2017,7 +2003,7 @@ enum PageSchedule {
             } else {
                 Log.warning("Error No Precalculus courses found in OrderN");
             }
-            presentSchedule(cache, logic, htm, allReg, paceReg);
+            presentSchedule(studentData, logic, htm, allReg, paceReg);
         }
     }
 
@@ -2186,14 +2172,15 @@ enum PageSchedule {
     /**
      * Processes a form submission to set the course order.
      *
-     * @param cache the data cache
-     * @param req   the request
-     * @param resp  the response
-     * @param logic the site logic
+     * @param studentData the student data object
+     * @param req         the request
+     * @param resp        the response
+     * @param logic       the site logic
      * @throws IOException  if there is an error processing the request
      * @throws SQLException if there is an error accessing the database
      */
-    static void doSetCourseOrder(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+    static void doSetCourseOrder(final StudentData studentData, final ServletRequest req,
+                                 final HttpServletResponse resp,
                                  final CourseSiteLogic logic) throws IOException, SQLException {
 
         for (int i = 0; i < 10; ++i) {
@@ -2209,7 +2196,7 @@ enum PageSchedule {
                     if (whichCourse.equals(reg.course)) {
                         Log.info("Setting " + reg.course + " to pace order " + i + " for "
                                 + reg.stuId + " based on schedule page form submission");
-                        SiteDataRegistration.updatePaceOrder(cache, reg, Integer.valueOf(i));
+                        SiteDataRegistration.updatePaceOrder(studentData, reg, Integer.valueOf(i));
                         allReg.set(j, reg);
                         break;
                     }

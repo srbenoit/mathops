@@ -1,12 +1,13 @@
 package dev.mathops.web.site.admin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -20,14 +21,14 @@ enum PageLogin {
     /**
      * Generates the page that prompts the user to log in.
      *
-     * @param cache the data cache
-     * @param site  the owning site
-     * @param req   the request
-     * @param resp  the response
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doLoginPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doLoginPage(final StudentData studentData, final AdminSite site, final ServletRequest req,
                             final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -47,7 +48,7 @@ enum PageLogin {
 
         htm.eDiv();
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
 
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }

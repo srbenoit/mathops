@@ -1,6 +1,7 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
@@ -10,7 +11,6 @@ import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -47,14 +47,14 @@ public final class CourseLesson extends LogicBase {
     /**
      * Gathers the data for a particular course.
      *
-     * @param cache     the data cache
-     * @param courseId  the ID of the course
-     * @param unit      the unit number
-     * @param objective the objective of the lesson
+     * @param studentData the student data object
+     * @param courseId    the ID of the course
+     * @param unit        the unit number
+     * @param objective   the objective of the lesson
      * @return {@code true} if data was gathered successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean gatherData(final Cache cache, final String courseId, final Integer unit,
+    public boolean gatherData(final StudentData studentData, final String courseId, final Integer unit,
                               final Integer objective) throws SQLException {
 
         this.courseIsTutorial = null;
@@ -62,19 +62,18 @@ public final class CourseLesson extends LogicBase {
         this.lesson = null;
         this.components = null;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
 
         final boolean ok;
 
         if (active == null) {
             ok = false;
         } else {
-            ok = queryCourseUnitObjective(cache, courseId, unit, objective, active.term)
-                    && queryCourseTutorialStatus(cache, courseId) && queryLesson(cache);
+            ok = queryCourseUnitObjective(studentData, courseId, unit, objective, active.term)
+                    && queryCourseTutorialStatus(studentData, courseId) && queryLesson(studentData);
 
             if (ok) {
-                this.components =
-                        RawLessonComponentLogic.queryByLesson(cache, this.courseUnitObjective.lessonId);
+                this.components = RawLessonComponentLogic.queryByLesson(cache, this.courseUnitObjective.lessonId);
             }
         }
 
@@ -84,22 +83,21 @@ public final class CourseLesson extends LogicBase {
     /**
      * Queries the course unit objective object and stores it in {@code courseUnitObjective}.
      *
-     * @param cache     the data cache
-     * @param courseId  the course ID
-     * @param unit      the unit number
-     * @param objective the objective number
-     * @param key       the term key
+     * @param studentData the student data object
+     * @param courseId    the course ID
+     * @param unit        the unit number
+     * @param objective   the objective number
+     * @param key         the term key
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseUnitObjective(final Cache cache, final String courseId,
+    private boolean queryCourseUnitObjective(final StudentData studentData, final String courseId,
                                              final Integer unit, final Integer objective, final TermKey key) throws SQLException {
 
         this.courseUnitObjective = RawCuobjectiveLogic.query(cache, courseId, unit, objective, key);
 
         if (this.courseUnitObjective == null) {
-            setErrorText(
-                    "Course " + courseId + " unit " + unit + " objective " + objective + " not found.");
+            setErrorText("Course " + courseId + " unit " + unit + " objective " + objective + " not found.");
         }
 
         return this.courseUnitObjective != null;
@@ -113,8 +111,7 @@ public final class CourseLesson extends LogicBase {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseTutorialStatus(final Cache cache, final String courseId)
-            throws SQLException {
+    private boolean queryCourseTutorialStatus(final Cache cache, final String courseId) throws SQLException {
 
         this.courseIsTutorial = RawCourseLogic.isCourseTutorial(cache, courseId);
 
@@ -146,16 +143,6 @@ public final class CourseLesson extends LogicBase {
 
         return ok;
     }
-
-//    /**
-//     * Gets the course-unit-lesson configuration.
-//     *
-//     * @return a {@code Model} of class {@code CCourseUnitObjective}
-//     */
-//    public RawCuobjective getCourseUnitObjective() {
-//
-//        return this.courseUnitObjective;
-//    }
 
     /**
      * Tests whether the course is a tutorial.

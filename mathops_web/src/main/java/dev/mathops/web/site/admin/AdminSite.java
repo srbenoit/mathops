@@ -4,8 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -22,6 +24,7 @@ import dev.mathops.web.site.admin.testing.TestingSubsite;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -107,7 +110,7 @@ public final class AdminSite extends AbstractPageSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param type    the site type
      * @param req     the request
@@ -115,7 +118,7 @@ public final class AdminSite extends AbstractPageSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
+    public void doGet(final WebViewData data, final String subpath, final ESiteType type,
                       final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
@@ -123,11 +126,14 @@ public final class AdminSite extends AbstractPageSite {
             final String path = this.siteProfile.path;
             resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
         } else if ("login.html".equals(subpath)) {
-            PageLogin.doLoginPage(cache, this, req, resp);
+            PageLogin.doLoginPage(data, this, req, resp);
         } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            final byte[] fileBytes = FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true);
+            sendReply(req, resp, "text/css", fileBytes);
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            final Class<? extends AdminSite> cls = getClass();
+            final byte[] fileBytes = FileLoader.loadFileAsBytes(cls, "style.css", true);
+            sendReply(req, resp, "text/css", fileBytes);
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if ("favicon.ico".equals(subpath)) {
@@ -138,36 +144,39 @@ public final class AdminSite extends AbstractPageSite {
 
             if (session == null) {
                 if ("secure/shibboleth.html".equals(subpath)) {
+                    final Cache cache = data.getCache();
                     doShibbolethLogin(cache, req, resp, null, "home.html");
                 } else {
                     final String path = this.siteProfile.path;
                     resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
                 }
             } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                final String stuId = session.getEffectiveUserId();
+                LogBase.setSessionInfo(session.loginSessionId, stuId);
 
                 if ("home.html".equals(subpath)) {
-                    PageHome.doGet(cache, this, req, resp, session);
+                    PageHome.doGet(data, this, req, resp, session);
                 } else if ("secure/shibboleth.html".equals(subpath)) {
                     final String path = this.siteProfile.path;
                     resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "home.html" : "/home.html"));
                 } else if (subpath.startsWith("sysadmin/")) {
-                    this.sysadmin.doGet(cache, subpath.substring(9), session, req, resp);
+                    this.sysadmin.doGet(data, subpath.substring(9), session, req, resp);
                 } else if (subpath.startsWith("genadmin/")) {
-                    this.genadmin.doGet(cache, subpath.substring(9), session, req, resp);
+                    this.genadmin.doGet(data, subpath.substring(9), session, req, resp);
                 } else if (subpath.startsWith("office/")) {
-                    this.office.doGet(cache, subpath.substring(7), session, req, resp);
+                    this.office.doGet(data, subpath.substring(7), session, req, resp);
                 } else if (subpath.startsWith("bookstore/")) {
-                    this.bookstore.doGet(cache, subpath.substring(10), session, req, resp);
+                    this.bookstore.doGet(data, subpath.substring(10), session, req, resp);
                 } else if (subpath.startsWith("proctor/")) {
-                    this.proctor.doGet(cache, subpath.substring(8), session, req, resp);
+                    this.proctor.doGet(data, subpath.substring(8), session, req, resp);
                 } else if (subpath.startsWith("testing/")) {
-                    this.testing.doGet(cache, subpath.substring(8), session, req, resp);
+                    this.testing.doGet(data, subpath.substring(8), session, req, resp);
 
                     // ... etc. ...
 
                 } else {
-                    Log.warning(Res.fmt(Res.GET_BAD_PATH, subpath));
+                    final String msg = Res.fmt(Res.GET_BAD_PATH, subpath);
+                    Log.warning(msg);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
 
@@ -181,47 +190,50 @@ public final class AdminSite extends AbstractPageSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param data    the web view data
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param type        the site type
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doPost(final Cache cache, final String subpath, final ESiteType type,
+    public void doPost(final WebViewData data, final String subpath, final ESiteType type,
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
         if ("login.html".equals(subpath)) {
-            PageLogin.doLoginPage(cache, this, req, resp);
+            PageLogin.doLoginPage(data, this, req, resp);
         } else {
             // The pages that follow require the user to be logged in
             final ImmutableSessionInfo session = validateSession(req, resp, "login.html");
 
             if (session == null) {
-                Log.warning(Res.fmt(Res.POST_NO_SESSION, subpath));
+                final String msg = Res.fmt(Res.POST_NO_SESSION, subpath);
+                Log.warning(msg);
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                final String stuId = session.getEffectiveUserId();
+                LogBase.setSessionInfo(session.loginSessionId, stuId);
 
                 if (subpath.startsWith("sysadmin/")) {
-                    this.sysadmin.doPost(cache, subpath.substring(9), session, req, resp);
+                    this.sysadmin.doPost(data, subpath.substring(9), session, req, resp);
                 } else if (subpath.startsWith("genadmin/")) {
-                    this.genadmin.doPost(cache, subpath.substring(9), session, req, resp);
+                    this.genadmin.doPost(data, subpath.substring(9), session, req, resp);
                 } else if (subpath.startsWith("office/")) {
-                    this.office.doPost(cache, subpath.substring(7), session, req, resp);
+                    this.office.doPost(data, subpath.substring(7), session, req, resp);
                 } else if (subpath.startsWith("bookstore/")) {
-                    this.bookstore.doPost(cache, subpath.substring(10), session, req, resp);
+                    this.bookstore.doPost(data, subpath.substring(10), session, req, resp);
                 } else if (subpath.startsWith("proctor/")) {
-                    this.proctor.doPost(cache, subpath.substring(8), session, req, resp);
+                    this.proctor.doPost(data, subpath.substring(8), session, req, resp);
                 } else if (subpath.startsWith("testing/")) {
-                    this.testing.doPost(cache, subpath.substring(8), session, req, resp);
+                    this.testing.doPost(data, subpath.substring(8), session, req, resp);
 
                     // ... etc. ...
 
                 } else {
-                    Log.warning(Res.fmt(Res.POST_BAD_PATH, subpath));
+                    final String msg = Res.fmt(Res.POST_BAD_PATH, subpath);
+                    Log.warning(msg);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
 

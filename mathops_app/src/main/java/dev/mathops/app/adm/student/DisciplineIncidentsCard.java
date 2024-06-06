@@ -1,11 +1,11 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawDiscipline;
 
 import javax.swing.BorderFactory;
@@ -20,12 +20,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A card within the "Discipline" tab of the admin app that displays the list of all discipline incidents on a student's
  * record.
  */
-class DisciplineIncidentsCard extends JPanel {
+final class DisciplineIncidentsCard extends JPanel {
 
     /** Version number for serialization. */
     @Serial
@@ -73,27 +75,34 @@ class DisciplineIncidentsCard extends JPanel {
      */
     public void populateDisplay(final StudentData data) {
 
-        if (data.studentDisciplines.isEmpty()) {
-            final JLabel lbl = new JLabel("(No incidents on record)");
-            this.incidentList.add(lbl, BorderLayout.NORTH);
-        } else {
-            JPanel outer = new JPanel(new BorderLayout(5, 5));
-            outer.setBackground(Skin.WHITE);
-            outer.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+        try {
+            final List<RawDiscipline> disciplinaryActions = data.getDisciplinaryActions();
 
-            final JScrollPane scroll = new JScrollPane(outer);
-            this.incidentList.add(scroll, BorderLayout.CENTER);
+            if (disciplinaryActions.isEmpty()) {
+                final JLabel lbl = new JLabel("(No incidents on record)");
+                this.incidentList.add(lbl, BorderLayout.NORTH);
+            } else {
+                JPanel outer = new JPanel(new BorderLayout(5, 5));
+                outer.setBackground(Skin.WHITE);
+                outer.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 
-            scroll.getVerticalScrollBar().setUnitIncrement(6);
+                final JScrollPane scroll = new JScrollPane(outer);
+                this.incidentList.add(scroll, BorderLayout.CENTER);
 
-            for (final RawDiscipline record : data.studentDisciplines) {
-                final JPanel pane = createDisciplinePane(record);
-                outer.add(pane, BorderLayout.NORTH);
-                final JPanel inner = new JPanel(new BorderLayout(5, 5));
-                inner.setBackground(Skin.WHITE);
-                outer.add(inner, BorderLayout.CENTER);
-                outer = inner;
+                scroll.getVerticalScrollBar().setUnitIncrement(6);
+
+                for (final RawDiscipline record : disciplinaryActions) {
+                    final JPanel pane = createDisciplinePane(record);
+                    outer.add(pane, BorderLayout.NORTH);
+                    final JPanel inner = new JPanel(new BorderLayout(5, 5));
+                    inner.setBackground(Skin.WHITE);
+                    outer.add(inner, BorderLayout.CENTER);
+                    outer = inner;
+                }
             }
+        } catch (final SQLException ex) {
+            final JLabel lbl = new JLabel("(Unable to query incidents)");
+            this.incidentList.add(lbl, BorderLayout.NORTH);
         }
 
         invalidate();

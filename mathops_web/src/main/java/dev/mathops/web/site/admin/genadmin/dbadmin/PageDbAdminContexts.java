@@ -2,8 +2,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;

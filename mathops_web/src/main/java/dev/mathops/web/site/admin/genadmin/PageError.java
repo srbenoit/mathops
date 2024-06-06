@@ -1,7 +1,8 @@
 package dev.mathops.web.site.admin.genadmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -9,6 +10,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -22,7 +24,7 @@ public enum PageError {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -31,19 +33,21 @@ public enum PageError {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session, final String message)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         htm.sDiv("error").br();
         htm.addln("<strong>An error has occurred:</strong>").br().br();
         htm.addln(message);
         htm.eDiv();
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 }
