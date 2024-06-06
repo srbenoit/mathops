@@ -3,8 +3,7 @@ package dev.mathops.web.site.admin.proctor;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -16,6 +15,7 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -29,15 +29,15 @@ enum PageProctorTeams {
     /**
      * Generates the proctoring with MSTeams page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doPage(final StudentData studentData, final AdminSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -48,7 +48,7 @@ enum PageProctorTeams {
             Log.warning("  code='", code, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+            final RawWhichDb whichDb = studentData.getWhichDb();
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
             final String siteTitle = site.getTitle();
@@ -70,7 +70,7 @@ enum PageProctorTeams {
 
             doPageContent(req, htm, code);
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(studentData, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         }
     }

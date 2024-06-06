@@ -1,10 +1,11 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -22,7 +23,7 @@ enum PageMissing {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
+     * @param studentData   the student data object
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -30,19 +31,21 @@ enum PageMissing {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final StudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+        final MPStudentData data = logic.getStudentData(studentData, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
 
@@ -55,7 +58,8 @@ enum PageMissing {
             htm.div("vgap");
 
             htm.sDiv("shaded2");
-            htm.sH(2).add(Res.get(Res.MISSING_XFER_HEADING)).eH(2);
+            final String heading = Res.get(Res.MISSING_XFER_HEADING);
+            htm.sH(2).add(heading).eH(2);
             htm.div("vgap0");
 
             htm.sP("indent");

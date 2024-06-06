@@ -3,10 +3,13 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,8 +18,10 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 /**
  * The "Info" panel of the admin system.
@@ -105,7 +110,7 @@ final class StudentInfoPanel extends AdminPanelBase {
     /**
      * Constructs a new {@code StudentInfoPanel}.
      *
-     * @param theFixed         fixed data
+     * @param theFixed fixed data
      */
     StudentInfoPanel(final FixedData theFixed) {
 
@@ -323,61 +328,68 @@ final class StudentInfoPanel extends AdminPanelBase {
      */
     private void populateDisplay(final StudentData data) {
 
-        this.studentId.setText(data.student.stuId);
+        try {
+            final String stuId = data.getStudentId();
+            this.studentId.setText(stuId);
 
-        this.pidm.setText(data.student.pidm == null ? CoreConstants.EMPTY : data.student.pidm.toString());
+            final RawStudent student = data.getStudentRecord();
 
-        this.firstName.setText(data.student.firstName == null ? CoreConstants.EMPTY : data.student.firstName);
+            this.pidm.setText(student.pidm == null ? CoreConstants.EMPTY : student.pidm.toString());
 
-        this.middleInitial.setText(data.student.middleInitial == null ? CoreConstants.EMPTY
-                : data.student.middleInitial);
+            this.firstName.setText(student.firstName == null ? CoreConstants.EMPTY : student.firstName);
 
-        this.lastName.setText(data.student.lastName == null ? CoreConstants.EMPTY : data.student.lastName);
+            this.middleInitial.setText(student.middleInitial == null ? CoreConstants.EMPTY : student.middleInitial);
 
-        this.prefFirstName.setText(data.student.prefName == null ? CoreConstants.EMPTY : data.student.prefName);
+            this.lastName.setText(student.lastName == null ? CoreConstants.EMPTY : student.lastName);
 
-        this.applicationTerm.setText(data.student.aplnTerm == null ? CoreConstants.EMPTY
-                : data.student.aplnTerm.shortString);
+            this.prefFirstName.setText(student.prefName == null ? CoreConstants.EMPTY : student.prefName);
 
-        this.college.setText(data.student.college == null ? CoreConstants.EMPTY : data.student.college);
+            this.applicationTerm.setText(student.aplnTerm == null ? CoreConstants.EMPTY
+                    : student.aplnTerm.shortString);
 
-        this.department.setText(data.student.dept == null ? CoreConstants.EMPTY : data.student.dept);
+            this.college.setText(student.college == null ? CoreConstants.EMPTY : student.college);
 
-        this.programCode.setText(data.student.programCode == null ? CoreConstants.EMPTY : data.student.programCode);
+            this.department.setText(student.dept == null ? CoreConstants.EMPTY : student.dept);
 
-        this.campus.setText(data.student.campus == null ? CoreConstants.EMPTY : data.student.campus);
+            this.programCode.setText(student.programCode == null ? CoreConstants.EMPTY : student.programCode);
 
-        this.hsGpa.setText(data.student.hsGpa == null ? CoreConstants.EMPTY : data.student.hsGpa);
+            this.campus.setText(student.campus == null ? CoreConstants.EMPTY : student.campus);
 
-        this.hsClassRank.setText(data.student.hsClassRank == null ? CoreConstants.EMPTY
-                : data.student.hsClassRank.toString());
+            this.hsGpa.setText(student.hsGpa == null ? CoreConstants.EMPTY : student.hsGpa);
 
-        this.hsClassSize.setText(data.student.hsSizeClass == null ? CoreConstants.EMPTY
-                : data.student.hsSizeClass.toString());
+            this.hsClassRank.setText(student.hsClassRank == null ? CoreConstants.EMPTY
+                    : student.hsClassRank.toString());
 
-        this.actScore.setText(data.student.actScore == null ? CoreConstants.EMPTY : data.student.actScore.toString());
+            this.hsClassSize.setText(student.hsSizeClass == null ? CoreConstants.EMPTY
+                    : student.hsSizeClass.toString());
 
-        this.satScore.setText(data.student.satScore == null ? CoreConstants.EMPTY : data.student.satScore.toString());
+            this.actScore.setText(student.actScore == null ? CoreConstants.EMPTY : student.actScore.toString());
 
-        if (data.student.birthdate == null) {
-            this.birthdate.setText(CoreConstants.EMPTY);
-            this.age.setText(CoreConstants.EMPTY);
-        } else {
-            this.birthdate.setText(TemporalUtils.FMT_MDY.format(data.student.birthdate));
-            final Period agePeriod = data.student.birthdate.until(LocalDate.now());
-            this.age.setText(Integer.toString(agePeriod.getYears()));
+            this.satScore.setText(student.satScore == null ? CoreConstants.EMPTY : student.satScore.toString());
+
+            if (student.birthdate == null) {
+                this.birthdate.setText(CoreConstants.EMPTY);
+                this.age.setText(CoreConstants.EMPTY);
+            } else {
+                this.birthdate.setText(TemporalUtils.FMT_MDY.format(student.birthdate));
+                final Period agePeriod = student.birthdate.until(LocalDate.now());
+                this.age.setText(Integer.toString(agePeriod.getYears()));
+            }
+
+            this.timelimitFactor.setText(student.timelimitFactor == null ? CoreConstants.EMPTY
+                    : student.timelimitFactor.toString());
+
+            this.licensed.setText(student.licensed == null ? CoreConstants.EMPTY : student.licensed);
+
+            this.studentEmail.setText(student.stuEmail == null ? CoreConstants.EMPTY : student.stuEmail);
+
+            this.adviserEmail.setText(student.adviserEmail == null ? CoreConstants.EMPTY : student.adviserEmail);
+
+            this.specialTable.clear();
+            final List<RawSpecialStus> categories = data.getSpecialCategories();
+            this.specialTable.addData(categories, 2);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
         }
-
-        this.timelimitFactor.setText(data.student.timelimitFactor == null ? CoreConstants.EMPTY
-                : data.student.timelimitFactor.toString());
-
-        this.licensed.setText(data.student.licensed == null ? CoreConstants.EMPTY : data.student.licensed);
-
-        this.studentEmail.setText(data.student.stuEmail == null ? CoreConstants.EMPTY : data.student.stuEmail);
-
-        this.adviserEmail.setText(data.student.adviserEmail == null ? CoreConstants.EMPTY : data.student.adviserEmail);
-
-        this.specialTable.clear();
-        this.specialTable.addData(data.studentCategories, 2);
     }
 }

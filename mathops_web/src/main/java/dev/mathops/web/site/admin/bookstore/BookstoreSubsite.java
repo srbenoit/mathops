@@ -1,14 +1,15 @@
 package dev.mathops.web.site.admin.bookstore;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.admin.AbstractSubsite;
 import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -31,15 +32,15 @@ public final class BookstoreSubsite extends AbstractSubsite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param session the login session (known not to be null)
-     * @param req     the request
-     * @param resp    the response
+     * @param data    the web view data
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param session     the login session (known not to be null)
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsiteGet(final Cache cache, final String subpath,
+    public void subsiteGet(final WebViewData data, final String subpath,
                            final ImmutableSessionInfo session, final HttpServletRequest req,
                            final HttpServletResponse resp) throws IOException, SQLException {
 
@@ -47,7 +48,7 @@ public final class BookstoreSubsite extends AbstractSubsite {
 
         if (session.getEffectiveRole().canActAs(ERole.BOOKSTORE)) {
             if ("home.html".equals(subpath)) {
-                PageHome.doHomePage(cache, this.site, req, resp, session);
+                PageHome.doHomePage(data, this.site, req, resp, session);
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
@@ -61,15 +62,15 @@ public final class BookstoreSubsite extends AbstractSubsite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param session the login session (known not to be null)
-     * @param req     the request
-     * @param resp    the response
+     * @param data    the web view data
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param session     the login session (known not to be null)
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void subsitePost(final Cache cache, final String subpath,
+    public void subsitePost(final WebViewData data, final String subpath,
                             final ImmutableSessionInfo session, final HttpServletRequest req,
                             final HttpServletResponse resp) throws IOException, SQLException {
 
@@ -77,13 +78,13 @@ public final class BookstoreSubsite extends AbstractSubsite {
 
         if (session.getEffectiveRole().canActAs(ERole.BOOKSTORE)) {
             if ("rolecontrol.html".equals(subpath)) {
-                BookstorePage.processRoleControls(cache, this.site, req, resp, session);
+                BookstorePage.processRoleControls(data, this.site, req, resp, session);
             } else if ("check_etext_key.html".equals(subpath)) {
-                PageCheckKey.checkEtextKey(cache, this.site, req, resp, session);
+                PageCheckKey.checkEtextKey(data, this.site, req, resp, session);
             } else if ("deactivate_etext_key.html".equals(subpath)) {
-                PageDeactiveKey.deactivateKey(cache, this.site, req, resp, session);
+                PageDeactiveKey.deactivateKey(data, this.site, req, resp, session);
             } else if ("deactivate_etext_key_yes.html".equals(subpath)) {
-                PageDeactiveKey.deactivateKeyYes(cache, this.site, req, resp, session);
+                PageDeactiveKey.deactivateKeyYes(data, this.site, req, resp, session);
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }

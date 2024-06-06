@@ -1,6 +1,6 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rec.RecBase;
 
 import java.sql.SQLException;

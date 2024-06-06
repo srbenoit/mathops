@@ -3,12 +3,12 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -140,141 +141,142 @@ final class StudentActivityPanel extends AdminPanelBase {
      */
     private void populateDisplay(final FixedData fixed, final StudentData data) {
 
-        final TermKey active = fixed.activeTerm.term;
+        try {
+            final TermRec active = data.getActiveTerm();
 
-        if (active != null) {
-            // Build a list of activities, including course exams, homeworks, placement attempts,
-            // challenge attempts,
+            if (active != null) {
+                // Build a list of activities, including course exams, homeworks, placement attempts, challenge attempts,
 
-            final RawStterm stterm = data.studentTerm;
+                final RawStterm stterm = data.getStudentTerm(active.term);
 
-            if (stterm == null) {
-                this.paceDisplay.setText("-");
-                this.paceTrackDisplay.setText("-");
-            } else {
-                if (stterm.pace == null) {
-                    this.paceDisplay.setText("?");
+                if (stterm == null) {
+                    this.paceDisplay.setText("-");
+                    this.paceTrackDisplay.setText("-");
                 } else {
-                    this.paceDisplay.setText(stterm.pace.toString());
+                    if (stterm.pace == null) {
+                        this.paceDisplay.setText("?");
+                    } else {
+                        this.paceDisplay.setText(stterm.pace.toString());
+                    }
+                    this.paceTrackDisplay.setText(stterm.paceTrack);
                 }
-                this.paceTrackDisplay.setText(stterm.paceTrack);
-            }
 
-            final List<RawSemesterCalendar> weeks = fixed.termWeeks;
+                final List<RawSemesterCalendar> weeks = fixed.termWeeks;
 
-            final List<ActivityRow> rows = new ArrayList<>(10);
+                final List<ActivityRow> rows = new ArrayList<>(10);
 
-            final Collection<Integer> hitWeeks = new HashSet<>(10);
-            final int todayWeek = determineWeek(LocalDate.now(), weeks);
+                final Collection<Integer> hitWeeks = new HashSet<>(10);
+                final int todayWeek = determineWeek(LocalDate.now(), weeks);
 
-            // Accumulate exams
-            final List<RawStexam> exams = data.studentExams;
-            for (final RawStexam exam : exams) {
-                final int week = determineWeek(exam.examDt, weeks);
-                final String activty =
-                        RawRecordConstants.M100U.equals(exam.course) ? "User's Exam" : exam.examType;
-                final LocalTime start = exam.getStartDateTime().toLocalTime();
-                final LocalTime finish = exam.getFinishDateTime().toLocalTime();
+                // Accumulate exams
+                final List<RawStexam> exams = data.getStudentExams();
+                for (final RawStexam exam : exams) {
+                    final int week = determineWeek(exam.examDt, weeks);
+                    final String activty =
+                            RawRecordConstants.M100U.equals(exam.course) ? "User's Exam" : exam.examType;
+                    final LocalTime start = exam.getStartDateTime().toLocalTime();
+                    final LocalTime finish = exam.getFinishDateTime().toLocalTime();
 
-                rows.add(new ActivityRow(week, exam.course, exam.unit, activty, exam.version,
-                        exam.examDt, start, finish,
-                        exam.examScore == null ? CoreConstants.EMPTY : exam.examScore.toString(),
-                        exam.passed, "Y".equals(exam.isFirstPassed)));
-                hitWeeks.add(Integer.valueOf(week));
-            }
-
-            // Accumulate homeworks
-            final List<RawSthomework> homeworks = data.studentHomeworks;
-            for (
-
-                    final RawSthomework homework : homeworks) {
-
-                final LocalDateTime fin = homework.getFinishDateTime();
-                final LocalDateTime start = homework.getStartDateTime();
-
-                final LocalDate date = fin.toLocalDate();
-                final int week = determineWeek(date, weeks);
-                final String course = homework.course;
-                final Integer unit = homework.unit;
-                final Integer obj = homework.objective;
-                final Integer score = homework.hwScore;
-                final String passed = homework.passed;
-                final LocalTime sTime = start.toLocalTime();
-                final LocalTime eTime = fin.toLocalTime();
-
-                final String activity = obj == null ? "HW" : "HW " + unit + CoreConstants.DOT + obj;
-
-                rows.add(new ActivityRow(week, course, unit, activity, homework.version,
-                        homework.hwDt, sTime, eTime,
-                        score == null ? CoreConstants.EMPTY : score.toString(), passed, false));
-                hitWeeks.add(Integer.valueOf(week));
-            }
-
-            // Accumulate placement activities
-            final List<RawStmpe> placements = data.studentPlacementAttempts;
-
-            for (final RawStmpe placement : placements) {
-
-                final int week = determineWeek(placement.examDt, weeks);
-                final String passed = placement.placed;
-
-                final LocalTime start = placement.getStartDateTime().toLocalTime();
-                final LocalTime end = placement.getFinishDateTime().toLocalTime();
-
-                final HtmlBuilder score = new HtmlBuilder(20);
-                score.add(placement.stsA).add('/') //
-                        .add(placement.sts117).add('/') //
-                        .add(placement.sts118).add('/') //
-                        .add(placement.sts124).add('/') //
-                        .add(placement.sts125).add('/') //
-                        .add(placement.sts126);
-
-                rows.add(new ActivityRow(week, RawRecordConstants.M100P, null, //
-                        "Placement", placement.version, placement.examDt, start, end,
-                        score.toString(), passed, false));
-                hitWeeks.add(Integer.valueOf(week));
-            }
-
-            // Accumulate challenge activities
-            final List<RawStchallenge> challenges = data.studentChallengeAttempts;
-
-            for (final RawStchallenge challenge : challenges) {
-
-                final LocalDate date = challenge.examDt;
-
-                final int week = determineWeek(date, weeks);
-                final String course = challenge.course;
-                final String passed = challenge.passed;
-                final Integer score = challenge.score;
-
-                final Integer startTime = challenge.startTime;
-                final Integer endTime = challenge.finishTime;
-
-                final LocalTime start = startTime == null ? null
-                        : LocalTime.of(startTime.intValue() / 60, startTime.intValue() % 60);
-                final LocalTime end = endTime == null ? null
-                        : LocalTime.of(endTime.intValue() / 60, endTime.intValue() % 60);
-
-                rows.add(new ActivityRow(week, course, null, "Challenge",
-                        challenge.version, challenge.examDt, start, end,
-                        score == null ? CoreConstants.EMPTY : score.toString(), passed, false));
-                hitWeeks.add(Integer.valueOf(week));
-            }
-
-            // Ensure at least one row for each week
-            for (int w = 1; w <= todayWeek; ++w) {
-                if (!hitWeeks.contains(Integer.valueOf(w))) {
-                    rows.add(new ActivityRow(w, null, null, "(none)", null, null,
-                            null, null, null, null, false));
+                    rows.add(new ActivityRow(week, exam.course, exam.unit, activty, exam.version,
+                            exam.examDt, start, finish,
+                            exam.examScore == null ? CoreConstants.EMPTY : exam.examScore.toString(),
+                            exam.passed, "Y".equals(exam.isFirstPassed)));
+                    hitWeeks.add(Integer.valueOf(week));
                 }
+
+                // Accumulate homeworks
+                final List<RawSthomework> homeworks = data.getStudentHomework();
+                for (final RawSthomework homework : homeworks) {
+
+                    final LocalDateTime fin = homework.getFinishDateTime();
+                    final LocalDateTime start = homework.getStartDateTime();
+
+                    final LocalDate date = fin.toLocalDate();
+                    final int week = determineWeek(date, weeks);
+                    final String course = homework.course;
+                    final Integer unit = homework.unit;
+                    final Integer obj = homework.objective;
+                    final Integer score = homework.hwScore;
+                    final String passed = homework.passed;
+                    final LocalTime sTime = start.toLocalTime();
+                    final LocalTime eTime = fin.toLocalTime();
+
+                    final String activity = obj == null ? "HW" : "HW " + unit + CoreConstants.DOT + obj;
+
+                    rows.add(new ActivityRow(week, course, unit, activity, homework.version,
+                            homework.hwDt, sTime, eTime,
+                            score == null ? CoreConstants.EMPTY : score.toString(), passed, false));
+                    hitWeeks.add(Integer.valueOf(week));
+                }
+
+                // Accumulate placement activities
+                final List<RawStmpe> placements = data.getPlacementAttempts();
+
+                for (final RawStmpe placement : placements) {
+
+                    final int week = determineWeek(placement.examDt, weeks);
+                    final String passed = placement.placed;
+
+                    final LocalTime start = placement.getStartDateTime().toLocalTime();
+                    final LocalTime end = placement.getFinishDateTime().toLocalTime();
+
+                    final HtmlBuilder score = new HtmlBuilder(20);
+                    score.add(placement.stsA).add('/') //
+                            .add(placement.sts117).add('/') //
+                            .add(placement.sts118).add('/') //
+                            .add(placement.sts124).add('/') //
+                            .add(placement.sts125).add('/') //
+                            .add(placement.sts126);
+
+                    rows.add(new ActivityRow(week, RawRecordConstants.M100P, null, //
+                            "Placement", placement.version, placement.examDt, start, end,
+                            score.toString(), passed, false));
+                    hitWeeks.add(Integer.valueOf(week));
+                }
+
+                // Accumulate challenge activities
+                final List<RawStchallenge> challenges = data.getChallengeExams();
+
+                for (final RawStchallenge challenge : challenges) {
+
+                    final LocalDate date = challenge.examDt;
+
+                    final int week = determineWeek(date, weeks);
+                    final String course = challenge.course;
+                    final String passed = challenge.passed;
+                    final Integer score = challenge.score;
+
+                    final Integer startTime = challenge.startTime;
+                    final Integer endTime = challenge.finishTime;
+
+                    final LocalTime start = startTime == null ? null
+                            : LocalTime.of(startTime.intValue() / 60, startTime.intValue() % 60);
+                    final LocalTime end = endTime == null ? null
+                            : LocalTime.of(endTime.intValue() / 60, endTime.intValue() % 60);
+
+                    rows.add(new ActivityRow(week, course, null, "Challenge",
+                            challenge.version, challenge.examDt, start, end,
+                            score == null ? CoreConstants.EMPTY : score.toString(), passed, false));
+                    hitWeeks.add(Integer.valueOf(week));
+                }
+
+                // Ensure at least one row for each week
+                for (int w = 1; w <= todayWeek; ++w) {
+                    if (!hitWeeks.contains(Integer.valueOf(w))) {
+                        rows.add(new ActivityRow(w, null, null, "(none)", null, null,
+                                null, null, null, null, false));
+                    }
+                }
+
+                Collections.sort(rows);
+
+                this.activityTable.addData(rows, 2);
+
+            } else {
+                Log.warning("No active term!");
             }
-
-            Collections.sort(rows);
-
-            this.activityTable.addData(rows, 2);
-
-        } else {
-            Log.warning("No active term!");
+        } catch (final SQLException ex) {
+            Log.warning("Error accessing the database");
         }
     }
 

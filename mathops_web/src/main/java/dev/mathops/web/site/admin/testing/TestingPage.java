@@ -1,8 +1,7 @@
 package dev.mathops.web.site.admin.testing;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -12,6 +11,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -26,16 +26,17 @@ enum TestingPage {
      * Creates an {@code HtmlBuilder} and starts a testing management page, emitting the page start and the top level
      * header.
      *
-     * @param cache the data cache
-     * @param site    the owning site
-     * @param session the login session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param session     the login session
      * @return the created {@code HtmlBuilder}
      * @throws SQLException if there is an error accessing the database
      */
-    static HtmlBuilder startTestingPage(final Cache cache, final AdminSite site, final ImmutableSessionInfo session)
-            throws SQLException{
+    static HtmlBuilder startTestingPage(final StudentData studentData, final AdminSite site,
+                                        final ImmutableSessionInfo session)
+            throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = studentData.getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -48,18 +49,19 @@ enum TestingPage {
     /**
      * Ends a testing management page.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to write
-     * @param site  the owning site
-     * @param req   the request
-     * @param resp  the response
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to write
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void endTestingPage(final Cache cache, final HtmlBuilder htm, final AdminSite site, final ServletRequest req,
+    static void endTestingPage(final StudentData studentData, final HtmlBuilder htm, final AdminSite site,
+                               final ServletRequest req,
                                final HttpServletResponse resp) throws IOException, SQLException {
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -110,30 +112,4 @@ enum TestingPage {
         }
         htm.add(" onclick='pick(\"", topic.getUrl(), "\");'>", topic.getLabel(), "</button>");
     }
-
-//    /**
-//     * Sends a page to the client indicating the logged-in user is not authorized to access system administration.
-//     *
-//     * @param cache the data cache
-//     * @param site  the owning site
-//     * @param req   the request
-//     * @param resp  the response
-//     * @throws IOException  if there is an error writing the response
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public static void sendNotAuthorizedPage(final Cache cache, final AdminSite site, final ServletRequest req,
-//                                             final HttpServletResponse resp) throws IOException, SQLException {
-//
-//        final HtmlBuilder htm = new HtmlBuilder(2000);
-//
-//        Page.startOrdinaryPage(htm, site.getTitle(), null, false, Page.NO_BARS, null, false, true);
-//
-//        htm.sH(1).add("System Administration").eH(1);
-//        htm.div("vgap");
-//        htm.sP().addln("You are not authorized to perform system administration.").eP();
-//
-//        Page.endOrdinaryPage(cache, site, htm, true);
-//
-//        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
-//    }
 }

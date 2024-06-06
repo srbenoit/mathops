@@ -31,14 +31,16 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.commons.parser.xml.XmlEscaper;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
-import dev.mathops.db.old.logic.ChallengeExamStatus;
+import dev.mathops.db.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.ChallengeExamStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -346,13 +348,15 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     final GetExamReply reply = new GetExamReply();
                     LogBase.setSessionInfo("TXN", this.studentId);
 
-                    // We need to verify the exam and fill in the remaining fields in
-                    // AvailableExam
+                    // We need to verify the exam and fill in the remaining fields in AvailableExam
                     final List<RawAdminHold> holds = new ArrayList<>(1);
                     reply.status = GetExamReply.SUCCESS;
 
+                    // FIXME: Move this up, use for student-related data throughout
+                    final StudentData studentData = new StudentData(cache, getStudent().stuId, ELiveRefreshes.NONE);
+
                     final ChallengeExamStatus challengeStatStat =
-                            new ChallengeExamLogic(cache, getStudent().stuId).getStatus(avail.exam.course);
+                            new ChallengeExamLogic(studentData).getStatus(avail.exam.course);
 
                     final boolean eligible = this.version.equals(challengeStatStat.availableExamId);
 

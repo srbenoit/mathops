@@ -2,9 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -18,6 +17,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -63,16 +63,16 @@ enum PageCalendar {
     /**
      * Generates the page that shows the student's term schedule and deadlines.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
-     * @param logic   the site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
+     * @param logic       the site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -81,15 +81,15 @@ enum PageCalendar {
                 null, false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(studentData, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        doCalendarContent(cache, logic, htm, false);
+        doCalendarContent(studentData, logic, htm, false);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
@@ -97,15 +97,15 @@ enum PageCalendar {
     /**
      * Generates the page that shows the student's term schedule and deadlines.
      *
-     * @param cache the data cache
-     * @param site  the owning site
-     * @param req   the request
-     * @param resp  the response
-     * @param logic the site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param logic       the site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGetPrintable(final Cache cache, final CourseSite site,
+    static void doGetPrintable(final StudentData studentData, final CourseSite site,
                                final ServletRequest req, final HttpServletResponse resp,
                                final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -113,7 +113,7 @@ enum PageCalendar {
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startEmptyPage(htm, site.getTitle(), true);
 
-        doCalendarContent(cache, logic, htm, true);
+        doCalendarContent(studentData, logic, htm, true);
 
         Page.endEmptyPage(htm, true);
 
@@ -123,13 +123,13 @@ enum PageCalendar {
     /**
      * Constructs the course schedule content.
      *
-     * @param cache     the data cache
-     * @param logic     the course site logic
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param printable true if being presented in printable format
+     * @param studentData the student data object
+     * @param logic       the course site logic
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param printable   true if being presented in printable format
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doCalendarContent(final Cache cache, final CourseSiteLogic logic,
+    private static void doCalendarContent(final StudentData studentData, final CourseSiteLogic logic,
                                           final HtmlBuilder htm, final boolean printable) throws SQLException {
 
         htm.sH(2).add("Recommended Progress Schedule").eH(2);
@@ -173,7 +173,7 @@ enum PageCalendar {
             sortPaceOrder(paceRegs);
 
             final Collection<LocalDate> holidays = new ArrayList<>(7);
-            final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> calendarDays = studentData.getCampusCalendars();
             for (final RawCampusCalendar row : calendarDays) {
                 if ("holiday".equals(row.dtDesc)) {
                     holidays.add(row.campusDt);

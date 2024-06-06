@@ -1,6 +1,6 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;

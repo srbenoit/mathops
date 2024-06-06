@@ -3,10 +3,8 @@ package dev.mathops.web.site.admin.office;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
-import dev.mathops.db.old.rawlogic.RawStresourceLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawResource;
 import dev.mathops.db.old.rawrecord.RawStresource;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -17,6 +15,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -31,19 +30,19 @@ enum PageResourceCheck {
     /**
      * Generates the page that prompts the user to log in.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
         htm.sDiv("center");
         htm.sH(2).add("Resource Loan and Return").eH(2);
@@ -76,7 +75,7 @@ enum PageResourceCheck {
         } else {
             final String cleanStu = stuId.trim().replace(CoreConstants.SPC, CoreConstants.EMPTY)
                     .replace(CoreConstants.DASH, CoreConstants.EMPTY);
-            final RawStudent stu = RawStudentLogic.query(cache, cleanStu, false);
+            final RawStudent stu = studentData.getStudentRecord();
 
             if (stu == null) {
                 // Invalid student ID - request the student ID again
@@ -91,7 +90,8 @@ enum PageResourceCheck {
                 emitStudentIdField(htm, stuId, true);
                 emitInfo(htm, name);
 
-                final List<RawStresource> all = RawStresourceLogic.queryByStudent(cache, stuId);
+                final List<RawStresource> all = studentData.getResourcesOnLoan();
+
                 if (all.isEmpty()) {
                     emitInfo(htm, "No resources checked out");
                 } else {
@@ -131,7 +131,7 @@ enum PageResourceCheck {
                                 final RawResource res = RawResourceLogic.query(cache, row.resourceId);
 
                                 htm.sP().add("&bull; ", res == null ? "Unknown resource" : res.resourceDesc,
-                                                "<br/>checked out ", TemporalUtils.FMT_MDY.format(row.loanDt)).eP();
+                                        "<br/>checked out ", TemporalUtils.FMT_MDY.format(row.loanDt)).eP();
                             }
                         }
                         htm.eDiv();
@@ -146,7 +146,7 @@ enum PageResourceCheck {
 
         htm.eDiv(); // Center
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -222,18 +222,18 @@ enum PageResourceCheck {
     /**
      * Generates the page that prompts the user to log in.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final AdminSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        doGet(cache, site, req, resp, session);
+        doGet(studentData, site, req, resp, session);
     }
 }

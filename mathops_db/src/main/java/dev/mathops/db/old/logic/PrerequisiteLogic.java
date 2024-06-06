@@ -1,15 +1,12 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,9 +16,6 @@ import java.util.List;
  * A utility class that tests whether a student has met prerequisites for a course.
  */
 public final class PrerequisiteLogic {
-
-    /** The student ID. */
-    private final String studentId;
 
     /** The list of student placement credit. */
     private final List<RawMpeCredit> allPlacementCredit;
@@ -44,43 +38,41 @@ public final class PrerequisiteLogic {
     /**
      * Constructs a new {@code PrerequisiteLogic}.
      *
-     * @param cache        the data cache
-     * @param theStudentId the student ID
+     * @param data the student data object
      * @throws SQLException if there is an error accessing the database
      */
-    public PrerequisiteLogic(final Cache cache, final String theStudentId) throws SQLException {
+    public PrerequisiteLogic(final StudentData data) throws SQLException {
 
-        if (theStudentId == null) {
-            throw new IllegalArgumentException("Student ID may not be null");
+        if (data == null) {
+            throw new IllegalArgumentException("Student data object may not be null");
         }
 
-        this.studentId = theStudentId;
+        this.allPlacementCredit = data.getPlacementCredit();
+        this.allHistory = data.getRegistrations();
+        this.allCompletions = data.getCompletedRegistrations();
+        this.allTransfer = data.getTransferCredit();
 
-        this.allPlacementCredit = RawMpeCreditLogic.queryByStudent(cache, theStudentId);
-
-        this.allHistory = RawStcourseLogic.getHistory(cache, theStudentId);
-        this.allCompletions = RawStcourseLogic.getAllPriorCompleted(cache, theStudentId);
-        this.allTransfer = RawFfrTrnsLogic.queryByStudent(cache, theStudentId);
+        final Cache cache = data.getCache();
 
         this.satisfied = new ArrayList<>(5);
 
-        if (checkPrerequisites(cache, RawRecordConstants.M117,
+        if (checkPrerequisites(RawRecordConstants.M117,
                 RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M117))) {
             this.satisfied.add(RawRecordConstants.M117);
         }
-        if (checkPrerequisites(cache, RawRecordConstants.M118,
+        if (checkPrerequisites(RawRecordConstants.M118,
                 RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M118))) {
             this.satisfied.add(RawRecordConstants.M118);
         }
-        if (checkPrerequisites(cache, RawRecordConstants.M124,
+        if (checkPrerequisites(RawRecordConstants.M124,
                 RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M124))) {
             this.satisfied.add(RawRecordConstants.M124);
         }
-        if (checkPrerequisites(cache, RawRecordConstants.M125,
+        if (checkPrerequisites(RawRecordConstants.M125,
                 RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M125))) {
             this.satisfied.add(RawRecordConstants.M125);
         }
-        if (checkPrerequisites(cache, RawRecordConstants.M126,
+        if (checkPrerequisites(RawRecordConstants.M126,
                 RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M126))) {
             this.satisfied.add(RawRecordConstants.M126);
         }
@@ -131,20 +123,17 @@ public final class PrerequisiteLogic {
      * collection, a new student record is created. For all new records that exist already, the existing record is
      * tested for changes and updated if needed.
      *
-     * @param cache           the data cache
      * @param courseId        the course ID
      * @param prereqCourseIds the list of courses which can satisfy the prerequisites for the course
      * @return True if the prerequisite is satisfied; False if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkPrerequisites(final Cache cache, final String courseId,
-                                       final Iterable<String> prereqCourseIds) throws SQLException {
+    private boolean checkPrerequisites(final String courseId, final Iterable<String> prereqCourseIds) {
 
         boolean prereqSatisfied = false;
 
-        // Scan for STCOURSE records marked as "prereq_satisfied = 'Y'", even records that have
-        // been dropped.
-
+        // Scan for registrations that indicate prerequisite is satisfied (this allows manual settings of that flag to
+        // persistently clear prerequisites in future terms)
         for (final RawStcourse test : this.allHistory) {
             if (test.course.equals(courseId) && ("Y".equals(test.prereqSatis) || "P".equals(test.prereqSatis))) {
                 prereqSatisfied = true;
@@ -152,58 +141,13 @@ public final class PrerequisiteLogic {
             }
         }
 
-        // If not previously satisfied, test for data that indicates satisfied.
+        // If not previously satisfied, test for data that indicates it has been satisfied
         if (!prereqSatisfied) {
-
-            outer:
             for (final String preq : prereqCourseIds) {
-
-                // Test for a previously completed course or prerequisite course
-                for (final RawStcourse complete : this.allCompletions) {
-                    if (courseId.equals(complete.course) || preq.equals(complete.course)) {
-                        prereqSatisfied = true;
-                        break outer;
-                    }
-                }
-
-                // Test for placement credit in the course or a prerequisite course
-                for (final RawMpeCredit cred : this.allPlacementCredit) {
-                    if (courseId.equals(cred.course) || preq.equals(cred.course)) {
-                        prereqSatisfied = true;
-                        break outer;
-                    }
-                }
-
-                // Search for transfer credit in course or a prerequisite course
-                for (final RawFfrTrns xfer : this.allTransfer) {
-                    if (courseId.equals(xfer.course) || preq.equals(xfer.course)) {
-
-                        prereqSatisfied = true;
-                        break outer;
-                    }
-                }
-            }
-        }
-
-        // Special-case handling - section 801/401/809 students can start the course without
-        // prereqs, but they get a longer Skills Review (ideally, we would only afford this to
-        // non-degree-seeking DCE students, but we tend not to get that data from CSU Online
-
-        if (!prereqSatisfied && RawRecordConstants.M117.equals(courseId)) {
-
-            final List<RawStcourse> allCurrent = RawStcourseLogic.getActiveForStudent(cache, this.studentId,
-                    TermLogic.get(cache).queryActive(cache).term);
-
-            String sect = null;
-            for (final RawStcourse test : allCurrent) {
-                if (RawRecordConstants.M117.equals(test.course)) {
-                    sect = test.sect;
+                if (checkCredit(preq)) {
+                    prereqSatisfied = true;
                     break;
                 }
-            }
-
-            if ("801".equals(sect) || "809".equals(sect)) {
-                prereqSatisfied = true;
             }
         }
 
@@ -211,7 +155,8 @@ public final class PrerequisiteLogic {
     }
 
     /**
-     * Tests whether a student has earned credit in a course.
+     * Tests whether a student has earned credit in a course, has transfer credit for the course, or has placed out of
+     * the course.
      *
      * @param courseId the course ID
      * @return true if the student has earned credit

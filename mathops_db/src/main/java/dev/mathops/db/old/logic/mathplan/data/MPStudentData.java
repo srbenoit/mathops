@@ -1,7 +1,8 @@
 package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
@@ -38,7 +39,7 @@ import java.util.Set;
  * re-used on subsequent page loads, since this data is unlikely to change rapidly. If an update is made to the data by
  * the site (like the list of majors of interest), the cache is updated at the same time.
  */
-public final class StudentData {
+public final class MPStudentData {
 
     /** Retain data for 60 seconds (adjust as needed). */
     private static final long RETENTION_MS = (long) (60 * 1000);
@@ -115,8 +116,7 @@ public final class StudentData {
     /**
      * Constructs a new {@code StudentData}.
      *
-     * @param cache           the data cache
-     * @param theStudent      the student record
+     * @param theStudentData  the student data object
      * @param logic           the logic object to use to populate student data
      * @param now             the date/time to consider "now"
      * @param loginSessionTag the login session tag
@@ -125,19 +125,22 @@ public final class StudentData {
      *                        a student)
      * @throws SQLException if there is an error accessing the database
      */
-    public StudentData(final Cache cache, final RawStudent theStudent, final MathPlanLogic logic,
-                       final ZonedDateTime now, final long loginSessionTag, final boolean writeChanges)
+    public MPStudentData(final StudentData theStudentData, final MathPlanLogic logic,
+                         final ZonedDateTime now, final long loginSessionTag, final boolean writeChanges)
             throws SQLException {
 
         this.expiry = System.currentTimeMillis() + RETENTION_MS;
 
-        this.student = theStudent;
-        final String studentId = theStudent.stuId;
+        final String studentId = theStudentData.getStudentId();
+        this.student = theStudentData.getStudentRecord();
 
         // Log.info(Res.fmt(Res.BUILDING_STU_DATA, this.studentId));
 
         // Process "what admissions has told us"
         final boolean potentialRemedial = isPotentiallyRemedial();
+
+        // FIXME: Use the student data object rather than querying with the cache where possible.
+        final Cache cache = theStudentData.getCache();
 
         // Populate "what student has told us"
         this.majorProfileResponses =
@@ -160,9 +163,9 @@ public final class StudentData {
         this.completedCourses = logic.getCompletedCourses(studentId);
         this.liveTransferCredit = logic.getStudentTransferCredit(cache, studentId, true);
 
-        // TODO: For any transfer rows (in MATH) that are not in the local database, inset them.
-        // And also, in the course web site, if a student has no prereqs, do a secondary live check
-        // against Aries and see if new transfer rows exist (and import them).
+        // TODO: For any transfer rows (in MATH) that are not in the local database, inset them. Also, in the course
+        //  web site, if a student has no prereqs, do a secondary live check against Aries and see if new transfer rows
+        //  exist (and import them).
 
         this.placementCredit = RawMpeCreditLogic.queryByStudent(cache, studentId);
 
@@ -176,7 +179,7 @@ public final class StudentData {
         // Compute course recommendations to satisfy requirements
         this.recommendations = new CourseRecommendations(this.requirements, this, logic);
 
-        this.prereqLogic = new PrerequisiteLogic(cache, studentId);
+        this.prereqLogic = new PrerequisiteLogic(theStudentData);
 
         this.placementStatus = new PlacementLogic(cache, studentId, this.student.aplnTerm, now).status;
 
@@ -184,11 +187,10 @@ public final class StudentData {
 
         this.elmTutorialStatus = ELMTutorialStatus.of(cache, studentId, now, holds);
 
-        this.precalcTutorialStatus = new PrecalcTutorialLogic(cache, studentId, now.toLocalDate(),
-                this.prereqLogic).status;
+        final LocalDate today = now.toLocalDate();
+        this.precalcTutorialStatus = new PrecalcTutorialLogic(theStudentData, today, this.prereqLogic).status;
 
-        // Count the number of AUCC core mathematics course credits completed with a grade
-        // of C (2.000) or better.
+        // Count the number of AUCC core mathematics course credits completed with a grade of C (2.000) or better.
         countCoreCredits(logic);
 
         // Build the set of courses that the student can register for right now
@@ -198,7 +200,7 @@ public final class StudentData {
         this.nextSteps = new ArrayList<>(5);
         createPlan(cache, logic);
         if (writeChanges) {
-            recordPlan(cache, logic, now, studentId, loginSessionTag);
+            recordPlan(theStudentData, logic, now, loginSessionTag);
         }
 
         recordAnalytics();
@@ -643,18 +645,17 @@ public final class StudentData {
      * Records the plan in the profile response table so advisers can view it quickly without having to rebuilt it for
      * each advisee.
      *
-     * @param cache           the data cache
+     * @param theStudentData  the student data object
      * @param logic           the logic object
      * @param now             the date/time to consider "now"
-     * @param stuId           the student ID
      * @param loginSessionTag the login session tag
      * @throws SQLException if there is an error accessing the database
      */
-    public void recordPlan(final Cache cache, final MathPlanLogic logic, final ZonedDateTime now, final String stuId,
+    public void recordPlan(final StudentData theStudentData, final MathPlanLogic logic, final ZonedDateTime now,
                            final long loginSessionTag) throws SQLException {
 
         // Record only after student has checked the "only a recommendation" box
-        final Map<Integer, RawStmathplan> done = MathPlanLogic.getMathPlanResponses(cache, stuId,
+        final Map<Integer, RawStmathplan> done = theStudentData.getLatestMathPlanResponsesByPage(
                 MathPlanConstants.ONLY_RECOM_PROFILE);
 
         if (!done.isEmpty()) {
@@ -671,7 +672,7 @@ public final class StudentData {
             final String value3 = makePlanTextSem2(courseData);
             final String value4 = makePlanTextAdd(courseData);
 
-            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, stuId,
+            final Map<Integer, RawStmathplan> existing = theStudentData.getLatestMathPlanResponsesByPage(
                     MathPlanConstants.PLAN_PROFILE);
 
             final RawStmathplan exist1 = existing.get(key1);
@@ -698,8 +699,8 @@ public final class StudentData {
                 answers.add(value3);
                 answers.add(value4);
 
-                logic.storeMathPlanResponses(cache, this.student, MathPlanConstants.PLAN_PROFILE, questions, answers,
-                        now, loginSessionTag);
+                logic.storeMathPlanResponses(theStudentData, MathPlanConstants.PLAN_PROFILE, questions, answers, now,
+                        loginSessionTag);
             }
         }
     }
@@ -984,10 +985,10 @@ public final class StudentData {
                     }
                 }
 
-                // FIXME: Restore placement recommendation (and recommendation to challenge, for
-                // use in math plan displays). But store this in the STMPE record rather than
-                // forcing parse of subtest scores (whose thresholds could change). This requires
-                // retroactively populating all existing rows, then starting to store the field.
+                // FIXME: Restore placement recommendation (and recommendation to challenge, for use in math plan
+                //  displays). But store this in the STMPE record rather than forcing parse of subtest scores (whose
+                //  thresholds could change). This requires retroactively populating all existing rows, then starting
+                //  to store the field.
 
                 // if ((isRecommendMPEPlace() || this.placementCredit.size() > 0)
                 if (!this.placementCredit.isEmpty() && (leftToSatisfy > 1 || needs117 || needs118)) {
@@ -1209,12 +1210,11 @@ public final class StudentData {
             }
             this.nextSteps.add(ENextStep.ACT_MATH_PLACEMENT_EXAM);
             // FIXME: Restore this once we can recommend retrying placement
-            // } else if (isRecommendMPEPlace()) {
-            // // 2.1.1C (or 2.2.1C)
-            // this.nextSteps.add(ENextStep.MSG_2M);
-            // this.nextSteps.add(ENextStep.ACT_MATH_PLACEMENT_EXAM);
-            // this.nextSteps.add(ENextStep.MSG_2N);
-            // this.nextSteps.add(ENextStep.ACT_ELM_TUTORIAL);
+            //  } else if (isRecommendMPEPlace()) { // 2.1.1C (or 2.2.1C)
+            //  this.nextSteps.add(ENextStep.MSG_2M);
+            //  this.nextSteps.add(ENextStep.ACT_MATH_PLACEMENT_EXAM);
+            //  this.nextSteps.add(ENextStep.MSG_2N);
+            //  this.nextSteps.add(ENextStep.ACT_ELM_TUTORIAL);
         } else if (this.placementStatus.attemptsRemaining > 0) {
             // 2.1.1D (or 2.2.1D)
             this.nextSteps.add(ENextStep.MSG_2O);
@@ -1576,7 +1576,7 @@ public final class StudentData {
      *
      * @return the number of completed credits
      */
-    public double getCreditsOfCoreCompleted() {
+    double getCreditsOfCoreCompleted() {
 
         return this.creditsOfCoreCompleted;
     }

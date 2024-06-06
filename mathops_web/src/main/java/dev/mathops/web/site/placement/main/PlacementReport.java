@@ -2,24 +2,27 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Generates the content of the web page that displays the student's placement status.
  */
 final class PlacementReport {
+
+    /** A commonly used integer. */
+    private static final Integer ONE = Integer.valueOf(1);
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -32,7 +35,7 @@ final class PlacementReport {
     /**
      * Creates the HTML of the placement report.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param status      the placement tool status for the student
      * @param session     the user's login session information
      * @param title       an optional title (heading) for the top of the page
@@ -41,7 +44,7 @@ final class PlacementReport {
      * @param htm         the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPlacementReport(final Cache cache, final PlacementStatus status,
+    static void doPlacementReport(final StudentData studentData, final PlacementStatus status,
                                   final ImmutableSessionInfo session, final String title, final boolean includeLink,
                                   final HtmlBuilder htm) throws SQLException {
 
@@ -182,7 +185,7 @@ final class PlacementReport {
             }
 
             // Only show adviser comment if the student is known to have an adviser
-            final RawStudent student = RawStudentLogic.query(cache, session.getEffectiveUserId(), false);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student != null && student.adviserEmail != null) {
                 htm.div("vgap");
@@ -203,7 +206,7 @@ final class PlacementReport {
             htm.addln("</fieldset>");
         }
 
-        logStudentAccess(cache, session);
+        logStudentAccess(studentData, session);
 
         htm.eDiv(); // indent11
     }
@@ -265,31 +268,39 @@ final class PlacementReport {
      * Logs student access to the site - used to drive a checkmark in the welcome site as part of the placement
      * process.
      *
-     * @param cache   the data cache
-     * @param session the user session
+     * @param studentData the student data object
+     * @param session     the user session
      * @throws SQLException if there is an error accessing the database
      */
-    private static void logStudentAccess(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    private static void logStudentAccess(final StudentData studentData, final ImmutableSessionInfo session)
+            throws SQLException {
 
         final String studentId = session.getEffectiveUserId();
 
         if (studentId != null && session.actAsUserId == null) {
             // If we don't have a record of this user checking their results, add one
 
-            final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache, studentId,
-                    MathPlanConstants.CHECKED_RESULTS_PROFILE);
+            final Map<Integer, RawStmathplan> responses =
+                    studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.CHECKED_RESULTS_PROFILE);
 
             if (responses.isEmpty()) {
-                final RawStudent stu = RawStudentLogic.query(cache, studentId, false);
+                final RawStudent stu = studentData.getStudentRecord();
 
                 if (stu != null) {
                     final LocalDateTime when = session.getNow().toLocalDateTime();
 
-                    final RawStmathplan log = new RawStmathplan(studentId, stu.pidm, null,
-                            MathPlanConstants.CHECKED_RESULTS_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
-                            Integer.valueOf(TemporalUtils.minuteOfDay(when)), Long.valueOf(session.loginSessionTag));
+                    final LocalDate whenDate = when.toLocalDate();
+                    final int whenMinute = TemporalUtils.minuteOfDay(when);
+                    final Integer whenMinuteObj = Integer.valueOf(whenMinute);
+                    final Long sessionTagObj = Long.valueOf(session.loginSessionTag);
 
+                    final RawStmathplan log = new RawStmathplan(studentId, stu.pidm, null,
+                            MathPlanConstants.CHECKED_RESULTS_PROFILE, whenDate, ONE, "Y", whenMinuteObj,
+                            sessionTagObj);
+
+                    final Cache cache = studentData.getCache();
                     RawStmathplanLogic.INSTANCE.insert(cache, log);
+                    studentData.forgetMathPlanResponses();
                 }
             }
         }

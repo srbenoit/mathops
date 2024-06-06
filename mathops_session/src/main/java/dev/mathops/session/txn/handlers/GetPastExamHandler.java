@@ -9,7 +9,7 @@ import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.GetExamReply;

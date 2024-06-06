@@ -2,10 +2,9 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;
@@ -31,17 +30,16 @@ public final class WelcomeFooter implements ISecondaryFooter {
     /**
      * Emits the HTML for a supplemental footer (within the "footer" element).
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public void emitSecondaryFooter(final Cache cache, final AbstractSite site,
+    public void emitSecondaryFooter(final SystemData systemData, final AbstractSite site,
                                     final HtmlBuilder htm) throws SQLException {
 
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
-
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = systemData.getActiveTerm();
+        final List<RawCampusCalendar> calendarDays = systemData.getCampusCalendars();
 
         htm.sDiv("secfooter");
         htm.sDiv("container");
@@ -205,7 +203,7 @@ public final class WelcomeFooter implements ISecondaryFooter {
             if (start1x != null && end1x != null) {
                 htm.eDiv();
 
-                final TermRec nextTerm = TermLogic.get(cache).queryNext(cache);
+                final TermRec nextTerm = systemData.getNextTerm();
                 htm.sP("tight").add("<em>").add(nextTerm.term.longString).add("</em>").eP();
 
                 final LocalDate start1xDate = start1x.campusDt;

@@ -1,8 +1,8 @@
 package dev.mathops.app.ops;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
 import dev.mathops.app.ops.snapin.activity.SystemActivitySnapIn;
 import dev.mathops.app.ops.snapin.canvas.CanvasSnapIn;

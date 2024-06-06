@@ -1,13 +1,12 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rec.MasteryAttemptQaRec;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 
@@ -40,15 +39,15 @@ public final class StandardsMasteryLogic {
     /**
      * Constructs a new {@code StandardsMasteryLogic}.
      *
-     * @param cache    the cache
-     * @param stuId    the student ID
-     * @param courseId the course ID
+     * @param studentData the student data object
+     * @param courseId    the course ID
      * @throws SQLException of there is an error accessing the database
      */
-    public StandardsMasteryLogic(final Cache cache, final String stuId, final String courseId) throws SQLException {
+    public StandardsMasteryLogic(final StudentData studentData, final String courseId) throws SQLException {
 
-        this.stHomeworks = RawSthomeworkLogic.getHomeworks(cache, stuId, courseId, false,
-                RawSthomeworkLogic.ALL_HW_TYPES);
+        this.stHomeworks = studentData.getStudentHomeworkForCourse(courseId);
+
+        final Cache cache = studentData.getCache();
 
         this.masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
         final int numExams = this.masteryExams.size();
@@ -58,8 +57,7 @@ public final class StandardsMasteryLogic {
         this.mastered = new HashMap<>(numExams);
 
         for (final MasteryExamRec exam : this.masteryExams) {
-            final List<MasteryAttemptRec> attempts = MasteryAttemptLogic.get(cache).queryByStudentExam(cache, stuId,
-                    exam.examId, false);
+            final List<MasteryAttemptRec> attempts = studentData.getMasteryAttemptsByExamId(exam.examId);
 
             this.masteryAttempts.put(exam.examId, attempts);
             final int numAttempts = attempts.size();
@@ -167,9 +165,9 @@ public final class StandardsMasteryLogic {
      *
      * @param examId the mastery exam ID
      * @return 0 if neither question was answered correctly; 1 if question 1 has been answered correctly twice, but not
-     * question 2; 2 if question 2 was answered correctly twice, but not question 1; 3 if both have been answered
-     * correctly twice (this number is the bit-wise combination of 0x01 representing question 1, and 0x02 representing
-     * question2)
+     *         question 2; 2 if question 2 was answered correctly twice, but not question 1; 3 if both have been
+     *         answered correctly twice (this number is the bit-wise combination of 0x01 representing question 1, and
+     *         0x02 representing question2)
      */
     public int whichQuestionsPassedTwice(final String examId) {
 
@@ -203,6 +201,7 @@ public final class StandardsMasteryLogic {
 
     /**
      * Tests whether the student has passed the "standard assignment" to enable mastery of a standard.
+     *
      * @param unit      the unit (typically 1 through 8 for a course)
      * @param objective the objective (typically 1 through 3)
      * @return true if the student has passed a homework of type "ST" for the indicated unit and objective
@@ -240,7 +239,6 @@ public final class StandardsMasteryLogic {
 
         return available;
     }
-
 
     /**
      * Assembles a list of the mastery exams for which the student is eligible to attempt mastery.

@@ -10,8 +10,12 @@ import dev.mathops.commons.parser.xml.EmptyElement;
 import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.login.IAuthenticationMethod;
@@ -185,15 +189,16 @@ public final class SessionManager extends SessionCache implements ISessionManage
      * system (any user with only the STUDENT role). A user acting under the INSTRUCTOR role can set this value to any
      * students enrolled any of the instructor's courses.
      *
-     * @param cache       the data cache
-     * @param secSessionId   the ID of the session whose effective user ID to attempt to change
-     * @param userId the desired effective user ID (could be {@code null})
+     * @param data         the web view data (on success, this object's "act as" user is changed to match the supplied
+     *                     user ID)
+     * @param secSessionId the ID of the session whose effective user ID to attempt to change
+     * @param userId       the desired effective user ID (could be {@code null})
      * @return the result of the user ID selection, which will contain the updated login session information on success;
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public SessionResult setEffectiveUserId(final Cache cache, final String secSessionId,
+    public SessionResult setEffectiveUserId(final WebViewData data, final String secSessionId,
                                             final String userId) throws SQLException {
 
         if (secSessionId == null) {
@@ -206,14 +211,21 @@ public final class SessionManager extends SessionCache implements ISessionManage
         if ("AACTUTOR".equals(userId)) {
             result = setSessionActAs(secSessionId, userId, "AAC Tutor", ERole.STUDENT);
         } else {
-            // Query the user, get screen name, return error if not found. Then test role of the
-            // target user and see that the requester has needed permission.
-            final RawStudent student = RawStudentLogic.query(cache, userId, false);
+            // Query the user, get screen name, return error if not found. Then test role of the target user and see
+            // that the requester has needed permission.
+            final Cache cache = data.getCache();
+            final SystemData systemData = data.getSystemData();
+            final StudentData studentData = new StudentData(cache, systemData, userId, ELiveRefreshes.IF_MISSING);
+
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
                 result = new SessionResult("Invalid user ID");
             } else {
-                result = setSessionActAs(secSessionId, userId, student.getScreenName(), ERole.STUDENT);
+                final String screenName = student.getScreenName();
+                result = setSessionActAs(secSessionId, userId, screenName, ERole.STUDENT);
+
+                data.setActAsUser(studentData);
             }
         }
 
@@ -226,7 +238,8 @@ public final class SessionManager extends SessionCache implements ISessionManage
      * effective user ID (unless the target user's role permits). This method also resets the time offset of the session
      * to zero.
      *
-     * @param cache        the data cache
+     * @param data         the web view data (on success, this object's logged-in"user is changed to match the supplied
+     *                     user ID)
      * @param secSessionId the ID of the session whose user ID to attempt to change
      * @param userId       the desired user ID (could be {@code null})
      * @param newRole      the new role
@@ -235,7 +248,7 @@ public final class SessionManager extends SessionCache implements ISessionManage
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public SessionResult setUserId(final Cache cache, final String secSessionId,
+    public SessionResult setUserId(final WebViewData data, final String secSessionId,
                                    final String userId, final ERole newRole) throws SQLException {
 
         if (secSessionId == null) {
@@ -245,15 +258,21 @@ public final class SessionManager extends SessionCache implements ISessionManage
 
         final SessionResult result;
 
-        // Query the user, get screen name, return error if not found. Then test role of the
-        // target user and see that the requester has needed permission.
+        // Query the user, get screen name, return error if not found. Then test role of the target user and see that
+        // the requester has needed permission.
+        final Cache cache = data.getCache();
+        final SystemData systemData = data.getSystemData();
+        final StudentData studentData = new StudentData(cache, systemData, userId, ELiveRefreshes.IF_MISSING);
+
         final RawStudent student = RawStudentLogic.query(cache, userId, true);
 
         if (student == null) {
             result = new SessionResult("Invalid user ID");
         } else {
-            result = setSessionUser(secSessionId, userId, student.firstName, student.lastName,
-                    student.getScreenName(), newRole);
+            final String screenName = student.getScreenName();
+            result = setSessionUser(secSessionId, userId, student.firstName, student.lastName, screenName, newRole);
+
+            data.setLoggedInUser(studentData);
         }
 
         return result;

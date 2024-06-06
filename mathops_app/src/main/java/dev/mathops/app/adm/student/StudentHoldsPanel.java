@@ -3,10 +3,11 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -102,7 +103,8 @@ import java.util.Objects;
         if (data == null) {
             this.addHoldCard.setStudentId(null);
         } else {
-            this.addHoldCard.setStudentId(data.student.stuId);
+            final String studentId = data.getStudentId();
+            this.addHoldCard.setStudentId(studentId);
             populateDisplay(data);
         }
     }
@@ -127,7 +129,8 @@ import java.util.Objects;
         this.addHoldCard.reset();
         this.cards.show(this.cardPane, SHOW_CMD);
 
-        this.addHoldCard.setStudentId(data.student.stuId);
+        final String studentId = data.getStudentId();
+        this.addHoldCard.setStudentId(studentId);
     }
 
     /**
@@ -178,59 +181,63 @@ import java.util.Objects;
         }
 
         if (error == null) {
-            String newSeverity = rec.sevAdminHold;
+            this.currentStudentData.forgetHolds();
 
-            if ("F".equals(rec.sevAdminHold)) {
-                if (!"F".equals(this.currentStudentData.student.sevAdminHold)) {
+            try {
+                final RawStudent student = this.currentStudentData.getStudentRecord();
 
-                    // TODO: Update the student table
-                    final String sql2 = "UPDATE student SET sev_admin_hold='F' "
-                            + "WHERE stu_id='" + rec.stuId + "'";
+                String newSeverity = rec.sevAdminHold;
 
-                    try (final Statement s = this.cache.conn.createStatement()) {
-                        final int numRows = s.executeUpdate(sql2);
+                if ("F".equals(rec.sevAdminHold)) {
+                    if (!"F".equals(student.sevAdminHold)) {
+
+                        final String sql2 = "UPDATE student SET sev_admin_hold='F' WHERE stu_id='" + rec.stuId + "'";
+
+                        try (final Statement statement = this.cache.conn.createStatement()) {
+                            final int numRows = statement.executeUpdate(sql2);
+                            if (numRows == 1) {
+                                this.cache.conn.commit();
+                                newSeverity = "F";
+                                this.currentStudentData.forgetStudentRecord();
+                            } else {
+                                error = "Unable to update 'sev_admin_hold' on student record";
+                                this.cache.conn.rollback();
+                            }
+                        } catch (final SQLException ex) {
+                            Log.warning(ex);
+                            error = "Unable to update 'sev_admin_hold' on student record: "
+                                    + ex.getMessage();
+                        }
+                    }
+                } else if ("N".equals(rec.sevAdminHold) && student.sevAdminHold == null) {
+
+                    final String sql2 = "UPDATE student SET sev_admin_hold='N' WHERE stu_id='" + rec.stuId + "'";
+
+                    try (final Statement statement = this.cache.conn.createStatement()) {
+                        final int numRows = statement.executeUpdate(sql2);
                         if (numRows == 1) {
                             this.cache.conn.commit();
-                            newSeverity = "F";
+                            newSeverity = "N";
+                            this.currentStudentData.forgetStudentRecord();
                         } else {
                             error = "Unable to update 'sev_admin_hold' on student record";
                             this.cache.conn.rollback();
                         }
                     } catch (final SQLException ex) {
                         Log.warning(ex);
-                        error = "Unable to update 'sev_admin_hold' on student record: "
-                                + ex.getMessage();
+                        error = "Unable to update 'sev_admin_hold' on student record: " + ex.getMessage();
                     }
                 }
-            } else if ("N".equals(rec.sevAdminHold)
-                    && this.currentStudentData.student.sevAdminHold == null) {
 
-                // TODO: Update the student table
-                final String sql2 = "UPDATE student SET sev_admin_hold='N' "
-                        + "WHERE stu_id='" + rec.stuId + "'";
-
-                try (final Statement s = this.cache.conn.createStatement()) {
-                    final int numRows = s.executeUpdate(sql2);
-                    if (numRows == 1) {
-                        this.cache.conn.commit();
-                        newSeverity = "N";
-                    } else {
-                        error = "Unable to update 'sev_admin_hold' on student record";
-                        this.cache.conn.rollback();
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    error =
-                            "Unable to update 'sev_admin_hold' on student record: " + ex.getMessage();
+                if (!Objects.equals(newSeverity, rec.sevAdminHold)) {
+                    student.sevAdminHold = newSeverity;
                 }
-            }
-
-            if (!Objects.equals(newSeverity, rec.sevAdminHold)) {
-                this.currentStudentData.student.sevAdminHold = newSeverity;
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                error = "Unable to update 'sev_admin_hold' on student record: " + ex.getMessage();
             }
 
             // Add the new record and re-populate the list display
-            this.currentStudentData.studentHolds.add(rec);
             this.holdsCard.clear();
             this.holdsCard.populateDisplay(this.currentStudentData);
             this.addHoldCard.reset();

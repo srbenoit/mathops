@@ -1,12 +1,12 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -25,15 +25,16 @@ enum CourseMenu {
      * Builds the menu based on the current logged-in user session and appends its HTML representation to an
      * {@code HtmlBuilder}.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param session the session
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param session     the session
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    public static void buildMenu(final Cache cache, final CourseSite site, final ImmutableSessionInfo session,
-                                 final CourseSiteLogic logic, final HtmlBuilder htm) throws SQLException {
+    public static void buildMenu(final StudentData studentData, final CourseSite site,
+                                 final ImmutableSessionInfo session, final CourseSiteLogic logic,
+                                 final HtmlBuilder htm) throws SQLException {
 
         htm.addln("<nav class='menu'>");
         htm.sDiv("menubox");
@@ -41,7 +42,7 @@ enum CourseMenu {
         if (logic.isError()) {
             htm.sSpan("red").add(logic.getError()).eSpan();
         } else {
-            buildMenuContent(cache, site, session, logic, htm);
+            buildMenuContent(studentData, site, session, logic, htm);
         }
 
         htm.eDiv();
@@ -51,14 +52,15 @@ enum CourseMenu {
     /**
      * Builds the menu once available courses have been determined.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param session the session
-     * @param logic   the site logic
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param session     the session
+     * @param logic       the site logic
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void buildMenuContent(final Cache cache, final CourseSite site, final ImmutableSessionInfo session,
+    private static void buildMenuContent(final StudentData studentData, final CourseSite site,
+                                         final ImmutableSessionInfo session,
                                          final CourseSiteLogic logic, final HtmlBuilder htm) throws SQLException {
 
         final boolean isTutor = "AACTUTOR".equals(session.getEffectiveUserId())
@@ -94,8 +96,10 @@ enum CourseMenu {
 
             // Display courses for the current term
 
+            final TermRec activeTerm = studentData.getActiveTerm();
+
             htm.sH(1, "menufirst");
-            htm.add(TermLogic.get(cache).queryActive(cache).term.longString, " Courses");
+            htm.add(activeTerm.term.longString, " Courses");
             htm.eH(1);
             htm.div("vgap0");
 
@@ -103,9 +107,9 @@ enum CourseMenu {
 
             final String studentId = session.getEffectiveUserId();
 
-            final PrerequisiteLogic pl = new PrerequisiteLogic(cache, studentId);
-            final PrecalcTutorialStatus tstat = new PrecalcTutorialLogic(cache, studentId,
-                    session.getNow().toLocalDate(), pl).status;
+            final PrerequisiteLogic pl = new PrerequisiteLogic(studentData);
+            final PrecalcTutorialStatus tstat = new PrecalcTutorialLogic(studentData, session.getNow().toLocalDate(),
+                    pl).status;
 
             final boolean lockTut = tstat.webSiteAvailability == null || tstat.webSiteAvailability.current == null;
 

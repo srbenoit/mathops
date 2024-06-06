@@ -1,4 +1,4 @@
-package dev.mathops.db.old;
+package dev.mathops.db.logic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.EDbProduct;

@@ -4,14 +4,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -26,6 +25,7 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -64,15 +64,15 @@ public class CourseSite extends AbstractPageSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param type    the site type
-     * @param req     the request
-     * @param resp    the response
+     * @param studentData the student data object
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param type        the site type
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
+    public void doGet(final StudentData studentData, final String subpath, final ESiteType type,
                       final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
@@ -116,8 +116,9 @@ public class CourseSite extends AbstractPageSite {
                                     : "/index.html"));
                         }
                         case "video.html" -> PageVideoExample.doGet(this, req, resp, null);
-                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, null, null);
-                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null, "home.html");
+                        case "orientation.html" -> PageOrientation.doGet(studentData, this, req, resp, null, null);
+                        case "secure/shibboleth.html" -> doShibbolethLogin(studentData.getCache(), req, resp, null,
+                                "home.html");
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             resp.sendRedirect("/index.html");
@@ -132,53 +133,57 @@ public class CourseSite extends AbstractPageSite {
                     logic.gatherData();
 
                     switch (subpath) {
-                        case "index.html", "home.html" -> PageHome.doGet(cache, this, req, resp, session, logic);
-                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session, "home.html");
-                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, session, logic);
-                        case "schedule.html" -> PageSchedule.doGet(cache, this, req, resp, session, logic);
-                        case "calendar.html" -> PageCalendar.doGet(cache, this, req, resp, session, logic);
-                        case "calendar_print.html" -> PageCalendar.doGetPrintable(cache, this, req, resp, logic);
-                        case "onlinehelp.html" -> PageGettingHelp.doGet(cache, this, req, resp, session, logic);
-                        case "users_exam.html" -> PageUsersExam.doGet(cache, this, req, resp, session, logic);
-                        case "etexts.html" -> PageETexts.doETextsPage(cache, this, req, resp, session, logic);
-                        case "start_course.html" -> PageStartCourse.doGet(cache, this, req, resp, session, logic);
-                        case "course.html" -> PageOutline.doGet(cache, type, this, req, resp, session, logic);
+                        case "index.html", "home.html" -> PageHome.doGet(studentData, this, req, resp, session, logic);
+                        case "secure/shibboleth.html" -> doShibbolethLogin(studentData.getCache(), req, resp, session,
+                                "home.html");
+                        case "orientation.html" -> PageOrientation.doGet(studentData, this, req, resp, session, logic);
+                        case "schedule.html" -> PageSchedule.doGet(studentData, this, req, resp, session, logic);
+                        case "calendar.html" -> PageCalendar.doGet(studentData, this, req, resp, session, logic);
+                        case "calendar_print.html" -> PageCalendar.doGetPrintable(studentData, this, req, resp, logic);
+                        case "onlinehelp.html" -> PageGettingHelp.doGet(studentData, this, req, resp, session, logic);
+                        case "users_exam.html" -> PageUsersExam.doGet(studentData, this, req, resp, session, logic);
+                        case "etexts.html" -> PageETexts.doETextsPage(studentData, this, req, resp, session, logic);
+                        case "start_course.html" -> PageStartCourse.doGet(studentData, this, req, resp, session, logic);
+                        case "course.html" -> PageOutline.doGet(studentData, type, this, req, resp, session, logic);
 
-                        case "course_media.html" -> PageStdsTextMedia.doGet(cache, this, req, resp, session, logic);
-                        case "course_status.html" -> PageCourseStatus.doGet(cache, this, req, resp, session, logic);
-                        case "course_text.html" -> PageStdsText.doGet(cache, this, req, resp, session, logic);
+                        case "course_media.html" ->
+                                PageStdsTextMedia.doGet(studentData, this, req, resp, session, logic);
+                        case "course_status.html" ->
+                                PageCourseStatus.doGet(studentData, this, req, resp, session, logic);
+                        case "course_text.html" -> PageStdsText.doGet(studentData, this, req, resp, session, logic);
                         case "course_text_module.html" ->
-                                PageStdsTextModule.doGet(cache, this, req, resp, session, logic);
+                                PageStdsTextModule.doGet(studentData, this, req, resp, session, logic);
 
                         case "skills_review.html" ->
-                                PageSkillsReview.doGet(cache, type, this, req, resp, session, logic);
-                        case "lesson.html" -> PageLesson.doGet(cache, this, req, resp, session, logic);
+                                PageSkillsReview.doGet(studentData, type, this, req, resp, session, logic);
+                        case "lesson.html" -> PageLesson.doGet(studentData, this, req, resp, session, logic);
                         case "placement_report.html" ->
-                                PagePlacementReport.doGet(cache, this, req, resp, session, logic);
-                        case "proctor_login.html" -> PageProctorLogin.doGet(cache, this, req, resp, session);
-                        case "video.html" -> PageVideo.doGet(cache, this, req, resp, session, logic);
+                                PagePlacementReport.doGet(studentData, this, req, resp, session, logic);
+                        case "proctor_login.html" -> PageProctorLogin.doGet(studentData, this, req, resp, session);
+                        case "video.html" -> PageVideo.doGet(studentData, this, req, resp, session, logic);
                         case "video_example.html" -> PageVideoExample.doGet(this, req, resp, session);
                         case "run_homework.html" ->
-                                PageHtmlHomework.startHomework(cache, this, req, resp, session, logic);
-                        case "run_lta.html" -> PageHtmlLta.startLta(cache, this, req, resp, session, logic);
+                                PageHtmlHomework.startHomework(studentData, this, req, resp, session, logic);
+                        case "run_lta.html" -> PageHtmlLta.startLta(studentData, this, req, resp, session, logic);
                         case "run_review.html" ->
-                                PageHtmlReviewExam.startReviewExam(cache, this, req, resp, session, logic);
+                                PageHtmlReviewExam.startReviewExam(studentData, this, req, resp, session, logic);
                         case "update_homework.html" ->
-                                PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
-                        case "update_lta.html" -> PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
+                                PageHtmlHomework.updateHomework(studentData, this, req, resp, session, logic);
+                        case "update_lta.html" -> PageHtmlLta.updateLta(studentData, this, req, resp, session, logic);
                         case "update_review_exam.html" ->
-                                PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
+                                PageHtmlReviewExam.updateReviewExam(studentData, this, req, resp, session, logic);
                         case "update_past_exam.html" ->
-                                PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
+                                PageHtmlPastExam.updatePastExam(studentData, this, req, resp, session, logic);
                         case "update_past_lta.html" ->
-                                PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
+                                PageHtmlPastLta.updatePastLta(studentData, this, req, resp, session, logic);
                         case "update_unit_exam.html" ->
-                                PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
-                        case "run_unit.html" -> PageHtmlUnitExam.startUnitExam(cache, this, req, resp, session, logic);
+                                PageHtmlUnitExam.updateUnitExam(studentData, this, req, resp, session, logic);
+                        case "run_unit.html" ->
+                                PageHtmlUnitExam.startUnitExam(studentData, this, req, resp, session, logic);
                         case "see_past_exam.html" ->
-                                PageHtmlPastExam.startPastExam(cache, this, req, resp, session, logic);
+                                PageHtmlPastExam.startPastExam(studentData, this, req, resp, session, logic);
                         case "see_past_lta.html" ->
-                                PageHtmlPastLta.startPastLta(cache, this, req, resp, session, logic);
+                                PageHtmlPastLta.startPastLta(studentData, this, req, resp, session, logic);
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String path = this.siteProfile.path;
@@ -188,7 +193,7 @@ public class CourseSite extends AbstractPageSite {
                     }
                 }
             } else {
-                PageMaintenance.doGet(cache, this, req, resp, maintMsg);
+                PageMaintenance.doGet(studentData, this, req, resp, maintMsg);
             }
         }
     }
@@ -197,15 +202,15 @@ public class CourseSite extends AbstractPageSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
-     * @param type    the site type
-     * @param req     the request
-     * @param resp    the response
+     * @param studentData the student data object
+     * @param subpath     the portion of the path beyond that which was used to select this site
+     * @param type        the site type
+     * @param req         the request
+     * @param resp        the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doPost(final Cache cache, final String subpath, final ESiteType type,
+    public void doPost(final StudentData studentData, final String subpath, final ESiteType type,
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
@@ -221,11 +226,11 @@ public class CourseSite extends AbstractPageSite {
                 logic.gatherData();
 
                 if ("rolecontrol.html".equals(subpath)) {
-                    processRoleControls(cache, req, resp, session);
+                    processRoleControls(studentData, req, resp, session);
                 } else if ("home.html".equals(subpath)) {
-                    PageHome.doGet(cache, this, req, resp, session, logic);
+                    PageHome.doGet(studentData, this, req, resp, session, logic);
                 } else if ("media_feedback.html".equals(subpath)) {
-                    PageVideo.doMediaFeedback(cache, this, req, resp, session, logic);
+                    PageVideo.doMediaFeedback(studentData, this, req, resp, session, logic);
                 } else if ("example_feedback.html".equals(subpath)) {
                     PageVideoExample.doExampleFeedback(this, req, resp, session);
                 } else if ("process_proctor_login.html".equals(subpath)) {
@@ -233,41 +238,39 @@ public class CourseSite extends AbstractPageSite {
                 } else if ("process_honorlock_login.html".equals(subpath)) {
                     doProcessHonorlockLogin(req, resp);
                 } else if ("set_course_schedule.html".equals(subpath)) {
-                    PageSchedule.doSetCourseOrder(cache, req, resp, logic);
+                    PageSchedule.doSetCourseOrder(studentData, req, resp, logic);
                 } else if ("update_homework.html".equals(subpath)) {
-                    PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
+                    PageHtmlHomework.updateHomework(studentData, this, req, resp, session, logic);
                 } else if ("update_lta.html".equals(subpath)) {
-                    PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
+                    PageHtmlLta.updateLta(studentData, this, req, resp, session, logic);
                 } else if ("update_review_exam.html".equals(subpath)) {
-                    PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
+                    PageHtmlReviewExam.updateReviewExam(studentData, this, req, resp, session, logic);
                 } else if ("update_past_exam.html".equals(subpath)) {
-                    PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
+                    PageHtmlPastExam.updatePastExam(studentData, this, req, resp, session, logic);
                 } else if ("update_past_lta.html".equals(subpath)) {
-                    PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
+                    PageHtmlPastLta.updatePastLta(studentData, this, req, resp, session, logic);
                 } else if ("update_unit_exam.html".equals(subpath)) {
-                    PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
+                    PageHtmlUnitExam.updateUnitExam(studentData, this, req, resp, session, logic);
                 } else {
                     Log.warning("Unrecognized POST request path: ", subpath);
                     final String path = this.siteProfile.path;
-                    resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
-                            ? "index.html" : "/index.html"));
+                    resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
                 }
             }
         } else {
-            PageMaintenance.doGet(cache, this, req, resp, maintMsg);
+            PageMaintenance.doGet(studentData, this, req, resp, maintMsg);
         }
     }
 
     /**
      * Checks whether the student has "credit" for a course from the perspective of testing prerequisites.
      *
-     * @param cache     the data cache
-     * @param studentId the student ID
-     * @param courseId  the course to test
+     * @param studentData the student data object
+     * @param courseId    the course to test
      * @return true if student has the course
      * @throws SQLException if there was an error accessing the database
      */
-    static boolean hasCourseAsPrereq(final Cache cache, final String studentId,
+    static boolean hasCourseAsPrereq(final StudentData studentData,
                                      final String courseId) throws SQLException {
 
         boolean hasCourse = false;

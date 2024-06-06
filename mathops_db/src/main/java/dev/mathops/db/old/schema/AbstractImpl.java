@@ -1,6 +1,6 @@
 package dev.mathops.db.old.schema;
 
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.old.IDataDomainObject;
 import dev.mathops.db.old.IDataObject;
 

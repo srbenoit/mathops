@@ -3,17 +3,13 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rec.StudentCourseMasteryRec;
-import dev.mathops.db.old.reclogic.StudentCourseMasteryLogic;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
-import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 
-import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.List;
 

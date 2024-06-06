@@ -2,7 +2,7 @@ package dev.mathops.db.old.reclogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.rec.MasteryAttemptQaRec;
 import dev.mathops.db.old.reclogic.iface.IInformixRecLogic;
@@ -73,7 +73,7 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
      *
      * @param cache     the data cache
      * @param serialNbr the student ID
-     * @param examId    the student ID
+     * @param examId    the exam ID
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
@@ -440,6 +440,22 @@ public abstract class MasteryAttemptQaLogic implements IRecLogic<MasteryAttemptQ
             final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
                     ".mastery_attempt_qa WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND exam_id=", sqlStringValue(examId));
+
+            return doListQuery(cache, sql);
+        }
+
+        /**
+         * Queries for all mastery question answers for a student.
+         *
+         * @param cache     the data cache
+         * @param studentId    the student ID
+         * @return the list of records returned
+         * @throws SQLException if there is an error performing the query
+         */
+        public List<MasteryAttemptQaRec> queryByStudent(final Cache cache, final String studentId) throws SQLException {
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+                    ".mastery_attempt_qa WHERE stu_id=", sqlStringValue(studentId));
 
             return doListQuery(cache, sql);
         }

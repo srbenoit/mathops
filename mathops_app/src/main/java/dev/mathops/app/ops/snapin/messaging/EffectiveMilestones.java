@@ -1,7 +1,8 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
@@ -122,12 +123,13 @@ public class EffectiveMilestones {
     /**
      * Constructs a new {@code EffectiveMilestones}.
      *
-     * @param cache   the data cache
-     * @param pace    the pace
-     * @param index   the index (from 1 to {@code pace})
-     * @param context the messaging context
+     * @param studentData the student data object
+     * @param pace        the pace
+     * @param index       the index (from 1 to {@code pace})
+     * @param context     the messaging context
      */
-    public EffectiveMilestones(final Cache cache, final int pace, final int index, final MessagingContext context) {
+    public EffectiveMilestones(final StudentData studentData, final int pace, final int index,
+                               final MessagingContext context) {
 
         final int base = 100 * pace;
         final int unit0 = base + 10 * index;
@@ -151,14 +153,15 @@ public class EffectiveMilestones {
         try {
             final Collection<LocalDate> holidays = new ArrayList<>(10);
 
-            final List<RawCampusCalendar> campusRows =
-                    RawCampusCalendarLogic.queryByType(cache, RawCampusCalendar.DT_DESC_HOLIDAY);
+            final Cache cache = studentData.getCache();
+
+            final List<RawCampusCalendar> campusRows = RawCampusCalendarLogic.queryByType(cache,
+                    RawCampusCalendar.DT_DESC_HOLIDAY);
             for (final RawCampusCalendar row : campusRows) {
                 holidays.add(row.campusDt);
             }
 
-            final List<RawSemesterCalendar> semesterRows =
-                    RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawSemesterCalendar> semesterRows = RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
 
             int maxWeek = 0;
             for (final RawSemesterCalendar test : semesterRows) {

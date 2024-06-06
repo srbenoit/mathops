@@ -1,7 +1,7 @@
 package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.ELMTutorialStatus;

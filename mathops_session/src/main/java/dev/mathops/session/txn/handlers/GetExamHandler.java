@@ -6,23 +6,21 @@ import dev.mathops.assessment.document.template.DocNonwrappingSpan;
 import dev.mathops.assessment.document.template.DocParagraph;
 import dev.mathops.assessment.document.template.DocText;
 import dev.mathops.assessment.document.template.DocWrappingSpan;
-import dev.mathops.assessment.exam.ExamGradingRule;
 import dev.mathops.assessment.exam.ExamObj;
-import dev.mathops.assessment.exam.ExamOutcome;
 import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
-import dev.mathops.assessment.exam.ExamSubtest;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemAutoCorrectTemplate;
-import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
-import dev.mathops.db.old.logic.ChallengeExamStatus;
+import dev.mathops.db.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.ChallengeExamStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
@@ -51,8 +49,6 @@ import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetExamRequest;
 
-import javax.print.Doc;
-import java.awt.Color;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -185,6 +181,9 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 boolean eligible;
                 StandardsMasteryLogic standardsMasteryLogic = null;
 
+                // FIXME: Move this up, use for student-related data throughout
+                final StudentData studentData = new StudentData(cache, student.stuId, ELiveRefreshes.NONE);
+
                 if ("Q".equals(avail.exam.examType)) {
 
                     // NOTE: This includes user's exams
@@ -221,7 +220,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     }
                 } else if ("CH".equals(avail.exam.examType)) {
 
-                    final ChallengeExamLogic logic = new ChallengeExamLogic(cache, student.stuId);
+                    final ChallengeExamLogic logic = new ChallengeExamLogic(studentData);
                     final ChallengeExamStatus status = logic.getStatus(avail.exam.course);
 
                     if (status.availableExamId == null) {
@@ -236,7 +235,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     }
                 } else if ("MA".equals(avail.exam.examType)) {
 
-                    standardsMasteryLogic = new StandardsMasteryLogic(cache, request.studentId, avail.exam.course);
+                    standardsMasteryLogic = new StandardsMasteryLogic(studentData, avail.exam.course);
                     final int numAvailableToMaster = standardsMasteryLogic.countAvailableStandards();
 
                     if (numAvailableToMaster == 0) {

@@ -4,14 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
-import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawMpecrDenied;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -26,6 +20,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -43,15 +38,15 @@ enum PageStudentPlacement {
     /**
      * Shows the student information page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -62,14 +57,14 @@ enum PageStudentPlacement {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+            PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageHome.doGet(cache, site, req, resp, session, "Student not found.");
+                PageHome.doGet(studentData, site, req, resp, session, "Student not found.");
             } else {
-                doStudentActivityPage(cache, site, req, resp, session, student);
+                doStudentActivityPage(studentData, site, req, resp, session, student);
             }
         }
     }
@@ -77,21 +72,21 @@ enum PageStudentPlacement {
     /**
      * Shows the student activity page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param student the student for which to present information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param student     the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStudentActivityPage(final Cache cache, final AdminSite site,
+    private static void doStudentActivityPage(final StudentData studentData, final AdminSite site,
                                               final ServletRequest req, final HttpServletResponse resp,
                                               final ImmutableSessionInfo session, final RawStudent student)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = OfficePage.startOfficePage(cache, site, session, true);
+        final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
         htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
                 student.stuId, "</code></strong>").eP();
@@ -126,38 +121,38 @@ enum PageStudentPlacement {
             htm.eDiv(); // narrowstack
 
             htm.sDiv("detail");
-            emitStudentPlacement(cache, htm, student);
+            emitStudentPlacement(studentData, htm, student);
             htm.eDiv(); // detail
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * Emits general student placement status.
      *
-     * @param cache   the data cache
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student record
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param student     the student record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStudentPlacement(final Cache cache, final HtmlBuilder htm,
+    private static void emitStudentPlacement(final StudentData studentData, final HtmlBuilder htm,
                                              final RawStudent student) throws SQLException {
 
         final String stuId = student.stuId;
 
-        final List<RawStexam> elms = RawStexamLogic.getExams(cache, stuId, RawRecordConstants.M100T, true, "U");
-        final List<RawStexam> pre117 = RawStexamLogic.getExams(cache, stuId, "M 1170", true, "U");
-        final List<RawStexam> pre118 = RawStexamLogic.getExams(cache, stuId, "M 1180", true, "U");
-        final List<RawStexam> pre124 = RawStexamLogic.getExams(cache, stuId, "M 1240", true, "U");
-        final List<RawStexam> pre125 = RawStexamLogic.getExams(cache, stuId, "M 1250", true, "U");
-        final List<RawStexam> pre126 = RawStexamLogic.getExams(cache, stuId, "M 1260", true, "U");
+        final List<RawStexam> elms = studentData.getStudentExamsByCourseType(RawRecordConstants.M100T, true, "U");
+        final List<RawStexam> pre117 = studentData.getStudentExamsByCourseType("M 1170", true, "U");
+        final List<RawStexam> pre118 = studentData.getStudentExamsByCourseType("M 1180", true, "U");
+        final List<RawStexam> pre124 = studentData.getStudentExamsByCourseType("M 1240", true, "U");
+        final List<RawStexam> pre125 = studentData.getStudentExamsByCourseType("M 1250", true, "U");
+        final List<RawStexam> pre126 = studentData.getStudentExamsByCourseType("M 1260", true, "U");
 
-        final List<RawStchallenge> challenges = RawStchallengeLogic.queryByStudent(cache, stuId);
-        final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, stuId);
-        final List<RawMpeCredit> credit = RawMpeCreditLogic.queryByStudent(cache, stuId);
-        final List<RawMpecrDenied> denied = RawMpecrDeniedLogic.queryByStudent(cache, stuId);
+        final List<RawStchallenge> challenges = studentData.getChallengeExams();
+        final List<RawStmpe> attempts = studentData.getPlacementAttempts();
+        final List<RawMpeCredit> credit = studentData.getPlacementCredit();
+        final List<RawMpecrDenied> denied = studentData.getPlacementDenied();
 
         htm.sH(4).add("Tutorial Exams").eH(4);
 
@@ -193,7 +188,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (117) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (117) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -210,7 +206,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (118) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (118) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -227,7 +224,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (124) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (124) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")")
                             .br().add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -244,7 +242,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (125) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (125) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")")
                             .br().add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -261,7 +260,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (126) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (126) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()

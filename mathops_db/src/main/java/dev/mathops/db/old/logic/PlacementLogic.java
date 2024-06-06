@@ -2,18 +2,13 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStmpe;
-import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -131,23 +126,8 @@ public class PlacementLogic {
 
     //
 
-    /** The student ID. */
-    private final String studentId;
-
     /** The student's application term, null if not known. */
     private final TermKey applicationTerm;
-
-    /** The student record. */
-    private final RawStudent student;
-
-    /** The list of all student attempts on record. */
-    private final List<RawStmpe> allAttempts;
-
-    /** The list of placement or credit earned. */
-    private final List<RawMpeCredit> allPlacementCredit;
-
-    /** All special categories to which the student currently belongs. */
-    private final SpecialCategoriesStatus allSpecials;
 
     /** The student's status with respect to the math placement tool. */
     public final PlacementStatus status;
@@ -155,50 +135,39 @@ public class PlacementLogic {
     /**
      * Constructs a new {@code PlacementLogic}.
      *
-     * @param cache              the data cache
-     * @param theStudentId       the student ID
+     * @param studentData        the student data object
      * @param theApplicationTerm the student's application term, null if not known
      * @param now                the date/time to consider "now" @ throws SQLException if there is an error accessing
      *                           the database
      * @throws SQLException if there is an error accessing the database
      */
-    public PlacementLogic(final Cache cache, final String theStudentId, final TermKey theApplicationTerm,
+    public PlacementLogic(final StudentData studentData, final TermKey theApplicationTerm,
                           final ZonedDateTime now) throws SQLException {
 
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache may not be null");
-        }
-        if (theStudentId == null) {
-            throw new IllegalArgumentException("Student ID may not be null");
+        if (studentData == null) {
+            throw new IllegalArgumentException("Student data object may not be null");
         }
         if (now == null) {
             throw new IllegalArgumentException("Current date/time may not be null");
         }
 
-        this.studentId = theStudentId;
         this.applicationTerm = theApplicationTerm;
         this.status = new PlacementStatus();
-        this.student = RawStudentLogic.query(cache, this.studentId, false);
-        this.allAttempts = RawStmpeLogic.queryLegalByStudent(cache, this.studentId);
-        this.allPlacementCredit = RawMpeCreditLogic.queryByStudent(cache, this.studentId);
-        this.allSpecials = SpecialCategoriesStatus.of(cache, this.studentId);
 
         final LocalDate today = now.toLocalDate();
-        computeStatus(cache, today);
+        computeStatus(studentData, today);
     }
 
     /**
      * Computes placement status.
      *
-     * @param cache the data cache
-     * @param today the current date
+     * @param studentData the student data
+     * @param today       the current date
      * @throws SQLException if there is an error accessing the database
      */
-    private void computeStatus(final Cache cache, final LocalDate today) throws SQLException {
+    private void computeStatus(final StudentData studentData, final LocalDate today) throws SQLException {
 
-        if (this.student == null || this.allAttempts == null || this.allPlacementCredit == null
-                || this.allSpecials == null) {
-
+        if (studentData == null) {
             // Can't query required data - make nothing available
             this.status.allowedToUseUnproctored = false;
             this.status.attemptsRemaining = 0;
@@ -207,7 +176,10 @@ public class PlacementLogic {
             final String stuMsg = Res.get(Res.PLC_CANT_LOOKUP_RECORD_S);
             this.status.setWhyProctoredUnavailable(admMsg, stuMsg);
         } else {
-            this.status.placementAttempted = !this.allAttempts.isEmpty();
+            final List<RawStmpe> allPlacementAttempts = studentData.getLegalPlacementAttempts();
+            final List<RawSpecialStus> activeSpecials = studentData.getActiveSpecialCategories(today);
+
+            this.status.placementAttempted = !allPlacementAttempts.isEmpty();
 
             // Count used attempts
             int numUnproctored = 0;
@@ -215,14 +187,14 @@ public class PlacementLogic {
             int numCountedAttempts = 0;
 
             int maxTries = MAX_TOTAL_PLACEMENT_ATTEMPTS;
-            for (final RawSpecialStus test : this.allSpecials.getActive(today)) {
+            for (final RawSpecialStus test : activeSpecials) {
                 if ("MPT3".equals(test.stuType)) {
                     ++maxTries;
                 }
             }
 
             // The following should include all historical exam IDs as well as current IDs
-            for (final RawStmpe attempt : this.allAttempts) {
+            for (final RawStmpe attempt : allPlacementAttempts) {
                 if (LEGACY_UNPROCTORED_MPE_ID.equals(attempt.version)) {
                     // NOTE: this is not "counted"
                     ++numAttempts;
@@ -247,15 +219,16 @@ public class PlacementLogic {
                 // All attempts used - make nothing available
                 this.status.allowedToUseUnproctored = false;
                 this.status.attemptsRemaining = 0;
-                this.status.setWhyProctoredUnavailable(Res.get(Res.PLC_NO_ATTEMPTS_REMAIN_L),
-                        Res.get(Res.PLC_NO_ATTEMPTS_REMAIN_S));
+                final String msgL = Res.get(Res.PLC_NO_ATTEMPTS_REMAIN_L);
+                final String msgS = Res.get(Res.PLC_NO_ATTEMPTS_REMAIN_S);
+                this.status.setWhyProctoredUnavailable(msgL, msgS);
             } else {
                 this.status.attemptsRemaining = maxTries - numCountedAttempts;
-                computeStatusAttemptsRemain(cache, today, numUnproctored, numCountedAttempts,
+                computeStatusAttemptsRemain(studentData, today, numUnproctored, numCountedAttempts,
                         maxTries);
             }
 
-            buildClearedList();
+            buildClearedList(studentData);
         }
     }
 
@@ -263,25 +236,26 @@ public class PlacementLogic {
      * Computes the status of the unproctored placement tool format once the database data has been validated as
      * present.
      *
-     * @param cache          the data cache
+     * @param studentData    the student data object
      * @param today          the current date
      * @param numUnproctored the number of unproctored attempts used
      * @param numTotal       the total number of attempts used
      * @param maxTries       the maximum number of total attempts allowed for this student
      * @throws SQLException if there is an error accessing the database
      */
-    private void computeStatusAttemptsRemain(final Cache cache, final LocalDate today, final int numUnproctored,
-                                             final int numTotal, final int maxTries) throws SQLException {
+    private void computeStatusAttemptsRemain(final StudentData studentData, final LocalDate today,
+                                             final int numUnproctored, final int numTotal, final int maxTries)
+            throws SQLException {
 
         // Create list of date ranges for unproctored exams
-
         final List<DateRange> unproctoredRanges = new ArrayList<>(10);
 
         // For each remote MPE record, create a date range and add to list.
-
         if (this.applicationTerm != null) {
             boolean hasFutureRemote = false;
-            for (final RawRemoteMpe rec : RawRemoteMpeLogic.queryByCourse(cache, RawRecordConstants.M100P)) {
+            final List<RawRemoteMpe> windows = studentData.getRemotePlacementWindowsForCourse(RawRecordConstants.M100P);
+
+            for (final RawRemoteMpe rec : windows) {
                 if (this.applicationTerm.equals(rec.aplnTerm)) {
                     final DateRange range = new DateRange(rec.startDt, rec.endDt);
                     unproctoredRanges.add(range);
@@ -305,7 +279,7 @@ public class PlacementLogic {
         // indicates DCE students are allowed unproctored attempts, add a synthetic remote MPE
         // record to the list with date ranges from the special student record
 
-        final List<RawSpecialStus> active = this.allSpecials.getActive(today);
+        final List<RawSpecialStus> active = studentData.getActiveSpecialCategories(today);
 
         if (IS_DCE_ALLOWED_UNPROCTORED) {
             for (final RawSpecialStus spec : active) {
@@ -377,7 +351,8 @@ public class PlacementLogic {
 
                         if (mostRecent == null) {
                             // No dates remain - should never occur, but handle just in case
-                            final String msg = Res.fmt(Res.PLC_ERR_NO_DATE_RANGES, this.studentId);
+                            final String studentId = studentData.getStudentId();
+                            final String msg = Res.fmt(Res.PLC_ERR_NO_DATE_RANGES, studentId);
                             Log.warning(msg);
                             this.status.allowedToUseUnproctored = false;
                         } else {
@@ -398,8 +373,10 @@ public class PlacementLogic {
 
     /**
      * Populates the list of courses that the student is cleared to take based on placement results.
+     *
+     * @param studentData the student data
      */
-    private void buildClearedList() {
+    private void buildClearedList(final StudentData studentData) throws SQLException {
 
         final Set<String> cleared = this.status.clearedFor;
         final Set<String> placedOut = this.status.placedOutOf;
@@ -409,7 +386,9 @@ public class PlacementLogic {
         cleared.add("MATH 105");
         cleared.add("STAT 100");
 
-        for (final RawMpeCredit cred : this.allPlacementCredit) {
+        final List<RawMpeCredit> allPlacementCredit = studentData.getPlacementCredit();
+
+        for (final RawMpeCredit cred : allPlacementCredit) {
             final String course = cred.course;
 
             if (RawRecordConstants.M100C.equals(course)) {

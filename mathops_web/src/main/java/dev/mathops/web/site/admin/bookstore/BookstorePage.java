@@ -3,8 +3,9 @@ package dev.mathops.web.site.admin.bookstore;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -21,6 +22,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -64,19 +66,21 @@ enum BookstorePage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
-     * @param cache the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param session the login session
      * @return the created {@code HtmlBuilder}
      * @throws SQLException if there is an error accessing the database
      */
-    static HtmlBuilder startBookstorePage(final Cache cache, final AdminSite site, final ImmutableSessionInfo session)
-            throws SQLException {
+    static HtmlBuilder startBookstorePage(final WebViewData data, final AdminSite site,
+                                          final ImmutableSessionInfo session) throws SQLException {
 
+        final Cache cache = data.getCache();
         final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, null, false, null, "home.html", Page.NO_BARS, null, false, true);
         AdminPage.emitPageHeader(htm, session, whichDb, false);
 
         return htm;
@@ -85,7 +89,7 @@ enum BookstorePage {
     /**
      * Processes any submissions by the role controls (call on POST).
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the HTTP request
      * @param resp    the HTTP response
@@ -93,9 +97,9 @@ enum BookstorePage {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void processRoleControls(final Cache cache, final AdminSite site,
-                                    final ServletRequest req, final HttpServletResponse resp,
-                                    final ImmutableSessionInfo session) throws IOException, SQLException {
+    static void processRoleControls(final WebViewData data, final AdminSite site, final ServletRequest req,
+                                    final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final ISessionManager sessMgr = SessionManager.getInstance();
 
@@ -105,14 +109,20 @@ enum BookstorePage {
         final String target = req.getParameter(TARGET);
 
         if (target == null) {
-            PageError.doGet(cache, site, req, resp, session, Res.get(Res.NO_ROLE_TARGET));
+            final String msg = Res.get(Res.NO_ROLE_TARGET);
+            PageError.doGet(data, site, req, resp, session, msg);
         } else if (AbstractSite.isParamInvalid(actAsStu) || AbstractSite.isParamInvalid(becomeStu)
                 || AbstractSite.isParamInvalid(adjustDate) || AbstractSite.isParamInvalid(target)) {
-            Log.warning(Res.get(Res.POSSIBLE_ATTACK));
-            Log.warning(Res.fmt(Res.ATTACK_PARAM, ACT_AS_STU_ID, actAsStu));
-            Log.warning(Res.fmt(Res.ATTACK_PARAM, BECOME_STU_ID, becomeStu));
-            Log.warning(Res.fmt(Res.ATTACK_PARAM, ADJUST_DATE, adjustDate));
-            Log.warning(Res.fmt(Res.ATTACK_PARAM, TARGET, target));
+            final String msg1 = Res.get(Res.POSSIBLE_ATTACK);
+            final String msg2 = Res.fmt(Res.ATTACK_PARAM, ACT_AS_STU_ID, actAsStu);
+            final String msg3 = Res.fmt(Res.ATTACK_PARAM, BECOME_STU_ID, becomeStu);
+            final String msg4 = Res.fmt(Res.ATTACK_PARAM, ADJUST_DATE, adjustDate);
+            final String msg5 = Res.fmt(Res.ATTACK_PARAM, TARGET, target);
+            Log.warning(msg1);
+            Log.warning(msg2);
+            Log.warning(msg3);
+            Log.warning(msg4);
+            Log.warning(msg5);
         } else {
             final int dateAdjust;
             if (WEEK_SUB.equals(adjustDate)) {
@@ -134,11 +144,21 @@ enum BookstorePage {
             String become2 = becomeStu == null ? null
                     : becomeStu.trim().replace(CoreConstants.DASH, CoreConstants.EMPTY);
 
-            if (actAs2 != null && !actAs2.isEmpty() && Character.isLetter(actAs2.charAt(0))) {
-                actAs2 = idFromStudentName(cache, actAs2);
+            if (actAs2 != null && !actAs2.isEmpty()) {
+                final char firstChar = actAs2.charAt(0);
+
+                if (Character.isLetter(firstChar)) {
+                    final Cache cache = data.getCache();
+                    actAs2 = idFromStudentName(cache, actAs2);
+                }
             }
-            if (become2 != null && !become2.isEmpty() && Character.isLetter(become2.charAt(0))) {
-                become2 = idFromStudentName(cache, become2);
+            if (become2 != null && !become2.isEmpty()) {
+                final char firstChar = become2.charAt(0);
+
+                if (Character.isLetter(firstChar)) {
+                    final Cache cache = data.getCache();
+                    become2 = idFromStudentName(cache, become2);
+                }
             }
 
             ImmutableSessionInfo sess = session;
@@ -149,10 +169,10 @@ enum BookstorePage {
 
             if (become2 == null) {
                 if (actAs2 != null) {
-                    actAsStudent(cache, sessMgr, actAs2, sess);
+                    actAsStudent(data, sessMgr, actAs2, sess);
                 }
             } else {
-                becomeStudent(cache, sessMgr, become2, sess);
+                becomeStudent(data, sessMgr, become2, sess);
             }
 
             resp.sendRedirect(target);
@@ -192,7 +212,7 @@ enum BookstorePage {
     /**
      * Processes a request to act as a new student.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param sessMgr the session manager
      * @param newStu  the new student ID
      * @param session the current session information
@@ -200,23 +220,23 @@ enum BookstorePage {
      *         not)
      * @throws SQLException of there was an error accessing the database
      */
-    private static ImmutableSessionInfo actAsStudent(final Cache cache,
-                                                     final ISessionManager sessMgr, final String newStu,
-                                                     final ImmutableSessionInfo session)
+    private static ImmutableSessionInfo actAsStudent(final WebViewData data, final ISessionManager sessMgr,
+                                                     final String newStu, final ImmutableSessionInfo session)
             throws SQLException {
 
         ImmutableSessionInfo sess = session;
 
         if (session.getEffectiveRole().canActAs(ERole.STUDENT)) {
-            final SessionResult res =
-                    sessMgr.setEffectiveUserId(cache, session.loginSessionId, newStu);
+            final SessionResult res = sessMgr.setEffectiveUserId(data, session.loginSessionId, newStu);
 
+            final Cache cache = data.getCache();
             CsuLiveRegChecker.checkLiveReg(cache, newStu);
             // StudentCache.get(primary, secondary).liveQueryStudent(newStu);
 
             if (res != null && res.session != null) {
                 sess = res.session;
-                Log.info(Res.fmt(Res.ACTING_AS, newStu));
+                final String msg = Res.fmt(Res.ACTING_AS, newStu);
+                Log.info(msg);
             }
         }
 
@@ -226,7 +246,7 @@ enum BookstorePage {
     /**
      * Processes a request to become a new student.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param sessMgr the session manager
      * @param newStu  the new student ID
      * @param session the current session information
@@ -234,7 +254,7 @@ enum BookstorePage {
      *         not)
      * @throws SQLException of there was an error accessing the database
      */
-    private static ImmutableSessionInfo becomeStudent(final Cache cache, final ISessionManager sessMgr,
+    private static ImmutableSessionInfo becomeStudent(final WebViewData data, final ISessionManager sessMgr,
                                                       final String newStu, final ImmutableSessionInfo session)
             throws SQLException {
 
@@ -243,13 +263,15 @@ enum BookstorePage {
         if (session.getEffectiveRole().canActAs(ERole.STUDENT)) {
             final ERole newRole = ERole.STUDENT;
 
-            final SessionResult res = sessMgr.setUserId(cache, session.loginSessionId, newStu, newRole);
+            final SessionResult res = sessMgr.setUserId(data, session.loginSessionId, newStu, newRole);
 
+            final Cache cache = data.getCache();
             CsuLiveRegChecker.checkLiveReg(cache, newStu);
 
             if (res != null && res.session != null) {
                 sess = res.session;
-                Log.info(Res.fmt(Res.BECOMING, newStu));
+                final String msg = Res.fmt(Res.BECOMING, newStu);
+                Log.info(msg);
             }
         }
 
@@ -304,7 +326,8 @@ enum BookstorePage {
             htm.add(" value='", key, "'");
         }
         htm.addln('>').br();
-        htm.addln("<input class='btn' type='submit' value='", Res.get(Res.CHECK_BTN_LBL), "'/>");
+        final String lbl = Res.get(Res.CHECK_BTN_LBL);
+        htm.addln("<input class='btn' type='submit' value='", lbl, "'/>");
         htm.eDiv();
         htm.addln("</form>");
         htm.sP("center");

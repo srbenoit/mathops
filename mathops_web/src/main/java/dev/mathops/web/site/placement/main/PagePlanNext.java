@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
@@ -21,7 +21,7 @@ import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
 import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
 import dev.mathops.db.old.logic.mathplan.data.ENextStep;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -63,22 +64,22 @@ enum PagePlanNext {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MPStudentData data = logic.getStudentData(studentData, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -95,9 +96,9 @@ enum PagePlanNext {
                     session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
 
             if (existing.containsKey(ONE)) {
-                showPlan(cache, session, htm, logic);
+                showPlan(studentData, session, htm, logic);
             } else {
-                PagePlanView.doGet(cache, site, req, resp, session, logic);
+                PagePlanView.doGet(studentData, site, req, resp, session, logic);
             }
 
             htm.eDiv(); // inset2
@@ -110,20 +111,20 @@ enum PagePlanNext {
     /**
      * Displays the student's next steps.
      *
-     * @param cache   the data cache
-     * @param session the session
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param logic   the site logic
+     * @param studentData the student data object
+     * @param session     the session
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param logic       the site logic
      * @throws SQLException if there is an error accessing the database
      */
-    private static void showPlan(final Cache cache, final ImmutableSessionInfo session,
+    private static void showPlan(final StudentData studentData, final ImmutableSessionInfo session,
                                  final HtmlBuilder htm, final MathPlanLogic logic) throws SQLException {
 
         htm.sDiv("shaded2left");
 
         final String screenName = session.getEffectiveScreenName();
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MPStudentData data = logic.getStudentData(studentData, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> intentions = data.getIntentions();
@@ -203,7 +204,7 @@ enum PagePlanNext {
      * @param data the student data
      * @return true if the student needs to complete placement, false if not
      */
-    private static boolean showNextSteps(final HtmlBuilder htm, final StudentData data) {
+    private static boolean showNextSteps(final HtmlBuilder htm, final MPStudentData data) {
 
         boolean needsPlacement = true;
 
@@ -249,7 +250,7 @@ enum PagePlanNext {
      * @param data the student data
      * @return true if the student needs to complete placement, false if not
      */
-    static boolean showNextStepsBrief(final HtmlBuilder htm, final StudentData data) {
+    static boolean showNextStepsBrief(final HtmlBuilder htm, final MPStudentData data) {
 
         boolean needsPlacement = true;
 
@@ -297,7 +298,7 @@ enum PagePlanNext {
      * @param showActions     true to include calls to action
      */
     private static void emitStep(final HtmlBuilder htm, final ENextStep step, final ETermName applicationTerm,
-                                 final StudentData data, final boolean showActions) {
+                                 final MPStudentData data, final boolean showActions) {
 
         final CourseSequence critical = data.recommendations.criticalSequence;
         final CourseSequence typical = data.recommendations.typicalSequence;
@@ -978,15 +979,15 @@ enum PagePlanNext {
     /**
      * Called when a POST is received to the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -998,11 +999,11 @@ enum PagePlanNext {
 
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
-            final String effectiveId = session.getEffectiveUserId();
-            final StudentData data = logic.getStudentData(cache, effectiveId, session.getNow(), session.loginSessionTag,
+            final ZonedDateTime now1 = session.getNow();
+            final MPStudentData data = logic.getStudentData(studentData, now1, session.loginSessionTag,
                     session.actAsUserId == null);
 
-            logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, session.getNow(),
+            logic.deleteMathPlanResponses(studentData, MathPlanConstants.INTENTIONS_PROFILE, now1,
                     session.loginSessionTag);
 
             final List<Integer> questions = new ArrayList<>(2);
@@ -1014,8 +1015,8 @@ enum PagePlanNext {
             questions.add(TWO);
             answers.add(aff2 ? "Y" : "N");
 
-            logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions, answers,
-                    session.getNow(), session.loginSessionTag);
+            logic.storeMathPlanResponses(studentData, MathPlanConstants.INTENTIONS_PROFILE, questions, answers, now1,
+                    session.loginSessionTag);
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
             // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that

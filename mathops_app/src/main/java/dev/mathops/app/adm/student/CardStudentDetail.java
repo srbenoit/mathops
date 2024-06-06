@@ -3,11 +3,11 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.BorderFactory;
@@ -21,6 +21,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.sql.SQLException;
 
 /**
  * A card to display when the user selects a single student.
@@ -205,24 +206,28 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
             this.selectedStudentId.setText(CoreConstants.EMPTY);
             this.tabs.setEnabled(false);
         } else {
-            this.mathPlanPanel.setSelectedStudent(cache, theData.student.stuId);
+            this.mathPlanPanel.setSelectedStudent(cache, theData.getStudentId());
 
-            final RawStudent student = theData.student;
+            try {
+                final RawStudent student = theData.getStudentRecord();
 
-            final StringBuilder name = new StringBuilder(100);
-            name.append(student.firstName);
-            if (student.middleInitial != null) {
-                name.append(' ').append(student.middleInitial).append('.');
+                final StringBuilder name = new StringBuilder(100);
+                name.append(student.firstName);
+                if (student.middleInitial != null) {
+                    name.append(' ').append(student.middleInitial).append('.');
+                }
+                name.append(' ').append(student.lastName);
+                if (student.prefName != null && !student.prefName.equals(student.firstName)) {
+                    name.append(" (").append(student.prefName).append(')');
+                }
+
+                this.selectedStudentName.setText(name.toString());
+                this.selectedStudentId.setText(student.stuId);
+                this.tabs.setEnabled(true);
+                this.tabs.setSelectedIndex(0);
+            } catch (final SQLException ex) {
+                Log.warning(ex);
             }
-            name.append(' ').append(student.lastName);
-            if (student.prefName != null && !student.prefName.equals(student.firstName)) {
-                name.append(" (").append(student.prefName).append(')');
-            }
-
-            this.selectedStudentName.setText(name.toString());
-            this.selectedStudentId.setText(student.stuId);
-            this.tabs.setEnabled(true);
-            this.tabs.setSelectedIndex(0);
         }
     }
 

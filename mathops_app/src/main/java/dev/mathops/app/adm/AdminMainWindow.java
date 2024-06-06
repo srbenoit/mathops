@@ -7,9 +7,8 @@ import dev.mathops.app.adm.student.TopPanelStudent;
 import dev.mathops.app.adm.testing.TestingTabPane;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.session.scramsha256.ScramClientStub;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;

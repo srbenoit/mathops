@@ -2,7 +2,9 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -167,10 +169,13 @@ public final class LogicCheckIn {
     private DataCheckInAttempt processCheckIn(final String studentId, final boolean enforceEligibility)
             throws SQLException {
 
-        final String[] error = new String[2];
-        final DataStudent studentData = loadDataOnStudent(studentId, error);
+        final StudentData studentData = new StudentData(this.cache, studentId, ELiveRefreshes.NONE);
 
-        final DataCheckInAttempt info = new DataCheckInAttempt(studentData);
+        final String[] error = new String[2];
+        // FIXME: Replace the following with "studentData"
+        final DataStudent dataStudent = loadDataOnStudent(studentId, error);
+
+        final DataCheckInAttempt info = new DataCheckInAttempt(dataStudent);
 
         final boolean ok = error[0] == null;
         if (error[0] != null) {
@@ -184,7 +189,7 @@ public final class LogicCheckIn {
 
             final LogicCheckInCourseExams courseExamsLogic = new LogicCheckInCourseExams(this.today, this.activeTerm,
                     info);
-            courseExamsLogic.execute(this.cache, enforceEligibility);
+            courseExamsLogic.execute(studentData, enforceEligibility);
 
             // Now we determine which exams the student is eligible to take. The logic is split into evaluating
             // non-course exams (placement exams, paper exams, etc.) and exams within courses.

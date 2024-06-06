@@ -3,7 +3,8 @@ package dev.mathops.web.site.admin.testing;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.HexEncoder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
@@ -13,6 +14,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -30,19 +32,19 @@ enum PagePower {
     /**
      * Handles a GET request for the page.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
+     * @param studentData the student data
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final AdminSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = TestingPage.startTestingPage(cache, site, session);
+        final HtmlBuilder htm = TestingPage.startTestingPage(studentData, site, session);
 
         TestingPage.emitNavBlock(ETestingTopic.POWER_ON_OFF, htm);
 
@@ -122,21 +124,21 @@ enum PagePower {
 
         }
 
-        TestingPage.endTestingPage(cache, htm, site, req, resp);
+        TestingPage.endTestingPage(studentData, htm, site, req, resp);
     }
 
     /**
      * Handles a POST request for the page.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doPost(final StudentData studentData, final AdminSite site, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -159,7 +161,7 @@ enum PagePower {
             }
         }
 
-        doGet(cache, site, req, resp, session);
+        doGet(studentData, site, req, resp, session);
     }
 
     /**

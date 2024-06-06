@@ -1,7 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
@@ -97,7 +99,7 @@ final class EPFStudents {
      * Executes the job.
      *
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
-     * @param epf                   map from student ID to report row for that EPF student
+     * @param epf               map from student ID to report row for that EPF student
      */
     void calculate(final Map<String, ? extends List<String>> incCourseSections,
                    final Map<String, ? super MessageToSend> epf) {
@@ -139,14 +141,15 @@ final class EPFStudents {
                     }
 
                     ++onStudent;
-                    final String descr =
-                            "Processing student " + onStudent + " out of " + numStudents;
+                    final String descr = "Processing student " + onStudent + " out of " + numStudents;
                     fireProgress(descr, completed, totalSteps);
 
                     final String studentId = e.getKey();
                     final List<RawStcourse> regs = e.getValue();
 
-                    processStudent(studentId, regs, today, msMap, act, epf, instructors);
+                    final StudentData studentData = new StudentData(this.cache, studentId, ELiveRefreshes.NONE);
+
+                    processStudent(studentData, regs, today, msMap, act, epf, instructors);
                     ++completed;
                 }
 
@@ -253,7 +256,7 @@ final class EPFStudents {
     /**
      * Processes a single student's registrations.
      *
-     * @param stuId       the student ID
+     * @param studentData the student data object
      * @param regs        the student's registrations (sorted map from course ID to registration)
      * @param today       the current date
      * @param msMap       map from pace to a map from track to list of milestones
@@ -262,7 +265,7 @@ final class EPFStudents {
      * @param instructors a map from pace to map from track to instructor
      * @throws SQLException if there is an error accessing the database
      */
-    private void processStudent(final String stuId, final List<RawStcourse> regs, final LocalDate today,
+    private void processStudent(final StudentData studentData, final List<RawStcourse> regs, final LocalDate today,
                                 final Map<Integer, ? extends Map<String, List<RawMilestone>>> msMap,
                                 final TermRec active, final Map<? super String, ? super MessageToSend> epfReport,
                                 final Map<Integer, ? extends Map<String, String>> instructors) throws SQLException {
@@ -309,6 +312,8 @@ final class EPFStudents {
             sc5 = nulls.remove(0);
         }
 
+        final String stuId = studentData.getStudentId();
+
         if (sc1 == null) {
             Log.warning("NO FIRST COURSE FOR ", stuId);
         } else {
@@ -330,16 +335,15 @@ final class EPFStudents {
                     if (stu == null) {
                         Log.warning("ERROR: No student record for ", stuId);
                     } else {
-                        final List<RawStexam> exams =
-                                RawStexamLogic.queryByStudent(this.cache, stuId, false);
+                        final List<RawStexam> exams = RawStexamLogic.queryByStudent(this.cache, stuId, false);
 
-                        final List<RawSthomework> homeworks =
-                                RawSthomeworkLogic.queryByStudent(this.cache, stuId, false);
+                        final List<RawSthomework> homeworks = RawSthomeworkLogic.queryByStudent(this.cache, stuId,
+                                false);
 
                         final List<RawStmsg> messages = RawStmsgLogic.queryByStudent(this.cache, stuId);
                         final List<RawSpecialStus> specials = RawSpecialStusLogic.queryByStudent(this.cache, stuId);
                         final LocalDate lastClassDay = RawCampusCalendarLogic.getLastClassDay(this.cache);
-                        final PrerequisiteLogic prereq = new PrerequisiteLogic(this.cache, stuId);
+                        final PrerequisiteLogic prereq = new PrerequisiteLogic(studentData);
 
                         final String instrName = instructors.get(paceInt).get(track);
 
@@ -349,23 +353,23 @@ final class EPFStudents {
 
                         switch (pace) {
                             case 1:
-                                processPace1Student(context, instrName, epfReport);
+                                processPace1Student(studentData, context, instrName, epfReport);
                                 break;
 
                             case 2:
-                                processPace2Student(context, instrName, epfReport);
+                                processPace2Student(studentData, context, instrName, epfReport);
                                 break;
 
                             case 3:
-                                processPace3Student(context, instrName, epfReport);
+                                processPace3Student(studentData, context, instrName, epfReport);
                                 break;
 
                             case 4:
-                                processPace4Student(context, instrName, epfReport);
+                                processPace4Student(studentData, context, instrName, epfReport);
                                 break;
 
                             case 5:
-                                processPace5Student(context, instrName, epfReport);
+                                processPace5Student(studentData, context, instrName, epfReport);
                                 break;
 
                             default:
@@ -384,15 +388,17 @@ final class EPFStudents {
     /**
      * Processes a student in a 1-course pace.
      *
+     * @param studentData the student data object
      * @param context   the messaging context
      * @param instrName the name of the instructor assigned to the student's pace/track
      * @param epfReport a map from student ID to report row for the EPF message report
      */
-    private void processPace1Student(final MessagingContext context, final String instrName,
+    private void processPace1Student(final StudentData studentData, final MessagingContext context,
+                                     final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
         final RawStcourse reg1 = context.sortedRegs.get(0);
-        final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 1, 1, context);
+        final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 1, 1, context);
         final MessagingCourseStatus current =
                 new MessagingCourseStatus(context, reg1, ms1, instrName);
 
@@ -408,11 +414,13 @@ final class EPFStudents {
     /**
      * Processes a student in a 2-course pace.
      *
+     * @param studentData the student data object
      * @param context   the messaging context
      * @param instrName the name of the instructor assigned to the student's pace/track
      * @param epfReport a map from student ID to report row for the EPF message report
      */
-    private void processPace2Student(final MessagingContext context, final String instrName,
+    private void processPace2Student(final StudentData studentData, final MessagingContext context,
+                                     final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
         // Identify the current course
@@ -421,11 +429,11 @@ final class EPFStudents {
         if ("Y".equals(reg1.completed)) {
             // Course 2 is current
             final RawStcourse reg2 = context.sortedRegs.get(1);
-            final EffectiveMilestones ms2 = new EffectiveMilestones(this.cache, 2, 2, context);
+            final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 2, 2, context);
             current = new MessagingCourseStatus(context, reg2, ms2, instrName);
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 2, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 2, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -441,11 +449,13 @@ final class EPFStudents {
     /**
      * Processes a student in a 3-course pace.
      *
+     * @param studentData the student data object
      * @param context   the messaging context
      * @param instrName the name of the instructor assigned to the student's pace/track
      * @param epfReport a map from student ID to report row for the EPF message report
      */
-    private void processPace3Student(final MessagingContext context, final String instrName,
+    private void processPace3Student(final StudentData studentData, final MessagingContext context,
+                                     final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
         // Identify the current course
@@ -457,16 +467,16 @@ final class EPFStudents {
             if ("Y".equals(reg2.completed)) {
                 // Course 3 is current
                 final RawStcourse reg3 = context.sortedRegs.get(2);
-                final EffectiveMilestones ms3 = new EffectiveMilestones(this.cache, 3, 3, context);
+                final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 3, 3, context);
                 current = new MessagingCourseStatus(context, reg3, ms3, instrName);
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(this.cache, 3, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 3, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 3, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 3, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -482,11 +492,13 @@ final class EPFStudents {
     /**
      * Processes a student in a 4-course pace.
      *
+     * @param studentData the student data object
      * @param context   the messaging context
      * @param instrName the name of the instructor assigned to the student's pace/track
      * @param epfReport a map from student ID to report row for the EPF message report
      */
-    private void processPace4Student(final MessagingContext context, final String instrName,
+    private void processPace4Student(final StudentData studentData, final MessagingContext context,
+                                     final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
         // Identify the current course
@@ -502,24 +514,22 @@ final class EPFStudents {
                 if ("Y".equals(reg3.completed)) {
                     // Course 4 is current
                     final RawStcourse reg4 = context.sortedRegs.get(3);
-                    final EffectiveMilestones ms4 =
-                            new EffectiveMilestones(this.cache, 4, 4, context);
+                    final EffectiveMilestones ms4 = new EffectiveMilestones(studentData, 4, 4, context);
                     current = new MessagingCourseStatus(context, reg4, ms4, instrName);
                 } else {
                     // Course 3 is current
-                    final EffectiveMilestones ms3 =
-                            new EffectiveMilestones(this.cache, 4, 3, context);
+                    final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 4, 3, context);
                     current = new MessagingCourseStatus(context, reg3, ms3, instrName);
                 }
 
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(this.cache, 4, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 4, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 4, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 4, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -535,11 +545,13 @@ final class EPFStudents {
     /**
      * Processes a student in a 5-course pace.
      *
+     * @param studentData the student data object
      * @param context   the messaging context
      * @param instrName the name of the instructor assigned to the student's pace/track
      * @param epfReport a map from student ID to report row for the EPF message report
      */
-    private void processPace5Student(final MessagingContext context, final String instrName,
+    private void processPace5Student(final StudentData studentData, final MessagingContext context,
+                                     final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
         // Identify the current course
@@ -558,30 +570,27 @@ final class EPFStudents {
                     if ("Y".equals(reg4.completed)) {
                         // Course 5 is current
                         final RawStcourse reg5 = context.sortedRegs.get(3);
-                        final EffectiveMilestones ms5 =
-                                new EffectiveMilestones(this.cache, 5, 5, context);
+                        final EffectiveMilestones ms5 = new EffectiveMilestones(studentData, 5, 5, context);
                         current = new MessagingCourseStatus(context, reg5, ms5, instrName);
                     } else {
                         // Course 4 is current
-                        final EffectiveMilestones ms4 =
-                                new EffectiveMilestones(this.cache, 5, 4, context);
+                        final EffectiveMilestones ms4 = new EffectiveMilestones(studentData, 5, 4, context);
                         current = new MessagingCourseStatus(context, reg4, ms4, instrName);
                     }
                 } else {
                     // Course 3 is current
-                    final EffectiveMilestones ms3 =
-                            new EffectiveMilestones(this.cache, 5, 3, context);
+                    final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 5, 3, context);
                     current = new MessagingCourseStatus(context, reg3, ms3, instrName);
                 }
 
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(this.cache, 5, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 5, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 5, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 5, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 

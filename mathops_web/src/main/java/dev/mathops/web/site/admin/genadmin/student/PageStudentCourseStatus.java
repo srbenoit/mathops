@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.EExamStructure;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -31,6 +30,7 @@ import dev.mathops.web.site.admin.genadmin.PageError;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -82,21 +82,21 @@ public enum PageStudentCourseStatus {
     /**
      * Shows the student status page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param student the student for which to present information
+     * @param studentData the student data object
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param student     the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitPageContent(final Cache cache, final AdminSite site,
+    private static void emitPageContent(final StudentData studentData, final AdminSite site,
                                         final ServletRequest req, final HttpServletResponse resp,
                                         final ImmutableSessionInfo session, final RawStudent student)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(studentData, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
@@ -114,10 +114,10 @@ public enum PageStudentCourseStatus {
         htm.add("</nav>");
 
         htm.addln("<main class='info'>");
-        emitCourseStatus(cache, site, session, htm, student);
+        emitCourseStatus(studentData, site, session, htm, student);
         htm.addln("</main>");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -150,18 +150,18 @@ public enum PageStudentCourseStatus {
     /**
      * Emits the student's course status.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param session the login session
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param student the student
+     * @param studentData the student data object
+     * @param site        the site
+     * @param session     the login session
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param student     the student
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseStatus(final Cache cache, final AdminSite site,
+    private static void emitCourseStatus(final StudentData studentData, final AdminSite site,
                                          final ImmutableSessionInfo session, final HtmlBuilder htm,
                                          final RawStudent student) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
 
         if (active == null) {
             htm.addln("ERROR: unable to query active term");
@@ -257,10 +257,10 @@ public enum PageStudentCourseStatus {
                         }
                         htm.eP();
 
-                        if (showProgress && stat.gatherData(cache, session, student.stuId,
+                        if (showProgress && stat.gatherData(studentData, session, student.stuId,
                                 reg.course, false, false)) {
 
-                            emitCourseProgress(cache, htm, stat, reg, compl);
+                            emitCourseProgress(studentData, htm, stat, reg, compl);
                             htm.div("vgap");
                             emitCourseDeadlines(htm, stat);
                         }
@@ -304,22 +304,21 @@ public enum PageStudentCourseStatus {
     /**
      * Emits a table that shows a summary of the student's progress in the course.
      *
-     * @param cache     the data cache
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param stat      the course status data container
-     * @param reg       the registration
-     * @param completed true if course is completed
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param stat        the course status data container
+     * @param reg         the registration
+     * @param completed   true if course is completed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseProgress(final Cache cache, final HtmlBuilder htm,
+    private static void emitCourseProgress(final StudentData studentData, final HtmlBuilder htm,
                                            final StudentCourseStatus stat, final RawStcourse reg,
                                            final boolean completed) throws SQLException {
 
         final int maxUnit = stat.getMaxUnit();
         final RawCsection csect = stat.getCourseSection();
 
-        final EExamStructure examStruct =
-                csect == null ? null : RawCsectionLogic.getExamStructure(csect);
+        final EExamStructure examStruct = csect == null ? null : EExamStructure.UNIT_FINAL;
 
         // Show student progress in the class
         htm.sTable("report", "style='margin:0;line-height:1;'");

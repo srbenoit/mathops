@@ -3,7 +3,7 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.PlacementLogic;
@@ -11,17 +11,17 @@ import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -33,15 +33,15 @@ enum PageToolHome {
     /**
      * Generates the home page with the menu of courses and general information for the student.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error writing the response
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -57,14 +57,14 @@ enum PageToolHome {
                 "The Student Disability Center</a>.").eP();
         htm.div("vgap");
 
-        final RawStudent stu = RawStudentLogic.query(cache, effId, false);
+        final RawStudent stu = studentData.getStudentRecord();
 
-        final PlacementLogic logic =
-                new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm, session.getNow());
+        final ZonedDateTime now = session.getNow();
+        final PlacementLogic logic = new PlacementLogic(studentData, stu == null ? null : stu.aplnTerm, now);
         final PlacementStatus status = logic.status;
 
         if (status.attemptsUsed > 0) {
-            PlacementReport.doPlacementReport(cache, status, session, null, false, htm);
+            PlacementReport.doPlacementReport(studentData, status, session, null, false, htm);
         } else {
             htm.sP("indent11", "style='padding-left:32px;'");
             htm.add("<img src='/images/orange2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
@@ -181,14 +181,13 @@ enum PageToolHome {
         // special student records) is "FA" are eligible for at least one Precalculus Tutorial,
         // as long as it is open or will open in the future
 
-        final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, effId);
-        final PrecalcTutorialLogic tutLogic = new PrecalcTutorialLogic(cache, effId, session.getNow().toLocalDate(),
-                prereq);
+        final PrerequisiteLogic prereq = new PrerequisiteLogic(studentData);
+        final PrecalcTutorialLogic tutLogic = new PrecalcTutorialLogic(studentData, now.toLocalDate(), prereq);
         final PrecalcTutorialStatus tutStatus = tutLogic.status;
 
         if (tutStatus.eligibleForPrecalcTutorial) {
 
-            final List<RawCampusCalendar> cal = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> cal = studentData.getCampusCalendars();
             LocalDate start = null;
             LocalDate end = null;
             LocalDate info = null;
@@ -201,7 +200,7 @@ enum PageToolHome {
                     info = test.campusDt;
                 }
             }
-            final LocalDate today = session.getNow().toLocalDate();
+            final LocalDate today = now.toLocalDate();
 
             if (start != null && end != null && !today.isAfter(end)) {
 

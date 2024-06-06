@@ -2,7 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 
 import java.sql.ResultSet;

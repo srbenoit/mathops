@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin;
 
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 
 /**
  * The base class for a snap-in.

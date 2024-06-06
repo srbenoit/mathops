@@ -1,8 +1,7 @@
 package dev.mathops.web.site.admin.office;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.Page;
@@ -34,18 +33,18 @@ enum OfficePage {
      * Creates an {@code HtmlBuilder} and starts a system administration page, emitting the page start and the top level
      * header.
      *
-     * @param cache    the data cache
-     * @param site     the owning site
-     * @param session  the login session
-     * @param showHome true to show a "Home" link
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param session     the login session
+     * @param showHome    true to show a "Home" link
      * @return the created {@code HtmlBuilder}
      * @throws SQLException if there is an error accessing the database
      */
-    public static HtmlBuilder startOfficePage(final Cache cache, final AdminSite site,
+    public static HtmlBuilder startOfficePage(final StudentData studentData, final AdminSite site,
                                               final ImmutableSessionInfo session, final boolean showHome)
             throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = studentData.getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();

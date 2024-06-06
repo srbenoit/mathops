@@ -3,7 +3,8 @@ package dev.mathops.web.site.admin.bookstore;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawEtextKeyLogic;
 import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -17,6 +18,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -30,7 +32,7 @@ enum PageDeactiveKey {
     /**
      * Generates the page to confirm deletion of an active key.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -38,7 +40,7 @@ enum PageDeactiveKey {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void deactivateKey(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void deactivateKey(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -49,15 +51,17 @@ enum PageDeactiveKey {
             Log.warning("  key='", key, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final HtmlBuilder htm = BookstorePage.startBookstorePage(cache, site, session);
+            final HtmlBuilder htm = BookstorePage.startBookstorePage(data, site, session);
 
             if (key == null) {
                 BookstorePage.emitKeyForm(htm, null, null);
             } else {
+                final Cache cache = data.getCache();
                 final RawEtextKey keyModel = RawEtextKeyLogic.query(cache, key);
 
                 if (keyModel == null) {
-                    BookstorePage.emitKeyForm(htm, key, Res.get(Res.KEY_NOT_FOUND));
+                    final String msg = Res.get(Res.KEY_NOT_FOUND);
+                    BookstorePage.emitKeyForm(htm, key, msg);
                 } else {
                     BookstorePage.emitKeyForm(htm, key, null);
 
@@ -66,26 +70,29 @@ enum PageDeactiveKey {
                     htm.addln("<strong>");
 
                     if (keyModel.activeDt == null) {
-                        htm.addln(Res.get(Res.KEY_NOT_ACTIVE));
+                        final String msg = Res.get(Res.KEY_NOT_ACTIVE);
+                        htm.addln(msg);
                     } else {
                         final RawStetext stetext = RawStetextLogic.getOwnerOfKey(cache, key);
 
+                        final String activeDtStr = TemporalUtils.FMT_WMDY_AT_HM_A.format(keyModel.activeDt);
+
                         if (stetext == null) {
-                            htm.addln(Res.fmt(Res.KEY_ACTIVE_NO_USER,
-                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(keyModel.activeDt)));
+                            final String msg = Res.fmt(Res.KEY_ACTIVE_NO_USER, activeDtStr);
+                            htm.addln(msg);
                         } else {
                             final RawStudent stu = RawStudentLogic.query(cache, stetext.stuId, true);
 
                             if (stu == null) {
-                                htm.addln(Res.fmt(Res.KEY_ACTIVE_NO_STU,
-                                        TemporalUtils.FMT_WMDY_AT_HM_A.format(keyModel.activeDt), stetext.stuId));
+                                final String msg = Res.fmt(Res.KEY_ACTIVE_NO_STU, activeDtStr, stetext.stuId);
+                                htm.addln(msg);
                             } else {
-                                htm.addln(Res.fmt(Res.KEY_ACTIVE_STU,
-                                        TemporalUtils.FMT_WMDY_AT_HM_A.format(keyModel.activeDt),
-                                        stu.firstName, stu.lastName, stetext.stuId));
+                                final String msg = Res.fmt(Res.KEY_ACTIVE_STU, activeDtStr, stu.firstName, stu.lastName,
+                                        stetext.stuId);
+                                htm.addln(msg);
                             }
 
-                            emitDeactiveConfirmForm(htm, key);
+                            emitDeactivateConfirmForm(htm, key);
                         }
                     }
 
@@ -94,9 +101,10 @@ enum PageDeactiveKey {
                 }
             }
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(data, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -106,17 +114,19 @@ enum PageDeactiveKey {
      * @param htm the {@code HtmlBuilder} to which to append
      * @param key the initial value to load in for the key
      */
-    private static void emitDeactiveConfirmForm(final HtmlBuilder htm, final String key) {
+    private static void emitDeactivateConfirmForm(final HtmlBuilder htm, final String key) {
 
         htm.sDiv("indent22");
         htm.hr();
         htm.div("gap2");
         htm.addln("<form action='deactivate_etext_key_yes.html' method='post'>");
         htm.sDiv("center");
-        htm.addln(" <strong class='red'>", Res.get(Res.DEACTIVATE_CONFIRM), "<strong>");
+        final String msg = Res.get(Res.DEACTIVATE_CONFIRM);
+        htm.addln(" <strong class='red'>", msg, "<strong>");
         htm.div("gap2");
         htm.addln(" <input type='hidden' name='key' value='", key, "'/>");
-        htm.addln(" <input type='submit' value='", Res.get(Res.DEACTIVATE_BTN_LBL), "'/>");
+        final String lbl = Res.get(Res.DEACTIVATE_BTN_LBL);
+        htm.addln(" <input type='submit' value='", lbl, "'/>");
         htm.eDiv();
         htm.addln("</form>");
         htm.div("gap2").hr().eDiv();
@@ -125,7 +135,7 @@ enum PageDeactiveKey {
     /**
      * Generates the page to confirm deletion of an active key.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -133,9 +143,9 @@ enum PageDeactiveKey {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void deactivateKeyYes(final Cache cache, final AdminSite site,
-                                 final ServletRequest req, final HttpServletResponse resp,
-                                 final ImmutableSessionInfo session) throws IOException, SQLException {
+    static void deactivateKeyYes(final WebViewData data, final AdminSite site, final ServletRequest req,
+                                 final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final String key = req.getParameter("key");
 
@@ -145,15 +155,18 @@ enum PageDeactiveKey {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final HtmlBuilder htm = new HtmlBuilder(400);
-            Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR,
+            final String title = Res.get(Res.SITE_TITLE);
+
+            Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR,
                     null, false, true);
 
             htm.div("gap");
             htm.sDiv("indent11");
 
             htm.sP("center");
-            htm.addln(" <strong>", Res.get(Res.DEPARTMENT_TITLE), "</strong>").br();
-            htm.addln(" <strong><span class='green'>", Res.get(Res.SITE_TITLE), "</span></strong>");
+            final String dept = Res.get(Res.DEPARTMENT_TITLE);
+            htm.addln(" <strong>", dept, "</strong>").br();
+            htm.addln(" <strong><span class='green'>", title, "</span></strong>");
             htm.eP();
 
             htm.sP().add("&nbsp;").eP();
@@ -162,10 +175,12 @@ enum PageDeactiveKey {
             if (key == null) {
                 BookstorePage.emitKeyForm(htm, null, null);
             } else {
+                final Cache cache = data.getCache();
                 final RawEtextKey keyModel = RawEtextKeyLogic.query(cache, key);
 
                 if (keyModel == null) {
-                    BookstorePage.emitKeyForm(htm, key, Res.get(Res.KEY_NOT_FOUND));
+                    final String msg = Res.get(Res.KEY_NOT_FOUND);
+                    BookstorePage.emitKeyForm(htm, key, msg);
                 } else {
                     BookstorePage.emitKeyForm(htm, key, null);
 
@@ -175,17 +190,20 @@ enum PageDeactiveKey {
                     htm.addln("<strong><span class='green'>");
 
                     if (keyModel.activeDt == null) {
-                        htm.addln(Res.get(Res.KEY_NOT_ACTIVE));
+                        final String msg = Res.get(Res.KEY_NOT_ACTIVE);
+                        htm.addln(msg);
                     } else {
                         final RawStetext stetext = RawStetextLogic.getOwnerOfKey(cache, key);
 
                         if (RawEtextKeyLogic.updateActiveDt(cache, keyModel.etextKey, null)) {
 
                             if (RawStetextLogic.INSTANCE.delete(cache, stetext)) {
-                                htm.addln(Res.get(Res.KEY_DEACTIVATED));
+                                final String msg = Res.get(Res.KEY_DEACTIVATED);
+                                htm.addln(msg);
                             }
                         } else {
-                            htm.addln("<span class='red'>", Res.get(Res.DEACTIVATION_ERROR), "</span>");
+                            final String msg = Res.get(Res.DEACTIVATION_ERROR);
+                            htm.addln("<span class='red'>", msg, "</span>");
                         }
                     }
 
@@ -194,9 +212,10 @@ enum PageDeactiveKey {
                 }
             }
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            Page.endOrdinaryPage(data, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 }

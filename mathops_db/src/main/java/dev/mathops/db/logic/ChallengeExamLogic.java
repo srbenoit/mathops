@@ -1,14 +1,12 @@
-package dev.mathops.db.old.logic;
+package dev.mathops.db.logic;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -67,7 +65,7 @@ public final class ChallengeExamLogic {
     private final List<RawStchallenge> allChallengeAttempts;
 
     /** Prerequisite-checking logic. */
-    private final PrerequisiteLogic prereqLogic;
+    private final PrerequisiteLogic prerequisiteLogic;
 
     /** Map from course ID to status container for each course's challenge exam. */
     private final Map<String, ChallengeExamStatus> status;
@@ -75,26 +73,21 @@ public final class ChallengeExamLogic {
     /**
      * Constructs a new {@code ChallengeLogic}.
      *
-     * @param cache        the data cache
-     * @param theStudentId the student ID
+     * @param data the student data object
      * @throws SQLException if there is an error accessing the database
      */
-    public ChallengeExamLogic(final Cache cache, final String theStudentId) throws SQLException {
+    public ChallengeExamLogic(final StudentData data) throws SQLException {
 
-        if (theStudentId == null) {
-            throw new IllegalArgumentException("Student ID may not be null");
+        if (data == null) {
+            throw new IllegalArgumentException("Student data may not be null");
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-
-        this.activeRegs = RawStcourseLogic.getActiveForStudent(cache, theStudentId, active.term);
-
-        this.allChallengeAttempts = RawStchallengeLogic.queryByStudent(cache, theStudentId);
-
-        this.prereqLogic = new PrerequisiteLogic(cache, theStudentId);
+        final TermRec active = data.getActiveTerm();
+        this.activeRegs = data.getActiveRegistrations(active.term);
+        this.allChallengeAttempts = data.getChallengeExams();
+        this.prerequisiteLogic = new PrerequisiteLogic(data);
 
         this.status = new HashMap<>(5);
-
         computeStatus(RawRecordConstants.M117);
         computeStatus(RawRecordConstants.M118);
         computeStatus(RawRecordConstants.M124);
@@ -136,15 +129,14 @@ public final class ChallengeExamLogic {
 
                 if (enrolled) {
                     reason = "Course challenge exam may not be taken while enrolled in the course.";
-                } else if (this.prereqLogic.hasSatisfiedPrereqsFor(theCourseId)) {
+                } else if (this.prerequisiteLogic.hasSatisfiedPrereqsFor(theCourseId)) {
                     available = examId;
                 } else {
-                    reason = "In order to take Challenge Exam, you must have satisfied the "
-                            + "prerequisites for the course.";
+                    reason = "To take Challenge Exam, you must have satisfied the prerequisites for the course.";
                 }
             } else {
-                reason = "Challenge exam was already taken on "
-                        + TemporalUtils.FMT_MDY.format(attempted) + CoreConstants.DOT;
+                reason = "Challenge exam was already taken on " + TemporalUtils.FMT_MDY.format(attempted)
+                        + CoreConstants.DOT;
             }
 
             this.status.put(theCourseId, new ChallengeExamStatus(available, reason));
@@ -162,15 +154,15 @@ public final class ChallengeExamLogic {
         String examId = null;
 
         if (RawRecordConstants.M117.equals(theCourseId) || RawRecordConstants.MATH117.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M117_CHALLENGE_EXAM_ID;
+            examId = M117_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M118.equals(theCourseId) || RawRecordConstants.MATH118.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M118_CHALLENGE_EXAM_ID;
+            examId = M118_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M124.equals(theCourseId) || RawRecordConstants.MATH124.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M124_CHALLENGE_EXAM_ID;
+            examId = M124_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M125.equals(theCourseId) || RawRecordConstants.MATH125.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M125_CHALLENGE_EXAM_ID;
+            examId = M125_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M126.equals(theCourseId) || RawRecordConstants.MATH126.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M126_CHALLENGE_EXAM_ID;
+            examId = M126_CHALLENGE_EXAM_ID;
         }
 
         return examId;
@@ -187,94 +179,16 @@ public final class ChallengeExamLogic {
         return this.status.get(courseId);
     }
 
-//    /**
-//     * Main method to exercise the logic object.
-//     *
-//     * @param args command-line arguments
-//     */
-//     public static void main(final String... args) {
-//
-//     final ContextMap map = ContextMap.getDefaultInstance();
-//     DbConnection.registerDrivers();
-//
-//     final DbProfile dbProfile =
-//     map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).getDbProfile();
-//     final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-//
-//     try {
-//     final DbConnection conn = ctx.checkOutConnection();
-//     final Cache cache = new Cache(dbProfile, conn);
-//
-//     try {
-//     ChallengeExamLogic logic = new ChallengeExamLogic(cache, dbProfile, //
-//     "999011121");
-//
-//     Log.fine("Student who has taken unproctored 'POOOO', ",
-//     "has 2 proctored attempts remaining:");
-//     mainPrintResult(logic);
-//
-//     logic = new ChallengeExamLogic(cache, dbProfile, "999011122");
-//
-//     Log.fine(CoreConstants.EMPTY);
-//     Log.fine("Student who has taken proctored, ",
-//     "has unproctored and proctored remaining:");
-//     mainPrintResult(logic);
-//
-//     logic = new ChallengeExamLogic(cache, dbProfile, "999033121");
-//
-//     Log.fine(CoreConstants.EMPTY);
-//     Log.fine("Student who has taken 2 proctored, ",
-//     "has no attempts remaining:");
-//     mainPrintResult(logic);
-//
-//     logic = new ChallengeExamLogic(cache, dbProfile, "833165649");
-//
-//     Log.fine(CoreConstants.EMPTY);
-//     Log.fine("Test student with course credit:");
-//     mainPrintResult(logic);
-//     } finally {
-//     ctx.checkInConnection(conn);
-//     }
-//     } catch (SQLException ex) {
-//     Log.warning(ex);
-//     }
-//     }
+    /**
+     * Generates a diagnostic string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
 
-//    /**
-//     * Prints results of one test.
-//     *
-//     * @param logic the logic object
-//     */
-//     private static void mainPrintResult(final ChallengeExamLogic logic) {
-//
-//     Log.fine(" MATH 117:");
-//     mainPrintStatus(logic.getStatus(RawRecordConstants.M117));
-//
-//     Log.fine(" MATH 118:");
-//     mainPrintStatus(logic.getStatus(RawRecordConstants.M118));
-//
-//     Log.fine(" MATH 124:");
-//     mainPrintStatus(logic.getStatus(RawRecordConstants.M124));
-//
-//     Log.fine(" MATH 125:");
-//     mainPrintStatus(logic.getStatus(RawRecordConstants.M125));
-//
-//     Log.fine(" MATH 126:");
-//     mainPrintStatus(logic.getStatus(RawRecordConstants.M126));
-//     }
-
-//    /**
-//     * Prints the contents of a <code>ChallengeExamStatus</code>.
-//     *
-//     * @param status the <code>ChallengeExamStatus</code> whose contents to print
-//     */
-//     private static void mainPrintStatus(final ChallengeExamStatus status) {
-//
-//     if (status.availableExamId != null) {
-//     Log.fine(" Version available : " + status.availableExamId);
-//     }
-//     if (status.reasonUnavailable != null) {
-//     Log.fine(" Why Unavailable : ", status.reasonUnavailable);
-//     }
-//     }
+        return SimpleBuilder.concat("ChallengeExamLogic{activeRegs=", this.activeRegs, ", allChallengeAttempts=",
+                this.allChallengeAttempts, ", prerequisiteLogic=", this.prerequisiteLogic, ", status=", this.status,
+                "}");
+    }
 }

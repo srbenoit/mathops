@@ -1,7 +1,7 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;
@@ -9,6 +9,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -22,16 +23,16 @@ enum PageGettingHelp {
     /**
      * Generates a page with information on orientation.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param logic   the course site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param logic       the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -40,7 +41,7 @@ enum PageGettingHelp {
                 null, false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(studentData, site, session, logic, htm);
         htm.sDiv("panelu");
 
         Page.emitFile(htm, "precalc_instr_getting_help.txt");
@@ -48,7 +49,7 @@ enum PageGettingHelp {
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }

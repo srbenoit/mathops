@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.factory.LateMessageFINFactory;
@@ -48,12 +48,12 @@ enum LateMessageFactory1of1 {
      * called - the generated message is based on the student's situation and what messages may have been sent
      * previously.
      *
-     * @param cache   the data cache
-     * @param context the messaging context
-     * @param status  the student's status in their current course
+     * @param studentData the student data object
+     * @param context     the messaging context
+     * @param status      the student's status in their current course
      * @return a report row if a message is to be sent to the student; null if not
      */
-    static MessageToSend generate(final Cache cache, final MessagingContext context,
+    static MessageToSend generate(final StudentData studentData, final MessagingContext context,
                                   final MessagingCourseStatus status) {
 
         MessageToSend result = null;
@@ -62,7 +62,7 @@ enum LateMessageFactory1of1 {
 
         if (!status.metPrereq) {
             // Student has not met prerequisite for their course
-            result = LateMessagePrereqFactory1of1.generate(cache, context, status);
+            result = LateMessagePrereqFactory1of1.generate(studentData, context, status);
         } else if (context.currentRegIndex == 0 && !status.started) {
             // Student has not started their course
             result = LateMessageStartFactory1of1.generate(context, status);

@@ -3,7 +3,7 @@ package dev.mathops.app.adm.resource;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

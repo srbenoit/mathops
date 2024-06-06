@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.genadmin.reports;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.session.ImmutableSessionInfo;

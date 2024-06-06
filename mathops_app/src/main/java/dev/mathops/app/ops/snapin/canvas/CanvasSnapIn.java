@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.canvas;
 
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
 
 import javax.swing.JFrame;

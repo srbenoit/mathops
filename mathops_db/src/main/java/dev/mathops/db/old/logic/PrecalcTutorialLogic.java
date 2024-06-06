@@ -1,23 +1,16 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmpe;
-import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -35,19 +28,10 @@ import java.util.List;
  * are available for a limited date range (Summers and the start of the Fall term until the add deadline), and only to
  * incoming first-year students.
  */
-public class PrecalcTutorialLogic {
+public final class PrecalcTutorialLogic {
 
-    /** The student ID. */
-    private final String studentId;
-
-    /** The student record. */
-    private final RawStudent student;
-
-    /** The list of all student attempts on ELM unit exams. */
-    private final List<RawStmpe> allPlacementAttempts;
-
-    /** The list of placement or credit earned. */
-    private final List<RawMpeCredit> allCreditEarned;
+    /** A commonly used integer. */
+    private static final Integer FOUR = Integer.valueOf(4);
 
     /** All special categories to which the student currently belongs. */
     private final List<RawSpecialStus> allSpecials;
@@ -58,74 +42,27 @@ public class PrecalcTutorialLogic {
     /**
      * Constructs a new {@code PrecalcTutorialLogic}.
      *
-     * @param cache        the data cache
-     * @param theStudentId the student ID
-     * @param today        the date/time to consider "now"
-     * @param prereqLogic  prerequisite logic
+     * @param theStudentData the student data object
+     * @param today          the date/time to consider "now"
+     * @param prereqLogic    prerequisite logic
      * @throws SQLException if there is an error accessing the database
      */
-    public PrecalcTutorialLogic(final Cache cache, final String theStudentId, final LocalDate today,
+    public PrecalcTutorialLogic(final StudentData theStudentData, final LocalDate today,
                                 final PrerequisiteLogic prereqLogic) throws SQLException {
 
-        if (theStudentId == null) {
-            throw new IllegalArgumentException("Student ID may not be null");
+        if (theStudentData == null) {
+            throw new IllegalArgumentException("Student data object may not be null");
         }
         if (today == null) {
             throw new IllegalArgumentException("Current date may not be null");
         }
 
-        this.studentId = theStudentId;
-
-        this.student = RawStudentLogic.query(cache, this.studentId, false);
-
-        // We need placement attempts and credit to determine tutorial eligibility
-        this.allPlacementAttempts = RawStmpeLogic.queryLegalByStudent(cache, this.studentId);
-
-        this.allCreditEarned = RawMpeCreditLogic.queryByStudent(cache, this.studentId);
-
         // Special student status can allow a non-incoming student to access Precalc Tutorials
-        this.allSpecials = RawSpecialStusLogic.queryActiveByStudent(cache, this.studentId, today);
+        this.allSpecials = theStudentData.getActiveSpecialCategories(today);
 
         this.status = new PrecalcTutorialStatus();
 
-        computeStatus(cache, prereqLogic, today);
-    }
-
-    /**
-     * Constructs a new {@code PrecalcTutorialLogic} when the student record is present.
-     *
-     * @param cache       the data cache
-     * @param theStudent  the student record
-     * @param today       the date/time to consider "now"
-     * @param prereqLogic prerequisite logic
-     * @throws SQLException if there is an error accessing the database
-     */
-    public PrecalcTutorialLogic(final Cache cache, final RawStudent theStudent,
-                                final LocalDate today, final PrerequisiteLogic prereqLogic) throws SQLException {
-
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache may not be null");
-        }
-        if (theStudent == null) {
-            throw new IllegalArgumentException("Student record may not be null");
-        }
-        if (today == null) {
-            throw new IllegalArgumentException("Current date may not be null");
-        }
-
-        this.student = theStudent;
-        this.studentId = theStudent.stuId;
-        this.status = new PrecalcTutorialStatus();
-
-        // We need placement attempts and credit to determine tutorial eligibility
-        this.allPlacementAttempts = RawStmpeLogic.queryLegalByStudent(cache, this.studentId);
-
-        this.allCreditEarned = RawMpeCreditLogic.queryByStudent(cache, this.studentId);
-
-        // Special student status can allow a non-incoming student to access Precalc Tutorials
-        this.allSpecials = RawSpecialStusLogic.queryActiveByStudent(cache, this.studentId, today);
-
-        computeStatus(cache, prereqLogic, today);
+        computeStatus(theStudentData, prereqLogic, today);
     }
 
     /**
@@ -148,21 +85,22 @@ public class PrecalcTutorialLogic {
      * <li>The student has not placed out of or earned credit in the corresponding course
      * </ul>
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param prereqLogic prerequisite logic
      * @param today       the current day
      * @throws SQLException if there is an error accessing the database
      */
-    private void computeStatus(final Cache cache, final PrerequisiteLogic prereqLogic,
+    private void computeStatus(final StudentData studentData, final PrerequisiteLogic prereqLogic,
                                final LocalDate today) throws SQLException {
 
-        final boolean pct117 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT117");
-        final boolean pct118 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT118");
-        final boolean pct124 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT124");
-        final boolean pct125 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT125");
-        final boolean pct126 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT126");
+        final boolean pct117 = studentData.isSpecialCategory(today, "PCT117");
+        final boolean pct118 = studentData.isSpecialCategory(today, "PCT118");
+        final boolean pct124 = studentData.isSpecialCategory(today, "PCT124");
+        final boolean pct125 = studentData.isSpecialCategory(today, "PCT125");
+        final boolean pct126 = studentData.isSpecialCategory(today, "PCT126");
 
-        this.status.holds.addAll(RawAdminHoldLogic.queryByStudent(cache, this.studentId));
+        final List<RawAdminHold> holds = studentData.getHolds();
+        this.status.holds.addAll(holds);
 
         final boolean okFor117 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117) || pct117;
         final boolean okFor118 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118) || pct118;
@@ -170,44 +108,48 @@ public class PrecalcTutorialLogic {
         final boolean okFor125 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M125) || pct125;
         final boolean okFor126 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M126) || pct126;
 
-        final boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
+        final boolean doneWith117 = hasPlacedOut(studentData, RawRecordConstants.M117)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M117);
 
-        final boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
+        final boolean doneWith118 = hasPlacedOut(studentData, RawRecordConstants.M118)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M118);
 
-        final boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
+        final boolean doneWith124 = hasPlacedOut(studentData, RawRecordConstants.M124)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M124);
 
-        final boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
+        final boolean doneWith125 = hasPlacedOut(studentData, RawRecordConstants.M125)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M125);
 
-        final boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
+        final boolean doneWith126 = hasPlacedOut(studentData, RawRecordConstants.M126)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M126);
 
         final boolean needsPrecalc = !doneWith117 || !doneWith118 || !doneWith124 || !doneWith125 || !doneWith126;
 
         // Students not OK for 117 can still take Precalc Tutorial if they have taken MPE
-        final boolean hasPlacement = !this.allPlacementAttempts.isEmpty();
+        final List<RawStmpe> placementAttempts = studentData.getLegalPlacementAttempts();
+        final boolean hasPlacement = !placementAttempts.isEmpty();
 
         // Only available during SUMMER or FALL terms, for students applying in that FALL term.
 
-        TermKey aplnTerm = this.student.aplnTerm;
+        final RawStudent student = studentData.getStudentRecord();
+        TermKey aplnTerm = student.aplnTerm;
         if (aplnTerm != null) {
             for (final RawSpecialStus spec : this.allSpecials) {
                 final String type = spec.stuType;
 
+                final int applicationYear = aplnTerm.year.intValue();
+
                 if ("PLCSP".equals(type)) {
                     // Force a "SPRING" application term
                     if (aplnTerm.name != ETermName.SPRING) {
-                        aplnTerm = new TermKey(ETermName.SPRING, aplnTerm.year.intValue() + 1);
+                        aplnTerm = new TermKey(ETermName.SPRING, applicationYear + 1);
                     }
                 } else if ("PLCSM".equals(type)) {
                     // Force a "SUMMER" application term
                     if (aplnTerm.name == ETermName.SPRING) {
-                        aplnTerm = new TermKey(ETermName.SUMMER, aplnTerm.year.intValue());
+                        aplnTerm = new TermKey(ETermName.SUMMER, applicationYear);
                     } else if (aplnTerm.name == ETermName.FALL) {
-                        aplnTerm = new TermKey(ETermName.SUMMER, aplnTerm.year.intValue() + 1);
+                        aplnTerm = new TermKey(ETermName.SUMMER, applicationYear + 1);
                     }
                 } else if ("PLCFA".equals(type) || "PCT117".equals(type)
                         || "PCT118".equals(type) || "PCT124".equals(type)
@@ -215,13 +157,13 @@ public class PrecalcTutorialLogic {
 
                     // Force a "FALL" application term
                     if (aplnTerm.name != ETermName.FALL) {
-                        aplnTerm = new TermKey(ETermName.FALL, aplnTerm.year.intValue());
+                        aplnTerm = new TermKey(ETermName.FALL, applicationYear);
                     }
                 }
             }
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = studentData.getActiveTerm();
         boolean isIncoming = false;
         if (active != null && aplnTerm != null && aplnTerm.name == ETermName.FALL
                 && (active.term.name == ETermName.SUMMER || active.term.name == ETermName.FALL)) {
@@ -247,8 +189,7 @@ public class PrecalcTutorialLogic {
         if (next != null) {
             this.status.nextPrecalcTutorial = next;
 
-            final List<RawStexam> stexam =
-                    RawStexamLogic.getExams(cache, this.studentId, next, Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(next, FOUR, true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(next);
             }
@@ -256,36 +197,36 @@ public class PrecalcTutorialLogic {
 
         // The "PCT***" special categories make exams available if work completed in all cases
         if (pct117) {
-            final List<RawStexam> stexam = RawStexamLogic.getExams(cache, this.studentId, RawRecordConstants.M1170,
-                    Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(RawRecordConstants.M1170, FOUR,
+                    true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(RawRecordConstants.M1170);
             }
         }
         if (pct118) {
-            final List<RawStexam> stexam = RawStexamLogic.getExams(cache, this.studentId, RawRecordConstants.M1180,
-                    Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(RawRecordConstants.M1180, FOUR,
+                    true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(RawRecordConstants.M1170);
             }
         }
         if (pct124) {
-            final List<RawStexam> stexam = RawStexamLogic.getExams(cache, this.studentId, RawRecordConstants.M1240,
-                    Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(RawRecordConstants.M1240, FOUR,
+                    true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(RawRecordConstants.M1240);
             }
         }
         if (pct125) {
-            final List<RawStexam> stexam = RawStexamLogic.getExams(cache, this.studentId, RawRecordConstants.M1250,
-                    Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(RawRecordConstants.M1250, FOUR,
+                    true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(RawRecordConstants.M1250);
             }
         }
         if (pct126) {
-            final List<RawStexam> stexam = RawStexamLogic.getExams(cache, this.studentId, RawRecordConstants.M1260,
-                    Integer.valueOf(4), true, "R");
+            final List<RawStexam> stexam = studentData.getStudentExamsByCourseUnitType(RawRecordConstants.M1260, FOUR,
+                    true, "R");
             if (!stexam.isEmpty()) {
                 this.status.eligiblePrecalcExamCourses.add(RawRecordConstants.M1260);
             }
@@ -311,7 +252,7 @@ public class PrecalcTutorialLogic {
 
         if (this.status.eligibleForPrecalcTutorial) {
             // Get date range from campus calendar
-            final List<RawCampusCalendar> calendars = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> calendars = studentData.getCampusCalendars();
 
             LocalDate startDate = null;
             LocalDate endDate = null;
@@ -335,15 +276,18 @@ public class PrecalcTutorialLogic {
     /**
      * Tests whether the student has placed out of a course.
      *
-     * @param course the course ID
+     * @param studentData the student data object
+     * @param course      the course ID
      * @return true if the student has placed out
      */
-    private boolean hasPlacedOut(final String course) {
+    private static boolean hasPlacedOut(final StudentData studentData, final String course) throws SQLException {
 
         boolean placed = false;
 
         if (course != null) {
-            for (final RawMpeCredit test : this.allCreditEarned) {
+            final List<RawMpeCredit> allCreditEarned = studentData.getPlacementCredit();
+
+            for (final RawMpeCredit test : allCreditEarned) {
                 if (course.equals(test.course)) {
                     placed = true;
                     break;

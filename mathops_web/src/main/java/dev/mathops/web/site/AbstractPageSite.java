@@ -3,13 +3,14 @@ package dev.mathops.web.site;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -19,6 +20,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -32,6 +34,9 @@ import java.util.List;
  * A base class for sites that serve visible pages (as opposed to sites that simply process transactions).
  */
 public abstract class AbstractPageSite extends AbstractSite {
+
+    /** A common string. */
+    private static final String NOWRAP = "nowrap";
 
     /**
      * Constructs a new {@code AbstractCourseSite}.
@@ -69,31 +74,12 @@ public abstract class AbstractPageSite extends AbstractSite {
         final String effId = session.getEffectiveUserId();
         if (effId != null && effId.startsWith("99")) {
             final String path = this.siteProfile.path;
-            resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH)
-                    ? "login_test_user_99.html"
+            resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "login_test_user_99.html"
                     : "/login_test_user_99.html"));
         } else {
             resp.sendRedirect("/Shibboleth.sso/Logout");
         }
     }
-
-//    /**
-//     * Gets the login type based on context.
-//     *
-//     * @return the login type
-//     */
-//    public final String getLoginType() {
-//
-//        String loginType = "Shib";
-//
-//        if (Contexts.CALC_REVIEW_PATH.equals(this.siteProfile.path)
-//                || Contexts.CALC2_REVIEW_PATH.equals(this.siteProfile.path)
-//                || Contexts.ADMINSYS_PATH.equals(this.siteProfile.path)) {
-//            loginType = "Local";
-//        }
-//
-//        return loginType;
-//    }
 
     /**
      * Scans the request for Shibboleth attributes and uses them (if found) to establish a session, and then redirects
@@ -143,27 +129,27 @@ public abstract class AbstractPageSite extends AbstractSite {
     /**
      * Processes any submissions by the role controls (call on POST).
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param req     the HTTP request
      * @param resp    the HTTP response
      * @param session the session information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    protected final void processRoleControls(final Cache cache, final ServletRequest req,
+    protected final void processRoleControls(final WebViewData data, final ServletRequest req,
                                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        UserInfoBar.processRoleControls(cache, req, session);
+        UserInfoBar.processRoleControls(data, req, session);
 
         final String target = req.getParameter("target");
 
         if (isParamInvalid(target)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  target='", target, "'");
-            PageError.doGet(cache, this, req, resp, session, "No target provided with role control");
+            PageError.doGet(data, this, req, resp, session, "No target provided with role control");
         } else if (target == null) {
-            PageError.doGet(cache, this, req, resp, session, "No target provided with role control");
+            PageError.doGet(data, this, req, resp, session, "No target provided with role control");
         } else {
             resp.sendRedirect(target);
         }
@@ -179,7 +165,9 @@ public abstract class AbstractPageSite extends AbstractSite {
     public static List<String> makeHolidayList(final Collection<RawCampusCalendar> calendarDays) {
 
         // Extract and sort the list of LocalDates marked HOLIDAY
-        final List<LocalDate> holidays = new ArrayList<>(calendarDays.size());
+        final int count = calendarDays.size();
+
+        final List<LocalDate> holidays = new ArrayList<>(count);
         for (final RawCampusCalendar test : calendarDays) {
             if (RawCampusCalendar.DT_DESC_HOLIDAY.equals(test.dtDesc)) {
                 holidays.add(test.campusDt);
@@ -201,24 +189,32 @@ public abstract class AbstractPageSite extends AbstractSite {
             if (prior == null) {
                 // First date - starts new range or single date
                 start = date;
-            } else if (prior.isEqual(date.minusDays(1L))) {
-                // Continuing a range, start keeps beginning of range
-                inRange = true;
             } else {
-                if (inRange) {
-                    // Range has ended (start has beginning of range, prior has end)
-                    if (!prior.isBefore(today)) {
-                        days.add(formatDate(start) + " through " + formatDate(prior));
-                    }
+                final LocalDate priorDate = date.minusDays(1L);
 
-                    inRange = false;
-                } else // Prior holds single date that is not part of a range
-                    if (!prior.isBefore(today)) {
-                        days.add(formatDate(prior));
-                    }
+                if (prior.isEqual(priorDate)) {
+                    // Continuing a range, start keeps beginning of range
+                    inRange = true;
+                } else {
+                    if (inRange) {
+                        // Range has ended (start has beginning of range, prior has end)
+                        if (!prior.isBefore(today)) {
+                            final String startStr = formatDate(start);
+                            final String priorStr = formatDate(prior);
+                            final String str = SimpleBuilder.concat(startStr, " through ", priorStr);
+                            days.add(str);
+                        }
 
-                // 'date' may start a new range
-                start = date;
+                        inRange = false;
+                    } else // Prior holds single date that is not part of a range
+                        if (!prior.isBefore(today)) {
+                            final String priorStr = formatDate(prior);
+                            days.add(priorStr);
+                        }
+
+                    // 'date' may start a new range
+                    start = date;
+                }
             }
 
             prior = date;
@@ -227,11 +223,15 @@ public abstract class AbstractPageSite extends AbstractSite {
         if (inRange) {
             // Ended with a range in progress
             if (!prior.isBefore(today)) {
-                days.add(formatDate(start) + " through " + formatDate(prior));
+                final String startStr = formatDate(start);
+                final String priorStr = formatDate(prior);
+                final String str = SimpleBuilder.concat(startStr, " through ", priorStr);
+                days.add(str);
             }
         } else // Ended with a single date left in 'start'
             if ((start != null) && !start.isBefore(today)) {
-                days.add(formatDate(start));
+                final String startStr = formatDate(start);
+                days.add(startStr);
             }
 
         return days;
@@ -252,9 +252,11 @@ public abstract class AbstractPageSite extends AbstractSite {
         final HtmlBuilder xml = new HtmlBuilder(30);
 
         if (date.getMonth() == Month.MAY) {
-            xml.add(TemporalUtils.FMT_MD.format(date));
+            final String formatted = TemporalUtils.FMT_MD.format(date);
+            xml.add(formatted);
         } else {
-            xml.add(TemporalUtils.FMT_MPD.format(date));
+            final String formatted = TemporalUtils.FMT_MPD.format(date);
+            xml.add(formatted);
         }
 
         return xml.toString();
@@ -263,17 +265,17 @@ public abstract class AbstractPageSite extends AbstractSite {
     /**
      * Appends the HTML display of the operating hours of the Precalculus Center to an {@code HtmlBuilder}.
      *
-     * @param cache          the data cache
+     * @param systemData     the system data
      * @param htm            the {@code HtmlBuilder} to which to append
      * @param showWalkin     {@code true} to include the walk-in placement day
      * @param showRoomNumber {@code true} to include the Precalculus Center room number
      * @throws SQLException if there is an error accessing the database
      */
-    public static void hours(final Cache cache, final HtmlBuilder htm, final boolean showWalkin,
+    public static void hours(final SystemData systemData, final HtmlBuilder htm, final boolean showWalkin,
                              final boolean showRoomNumber) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final TermRec term = systemData.getActiveTerm();
+        final List<RawCampusCalendar> calendarDays = systemData.getCampusCalendars();
 
         if (term != null) {
             htm.sDiv("center");
@@ -320,21 +322,24 @@ public abstract class AbstractPageSite extends AbstractSite {
                 htm.add("<li>");
 
                 if (start1Date.getYear() == end1Date.getYear()) {
-                    htm.add(TemporalUtils.FMT_MD.format(start1Date));
+                    final String formatted = TemporalUtils.FMT_MD.format(start1Date);
+                    htm.add(formatted);
                 } else {
-                    htm.add(TemporalUtils.FMT_MDY.format(start1Date));
+                    final String formatted = TemporalUtils.FMT_MDY.format(start1Date);
+                    htm.add(formatted);
                 }
-                htm.add(" - ", TemporalUtils.FMT_MDY.format(end1Date));
+                final String formatted = TemporalUtils.FMT_MDY.format(end1Date);
+                htm.add(" - ", formatted);
 
                 final int count = start1.numTimes();
 
                 if (count > 0) {
                     htm.br().add(start1.openTime1, " - ", start1.closeTime1, ", ")
-                            .sSpan("nowrap").add(start1.weekdays1).eSpan();
+                            .sSpan(NOWRAP).add(start1.weekdays1).eSpan();
                 }
                 if (count > 1) {
                     htm.br().add(start1.openTime2, " - ", start1.closeTime2, ", ")
-                            .sSpan("nowrap").add(start1.weekdays2).eSpan();
+                            .sSpan(NOWRAP).add(start1.weekdays2).eSpan();
                 }
 
                 htm.addln("</li>");
@@ -346,21 +351,24 @@ public abstract class AbstractPageSite extends AbstractSite {
 
                 htm.add("<li>");
                 if (start2Date.getYear() == end2Date.getYear()) {
-                    htm.add(TemporalUtils.FMT_MD.format(start2Date));
+                    final String formatted = TemporalUtils.FMT_MD.format(start2Date);
+                    htm.add(formatted);
                 } else {
-                    htm.add(TemporalUtils.FMT_MDY.format(start2Date));
+                    final String formatted = TemporalUtils.FMT_MDY.format(start2Date);
+                    htm.add(formatted);
                 }
-                htm.addln(" - ", TemporalUtils.FMT_MDY.format(end2Date));
+                final String formatted = TemporalUtils.FMT_MDY.format(end2Date);
+                htm.addln(" - ", formatted);
 
                 final int count = start2.numTimes();
 
                 if (count > 0) {
                     htm.br().add(start2.openTime1, " - ", start2.closeTime1, ", ")
-                            .sSpan("nowrap").add(start2.weekdays1).eSpan();
+                            .sSpan(NOWRAP).add(start2.weekdays1).eSpan();
                 }
                 if (count > 1) {
                     htm.br().add(start2.openTime2, " - ", start2.closeTime2, ", ")
-                            .sSpan("nowrap").add(start2.weekdays2).eSpan();
+                            .sSpan(NOWRAP).add(start2.weekdays2).eSpan();
                 }
 
                 htm.addln("</li>");
@@ -371,24 +379,26 @@ public abstract class AbstractPageSite extends AbstractSite {
             if (showWalkin && walkin != null) {
 
                 final LocalDate walkinDate = walkin.campusDt;
-                if (!walkinDate.isBefore(LocalDate.now())) {
+                final LocalDate now = LocalDate.now();
+                if (!walkinDate.isBefore(now)) {
                     htm.sH(4).add("Walk-in Math Placement Day").eH(4);
 
                     // Show date ranges and times
                     htm.addln("<ul class='hours'>");
                     htm.add("<li>");
 
-                    htm.add(TemporalUtils.FMT_MDY.format(walkinDate));
+                    final String formatted = TemporalUtils.FMT_MDY.format(walkinDate);
+                    htm.add(formatted);
 
                     final int count = walkin.numTimes();
 
                     if (count > 0) {
                         htm.br().add(walkin.openTime1, " - ", walkin.closeTime1, ", ")
-                                .sSpan("nowrap").add(walkin.weekdays1).eSpan();
+                                .sSpan(NOWRAP).add(walkin.weekdays1).eSpan();
                     }
                     if (count > 1) {
                         htm.br().add(walkin.openTime2, " - ", walkin.closeTime2, ", ")
-                                .sSpan("nowrap").add(walkin.weekdays2).eSpan();
+                                .sSpan(NOWRAP).add(walkin.weekdays2).eSpan();
                     }
 
                     htm.addln("</li>");
@@ -397,7 +407,7 @@ public abstract class AbstractPageSite extends AbstractSite {
             }
 
             if (start1x != null && end1x != null) {
-                final TermRec nextTerm = TermLogic.get(cache).queryNext(cache);
+                final TermRec nextTerm = systemData.getNextTerm();
 
                 if (nextTerm != null) {
                     htm.sH(4).add(nextTerm.term.longString).eH(4);
@@ -418,11 +428,11 @@ public abstract class AbstractPageSite extends AbstractSite {
 
                     if (count > 0) {
                         htm.br().add(start1x.openTime1, " - ", start1x.closeTime1, ", ")
-                                .sSpan("nowrap").add(start1x.weekdays1).eSpan();
+                                .sSpan(NOWRAP).add(start1x.weekdays1).eSpan();
                     }
                     if (count > 1) {
                         htm.br().add(start1x.openTime2, " - ", start1x.closeTime2, ", ")
-                                .sSpan("nowrap").add(start1x.weekdays2).eSpan();
+                                .sSpan(NOWRAP).add(start1x.weekdays2).eSpan();
                     }
 
                     htm.addln("</li>");
@@ -475,14 +485,14 @@ public abstract class AbstractPageSite extends AbstractSite {
     /**
      * Appends the HTML display of the hours for in-person help in the Precalculus Center to an {@code HtmlBuilder}.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param systemData the system data
+     * @param htm        the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    public static void helpHours(final Cache cache, final HtmlBuilder htm) throws SQLException {
+    public static void helpHours(final SystemData systemData, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final TermRec term = systemData.getActiveTerm();
+        final List<RawCampusCalendar> calendarDays = systemData.getCampusCalendars();
 
         if (term != null) {
             htm.sDiv("indent22");
@@ -517,21 +527,24 @@ public abstract class AbstractPageSite extends AbstractSite {
                 htm.add("<li>");
 
                 if (start1Date.getYear() == end1Date.getYear()) {
-                    htm.add(TemporalUtils.FMT_MD.format(start1Date));
+                    final String formatted = TemporalUtils.FMT_MD.format(start1Date);
+                    htm.add(formatted);
                 } else {
-                    htm.add(TemporalUtils.FMT_MDY.format(start1Date));
+                    final String formatted = TemporalUtils.FMT_MDY.format(start1Date);
+                    htm.add(formatted);
                 }
-                htm.add(" - ", TemporalUtils.FMT_MDY.format(end1Date));
+                final String formatted = TemporalUtils.FMT_MDY.format(end1Date);
+                htm.add(" - ", formatted);
 
                 final int count = start1.numTimes();
 
                 if (count > 0) {
                     htm.br().add(start1.openTime1, " - ", start1.closeTime1, ", ")
-                            .sSpan("nowrap").add(start1.weekdays1).eSpan();
+                            .sSpan(NOWRAP).add(start1.weekdays1).eSpan();
                 }
                 if (count > 1) {
                     htm.br().add(start1.openTime2, " - ", start1.closeTime2, ", ")
-                            .sSpan("nowrap").add(start1.weekdays2).eSpan();
+                            .sSpan(NOWRAP).add(start1.weekdays2).eSpan();
                 }
 
                 htm.addln("</li>");
@@ -543,21 +556,25 @@ public abstract class AbstractPageSite extends AbstractSite {
 
                 htm.add("<li>");
                 if (start2Date.getYear() == end2Date.getYear()) {
-                    htm.add(TemporalUtils.FMT_MD.format(start2Date));
+                    final String formatted = TemporalUtils.FMT_MD.format(start2Date);
+                    htm.add(formatted);
                 } else {
-                    htm.add(TemporalUtils.FMT_MDY.format(start2Date));
+                    final String formatted = TemporalUtils.FMT_MDY.format(start2Date);
+                    htm.add(formatted);
                 }
-                htm.addln(" - ", TemporalUtils.FMT_MDY.format(end2Date));
+
+                final String formatted = TemporalUtils.FMT_MDY.format(end2Date);
+                htm.addln(" - ", formatted);
 
                 final int count = start2.numTimes();
 
                 if (count > 0) {
                     htm.br().add(start2.openTime1, " - ", start2.closeTime1, ", ")
-                            .sSpan("nowrap").add(start2.weekdays1).eSpan();
+                            .sSpan(NOWRAP).add(start2.weekdays1).eSpan();
                 }
                 if (count > 1) {
                     htm.br().add(start2.openTime2, " - ", start2.closeTime2, ", ")
-                            .sSpan("nowrap").add(start2.weekdays2).eSpan();
+                            .sSpan(NOWRAP).add(start2.weekdays2).eSpan();
                 }
 
                 htm.addln("</li>");
@@ -571,8 +588,7 @@ public abstract class AbstractPageSite extends AbstractSite {
             if (!days.isEmpty()) {
                 htm.hr();
 
-                htm.sP("smaller")
-                        .add("The Precalculus Center will be closed ");
+                htm.sP("smaller").add("The Precalculus Center will be closed ");
                 // Build a list of holidays as a list of (1) individual days or (2) ranges of days
                 boolean comma = false;
                 final int numDays = days.size();

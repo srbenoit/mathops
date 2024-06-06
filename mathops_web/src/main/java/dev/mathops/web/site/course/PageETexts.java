@@ -2,7 +2,7 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
@@ -11,7 +11,6 @@ import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawStetext;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseInfo;
@@ -22,6 +21,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -45,16 +45,16 @@ enum PageETexts {
     /**
      * Generates a page to manage e-texts.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user's login session information
-     * @param logic   the course site logic
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the user's login session information
+     * @param logic       the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doETextsPage(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doETextsPage(final StudentData studentData, final CourseSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session,
                              final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -63,15 +63,15 @@ enum PageETexts {
                 true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(studentData, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        doETextsPageContent(cache, site, session, logic, htm);
+        doETextsPageContent(studentData, site, session, logic, htm);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        Page.endOrdinaryPage(studentData, site, htm, true);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
@@ -79,14 +79,14 @@ enum PageETexts {
     /**
      * Generates the content of the e-text page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param session the user's login session information
-     * @param logic   the course site logic
-     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param session     the user's login session information
+     * @param logic       the course site logic
+     * @param htm         the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doETextsPageContent(final Cache cache, final CourseSite site,
+    private static void doETextsPageContent(final StudentData studentData, final CourseSite site,
                                             final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                             final HtmlBuilder htm) throws SQLException {
 
@@ -153,13 +153,13 @@ enum PageETexts {
             }
 
             if (completed.size() + termOnly.size() > 0) {
-                final TermRec term = TermLogic.get(cache).queryActive(cache);
+                final TermRec activeTerm = studentData.getActiveTerm();
 
                 htm.div("vgap").hr();
-                if (term == null) {
+                if (activeTerm == null) {
                     htm.sH(3).add("Current Semester e-texts").eH(3);
                 } else {
-                    htm.sH(3).add("e-Texts for the ", term.term.longString, " Semester").eH(3);
+                    htm.sH(3).add("e-Texts for the ", activeTerm.term.longString, " Semester").eH(3);
                 }
 
                 htm.sDiv("indent11");
@@ -174,7 +174,7 @@ enum PageETexts {
                     htm.div("vgap").hr();
 
                     startEtextTable(htm);
-                    etextTable(cache, htm, termOnly, session, logic, false);
+                    etextTable(studentData, htm, termOnly, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -193,7 +193,7 @@ enum PageETexts {
                     htm.div("vgap").hr();
 
                     startEtextTable(htm);
-                    etextTable(cache, htm, completed, session, logic, false);
+                    etextTable(studentData, htm, completed, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -219,7 +219,7 @@ enum PageETexts {
                 htm.div("vgap");
 
                 startEtextTable(htm);
-                etextTable(cache, htm, permanent, session, logic, true);
+                etextTable(studentData, htm, permanent, session, logic, true);
                 endEtextTable(htm);
 
                 htm.eDiv(); // indent11
@@ -243,7 +243,7 @@ enum PageETexts {
                     htm.div("vgap");
 
                     startEtextTable(htm);
-                    etextTable(cache, htm, refunded, session, logic, false);
+                    etextTable(studentData, htm, refunded, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -260,7 +260,7 @@ enum PageETexts {
                     htm.div("vgap");
 
                     startEtextTable(htm);
-                    etextTable(cache, htm, expired, session, logic, false);
+                    etextTable(studentData, htm, expired, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -270,9 +270,9 @@ enum PageETexts {
             htm.div("vgap");
 
             htm.sDiv("indent11");
-            htm.addln(" To access your e-text materials, click on the course ",
-                    "number under <strong>", TermLogic.get(cache).queryActive(cache).term.longString,
-                    " Courses");
+            final TermRec activeTerm = studentData.getActiveTerm();
+            htm.addln(" To access your e-text materials, click on the course number under <strong>",
+                    activeTerm.term.longString, " Courses");
             htm.addln("</strong> on the left side of the page.");
             htm.eDiv();
 
@@ -352,15 +352,16 @@ enum PageETexts {
     /**
      * Prints a list of e-texts.
      *
-     * @param cache     the data cache
-     * @param htm       the {@code HtmlBuilder} to which to append the HTML
-     * @param texts     the list of texts
-     * @param session   the session
-     * @param logic     the course site logic
-     * @param showLinks true to show links to practice mode
+     * @param studentData the student data object
+     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param texts       the list of texts
+     * @param session     the session
+     * @param logic       the course site logic
+     * @param showLinks   true to show links to practice mode
      * @throws SQLException if there is an error accessing the database
      */
-    private static void etextTable(final Cache cache, final HtmlBuilder htm, final Iterable<RawStetext> texts,
+    private static void etextTable(final StudentData studentData, final HtmlBuilder htm,
+                                   final Iterable<RawStetext> texts,
                                    final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                    final boolean showLinks) throws SQLException {
 

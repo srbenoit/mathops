@@ -4,9 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.DbConnection;
+import dev.mathops.db.logic.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -18,7 +19,6 @@ import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -32,7 +32,7 @@ import dev.mathops.db.old.logic.mathplan.data.CourseGroup;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
 import dev.mathops.db.old.logic.mathplan.data.RequiredPrereq;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -88,7 +88,7 @@ public final class MathPlanLogic {
     private Map<String, List<RequiredPrereq>> requiredPrereqs = null;
 
     /** A cache of student data. */
-    private final LinkedHashMap<String, StudentData> studentDataCache;
+    private final LinkedHashMap<String, MPStudentData> studentDataCache;
 
     /**
      * Constructs a new {@code MathPlanLogic}.
@@ -3727,8 +3727,7 @@ public final class MathPlanLogic {
      * Retrieves a cached student data record. If no record is cached for the student (or the cached record has
      * expired), the student record is queried and a new {@code StudentData} object is created and cached.
      *
-     * @param cache           the data cache
-     * @param studentId       the student ID
+     * @param theStudentData  the student data object
      * @param now             the date/time to consider "now"
      * @param loginSessionTag the login session tag
      * @param writeChanges    {@code true} to write profile value changes (used when the student is accessing the site);
@@ -3738,20 +3737,20 @@ public final class MathPlanLogic {
      *         queried
      * @throws SQLException if there is an error accessing the database
      */
-    public StudentData getStudentData(final Cache cache, final String studentId, final ZonedDateTime now,
-                                      final long loginSessionTag, final boolean writeChanges) throws SQLException {
+    public MPStudentData getStudentData(final StudentData theStudentData, final ZonedDateTime now,
+                                        final long loginSessionTag, final boolean writeChanges) throws SQLException {
 
         synchronized (this.synch) {
             expireCache();
 
-            StudentData result = this.studentDataCache.get(studentId);
+            final String studentId = theStudentData.getStudentId();
+            MPStudentData result = this.studentDataCache.get(studentId);
 
             if (result == null) {
-                final RawStudent student = RawStudentLogic.query(cache, studentId, true);
+                final RawStudent student = theStudentData.getStudentRecord();
 
                 if (student != null) {
-                    result = new StudentData(cache, student, this, now, loginSessionTag,
-                            writeChanges);
+                    result = new MPStudentData(theStudentData, this, now, loginSessionTag, writeChanges);
                     this.studentDataCache.put(studentId, result);
                 }
             }
@@ -3770,7 +3769,7 @@ public final class MathPlanLogic {
 
         // Called only from within synchronized block
 
-        final Iterator<StudentData> iter = this.studentDataCache.values().iterator();
+        final Iterator<MPStudentData> iter = this.studentDataCache.values().iterator();
         while (iter.hasNext() && iter.next().isExpired()) {
             iter.remove();
         }
@@ -4084,26 +4083,28 @@ public final class MathPlanLogic {
     /**
      * Deletes all responses for a student for a specific page.
      *
-     * @param cache   the data cache
-     * @param student the student
-     * @param pageId  the page ID
-     * @param now the date/time to consider "now"
+     * @param theStudentData  the student data object
+     * @param pageId          the page ID
+     * @param now             the date/time to consider "now"
      * @param loginSessionTag the login session tag
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean deleteMathPlanResponses(final Cache cache, final RawStudent student, final String pageId,
+    public boolean deleteMathPlanResponses(final StudentData theStudentData, final String pageId,
                                            final ZonedDateTime now, final long loginSessionTag) throws SQLException {
 
-        final String studentId = student.stuId;
+        final String studentId = theStudentData.getStudentId();
 
+        final Cache cache = theStudentData.getCache();
         final boolean result = RawStmathplanLogic.deleteAllForPage(cache, studentId, pageId);
+
+        theStudentData.forgetMathPlanResponses();
 
         if (result) {
             synchronized (this.synch) {
                 // Rebuild student data
-                this.studentDataCache.put(student.stuId, new StudentData(cache, student, this, now,
-                        loginSessionTag, false));
+                this.studentDataCache.put(studentId, new MPStudentData(theStudentData, this, now, loginSessionTag,
+                        false));
             }
         }
 
@@ -4113,8 +4114,7 @@ public final class MathPlanLogic {
     /**
      * Stores a set of profile answers and updates the cached student plan based on the new profile responses.
      *
-     * @param cache           the data cache
-     * @param student         the student
+     * @param theStudentData  the student data object
      * @param pageId          the page ID
      * @param questions       the question numbers
      * @param answers         the answers
@@ -4122,22 +4122,32 @@ public final class MathPlanLogic {
      * @param loginSessionTag a unique tag for a login session
      * @throws SQLException if there is an error accessing the database
      */
-    public void storeMathPlanResponses(final Cache cache, final RawStudent student, final String pageId,
+    public void storeMathPlanResponses(final StudentData theStudentData, final String pageId,
                                        final List<Integer> questions, final List<String> answers,
                                        final ZonedDateTime now, final long loginSessionTag) throws SQLException {
 
         final LocalDateTime when = now.toLocalDateTime();
+        final LocalDate whenDate = when.toLocalDate();
         final Integer finishTime = Integer.valueOf(TemporalUtils.minuteOfDay(when));
+
+        final String studentId = theStudentData.getStudentId();
+        final RawStudent student = theStudentData.getStudentRecord();
 
         final String aplnTermStr = student.aplnTerm == null ? null : student.aplnTerm.shortString;
 
         // Dummy record to test for existing
-        RawStmathplan resp = new RawStmathplan(student.stuId, student.pidm, aplnTermStr, pageId, when.toLocalDate(),
+        RawStmathplan resp = new RawStmathplan(student.stuId, student.pidm, aplnTermStr, pageId, whenDate,
                 MathPlanConstants.ZERO, CoreConstants.EMPTY, finishTime, Long.valueOf(loginSessionTag));
 
         // Query for any existing answers with the same date and finish time
-        final List<RawStmathplan> latest =
-                RawStmathplanLogic.queryLatestByStudentPage(cache, student.stuId, pageId);
+        final List<RawStmathplan> latest;
+        if (studentId.startsWith("99")) {
+            latest = RawStmathplanLogic.queryLatestByTestStudentPage(studentId, pageId);
+        } else {
+            final Map<Integer, RawStmathplan> map = theStudentData.getLatestMathPlanResponsesByPage(pageId);
+            latest = new ArrayList<>(map.values());
+        }
+
         final LocalDate today = now.toLocalDate();
         final Integer minutes = resp.finishTime;
         final Iterator<RawStmathplan> iter = latest.iterator();
@@ -4155,8 +4165,8 @@ public final class MathPlanLogic {
             final String ans = answers.get(i);
             final Integer questionNum = questions.get(i);
 
-            resp = new RawStmathplan(student.stuId, student.pidm, aplnTermStr, pageId, when.toLocalDate(), questionNum,
-                    ans, finishTime, Long.valueOf(loginSessionTag));
+            resp = new RawStmathplan(student.stuId, student.pidm, aplnTermStr, pageId, whenDate, questionNum, ans,
+                    finishTime, Long.valueOf(loginSessionTag));
 
             // See if there is an existing answer at the same time
             RawStmathplan existing = null;
@@ -4167,6 +4177,8 @@ public final class MathPlanLogic {
                 }
             }
 
+            final Cache cache = theStudentData.getCache();
+
             if (ans == null) {
                 // Old record had answer, new does not, so delete old record
                 if (existing != null) {
@@ -4175,11 +4187,12 @@ public final class MathPlanLogic {
             } else {
                 RawStmathplanLogic.INSTANCE.insert(cache, resp);
             }
+            theStudentData.forgetMathPlanResponses();
         }
 
         synchronized (this.synch) {
             // Responses have changed - rebuild student data
-            this.studentDataCache.put(student.stuId, new StudentData(cache, student, this, now, loginSessionTag,
+            this.studentDataCache.put(student.stuId, new MPStudentData(theStudentData, this, now, loginSessionTag,
                     false));
         }
     }
@@ -4204,7 +4217,7 @@ public final class MathPlanLogic {
                 final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
                 final String status1 = getMathPlanStatus(cache, 11806361);
-                Log.info("Student 833004236  plan status: " + status1);
+                Log.info("Student 833004236  plan status: ", status1);
 
                 final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "833004236");
                 Log.info("Student 833004236  placement status: ");

@@ -2,11 +2,12 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
 import dev.mathops.db.old.rawrecord.RawDiscipline;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -18,7 +19,7 @@ import java.sql.SQLException;
 /**
  * A panel that shows a students disciplinary history.
  */
-class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
+final class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
     static final String ADD_CMD = "ADD";
@@ -60,7 +61,8 @@ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
 
         this.cache = theCache;
 
-        add(makeHeader("Academic Misconduct", false), BorderLayout.NORTH);
+        final JLabel header = makeHeader("Academic Misconduct", false);
+        add(header, BorderLayout.NORTH);
 
         // Center is a "card layout" where one card shows the student's incidents, and the other
         // supports the creation of a new incident. We may add a future card to support updates
@@ -98,7 +100,8 @@ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
         if (data == null) {
             this.addIncidentCard.setStudentId(null);
         } else {
-            this.addIncidentCard.setStudentId(data.student.stuId);
+            final String studentId = data.getStudentId();
+            this.addIncidentCard.setStudentId(studentId);
             populateDisplay(data);
         }
     }
@@ -123,7 +126,8 @@ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
         this.addIncidentCard.reset();
         this.cards.show(this.cardPane, SHOW_CMD);
 
-        this.addIncidentCard.setStudentId(data.student.stuId);
+        final String studentId = data.getStudentId();
+        this.addIncidentCard.setStudentId(studentId);
     }
 
     /**
@@ -154,9 +158,9 @@ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
 
         try {
             RawDisciplineLogic.INSTANCE.insert(this.cache, rec);
+            this.currentStudentData.forgetDisciplinaryActions();
 
             // Add the new record and re-populate the list display
-            this.currentStudentData.studentDisciplines.add(rec);
             this.incidentListCard.clear();
             this.incidentListCard.populateDisplay(this.currentStudentData);
             this.addIncidentCard.reset();

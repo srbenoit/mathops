@@ -2,7 +2,7 @@ package dev.mathops.db.old.reclogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.rec.StudentCourseMasteryRec;
 import dev.mathops.db.old.reclogic.iface.IInformixRecLogic;

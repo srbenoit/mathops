@@ -3,10 +3,11 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -30,6 +31,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -275,19 +277,19 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
             }
         }
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement("SELECT * FROM student WHERE stu_id=?")) {
-            ps.setString(1, actual.toString());
+        final String actualStr = actual.toString();
 
-            try (final ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    final RawStudent stuRec = RawStudent.fromResultSet(rs);
-                    addToHistory(stuRec);
+        final StudentData data = new StudentData(this.cache, actualStr, ELiveRefreshes.IF_MISSING);
 
-                    this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
-                    this.stuIdField.setText(CoreConstants.EMPTY);
-                } else {
-                    this.error.setText("Student not found");
-                }
+        try {
+            final RawStudent stuRec = data.getStudentRecord();
+            if (stuRec == null) {
+                this.error.setText("Student not found");
+            } else {
+                addToHistory(stuRec);
+
+                this.owner.setStudent(this.cache, data);
+                this.stuIdField.setText(CoreConstants.EMPTY);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -388,7 +390,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                         if (found.size() == 1) {
                             final RawStudent stuRec = found.get(0);
                             addToHistory(stuRec);
-                            this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
+                            this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId,
+                                    ELiveRefreshes.IF_MISSING));
                             this.stuIdField.setText(CoreConstants.EMPTY);
                         } else {
                             processStudentList(found);
@@ -440,7 +443,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                     if (found.size() == 1) {
                         final RawStudent stuRec = found.get(0);
                         addToHistory(stuRec);
-                        this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
+                        this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId,
+                                ELiveRefreshes.IF_MISSING));
                         this.stuIdField.setText(CoreConstants.EMPTY);
                     } else {
                         processStudentList(found);
@@ -531,8 +535,10 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
      */
     private void addToHistory(final RawStudent stuRec) {
 
+        final String screenName = stuRec.getScreenName();
+
         if (this.historyRecords.isEmpty()) {
-            this.historyModel.addElement(stuRec.getScreenName() + " (" + stuRec.stuId + ")");
+            this.historyModel.addElement(screenName + " (" + stuRec.stuId + ")");
             this.historyRecords.add(stuRec);
         } else if (!this.historyRecords.contains(stuRec)) {
             int count = this.historyRecords.size();
@@ -541,7 +547,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 this.historyRecords.remove(count - 1);
                 --count;
             }
-            this.historyModel.add(0, stuRec.getScreenName() + " (" + stuRec.stuId + ")");
+            this.historyModel.add(0, screenName + " (" + stuRec.stuId + ")");
             this.historyRecords.add(0, stuRec);
         }
     }
@@ -555,17 +561,14 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
     public void mouseClicked(final MouseEvent e) {
 
         if (e.getClickCount() == 2) {
+            final Point point = e.getPoint();
+
             if (e.getSource() == this.pickList) {
-                final int index = this.pickList.locationToIndex(e.getPoint());
+                final int index = this.pickList.locationToIndex(point);
                 final RawStudent stuRec = this.pickListRecords.get(index);
                 addToHistory(stuRec);
 
-                try {
-                    this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    this.owner.setStudent(this.cache, null);
-                }
+                this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId, ELiveRefreshes.IF_MISSING));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);
 
@@ -573,15 +576,10 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 this.pickListModel.removeAllElements();
                 this.pickListRecords.clear();
             } else if (e.getSource() == this.history) {
-                final int index = this.history.locationToIndex(e.getPoint());
+                final int index = this.history.locationToIndex(point);
                 final RawStudent stuRec = this.historyRecords.get(index);
 
-                try {
-                    this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    this.owner.setStudent(this.cache, null);
-                }
+                this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId, ELiveRefreshes.NONE));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);
             }

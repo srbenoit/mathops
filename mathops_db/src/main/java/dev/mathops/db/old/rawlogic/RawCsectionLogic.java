@@ -1,9 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -417,17 +416,5 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
         }
 
         return proctoringOptions;
-    }
-
-    /**
-     * Gets the exam structure a particular course section.
-     *
-     * @param csection the course section
-     * @return the exam structure
-     */
-    public static EExamStructure
-    getExamStructure(final RawCsection csection) {
-
-        return EExamStructure.UNIT_FINAL;
     }
 }

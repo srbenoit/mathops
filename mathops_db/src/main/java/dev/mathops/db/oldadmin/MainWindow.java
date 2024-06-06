@@ -2,7 +2,7 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.JFrame;

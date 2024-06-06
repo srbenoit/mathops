@@ -2,14 +2,15 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
 
 import javax.swing.BorderFactory;
@@ -27,6 +28,7 @@ import java.io.Serial;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -59,9 +61,9 @@ import java.util.Objects;
     /**
      * Constructs a new {@code HoldsCard}.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
-     * @param theListener      the listener to notify when the "Add" button is pressed
+     * @param theCache    the data cache
+     * @param theFixed    the fixed data
+     * @param theListener the listener to notify when the "Add" button is pressed
      */
     /* default */ HoldsCard(final Cache theCache, final FixedData theFixed,
                             final ActionListener theListener) {
@@ -119,31 +121,38 @@ import java.util.Objects;
         this.holdList.removeAll();
 
         if (theData != null) {
-            if (theData.studentHolds.isEmpty()) {
-                final JLabel noHoldsLbl = new JLabel("(No holds on record)");
-                this.holdList.add(noHoldsLbl, BorderLayout.NORTH);
-            } else {
-                JPanel outer = new JPanel(new BorderLayout(5, 5));
-                outer.setBackground(Skin.LIGHT);
-                outer.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+            try {
+                final List<RawAdminHold> holds = theData.getHolds();
 
-                final JScrollPane scroll = new JScrollPane(outer);
+                if (holds.isEmpty()) {
+                    final JLabel noHoldsLbl = new JLabel("(No holds on record)");
+                    this.holdList.add(noHoldsLbl, BorderLayout.NORTH);
+                } else {
+                    JPanel outer = new JPanel(new BorderLayout(5, 5));
+                    outer.setBackground(Skin.LIGHT);
+                    outer.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 
-                this.holdList.add(scroll, BorderLayout.CENTER);
+                    final JScrollPane scroll = new JScrollPane(outer);
 
-                scroll.getVerticalScrollBar().setUnitIncrement(6);
+                    this.holdList.add(scroll, BorderLayout.CENTER);
 
-                for (final RawAdminHold record : theData.studentHolds) {
-                    final String msgStudent = RawAdminHoldLogic.getStudentMessage(record.holdId);
-                    final String msgAdmin = RawAdminHoldLogic.getStaffMessage(record.holdId);
+                    scroll.getVerticalScrollBar().setUnitIncrement(6);
 
-                    final JPanel pane = createHoldPanel(record, msgStudent, msgAdmin);
-                    outer.add(pane, BorderLayout.NORTH);
-                    final JPanel inner = new JPanel(new BorderLayout(5, 5));
-                    inner.setBackground(Skin.LIGHT);
-                    outer.add(inner, BorderLayout.CENTER);
-                    outer = inner;
+                    for (final RawAdminHold record : holds) {
+                        final String msgStudent = RawAdminHoldLogic.getStudentMessage(record.holdId);
+                        final String msgAdmin = RawAdminHoldLogic.getStaffMessage(record.holdId);
+
+                        final JPanel pane = createHoldPanel(record, msgStudent, msgAdmin);
+                        outer.add(pane, BorderLayout.NORTH);
+                        final JPanel inner = new JPanel(new BorderLayout(5, 5));
+                        inner.setBackground(Skin.LIGHT);
+                        outer.add(inner, BorderLayout.CENTER);
+                        outer = inner;
+                    }
                 }
+            } catch (final SQLException ex) {
+                final JLabel noHoldsLbl = new JLabel("(Unable to query for holds)");
+                this.holdList.add(noHoldsLbl, BorderLayout.NORTH);
             }
         }
 
@@ -166,8 +175,8 @@ import java.util.Objects;
         final JPanel panel = new JPanel(new BorderLayout());
 
         panel.setBackground(Skin.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(//
-                BorderFactory.createEtchedBorder(), //
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         final JLabel[] lbls = new JLabel[5];
@@ -302,16 +311,21 @@ import java.util.Objects;
         if (cmd.startsWith(DELETE_CMD) && this.data != null) {
             final String holdId = cmd.substring(DELETE_CMD.length());
 
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(//
+            try (final PreparedStatement ps = this.cache.conn.prepareStatement(
                     "DELETE FROM admin_hold WHERE stu_id=? AND hold_id=?")) {
-                ps.setString(1, this.data.student.stuId);
+
+                final String studentId = this.data.getStudentId();
+                ps.setString(1, studentId);
                 ps.setString(2, holdId);
 
                 final int numRows = ps.executeUpdate();
                 if (numRows == 1) {
                     this.cache.conn.commit();
 
-                    final Iterator<RawAdminHold> iter = this.data.studentHolds.iterator();
+                    this.data.forgetHolds();
+                    final List<RawAdminHold> holds = this.data.getHolds();
+
+                    final Iterator<RawAdminHold> iter = holds.iterator();
                     String sev = null;
                     while (iter.hasNext()) {
                         final RawAdminHold row = iter.next();
@@ -324,7 +338,8 @@ import java.util.Objects;
                         }
                     }
 
-                    if (!Objects.equals(sev, this.data.student.sevAdminHold)) {
+                    final RawStudent student = this.data.getStudentRecord();
+                    if (!Objects.equals(sev, student.sevAdminHold)) {
                         updateStudentHoldSeverity(sev);
                     }
 
@@ -348,8 +363,12 @@ import java.util.Objects;
 
         try (final PreparedStatement ps = this.cache.conn
                 .prepareStatement("UPDATE student SET sev_admin_hold=? WHERE stu_id=?")) {
+
+            final String studentId = this.data.getStudentId();
+
             ps.setString(1, severity);
-            ps.setString(2, this.data.student.stuId);
+            ps.setString(2, studentId);
+            this.data.forgetStudentRecord();
 
             final int numRows = ps.executeUpdate();
             if (numRows == 1) {

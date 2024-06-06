@@ -2,8 +2,9 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -11,7 +12,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MPStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,26 +36,28 @@ enum PagePlanMajors1 {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
+     * @param studentData the student data object
+     * @param site        the owning site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
+    static void doGet(final StudentData studentData, final MathPlacementSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MPStudentData data = logic.getStudentData(studentData, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
 
@@ -111,7 +115,7 @@ enum PagePlanMajors1 {
      */
     private static void emitMajorsSelectionForm(final HtmlBuilder htm,
                                                 final Map<Integer, RawStmathplan> curResponses,
-                                                final StudentData data, final ImmutableSessionInfo session,
+                                                final MPStudentData data, final ImmutableSessionInfo session,
                                                 final MathPlanLogic logic) {
 
         final boolean disable = session.actAsUserId != null;
@@ -396,7 +400,7 @@ enum PagePlanMajors1 {
     /**
      * Called when a POST is received to the page.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param site        the owning site
      * @param siteProfile the site profile
      * @param req         the request
@@ -404,15 +408,16 @@ enum PagePlanMajors1 {
      * @param session     the session
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final MathPlacementSite site,
+    static void doPost(final StudentData studentData, final MathPlacementSite site,
                        final WebSiteProfile siteProfile, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session) throws SQLException {
 
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
-        final String stuId = session.getEffectiveUserId();
-        final StudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
-                session.loginSessionTag, session.actAsUserId == null);
+        final ZonedDateTime now = session.getNow();
+
+        final MPStudentData data = logic.getStudentData(studentData, now, session.loginSessionTag,
+                session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
         if (data != null && session.actAsUserId == null) {
@@ -436,10 +441,10 @@ enum PagePlanMajors1 {
             }
 
             if (!questions.isEmpty()) {
-                logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, session.getNow(),
+                logic.deleteMathPlanResponses(studentData, MathPlanConstants.MAJORS_PROFILE, now,
                         session.loginSessionTag);
-                logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, questions, answers,
-                        session.getNow(), session.loginSessionTag);
+                logic.storeMathPlanResponses(studentData, MathPlanConstants.MAJORS_PROFILE, questions, answers,
+                        now, session.loginSessionTag);
             }
         }
 

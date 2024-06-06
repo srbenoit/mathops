@@ -1,6 +1,8 @@
-package dev.mathops.db.old;
+package dev.mathops.db.logic;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.old.IDataDomainObject;
+import dev.mathops.db.old.ISchemaBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

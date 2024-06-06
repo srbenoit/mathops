@@ -1,17 +1,12 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawStmsgLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -166,8 +161,7 @@ public class EmailsNeeded {
     /**
      * Processes a single student's registrations.
      *
-     * @param cache       the data cache
-     * @param stuId       the student ID
+     * @param studentData the student data object
      * @param regs        the student's registrations (sorted map from course ID to registration)
      * @param today       the current date
      * @param msMap       map from pace to a map from track to list of milestones
@@ -176,7 +170,7 @@ public class EmailsNeeded {
      * @param instructors a map from pace to map from track to instructor
      * @throws SQLException if there is an error accessing the database
      */
-    public static void processStudent(final Cache cache, final String stuId, final List<RawStcourse> regs,
+    public static void processStudent(final StudentData studentData, final List<RawStcourse> regs,
                                       final LocalDate today,
                                       final Map<Integer, ? extends Map<String, List<RawMilestone>>> msMap,
                                       final TermRec active,
@@ -226,6 +220,8 @@ public class EmailsNeeded {
             sc5 = nulls.remove(0);
         }
 
+        final String stuId = studentData.getStudentId();
+
         if (sc1 == null) {
             Log.warning("NO FIRST COURSE FOR ", stuId);
         } else {
@@ -248,40 +244,31 @@ public class EmailsNeeded {
                         final List<RawMilestone> milestones = paceMap.get(track);
 
                         if (milestones == null) {
-                            Log.warning("No milestones for pace ", paceInt,
-                                    " track ", track);
+                            Log.warning("No milestones for pace ", paceInt, " track ", track);
                         } else {
-                            final List<RawStmilestone> stmilestones = RawStmilestoneLogic
-                                    .getStudentMilestones(cache, active.term, track, stuId);
+                            final List<RawStmilestone> stmilestones = studentData.getStudentMilestones(active.term,
+                                    track);
 
-                            final RawStudent stu = RawStudentLogic.query(cache, stuId, false);
-                            final RawStterm stterm =
-                                    RawSttermLogic.query(cache, active.term, stuId);
+                            final RawStudent stu = studentData.getStudentRecord();
+                            final RawStterm stterm = studentData.getStudentTerm(active.term);
 
                             if (stu == null) {
                                 Log.warning("ERROR: No student record for ", stuId);
                             } else if (stterm == null) {
                                 Log.warning("ERROR: No stterm record for ", stuId);
                             } else if ("Y".equals(stterm.doNotDisturb)) {
-                                Log.info("Skipping student ", stuId,
-                                        " marked 'do-not-disturb'");
+                                Log.info("Skipping student ", stuId, " marked 'do-not-disturb'");
                             } else {
-                                final List<RawStexam> exams =
-                                        RawStexamLogic.queryByStudent(cache, stuId, false);
+                                final List<RawStexam> exams = studentData.getStudentExams();
+                                final List<RawSthomework> homeworks = studentData.getStudentHomework();
 
-                                final List<RawSthomework> homeworks =
-                                        RawSthomeworkLogic.queryByStudent(cache, stuId, false);
+                                final List<RawStmsg> messages = studentData.getMessagesSent();
+                                final List<RawSpecialStus> specials = studentData.getSpecialCategories();
 
-                                final List<RawStmsg> messages =
-                                        RawStmsgLogic.queryByStudent(cache, stuId);
-                                final List<RawSpecialStus> specials =
-                                        RawSpecialStusLogic.queryByStudent(cache, stuId);
+                                final Cache cache = studentData.getCache();
+                                final LocalDate lastClassDay = RawCampusCalendarLogic.getLastClassDay(cache);
 
-                                final LocalDate lastClassDay =
-                                        RawCampusCalendarLogic.getLastClassDay(cache);
-
-                                final PrerequisiteLogic prereq =
-                                        new PrerequisiteLogic(cache, stuId);
+                                final PrerequisiteLogic prereq = new PrerequisiteLogic(studentData);
 
                                 final String instrName = instructors.get(paceInt).get(track);
 
@@ -291,23 +278,23 @@ public class EmailsNeeded {
 
                                 switch (pace) {
                                     case 1:
-                                        Factory1of1.processPace1Student(cache, context, instrName, messagesDue);
+                                        Factory1of1.processPace1Student(studentData, context, instrName, messagesDue);
                                         break;
 
                                     case 2:
-                                        processPace2Student(cache, context, instrName, messagesDue);
+                                        processPace2Student(studentData, context, instrName, messagesDue);
                                         break;
 
                                     case 3:
-                                        processPace3Student(cache, context, instrName, messagesDue);
+                                        processPace3Student(studentData, context, instrName, messagesDue);
                                         break;
 
                                     case 4:
-                                        processPace4Student(cache, context, instrName, messagesDue);
+                                        processPace4Student(studentData, context, instrName, messagesDue);
                                         break;
 
                                     case 5:
-                                        processPace5Student(cache, context, instrName, messagesDue);
+                                        processPace5Student(studentData, context, instrName, messagesDue);
                                         break;
 
                                     default:
@@ -328,12 +315,13 @@ public class EmailsNeeded {
     /**
      * Processes a student in a 2-course pace.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param context     the messaging context
      * @param instrName   the name of the instructor assigned to the student's pace/track
      * @param messagesDue a map from student ID to message to be sent
      */
-    private static void processPace2Student(final Cache cache, final MessagingContext context, final String instrName,
+    private static void processPace2Student(final StudentData studentData, final MessagingContext context,
+                                            final String instrName,
                                             final Map<? super String, ? super MessageToSend> messagesDue) {
 
         // Log.info("Processing 2-course student");
@@ -344,11 +332,11 @@ public class EmailsNeeded {
         if ("Y".equals(reg1.completed)) {
             // Course 2 is current
             final RawStcourse reg2 = context.sortedRegs.get(1);
-            final EffectiveMilestones ms2 = new EffectiveMilestones(cache, 2, 2, context);
+            final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 2, 2, context);
             current = new MessagingCourseStatus(context, reg2, ms2, instrName);
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 2, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 2, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -368,9 +356,12 @@ public class EmailsNeeded {
             // Log.info("Student ", context.student.stuId, ": [2] ", regsList.toString(),
             // ", urgency ", Integer.toString(urgency));
 
+            final Cache cache = studentData.getCache();
+
             try {
                 RawSttermLogic.updateUrgency(cache, context.student.stuId,
                         context.studentTerm.termKey, Integer.valueOf(urgency));
+                studentData.forgetStudentTerm();
             } catch (final SQLException ex) {
                 Log.warning("Failed to update urgency", ex);
             }
@@ -404,12 +395,13 @@ public class EmailsNeeded {
     /**
      * Processes a student in a 3-course pace.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param context     the messaging context
      * @param instrName   the name of the instructor assigned to the student's pace/track
      * @param messagesDue a map from student ID to message to be sent
      */
-    private static void processPace3Student(final Cache cache, final MessagingContext context, final String instrName,
+    private static void processPace3Student(final StudentData studentData, final MessagingContext context,
+                                            final String instrName,
                                             final Map<? super String, ? super MessageToSend> messagesDue) {
 
         // Log.info("Processing 3-course student");
@@ -423,16 +415,16 @@ public class EmailsNeeded {
             if ("Y".equals(reg2.completed)) {
                 // Course 3 is current
                 final RawStcourse reg3 = context.sortedRegs.get(2);
-                final EffectiveMilestones ms3 = new EffectiveMilestones(cache, 3, 3, context);
+                final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 3, 3, context);
                 current = new MessagingCourseStatus(context, reg3, ms3, instrName);
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(cache, 3, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 3, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 3, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 3, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -452,9 +444,12 @@ public class EmailsNeeded {
             // Log.info("Student ", context.student.stuId, ": [3] ", regsList.toString(),
             // ", urgency ", Integer.toString(urgency));
 
+            final Cache cache = studentData.getCache();
+
             try {
                 RawSttermLogic.updateUrgency(cache, context.student.stuId,
                         context.studentTerm.termKey, Integer.valueOf(urgency));
+                studentData.forgetStudentTerm();
             } catch (final SQLException ex) {
                 Log.warning("Failed to update urgency", ex);
             }
@@ -488,12 +483,13 @@ public class EmailsNeeded {
     /**
      * Processes a student in a 4-course pace.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param context     the messaging context
      * @param instrName   the name of the instructor assigned to the student's pace/track
      * @param messagesDue a map from student ID to message to be sent
      */
-    private static void processPace4Student(final Cache cache, final MessagingContext context, final String instrName,
+    private static void processPace4Student(final StudentData studentData, final MessagingContext context,
+                                            final String instrName,
                                             final Map<? super String, ? super MessageToSend> messagesDue) {
 
         // Log.info("Processing 4-course student");
@@ -511,22 +507,22 @@ public class EmailsNeeded {
                 if ("Y".equals(reg3.completed)) {
                     // Course 4 is current
                     final RawStcourse reg4 = context.sortedRegs.get(3);
-                    final EffectiveMilestones ms4 = new EffectiveMilestones(cache, 4, 4, context);
+                    final EffectiveMilestones ms4 = new EffectiveMilestones(studentData, 4, 4, context);
                     current = new MessagingCourseStatus(context, reg4, ms4, instrName);
                 } else {
                     // Course 3 is current
-                    final EffectiveMilestones ms3 = new EffectiveMilestones(cache, 4, 3, context);
+                    final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 4, 3, context);
                     current = new MessagingCourseStatus(context, reg3, ms3, instrName);
                 }
 
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(cache, 4, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 4, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 4, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 4, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -546,9 +542,12 @@ public class EmailsNeeded {
             // Log.info("Student ", context.student.stuId, ": [4] ", regsList.toString(),
             // ", urgency ", Integer.toString(urgency));
 
+            final Cache cache = studentData.getCache();
+
             try {
                 RawSttermLogic.updateUrgency(cache, context.student.stuId,
                         context.studentTerm.termKey, Integer.valueOf(urgency));
+                studentData.forgetStudentTerm();
             } catch (final SQLException ex) {
                 Log.warning("Failed to update urgency", ex);
             }
@@ -582,12 +581,13 @@ public class EmailsNeeded {
     /**
      * Processes a student in a 5-course pace.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param context     the messaging context
      * @param instrName   the name of the instructor assigned to the student's pace/track
      * @param messagesDue a map from student ID to message to be sent
      */
-    private static void processPace5Student(final Cache cache, final MessagingContext context, final String instrName,
+    private static void processPace5Student(final StudentData studentData, final MessagingContext context,
+                                            final String instrName,
                                             final Map<? super String, ? super MessageToSend> messagesDue) {
 
         // Log.info("Processing 5-course student");
@@ -608,29 +608,27 @@ public class EmailsNeeded {
                     if ("Y".equals(reg4.completed)) {
                         // Course 5 is current
                         final RawStcourse reg5 = context.sortedRegs.get(3);
-                        final EffectiveMilestones ms5 =
-                                new EffectiveMilestones(cache, 5, 5, context);
+                        final EffectiveMilestones ms5 = new EffectiveMilestones(studentData, 5, 5, context);
                         current = new MessagingCourseStatus(context, reg5, ms5, instrName);
                     } else {
                         // Course 4 is current
-                        final EffectiveMilestones ms4 =
-                                new EffectiveMilestones(cache, 5, 4, context);
+                        final EffectiveMilestones ms4 = new EffectiveMilestones(studentData, 5, 4, context);
                         current = new MessagingCourseStatus(context, reg4, ms4, instrName);
                     }
                 } else {
                     // Course 3 is current
-                    final EffectiveMilestones ms3 = new EffectiveMilestones(cache, 5, 3, context);
+                    final EffectiveMilestones ms3 = new EffectiveMilestones(studentData, 5, 3, context);
                     current = new MessagingCourseStatus(context, reg3, ms3, instrName);
                 }
 
             } else {
                 // Course 2 is current
-                final EffectiveMilestones ms2 = new EffectiveMilestones(cache, 5, 2, context);
+                final EffectiveMilestones ms2 = new EffectiveMilestones(studentData, 5, 2, context);
                 current = new MessagingCourseStatus(context, reg2, ms2, instrName);
             }
         } else {
             // Course 1 is current
-            final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 5, 1, context);
+            final EffectiveMilestones ms1 = new EffectiveMilestones(studentData, 5, 1, context);
             current = new MessagingCourseStatus(context, reg1, ms1, instrName);
         }
 
@@ -650,9 +648,12 @@ public class EmailsNeeded {
             // Log.info("Student ", context.student.stuId, ": [5] ", regsList.toString(), ",
             // urgency ", Integer.toString(urgency));
 
+            final Cache cache = studentData.getCache();
+
             try {
                 RawSttermLogic.updateUrgency(cache, context.student.stuId,
                         context.studentTerm.termKey, Integer.valueOf(urgency));
+                studentData.forgetStudentTerm();
             } catch (final SQLException ex) {
                 Log.warning("Failed to update urgency", ex);
             }

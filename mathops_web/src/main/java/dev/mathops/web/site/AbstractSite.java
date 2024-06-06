@@ -5,9 +5,10 @@ import dev.mathops.commons.EPath;
 import dev.mathops.commons.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -23,6 +24,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -163,7 +165,7 @@ public abstract class AbstractSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param type    the site type
      * @param req     the request
@@ -172,14 +174,14 @@ public abstract class AbstractSite {
      * @throws SQLException     if there is an error accessing the database
      * @throws ServletException if there is an exception processing the request
      */
-    public abstract void doGet(final Cache cache, String subpath, ESiteType type, HttpServletRequest req,
+    public abstract void doGet(final WebViewData data, String subpath, ESiteType type, HttpServletRequest req,
                                HttpServletResponse resp) throws IOException, SQLException, ServletException;
 
     /**
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param subpath the portion of the path beyond that which was used to select this site
      * @param type    the site type
      * @param req     the request
@@ -188,7 +190,7 @@ public abstract class AbstractSite {
      * @throws SQLException     if there is an error accessing the database
      * @throws ServletException if there is an exception processing the request
      */
-    public abstract void doPost(final Cache cache, String subpath, ESiteType type,
+    public abstract void doPost(final WebViewData data, String subpath, ESiteType type,
                                 HttpServletRequest req, HttpServletResponse resp)
             throws IOException, SQLException, ServletException;
 
