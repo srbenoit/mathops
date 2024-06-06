@@ -5,6 +5,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -38,6 +40,7 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -64,7 +67,7 @@ public final class PageServerAdminSessions {
     /**
      * Generates the server administration page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -72,19 +75,22 @@ public final class PageServerAdminSessions {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.SERVER_ADMIN, htm);
 
         PageServerAdmin.emitNavMenu(htm, EAdmSubtopic.SRV_SESSIONS);
         doPageContent(htm, session);
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -666,9 +672,6 @@ public final class PageServerAdminSessions {
         htm.eTable();
     }
 
-
-
-
     /**
      * Appends a table of active HTML homework sessions to an {@code HtmlBuilder}.
      *
@@ -946,7 +949,7 @@ public final class PageServerAdminSessions {
     /**
      * Handles a POST request to the sessions page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -954,11 +957,13 @@ public final class PageServerAdminSessions {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doPost(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
         final String action = req.getParameter("action");
+
+        final Cache cache = data.getCache();
 
         if ("abort".equals(action)) {
 
@@ -1297,7 +1302,8 @@ public final class PageServerAdminSessions {
                 final String examId = req.getParameter("exam_id");
                 final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                 if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
                 } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
                     sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
                 } else {
@@ -1360,7 +1366,8 @@ public final class PageServerAdminSessions {
                 final String examId = req.getParameter("exam_id");
                 final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                 if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
                 } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
                     Log.warning("Forced submit of learning target assignment exam for student ", sess.studentId);
                     sess.forceSubmit(cache, session);
@@ -1430,13 +1437,15 @@ public final class PageServerAdminSessions {
                 final String examId = req.getParameter("exam_id");
                 final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                 if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                            ", ", examId);
                 } else {
                     if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
 
                         // TODO:
                     } else {
-                        Log.warning("'submitcancel' request for review learning target assignment in termination state: ",
+                        Log.warning("'submitcancel' request for review learning target assignment in termination " +
+                                        "state: ",
                                 sess.getForceTerminate().name());
                     }
                     sess.setForceTerminate(EForceTerminateState.NONE);
@@ -1620,6 +1629,6 @@ public final class PageServerAdminSessions {
             Log.warning("Unrecognized action: ", action);
         }
 
-        doGet(cache, site, req, resp, session);
+        doGet(data, site, req, resp, session);
     }
 }

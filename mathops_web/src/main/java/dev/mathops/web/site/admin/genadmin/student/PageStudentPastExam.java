@@ -4,9 +4,11 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -35,7 +37,7 @@ public enum PageStudentPastExam {
     /**
      * Starts a review exam and presents the exam instructions.
      *
-     * @param cache   the data cache
+     * @param data   the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -43,7 +45,7 @@ public enum PageStudentPastExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void startPastExam(final Cache cache, final AdminSite site,
+    public static void startPastExam(final WebViewData data, final AdminSite site,
                                      final ServletRequest req, final HttpServletResponse resp,
                                      final ImmutableSessionInfo session) throws IOException, SQLException {
 
@@ -66,13 +68,16 @@ public enum PageStudentPastExam {
             Log.warning("  exam='", exam, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, stu, false);
+            final StudentData studentData = data.getStudent(stu);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageError.doGet(cache, site, req, resp, session, "Student not found.");
+                PageError.doGet(data, site, req, resp, session, "Student not found.");
             } else {
                 final PastExamSessionStore store = PastExamSessionStore.getInstance();
                 PastExamSession pes = store.getPastExamSession(session.loginSessionId, xml);
+
+                final Cache cache = data.getCache();
 
                 if (pes == null) {
                     final String redirect = "student_course_activity.html?stu=" + stu;
@@ -82,7 +87,7 @@ public enum PageStudentPastExam {
                     store.setPastExamSession(pes);
                 }
 
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 
@@ -100,8 +105,11 @@ public enum PageStudentPastExam {
 
                 htm.addln("</main>");
 
-                Page.endOrdinaryPage(cache, site, htm, true);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
+
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             }
         }
     }
@@ -109,7 +117,7 @@ public enum PageStudentPastExam {
     /**
      * Handles a POST request.
      *
-     * @param cache   the data cache
+     * @param data   the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -117,7 +125,7 @@ public enum PageStudentPastExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void updatePastExam(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void updatePastExam(final WebViewData data, final AdminSite site, final ServletRequest req,
                                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -140,13 +148,16 @@ public enum PageStudentPastExam {
             Log.warning("  exam='", exam, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, stu, false);
+            final StudentData studentData = data.getStudent(stu);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageError.doGet(cache, site, req, resp, session, "Student not found.");
+                PageError.doGet(data, site, req, resp, session, "Student not found.");
             } else {
                 final PastExamSessionStore store = PastExamSessionStore.getInstance();
                 PastExamSession pes = store.getPastExamSession(session.loginSessionId, xml);
+
+                final Cache cache = data.getCache();
 
                 if (pes == null) {
                     final String redirect = "student_course_activity.html?stu=" + stu;
@@ -156,7 +167,7 @@ public enum PageStudentPastExam {
                     store.setPastExamSession(pes);
                 }
 
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 
@@ -174,9 +185,11 @@ public enum PageStudentPastExam {
                 htm.addln("</main>");
 
                 if (redirect == null) {
-                    Page.endOrdinaryPage(cache, site, htm, true);
-                    AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                            htm.toString().getBytes(StandardCharsets.UTF_8));
+                    final SystemData systemData = data.getSystemData();
+                    Page.endOrdinaryPage(systemData, site, htm, true);
+
+                    final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                    AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
                 } else {
                     resp.sendRedirect(redirect);
                 }

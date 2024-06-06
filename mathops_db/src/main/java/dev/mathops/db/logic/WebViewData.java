@@ -1,5 +1,7 @@
 package dev.mathops.db.logic;
 
+import dev.mathops.db.old.rawrecord.RawStudent;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,5 +153,20 @@ public final class WebViewData {
 
         return this.studentData.computeIfAbsent(studentId,
                 key -> new StudentData(this.cache, this.systemData, key, ELiveRefreshes.IF_MISSING));
+    }
+
+    /**
+     * Gets the data object for a student with a specified student record, creating a new {@code StudentData} object for
+     * that student if one does not already exist.
+     *
+     * @param studentRecord the student record
+     * @return the student data object for the effective user
+     */
+    public StudentData getStudent(final RawStudent studentRecord) {
+
+        final String studentId = studentRecord.stuId;
+
+        return this.studentData.computeIfAbsent(studentId,
+                key -> new StudentData(this.cache, this.systemData, studentRecord));
     }
 }

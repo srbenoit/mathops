@@ -3,13 +3,14 @@ package dev.mathops.web.site.admin.genadmin.student;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -20,10 +21,10 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public enum PageStudentPick {
     /**
      * Handles a POST from the page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -45,7 +46,7 @@ public enum PageStudentPick {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doPost(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -74,6 +75,7 @@ public enum PageStudentPick {
             final String stuId = stu.replace(CoreConstants.DASH, CoreConstants.EMPTY)
                     .replace(CoreConstants.SPC, CoreConstants.EMPTY);
 
+            final Cache cache = data.getCache();
             final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
             if (student == null) {
@@ -101,39 +103,39 @@ public enum PageStudentPick {
 
                 if ((first == null || first.isEmpty()) && last.isEmpty()) {
                     // Nothing provided - re-display the query form
-                    PageStudent.doGet(cache, site, req, resp, session, null);
+                    PageStudent.doGet(data, site, req, resp, session, null);
                 } else {
+
                     // Get list of students that match name
                     List<RawStudent> students = RawStudentLogic.queryAllByName(cache,
-                            first == null || first.isEmpty() ? "%" : first,
-                            last.isEmpty() ? "%" : last);
+                            first == null || first.isEmpty() ? "%" : first, last.isEmpty() ? "%" : last);
 
                     if (first != null && !first.isEmpty() && !last.isEmpty()) {
-                        students.addAll(RawStudentLogic.queryAllByName(cache, "%",
-                                first + CoreConstants.SPC + last));
+                        students.addAll(RawStudentLogic.queryAllByName(cache, "%", first + CoreConstants.SPC + last));
                     }
 
                     if (students.isEmpty() && ((first != null) && !first.isEmpty())) {
                         // Try with first/last reversed
-                        students = RawStudentLogic.queryAllByName(cache,
-                                last.isEmpty() ? "%" : last, first);
+                        students = RawStudentLogic.queryAllByName(cache, last.isEmpty() ? "%" : last, first);
                     }
 
                     if (students.isEmpty()) {
-                        PageStudent.doGet(cache, site, req, resp, session,
-                                "No matching students found.");
+                        PageStudent.doGet(data, site, req, resp, session, "No matching students found.");
                     } else if (students.size() == 1) {
+                        final RawStudent studentRecord = students.getFirst();
+                        final StudentData studentData = data.getStudent(studentRecord);
+
                         // Show the page for the selected student
-                        PageStudentInfo.doStudentInfoPage(cache, site, req, resp, session,
-                                students.get(0));
+                        PageStudentInfo.doStudentInfoPage(data, site, req, resp, session, studentData);
                     } else {
                         // Present a list of the matching students, allow user to choose
-                        showListOfStudents(cache, site, req, resp, session, students);
+                        showListOfStudents(data, site, req, resp, session, students);
                     }
                 }
             } else {
                 // Show the page for the selected student
-                PageStudentInfo.doStudentInfoPage(cache, site, req, resp, session, student);
+                final StudentData studentData = data.getStudent(student);
+                PageStudentInfo.doStudentInfoPage(data, site, req, resp, session, studentData);
             }
         }
     }
@@ -141,7 +143,7 @@ public enum PageStudentPick {
     /**
      * Displays a list of matching students and allows the user to select one.
      *
-     * @param cache    the data cache
+     * @param data     the web view data
      * @param site     the site
      * @param req      the request
      * @param resp     the response
@@ -150,13 +152,13 @@ public enum PageStudentPick {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void showListOfStudents(final Cache cache, final AdminSite site, final ServletRequest req,
+    private static void showListOfStudents(final WebViewData data, final AdminSite site, final ServletRequest req,
                                            final HttpServletResponse resp, final ImmutableSessionInfo session,
                                            final List<RawStudent> students) throws IOException, SQLException {
 
         Collections.sort(students);
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
@@ -174,11 +176,13 @@ public enum PageStudentPick {
         htm.sTh().eTh();
         htm.eTr();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = data.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         for (final RawStudent student : students) {
-            final List<RawStcourse> regs = active == null ? new ArrayList<>(0)
-                    : RawStcourseLogic.getActiveForStudent(cache, student.stuId, active.term);
+            final StudentData studentData = data.getStudent(student);
+
+            final List<RawStcourse> regs = studentData.getActiveRegistrations(active.term);
             Collections.sort(regs);
 
             htm.sTr();
@@ -211,7 +215,9 @@ public enum PageStudentPick {
         htm.div("vgap0");
         htm.sP().add("<a href='student.html'>Return to student selection.</a>").eP();
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

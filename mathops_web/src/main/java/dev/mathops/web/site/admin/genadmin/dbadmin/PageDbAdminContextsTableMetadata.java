@@ -3,7 +3,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -16,6 +17,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -32,7 +34,7 @@ public enum PageDbAdminContextsTableMetadata {
     /**
      * Generates the database metadata page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -40,7 +42,7 @@ public enum PageDbAdminContextsTableMetadata {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -62,17 +64,17 @@ public enum PageDbAdminContextsTableMetadata {
             final LoginConfig cfg = map.getLogin(driver);
 
             if (cfg == null) {
-                PageDbAdminContextsServer.doGet(cache, site, req, resp, session, "Invalid database");
+                PageDbAdminContextsServer.doGet(data, site, req, resp, session, "Invalid database");
             } else {
                 final Connection jdbc = GenAdminSubsite.getConnection(session.loginSessionId, driver);
 
                 if (jdbc == null) {
-                    PageDbAdminContextsServer.doGet(cache, site, req, resp, session, null);
+                    PageDbAdminContextsServer.doGet(data, site, req, resp, session, null);
                 } else {
                     try {
                         final DatabaseMetaData meta = jdbc.getMetaData();
 
-                        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+                        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
                         htm.sH(2, "gray").add("Database Administration").eH(2);
                         htm.hr("orange");
 
@@ -100,13 +102,16 @@ public enum PageDbAdminContextsTableMetadata {
 
                         emitMetadata(htm, cat, schema, table, meta);
 
-                        Page.endOrdinaryPage(cache, site, htm, true);
+                        final SystemData systemData = data.getSystemData();
+                        Page.endOrdinaryPage(systemData, site, htm, true);
+
+                        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
                         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                                htm.toString().getBytes(StandardCharsets.UTF_8));
+                                bytes);
                     } catch (final SQLException ex) {
                         Log.warning(ex);
                         GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-                        PageDbAdminContextsServer.doGet(cache, site, req, resp, session, null);
+                        PageDbAdminContextsServer.doGet(data, site, req, resp, session, null);
                     }
                 }
             }

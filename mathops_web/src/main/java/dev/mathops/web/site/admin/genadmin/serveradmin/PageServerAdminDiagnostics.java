@@ -2,7 +2,8 @@ package dev.mathops.web.site.admin.genadmin.serveradmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -13,6 +14,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -26,7 +28,7 @@ public enum PageServerAdminDiagnostics {
     /**
      * Generates the server administration page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -34,19 +36,22 @@ public enum PageServerAdminDiagnostics {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.SERVER_ADMIN, htm);
 
         PageServerAdmin.emitNavMenu(htm, EAdmSubtopic.SRV_DIAGNOSTICS);
         doPageContent(htm);
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -74,7 +79,7 @@ public enum PageServerAdminDiagnostics {
     /**
      * Handles a POST request to the sessions page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -82,7 +87,7 @@ public enum PageServerAdminDiagnostics {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doPost(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -90,6 +95,6 @@ public enum PageServerAdminDiagnostics {
 
         Log.warning("Unrecognized action: ", action);
 
-        doGet(cache, site, req, resp, session);
+        doGet(data, site, req, resp, session);
     }
 }

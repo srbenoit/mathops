@@ -82,7 +82,7 @@ public final class ChallengeExamLogic {
             throw new IllegalArgumentException("Student data may not be null");
         }
 
-        final TermRec active = data.getActiveTerm();
+        final TermRec active = data.getSystemData().getActiveTerm();
         this.activeRegs = data.getActiveRegistrations(active.term);
         this.allChallengeAttempts = data.getChallengeExams();
         this.prerequisiteLogic = new PrerequisiteLogic(data);

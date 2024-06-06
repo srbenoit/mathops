@@ -4,6 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -153,7 +155,7 @@ public enum PagePlacementReport {
     /**
      * Presents the report on Placement activity.
      *
-     * @param cache   the data cache
+     * @param data   the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -161,11 +163,11 @@ public enum PagePlacementReport {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.MONITOR_SYSTEM, htm);
 
@@ -174,6 +176,8 @@ public enum PagePlacementReport {
         final LocalDate today = LocalDate.now();
 
         final List<List<RawStmpe>> history = new ArrayList<>(7);
+
+        final Cache cache = data.getCache();
         RawStmpeLogic.getHistory(cache, history, 7, today);
 
         LocalDate dt = today;
@@ -224,7 +228,10 @@ public enum PagePlacementReport {
             dt = dt.minusDays(1L);
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

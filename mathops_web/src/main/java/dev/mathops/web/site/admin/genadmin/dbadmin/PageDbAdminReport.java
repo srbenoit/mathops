@@ -4,6 +4,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawStvisit;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -15,6 +17,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -37,7 +40,7 @@ public enum PageDbAdminReport {
     /**
      * Generates the database administration "Report" page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -45,7 +48,7 @@ public enum PageDbAdminReport {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -56,38 +59,41 @@ public enum PageDbAdminReport {
             Log.warning("  t='", t, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+            final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
             htm.sH(2, "gray").add("Database Administration").eH(2);
             htm.hr("orange");
 
             PageDbAdmin.emitNavMenu(htm, EAdmSubtopic.DB_REPORTS);
 
             if ("stvisit".equals(t)) {
-                doStudentVisitReport(cache, htm);
+                doStudentVisitReport(data, htm);
             } else {
                 htm.addln("<div style='column-width:220px;line-height:1.5em;'>");
                 htm.addln("Report not implemented.").br();
                 htm.eDiv();
             }
 
-            Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
+
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Generates the "student visits" report.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to write
+     * @param data the web view data
+     * @param htm  the {@code HtmlBuilder} to which to write
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStudentVisitReport(final Cache cache, final HtmlBuilder htm)
-            throws SQLException {
+    private static void doStudentVisitReport(final WebViewData data, final HtmlBuilder htm) throws SQLException {
 
         htm.hr();
         htm.sH(2).add("Student Visits").eH(2);
 
+        final Cache cache = data.getCache();
         final List<RawStvisit> all = RawStvisitLogic.INSTANCE.queryAll(cache);
 
         // Categorize by date, then by start time
@@ -118,7 +124,8 @@ public enum PageDbAdminReport {
         for (final LocalDate date : dates) {
 
             htm.div("vgap");
-            htm.sH(3).add(TemporalUtils.FMT_MDY.format(date)).eH(3);
+            final String dateStr = TemporalUtils.FMT_MDY.format(date);
+            htm.sH(3).add(dateStr).eH(3);
             htm.sDiv("indent");
 
             final Map<LocalTime, List<RawStvisit>> times = categorized.get(date);

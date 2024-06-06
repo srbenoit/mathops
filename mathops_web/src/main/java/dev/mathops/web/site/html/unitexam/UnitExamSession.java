@@ -1455,8 +1455,7 @@ public final class UnitExamSession extends HtmlSessionBase {
      * @param session the login session requesting the forced abort
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceAbort(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    public void forceAbort(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
         if (session.role.canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced abort requested");
@@ -1480,8 +1479,7 @@ public final class UnitExamSession extends HtmlSessionBase {
      * @param session the login session requesting the forced submit
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
         if (session.role.canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced submit requested");

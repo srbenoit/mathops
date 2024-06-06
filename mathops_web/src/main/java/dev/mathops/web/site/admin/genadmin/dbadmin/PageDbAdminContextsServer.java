@@ -4,6 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -15,6 +17,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -36,7 +39,7 @@ public enum PageDbAdminContextsServer {
     /**
      * Generates the database administration server page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -45,9 +48,9 @@ public enum PageDbAdminContextsServer {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site,
-                             final ServletRequest req, final HttpServletResponse resp,
-                             final ImmutableSessionInfo session, final String error) throws IOException, SQLException {
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
+                             final HttpServletResponse resp, final ImmutableSessionInfo session, final String error)
+            throws IOException, SQLException {
 
         final String driver = req.getParameter("driver");
 
@@ -62,7 +65,7 @@ public enum PageDbAdminContextsServer {
             if (cfg == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
                 htm.sH(2, "gray").add("Database Administration").eH(2);
                 htm.hr("orange");
 
@@ -99,8 +102,11 @@ public enum PageDbAdminContextsServer {
                     }
                 }
 
-                Page.endOrdinaryPage(cache, site, htm, true);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
+
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             }
         }
     }
@@ -112,8 +118,7 @@ public enum PageDbAdminContextsServer {
      * @param cfg   the driver configuration
      * @param error an optional error message
      */
-    private static void emitLoginForm(final HtmlBuilder htm, final LoginConfig cfg,
-                                      final String error) {
+    private static void emitLoginForm(final HtmlBuilder htm, final LoginConfig cfg, final String error) {
 
         final String uid = CoreConstants.newId(10) + USERNAME_SUFFIX;
         final String pid = CoreConstants.newId(10) + PASSWORD_SUFFIX;
@@ -127,21 +132,18 @@ public enum PageDbAdminContextsServer {
 
         htm.sDiv("center");
         htm.addln("<form action='db_admin_server_login.html' method='post'>");
-        htm.addln("  <input type='hidden' name='driver', value='", cfg.id,
-                "'/>");
+        htm.addln("  <input type='hidden' name='driver', value='", cfg.id, "'/>");
         htm.sDiv("loginfield")
                 .add("<label for='", uid, "'>Username:</label> ",
                         "<input data-lpignore='true' autocomplete='new-password' type='text' size='16' id='",
-                        uid, "' name='", uid, "' value='", usr,
-                        "'/>")
+                        uid, "' name='", uid, "' value='", usr, "'/>")
                 .eDiv();
         htm.sDiv("loginfield")
                 .add("<label for='", pid, "'>Password:</label> ",
                         "<input data-lpignore='true' autocomplete='new-password' type='text' size='16' id='",
                         pid, "' name='", pid, "'/>")
                 .eDiv();
-        htm.add("<button class='btn' type='submit'>", "Submit",
-                "</button>");
+        htm.add("<button class='btn' type='submit'>", "Submit", "</button>");
         htm.addln("</form>");
         htm.eDiv();
 
@@ -187,7 +189,7 @@ public enum PageDbAdminContextsServer {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -195,7 +197,7 @@ public enum PageDbAdminContextsServer {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doPost(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -217,22 +219,22 @@ public enum PageDbAdminContextsServer {
             Log.warning("  driver='", driver, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (driver == null || username == null || password == null) {
-            doGet(cache, site, req, resp, session, "Invalid login");
+            doGet(data, site, req, resp, session, "Invalid login");
         } else {
             final ContextMap map = ContextMap.getDefaultInstance();
             final LoginConfig cfg = map.getLogin(driver);
 
             if (cfg == null) {
-                doGet(cache, site, req, resp, session, "Invalid login");
+                doGet(data, site, req, resp, session, "Invalid login");
             } else {
                 try {
                     final Connection jdbc = cfg.openConnection(username, password);
 
                     GenAdminSubsite.addConnection(session.loginSessionId, driver, jdbc);
-                    doGet(cache, site, req, resp, session, null);
+                    doGet(data, site, req, resp, session, null);
                 } catch (final SQLException ex) {
                     Log.warning(ex);
-                    doGet(cache, site, req, resp, session, "Invalid login");
+                    doGet(data, site, req, resp, session, "Invalid login");
                 }
             }
         }
@@ -241,7 +243,7 @@ public enum PageDbAdminContextsServer {
     /**
      * Processes a logout request.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -249,7 +251,7 @@ public enum PageDbAdminContextsServer {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -261,7 +263,7 @@ public enum PageDbAdminContextsServer {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-            doGet(cache, site, req, resp, session, null);
+            doGet(data, site, req, resp, session, null);
         }
     }
 }

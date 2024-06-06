@@ -35,6 +35,7 @@ import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -74,6 +75,7 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -211,8 +213,6 @@ public final class PlacementExamSession extends HtmlSessionBase {
         this.gradingError = theError;
 
         this.profileResponses = new String[15];
-
-        loadStudentInfo(cache);
     }
 
     /**
@@ -224,16 +224,6 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         return this.state;
     }
-
-//    /**
-//     * Gets the currently active profile page.
-//     *
-//     * @return the profile page
-//     */
-//    public int getProfilePage() {
-//
-//        return this.profilePage;
-//    }
 
     /**
      * Gets the currently active section.
@@ -388,101 +378,100 @@ public final class PlacementExamSession extends HtmlSessionBase {
             Log.warning("Exam ", this.version, " was not found by ExamCache");
             this.error = "There was no assessment found with the requested version.";
         } else {
+            final StudentData studentData = getStudentData();
+
             final String type = avail.exam.examType;
             if ("Q".equals(type)) {
+                try {
+                    final GetExamReply reply = new GetExamReply();
 
-                this.error = loadStudentInfo(cache);
-                if (this.error == null) {
-                    try {
-                        final GetExamReply reply = new GetExamReply();
-                        LogBase.setSessionInfo("TXN", this.studentId);
+                    final String studentId = studentData.getStudentId();
+                    LogBase.setSessionInfo("TXN", studentId);
 
-                        // We need to verify the exam and fill in the remaining fields in
-                        // AvailableExam
-                        final List<RawAdminHold> holds = new ArrayList<>(1);
-                        reply.status = GetExamReply.SUCCESS;
+                    // We need to verify the exam and fill in the remaining fields in
+                    // AvailableExam
+                    final List<RawAdminHold> holds = new ArrayList<>(1);
+                    reply.status = GetExamReply.SUCCESS;
 
-                        final PlacementStatus placementStat = new PlacementLogic(cache, getStudent().stuId,
-                                getStudent().aplnTerm, now).status;
+                    final RawStudent stu = studentData.getStudentRecord();
 
-                        final boolean eligible = placementStat.attemptsRemaining > 0;
+                    final PlacementStatus placementStat = new PlacementLogic(studentData, stu.aplnTerm, now).status;
 
-                        if (eligible) {
-                            // Generate a serial number for the exam
-                            final long serial = AbstractHandlerBase.generateSerialNumber(false);
+                    final boolean eligible = placementStat.attemptsRemaining > 0;
 
-                            buildPresentedExam(avail.exam.treeRef, serial, reply, this.active);
+                    if (eligible) {
+                        // Generate a serial number for the exam
+                        final long serial = AbstractHandlerBase.generateSerialNumber(false);
 
-                            if (reply.presentedExam == null) {
-                                this.error = "The system was unable to create your session: " + reply.error;
-                            } else {
-                                final DocColumn newInstr = new DocColumn();
-                                newInstr.tag = "instructions";
+                        buildPresentedExam(stu, avail.exam.treeRef, serial, reply, this.active);
 
-                                final DocParagraph para = new DocParagraph();
-                                para.setColorName("navy");
+                        if (reply.presentedExam == null) {
+                            this.error = "The system was unable to create your session: " + reply.error;
+                        } else {
+                            final DocColumn newInstr = new DocColumn();
+                            newInstr.tag = "instructions";
 
-                                para.add(new DocText("Instructions:"));
-                                newInstr.add(para);
+                            final DocParagraph para = new DocParagraph();
+                            para.setColorName("navy");
 
-                                // Log the fact that a placement exam was begun
-                                final LocalDateTime start = TemporalUtils.toLocalDateTime(
-                                        Instant.ofEpochMilli(reply.presentedExam.realizationTime));
-                                final int startTime = start.getHour() * 60 + start.getMinute();
+                            para.add(new DocText("Instructions:"));
+                            newInstr.add(para);
 
-                                final RawMpeLog mpelog = new RawMpeLog(this.studentId, this.active.academicYear,
-                                        avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
-                                        Long.valueOf(serial), Integer.valueOf(startTime), null);
+                            // Log the fact that a placement exam was begun
+                            final LocalDateTime start = TemporalUtils.toLocalDateTime(
+                                    Instant.ofEpochMilli(reply.presentedExam.realizationTime));
+                            final int startTime = start.getHour() * 60 + start.getMinute();
 
-                                RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
+                            final RawMpeLog mpelog = new RawMpeLog(studentId, this.active.academicYear,
+                                    avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
+                                    Long.valueOf(serial), Integer.valueOf(startTime), null);
 
-                                // Apply time limit factor adjustment
-                                if (reply.presentedExam.allowedSeconds != null) {
+                            RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
 
-                                    final RawStudent stu = RawStudentLogic.query(cache, this.studentId, false);
+                            // Apply time limit factor adjustment
+                            if (reply.presentedExam.allowedSeconds != null) {
 
-                                    if (stu != null && stu.timelimitFactor != null) {
-                                        avail.timelimitFactor = stu.timelimitFactor;
+                                if (stu.timelimitFactor != null) {
+                                    avail.timelimitFactor = stu.timelimitFactor;
 
-                                        int secs = reply.presentedExam.allowedSeconds.intValue();
+                                    int secs = reply.presentedExam.allowedSeconds.intValue();
 
-                                        secs = (int) ((double) secs * stu.timelimitFactor.doubleValue());
+                                    secs = (int) ((double) secs * stu.timelimitFactor.doubleValue());
 
-                                        reply.presentedExam.allowedSeconds = Long.valueOf((long) secs);
-                                    }
+                                    reply.presentedExam.allowedSeconds = Long.valueOf((long) secs);
                                 }
-
-                                // TODO: Populate holds list...
-
-                                if (!holds.isEmpty()) {
-                                    final int numHolds = holds.size();
-                                    reply.holds = new String[numHolds];
-                                    for (int i = 0; i < numHolds; ++i) {
-                                        reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
-                                    }
-                                }
-
-                                final LocalDateTime realized = TemporalUtils.toLocalDateTime(
-                                        Instant.ofEpochMilli(reply.presentedExam.realizationTime));
-                                final LocalTime tm = realized.toLocalTime();
-                                final int min = tm.getHour() * 60 + tm.getMinute();
-
-                                final RawPendingExam pending = new RawPendingExam(Long.valueOf(serial),
-                                        reply.presentedExam.examVersion, this.studentId, realized.toLocalDate(), null,
-                                        Integer.valueOf(min), null, null, null, null, avail.exam.course,
-                                        avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
-
-                                RawPendingExamLogic.INSTANCE.insert(cache, pending);
                             }
+
+                            // TODO: Populate holds list...
+
+                            if (!holds.isEmpty()) {
+                                final int numHolds = holds.size();
+                                reply.holds = new String[numHolds];
+                                for (int i = 0; i < numHolds; ++i) {
+                                    reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
+                                }
+                            }
+
+                            final LocalDateTime realized = TemporalUtils.toLocalDateTime(
+                                    Instant.ofEpochMilli(reply.presentedExam.realizationTime));
+                            final LocalTime tm = realized.toLocalTime();
+                            final int min = tm.getHour() * 60 + tm.getMinute();
+
+                            final RawPendingExam pending = new RawPendingExam(Long.valueOf(serial),
+                                    reply.presentedExam.examVersion, stu.stuId, realized.toLocalDate(), null,
+                                    Integer.valueOf(min), null, null, null, null, avail.exam.course,
+                                    avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
+
+                            RawPendingExamLogic.INSTANCE.insert(cache, pending);
                         }
-                    } catch (final SQLException ex) {
-                        Log.warning(ex);
-                        this.error = "Unable to query placement status.";
                     }
-                } else {
-                    Log.warning("Assessment version '", this.version, "' is not a placement assessment.");
-                    this.error = "Requested assessment is not a placement assessment.";
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    this.error = "Unable to query placement status.";
                 }
+            } else {
+                Log.warning("Assessment version '", this.version, "' is not a placement assessment.");
+                this.error = "Requested assessment is not a placement assessment.";
             }
         }
 
@@ -501,12 +490,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * Attempt to construct a realized exam and install it in the reply message. On errors, the reply message errors
      * field will be set to the cause of the error.
      *
-     * @param ref    the reference to the exam to be loaded
-     * @param serial the serial number to associate with the exam
-     * @param reply  the reply message to populate with the realized exam or the error status
-     * @param term   the term under which to file the presented exam
+     * @param student the student record
+     * @param ref     the reference to the exam to be loaded
+     * @param serial  the serial number to associate with the exam
+     * @param reply   the reply message to populate with the realized exam or the error status
+     * @param term    the term under which to file the presented exam
      */
-    private void buildPresentedExam(final String ref, final long serial, final GetExamReply reply, final TermRec term) {
+    private void buildPresentedExam(final RawStudent student, final String ref, final long serial,
+                                    final GetExamReply reply, final TermRec term) {
 
         final ExamObj theExam = InstructionalCache.getExam(ref);
 
@@ -547,16 +538,15 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 }
             }
 
-            final RawStudent stu = getStudent();
             Log.info("Testing for time limit update: ", theExam.allowedSeconds);
 
             if (theExam.allowedSeconds != null) {
                 int secs = theExam.allowedSeconds.intValue();
 
-                if (stu.timelimitFactor != null) {
-                    Log.info("Applying time limit factor : ", stu.timelimitFactor);
+                if (student.timelimitFactor != null) {
+                    Log.info("Applying time limit factor : ", student.timelimitFactor);
 
-                    secs = (int) ((double) secs * stu.timelimitFactor.doubleValue());
+                    secs = (int) ((double) secs * student.timelimitFactor.doubleValue());
                     theExam.allowedSeconds = Long.valueOf((long) secs);
 
                     Log.info("After time limit update: ", theExam.allowedSeconds);
@@ -566,10 +556,10 @@ public final class PlacementExamSession extends HtmlSessionBase {
             if (theExam.realize(true, true, serial)) {
                 reply.presentedExam = theExam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = this.studentId;
+                reply.studentId = student.stuId;
                 setExam(theExam);
 
-                if (!new ExamWriter().writePresentedExam(this.studentId, term, reply.presentedExam, reply.toXml())) {
+                if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam, reply.toXml())) {
                     Log.warning("Unable to cache exam " + ref);
                     reply.presentedExam = null;
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
@@ -1489,10 +1479,12 @@ public final class PlacementExamSession extends HtmlSessionBase {
                     final String answer = this.profileResponses[i];
 
                     if (answer != null && !answer.isEmpty()) {
+
+                        final String studentId = getStudentData().getStudentId();
+
                         // Record the answer
-                        final RawStsurveyqa ans = new RawStsurveyqa(this.studentId, this.version,
-                                now.toLocalDate(), Integer.valueOf(i + 1), answer,
-                                Integer.valueOf(TemporalUtils.minuteOfDay(now)));
+                        final RawStsurveyqa ans = new RawStsurveyqa(studentId, this.version, now.toLocalDate(),
+                                Integer.valueOf(i + 1), answer, Integer.valueOf(TemporalUtils.minuteOfDay(now)));
 
                         RawStsurveyqaLogic.INSTANCE.insert(cache, ans);
                     }
@@ -1730,7 +1722,9 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 Log.info(msg);
                 appendExamLog(msg);
                 final PlacementExamSessionStore store = PlacementExamSessionStore.getInstance();
-                store.removePlacementExamSessionForStudent(this.studentId);
+
+                final String studentId = getStudentData().getStudentId();
+                store.removePlacementExamSessionForStudent(studentId);
 
                 setExam(null);
 
@@ -1764,11 +1758,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 Log.info(msg);
                 appendExamLog(msg);
                 final PlacementExamSessionStore store = PlacementExamSessionStore.getInstance();
-                store.removePlacementExamSessionForStudent(this.studentId);
+
+                final String studentId = getStudentData().getStudentId();
+
+                store.removePlacementExamSessionForStudent(studentId);
 
                 final ExamObj examObj = getExam();
                 if (examObj != null) {
-                    RawPendingExamLogic.delete(cache, examObj.serialNumber, this.studentId);
+                    RawPendingExamLogic.delete(cache, examObj.serialNumber, studentId);
                     setExam(null);
                 }
 
@@ -1788,8 +1785,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * @param session the login session requesting the forced abort
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceAbort(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    public void forceAbort(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             final String msg = "Forced abort requested";
@@ -1797,11 +1793,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
             appendExamLog(msg);
             writeExamRecovery(cache);
             final PlacementExamSessionStore store = PlacementExamSessionStore.getInstance();
-            store.removePlacementExamSessionForStudent(this.studentId);
+
+            final String studentId = getStudentData().getStudentId();
+
+            store.removePlacementExamSessionForStudent(studentId);
 
             final ExamObj examObj = getExam();
             if (examObj != null) {
-                RawPendingExamLogic.delete(cache, examObj.serialNumber, this.studentId);
+                RawPendingExamLogic.delete(cache, examObj.serialNumber, studentId);
                 setExam(null);
             }
         } else {
@@ -1818,8 +1817,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * @param session the login session requesting the forced submit
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             final String msg = "Forced submit requested";
@@ -1830,11 +1828,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
             this.state = EPlacementExamState.COMPLETED;
 
             final PlacementExamSessionStore store = PlacementExamSessionStore.getInstance();
-            store.removePlacementExamSessionForStudent(this.studentId);
+
+            final String studentId = getStudentData().getStudentId();
+
+            store.removePlacementExamSessionForStudent(studentId);
 
             final ExamObj examObj = getExam();
             if (examObj != null) {
-                RawPendingExamLogic.delete(cache, examObj.serialNumber, this.studentId);
+                RawPendingExamLogic.delete(cache, examObj.serialNumber, studentId);
                 setExam(null);
             }
         } else {
@@ -1856,7 +1857,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         final String err;
 
-        final String stuId = this.studentId;
+        final String stuId = getStudentData().getStudentId();
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId) || "ETEXT".equals(stuId)) {
 
@@ -1867,8 +1868,6 @@ public final class PlacementExamSession extends HtmlSessionBase {
         } else {
             Log.info("Writing updated exam state");
             final Object[][] answers = getExam().exportState();
-
-            loadStudentInfo(cache);
 
             // Write the updated exam state out somewhere permanent
             new ExamWriter().writeUpdatedExam(stuId, this.active, answers, false);
@@ -1934,12 +1933,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
         final Long ser = examObj.serialNumber;
         final LocalDateTime start = TemporalUtils.toLocalDateTime(examObj.realizationTime);
 
-        final List<RawStmpe> existing = RawStmpeLogic.queryLegalByStudent(cache, this.studentId);
+        final String studentId = getStudentData().getStudentId();
+
+        final List<RawStmpe> existing = RawStmpeLogic.queryLegalByStudent(cache, studentId);
 
         for (final RawStmpe test : existing) {
             if (test.getStartDateTime() != null && test.serialNbr.equals(ser)
                     && test.getStartDateTime().equals(start)) {
-                Log.warning("Submitted placement exam for student ", this.studentId, ", exam " + this.version,
+                Log.warning("Submitted placement exam for student ", studentId, ", exam " + this.version,
                         ": serial=", test.serialNbr, " submitted a second time - ignoring");
                 return "Exam submitted a second time - ignoring.";
             }
@@ -1951,9 +1952,9 @@ public final class PlacementExamSession extends HtmlSessionBase {
         param1.setValue(Boolean.valueOf(this.proctored));
         params.addVariable(param1);
 
-        Log.info("Grading placement exam for student ", this.studentId, ", exam ", examObj.examVersion);
+        Log.info("Grading placement exam for student ", studentId, ", exam ", examObj.examVersion);
 
-        RawPendingExamLogic.delete(cache, examObj.serialNumber, this.studentId);
+        RawPendingExamLogic.delete(cache, examObj.serialNumber, studentId);
 
         loadSatActSurvey(cache, params);
 
@@ -1964,7 +1965,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         // Begin preparing the database object to store exam results
         final StudentExamRec stexam = new StudentExamRec();
-        stexam.studentId = this.studentId;
+        stexam.studentId = studentId;
         stexam.examType = examRec.examType;
         stexam.course = examObj.course;
         try {
@@ -2010,8 +2011,11 @@ public final class PlacementExamSession extends HtmlSessionBase {
      */
     private boolean loadSatActSurvey(final Cache cache, final EvalContext params) throws SQLException {
 
-        final int act = getStudent().actScore == null ? 0 : getStudent().actScore.intValue();
-        final int sat = getStudent().satScore == null ? 0 : getStudent().satScore.intValue();
+        final RawStudent student = getStudentData().getStudentRecord();
+        final String studentId = getStudentData().getStudentId();
+
+        final int act = student.actScore == null ? 0 : student.actScore.intValue();
+        final int sat = student.satScore == null ? 0 : student.satScore.intValue();
 
         final VariableInteger param1 = new VariableInteger("student-ACT-math");
         param1.setValue(Long.valueOf((long) act));
@@ -2023,8 +2027,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         // Get answers to placement exam survey, which are used for validation
         // FIXME: Use PPPPP if proctored?
-        final List<RawStsurveyqa> answers =
-                RawStsurveyqaLogic.queryLatestByStudentProfile(cache, this.studentId, "POOOO");
+        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, studentId, "POOOO");
 
         int prep = 0;
         int resources = 0;
@@ -2491,7 +2494,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                                     stexam.deniedCredit.put(action.course, whyDeny);
                                 }
                             } else if (ExamOutcomeAction.INDICATE_LICENSED.equals(action.type)) {
-                                final RawStudent stu = RawStudentLogic.query(cache, this.studentId, true);
+                                final RawStudent stu = getStudentData().getStudentRecord();
 
                                 if (stu != null && "N".equals(stu.licensed)) {
                                     RawStudentLogic.updateLicensed(cache, stu.stuId, "Y");
@@ -2533,6 +2536,8 @@ public final class PlacementExamSession extends HtmlSessionBase {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
+                final RawStudent student = getStudentData().getStudentRecord();
+
                 final int[] attempts = RawStmpeLogic.countLegalAttempts(cache, stexam.studentId, stexam.examId);
 
                 boolean deny = false;
@@ -2569,8 +2574,8 @@ public final class PlacementExamSession extends HtmlSessionBase {
                         // No hold, so create a new one
                         hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
 
-                        if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
-                            RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
+                        if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
+                            RawStudentLogic.updateHoldSeverity(cache, student.stuId, "F");
                         }
                     } else {
                         // Already a hold 18, but update its date to now
@@ -2610,7 +2615,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                         this.active.academicYear, stexam.finish.toLocalDate(),
                         Integer.valueOf(TemporalUtils.minuteOfDay(stexam.start)),
                         Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)),
-                        getStudent().lastName, getStudent().firstName, getStudent().middleInitial, null,
+                        student.lastName, student.firstName, student.middleInitial, null,
                         stexam.serialNumber, stexam.subtestScores.get("A"),
                         stexam.subtestScores.get("117"),
                         stexam.subtestScores.get("118"),
@@ -2707,7 +2712,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         if (!deny) {
             // Send results to BANNER, or store in queue table
-            final RawStudent stu = getStudent();
+            final RawStudent stu = getStudentData().getStudentRecord();
 
             if (stu == null) {
                 RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
@@ -2733,11 +2738,13 @@ public final class PlacementExamSession extends HtmlSessionBase {
     void appendXml(final HtmlBuilder xml) {
 
         if (getExam() != null) {
+            final String studentId = getStudentData().getStudentId();
+
             xml.addln("<placement-exam-session>");
             xml.addln(" <host>", getSiteProfile().host, "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
-            xml.addln(" <student>", this.studentId, "</student>");
+            xml.addln(" <student>", studentId, "</student>");
             xml.addln(" <proctored>", Boolean.toString(this.proctored), "</proctored>");
             xml.addln(" <exam-id>", this.version, "</exam-id>");
             if (this.score != null) {

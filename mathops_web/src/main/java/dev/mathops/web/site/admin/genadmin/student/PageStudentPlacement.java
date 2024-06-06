@@ -5,11 +5,13 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawMpecrDenied;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -26,6 +28,7 @@ import dev.mathops.web.site.admin.genadmin.PageError;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -42,7 +45,7 @@ public enum PageStudentPlacement {
     /**
      * Shows the student information page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -50,7 +53,7 @@ public enum PageStudentPlacement {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -61,14 +64,15 @@ public enum PageStudentPlacement {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageError.doGet(cache, site, req, resp, session, "Student not found.");
+            PageError.doGet(data, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final StudentData studentData = data.getStudent(studentId);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageError.doGet(cache, site, req, resp, session, "Student not found.");
+                PageError.doGet(data, site, req, resp, session, "Student not found.");
             } else {
-                doStudentPlacementPage(cache, site, req, resp, session, student);
+                doStudentPlacementPage(data, site, req, resp, session, student);
             }
         }
     }
@@ -76,7 +80,7 @@ public enum PageStudentPlacement {
     /**
      * Shows the student information page for a provided student.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -85,20 +89,17 @@ public enum PageStudentPlacement {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStudentPlacementPage(final Cache cache, final AdminSite site,
-                                               final ServletRequest req, final HttpServletResponse resp,
-                                               final ImmutableSessionInfo session, final RawStudent student)
-            throws IOException, SQLException {
+    private static void doStudentPlacementPage(final WebViewData data, final AdminSite site, final ServletRequest req,
+                                               final HttpServletResponse resp, final ImmutableSessionInfo session,
+                                               final RawStudent student) throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
-        htm.sP("studentname")
-                .add("<strong class='largeish'>", student.getScreenName(),
-                        "</strong> (", student.stuId,
-                        ") &nbsp; <a class='ulink' href='student.html'>Clear</a>")
-                .eP();
+        final String screenName = student.getScreenName();
+        htm.sP("studentname").add("<strong class='largeish'>", screenName, "</strong> (", student.stuId,
+                ") &nbsp; <a class='ulink' href='student.html'>Clear</a>").eP();
 
         htm.addln("<nav class='menu'>");
 
@@ -111,11 +112,15 @@ public enum PageStudentPlacement {
         htm.add("</nav>");
 
         htm.addln("<main class='info'>");
+        final Cache cache = data.getCache();
         emitStudentPlacementStatus(cache, htm, student);
         htm.addln("</main>");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -139,8 +144,8 @@ public enum PageStudentPlacement {
         final List<RawStexam> pre126 = RawStexamLogic.getExams(cache, stuId, "M 1260", true, "U");
 
         htm.sH(4).add("Tutorial Exams").eH(4);
-        if (elms.isEmpty() && pre117.isEmpty() && pre118.isEmpty() && pre124.isEmpty()
-                && pre125.isEmpty() && pre126.isEmpty()) {
+        if (elms.isEmpty() && pre117.isEmpty() && pre118.isEmpty() && pre124.isEmpty() && pre125.isEmpty()
+                && pre126.isEmpty()) {
             htm.sDiv("indent").add("(No tutorial exams on record)").eDiv();
             htm.div("vgap");
         } else {
@@ -158,8 +163,7 @@ public enum PageStudentPlacement {
                             .br().add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -178,8 +182,7 @@ public enum PageStudentPlacement {
                             .add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -198,8 +201,7 @@ public enum PageStudentPlacement {
                             .add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -218,8 +220,7 @@ public enum PageStudentPlacement {
                             .add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -238,8 +239,7 @@ public enum PageStudentPlacement {
                             .add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -258,8 +258,7 @@ public enum PageStudentPlacement {
                             .add(" &nbsp; &nbsp; Version = ", row.version).br()
                             .add(" &nbsp; &nbsp; Serial # = ", row.serialNbr).br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
-                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
-                            .br()//
+                                    sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
                             .add(" &nbsp; &nbsp; Passed = ", row.passed).br()
                             .add(" &nbsp; &nbsp; Score = ", row.examScore, "/20</li>");
                 }
@@ -292,7 +291,7 @@ public enum PageStudentPlacement {
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec))
                             .br()//
                             .add(" &nbsp; &nbsp; Placed = ", row.placed).br()
-                            .add(" &nbsp; &nbsp; Subtests: A = ", //
+                            .add(" &nbsp; &nbsp; Subtests: A = ",
                                     row.stsA, "/8; 117 = ",
                                     row.sts117, "/12; 118 = ",
                                     row.sts118, "/8; 124 = ",
@@ -331,11 +330,9 @@ public enum PageStudentPlacement {
             htm.addln("<ul style='margin-top:0;';>");
             for (final RawMpecrDenied row : denied) {
                 if ("P".equals(row.examPlaced)) {
-                    htm.add("<li>Denied placement out of ", row.course, " (serial # ",
-                            row.serialNbr, ")</li>");
+                    htm.add("<li>Denied placement out of ", row.course, " (serial # ", row.serialNbr, ")</li>");
                 } else if ("C".equals(row.examPlaced)) {
-                    htm.add("<li>Denied credit for ", row.course, " (serial # ", row.serialNbr,
-                            ")</li>");
+                    htm.add("<li>Denied credit for ", row.course, " (serial # ", row.serialNbr, ")</li>");
                 }
             }
             htm.addln("</ul>");

@@ -1641,13 +1641,13 @@ enum PageTestStudent {
     /**
      * Updates the test student data.
      *
-     * @param testStudentData the test student data object
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web view data
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateStudent(final StudentData testStudentData, final ServletRequest req,
+    static void updateStudent(final WebViewData data, final ServletRequest req,
                               final HttpServletResponse resp) throws IOException, SQLException {
 
         final String aplnTerm = req.getParameter("apln_term");
@@ -1690,6 +1690,7 @@ enum PageTestStudent {
                 newSat = null;
             }
 
+            final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
             final RawStudent stuModel = testStudentData.getStudentRecord();
 
             if (stuModel != null) {
@@ -1766,13 +1767,13 @@ enum PageTestStudent {
     /**
      * Updates the test student special student categories.
      *
-     * @param testStudentData the test student data object
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web view data
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateSpecial(final StudentData testStudentData, final ServletRequest req,
+    static void updateSpecial(final WebViewData data, final ServletRequest req,
                               final HttpServletResponse resp) throws IOException, SQLException {
 
         final int numSpec = SPECIAL.length;
@@ -1782,6 +1783,8 @@ enum PageTestStudent {
             final String param = req.getParameter(lower);
             want[i] = "on".equals(param);
         }
+
+        final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
 
         final List<RawSpecialStus> existing = testStudentData.getSpecialCategories();
         final int count = existing.size();
@@ -1816,18 +1819,17 @@ enum PageTestStudent {
     /**
      * Updates the test student placement data.
      *
-     * @param testStudentData the test student data object
-     * @param site            the owning site
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web view data
+     * @param site the owning site
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updatePlacement(final StudentData testStudentData, final AdminSite site, final ServletRequest req,
+    static void updatePlacement(final WebViewData data, final AdminSite site, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException, SQLException {
 
-        final SystemData systemData = testStudentData.getSystemData();
-
+        final SystemData systemData = data.getSystemData();
         final TermRec active = systemData.getActiveTerm();
 
         final int numPts = PTS.length;
@@ -1849,6 +1851,8 @@ enum PageTestStudent {
                 }
             }
         }
+
+        final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
 
         // Fetch the current configuration
         final List<RawStmpe> placements = testStudentData.getLegalPlacementAttempts();
@@ -2032,14 +2036,16 @@ enum PageTestStudent {
     /**
      * Updates the test student Tutorial data.
      *
-     * @param testStudentData the test student data object
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web vuew data
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateTutorials(final StudentData testStudentData, final ServletRequest req,
+    static void updateTutorials(final WebViewData data, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException, SQLException {
+
+        final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
 
         for (final String tutorial : TUTORIALS) {
             final String key = tutorial.replace(CoreConstants.SPC, CoreConstants.EMPTY);
@@ -2055,7 +2061,7 @@ enum PageTestStudent {
             final List<RawStexam> exams = testStudentData.getStudentExamsByCourseType(tutorial, false,
                     RawStexamLogic.ALL_EXAM_TYPES);
 
-            final Cache cache = testStudentData.getCache();
+            final Cache cache = data.getCache();
 
             for (final RawStexam exam : exams) {
                 RawStexamLogic.INSTANCE.delete(cache, exam);
@@ -2155,16 +2161,17 @@ enum PageTestStudent {
     /**
      * Updates the test student e-text records.
      *
-     * @param testStudentData the test student data object
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web view data
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateETexts(final StudentData testStudentData, final ServletRequest req,
+    static void updateETexts(final WebViewData data, final ServletRequest req,
                              final HttpServletResponse resp) throws IOException, SQLException {
 
-        final SystemData systemData = testStudentData.getSystemData();
+        final SystemData systemData = data.getSystemData();
+        final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
 
         final List<RawEtext> allEtexts = systemData.getETexts();
         final List<RawStetext> stEtexts = testStudentData.getStudentETexts();
@@ -2267,15 +2274,16 @@ enum PageTestStudent {
     /**
      * Updates the test student registrations.
      *
-     * @param testStudentData the test student data object
-     * @param req             the request
-     * @param resp            the response
+     * @param data the web view data
+     * @param req  the request
+     * @param resp the response
      * @throws IOException  if there was an error writing the response
      * @throws SQLException if there was an error accessing the database
      */
-    static void updateRegistrations(final StudentData testStudentData, final ServletRequest req,
+    static void updateRegistrations(final WebViewData data, final ServletRequest req,
                                     final HttpServletResponse resp) throws IOException, SQLException {
 
+        final StudentData testStudentData = data.getStudent(RawStudent.TEST_STUDENT_ID);
         final SystemData systemData = testStudentData.getSystemData();
 
         final TermRec active = systemData.getActiveTerm();

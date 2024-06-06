@@ -5,18 +5,15 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.enums.EExamStructure;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
+import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -47,7 +44,7 @@ public enum PageStudentCourseStatus {
     /**
      * Shows the student course status page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -56,7 +53,7 @@ public enum PageStudentCourseStatus {
      * @throws SQLException if there is an error accessing the database
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -67,14 +64,15 @@ public enum PageStudentCourseStatus {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageError.doGet(cache, site, req, resp, session, "Student not found.");
+            PageError.doGet(data, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final StudentData studentData = data.getStudent(studentId);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageError.doGet(cache, site, req, resp, session, "Student not found.");
+                PageError.doGet(data, site, req, resp, session, "Student not found.");
             } else {
-                emitPageContent(cache, site, req, resp, session, student);
+                emitPageContent(data, site, req, resp, session, studentData);
             }
         }
     }
@@ -82,43 +80,50 @@ public enum PageStudentCourseStatus {
     /**
      * Shows the student status page for a provided student.
      *
-     * @param studentData the student data object
+     * @param data        the web view data
      * @param site        the site
      * @param req         the request
      * @param resp        the response
      * @param session     the user's login session information
-     * @param student     the student for which to present information
+     * @param studentData the student data object
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitPageContent(final StudentData studentData, final AdminSite site,
+    private static void emitPageContent(final WebViewData data, final AdminSite site,
                                         final ServletRequest req, final HttpServletResponse resp,
-                                        final ImmutableSessionInfo session, final RawStudent student)
+                                        final ImmutableSessionInfo session, final StudentData studentData)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(studentData, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
-        htm.sP("studentname").add("<strong class='largeish'>", student.getScreenName(), "</strong> (", student.stuId,
-                ") &nbsp; <a class='ulink' href='student.html'>Clear</a>").eP();
+        final RawStudent student = studentData.getStudentRecord();
 
-        htm.addln("<nav class='menu'>");
+        if (student != null) {
+            htm.sP("studentname").add("<strong class='largeish'>", student.getScreenName(), "</strong> (",
+                    student.stuId, ") &nbsp; <a class='ulink' href='student.html'>Clear</a>").eP();
 
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.STUDENT_INFO);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.PLACEMENT);
-        menuButton(htm, true, student.stuId, EAdminStudentCommand.REGISTRATIONS);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.ACTIVITY);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.MATH_PLAN);
+            htm.addln("<nav class='menu'>");
 
-        htm.add("</nav>");
+            menuButton(htm, false, student.stuId, EAdminStudentCommand.STUDENT_INFO);
+            menuButton(htm, false, student.stuId, EAdminStudentCommand.PLACEMENT);
+            menuButton(htm, true, student.stuId, EAdminStudentCommand.REGISTRATIONS);
+            menuButton(htm, false, student.stuId, EAdminStudentCommand.ACTIVITY);
+            menuButton(htm, false, student.stuId, EAdminStudentCommand.MATH_PLAN);
 
-        htm.addln("<main class='info'>");
-        emitCourseStatus(studentData, site, session, htm, student);
-        htm.addln("</main>");
+            htm.add("</nav>");
 
-        Page.endOrdinaryPage(studentData, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            htm.addln("<main class='info'>");
+            emitCourseStatus(data, site, session, htm, studentData);
+            htm.addln("</main>");
+        }
+
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -150,25 +155,25 @@ public enum PageStudentCourseStatus {
     /**
      * Emits the student's course status.
      *
-     * @param studentData the student data object
+     * @param data        the web view data
      * @param site        the site
      * @param session     the login session
      * @param htm         the {@code HtmlBuilder} to which to append
-     * @param student     the student
+     * @param studentData the student data object
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseStatus(final StudentData studentData, final AdminSite site,
+    private static void emitCourseStatus(final WebViewData data, final AdminSite site,
                                          final ImmutableSessionInfo session, final HtmlBuilder htm,
-                                         final RawStudent student) throws SQLException {
+                                         final StudentData studentData) throws SQLException {
 
-        final TermRec active = studentData.getActiveTerm();
+        final SystemData systemData = data.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         if (active == null) {
             htm.addln("ERROR: unable to query active term");
         } else {
             // This query returns Forfeit and placement credit rows, but not Dropped rows
-            final List<RawStcourse> allPastAndCurrent =
-                    RawStcourseLogic.queryByStudent(cache, student.stuId, true, false);
+            final List<RawStcourse> allPastAndCurrent = studentData.getNonDroppedRegistrations();
             Collections.sort(allPastAndCurrent);
 
             int numCurrent = 0;
@@ -184,8 +189,7 @@ public enum PageStudentCourseStatus {
             htm.sH(4).add(active.term.longString, " Registrations:").eH(4);
 
             if (numCurrent == 0) {
-                htm.sP(null, "style='margin-left:20px;'")
-                        .add("(student has no registrations this term)").eP();
+                htm.sP(null, "style='margin-left:20px;'").add("(student has no registrations this term)").eP();
             } else {
                 final StudentCourseStatus stat = new StudentCourseStatus(site.getDbProfile());
 
@@ -194,12 +198,10 @@ public enum PageStudentCourseStatus {
                         continue;
                     }
 
-                    if ("OT".equals(reg.instrnType)
-                            || "AP".equals(reg.instrnType)) {
+                    if ("OT".equals(reg.instrnType) || "AP".equals(reg.instrnType)) {
 
                         htm.sP(null, "style='margin-left:20px;'");
-                        htm.add("<strong>", reg.course.replace("M ", "MATH "),
-                                "</strong> - [Placement Credit]");
+                        htm.add("<strong>", reg.course.replace("M ", "MATH "), "</strong> - [Placement Credit]");
                         htm.eP();
                     } else {
                         htm.add("<details>",
@@ -233,8 +235,7 @@ public enum PageStudentCourseStatus {
                             htm.add(" - [<strong>In Progress</strong>]");
                             showProgress = true;
                         } else {
-                            htm.add(" - [", open == null
-                                    ? "Not started" : open, "]");
+                            htm.add(" - [", open == null ? "Not started" : open, "]");
                         }
 
                         htm.addln("</summary>");
@@ -245,8 +246,7 @@ public enum PageStudentCourseStatus {
                                         + "border-style:solid;font-size:13px;'");
 
                         htm.sP(null, "style='margin-top:6px;'");
-                        htm.addln("Pace Order: ",
-                                reg.paceOrder == null ? CoreConstants.DASH : reg.paceOrder, "<br/>");
+                        htm.addln("Pace Order: ", reg.paceOrder == null ? CoreConstants.DASH : reg.paceOrder, "<br/>");
 
                         final String pre = reg.prereqSatis;
                         htm.addln("Prerequisite Satisfied: ", pre == null ? "No"
@@ -257,10 +257,11 @@ public enum PageStudentCourseStatus {
                         }
                         htm.eP();
 
-                        if (showProgress && stat.gatherData(studentData, session, student.stuId,
-                                reg.course, false, false)) {
+                        final String studentId = studentData.getStudentId();
 
-                            emitCourseProgress(studentData, htm, stat, reg, compl);
+                        if (showProgress && stat.gatherData(studentData, session, studentId, reg.course, false,
+                                false)) {
+                            emitCourseProgress(data, htm, stat, reg, compl);
                             htm.div("vgap");
                             emitCourseDeadlines(htm, stat);
                         }
@@ -304,21 +305,22 @@ public enum PageStudentCourseStatus {
     /**
      * Emits a table that shows a summary of the student's progress in the course.
      *
-     * @param studentData the student data object
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param stat        the course status data container
-     * @param reg         the registration
-     * @param completed   true if course is completed
+     * @param data      the web view data
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param stat      the course status data container
+     * @param reg       the registration
+     * @param completed true if course is completed
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseProgress(final StudentData studentData, final HtmlBuilder htm,
+    private static void emitCourseProgress(final WebViewData data, final HtmlBuilder htm,
                                            final StudentCourseStatus stat, final RawStcourse reg,
                                            final boolean completed) throws SQLException {
 
+        final SystemData systemData = data.getSystemData();
+        final StudentData studentData = data.getStudent(reg.stuId);
+
         final int maxUnit = stat.getMaxUnit();
         final RawCsection csect = stat.getCourseSection();
-
-        final EExamStructure examStruct = csect == null ? null : EExamStructure.UNIT_FINAL;
 
         // Show student progress in the class
         htm.sTable("report", "style='margin:0;line-height:1;'");
@@ -338,40 +340,31 @@ public enum PageStudentCourseStatus {
             int numHw = 0;
             if (cunit != null) {
                 for (int j = 0; j < numLessons; ++j) {
-                    if (AssignmentLogic.get(cache).queryActive(cache, reg.course,
-                            Integer.valueOf(i), Integer.valueOf(j), "HW") != null) {
+                    final AssignmentRec assignment = systemData.getActiveAssignment(reg.course, Integer.valueOf(i),
+                            Integer.valueOf(j), "HW");
+                    if (assignment != null) {
                         ++numHw;
                     }
                 }
             }
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
-                final RawExam sr = cunit == null ? null : RawExamLogic
-                        .queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "R");
+                final RawExam sr = cunit == null ? null :
+                        systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
                 final int cols = numHw + (sr == null ? 0 : 1);
                 htm.add("<th ", alt, " colspan=" + cols + ">Skills Review").eTh();
             } else if ("INST".equals(cunit.unitType)) {
-                final RawExam ur = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "R");
-                RawExam ue = null;
-
-                if (examStruct == EExamStructure.UNIT_ONLY
-                        || examStruct == EExamStructure.UNIT_FINAL) {
-                    ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                            Integer.valueOf(i), "U");
-                }
+                final RawExam ur = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
+                final RawExam ue = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "U");
 
                 final int cols = numHw + (ur == null ? 0 : 1) + (ue == null ? 0 : 1);
 
                 htm.add("<th ", alt, " colspan=" + cols + ">Unit ", cunit.unit).eTh();
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
+                final RawExam fe = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "F");
 
-                final RawExam ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "F");
-
-                final int cols = numHw + (ue == null ? 0 : 1);
+                final int cols = numHw + (fe == null ? 0 : 1);
 
                 htm.add("<th class='special' colspan=" + cols + ">Final").eTh();
             }
@@ -397,8 +390,10 @@ public enum PageStudentCourseStatus {
             int numHw = 0;
             if (cunit != null) {
                 for (int j = 0; j < numLessons; ++j) {
-                    if (AssignmentLogic.get(cache).queryActive(cache, reg.course,
-                            Integer.valueOf(i), Integer.valueOf(j), "HW") != null) {
+                    final AssignmentRec assignment = systemData.getActiveAssignment(reg.course, Integer.valueOf(i),
+                            Integer.valueOf(j), "HW");
+
+                    if (assignment != null) {
                         htm.add("<th ", alt, ">H").eTh();
                         ++numHw;
                     }
@@ -406,8 +401,9 @@ public enum PageStudentCourseStatus {
             }
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
+                final RawExam re = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
 
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "R") != null) {
+                if (re != null) {
                     htm.add("<th class='special'>UR").eTh();
                 } else if (numHw == 0) {
                     htm.sTh().eTh();
@@ -415,14 +411,14 @@ public enum PageStudentCourseStatus {
             } else if ("INST".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "R") != null) {
+                final RawExam re = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
+                if (re != null) {
                     htm.add("<th class='special'>UR").eTh();
                     ++count;
                 }
 
-                if ((examStruct == EExamStructure.UNIT_ONLY || examStruct == EExamStructure.UNIT_FINAL)
-                        && (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "U") != null)) {
+                final RawExam ue = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "U");
+                if (ue != null) {
                     htm.add("<th class='special'>UE").eTh();
                     ++count;
                 }
@@ -431,11 +427,11 @@ public enum PageStudentCourseStatus {
                     htm.sTh().eTh();
                 }
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "F") != null) {
+                final RawExam fe = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "F");
+                if (fe != null) {
                     htm.add("<th class='special'>FE").eTh();
                     ++count;
                 }
@@ -464,8 +460,10 @@ public enum PageStudentCourseStatus {
             int numHw = 0;
             if (cunit != null) {
                 for (int j = 0; j < numLessons; ++j) {
-                    if (AssignmentLogic.get(cache).queryActive(cache, reg.course,
-                            Integer.valueOf(i), Integer.valueOf(j), "HW") != null) {
+                    final AssignmentRec assignment = systemData.getActiveAssignment(reg.course, Integer.valueOf(i),
+                            Integer.valueOf(j), "HW");
+
+                    if (assignment != null) {
                         final String status = stat.getHomeworkStatus(i, j);
                         if ("Completed".equals(status) || "May Move On".equals(status)) {
                             htm.sTd().add("<img src='/images/check.png'/>").eTd();
@@ -478,9 +476,9 @@ public enum PageStudentCourseStatus {
             }
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
+                final RawExam re = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
 
-                if ((RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i),
-                        "R") != null) && stat.isReviewPassed(i)) {
+                if (re != null && stat.isReviewPassed(i)) {
                     final boolean ontime = stat.isReviewPassedOnTime(i);
                     final Integer pts = ontime ? cusect.rePointsOntime : null;
                     final int ptsInt = pts == null ? 0 : pts.intValue();
@@ -502,7 +500,8 @@ public enum PageStudentCourseStatus {
             } else if ("INST".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "R") != null) {
+                final RawExam re = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "R");
+                if (re != null) {
 
                     if (stat.isReviewPassed(i)) {
                         final boolean ontime = stat.isReviewPassedOnTime(i);
@@ -526,9 +525,8 @@ public enum PageStudentCourseStatus {
                     ++count;
                 }
 
-                if ((examStruct == EExamStructure.UNIT_ONLY || examStruct == EExamStructure.UNIT_FINAL)
-                        && (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "U") != null)) {
+                final RawExam ue = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "U");
+                if (ue != null) {
 
                     if (stat.isProctoredPassed(i)) {
                         final boolean ontime = stat.isProctoredPassedOnTime(i);
@@ -559,12 +557,11 @@ public enum PageStudentCourseStatus {
                     htm.sTd().eTd();
                 }
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i),
-                        "F") != null) {
+                final RawExam fe = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(i), "F");
+                if (fe != null) {
                     if (stat.isProctoredPassed(i)) {
                         final boolean ontime = stat.isProctoredPassedOnTime(i);
                         final int score = scores.getRawUnitExamScore(i);

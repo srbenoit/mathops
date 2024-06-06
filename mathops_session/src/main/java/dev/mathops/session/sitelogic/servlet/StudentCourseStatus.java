@@ -1031,9 +1031,8 @@ public final class StudentCourseStatus extends LogicBase {
      * @throws SQLException if there is an error accessing the database
      */
     public boolean gatherData(final StudentData studentData, final ImmutableSessionInfo session,
-                              final String theStudentId,
-                              final String theCourseId, final boolean isSkillsReview, final boolean isPractice)
-            throws SQLException {
+                              final String theStudentId, final String theCourseId, final boolean isSkillsReview,
+                              final boolean isPractice) throws SQLException {
 
         final boolean result;
 

@@ -91,8 +91,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>XML Authoring Tool</title>");
@@ -116,8 +116,7 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='com.javafx.main.NoJavaFXFallback' name='XmlAuthor'>");
+        htm.addln("  <application-desc main-class='com.javafx.main.NoJavaFXFallback' name='XmlAuthor'>");
         htm.addln("    <param name='requiredFXVersion' value='2.2+'/>");
         htm.addln("  </application-desc>");
         htm.addln("  <jfx:javafx-desc  width='0' height='0' ",
@@ -151,8 +150,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Problem Authoring Tool</title>");
@@ -205,8 +204,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Exam Testing Tool</title>");
@@ -259,8 +258,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Exam Printing Tool</title>");
@@ -314,8 +313,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Instructional Materials Testing Tool</title>");
@@ -369,8 +368,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Bundled Font Glyph Viewer</title>");
@@ -423,8 +422,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Calculator Key Configuration</title>");
@@ -478,8 +477,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Calculator Key Configuration</title>");
@@ -532,8 +531,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Rename Directories</title>");
@@ -585,8 +584,8 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>JWabbit Emulator</title>");
