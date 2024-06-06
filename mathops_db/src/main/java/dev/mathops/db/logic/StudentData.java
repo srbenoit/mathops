@@ -218,6 +218,32 @@ public final class StudentData {
     }
 
     /**
+     * Constructs a new {@code StudentData}.
+     *
+     * @param theCache         the cache
+     * @param theSystemData    the associated system data
+     * @param theStudentRecord the student record
+     */
+    public StudentData(final Cache theCache, final SystemData theSystemData, final RawStudent theStudentRecord) {
+
+        if (theCache == null) {
+            throw new IllegalArgumentException("Cache may not be null");
+        }
+        if (theSystemData == null) {
+            throw new IllegalArgumentException("System data may not be null");
+        }
+        if (theStudentRecord == null) {
+            throw new IllegalArgumentException("Student record may not be null");
+        }
+
+        this.cache = theCache;
+        this.systemData = theSystemData;
+        this.studentId = theStudentRecord.stuId;
+        this.studentRecord = theStudentRecord;
+        this.liveRefreshes = ELiveRefreshes.NONE;
+    }
+
+    /**
      * Gets the cache.
      *
      * @return the cache

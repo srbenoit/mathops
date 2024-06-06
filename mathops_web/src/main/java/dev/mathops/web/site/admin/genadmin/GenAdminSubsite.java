@@ -104,7 +104,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
             } else if ("utilities.html".equals(subpath)) {
                 PageUtilities.doUtilitiesPage(data, this.site, req, resp, session);
             } else if ("server_admin.html".equals(subpath)) {
-                PageServerAdmin.doServerAdminPage(data, this.site, req, resp, session);
+                PageServerAdmin.doGet(data, this.site, req, resp, session);
             } else if ("srvadm_sessions.html".equals(subpath)) {
                 PageServerAdminSessions.doGet(data, this.site, req, resp, session);
             } else if ("srvadm_maintenance.html".equals(subpath)) {

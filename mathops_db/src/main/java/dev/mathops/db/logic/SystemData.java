@@ -8,6 +8,7 @@ import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawExceptStuLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
+import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -16,6 +17,7 @@ import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
@@ -66,6 +68,9 @@ public final class SystemData {
 
     /** All campus calendar records. */
     private List<RawCampusCalendar> campusCalendars;
+
+    /** All semester calendar records. */
+    private List<RawSemesterCalendar> semesterCalendars;
 
     /** All remote placement windows. */
     private List<RawRemoteMpe> remotePlacementWindows;
@@ -309,6 +314,21 @@ public final class SystemData {
     }
 
     /**
+     * Gets all semester calendar records.
+     *
+     * @return the list of semester calendar records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSemesterCalendar> getSemesterCalendars() throws SQLException {
+
+        if (this.semesterCalendars == null) {
+            this.semesterCalendars = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.semesterCalendars;
+    }
+
+    /**
      * Gets all remote placement windows.
      *
      * @return the list of remote placement windows
@@ -438,6 +458,33 @@ public final class SystemData {
         for (final AssignmentRec test : all) {
             if (test.assignmentType.equals(type)) {
                 match.add(test);
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets the unique assignment of a specified type for a course unit objective.
+     *
+     * @param course the course
+     * @param unit the unit
+     * @param objective the objective
+     * @param type the type of assignment to retrieve
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public AssignmentRec getActiveAssignment(final String course, final Integer unit, final Integer objective,
+                                             final String type) throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+
+        AssignmentRec match = null;
+
+        for (final AssignmentRec test : all) {
+            if (test.unit.equals(unit) && test.objective.equals(objective) && test.assignmentType.equals(type)) {
+                match = test;
+                break;
             }
         }
 

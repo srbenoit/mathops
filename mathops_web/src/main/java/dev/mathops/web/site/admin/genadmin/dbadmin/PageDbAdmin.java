@@ -2,7 +2,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -13,6 +14,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -26,7 +28,7 @@ public enum PageDbAdmin {
     /**
      * Generates the database administration page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -34,20 +36,22 @@ public enum PageDbAdmin {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doDbAdminPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doDbAdminPage(final WebViewData data, final AdminSite site, final ServletRequest req,
                                      final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
         htm.sH(2, "gray").add("Database Administration").eH(2);
         htm.hr("orange");
 
         emitNavMenu(htm, null);
         htm.hr().div("vgap");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -130,8 +134,7 @@ public enum PageDbAdmin {
      */
     static void emitDisconnectLink(final HtmlBuilder htm, final String query) {
 
-        htm.sP().add("<a href='db_admin_server_logout.html?", query,
-                "'>Disconnect</a>").eP();
+        htm.sP().add("<a href='db_admin_server_logout.html?", query, "'>Disconnect</a>").eP();
     }
 
     /**
@@ -144,22 +147,16 @@ public enum PageDbAdmin {
 
         htm.addln("<table class='report'>");
         htm.addln("<tr>");
-        htm.addln("<td>",
-                "Type:<br/><b>", cfg.db.server.type.name, //
+        htm.addln("<td>Type:<br/><b>", cfg.db.server.type.name, "</b></td>");
+        htm.addln("<td>Host:<br/><b>", cfg.db.server.host, CoreConstants.COLON, Integer.toString(cfg.db.server.port),
                 "</b></td>");
-        htm.addln("<td>",
-                "Host:<br/><b>", cfg.db.server.host, CoreConstants.COLON,
-                Integer.toString(cfg.db.server.port), "</b></td>");
         if (cfg.db.id != null) {
-            htm.addln("<td>",
-                    "Database:<br/><b>", cfg.db.id, "</b></td>");
+            htm.addln("<td>Database:<br/><b>", cfg.db.id, "</b></td>");
         }
         if (cfg.db.server.name != null) {
-            htm.addln("<td>",
-                    "Server:<br/><b>", cfg.db.server.name, "</b></td>");
+            htm.addln("<td>Server:<br/><b>", cfg.db.server.name, "</b></td>");
         }
-        htm.addln("<td>",
-                "Use:<br/><b>", cfg.db.use, "</b></td>");
+        htm.addln("<td>Use:<br/><b>", cfg.db.use, "</b></td>");
         htm.addln("</tr>");
         htm.addln("</table>");
     }

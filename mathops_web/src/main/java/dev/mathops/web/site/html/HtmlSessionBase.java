@@ -5,12 +5,14 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 
@@ -45,8 +47,8 @@ public class HtmlSessionBase {
     /** The session ID. */
     public final String sessionId;
 
-    /** The ID of the student doing the homework. */
-    public final String studentId;
+    /** The student data. */
+    private StudentData studentData;
 
     /** URL to which to redirect at the end of the assignment. */
     public final String redirectOnEnd;
@@ -59,9 +61,6 @@ public class HtmlSessionBase {
 
     /** The exam itself. */
     private ExamObj exam;
-
-    /** The student record. */
-    private RawStudent student;
 
     /** The active term. */
     protected final TermRec active;
@@ -107,16 +106,15 @@ public class HtmlSessionBase {
         this.host = theSiteProfile.host;
         this.path = theSiteProfile.path;
         this.sessionId = theSessionId;
-        this.studentId = theStudentId;
+
         this.version = theExamId;
         this.redirectOnEnd = theRedirectOnEnd;
         this.forceTerminate = EForceTerminateState.NONE;
 
         this.writer = new ExamWriter();
 
-        this.active = TermLogic.get(cache).queryActive(cache);
-
-        loadStudentInfo(cache);
+        this.studentData = loadStudentInfo(cache, theStudentId);
+        this.active =  this.studentData.getSystemData().getActiveTerm();
     }
 
     /**
@@ -154,16 +152,6 @@ public class HtmlSessionBase {
         return this.siteProfile.dbProfile;
     }
 
-//    /**
-//     * Gets the primary database context.
-//     *
-//     * @return the database context
-//     */
-//    public final DbContext getPrimaryDbContext() {
-//
-//        return this.siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-//    }
-
     /**
      * Sets the exam object.
      *
@@ -174,8 +162,11 @@ public class HtmlSessionBase {
         this.exam = theExam;
 
         if (theExam != null && theExam.serialNumber != null && this.active != null) {
-            this.examPath = this.writer.makeExamPath(this.active.term.shortString, this.studentId,
-                    theExam.serialNumber.longValue());
+            final String studentId = this.studentData.getStudentId();
+            final long serialValue = theExam.serialNumber.longValue();
+
+            this.examPath = this.writer.makeExamPath(this.active.term.shortString, studentId,
+                    serialValue);
         } else {
             this.examPath = null;
         }
@@ -192,13 +183,13 @@ public class HtmlSessionBase {
     }
 
     /**
-     * Gets the student object.
+     * Gets the student data object.
      *
-     * @return the student object
+     * @return the student data object
      */
-    public final RawStudent getStudent() {
+    public final StudentData getStudentData() {
 
-        return this.student;
+        return this.studentData;
     }
 
     /**
@@ -212,8 +203,11 @@ public class HtmlSessionBase {
             final File log = new File(this.examPath, "exam_activity.log");
 
             try (final FileWriter out = new FileWriter(log, Charset.defaultCharset(), log.exists())) {
-                out.write(DATE_FMT.format(LocalDateTime.now()) + CoreConstants.SPC + message
-                        + CoreConstants.CRLF);
+
+                final LocalDateTime now = LocalDateTime.now();
+                final String nowStr = DATE_FMT.format(now);
+                out.write(nowStr + CoreConstants.SPC + message + CoreConstants.CRLF);
+
             } catch (final IOException ex) {
                 Log.warning("Failed to append '", message, "' to ", log.getAbsolutePath(), ex);
             }
@@ -231,27 +225,23 @@ public class HtmlSessionBase {
      * @param nextCmd   the button name (command) for the "next" button, null if not present
      * @param nextLabel the button label for the "next" button
      */
-    protected static void appendFooter(final HtmlBuilder htm, final String command,
-                                       final String label, final String prevCmd, final String prevLabel,
-                                       final String nextCmd,
+    protected static void appendFooter(final HtmlBuilder htm, final String command, final String label,
+                                       final String prevCmd, final String prevLabel, final String nextCmd,
                                        final String nextLabel) {
 
-        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:AliceBlue; "
-                + "display:block; border:1px solid SteelBlue; margin:1px; "
-                + "padding:0 12px; text-align:center;'");
+        htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:AliceBlue; display:block; "
+                + "border:1px solid SteelBlue; margin:1px; padding:0 12px; text-align:center;'");
 
         if (prevCmd != null || nextCmd != null) {
             if (prevCmd != null) {
                 htm.sDiv("left");
-                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", prevCmd,
-                        "\");'");
+                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", prevCmd, "\");'");
                 htm.add(">", prevLabel, "</a>");
                 htm.eDiv();
             }
             if (nextCmd != null) {
                 htm.sDiv("right");
-                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", nextCmd,
-                        "\");'");
+                htm.add("<a class='smallbtn' href='javascript:invokeAct(\"", nextCmd, "\");'");
                 htm.add(">", nextLabel, "</a>");
                 htm.eDiv();
             }
@@ -260,12 +250,10 @@ public class HtmlSessionBase {
         }
 
         if (command != null && command.startsWith("nav")) {
-            htm.add("<a class='btn' href='javascript:invokeAct(\"", command,
-                    "\");'");
+            htm.add("<a class='btn' href='javascript:invokeAct(\"", command, "\");'");
             htm.add(">", label, "</a>");
         } else {
-            htm.add(" <input class='btn' type='submit' name='", command,
-                    "' value='", label, "'/>");
+            htm.add(" <input class='btn' type='submit' name='", command, "' value='", label, "'/>");
         }
 
         htm.eDiv();
@@ -285,34 +273,33 @@ public class HtmlSessionBase {
             final Object[][] answers = this.exam.exportState();
 
             // Write the updated exam state somewhere permanent
-            this.writer.writeUpdatedExam(this.studentId, this.active, answers, true);
+            final String studentId = this.studentData.getStudentId();
+            this.writer.writeUpdatedExam(studentId, this.active, answers, true);
         }
     }
 
     /**
      * Load the student information (if it has not already been loaded).
      *
-     * @param cache the data cache
-     * @return an error message if an error occurred; {@code null} otherwise
+     * @param cache        the data cache
+     * @param theStudentId the student ID
+     * @return the student data object
      * @throws SQLException if there is an error accessing the database
      */
-    protected final String loadStudentInfo(final Cache cache) throws SQLException {
+    protected final StudentData loadStudentInfo(final Cache cache, final String theStudentId) throws SQLException {
 
-        String err = null;
+        final SystemData systemData = new SystemData(cache);
 
-        if (this.student == null) {
-            if ("GUEST".equals(this.studentId) || "AACTUTOR".equals(this.studentId) || "ETEXT".equals(this.studentId)) {
-                this.student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
-            } else {
-                this.student = RawStudentLogic.query(cache, this.studentId, true);
+        StudentData data;
 
-                if (this.student == null) {
-                    err = "Unable to look up your student info.";
-                }
-            }
+        if ("GUEST".equals(theStudentId) || "AACTUTOR".equals(theStudentId) || "ETEXT".equals(theStudentId)) {
+            final RawStudent student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+            data = new StudentData(cache, systemData, student);
+        } else {
+            data = new StudentData(cache, systemData, theStudentId, ELiveRefreshes.IF_MISSING);
         }
 
-        return err;
+        return data;
     }
 
     /**

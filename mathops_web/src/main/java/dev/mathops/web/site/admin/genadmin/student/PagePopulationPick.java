@@ -4,11 +4,12 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -19,6 +20,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -37,7 +39,7 @@ public enum PagePopulationPick {
     /**
      * Handles a POST from the page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -45,7 +47,7 @@ public enum PagePopulationPick {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doPost(final WebViewData data, final AdminSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -68,6 +70,7 @@ public enum PagePopulationPick {
             }
         }
 
+        final Cache cache = data.getCache();
         final List<RawStcourse> list = RawStcourseLogic.queryActiveForActiveTerm(cache);
 
         // If pace is specified, count the pace for each student, then remove all with other pace
@@ -124,15 +127,17 @@ public enum PagePopulationPick {
             sorted.put(key, rec);
         }
 
+        final SystemData systemData = data.getSystemData();
+
         if (sorted.isEmpty()) {
-            PageStudent.doGet(cache, site, req, resp, session, "No matching students found.");
+            PageStudent.doGet(data, site, req, resp, session, "No matching students found.");
         } else {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = systemData.getActiveTerm();
 
             if (active == null) {
-                PageStudent.doGet(cache, site, req, resp, session, "Unable to query the active term.");
+                PageStudent.doGet(data, site, req, resp, session, "Unable to query the active term.");
             } else {
-                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+                final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
                 GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
@@ -182,8 +187,10 @@ public enum PagePopulationPick {
                 htm.div("vgap0");
                 htm.sP().add("<a href='student.html'>Return to student selection.</a>").eP();
 
-                Page.endOrdinaryPage(cache, site, htm, true);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                Page.endOrdinaryPage(systemData, site, htm, true);
+
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             }
         }
     }

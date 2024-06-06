@@ -3,6 +3,8 @@ package dev.mathops.web.site.admin.genadmin.reports;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -161,7 +163,7 @@ public enum PagePrecalcReport {
     /**
      * Presents the report on ELM activity.
      *
-     * @param cache   the data cache
+     * @param data   the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -169,11 +171,11 @@ public enum PagePrecalcReport {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.MONITOR_SYSTEM, htm);
 
@@ -183,6 +185,7 @@ public enum PagePrecalcReport {
 
         final List<List<RawStexam>> history = new ArrayList<>(7);
         try {
+            final Cache cache = data.getCache();
             RawStexamLogic.getHistory(cache, history, 7, today, RawRecordConstants.M1170,
                     RawRecordConstants.M1180, RawRecordConstants.M1240, RawRecordConstants.M1250,
                     RawRecordConstants.M1260);
@@ -234,7 +237,10 @@ public enum PagePrecalcReport {
             htm.sP().add(ex.getMessage()).eP();
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

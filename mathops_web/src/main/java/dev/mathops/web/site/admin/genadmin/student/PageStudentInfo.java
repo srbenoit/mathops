@@ -3,8 +3,9 @@ package dev.mathops.web.site.admin.genadmin.student;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -16,6 +17,7 @@ import dev.mathops.web.site.admin.genadmin.PageError;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -29,7 +31,7 @@ public enum PageStudentInfo {
     /**
      * Shows the student information page (the student ID must be available in a request parameter named "stu").
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -37,7 +39,7 @@ public enum PageStudentInfo {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -48,14 +50,15 @@ public enum PageStudentInfo {
             Log.warning("  studentId='", studentId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null) {
-            PageError.doGet(cache, site, req, resp, session, "Student not found.");
+            PageError.doGet(data, site, req, resp, session, "Student not found.");
         } else {
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final StudentData studentData = data.getStudent(studentId);
+            final RawStudent student = studentData.getStudentRecord();
 
             if (student == null) {
-                PageError.doGet(cache, site, req, resp, session, "Student not found.");
+                PageError.doGet(data, site, req, resp, session, "Student not found.");
             } else {
-                doStudentInfoPage(cache, site, req, resp, session, student);
+                doStudentInfoPage(data, site, req, resp, session, studentData);
             }
         }
     }
@@ -63,33 +66,37 @@ public enum PageStudentInfo {
     /**
      * Shows the student information page for a provided student.
      *
-     * @param cache   the data cache
-     * @param site    the site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
-     * @param student the student for which to present information
+     * @param data        the web view data
+     * @param site        the site
+     * @param req         the request
+     * @param resp        the response
+     * @param session     the login session
+     * @param studentData the data object for the student for which to present information
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doStudentInfoPage(final Cache cache, final AdminSite site, final ServletRequest req,
+    static void doStudentInfoPage(final WebViewData data, final AdminSite site, final ServletRequest req,
                                   final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                  final RawStudent student) throws IOException, SQLException {
+                                  final StudentData studentData) throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
-        htm.sP("studentname").add("<strong class='largeish'>", student.getScreenName(), "</strong> (", student.stuId,
+        final RawStudent student = studentData.getStudentRecord();
+        final String studentId = student.stuId;
+
+        final String screenName = student.getScreenName();
+        htm.sP("studentname").add("<strong class='largeish'>", screenName, "</strong> (", studentId,
                 ") &nbsp; <a class='ulink' href='student.html'>Clear</a>").eP();
 
         htm.addln("<nav class='menu'>");
 
-        menuButton(htm, true, student.stuId, EAdminStudentCommand.STUDENT_INFO);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.PLACEMENT);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.REGISTRATIONS);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.ACTIVITY);
-        menuButton(htm, false, student.stuId, EAdminStudentCommand.MATH_PLAN);
+        menuButton(htm, true, studentId, EAdminStudentCommand.STUDENT_INFO);
+        menuButton(htm, false, studentId, EAdminStudentCommand.PLACEMENT);
+        menuButton(htm, false, studentId, EAdminStudentCommand.REGISTRATIONS);
+        menuButton(htm, false, studentId, EAdminStudentCommand.ACTIVITY);
+        menuButton(htm, false, studentId, EAdminStudentCommand.MATH_PLAN);
 
         htm.add("</nav>");
 
@@ -97,8 +104,11 @@ public enum PageStudentInfo {
         emitStudentInfo(htm, student);
         htm.addln("</main>");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**

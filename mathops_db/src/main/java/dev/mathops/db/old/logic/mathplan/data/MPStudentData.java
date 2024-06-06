@@ -181,7 +181,7 @@ public final class MPStudentData {
 
         this.prereqLogic = new PrerequisiteLogic(theStudentData);
 
-        this.placementStatus = new PlacementLogic(cache, studentId, this.student.aplnTerm, now).status;
+        this.placementStatus = new PlacementLogic(theStudentData, this.student.aplnTerm, now).status;
 
         final HoldsStatus holds = HoldsStatus.of(cache, studentId);
 

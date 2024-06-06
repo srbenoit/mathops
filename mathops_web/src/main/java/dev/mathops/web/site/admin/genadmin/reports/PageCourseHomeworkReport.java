@@ -3,6 +3,8 @@ package dev.mathops.web.site.admin.genadmin.reports;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSthomework;
@@ -15,6 +17,7 @@ import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -71,14 +74,12 @@ public enum PageCourseHomeworkReport {
         }
 
         // Border...
-        htm.addln(" <rect x='0' y='0' width='254' height='127' fill='none' ",
-                "stroke='black' stroke-width='1'/>");
+        htm.addln(" <rect x='0' y='0' width='254' height='127' fill='none' stroke='black' stroke-width='1'/>");
 
         // Current hour...
         final int nowColumn = LocalTime.now().getHour() / 2;
         final float nowX = 1.5f + (float) (3 * (72 + nowColumn));
-        htm.addln(" <rect x='", Float.toString(nowX),
-                "' y='1' width='2' height='125' fill='#caccb8' stroke='none'/>");
+        htm.addln(" <rect x='", Float.toString(nowX), "' y='1' width='2' height='125' fill='#caccb8' stroke='none'/>");
 
         final int numColumns = 7 * 12;
         final int[] columns = new int[numColumns];
@@ -146,10 +147,8 @@ public enum PageCourseHomeworkReport {
                 final float height = 125.0f * (float) columns[i] / (float) max;
                 final float top = 126.0f - height;
 
-                htm.addln(" <rect x='", Float.toString(leftx),
-                        "' y='", Float.toString(top),
-                        "' width='2' height='", Float.toString(height),
-                        "' fill='#1e4d2b' stroke='none'/>");
+                htm.addln(" <rect x='", Float.toString(leftx), "' y='", Float.toString(top), "' width='2' height='",
+                        Float.toString(height), "' fill='#1e4d2b' stroke='none'/>");
             }
         }
 
@@ -159,7 +158,7 @@ public enum PageCourseHomeworkReport {
     /**
      * Presents the report on ELM activity.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -167,11 +166,11 @@ public enum PageCourseHomeworkReport {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.MONITOR_SYSTEM, htm);
 
@@ -180,6 +179,7 @@ public enum PageCourseHomeworkReport {
         final LocalDate today = LocalDate.now();
 
         final List<List<RawSthomework>> history = new ArrayList<>(7);
+        final Cache cache = data.getCache();
         RawSthomeworkLogic.getHistory(cache, history, 7, today, RawRecordConstants.M117,
                 RawRecordConstants.M118, RawRecordConstants.M124, RawRecordConstants.M125,
                 RawRecordConstants.M126);
@@ -220,7 +220,10 @@ public enum PageCourseHomeworkReport {
             dt = dt.minusDays(1L);
         }
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

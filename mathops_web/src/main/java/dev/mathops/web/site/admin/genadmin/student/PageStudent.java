@@ -1,7 +1,8 @@
 package dev.mathops.web.site.admin.genadmin.student;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -24,7 +25,7 @@ public enum PageStudent {
     /**
      * Generates a page that allows the user to select a student by ID.
      *
-     * @param cache   the data cache
+     * @param data   the web view data
      * @param site    the site
      * @param req     the request
      * @param resp    the response
@@ -33,11 +34,11 @@ public enum PageStudent {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
+    public static void doGet(final WebViewData data, final AdminSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session, final String error)
             throws IOException, SQLException {
 
-        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
+        final HtmlBuilder htm = GenAdminPage.startGenAdminPage(data, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.STUDENT_STATUS, htm);
 
@@ -62,8 +63,7 @@ public enum PageStudent {
 
         htm.sP("small", "style='text-align:left'")
                 .add("'<code>%</code>' can be used as a wildcard in names.  For example, 'A%' will ",
-                        "match all names beginning with the letter A.")
-                .eP();
+                        "match all names beginning with the letter A.").eP();
 
         htm.div("vgap");
         htm.addln(" <input type='submit'/>");
@@ -86,14 +86,12 @@ public enum PageStudent {
 
         htm.sTr();
         htm.sTd("r").add("Section:").eTd();
-        htm.sTd().add("<input type='text' autocomplete='off' data-lpignore='true' ",
-                "name='pick_sect' size='10'/>").eTd();
+        htm.sTd().add("<input type='text' autocomplete='off' data-lpignore='true' name='pick_sect' size='10'/>").eTd();
         htm.eTr();
 
         htm.sTr();
         htm.sTd("r").add("Pace:").eTd();
-        htm.sTd().add("<input type='text' autocomplete='off' data-lpignore='true' ",
-                "name='pick_pace' size='10'/>").eTd();
+        htm.sTd().add("<input type='text' autocomplete='off' data-lpignore='true' name='pick_pace' size='10'/>").eTd();
         htm.eTr();
 
         htm.eTable().hr();
@@ -106,7 +104,10 @@ public enum PageStudent {
 
         htm.addln("</form>");
 
-        Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }
