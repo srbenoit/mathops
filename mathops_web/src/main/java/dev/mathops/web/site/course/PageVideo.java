@@ -7,6 +7,9 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -16,11 +19,13 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 /**
  * Generates the content of the web page that displays the outline of a course tailored to a student's position and
@@ -35,7 +40,7 @@ enum PageVideo {
     /**
      * Displays the page that shows an embedded video.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -44,7 +49,7 @@ enum PageVideo {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -67,8 +72,8 @@ enum PageVideo {
             Log.warning("  srcourse='", srcourse, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            // For the tutorial courses, we don't want to force duplication of the video files in a
-            // new directory, so map those course numbers to the corresponding non-tutorial courses
+            // For the tutorial courses, we don't want to force duplication of the video files in a new directory, so
+            // map those course numbers to the corresponding non-tutorial courses
             final String actualCourse;
             if (RawRecordConstants.M1170.equals(course)) {
                 actualCourse = RawRecordConstants.M117;
@@ -88,12 +93,15 @@ enum PageVideo {
                     : actualCourse.replace(CoreConstants.SPC, CoreConstants.EMPTY);
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null,
-                    Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+            final String title = site.getTitle();
+            Page.startOrdinaryPage(htm, title, session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
+                    false, true);
+
+            final StudentData studentData = data.getEffectiveUser();
 
             if (session != null && logic != null) {
                 htm.sDiv("menupanelu");
-                CourseMenu.buildMenu(cache, site, session, logic, htm);
+                CourseMenu.buildMenu(data, site, session, logic, htm);
                 htm.sDiv("panelu");
 
                 // If this is an instructor lecture, record that the student has viewed it.
@@ -102,8 +110,12 @@ enum PageVideo {
                         && lessonStr != null && mediaId.endsWith("OV")) {
 
                     try {
+                        final Cache cache = data.getCache();
+                        final ZonedDateTime now = session.getNow();
+
                         RawStcuobjectiveLogic.recordLectureView(cache, studentId, actualCourse,
-                                Integer.valueOf(unitStr), Integer.valueOf(lessonStr), session.getNow());
+                                Integer.valueOf(unitStr), Integer.valueOf(lessonStr), now);
+                        studentData.forgetStudentCourseObjectives();
                     } catch (final NumberFormatException ex) {
                         Log.warning("Failed to record lecture view for student ", studentId, " media ID ", mediaId);
                     }
@@ -117,18 +129,15 @@ enum PageVideo {
             } else {
                 htm.addln("<script>");
                 htm.addln(" function showReportError() {");
-                htm.addln("  document.getElementById('error_rpt_link')",
-                        ".className='hidden';");
-                htm.addln("  document.getElementById('error_rpt')",
-                        ".className='visible';");
+                htm.addln("  document.getElementById('error_rpt_link').className='hidden';");
+                htm.addln("  document.getElementById('error_rpt').className='visible';");
                 htm.addln(" }");
                 htm.addln("</script>");
 
                 htm.sDiv("indent11");
                 if (unitStr != null && lessonStr != null && mode != null) {
                     htm.sP();
-                    htm.add("<a href='lesson.html?course=", course,
-                            "&unit=", unitStr, "&lesson=", lessonStr,
+                    htm.add("<a href='lesson.html?course=", course, "&unit=", unitStr, "&lesson=", lessonStr,
                             "&mode=", mode);
                     if (srcourse != null) {
                         htm.add("&srcourse=", srcourse);
@@ -137,31 +146,24 @@ enum PageVideo {
                 }
 
                 htm.addln("<video ", "M160".equals(actualCourse)
-                                ? "width='1024' height='768'"
-                                : "width='640' height='480'",
+                                ? "width='1024' height='768'" : "width='640' height='480'",
                         " controls='controls' autoplay='autoplay'>");
-                htm.addln(" <source src='", STREAM, dir, "/mp4/",
-                        mediaId, ".mp4' type='video/mp4'/>");
-                htm.addln(" <source src='", STREAM, dir, "/ogv/",
-                        mediaId, ".ogv' type='video/ogg'/>");
-                htm.addln(" <track src='/www/math/", dir, "/vtt/",
-                        mediaId, ".vtt' kind='subtitles' srclang='en' ",
-                        "label='English' default='default'/>");
+                htm.addln(" <source src='", STREAM, dir, "/mp4/", mediaId, ".mp4' type='video/mp4'/>");
+                htm.addln(" <source src='", STREAM, dir, "/ogv/", mediaId, ".ogv' type='video/ogg'/>");
+                htm.addln(" <track src='/www/math/", dir, "/vtt/", mediaId,
+                        ".vtt' kind='subtitles' srclang='en' label='English' default='default'/>");
                 htm.addln(" Your browser does not support inline video.");
                 htm.addln("</video>");
 
-                htm.addln("<div><a href='/math/", dir,
-                        "/transcripts/", mediaId, ".pdf'>",
-                        "Access a plain-text transcript for screen-readers (Adobe PDF).", //
-                        "</a></div>");
+                htm.addln("<div><a href='/math/", dir, "/transcripts/", mediaId,
+                        ".pdf'>Access a plain-text transcript for screen-readers (Adobe PDF).</a></div>");
 
-                htm.sDiv().add("<a href='", STREAM, dir, "/pdf/",
-                        mediaId, ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
+                htm.sDiv().add("<a href='", STREAM, dir, "/pdf/", mediaId,
+                        ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
 
                 if (unitStr != null && lessonStr != null && mode != null) {
 
-                    final String stuId = session == null ? "anon"
-                            : session.getEffectiveUserId();
+                    final String stuId = session == null ? "anon" : session.getEffectiveUserId();
                     final File file = feedbackFile(course, unitStr, lessonStr, mediaId, stuId);
 
                     htm.sDiv("visible", "id='error_rpt_link'");
@@ -172,18 +174,12 @@ enum PageVideo {
                             "</a>").eDiv();
 
                     htm.sP();
-                    htm.addln("<form class='hidden' id='error_rpt' ",
-                            "action='media_feedback.html' method='post'>");
-                    htm.addln(" <input type='hidden' name='course' value='",
-                            course, "'/>");
-                    htm.addln(" <input type='hidden' name='unit' value='",
-                            unitStr, "'/>");
-                    htm.addln(" <input type='hidden' name='lesson' value='",
-                            lessonStr, "'/>");
-                    htm.addln(" <input type='hidden' name='media' value='",
-                            mediaId, "'/>");
-                    htm.addln(" <input type='hidden' name='mode' value='",
-                            mode, "'/>");
+                    htm.addln("<form class='hidden' id='error_rpt' action='media_feedback.html' method='post'>");
+                    htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                    htm.addln(" <input type='hidden' name='unit' value='", unitStr, "'/>");
+                    htm.addln(" <input type='hidden' name='lesson' value='", lessonStr, "'/>");
+                    htm.addln(" <input type='hidden' name='media' value='", mediaId, "'/>");
+                    htm.addln(" <input type='hidden' name='mode' value='", mode, "'/>");
                     htm.addln(" Please describe the error or recommend an improvement:<br/>");
                     htm.addln(" <textarea rows='5' cols='40' name='comments'>");
                     if (session != null && file.exists()) {
@@ -201,17 +197,18 @@ enum PageVideo {
                 htm.eDiv(); // menupanelu
             }
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Handles submission of feedback on a media object.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -220,10 +217,9 @@ enum PageVideo {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doMediaFeedback(final Cache cache, final CourseSite site,
-                                final ServletRequest req, final HttpServletResponse resp,
-                                final ImmutableSessionInfo session, final CourseSiteLogic logic)
-            throws IOException, SQLException {
+    static void doMediaFeedback(final WebViewData data, final CourseSite site, final ServletRequest req,
+                                final HttpServletResponse resp, final ImmutableSessionInfo session,
+                                final CourseSiteLogic logic) throws IOException, SQLException {
 
         final String courseId = req.getParameter("course");
         final String unit = req.getParameter("unit");
@@ -243,12 +239,13 @@ enum PageVideo {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null,
-                    Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+            final String title = site.getTitle();
+            Page.startOrdinaryPage(htm, title, session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
+                    false, true);
 
             if (session != null && logic != null) {
                 htm.sDiv("menupanelu");
-                CourseMenu.buildMenu(cache, site, session, logic, htm);
+                CourseMenu.buildMenu(data, site, session, logic, htm);
                 htm.sDiv("panelu");
             }
 
@@ -275,10 +272,11 @@ enum PageVideo {
                 htm.eDiv(); // menupanelu
             }
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -292,15 +290,16 @@ enum PageVideo {
      * @param userId   the ID of the user providing feedback
      * @return the file where feedback is stored
      */
-    private static File feedbackFile(final String courseId, final String unit,
-                                     final String lessonId, final String mediaId, final String userId) {
+    private static File feedbackFile(final String courseId, final String unit, final String lessonId,
+                                     final String mediaId, final String userId) {
 
         final File baseDir = PathList.getInstance().baseDir;
         final File dir = new File(baseDir, "feedback");
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                Log.warning("Failed to create feedback directory ", dir.getAbsolutePath());
+                final String absolutePath = dir.getAbsolutePath();
+                Log.warning("Failed to create feedback directory ", absolutePath);
             }
         }
 

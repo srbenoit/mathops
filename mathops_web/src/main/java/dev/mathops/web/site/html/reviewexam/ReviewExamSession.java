@@ -35,27 +35,22 @@ import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
-import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
@@ -83,6 +78,7 @@ import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
+
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -132,20 +128,19 @@ public final class ReviewExamSession extends HtmlSessionBase {
      * Constructs a new {@code ReviewExamSession}. This is called when the user clicks a button to start a review exam.
      * It stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the exam is practice
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public ReviewExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                             final String theSessionId, final String theStudentId, final String theExamId,
-                             final boolean isPractice, final String theRedirectOnEnd) throws SQLException {
+    public ReviewExamSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile,
+                             final String theSessionId, final String theExamId, final boolean isPractice,
+                             final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
         this.state = EReviewExamState.INITIAL;
@@ -158,10 +153,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
      * Constructs a new {@code ReviewExamSession}. This is called when the user clicks a button to start a review exam.
      * It stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param isPractice       {@code true} if the exam is practice
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
@@ -175,14 +169,13 @@ public final class ReviewExamSession extends HtmlSessionBase {
      * @param theError         the grading error
      * @throws SQLException if there is an error accessing the database
      */
-    ReviewExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                      final String theSessionId, final String theStudentId, final String theExamId,
-                      final boolean isPractice, final String theRedirectOnEnd, final EReviewExamState theState,
-                      final Integer theScore, final Integer theMastery, final boolean theStarted,
-                      final int theItem, final long theTimeout, final ExamObj theExam, final String theError)
-            throws SQLException {
+    ReviewExamSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile, final String theSessionId,
+                      final String theExamId, final boolean isPractice, final String theRedirectOnEnd,
+                      final EReviewExamState theState, final Integer theScore, final Integer theMastery,
+                      final boolean theStarted, final int theItem, final long theTimeout, final ExamObj theExam,
+                      final String theError) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
         this.state = theState;
@@ -258,20 +251,18 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Generates HTML for the exam based on its current state.
      *
-     * @param cache the data cache
-     * @param now   the date/time to consider "now"
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param now the date/time to consider "now"
+     * @param htm the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    public void generateHtml(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm)
-            throws SQLException {
+    public void generateHtml(final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
 
         synchronized (this) {
             this.timeout = System.currentTimeMillis() + TIMEOUT;
 
             switch (this.state) {
                 case INITIAL:
-                    doInitial(cache, now, htm);
+                    doInitial(now, htm);
                     break;
 
                 case INSTRUCTIONS:
@@ -308,19 +299,22 @@ public final class ReviewExamSession extends HtmlSessionBase {
      * Processes a request for the page while in the INITIAL state, which generates the assignment, then sends its
      * HTML.
      *
-     * @param cache the data cache
-     * @param now   the date/time to consider "now"
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param now the date/time to consider "now"
+     * @param htm the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void doInitial(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
+    private void doInitial(final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
 
         final String error;
+
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+        final String studentId = studentData.getStudentId();
 
         // Look up the exam and store it in an AvailableExam object.
         final AvailableExam avail = new AvailableExam();
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             error = "No exam found with the requested version";
@@ -334,11 +328,12 @@ public final class ReviewExamSession extends HtmlSessionBase {
             if ("R".equals(type) || "Q".equals(type)) {
 
                 final String theVersion = avail.exam.version;
+                final Cache cache = studentData.getCache();
 
                 if (this.practice) {
                     eligible = true;
                 } else if ("R".equals(type)) {
-                    final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(this.studentId);
+                    final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(studentId);
 
                     eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
                     this.masteryScore = examtest.getMasteryScore(type);
@@ -347,10 +342,10 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     // FIXME: This changes from term to term!
                     this.masteryScore = Integer.valueOf(16);
                 } else if ("17ELM".equals(theVersion) || "7TELM".equals(theVersion)) {
-                    // This exam had to be marked as EnumExamType.QUALIFYING_VAL to avoid a
-                    // key duplication, but is treated as a review exam
+                    // This exam had to be marked as EnumExamType.QUALIFYING_VAL to avoid a key duplication, but is
+                    // treated as a review exam
 
-                    final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(this.studentId);
+                    final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(studentId);
 
                     eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
 
@@ -369,7 +364,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 } else {
                     try {
                         final RawStudent stu = getStudent();
-                        final PlacementStatus placementStat = new PlacementLogic(cache, stu.stuId, stu.aplnTerm,
+                        final PlacementStatus placementStat = new PlacementLogic(studentData, stu.aplnTerm,
                                 now).status;
 
                         eligible = placementStat.attemptsRemaining > 0;
@@ -459,8 +454,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
 
                         // Apply time limit factor adjustment
                         if (getExam().allowedSeconds != null) {
-
-                            final RawStudent stu = RawStudentLogic.query(cache, this.studentId, false);
+                            final RawStudent stu = studentData.getStudentRecord();
 
                             if (stu != null && stu.timelimitFactor != null) {
                                 avail.timelimitFactor = stu.timelimitFactor;
@@ -518,6 +512,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
             reply.status = GetExamReply.CANNOT_LOAD_EXAM_TEMPLATE;
             Log.warning("Errors loading exam template");
         } else {
+            final RawStudent student = getStudent();
 
             // Now we must add the exam's problems, so it can be realized.
             final int numSect = theExam.getNumSections();
@@ -551,10 +546,10 @@ public final class ReviewExamSession extends HtmlSessionBase {
             if (theExam.realize(true, true, serial)) {
                 reply.presentedExam = theExam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = this.studentId;
+                reply.studentId = student.stuId;
                 setExam(theExam);
 
-                if (!new ExamWriter().writePresentedExam(this.studentId, term, reply.presentedExam, reply.toXml())) {
+                if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam, reply.toXml())) {
                     Log.warning("Unable to cache exam " + ref);
                     reply.presentedExam = null;
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
@@ -939,43 +934,42 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Called when a POST is received on the page hosting the review exam.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a URL to which to redirect; {@code null} to present the generated HTML
      * @throws SQLException if there is an error accessing the database
      */
-    public String processPost(final Cache cache, final ImmutableSessionInfo session,
-                              final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    public String processPost(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         String redirect = null;
 
         synchronized (this) {
             switch (this.state) {
                 case INSTRUCTIONS:
-                    processPostInstructions(cache, session, req, htm);
+                    processPostInstructions(session, req, htm);
                     break;
 
                 case ITEM_NN:
-                    processPostInteracting(cache, session, req, htm);
+                    processPostInteracting(session, req, htm);
                     break;
 
                 case SUBMIT_NN:
-                    processPostSubmit(cache, session, req, htm);
+                    processPostSubmit(session, req, htm);
                     break;
 
                 case COMPLETED:
-                    processPostCompleted(cache, session, req, htm);
+                    processPostCompleted(session, req, htm);
                     break;
 
                 case SOLUTION_NN:
-                    redirect = processPostSolution(cache, session, req, htm);
+                    redirect = processPostSolution(session, req, htm);
                     break;
 
                 case INITIAL:
                 default:
-                    generateHtml(cache, session.getNow(), htm);
+                    generateHtml(session.getNow(), htm);
                     break;
             }
         }
@@ -993,14 +987,13 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Called when a POST is received while in the INSTRUCTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInstructions(final Cache cache, final ImmutableSessionInfo session,
-                                         final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInstructions(final ImmutableSessionInfo session, final ServletRequest req,
+                                         final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("nav_0") != null) {
             this.currentItem = 0;
@@ -1027,20 +1020,19 @@ public final class ReviewExamSession extends HtmlSessionBase {
             }
         }
 
-        generateHtml(cache, session.getNow(), htm);
+        generateHtml(session.getNow(), htm);
     }
 
     /**
      * Called when a POST is received while in the INTERACTING state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInteracting(final Cache cache, final ImmutableSessionInfo session,
-                                        final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInteracting(final ImmutableSessionInfo session, final ServletRequest req,
+                                        final HtmlBuilder htm) throws SQLException {
 
         if (this.currentItem != -1) {
             final String reqItem = req.getParameter("currentItem");
@@ -1093,20 +1085,19 @@ public final class ReviewExamSession extends HtmlSessionBase {
         }
 
         final ZonedDateTime now = session.getNow();
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the SUBMIT_NN state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostSubmit(final Cache cache, final ImmutableSessionInfo session,
-                                   final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostSubmit(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         final ZonedDateTime now = session.getNow();
 
@@ -1115,24 +1106,23 @@ public final class ReviewExamSession extends HtmlSessionBase {
             this.state = EReviewExamState.ITEM_NN;
         } else if (req.getParameter("Y") != null) {
             appendExamLog("Submit confirmed, scoring...");
-            this.gradingError = scoreAndRecordCompletion(cache, now);
+            this.gradingError = scoreAndRecordCompletion(now);
             this.state = EReviewExamState.COMPLETED;
         }
 
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the COMPLETED state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostCompleted(final Cache cache, final ImmutableSessionInfo session,
-                                      final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostCompleted(final ImmutableSessionInfo session, final ServletRequest req,
+                                      final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("solutions") != null) {
             appendExamLog("Moving to solutions...");
@@ -1141,21 +1131,20 @@ public final class ReviewExamSession extends HtmlSessionBase {
         }
 
         final ZonedDateTime now = session.getNow();
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the SOLUTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a string to which to redirect; null if no redirection should occur
      * @throws SQLException if there is an error accessing the database
      */
-    private String processPostSolution(final Cache cache, final ImmutableSessionInfo session,
-                                       final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private String processPostSolution(final ImmutableSessionInfo session, final ServletRequest req,
+                                       final HtmlBuilder htm) throws SQLException {
 
         String redirect = null;
 
@@ -1180,7 +1169,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 }
             }
 
-            generateHtml(cache, session.getNow(), htm);
+            generateHtml(session.getNow(), htm);
         }
 
         return redirect;
@@ -1189,16 +1178,15 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Performs a forced abort of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced abort
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceAbort(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceAbort(final ImmutableSessionInfo session) throws SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced abort requested");
             synchronized (this) {
-                writeExamRecovery(cache);
+                writeExamRecovery();
                 if (getExam() != null) {
                     setExam(null);
                 }
@@ -1216,18 +1204,17 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Performs a forced submit of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced submit
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceSubmit(final ImmutableSessionInfo session) throws SQLException {
 
         if (session == null) {
             appendExamLog("Review exam timed out after being started - submitting");
 
             synchronized (this) {
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, ZonedDateTime.now());
+                writeExamRecovery();
+                this.gradingError = scoreAndRecordCompletion(ZonedDateTime.now());
                 this.state = EReviewExamState.COMPLETED;
 
                 if (getExam() != null) {
@@ -1240,8 +1227,8 @@ public final class ReviewExamSession extends HtmlSessionBase {
             appendExamLog("Forced submit requested");
 
             synchronized (this) {
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+                writeExamRecovery();
+                this.gradingError = scoreAndRecordCompletion(session.getNow());
                 this.state = EReviewExamState.COMPLETED;
 
                 if (getExam() != null) {
@@ -1261,17 +1248,15 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Scores the submitted exam and records the results.
      *
-     * @param cache the data cache
-     * @param now   the date/time to consider now
+     * @param now the date/time to consider now
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String scoreAndRecordCompletion(final Cache cache,
-                                            final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private String scoreAndRecordCompletion(final ChronoZonedDateTime<LocalDate> now) throws SQLException {
 
         final String error;
 
-        final String stuId = this.studentId;
+        final String stuId = getStudent().stuId;
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
             error = "Guest login exams will not be recorded.";
@@ -1281,15 +1266,11 @@ public final class ReviewExamSession extends HtmlSessionBase {
             error = "Test student exams will not be recorded.";
         } else {
             Log.info("Writing updated exam state");
-
-            final Object[][] answers = getExam().exportState();
-
-            loadStudentInfo(cache);
-
             // Write the updated exam state out somewhere permanent
+            final Object[][] answers = getExam().exportState();
             new ExamWriter().writeUpdatedExam(stuId, this.active, answers, false);
 
-            error = finalizeExam(cache, now, answers);
+            error = finalizeExam(now, answers);
         }
 
         if (error != null) {
@@ -1303,21 +1284,26 @@ public final class ReviewExamSession extends HtmlSessionBase {
      * Finalize the exam record on the server, running all grading processing and applying result to the student's
      * record.
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider now
      * @param answers the submitted answers
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String finalizeExam(final Cache cache, final ChronoZonedDateTime<LocalDate> now,
-                                final Object[][] answers) throws SQLException {
+    private String finalizeExam(final ChronoZonedDateTime<LocalDate> now, final Object[][] answers)
+            throws SQLException {
 
-        final String crsId = getExam().course;
+        final ExamObj exam = getExam();
+        final String crsId = exam.course;
 
-        final Boolean courseIsTutorial = RawCourseLogic.isCourseTutorial(cache, crsId);
-        if (courseIsTutorial == null) {
-            return "No data for course '" + getExam().course + "'";
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+
+        final RawCourse course = systemData.getCourse(crsId);
+        if (course == null) {
+            return "No data for course '" + crsId + "'";
         }
+
+        final Boolean isTut = Boolean.valueOf("Y".equals(course.isTutorial));
 
         // Store the presentation and completion times in the exam object
         if (answers[0].length == 4) {
@@ -1327,25 +1313,28 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 final long duration = ((Long) answers[0][3]).longValue() - ((Long) answers[0][2]).longValue();
 
                 if (duration >= 0L && duration < 43200L) {
-                    getExam().presentationTime = System.currentTimeMillis() - duration;
+                    exam.presentationTime = System.currentTimeMillis() - duration;
                 } else {
                     // Time was not reasonable, so set to 0 time.
                     Log.warning("Client gave exam duration as " + duration);
-                    getExam().presentationTime = System.currentTimeMillis();
+                    exam.presentationTime = System.currentTimeMillis();
                 }
             } else {
-                getExam().presentationTime = getExam().realizationTime;
+                exam.presentationTime = exam.realizationTime;
             }
 
             // Set the completion time
-            getExam().finalizeExam();
+            exam.finalizeExam();
         }
 
         // See if the exam has already been inserted
-        final Long ser = getExam().serialNumber;
-        final LocalDateTime start = TemporalUtils.toLocalDateTime(getExam().realizationTime);
+        final Long ser = exam.serialNumber;
+        final LocalDateTime start = TemporalUtils.toLocalDateTime(exam.realizationTime);
 
-        final List<RawStexam> existing = RawStexamLogic.getExams(cache, this.studentId, crsId, true);
+        final RawStudent student = getStudent();
+        final String studentId = student.stuId;
+
+        final List<RawStexam> existing = studentData.getStudentExamsByCourseType(crsId, true);
         for (final RawStexam test : existing) {
             if (test.serialNbr.equals(ser) && test.getStartDateTime().equals(start)) {
                 return "This exam has already been submitted.";
@@ -1358,9 +1347,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
         param1.setValue(Boolean.FALSE);
         params.addVariable(param1);
 
-        Log.info("Grading review exam for student ", this.studentId, ", exam ", getExam().examVersion);
+        Log.info("Grading review exam for student ", studentId, ", exam ", exam.examVersion);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }
@@ -1374,24 +1363,24 @@ public final class ReviewExamSession extends HtmlSessionBase {
 
         // Begin preparing the database object to store exam results
         final StudentExamRec stexam = new StudentExamRec();
-        stexam.studentId = this.studentId;
+        stexam.studentId = studentId;
         stexam.examType = exType;
-        stexam.course = getExam().course;
+        stexam.course = exam.course;
         try {
-            stexam.unit = Integer.valueOf(getExam().courseUnit);
+            stexam.unit = Integer.valueOf(exam.courseUnit);
         } catch (final NumberFormatException ex) {
             Log.warning("Failed to parse unit", ex);
         }
-        stexam.examId = getExam().examVersion;
+        stexam.examId = exam.examVersion;
         stexam.proctored = false;
-        stexam.start = TemporalUtils.toLocalDateTime(getExam().realizationTime);
-        stexam.finish = TemporalUtils.toLocalDateTime(getExam().completionTime);
-        stexam.serialNumber = getExam().serialNumber;
+        stexam.start = TemporalUtils.toLocalDateTime(exam.realizationTime);
+        stexam.finish = TemporalUtils.toLocalDateTime(exam.completionTime);
+        stexam.serialNumber = exam.serialNumber;
 
         if ("Q".equals(exType)) {
             if (RawRecordConstants.M100U.equals(stexam.course)) {
                 // FIXME: Hardcode
-                final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
+                final RawCusection result = systemData.getCourseUnitSection(stexam.course, stexam.unit, "1",
                         this.active.term);
                 if (result == null) {
                     return "Unable to look up course section";
@@ -1399,10 +1388,10 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 stexam.masteryScore = result.ueMasteryScore;
             }
         } else {
-            RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, stexam.studentId, stexam.course);
+            RawStcourse stcourse = studentData.getActiveRegistration(stexam.course);
 
             if (stcourse == null) {
-                if (courseIsTutorial.booleanValue()) {
+                if (isTut.booleanValue()) {
 
                     // Create a fake STCOURSE record
                     stcourse = new RawStcourse(this.active.term, // term
@@ -1452,9 +1441,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                             || RawRecordConstants.MATH125.equals(stexam.course)
                             || RawRecordConstants.MATH126.equals(stexam.course)) {
 
-                        final List<RawSpecialStus> specials = RawSpecialStusLogic
-                                .queryActiveByStudent(cache, this.studentId, now.toLocalDate());
-
+                        final List<RawSpecialStus> specials = studentData.getActiveSpecialCategories(now.toLocalDate());
                         for (final RawSpecialStus special : specials) {
                             final String type = special.stuType;
 
@@ -1466,7 +1453,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     }
 
                     if (isSpecial) {
-                        final List<RawCsection> sections = RawCsectionLogic.queryByCourseTerm(cache, stexam.course,
+                        final List<RawCsection> sections = systemData.getCourseSectionsByCourse(stexam.course,
                                 this.active.term);
 
                         if (sections.isEmpty()) {
@@ -1507,7 +1494,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
 
                             stcourse.synthetic = true;
                         }
-                    } else{
+                    } else {
                         return "Unable to look up course registration.";
                     }
                 }
@@ -1516,15 +1503,13 @@ public final class ReviewExamSession extends HtmlSessionBase {
             RawCusection cusect;
 
             if ("Y".equals(stcourse.iInProgress)) {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, stcourse.iTermKey);
+                cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect, stcourse.iTermKey);
                 if (cusect == null) {
-                    cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                            stexam.unit, this.active.term);
+                    cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect,
+                            this.active.term);
                 }
             } else {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, this.active.term);
+                cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect, this.active.term);
             }
 
             if (cusect == null) {
@@ -1555,10 +1540,10 @@ public final class ReviewExamSession extends HtmlSessionBase {
         // processing.
         final boolean passed = evaluateGradingRules(stexam, params);
 
-        determineOutcomes(cache, stexam, params);
+        determineOutcomes(stexam, params);
 
         // We have now assembled the student exam record, so insert into the database.
-        return insertStudentExam(cache, stexam, passed);
+        return insertStudentExam(stexam, passed);
     }
 
     /**
@@ -1760,13 +1745,11 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Evaluate the formulae for grading rules based on subtest scores.
      *
-     * @param cache  the data cache
      * @param stexam the student exam record being populated
      * @param params the parameter set to which to add the subtest score parameters
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineOutcomes(final Cache cache, final StudentExamRec stexam,
-                                   final EvalContext params) throws SQLException {
+    private void determineOutcomes(final StudentExamRec stexam, final EvalContext params) throws SQLException {
 
         final Iterator<ExamOutcome> outcomes = getExam().examOutcomes();
 
@@ -1897,9 +1880,12 @@ public final class ReviewExamSession extends HtmlSessionBase {
                                 }
                             } else if (ExamOutcomeAction.INDICATE_LICENSED.equals(action.type)) {
 
-                                final RawStudent stu = RawStudentLogic.query(cache, this.studentId, false);
+                                final RawStudent stu = getStudent();
+
                                 if (stu != null && "N".equals(stu.licensed)) {
+                                    final Cache cache = getStudentData().getCache();
                                     RawStudentLogic.updateLicensed(cache, stu.stuId, "Y");
+                                    stu.licensed = "Y";
                                 }
                             }
                         }
@@ -1924,14 +1910,12 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Insert this object into the database.
      *
-     * @param cache       the data cache
      * @param stexam      the StudentExam object with exam data to be inserted
      * @param usersPassed {@code true} if the score was passing; {@code false} if not (used only for user's exam)
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertStudentExam(final Cache cache, final StudentExamRec stexam,
-                                     final boolean usersPassed) throws SQLException {
+    private String insertStudentExam(final StudentExamRec stexam, final boolean usersPassed) throws SQLException {
 
         String error;
 
@@ -1941,18 +1925,18 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 || RawRecordConstants.M1240.equals(stexam.course)
                 || RawRecordConstants.M1250.equals(stexam.course)
                 || RawRecordConstants.M1260.equals(stexam.course)) {
-            error = insertExam(cache, stexam);
+            error = insertExam(stexam);
 
             if (error == null) {
-                error = insertPlacementResults(cache, stexam);
+                error = insertPlacementResults(stexam);
             }
         } else if (RawRecordConstants.M100U.equals(stexam.course)) {
-            error = insertUsersExam(cache, stexam, usersPassed);
+            error = insertUsersExam(stexam, usersPassed);
             if (error == null) {
-                error = insertExam(cache, stexam);
+                error = insertExam(stexam);
             }
         } else {
-            error = insertExam(cache, stexam);
+            error = insertExam(stexam);
         }
 
         return error;
@@ -1961,12 +1945,11 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Insert a standard (non-placement) exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private static String insertExam(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private String insertExam(final StudentExamRec stexam) throws SQLException {
 
         Log.info("Trying to insert stexam record");
 
@@ -1992,6 +1975,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 Integer.valueOf(finInt), "Y", passed, null, stexam.course, stexam.unit, stexam.examType, "N",
                 stexam.examSource, null);
 
+        final StudentData studentData = getStudentData();
+        final Cache cache = studentData.getCache();
+
         String error = null;
         if (RawStexamLogic.INSTANCE.insert(cache, record)) {
 
@@ -2008,6 +1994,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 RawStqaLogic.INSTANCE.insert(cache, answer);
                 ++question;
             }
+
+            studentData.forgetStudentExams();
+            studentData.forgetStudentExamAnswers();
         } else {
             error = "Failed to innsert exam record.";
         }
@@ -2018,12 +2007,14 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Insert a placement exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertPlacementResults(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private String insertPlacementResults(final StudentExamRec stexam) throws SQLException {
+
+        final StudentData studentData = getStudentData();
+        final Cache cache = studentData.getCache();
 
         // Indicate all required placements.
         for (final String placeIn : stexam.earnedPlacement) {
@@ -2036,6 +2027,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     null, stexam.serialNumber, stexam.examId, null);
 
             RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            studentData.forgetPlacementCredit();
         }
 
         // Record all ignored placement results
@@ -2044,6 +2036,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId, null);
 
             RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            studentData.forgetPlacementDenied();
         }
 
         // Passing ELM exam unit 3 review sends score of "4" for MC00 test code to Banner
@@ -2074,26 +2067,22 @@ public final class ReviewExamSession extends HtmlSessionBase {
     /**
      * Insert a users exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @param passed {@code true} if the score was passing; {@code false} if not
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertUsersExam(final Cache cache, final StudentExamRec stexam,
-                                   final boolean passed) throws SQLException {
+    private String insertUsersExam(final StudentExamRec stexam, final boolean passed) throws SQLException {
 
-        final RawStudent stu = RawStudentLogic.query(cache, stexam.studentId, false);
-        if (stu == null) {
-            return "User's exam for student " + this.studentId + ", student not found";
-        }
+        final RawStudent student = getStudent();
+        final String studentId = student.stuId;
 
         // Look up the calculus section reported
-        // FIXME: Hardcode question number
+        // FIXME: Hardcoded question number
         String calc = CoreConstants.SPC;
 
-        final List<RawStsurveyqa> resp = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, stexam.studentId,
-                "UOOOO");
+        final StudentData studentData = getStudentData();
+        final List<RawStsurveyqa> resp = studentData.getSurveyResponsesByVersion("UOOOO");
 
         String answer = null;
         for (final RawStsurveyqa rawStsurveyqa : resp) {
@@ -2103,25 +2092,34 @@ public final class ReviewExamSession extends HtmlSessionBase {
             }
         }
 
-        if (answer != null) {
-            final List<RawSurveyqa> possible = RawSurveyqaLogic.queryByVersionAndQuestion(cache, "UOOOO",
-                    Integer.valueOf(1));
+        final Cache cache = studentData.getCache();
 
-            for (final RawSurveyqa rawSurveyqa : possible) {
-                if (answer.equals(rawSurveyqa.answer)) {
-                    calc = rawSurveyqa.answerMeaning;
-                    RawStudentLogic.updateCourseOrder(cache, stu.stuId, calc);
+        if (answer != null) {
+            final SystemData systemData = studentData.getSystemData();
+            final List<RawSurveyqa> choices = systemData.getSurveyQuestions("UOOOO", Integer.valueOf(1));
+
+            for (final RawSurveyqa choice : choices) {
+                if (answer.equals(choice.answer)) {
+                    calc = choice.answerMeaning;
+                    if (student.orderEnforce == null || !student.orderEnforce.equals(calc)) {
+                        RawStudentLogic.updateCourseOrder(cache, studentId, calc);
+                        getStudent().orderEnforce = calc;
+                    }
                     break;
                 }
             }
         }
 
-        final RawUsers attempt =
-                new RawUsers(this.active.term, stexam.studentId, stexam.serialNumber, stexam.examId,
-                        stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
+        final Integer scoreValue = stexam.subtestScores.get("score");
+        final LocalDate finishDate = stexam.finish.toLocalDate();
+
+        final RawUsers attempt = new RawUsers(this.active.term, stexam.studentId, stexam.serialNumber, stexam.examId,
+                finishDate, scoreValue, calc, passed ? "Y" : "N");
 
         String error = null;
-        if (!RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+        if (RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+            studentData.forgetUsersExams();
+        } else {
             error = "Failed to inser record of User's exam";
         }
 
@@ -2135,12 +2133,14 @@ public final class ReviewExamSession extends HtmlSessionBase {
      */
     void appendXml(final HtmlBuilder xml) {
 
+        final String studentId = getStudent().stuId;
+
         if (getExam() != null) {
             xml.addln("<review-exam-session>");
             xml.addln(" <host>", getSiteProfile().host, "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
-            xml.addln(" <student>", this.studentId, "</student>");
+            xml.addln(" <student>", studentId, "</student>");
             xml.addln(" <exam-id>", this.version, "</exam-id>");
             if (this.score != null) {
                 xml.addln(" <score>", this.score, "</score>");

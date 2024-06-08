@@ -4,7 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
@@ -16,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
@@ -26,6 +26,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +42,7 @@ enum PageLesson {
     /**
      * Generates the page with contact information.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -50,7 +51,7 @@ enum PageLesson {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -78,22 +79,24 @@ enum PageLesson {
                 final int seqNum = Long.valueOf(lessonStr).intValue();
 
                 final HtmlBuilder htm = new HtmlBuilder(2000);
-                Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
-                        false, true);
+                final String title = site.getTitle();
+                Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
+                        true);
 
                 htm.sDiv("menupanelu");
-                CourseMenu.buildMenu(cache, site, session, logic, htm);
+                CourseMenu.buildMenu(data, site, session, logic, htm);
                 htm.sDiv("panelu");
 
-                buildCourseLessonPage(cache, site, session, course, unit, seqNum, mode, srcourse, htm);
+                buildCourseLessonPage(data, site, session, course, unit, seqNum, mode, srcourse, htm);
 
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
 
             } catch (final NumberFormatException ex) {
                 resp.sendRedirect("home.html");
@@ -104,7 +107,7 @@ enum PageLesson {
     /**
      * Creates the HTML of the course lesson.
      *
-     * @param cache              the data cache
+     * @param data               the web view data
      * @param site               the course site
      * @param session            the user's login session information
      * @param courseId           the course ID
@@ -116,7 +119,7 @@ enum PageLesson {
      * @param htm                the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void buildCourseLessonPage(final Cache cache, final CourseSite site,
+    private static void buildCourseLessonPage(final WebViewData data, final CourseSite site,
                                               final ImmutableSessionInfo session, final String courseId, final int unit,
                                               final int objective, final String mode, final String skillsReviewCourse,
                                               final HtmlBuilder htm) throws SQLException {
@@ -126,7 +129,8 @@ enum PageLesson {
 
         // find the rule set under which the student is working
 
-        final TermKey activeKey = TermLogic.get(cache).queryActive(cache).term;
+        final SystemData systemData = data.getSystemData();
+        final TermKey activeKey = systemData.getActiveTerm().term;
 
         final RawStcourse reg = RawStcourseLogic.getRegistration(cache, studentId, courseId);
         final String ruleSet = reg == null ? null : RawCsectionLogic.getRuleSetId(cache, courseId, reg.sect, activeKey);
@@ -218,25 +222,27 @@ enum PageLesson {
                         if (hw.assignmentId == null) {
                             Log.warning("Null assignment for unit " + unit + " obj " + objective);
                         } else if (Boolean.TRUE.equals(isTut) || skillsReviewCourse != null) {
-                            doAssignment(cache, site, session, activeKey, courseId, unit, objective, mode, "practice",
+                            doAssignment(data, site, session, activeKey, courseId, unit, objective, mode, "practice",
                                     hw.assignmentId, ruleSetId, htm);
                         } else {
-                            doAssignment(cache, site, session, activeKey, courseId, unit, objective, mode, mode,
+                            doAssignment(data, site, session, activeKey, courseId, unit, objective, mode, mode,
                                     hw.assignmentId, ruleSetId, htm);
                         }
                     }
                 }
             } else {
                 htm.sP().add("FAILED TO GET LESSON STATUS DATA!").br();
-                if (status.getErrorText() != null) {
-                    htm.addln(status.getErrorText());
+                final String errorText = status.getErrorText();
+                if (errorText != null) {
+                    htm.addln(errorText);
                 }
                 htm.eP();
             }
         } else {
             htm.sP().add("FAILED TO GET LESSON DATA!").br();
-            if (less.getErrorText() != null) {
-                htm.addln(less.getErrorText());
+            final String errorText = less.getErrorText();
+            if (errorText != null) {
+                htm.addln(errorText);
             }
             htm.eP();
         }
@@ -245,7 +251,7 @@ enum PageLesson {
     /**
      * Generates the HTM form to launch the assignment configured for the lesson.
      *
-     * @param cache          the data cache
+     * @param data           the web view data
      * @param site           the course site
      * @param session        the user's login session information
      * @param activeKey      the key of the active term
@@ -260,7 +266,7 @@ enum PageLesson {
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doAssignment(final Cache cache, final CourseSite site, final ImmutableSessionInfo session,
+    private static void doAssignment(final WebViewData data, final CourseSite site, final ImmutableSessionInfo session,
                                      final TermKey activeKey, final String courseId, final int unit,
                                      final int objective, final String courseMode, final String assignmentMode,
                                      final String assignId, final String pacing, final HtmlBuilder htm)
@@ -348,8 +354,7 @@ enum PageLesson {
                 }
             }
         } else {
-            Log.warning("Failed to gather available lesson data",
-                    courseStatus.getErrorText());
+            Log.warning("Failed to gather available lesson data", courseStatus.getErrorText());
         }
     }
 
@@ -365,9 +370,8 @@ enum PageLesson {
      *                           this course is being presented on its own
      * @param htm                the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void readLessonFile(final CourseLesson less, final String courseId,
-                                       final int unit, final int seqNum, final String mode,
-                                       final String skillsReviewCourse,
+    private static void readLessonFile(final CourseLesson less, final String courseId, final int unit,
+                                       final int seqNum, final String mode, final String skillsReviewCourse,
                                        final HtmlBuilder htm) {
 
         // Load static page, then replace all media references of the form

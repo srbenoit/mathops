@@ -1,7 +1,8 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -22,30 +23,32 @@ enum PageError {
     /**
      * Generates the page.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param req         the request
-     * @param resp        the response
-     * @param session     the user's login session information
-     * @param message     the error message
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @param message the error message
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session, final String message)
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
-                false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
         htm.sDiv("error").br();
         htm.addln("<strong>An error has occurred:</strong>").br().br();
         htm.addln(message);
         htm.eDiv();
 
-        Page.endOrdinaryPage(studentData, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 }

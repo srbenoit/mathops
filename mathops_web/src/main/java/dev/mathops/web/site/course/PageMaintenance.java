@@ -2,11 +2,14 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -20,7 +23,7 @@ enum PageMaintenance {
     /**
      * Generates the page with contact information.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -28,12 +31,12 @@ enum PageMaintenance {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final String message) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, true, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
-                true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, null, true, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
         htm.div("vgap2");
 
@@ -80,8 +83,10 @@ enum PageMaintenance {
         htm.eDiv();
         htm.eDiv();
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 }

@@ -3,6 +3,8 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -11,6 +13,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -24,7 +27,7 @@ enum PageStdsTextMedia {
     /** A server directory. */
     private static final String M125 = "M125";
 
-//    /** A server directory. */
+    //    /** A server directory. */
     private static final String M126 = "M126";
 
     /** A reason string. */
@@ -36,7 +39,7 @@ enum PageStdsTextMedia {
     /**
      * Starts the page that shows the course outline with student progress.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -45,7 +48,7 @@ enum PageStdsTextMedia {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -54,18 +57,16 @@ enum PageStdsTextMedia {
         if (AbstractSite.isParamInvalid(course)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
-            PageError.doGet(cache, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else if (course == null) {
-            PageError.doGet(cache, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false,
-                    Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+            final String title = site.getTitle();
+            Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             // htm.sDiv("panelu");
 
             if (RawRecordConstants.MATH125.equals(course)) {
@@ -77,10 +78,12 @@ enum PageStdsTextMedia {
             // htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
             AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+                    bytes);
         }
     }
 

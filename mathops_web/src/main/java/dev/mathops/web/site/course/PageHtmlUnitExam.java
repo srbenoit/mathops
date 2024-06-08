@@ -2,7 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;
@@ -12,6 +13,7 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -25,7 +27,7 @@ enum PageHtmlUnitExam {
     /**
      * Starts a unit exam and presents the exam instructions.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -34,7 +36,7 @@ enum PageHtmlUnitExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void startUnitExam(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void startUnitExam(final WebViewData data, final CourseSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session,
                               final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -56,7 +58,7 @@ enum PageHtmlUnitExam {
                 Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                         session.getEffectiveUserId(), " exam ", examId);
 
-                us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                us = new UnitExamSession(data, site.siteProfile, session.loginSessionId,
                         session.getEffectiveUserId(), course, examId, redirect);
                 store.setUnitExamSession(us);
             } else {
@@ -64,33 +66,35 @@ enum PageHtmlUnitExam {
             }
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
-                    false, true);
+            final String title = site.getTitle();
+            Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.addln("<form id='unit_exam_form' action='update_unit_exam.html'>");
             htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
             htm.addln(" <input type='hidden' name='course' value='", course, "'>");
             htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
-            us.generateHtml(cache, session, htm);
+            us.generateHtml(data, session, htm);
             htm.addln("</form>");
 
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Handles a POST request.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -99,7 +103,7 @@ enum PageHtmlUnitExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateUnitExam(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void updateUnitExam(final WebViewData data, final CourseSite site, final ServletRequest req,
                                final HttpServletResponse resp, final ImmutableSessionInfo session,
                                final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -119,7 +123,7 @@ enum PageHtmlUnitExam {
                     false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             String redirect = null;
@@ -135,7 +139,7 @@ enum PageHtmlUnitExam {
                 htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", course, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
-                redirect = res.processPost(cache, session, req, htm);
+                redirect = res.processPost(data, session, req, htm);
                 htm.addln("</form>");
             }
 
@@ -143,9 +147,11 @@ enum PageHtmlUnitExam {
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             } else {
                 Log.info("Redirect is ", redirect);
 

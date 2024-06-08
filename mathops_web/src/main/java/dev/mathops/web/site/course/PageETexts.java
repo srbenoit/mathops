@@ -4,10 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
-import dev.mathops.db.old.rawlogic.RawStetextLogic;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawStetext;
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -45,58 +46,60 @@ enum PageETexts {
     /**
      * Generates a page to manage e-texts.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param req         the request
-     * @param resp        the response
-     * @param session     the user's login session information
-     * @param logic       the course site logic
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @param logic   the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doETextsPage(final StudentData studentData, final CourseSite site, final ServletRequest req,
+    static void doETextsPage(final WebViewData data, final CourseSite site, final ServletRequest req,
                              final HttpServletResponse resp, final ImmutableSessionInfo session,
                              final CourseSiteLogic logic) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
-                true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(studentData, site, session, logic, htm);
+        CourseMenu.buildMenu(data, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        doETextsPageContent(studentData, site, session, logic, htm);
+        doETextsPageContent(data, site, session, logic, htm);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(studentData, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 
     /**
      * Generates the content of the e-text page.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param session     the user's login session information
-     * @param logic       the course site logic
-     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param session the user's login session information
+     * @param logic   the course site logic
+     * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doETextsPageContent(final StudentData studentData, final CourseSite site,
+    private static void doETextsPageContent(final WebViewData data, final CourseSite site,
                                             final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                             final HtmlBuilder htm) throws SQLException {
 
-        final String userId = session.getEffectiveUserId();
+        final SystemData systemData = data.getSystemData();
+        final StudentData studentData = data.getEffectiveUser();
 
         htm.sH(2).add("<img style='width:40px;height:40px;vertical-align:middle;' ",
                 "src='/images/etexts.png'/> &nbsp; My e-texts").eH(2);
 
-        final List<RawStetext> stetexts = RawStetextLogic.queryByStudent(cache, userId);
-
+        final List<RawStetext> stetexts = studentData.getStudentETexts();
         final int count = stetexts.size();
 
         htm.sDiv("indent11");
@@ -107,10 +110,9 @@ enum PageETexts {
             final String message;
 
             if (Contexts.PRECALC_HOST.equals(host)) {
-                message = " All Precalculus courses participate in the CSU Bookstore Inclusive "
-                        + "Access program, which provides automatic access to the e-text book for "
-                        + "registered students.  You <b>must not</b> \"opt out\" of that program, or "
-                        + "you will lose access to the e-text book";
+                message = " All Precalculus courses participate in the CSU Bookstore Day-One Access program, which "
+                        + "provides automatic access to the e-text book for registered students.  You <b>must not</b> "
+                        + "\"opt out\" of that program, or you will lose access to the e-text book";
             } else {
                 message = " You have no e-text books.";
             }
@@ -134,26 +136,31 @@ enum PageETexts {
             for (final RawStetext stetext : stetexts) {
                 if (stetext.refundDt != null) {
                     refunded.add(stetext);
-                } else if (stetext.expirationDt != null
-                        && stetext.expirationDt.isBefore(session.getNow().toLocalDate())) {
-                    expired.add(stetext);
                 } else {
-                    final RawEtext theEtext = RawEtextLogic.query(cache, stetext.etextId);
+                    final ZonedDateTime now = session.getNow();
+                    final LocalDate today = now.toLocalDate();
 
-                    if (theEtext != null) {
-                        if ("Y".equals(theEtext.retention)) {
-                            permanent.add(stetext);
-                        } else if ("C".equals(theEtext.retention)) {
-                            completed.add(stetext);
-                        } else {
-                            termOnly.add(stetext);
+                    if (stetext.expirationDt != null
+                            && stetext.expirationDt.isBefore(today)) {
+                        expired.add(stetext);
+                    } else {
+                        final RawEtext theEtext = systemData.getEText(stetext.etextId);
+
+                        if (theEtext != null) {
+                            if ("Y".equals(theEtext.retention)) {
+                                permanent.add(stetext);
+                            } else if ("C".equals(theEtext.retention)) {
+                                completed.add(stetext);
+                            } else {
+                                termOnly.add(stetext);
+                            }
                         }
                     }
                 }
             }
 
             if (completed.size() + termOnly.size() > 0) {
-                final TermRec activeTerm = studentData.getActiveTerm();
+                final TermRec activeTerm = systemData.getActiveTerm();
 
                 htm.div("vgap").hr();
                 if (activeTerm == null) {
@@ -174,7 +181,7 @@ enum PageETexts {
                     htm.div("vgap").hr();
 
                     startEtextTable(htm);
-                    etextTable(studentData, htm, termOnly, session, logic, false);
+                    etextTable(data, htm, termOnly, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -193,7 +200,7 @@ enum PageETexts {
                     htm.div("vgap").hr();
 
                     startEtextTable(htm);
-                    etextTable(studentData, htm, completed, session, logic, false);
+                    etextTable(data, htm, completed, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -219,7 +226,7 @@ enum PageETexts {
                 htm.div("vgap");
 
                 startEtextTable(htm);
-                etextTable(studentData, htm, permanent, session, logic, true);
+                etextTable(data, htm, permanent, session, logic, true);
                 endEtextTable(htm);
 
                 htm.eDiv(); // indent11
@@ -234,16 +241,14 @@ enum PageETexts {
 
                 if (!refunded.isEmpty()) {
                     if (refunded.size() == 1) {
-                        htm.addln(" This e-text has been returned for refund and is ",
-                                "no longer available:");
+                        htm.addln(" This e-text has been returned for refund and is no longer available:");
                     } else {
-                        htm.addln(" These e-texts have been returned for refund ",
-                                "and are no longer available:");
+                        htm.addln(" These e-texts have been returned for refund and are no longer available:");
                     }
                     htm.div("vgap");
 
                     startEtextTable(htm);
-                    etextTable(studentData, htm, refunded, session, logic, false);
+                    etextTable(data, htm, refunded, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -260,7 +265,7 @@ enum PageETexts {
                     htm.div("vgap");
 
                     startEtextTable(htm);
-                    etextTable(studentData, htm, expired, session, logic, false);
+                    etextTable(data, htm, expired, session, logic, false);
                     endEtextTable(htm);
                 }
 
@@ -270,7 +275,7 @@ enum PageETexts {
             htm.div("vgap");
 
             htm.sDiv("indent11");
-            final TermRec activeTerm = studentData.getActiveTerm();
+            final TermRec activeTerm = systemData.getActiveTerm();
             htm.addln(" To access your e-text materials, click on the course number under <strong>",
                     activeTerm.term.longString, " Courses");
             htm.addln("</strong> on the left side of the page.");
@@ -352,21 +357,24 @@ enum PageETexts {
     /**
      * Prints a list of e-texts.
      *
-     * @param studentData the student data object
-     * @param htm         the {@code HtmlBuilder} to which to append the HTML
-     * @param texts       the list of texts
-     * @param session     the session
-     * @param logic       the course site logic
-     * @param showLinks   true to show links to practice mode
+     * @param data      the web view data
+     * @param htm       the {@code HtmlBuilder} to which to append the HTML
+     * @param texts     the list of texts
+     * @param session   the session
+     * @param logic     the course site logic
+     * @param showLinks true to show links to practice mode
      * @throws SQLException if there is an error accessing the database
      */
-    private static void etextTable(final StudentData studentData, final HtmlBuilder htm,
+    private static void etextTable(final WebViewData data, final HtmlBuilder htm,
                                    final Iterable<RawStetext> texts,
                                    final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                    final boolean showLinks) throws SQLException {
 
+        final SystemData systemData = data.getSystemData();
+        final StudentData studentData = data.getEffectiveUser();
+
         for (final RawStetext text : texts) {
-            final List<RawEtextCourse> etcourses = RawEtextCourseLogic.queryByEtext(cache, text.etextId);
+            final List<RawEtextCourse> etcourses = systemData.getETextCoursesByETextId(text.etextId);
             if (etcourses.isEmpty()) {
                 continue;
             }
@@ -378,7 +386,8 @@ enum PageETexts {
                 builder.add("Precalculus Program");
             } else {
                 for (final RawEtextCourse etcours : etcourses) {
-                    final String crsLabel = RawCourseLogic.getCourseLabel(cache, etcours.course);
+                    final RawCourse course = systemData.getCourse(etcours.course);
+                    final String crsLabel = course == null ? null : course.courseLabel;
                     if (crsLabel == null) {
                         builder.add(etcours.course);
                     } else {
@@ -490,7 +499,7 @@ enum PageETexts {
             } else if (isCurPastRefundDeadline(text, session.getNow())) {
                 htm.add("The deadline for a refund for withdrawal was ", getCurRefundDeadlineDateString(text));
             } else {
-                final RawEtext etext = RawEtextLogic.query(cache, text.etextId);
+                final RawEtext etext = systemData.getEText(text.etextId);
 
                 if (etext.purchaseUrl == null) {
                     htm.add("Refunds only through the CSU Bookstore");

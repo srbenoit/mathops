@@ -3,6 +3,9 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -13,9 +16,11 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +34,7 @@ enum PagePlacementReport {
     /**
      * Generates the home page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -38,29 +43,37 @@ enum PagePlacementReport {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null,
-                Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
+                false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(data, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        final PlacementStatus pstatus = new PlacementLogic(cache, session.getEffectiveUserId(),
-                logic.data.studentData.getStudent().aplnTerm, session.getNow()).status;
+        final StudentData studentData = data.getEffectiveUser();
+        final RawStudent student = studentData.getStudentRecord();
 
-        doPlacementReport(pstatus, logic.data.studentData.getStudent(), htm);
+        if (student != null) {
+            final ZonedDateTime now = session.getNow();
+            final PlacementStatus pstatus = new PlacementLogic(studentData, student.aplnTerm, now).status;
+
+            doPlacementReport(pstatus, student, htm);
+        }
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 
     /**

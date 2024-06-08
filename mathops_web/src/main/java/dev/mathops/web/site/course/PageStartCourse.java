@@ -3,7 +3,8 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.StartCourse;
@@ -12,9 +13,11 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 /**
  * Generates the content of the home page for a course site.
@@ -25,7 +28,7 @@ enum PageStartCourse {
     /**
      * Generates the page with contact information.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -34,7 +37,7 @@ enum PageStartCourse {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -46,16 +49,18 @@ enum PageStartCourse {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final StartCourse start = new StartCourse(site.getDbProfile());
+            final ZonedDateTime now = session.getNow();
 
-            if (start.startCourse(cache, session.getNow(), session.getEffectiveUserId(), course)) {
+            if (start.startCourse(data, now, course)) {
                 resp.sendRedirect("course.html?course=" + course.replace(CoreConstants.SPC, "+") + "&mode=course");
             } else {
                 final HtmlBuilder htm = new HtmlBuilder(2000);
-                Page.startOrdinaryPage(htm, site.getTitle(), session, false,
-                        Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+                final String title = site.getTitle();
+                Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
+                        true);
 
                 htm.sDiv("menupanelu");
-                CourseMenu.buildMenu(cache, site, session, logic, htm);
+                CourseMenu.buildMenu(data, site, session, logic, htm);
                 htm.sDiv("panelu");
 
                 htm.sDiv("error").add("Failed to start ", course, CoreConstants.DOT).eDiv();
@@ -63,10 +68,11 @@ enum PageStartCourse {
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
             }
         }
     }

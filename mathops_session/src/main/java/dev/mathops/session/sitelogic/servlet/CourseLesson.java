@@ -1,17 +1,13 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,14 +43,14 @@ public final class CourseLesson extends LogicBase {
     /**
      * Gathers the data for a particular course.
      *
-     * @param studentData the student data object
-     * @param courseId    the ID of the course
-     * @param unit        the unit number
-     * @param objective   the objective of the lesson
+     * @param systemData the system data object
+     * @param courseId   the ID of the course
+     * @param unit       the unit number
+     * @param objective  the objective of the lesson
      * @return {@code true} if data was gathered successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean gatherData(final StudentData studentData, final String courseId, final Integer unit,
+    public boolean gatherData(final SystemData systemData, final String courseId, final Integer unit,
                               final Integer objective) throws SQLException {
 
         this.courseIsTutorial = null;
@@ -62,18 +58,18 @@ public final class CourseLesson extends LogicBase {
         this.lesson = null;
         this.components = null;
 
-        final TermRec active = studentData.getActiveTerm();
+        final TermRec active = systemData.getActiveTerm();
 
         final boolean ok;
 
         if (active == null) {
             ok = false;
         } else {
-            ok = queryCourseUnitObjective(studentData, courseId, unit, objective, active.term)
-                    && queryCourseTutorialStatus(studentData, courseId) && queryLesson(studentData);
+            ok = queryCourseUnitObjective(systemData, courseId, unit, objective, active.term)
+                    && queryCourseTutorialStatus(systemData, courseId) && queryLesson(systemData);
 
             if (ok) {
-                this.components = RawLessonComponentLogic.queryByLesson(cache, this.courseUnitObjective.lessonId);
+                this.components = systemData.getLessonComponentsByLesson(this.courseUnitObjective.lessonId);
             }
         }
 
@@ -83,18 +79,18 @@ public final class CourseLesson extends LogicBase {
     /**
      * Queries the course unit objective object and stores it in {@code courseUnitObjective}.
      *
-     * @param studentData the student data object
-     * @param courseId    the course ID
-     * @param unit        the unit number
-     * @param objective   the objective number
-     * @param key         the term key
+     * @param systemData the system data object
+     * @param courseId   the course ID
+     * @param unit       the unit number
+     * @param objective  the objective number
+     * @param term       the term key
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseUnitObjective(final StudentData studentData, final String courseId,
-                                             final Integer unit, final Integer objective, final TermKey key) throws SQLException {
+    private boolean queryCourseUnitObjective(final SystemData systemData, final String courseId, final Integer unit,
+                                             final Integer objective, final TermKey term) throws SQLException {
 
-        this.courseUnitObjective = RawCuobjectiveLogic.query(cache, courseId, unit, objective, key);
+        this.courseUnitObjective = systemData.getCourseUnitObjective(courseId, unit, objective, term);
 
         if (this.courseUnitObjective == null) {
             setErrorText("Course " + courseId + " unit " + unit + " objective " + objective + " not found.");
@@ -106,14 +102,16 @@ public final class CourseLesson extends LogicBase {
     /**
      * Queries the course object and stores it in {@code course}.
      *
-     * @param cache    the data cache
-     * @param courseId the course ID
+     * @param systemData the system data object
+     * @param courseId   the course ID
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseTutorialStatus(final Cache cache, final String courseId) throws SQLException {
+    private boolean queryCourseTutorialStatus(final SystemData systemData, final String courseId) throws SQLException {
 
-        this.courseIsTutorial = RawCourseLogic.isCourseTutorial(cache, courseId);
+        final RawCourse course = systemData.getCourse(courseId);
+
+        this.courseIsTutorial = course == null ? null : Boolean.valueOf("Y".equals(course.isTutorial));
 
         if (this.courseIsTutorial == null) {
             setErrorText("Course not found.");
@@ -125,14 +123,15 @@ public final class CourseLesson extends LogicBase {
     /**
      * Queries the lesson object and stores it in {@code lesson}.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryLesson(final Cache cache) {
+    private boolean queryLesson(final SystemData systemData) throws SQLException {
 
         final boolean ok;
 
-        this.lesson = RawLessonLogic.query(cache, this.courseUnitObjective.lessonId);
+        this.lesson = systemData.getLesson(this.courseUnitObjective.lessonId);
 
         if (this.lesson == null) {
             setErrorText("Lesson not found.");

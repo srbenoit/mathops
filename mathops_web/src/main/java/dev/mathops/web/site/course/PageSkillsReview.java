@@ -3,7 +3,12 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
+import dev.mathops.db.old.rawrecord.RawFfrTrns;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -15,6 +20,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -29,7 +35,7 @@ enum PageSkillsReview {
     /**
      * Generates the page with contact information.
      *
-     * @param cache    the data cache
+     * @param data     the web view data
      * @param siteType the site type
      * @param site     the owning site
      * @param req      the request
@@ -39,7 +45,7 @@ enum PageSkillsReview {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final ESiteType siteType, final CourseSite site,
+    static void doGet(final WebViewData data, final ESiteType siteType, final CourseSite site,
                       final ServletRequest req, final HttpServletResponse resp,
                       final ImmutableSessionInfo session, final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -53,9 +59,11 @@ enum PageSkillsReview {
             Log.warning("  mode='", mode, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
+            final StudentData studentData = data.getEffectiveUser();
+
             final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
 
-            courseStatus.gatherData(cache, session, session.getEffectiveUserId(), course, false,
+            courseStatus.gatherData(studentData, session, session.getEffectiveUserId(), course, false,
                     !"course".equals(mode));
 
             // FIXME: Hack here - if a student is in M 117, section 401/801/003, and prerequisite
@@ -85,7 +93,7 @@ enum PageSkillsReview {
                 boolean prereq = prereqs.isEmpty();
                 final int count = prereqs.size();
                 for (int j = 0; !prereq && j < count; ++j) {
-                    prereq = CourseSite.hasCourseAsPrereq(cache, courseStatus.getStudent().stuId, prereqs.get(j));
+                    prereq = hasCourseAsPrereq(studentData, courseStatus.getStudent().stuId, prereqs.get(j));
                 }
 
                 if (!prereq) {
@@ -95,14 +103,15 @@ enum PageSkillsReview {
             }
 
             if (lessonCourse == null) {
-                PageLesson.doGet(cache, site, req, resp, session, logic);
+                PageLesson.doGet(data, site, req, resp, session, logic);
             } else {
                 final HtmlBuilder htm = new HtmlBuilder(2000);
-                Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null,
-                        Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+                final String title1 = site.getTitle();
+                Page.startOrdinaryPage(htm, title1, session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR,
+                        null, false, true);
 
                 htm.sDiv("menupanelu");
-                CourseMenu.buildMenu(cache, site, session, logic, htm);
+                CourseMenu.buildMenu(data, site, session, logic, htm);
                 htm.sDiv("panelu");
 
                 final HtmlBuilder title = new HtmlBuilder(100);
@@ -111,17 +120,66 @@ enum PageSkillsReview {
                     title.add(courseStatus.getCourse().courseLabel, ": ");
                 }
 
-                PageOutline.doOutline(cache, siteType, site, session, logic, lessonCourse, mode,
+                PageOutline.doOutline(data, siteType, site, session, logic, lessonCourse, mode,
                         null, null, htm, course);
 
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
             }
         }
+    }
+
+    /**
+     * Checks whether the student has "credit" for a course from the perspective of testing prerequisites.
+     *
+     * @param studentData the student data object
+     * @param courseId    the course to test
+     * @return true if student has the course
+     * @throws SQLException if there was an error accessing the database
+     */
+    private static boolean hasCourseAsPrereq(final StudentData studentData,
+                                             final String courseId) throws SQLException {
+
+        boolean hasCourse = false;
+
+        // See if student has completed the course at any time in the past
+
+        final List<RawStcourse> complete = studentData.getCompletedRegistrations();
+        for (final RawStcourse test : complete) {
+            if (courseId.equals(test.course)) {
+                hasCourse = true;
+                break;
+            }
+        }
+
+        if (!hasCourse) {
+            // See if there are transfer credits satisfying the prerequisite
+            final List<RawFfrTrns> trans = studentData.getTransferCredit();
+            for (final RawFfrTrns test : trans) {
+                if (courseId.equals(test.course)) {
+                    hasCourse = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasCourse) {
+            // See if there is a placement result satisfying prerequisite
+            final List<RawMpeCredit> placeCred = studentData.getPlacementCredit();
+            for (final RawMpeCredit test : placeCred) {
+                if (courseId.equals(test.course)) {
+                    hasCourse = true;
+                    break;
+                }
+            }
+        }
+
+        return hasCourse;
     }
 }

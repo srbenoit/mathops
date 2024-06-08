@@ -2048,10 +2048,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 gradTerm = new TermKey(ETermName.SPRING, active.term.year.intValue() + 4);
             }
 
+            final LocalDate now = LocalDate.now();
             result = new RawStudent(studentId, null, lastName, "Sample", null, null, applicationTerm, null, null, null,
                     PROGRAM_CODES.get(studentId), null, gradTerm, null, null, null, null, null, null, null, null, null,
                     null, null, null, "N", null, null, null, "Y", null, null, "my_adviser@fake.colostate.edu", null,
-                    null, "N", null, LocalDate.now(), null, null);
+                    null, "N", null, now, null, null);
         }
 
         return result;
@@ -2106,14 +2107,13 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param firstName the first name
      * @return the student record
      */
-    public static RawStudent makeFakeStudent(final String studentId, final String lastName,
-                                             final String firstName) {
+    public static RawStudent makeFakeStudent(final String studentId, final String lastName, final String firstName) {
 
-        final RawStudent result = new RawStudent(studentId, null, lastName, firstName, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, "N", null, null, null, "Y",
-                null, null, null, null, null, "N",
-                RawPacingStructure.GUEST_PACING_STRUCTURE, LocalDate.now(), null, null);
+        final LocalDate now = LocalDate.now();
+        final RawStudent result = new RawStudent(studentId, null, lastName, firstName, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "N",
+                null, null, null, "Y", null, null, null, null, null, "N", RawPacingStructure.GUEST_PACING_STRUCTURE,
+                now, null, null);
 
         result.synthetic = true;
 

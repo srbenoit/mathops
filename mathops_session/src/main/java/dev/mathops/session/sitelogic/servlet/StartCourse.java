@@ -4,17 +4,17 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -40,29 +40,32 @@ public final class StartCourse extends LogicBase {
     /**
      * Performs the database tests and updates to mark a course as open.
      *
-     * @param cache        the data cache
+     * @param data         the web view data
      * @param now          the date/time to consider as "now"
-     * @param theStudentId the student ID
      * @param theCourse    the course
      * @return {@code true} if successful; {@code false} on any error
      * @throws SQLException if there was an error accessing the database
      */
-    public boolean startCourse(final Cache cache, final ZonedDateTime now, final String theStudentId,
+    public boolean startCourse(final WebViewData data, final ZonedDateTime now,
                                final String theCourse) throws SQLException {
 
-        if ("GUEST".equals(theStudentId) || "AACTUTOR".equals(theStudentId) || theStudentId.startsWith("99")) {
+        final SystemData systemData = data.getSystemData();
+        final StudentData studentData = data.getEffectiveUser();
+        final String studentId = studentData.getStudentId();
+
+        if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || studentId.startsWith("99")) {
             setErrorText("Guest logins may not start new courses");
             return false;
         }
 
-        final RawStudent stu = RawStudentLogic.query(cache, theStudentId, true);
+        final RawStudent stu = studentData.getStudentRecord();
         if (stu == null) {
             setErrorText("Unable to query student record");
             return false;
         }
 
         // Load the current active term
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = systemData.getActiveTerm();
         if (activeTerm == null) {
             setErrorText("Unable to query the current term.");
             return false;
@@ -70,11 +73,7 @@ public final class StartCourse extends LogicBase {
         final TermKey key = activeTerm.term;
 
         // Get all course sections the student has available
-        final List<RawStcourse> current = RawStcourseLogic.queryByStudent(cache, theStudentId, key, true, false);
-        if (current == null) {
-            setErrorText("Unable to look up course registrations.");
-            return false;
-        }
+        final List<RawStcourse> current = studentData.getActiveRegistrations(key);
 
         // From this list, extract all that are open & not completed, then set them to null to
         // avoid further consideration. Also, set any that are completed or open="N" to null to
@@ -86,7 +85,7 @@ public final class StartCourse extends LogicBase {
         // try to find the registration for the course the user wants to open
 
         for (final RawStcourse stc : current) {
-            final RawCsection csect = RawCsectionLogic.query(cache, stc.course, stc.sect, key);
+            final RawCsection csect = systemData.getCourseSection(stc.course, stc.sect, key);
 
             if (csect == null) {
                 continue;
@@ -114,8 +113,8 @@ public final class StartCourse extends LogicBase {
 
         // If the student record has no rule set, use the structure designated for the course.
         if (stu.pacingStructure == null) {
+            final RawCsection sect = systemData.getCourseSection(theCourse, stCourse.sect, key);
 
-            final RawCsection sect = RawCsectionLogic.query(cache, theCourse, stCourse.sect, key);
             if (sect == null) {
                 setErrorText("No data for course section.");
                 return false;
@@ -127,18 +126,21 @@ public final class StartCourse extends LogicBase {
                 final LocalDate start = sect.startDt;
 
                 if (today.isBefore(start)) {
-                    setErrorText("Course begins " + TemporalUtils.FMT_MDY.format(sect.startDt) + CoreConstants.DOT);
+                    final String dateStr = TemporalUtils.FMT_MDY.format(sect.startDt);
+                    setErrorText("Course begins " + dateStr + CoreConstants.DOT);
                     return false;
                 }
             }
 
             if (sect.pacingStructure != null) {
                 Log.info("Setting student pacing to ", sect.pacingStructure, " as student starts course ", theCourse);
+                final Cache cache = data.getCache();
                 RawStudentLogic.updatePacingStructure(cache, stu.stuId, sect.pacingStructure);
+                studentData.forgetPacingStructure();
             }
         }
 
-        final RawPacingStructure pacingStructure = RawPacingStructureLogic.query(cache, stu.pacingStructure);
+        final RawPacingStructure pacingStructure = studentData.getPacingStructure();
         if (pacingStructure == null) {
             setErrorText("Unable to look up rule set.");
             return false;
@@ -157,9 +159,11 @@ public final class StartCourse extends LogicBase {
 
         // TODO: Use exception student table to check for course
 
+        final Cache cache = data.getCache();
         if (RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, stCourse.stuId, stCourse.course, stCourse.sect,
                 stCourse.termKey, "Y", stCourse.finalClassRoll, stCourse.lastClassRollDt)) {
             stCourse.openStatus = "Y";
+            studentData.forgetRegistrations();
         }
 
         return "Y".equals(stCourse.openStatus);

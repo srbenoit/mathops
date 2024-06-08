@@ -2,8 +2,9 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -33,56 +34,60 @@ enum PageHome {
     /**
      * Generates the page with contact information.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param req         the request
-     * @param resp        the response
-     * @param session     the user's login session information
-     * @param logic       the course site logic
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @param logic   the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR,
-                null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, null, null, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
+                false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(studentData, site, session, logic, htm);
+        CourseMenu.buildMenu(data, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        emitContent(studentData, htm, session, logic);
+        final StudentData studentData = data.getEffectiveUser();
+        emitContent(data, htm, session, logic);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(studentData, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 
     /**
      * Generates page content.
      *
-     * @param studentData the student data object
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param session     the login session
-     * @param logic       the course site logic
+     * @param data    the web view data
+     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param session the login session
+     * @param logic   the course site logic
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitContent(final StudentData studentData, final HtmlBuilder htm,
+    private static void emitContent(final WebViewData data, final HtmlBuilder htm,
                                     final ImmutableSessionInfo session,
                                     final CourseSiteLogic logic) throws SQLException {
 
-        final String effectiveUserId = session.getEffectiveUserId();
+        final StudentData studentData = data.getEffectiveUser();
         final RawStudent student = studentData.getStudentRecord();
 
         // If there are fatal holds, go to the home page, which will show those
         if (student == null || "F".equals(student.sevAdminHold)) {
-            emitBodyText(studentData, session, htm, logic);
+            emitBodyText(data, session, htm, logic);
         } else {
             // If the pace order values are not valid, force the schedule page
             final List<RawStcourse> pacedReg = studentData.getPacedRegistrations();
@@ -105,7 +110,7 @@ enum PageHome {
             tempList.clear();
 
             if (filtered.isEmpty() || PageSchedule.sortPaceOrder(filtered)) {
-                emitBodyText(studentData, session, htm, logic);
+                emitBodyText(data, session, htm, logic);
             } else {
                 PageSchedule.doScheduleContent(studentData, logic, htm);
             }
@@ -115,13 +120,13 @@ enum PageHome {
     /**
      * Creates the home page HTML.
      *
-     * @param studentData the student data object
-     * @param session     the user's login session information
-     * @param htm         the {@code HtmlBuilder} to which to append the HTML
-     * @param logic       the course site logic
+     * @param data    the web view data
+     * @param session the user's login session information
+     * @param htm     the {@code HtmlBuilder} to which to append the HTML
+     * @param logic   the course site logic
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitBodyText(final StudentData studentData, final ImmutableSessionInfo session,
+    private static void emitBodyText(final WebViewData data, final ImmutableSessionInfo session,
                                      final HtmlBuilder htm, final CourseSiteLogic logic) throws SQLException {
 
         final String screenName = session.getEffectiveScreenName();
@@ -180,7 +185,10 @@ enum PageHome {
                     Page.emitFile(htm, "precalc_instr_home_pre_hours_all_stds.txt");
                 }
             }
-            AbstractPageSite.hours(studentData, htm, true, true);
+
+            final SystemData systemData = data.getSystemData();
+            AbstractPageSite.hours(systemData, htm, true, true);
+
             Page.emitFile(htm, "precalc_instr_home_post_hours.txt");
             Page.emitFile(htm, "precalc_instr_maintenance_window.txt");
         }

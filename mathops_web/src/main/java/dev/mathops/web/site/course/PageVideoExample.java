@@ -57,7 +57,8 @@ enum PageVideoExample {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startEmptyPage(htm, site.getTitle(), false);
+            final String title = site.getTitle();
+            Page.startEmptyPage(htm, title, false);
 
             if (id == null || dir == null) {
                 htm.sDiv("indent11");
@@ -66,28 +67,22 @@ enum PageVideoExample {
             } else {
                 htm.addln("<script>");
                 htm.addln(" function showReportError() {");
-                htm.addln("  document.getElementById('error_rpt_link')",
-                        ".className='hidden';");
-                htm.addln("  document.getElementById('error_rpt')",
-                        ".className='visible';");
+                htm.addln("  document.getElementById('error_rpt_link').className='hidden';");
+                htm.addln("  document.getElementById('error_rpt').className='visible';");
                 htm.addln(" }");
                 htm.addln("</script>");
 
                 htm.sDiv("indent11");
                 htm.addln("<video width='960' height='540' ",
                         "style='border:1px solid gray;' controls='controls' autoplay='autoplay'>");
-                htm.addln(" <source src='", STREAM, dir, "/mp4/",
-                        id, ".mp4' type='video/mp4'/>");
-                htm.addln(" <track src='", VTT, dir, "/vtt/",
-                        id, ".vtt' kind='subtitles' srclang='en' ",
-                        "label='English' default='default'/>");
+                htm.addln(" <source src='", STREAM, dir, "/mp4/", id, ".mp4' type='video/mp4'/>");
+                htm.addln(" <track src='", VTT, dir, "/vtt/", id,
+                        ".vtt' kind='subtitles' srclang='en' label='English' default='default'/>");
                 htm.addln(" Your browser does not support inline video.");
                 htm.addln("</video>");
 
-                htm.addln("<div><a href='/math/", dir,
-                        "/transcripts/", id, ".txt'>",
-                        "Access a plain-text transcript for screen-readers.", //
-                        "</a></div>");
+                htm.addln("<div><a href='/math/", dir, "/transcripts/", id, ".txt'>",
+                        "Access a plain-text transcript for screen-readers.</a></div>");
 
                 final String stuId = session == null ? "anon"
                         : session.getEffectiveUserId();
@@ -101,12 +96,9 @@ enum PageVideoExample {
                         "</a>").eDiv();
 
                 htm.sP();
-                htm.addln("<form class='hidden' id='error_rpt' ",
-                        "action='example_feedback.html' method='post'>");
-                htm.addln(" <input type='hidden' name='course' value='",
-                        course, "'/>");
-                htm.addln(" <input type='hidden' name='media' value='",
-                        id, "'/>");
+                htm.addln("<form class='hidden' id='error_rpt' action='example_feedback.html' method='post'>");
+                htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                htm.addln(" <input type='hidden' name='media' value='", id, "'/>");
                 htm.addln(" Please describe the error or recommend an improvement:<br/>");
                 htm.addln(" <textarea rows='5' cols='40' name='comments'>");
                 if (session != null && file.exists()) {
@@ -120,8 +112,8 @@ enum PageVideoExample {
 
             Page.endEmptyPage(htm, false);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -149,8 +141,7 @@ enum PageVideoExample {
             final HtmlBuilder htm = new HtmlBuilder(2000);
             Page.startEmptyPage(htm, site.getTitle(), false);
 
-            final File file = feedbackFile(courseId, mediaId,
-                    session == null ? "anon" : session.getEffectiveUserId());
+            final File file = feedbackFile(courseId, mediaId, session == null ? "anon" : session.getEffectiveUserId());
 
             try (final FileWriter wri = new FileWriter(file, StandardCharsets.UTF_8)) {
                 wri.write(req.getParameter("comments"));
@@ -164,8 +155,8 @@ enum PageVideoExample {
 
             Page.endEmptyPage(htm, false);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -184,7 +175,8 @@ enum PageVideoExample {
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                Log.warning("Failed to create feedback directory ", dir.getAbsolutePath());
+                final String absolutePath = dir.getAbsolutePath();
+                Log.warning("Failed to create feedback directory ", absolutePath);
             }
         }
 

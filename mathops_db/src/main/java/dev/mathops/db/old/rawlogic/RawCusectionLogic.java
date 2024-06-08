@@ -174,6 +174,33 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
     }
 
     /**
+     * Retrieves all cusection records in a specified term.
+     *
+     * @param cache   the data cache
+     * @param termKey the term key
+     * @return the list of all course section unit records found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawCusection> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("SELECT * FROM cusection",
+                " WHERE term=", sqlStringValue(termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+
+        final List<RawCusection> result = new ArrayList<>(10);
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.add(RawCusection.fromResultSet(rs));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Retrieves all cusection records for a particular course section.
      *
      * @param cache   the data cache

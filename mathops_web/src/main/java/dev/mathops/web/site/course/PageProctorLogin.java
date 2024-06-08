@@ -3,13 +3,15 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -23,7 +25,7 @@ enum PageProctorLogin {
     /**
      * Generates the home page.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -31,7 +33,7 @@ enum PageProctorLogin {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
@@ -53,10 +55,11 @@ enum PageProctorLogin {
 
             doPage(htm, session, course, exam, error);
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
@@ -89,7 +92,8 @@ enum PageProctorLogin {
 
         htm.sH(2).add("Proctored ", title).eH(2);
 
-        htm.sH(4).add("Logged-in Student: ", session.getEffectiveScreenName()).eH(4).br();
+        final String screenName = session.getEffectiveScreenName();
+        htm.sH(4).add("Logged-in Student: ", screenName).eH(4).br();
 
         htm.sP().add(" The authorized proctor or the ProctorU online proctor must enter a ",
                 "password here in order to access the online <b>", title, "</b>:").eP();
@@ -116,17 +120,14 @@ enum PageProctorLogin {
         htm.addln("       action='process_proctor_login.html' method='post'");
         htm.addln("       autocomplete='off')>");
         htm.sDiv("local_login_div");
-        htm.sDiv("password_label_div");
-        htm.addln(" <label class='password_label' for='", randomId, "'>Password:</label>");
+        htm.sDiv("password_label_div")
+                .addln(" <label class='password_label' for='", randomId, "'>Password:</label>").eDiv();
+        htm.sDiv("password_input_div")
+                .addln(" <input type='password' data-lpignore='true' autocomplete='new-password' id='", randomId,
+                        "' name='drowssap'/>").eDiv();
         htm.eDiv();
-        htm.sDiv("password_input_div");
-        htm.addln(" <input type='password' data-lpignore='true' autocomplete='new-password' id='", randomId,
-                "' name='drowssap'/>");
-        htm.eDiv();
-        htm.eDiv();
-        htm.sDiv("authenticate_form_submit_div");
-        htm.addln(" <input type='submit' id='submit_image' value='Continue'/>");
-        htm.eDiv();
+        htm.sDiv("authenticate_form_submit_div")
+                .addln(" <input type='submit' id='submit_image' value='Continue'/>").eDiv();
         htm.addln(" <input type='hidden' name='course' id='course' value='", course, "'/>");
         htm.addln(" <input type='hidden' name='exam' id='exam' value='", exam, "'/>");
         htm.addln("   </form>");

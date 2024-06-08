@@ -4,6 +4,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -36,16 +38,16 @@ enum PageCourseStatus {
     /**
      * Starts the page that shows the course outline with student progress.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param req         the request
-     * @param resp        the response
-     * @param session     the user's login session information
-     * @param logic       the course site logic
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @param logic   the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final StudentData studentData, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -54,47 +56,50 @@ enum PageCourseStatus {
         if (AbstractSite.isParamInvalid(course)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
-            PageError.doGet(studentData, site, req, resp, session, "No course ID provided for status display");
+            PageError.doGet(data, site, req, resp, session, "No course ID provided for status display");
         } else if (course == null) {
-            PageError.doGet(studentData, site, req, resp, session, "No course ID provided for status display");
+            PageError.doGet(data, site, req, resp, session, "No course ID provided for status display");
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
             Page.startOrdinaryPage(htm, site.getTitle(), session, false,
                     Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(studentData, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            doStatus(studentData, site, session, logic, course, htm);
+            doStatus(data, site, session, logic, course, htm);
 
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(studentData, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Creates the HTML status page.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param session     the user's login session information
-     * @param logic       the course site logic
-     * @param courseId    the course for which to generate the status page
-     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param data     the web view data
+     * @param site     the owning site
+     * @param session  the user's login session information
+     * @param logic    the course site logic
+     * @param courseId the course for which to generate the status page
+     * @param htm      the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doStatus(final StudentData studentData, final CourseSite site,
+    private static void doStatus(final WebViewData data, final CourseSite site,
                                  final ImmutableSessionInfo session, final CourseSiteLogic logic, final String courseId,
                                  final HtmlBuilder htm) throws SQLException {
 
         final String userId = session.getEffectiveUserId();
         final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+
+        final StudentData studentData = data.getEffectiveUser();
 
         if (courseStatus.gatherData(studentData, session, userId, courseId, false, false)
                 && courseStatus.getCourse().courseName != null) {

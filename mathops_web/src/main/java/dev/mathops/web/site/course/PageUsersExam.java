@@ -3,14 +3,14 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawUsersLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawCusection;
+import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawUsers;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -21,9 +21,11 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -35,7 +37,7 @@ enum PageUsersExam {
     /**
      * Generates a page with student User's exam status and button to launch exam if appropriate.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -44,44 +46,46 @@ enum PageUsersExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, null, null,
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, null, null,
                 Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
         htm.sDiv("menupanelu");
-        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        CourseMenu.buildMenu(data, site, session, logic, htm);
         htm.sDiv("panelu");
 
-        doPageContent(cache, site, htm, session);
+        doPageContent(data, htm, session);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        final SystemData systemData = data.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 
     /**
      * Generates the page content.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param htm     the HMTL builder to which to append
+     * @param data    the web view data
+     * @param htm     the HTML builder to which to append
      * @param session the user's login session information
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doPageContent(final Cache cache, final CourseSite site, final HtmlBuilder htm,
+    private static void doPageContent(final WebViewData data, final HtmlBuilder htm,
                                       final ImmutableSessionInfo session) throws SQLException {
 
-        final StudentInfo info = new StudentInfo(site.getDbProfile());
-
+        final StudentData studentData = data.getEffectiveUser();
+        final RawStudent student = studentData.getStudentRecord();
+        final boolean isLicensed = student != null && "Y".equals(student.licensed);
         final String stuId = session.getEffectiveUserId();
-        info.gatherData(cache, stuId);
 
         htm.sH(2).add("<img style='width:40px;height:40px;vertical-align:middle;' ",
                 "src='/images/users_exam.png'/> &nbsp; User's Exam").eH(2);
@@ -91,13 +95,16 @@ enum PageUsersExam {
 
         htm.sDiv("indent11");
 
-        if (info.isRequireLicensed()) {
+        final RawPacingStructure pacingStructure = studentData.getPacingStructure();
+
+        if (pacingStructure == null || "Y".equals(pacingStructure.requireLicensed)) {
+
             htm.div("vgap");
             htm.sP().add("The User's Exam covers the course policies and rules explained in the ",
                     "<a href='https://www.math.colostate.edu/Precalc/Precalc-Student-Guide.pdf' ",
                     "class='ulink' target='_blank'>Student Guide</a>.").eP();
 
-            if (info.isLicensed()) {
+            if (isLicensed) {
                 htm.hr().sP("indent").add("You have passed the User's Exam.").eP();
             } else {
                 htm.sP().add("You must take and pass the User's Exam before you can begin work in ",
@@ -106,25 +113,28 @@ enum PageUsersExam {
                 htm.sDiv("indent");
                 htm.sP().add("You have not yet passed the User's Exam.").eP();
 
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
-                final RawCusection cusection = RawCusectionLogic.query(cache, //
-                        RawRecordConstants.M100U, "1", Integer.valueOf(1), active.term);
+                final SystemData systemData = data.getSystemData();
+
+                final TermRec active = systemData.getActiveTerm();
+                final RawCusection cusection = systemData.getCourseUnitSection(RawRecordConstants.M100U,
+                        Integer.valueOf(1), "1", active.term);
+
                 final boolean avail;
                 if (cusection == null) {
                     htm.eP();
                     htm.sP().add("Information on User's Exam not found.");
                     avail = false;
-                } else if ((cusection.firstTestDt == null)
-                        || !cusection.firstTestDt.isAfter(session.getNow().toLocalDate())) {
-                    avail = true;
                 } else {
-                    if (RawSpecialStusLogic.isSpecialType(cache, stuId,
-                            session.getNow().toLocalDate(), "STEVE", "ADMIN", "TUTOR")) {
+                    final LocalDate today = session.getNow().toLocalDate();
+
+                    if (cusection.firstTestDt == null || !cusection.firstTestDt.isAfter(today)) {
+                        avail = true;
+                    } else if (studentData.isSpecialCategory(today, "STEVE", "ADMIN", "TUTOR")) {
                         avail = true;
                     } else {
                         htm.eP();
-                        htm.sP().add("The User's Exam will be available ",
-                                TemporalUtils.FMT_WMD_LONG.format(cusection.firstTestDt), CoreConstants.DOT);
+                        final String dateStr = TemporalUtils.FMT_WMD_LONG.format(cusection.firstTestDt);
+                        htm.sP().add("The User's Exam will be available ", dateStr, CoreConstants.DOT);
                         avail = false;
                     }
                 }
@@ -140,27 +150,26 @@ enum PageUsersExam {
                 htm.eP();
                 htm.eDiv(); // indent
             }
-        } else if (info.isLicensed()) {
-            htm.sP("indent")
-                    .add("You have passed the User's Exam.").eP();
+        } else if (isLicensed) {
+            htm.sP("indent").add("You have passed the User's Exam.").eP();
         } else {
             htm.sP().add("You are not required to take the Users Exam before working in Precalculus courses.").eP();
         }
 
-        final List<RawUsers> exams =
-                RawUsersLogic.queryByStudent(cache, session.getEffectiveUserId());
+        final List<RawUsers> exams = studentData.getUsersExams();
 
         for (final RawUsers exam : exams) {
-            final String path = ExamWriter.makeWebExamPath(exam.termKey.shortString,
-                    session.getEffectiveUserId(), exam.serialNbr.longValue());
+            final long serialValue = exam.serialNbr.longValue();
+            final String path = ExamWriter.makeWebExamPath(exam.termKey.shortString, stuId, serialValue);
 
             htm.sDiv("indent");
 
+            final String label = exam.getExamLabel();
             htm.addln(" <a href='see_past_exam.html?",
                     "exam=", exam.version,
                     "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
                     "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
-                    "'>View the ", exam.getExamLabel(), "</a>");
+                    "'>View the ", label, "</a>");
 
             htm.eDiv();
         }
