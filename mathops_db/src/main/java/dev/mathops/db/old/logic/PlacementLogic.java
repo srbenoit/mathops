@@ -3,6 +3,7 @@ package dev.mathops.db.old.logic;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -253,7 +254,8 @@ public class PlacementLogic {
         // For each remote MPE record, create a date range and add to list.
         if (this.applicationTerm != null) {
             boolean hasFutureRemote = false;
-            final List<RawRemoteMpe> windows = studentData.getRemotePlacementWindowsForCourse(RawRecordConstants.M100P);
+            final SystemData systemData = studentData.getSystemData();
+            final List<RawRemoteMpe> windows = systemData.getRemotePlacementWindowsForCourse(RawRecordConstants.M100P);
 
             for (final RawRemoteMpe rec : windows) {
                 if (this.applicationTerm.equals(rec.aplnTerm)) {

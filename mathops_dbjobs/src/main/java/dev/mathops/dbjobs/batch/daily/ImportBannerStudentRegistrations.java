@@ -9,6 +9,7 @@ import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -1078,7 +1079,8 @@ public final class ImportBannerStudentRegistrations {
         if ("888".equals(bannerReg.sect)) {
             placedByExam = "A";
         } else {
-            final StudentData studentData = new StudentData(cache, bannerReg.stuId, ELiveRefreshes.NONE);
+            final SystemData systemData = new SystemData(cache);
+            final StudentData studentData = new StudentData(cache, systemData, bannerReg.stuId, ELiveRefreshes.NONE);
 
             final PrerequisiteLogic logic = new PrerequisiteLogic(studentData);
             if (logic.hasSatisfiedPrereqsFor(bannerReg.course)) {

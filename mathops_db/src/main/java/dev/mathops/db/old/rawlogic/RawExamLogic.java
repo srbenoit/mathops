@@ -198,7 +198,8 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
     public static RawExam query(final Cache cache, final String version) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM exam WHERE version=", sqlStringValue(version));
+                "SELECT * FROM exam WHERE version=", sqlStringValue(version),
+                " AND pull_dt IS NULL");
 
         return doSingleQuery(cache, sql);
     }

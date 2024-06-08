@@ -4,14 +4,11 @@ import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -50,6 +47,9 @@ public class HtmlSessionBase {
     /** The student data. */
     private StudentData studentData;
 
+    /** The student record. */
+    private RawStudent student;
+
     /** URL to which to redirect at the end of the assignment. */
     public final String redirectOnEnd;
 
@@ -74,16 +74,15 @@ public class HtmlSessionBase {
     /**
      * Constructs a new {@code HtmlSessionBase}.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the website profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theExamId        the ID of the exam
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    protected HtmlSessionBase(final Cache cache, final WebSiteProfile theSiteProfile,
-                              final String theSessionId, final String theStudentId, final String theExamId,
+    protected HtmlSessionBase(final StudentData theStudentData, final WebSiteProfile theSiteProfile,
+                              final String theSessionId, final String theExamId,
                               final String theRedirectOnEnd) throws SQLException {
 
         if (theSiteProfile == null) {
@@ -92,7 +91,7 @@ public class HtmlSessionBase {
         if (theSessionId == null) {
             throw new IllegalArgumentException("Session ID may not be null");
         }
-        if (theStudentId == null) {
+        if (theStudentData == null) {
             throw new IllegalArgumentException("Student ID may not be null");
         }
         if (theExamId == null) {
@@ -113,8 +112,13 @@ public class HtmlSessionBase {
 
         this.writer = new ExamWriter();
 
-        this.studentData = loadStudentInfo(cache, theStudentId);
-        this.active =  this.studentData.getSystemData().getActiveTerm();
+        this.studentData = theStudentData;
+        this.student = theStudentData.getStudentRecord();
+        if (this.student == null) {
+            throw new SQLException("Student not found");
+        }
+
+        this.active = theStudentData.getSystemData().getActiveTerm();
     }
 
     /**
@@ -193,6 +197,16 @@ public class HtmlSessionBase {
     }
 
     /**
+     * Gets the student record.
+     *
+     * @return the student record
+     */
+    public final RawStudent getStudent() {
+
+        return this.student;
+    }
+
+    /**
      * Writes a line to a log file for the exam.
      *
      * @param message the message to log
@@ -262,13 +276,11 @@ public class HtmlSessionBase {
     /**
      * Writes a recovery file for the exam to the student exam directory.
      *
-     * @param cache the data cache
      * @throws SQLException if there is an error accessing the database
      */
-    public final void writeExamRecovery(final Cache cache) throws SQLException {
+    public final void writeExamRecovery() throws SQLException {
 
-        if (this.exam != null && this.active != null && loadStudentInfo(cache) == null) {
-
+        if (this.exam != null && this.active != null) {
             Log.info("Writing updated exam state");
             final Object[][] answers = this.exam.exportState();
 
@@ -276,30 +288,6 @@ public class HtmlSessionBase {
             final String studentId = this.studentData.getStudentId();
             this.writer.writeUpdatedExam(studentId, this.active, answers, true);
         }
-    }
-
-    /**
-     * Load the student information (if it has not already been loaded).
-     *
-     * @param cache        the data cache
-     * @param theStudentId the student ID
-     * @return the student data object
-     * @throws SQLException if there is an error accessing the database
-     */
-    protected final StudentData loadStudentInfo(final Cache cache, final String theStudentId) throws SQLException {
-
-        final SystemData systemData = new SystemData(cache);
-
-        StudentData data;
-
-        if ("GUEST".equals(theStudentId) || "AACTUTOR".equals(theStudentId) || "ETEXT".equals(theStudentId)) {
-            final RawStudent student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
-            data = new StudentData(cache, systemData, student);
-        } else {
-            data = new StudentData(cache, systemData, theStudentId, ELiveRefreshes.IF_MISSING);
-        }
-
-        return data;
     }
 
     /**

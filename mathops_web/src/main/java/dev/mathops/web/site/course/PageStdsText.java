@@ -4,8 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -21,6 +22,7 @@ import dev.mathops.web.site.course.data.ModuleData;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -47,19 +49,13 @@ enum PageStdsText {
     /** A commonly used string. */
     private static final String OPEN = "Open";
 
-    /** A commonly used string. */
-    private static final String EPLOR_1 = "Explorations 1";
-
-    /** A commonly used string. */
-    private static final String EPLOR_2 = "Explorations 2";
-
     /** A commonly used div class. */
     private static final String CLEAR = "clear";
 
     /**
      * Starts the page that shows the course outline with student progress.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -68,7 +64,7 @@ enum PageStdsText {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void doGet(final WebViewData data, final CourseSite site, final ServletRequest req,
                       final HttpServletResponse resp, final ImmutableSessionInfo session,
                       final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -79,15 +75,14 @@ enum PageStdsText {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  mode='", mode, "'");
-            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else if (course == null || mode == null) {
-            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else {
             final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
-
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
             final String siteTitle = site.getTitle();
@@ -95,7 +90,7 @@ enum PageStdsText {
                     true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             final RawStcourse reg = logic.data.registrationData.getRegistration(course);
@@ -104,7 +99,7 @@ enum PageStdsText {
             } else {
                 final ZonedDateTime now = session.getNow();
                 final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
-                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
+                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(data, pace, paceTrack, reg, isTutor);
 
                 if (RawRecordConstants.MATH125.equals(course)) {
                     showCourseText(session, Math125.MATH_125, logic, masteryStatus, mode, htm);
@@ -119,7 +114,8 @@ enum PageStdsText {
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
             final String htmStr = htm.toString();
             final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);

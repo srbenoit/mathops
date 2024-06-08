@@ -3,6 +3,8 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -13,6 +15,8 @@ import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.CourseSiteLogicCourse;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 /**
  * A menu that lists the courses a user is registered for, along with links to manage e-texts, and view a recommended
@@ -25,14 +29,14 @@ enum CourseMenu {
      * Builds the menu based on the current logged-in user session and appends its HTML representation to an
      * {@code HtmlBuilder}.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param session     the session
-     * @param logic       the site logic
-     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param session the session
+     * @param logic   the site logic
+     * @param htm     the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    public static void buildMenu(final StudentData studentData, final CourseSite site,
+    public static void buildMenu(final WebViewData data, final CourseSite site,
                                  final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                  final HtmlBuilder htm) throws SQLException {
 
@@ -40,9 +44,10 @@ enum CourseMenu {
         htm.sDiv("menubox");
 
         if (logic.isError()) {
-            htm.sSpan("red").add(logic.getError()).eSpan();
+            final String error = logic.getError();
+            htm.sSpan("red").add(error).eSpan();
         } else {
-            buildMenuContent(studentData, site, session, logic, htm);
+            buildMenuContent(data, site, session, logic, htm);
         }
 
         htm.eDiv();
@@ -52,19 +57,21 @@ enum CourseMenu {
     /**
      * Builds the menu once available courses have been determined.
      *
-     * @param studentData the student data object
-     * @param site        the owning site
-     * @param session     the session
-     * @param logic       the site logic
-     * @param htm         the {@code HtmlBuilder} to which to append the HTML
+     * @param data    the web view data
+     * @param site    the owning site
+     * @param session the session
+     * @param logic   the site logic
+     * @param htm     the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void buildMenuContent(final StudentData studentData, final CourseSite site,
-                                         final ImmutableSessionInfo session,
-                                         final CourseSiteLogic logic, final HtmlBuilder htm) throws SQLException {
+    private static void buildMenuContent(final WebViewData data, final CourseSite site,
+                                         final ImmutableSessionInfo session, final CourseSiteLogic logic,
+                                         final HtmlBuilder htm) throws SQLException {
+
+        final ZonedDateTime now = session.getNow();
 
         final boolean isTutor = "AACTUTOR".equals(session.getEffectiveUserId())
-                || logic.data.studentData.isSpecialType(session.getNow(), "TUTOR");
+                || logic.data.studentData.isSpecialType(now, "TUTOR");
         final boolean isAdmin = session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR);
 
         final int numLockouts = logic.data.studentData.getNumLockouts();
@@ -95,8 +102,8 @@ enum CourseMenu {
             htm.sDiv("courses");
 
             // Display courses for the current term
-
-            final TermRec activeTerm = studentData.getActiveTerm();
+            final SystemData systemData = data.getSystemData();
+            final TermRec activeTerm = systemData.getActiveTerm();
 
             htm.sH(1, "menufirst");
             htm.add(activeTerm.term.longString, " Courses");
@@ -105,11 +112,12 @@ enum CourseMenu {
 
             htm.sDiv(null, "style='text-align:left;'");
 
-            final String studentId = session.getEffectiveUserId();
+            final StudentData studentData = data.getEffectiveUser();
 
             final PrerequisiteLogic pl = new PrerequisiteLogic(studentData);
-            final PrecalcTutorialStatus tstat = new PrecalcTutorialLogic(studentData, session.getNow().toLocalDate(),
-                    pl).status;
+            final LocalDate today = now.toLocalDate();
+
+            final PrecalcTutorialStatus tstat = new PrecalcTutorialLogic(studentData, today, pl).status;
 
             final boolean lockTut = tstat.webSiteAvailability == null || tstat.webSiteAvailability.current == null;
 
@@ -160,7 +168,7 @@ enum CourseMenu {
             if (!isTutor && !isAdmin) {
                 if (!courses.availableCourses.isEmpty()) {
                     htm.addln("<h2 class='menu'>Available To Start:</h2>");
-                    emitStartCourses(site, courses.availableCourses, htm);
+                    emitStartCourses(courses.availableCourses, htm);
                     htm.div("vgap0");
                 }
 
@@ -280,7 +288,7 @@ enum CourseMenu {
 
             if (count2 > 0) {
                 htm.addln("<h2 class='menu'>Available To Start:</h2>");
-                emitStartCourses(site, courses.availableIncCourses, htm);
+                emitStartCourses(courses.availableIncCourses, htm);
                 htm.div("vgap0");
             }
 
@@ -326,12 +334,10 @@ enum CourseMenu {
     /**
      * Emits a menu item allowing the user to start a course.
      *
-     * @param site the owning site
      * @param list the list of courses
      * @param htm  the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void emitStartCourses(final CourseSite site, final Iterable<CourseInfo> list,
-                                         final HtmlBuilder htm) {
+    private static void emitStartCourses(final Iterable<CourseInfo> list, final HtmlBuilder htm) {
 
         for (final CourseInfo courseInfo : list) {
             htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='start_course.html?course=",

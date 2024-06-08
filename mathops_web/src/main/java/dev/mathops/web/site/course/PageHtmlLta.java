@@ -2,7 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractSite;
@@ -26,7 +27,7 @@ enum PageHtmlLta {
     /**
      * Starts a new learning target assignment and presents its HTML representation.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -35,7 +36,7 @@ enum PageHtmlLta {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void startLta(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void startLta(final WebViewData data, final CourseSite site, final ServletRequest req,
                          final HttpServletResponse resp, final ImmutableSessionInfo session,
                          final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -77,7 +78,7 @@ enum PageHtmlLta {
                     true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.sDiv("nav");
@@ -114,10 +115,10 @@ enum PageHtmlLta {
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            final String htmString = htm.toString();
-            final byte[] bytes = htmString.getBytes(StandardCharsets.UTF_8);
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
@@ -125,7 +126,7 @@ enum PageHtmlLta {
     /**
      * Handles a POST request.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -134,7 +135,7 @@ enum PageHtmlLta {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateLta(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void updateLta(final WebViewData data, final CourseSite site, final ServletRequest req,
                           final HttpServletResponse resp, final ImmutableSessionInfo session,
                           final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -164,7 +165,7 @@ enum PageHtmlLta {
                     false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.sDiv("nav");
@@ -205,9 +206,11 @@ enum PageHtmlLta {
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             } else {
                 resp.sendRedirect(redirect);
             }

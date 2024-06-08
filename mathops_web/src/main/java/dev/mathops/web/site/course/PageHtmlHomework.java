@@ -2,7 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -13,6 +14,7 @@ import dev.mathops.web.site.html.hw.HomeworkSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -27,7 +29,7 @@ enum PageHtmlHomework {
     /**
      * Starts the page that shows a lesson with student progress.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -36,7 +38,7 @@ enum PageHtmlHomework {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void startHomework(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void startHomework(final WebViewData data, final CourseSite site, final ServletRequest req,
                               final HttpServletResponse resp, final ImmutableSessionInfo session,
                               final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -89,7 +91,7 @@ enum PageHtmlHomework {
                     true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.sDiv("nav");
@@ -132,10 +134,10 @@ enum PageHtmlHomework {
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            final String htmString = htm.toString();
-            final byte[] bytes = htmString.getBytes(StandardCharsets.UTF_8);
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
@@ -143,7 +145,7 @@ enum PageHtmlHomework {
     /**
      * Handles a POST request.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -152,7 +154,7 @@ enum PageHtmlHomework {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateHomework(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void updateHomework(final WebViewData data, final CourseSite site, final ServletRequest req,
                                final HttpServletResponse resp, final ImmutableSessionInfo session,
                                final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -183,7 +185,7 @@ enum PageHtmlHomework {
                     Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.sDiv("nav");
@@ -237,10 +239,11 @@ enum PageHtmlHomework {
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             } else {
                 resp.sendRedirect(redirect);
             }

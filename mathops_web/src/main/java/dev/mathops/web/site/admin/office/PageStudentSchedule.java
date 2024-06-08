@@ -7,6 +7,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -105,8 +106,8 @@ enum PageStudentSchedule {
 
         final HtmlBuilder htm = OfficePage.startOfficePage(studentData, site, session, true);
 
-        htm.sP("studentname")
-                .add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>", student.stuId,
+        final String screenName = student.getScreenName();
+        htm.sP("studentname").add("<strong>", screenName, "</strong> &nbsp; <strong><code>", student.stuId,
                         "</code></strong>").eP();
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
@@ -143,8 +144,11 @@ enum PageStudentSchedule {
             htm.eDiv(); // detail
         }
 
-        Page.endOrdinaryPage(studentData, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final SystemData systemData = studentData.getSystemData();
+        Page.endOrdinaryPage(systemData, site, htm, true);
+
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -167,13 +171,15 @@ enum PageStudentSchedule {
         final LiveSessionInfo live =
                 new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "none", ERole.STUDENT);
 
-        live.setUserInfo(student.stuId, student.firstName, student.lastName, student.getScreenName());
+        final String screenName = student.getScreenName();
+        live.setUserInfo(student.stuId, student.firstName, student.lastName, screenName);
 
         final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
         if (data.load(session)) {
             emitStudentSchedule(studentData, data, student.stuId, htm);
         } else {
-            htm.sP("red").addln("Failed to load student data: ", data.getError()).eP();
+            final String error = data.getError();
+            htm.sP("red").addln("Failed to load student data: ", error).eP();
         }
     }
 

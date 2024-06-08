@@ -707,8 +707,7 @@ public final class SiteDataRegistration {
                 paceReg.add(stcourse);
             } else if (stcourse.paceOrder != null) {
                 // Does not count toward pace, so make sure it has no pace order
-                Log.info("loadPaceRegistrations setting " + stcourse.course
-                        + " pace order to null for " + stcourse.stuId);
+                Log.info("loadPaceRegistrations setting ", stcourse.course, " pace order to null for ", stcourse.stuId);
                 updatePaceOrder(cache, stcourse, null);
                 this.registrations.set(i, stcourse);
             }

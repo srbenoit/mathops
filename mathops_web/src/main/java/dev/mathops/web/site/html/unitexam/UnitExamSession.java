@@ -37,27 +37,22 @@ import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
-import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
@@ -87,6 +82,7 @@ import dev.mathops.web.site.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
 
 import jakarta.servlet.ServletRequest;
+
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -142,20 +138,19 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Constructs a new {@code UnitExamSession}. This is called when the user clicks a button to start a unit exam. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theCourseId      the course ID
      * @param theExamId        the exam ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public UnitExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                           final String theSessionId, final String theStudentId, final String theCourseId,
-                           final String theExamId, final String theRedirectOnEnd) throws SQLException {
+    public UnitExamSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile,
+                           final String theSessionId, final String theCourseId, final String theExamId,
+                           final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.courseId = theCourseId;
         this.state = EUnitExamState.INITIAL;
@@ -168,31 +163,29 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Constructs a new {@code UnitExamSession}. This is called when the user clicks a button to start a review exam. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache                   the data cache
-     * @param theSiteProfile          the context
-     * @param theSessionId            the session ID
-     * @param theStudentId            the student ID
-     * @param theExamId               the exam ID being worked on
-     * @param theRedirectOnEnd        the URL to which to redirect at the end of the exam
-     * @param theState                the session state
-     * @param theScore                the score
-     * @param theMastery              the mastery score
-     * @param theStarted              true if exam has been started
-     * @param theItem                 the current item
-     * @param theTimeout              the timeout
+     * @param theStudentData       the student data object
+     * @param theSiteProfile       the context
+     * @param theSessionId         the session ID
+     * @param theExamId            the exam ID being worked on
+     * @param theRedirectOnEnd     the URL to which to redirect at the end of the exam
+     * @param theState             the session state
+     * @param theScore             the score
+     * @param theMastery           the mastery score
+     * @param theStarted           true if exam has been started
+     * @param theItem              the current item
+     * @param theTimeout           the timeout
      * @param theStartInstructTime the time instructions were first viewed
-     * @param theExam                 the exam
-     * @param theError                the grading error
+     * @param theExam              the exam
+     * @param theError             the grading error
      * @throws SQLException if there is an error accessing the database
      */
-    UnitExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                    final String theSessionId, final String theStudentId, final String theExamId,
-                    final String theRedirectOnEnd, final EUnitExamState theState, final Integer theScore,
-                    final Integer theMastery, final boolean theStarted, final int theItem,
+    UnitExamSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile, final String theSessionId,
+                    final String theExamId, final String theRedirectOnEnd, final EUnitExamState theState,
+                    final Integer theScore, final Integer theMastery, final boolean theStarted, final int theItem,
                     final long theTimeout, final long theStartInstructTime, final ExamObj theExam,
                     final String theError) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.score = theScore;
@@ -203,8 +196,6 @@ public final class UnitExamSession extends HtmlSessionBase {
         this.startInstructionsTime = theStartInstructTime;
         setExam(theExam);
         this.gradingError = theError;
-
-        loadStudentInfo(cache);
     }
 
     /**
@@ -289,17 +280,15 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Generates HTML for the exam based on its current state.
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    public void generateHtml(final Cache cache, final ImmutableSessionInfo session,
-                             final HtmlBuilder htm) throws SQLException {
+    public void generateHtml(final ImmutableSessionInfo session, final HtmlBuilder htm) throws SQLException {
 
         switch (this.state) {
             case INITIAL:
-                doInitial(cache, session, htm);
+                doInitial(session, htm);
                 break;
 
             case INSTRUCTIONS:
@@ -335,20 +324,22 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Processes a request for the page while in the INITIAL state, which generates the assignment, then sends its
      * HTML.
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void doInitial(final Cache cache, final ImmutableSessionInfo session,
-                           final HtmlBuilder htm) throws SQLException {
+    private void doInitial(final ImmutableSessionInfo session, final HtmlBuilder htm) throws SQLException {
 
-        String error;
+        String error = null;
+
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+        final String studentId = studentData.getStudentId();
 
         // Look up the exam and store it in an AvailableExam object.
         final AvailableExam avail = new AvailableExam();
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             error = "No exam found with the requested version";
@@ -357,195 +348,194 @@ public final class UnitExamSession extends HtmlSessionBase {
 
             if ("U".equals(type) || "F".equals(type)) {
 
-                error = loadStudentInfo(cache);
-                if (error == null) {
-                    LogBase.setSessionInfo("TXN", this.studentId);
+                LogBase.setSessionInfo("TXN", studentId);
 
-                    // We need to verify the exam and fill in the remaining fields in AvailableExam
-                    final HtmlBuilder reasons = new HtmlBuilder(100);
-                    final List<RawAdminHold> holds = new ArrayList<>(1);
+                // We need to verify the exam and fill in the remaining fields in AvailableExam
+                final HtmlBuilder reasons = new HtmlBuilder(100);
+                final List<RawAdminHold> holds = new ArrayList<>(1);
 
-                    boolean eligible = false;
-                    String section = null;
-                    if ("U".equals(type)) {
+                final Cache cache = studentData.getCache();
 
-                        if (RawRecordConstants.M1170.equals(this.courseId)
-                                || RawRecordConstants.M1180.equals(this.courseId)
-                                || RawRecordConstants.M1240.equals(this.courseId)
-                                || RawRecordConstants.M1250.equals(this.courseId)
-                                || RawRecordConstants.M1260.equals(this.courseId)) {
+                boolean eligible = false;
+                String section = null;
+                if ("U".equals(type)) {
 
-                            final EEligibility elig = PrecalcExamEligibility.isEligible(cache,
-                                    session.getEffectiveUserId(), this.courseId);
+                    if (RawRecordConstants.M1170.equals(this.courseId)
+                            || RawRecordConstants.M1180.equals(this.courseId)
+                            || RawRecordConstants.M1240.equals(this.courseId)
+                            || RawRecordConstants.M1250.equals(this.courseId)
+                            || RawRecordConstants.M1260.equals(this.courseId)) {
 
-                            if (elig == EEligibility.ELIGIBLE) {
-                                eligible = true;
-                            } else if (elig == EEligibility.INELIGIBLE_RE4_NOT_PASSED) {
-                                reasons.add("Unit 4 Review exam has not been passed");
-                            } else if (elig == EEligibility.INELIGIBLE_MUST_REPASS_RE4) {
-                                reasons.add("Unit 4 Review exam must be re-passed to earn two more attempts");
-                            } else if (elig == EEligibility.ELIGIBLE_BUT_ALREADY_PASSED) {
-                                reasons.add("This exam has already been passed - there is no need to retake the exam");
-                            } else {
-                                reasons.add("You are not currently eligible for this exam");
-                            }
+                        final EEligibility elig = PrecalcExamEligibility.isEligible(cache,
+                                session.getEffectiveUserId(), this.courseId);
 
+                        if (elig == EEligibility.ELIGIBLE) {
+                            eligible = true;
+                        } else if (elig == EEligibility.INELIGIBLE_RE4_NOT_PASSED) {
+                            reasons.add("Unit 4 Review exam has not been passed");
+                        } else if (elig == EEligibility.INELIGIBLE_MUST_REPASS_RE4) {
+                            reasons.add("Unit 4 Review exam must be re-passed to earn two more attempts");
+                        } else if (elig == EEligibility.ELIGIBLE_BUT_ALREADY_PASSED) {
+                            reasons.add("This exam has already been passed - there is no need to retake the exam");
                         } else {
-                            final UnitExamEligibilityTester examtest = new UnitExamEligibilityTester(this.studentId);
-
-                            final UnitExamAvailability unitAvail =
-                                    new UnitExamAvailability(avail.exam.course, avail.exam.unit);
-
-                            eligible = examtest.isExamEligible(cache, session, unitAvail, reasons, null);
-
-                            if (examtest.getCourseSection() != null) {
-                                section = examtest.getCourseSection().sect;
-                            }
+                            reasons.add("You are not currently eligible for this exam");
                         }
-                    } else {
-                        final ExamEligibilityTester examtest = new ExamEligibilityTester(this.studentId);
 
-                        eligible = examtest.isExamEligible(cache, session.getNow(), avail, reasons, holds, true);
+                    } else {
+                        final UnitExamEligibilityTester examtest = new UnitExamEligibilityTester(studentId);
+
+                        final UnitExamAvailability unitAvail =
+                                new UnitExamAvailability(avail.exam.course, avail.exam.unit);
+
+                        eligible = examtest.isExamEligible(cache, session, unitAvail, reasons, null);
 
                         if (examtest.getCourseSection() != null) {
                             section = examtest.getCourseSection().sect;
                         }
                     }
+                } else {
+                    final ExamEligibilityTester examtest = new ExamEligibilityTester(studentId);
 
-                    if (eligible) {
-                        // Generate a serial number for the exam
-                        final long serial = AbstractHandlerBase.generateSerialNumber(false);
+                    eligible = examtest.isExamEligible(cache, session.getNow(), avail, reasons, holds, true);
 
-                        final GetExamReply reply = new GetExamReply();
-                        reply.status = GetExamReply.SUCCESS;
+                    if (examtest.getCourseSection() != null) {
+                        section = examtest.getCourseSection().sect;
+                    }
+                }
 
-                        final boolean isCourseExam = RawRecordConstants.M117.equals(this.courseId)
-                                || RawRecordConstants.M118.equals(this.courseId)
-                                || RawRecordConstants.M124.equals(this.courseId)
-                                || RawRecordConstants.M125.equals(this.courseId)
-                                || RawRecordConstants.M126.equals(this.courseId)
-                                || RawRecordConstants.MATH117.equals(this.courseId)
-                                || RawRecordConstants.MATH118.equals(this.courseId)
-                                || RawRecordConstants.MATH124.equals(this.courseId)
-                                || RawRecordConstants.MATH125.equals(this.courseId)
-                                || RawRecordConstants.MATH126.equals(this.courseId);
+                if (eligible) {
+                    // Generate a serial number for the exam
+                    final long serial = AbstractHandlerBase.generateSerialNumber(false);
 
-                        buildPresentedExam(cache, avail.exam.treeRef, serial, reply, this.active, isCourseExam);
+                    final GetExamReply reply = new GetExamReply();
+                    reply.status = GetExamReply.SUCCESS;
 
-                        final DocColumn newInstr = new DocColumn();
-                        newInstr.tag = "instructions";
+                    final boolean isCourseExam = RawRecordConstants.M117.equals(this.courseId)
+                            || RawRecordConstants.M118.equals(this.courseId)
+                            || RawRecordConstants.M124.equals(this.courseId)
+                            || RawRecordConstants.M125.equals(this.courseId)
+                            || RawRecordConstants.M126.equals(this.courseId)
+                            || RawRecordConstants.MATH117.equals(this.courseId)
+                            || RawRecordConstants.MATH118.equals(this.courseId)
+                            || RawRecordConstants.MATH124.equals(this.courseId)
+                            || RawRecordConstants.MATH125.equals(this.courseId)
+                            || RawRecordConstants.MATH126.equals(this.courseId);
 
-                        DocParagraph para = new DocParagraph();
-                        para.setColorName("navy");
+                    buildPresentedExam(avail.exam.treeRef, serial, reply, this.active, isCourseExam);
 
-                        DocText text = new DocText("Instructions:");
+                    final DocColumn newInstr = new DocColumn();
+                    newInstr.tag = "instructions";
+
+                    DocParagraph para = new DocParagraph();
+                    para.setColorName("navy");
+
+                    DocText text = new DocText("Instructions:");
+                    para.add(text);
+                    newInstr.add(para);
+
+                    final String singular = "M 101".equals(avail.exam.course) ? "quiz" : "exam";
+                    final String plural = "M 101".equals(avail.exam.course) ? "quizzes" : "exams";
+
+                    // Alter the exam instructions based on section number
+                    if (section != null && !section.isEmpty()
+                            && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
+
+                        // Instructions for Distance Math courses
+                        para = new DocParagraph();
+                        para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
+                                + " questions. Your score will be based on the number of questions answered "
+                                + "correctly. There is at least one correct response to each question. To "
+                                + "correctly answer a question on this " + singular + ", you must choose "));
+
+                        final DocWrappingSpan all = new DocWrappingSpan();
+                        all.tag = "span";
+                        all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                        all.add(new DocText("ALL"));
+                        para.add(all);
+
+                        para.add(new DocText(" correct responses to that question."));
+
+                    } else {
+
+                        // Instructions for all Resident course unit and final exams
+                        para = new DocParagraph();
+                        para.add(new DocText("This " + singular
+                                + " has a time limit.  The time remaining to complete the " + singular
+                                + " is displayed at the top right hand corner of your computer screen."));
+                        newInstr.add(para);
+
+                        newInstr.add(new DocParagraph());
+
+                        para = new DocParagraph();
+
+                        final DocNonwrappingSpan note = new DocNonwrappingSpan();
+                        note.tag = "span";
+                        note.outlines = 8;
+                        note.add(new DocText("PLEASE NOTE"));
+                        para.add(note);
+
+                        text = new DocText(": all " + plural + " taken in the Precalculus Center must be submitted "
+                                + "by the posted closing time, even if your time limit has not expired.");
                         para.add(text);
                         newInstr.add(para);
 
-                        final String singular = "M 101".equals(avail.exam.course) ? "quiz" : "exam";
-                        final String plural = "M 101".equals(avail.exam.course) ? "quizzes" : "exams";
+                        newInstr.add(new DocParagraph());
+                        newInstr.add(new DocParagraph());
 
-                        // Alter the exam instructions based on section number
-                        if (section != null && !section.isEmpty()
-                                && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
+                        para = new DocParagraph();
+                        para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
+                                + " questions. Your score will be based on the number of questions answered "
+                                + "correctly. There is at least one correct response to each question. To "
+                                + "correctly answer a question on this " + singular + ", you must choose "));
 
-                            // Instructions for Distance Math courses
-                            para = new DocParagraph();
-                            para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
-                                    + " questions. Your score will be based on the number of questions answered "
-                                    + "correctly. There is at least one correct response to each question. To "
-                                    + "correctly answer a question on this " + singular + ", you must choose "));
+                        final DocWrappingSpan all = new DocWrappingSpan();
+                        all.tag = "span";
+                        all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                        all.add(new DocText("ALL"));
+                        para.add(all);
 
-                            final DocWrappingSpan all = new DocWrappingSpan();
-                            all.tag = "span";
-                            all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
-                            all.add(new DocText("ALL"));
-                            para.add(all);
-
-                            para.add(new DocText(" correct responses to that question."));
-
-                        } else {
-
-                            // Instructions for all Resident course unit and final exams
-                            para = new DocParagraph();
-                            para.add(new DocText("This " + singular
-                                    + " has a time limit.  The time remaining to complete the " + singular
-                                    + " is displayed at the top right hand corner of your computer screen."));
-                            newInstr.add(para);
-
-                            newInstr.add(new DocParagraph());
-
-                            para = new DocParagraph();
-
-                            final DocNonwrappingSpan note = new DocNonwrappingSpan();
-                            note.tag = "span";
-                            note.outlines = 8;
-                            note.add(new DocText("PLEASE NOTE"));
-                            para.add(note);
-
-                            text = new DocText(": all " + plural + " taken in the Precalculus Center must be submitted "
-                                    + "by the posted closing time, even if your time limit has not expired.");
-                            para.add(text);
-                            newInstr.add(para);
-
-                            newInstr.add(new DocParagraph());
-                            newInstr.add(new DocParagraph());
-
-                            para = new DocParagraph();
-                            para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
-                                    + " questions. Your score will be based on the number of questions answered "
-                                    + "correctly. There is at least one correct response to each question. To "
-                                    + "correctly answer a question on this " + singular + ", you must choose "));
-
-                            final DocWrappingSpan all = new DocWrappingSpan();
-                            all.tag = "span";
-                            all.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
-                            all.add(new DocText("ALL"));
-                            para.add(all);
-
-                            para.add(new DocText(" correct responses to that question."));
-                            newInstr.add(para);
-
-                            newInstr.add(new DocParagraph());
-                            newInstr.add(new DocParagraph());
-
-                            para = new DocParagraph();
-
-                            final DocNonwrappingSpan warn = new DocNonwrappingSpan();
-                            warn.tag = "span";
-                            warn.setFontStyle(Integer.valueOf(Font.BOLD));
-                            warn.outlines = 8;
-                            warn.add(new DocText("WARNING"));
-                            para.add(warn);
-
-                            para.add(new DocText(": You are "));
-
-                            final DocNonwrappingSpan not = new DocNonwrappingSpan();
-                            not.tag = "span";
-                            not.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
-                            not.add(new DocText("NOT"));
-                            para.add(not);
-
-                            para.add(new DocText(" permitted to use reference materials of any kind on this "
-                                    + singular + ". If you are found to be in possession of reference materials while "
-                                    + "working on this " + singular + ", even if unintentional, you will be charged "
-                                    + "with academic misconduct."));
-                        }
+                        para.add(new DocText(" correct responses to that question."));
                         newInstr.add(para);
 
-                        getExam().instructions = newInstr;
+                        newInstr.add(new DocParagraph());
+                        newInstr.add(new DocParagraph());
 
-                        if (!holds.isEmpty()) {
-                            final int numHolds = holds.size();
-                            reply.holds = new String[numHolds];
+                        para = new DocParagraph();
 
-                            for (int i = 0; i < numHolds; ++i) {
-                                reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
-                            }
-                        }
-                    } else {
-                        error = "You are not currently eligible for this exam<br>" + reasons;
+                        final DocNonwrappingSpan warn = new DocNonwrappingSpan();
+                        warn.tag = "span";
+                        warn.setFontStyle(Integer.valueOf(Font.BOLD));
+                        warn.outlines = 8;
+                        warn.add(new DocText("WARNING"));
+                        para.add(warn);
+
+                        para.add(new DocText(": You are "));
+
+                        final DocNonwrappingSpan not = new DocNonwrappingSpan();
+                        not.tag = "span";
+                        not.setFontStyle(Integer.valueOf(Font.BOLD | Font.ITALIC));
+                        not.add(new DocText("NOT"));
+                        para.add(not);
+
+                        para.add(new DocText(" permitted to use reference materials of any kind on this "
+                                + singular + ". If you are found to be in possession of reference materials while "
+                                + "working on this " + singular + ", even if unintentional, you will be charged "
+                                + "with academic misconduct."));
                     }
+                    newInstr.add(para);
+
+                    getExam().instructions = newInstr;
+
+                    if (!holds.isEmpty()) {
+                        final int numHolds = holds.size();
+                        reply.holds = new String[numHolds];
+
+                        for (int i = 0; i < numHolds; ++i) {
+                            reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
+                        }
+                    }
+                } else {
+                    error = "You are not currently eligible for this exam<br>" + reasons;
                 }
             } else {
                 Log.info("Exam version '", this.version, "' is not a unit exam.");
@@ -569,15 +559,16 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Attempt to construct a realized exam and install it in the reply message. On errors, the reply message errors
      * field will be set to the cause of the error.
      *
-     * @param cache        the data cache
      * @param ref          the reference to the exam to be loaded
      * @param serial       the serial number to associate with the exam
      * @param reply        the reply message to populate with the realized exam or the error status
      * @param term         the term under which to file the presented exam
      * @param isCourseExam true if this is a course exam
      */
-    private void buildPresentedExam(final Cache cache, final String ref, final long serial, final GetExamReply reply,
+    private void buildPresentedExam(final String ref, final long serial, final GetExamReply reply,
                                     final TermRec term, final boolean isCourseExam) {
+
+        final StudentData studentData = getStudentData();
 
         final ExamObj theExam = InstructionalCache.getExam(ref);
 
@@ -589,15 +580,15 @@ public final class UnitExamSession extends HtmlSessionBase {
             Log.warning("Errors loading exam template");
         } else {
             final Collection<Integer> autoPassItems = new ArrayList<>(10);
+            final RawStudent student = getStudent();
 
             // See which items the student has already gotten correct twice on this exam version
             if (isCourseExam) {
                 try {
-                    final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, this.studentId,
-                            theExam.examVersion, false);
+                    final List<RawStexam> stexams = studentData.getStudentExamsByVersion(theExam.examVersion, false);
 
                     if (stexams.size() > 1) {
-                        final List<RawStqa> answers = RawStqaLogic.queryByStudent(cache, this.studentId);
+                        final List<RawStqa> answers = studentData.getStudentExamAnswers();
 
                         // Map from question number to count of correct answers
                         final Map<Integer, Integer> correctCount = new HashMap<>(20);
@@ -693,10 +684,10 @@ public final class UnitExamSession extends HtmlSessionBase {
             if (theExam.realize(true, true, serial)) {
                 reply.presentedExam = theExam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = this.studentId;
+                reply.studentId = student.stuId;
                 setExam(theExam);
 
-                if (!new ExamWriter().writePresentedExam(this.studentId, term, reply.presentedExam, reply.toXml())) {
+                if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam, reply.toXml())) {
                     Log.warning("Unable to cache exam " + ref);
                     reply.presentedExam = null;
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
@@ -835,7 +826,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='margin:20pt; padding:20pt; border:1px solid black; "
                 + "background:white; text-align:center; color:Green;'");
 
-        htm.sSpan(null, "style='color:green;'") .add("Exam completed.").br().br();
+        htm.sSpan(null, "style='color:green;'").add("Exam completed.").br().br();
 
         if (this.score != null) {
             htm.addln("Your score on this exam was ", this.score).br().br();
@@ -910,7 +901,8 @@ public final class UnitExamSession extends HtmlSessionBase {
      */
     private void appendHeader(final HtmlBuilder htm) {
 
-        final String stuName = getStudent().getScreenName();
+        final RawStudent student = getStudent();
+        final String stuName = student.getScreenName();
 
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
@@ -1182,42 +1174,41 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Called when a POST is received on the page hosting the unit exam.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a URL to which to redirect; {@code null} to present the generated HTML
      * @throws SQLException if there is an error accessing the database
      */
-    public String processPost(final Cache cache, final ImmutableSessionInfo session,
-                              final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    public String processPost(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         String redirect = null;
 
         switch (this.state) {
             case INSTRUCTIONS:
-                processPostInstructions(cache, session, req, htm);
+                processPostInstructions(session, req, htm);
                 break;
 
             case ITEM_NN:
-                processPostInteracting(cache, session, req, htm);
+                processPostInteracting(session, req, htm);
                 break;
 
             case SUBMIT_NN:
-                processPostSubmit(cache, session, req, htm);
+                processPostSubmit(session, req, htm);
                 break;
 
             case COMPLETED:
-                processPostCompleted(cache, session, req, htm);
+                processPostCompleted(session, req, htm);
                 break;
 
             case SOLUTION_NN:
-                redirect = processPostSolution(cache, session, req, htm);
+                redirect = processPostSolution(session, req, htm);
                 break;
 
             case INITIAL:
             default:
-                generateHtml(cache, session, htm);
+                generateHtml(session, htm);
                 break;
         }
 
@@ -1227,14 +1218,13 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Called when a POST is received while in the INSTRUCTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInstructions(final Cache cache, final ImmutableSessionInfo session,
-                                         final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInstructions(final ImmutableSessionInfo session, final ServletRequest req,
+                                         final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("nav_0") != null) {
             this.currentItem = 0;
@@ -1252,8 +1242,8 @@ public final class UnitExamSession extends HtmlSessionBase {
 
             if ("timeout".equals(act)) {
                 appendExamLog("'timeout' action received - scoring exam.");
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+                writeExamRecovery();
+                this.gradingError = scoreAndRecordCompletion(session.getNow());
                 this.state = EUnitExamState.COMPLETED;
             } else {
                 // Navigation ...
@@ -1274,20 +1264,19 @@ public final class UnitExamSession extends HtmlSessionBase {
             }
         }
 
-        generateHtml(cache, session, htm);
+        generateHtml(session, htm);
     }
 
     /**
      * Called when a POST is received while in the INTERACTING state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInteracting(final Cache cache, final ImmutableSessionInfo session,
-                                        final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInteracting(final ImmutableSessionInfo session, final ServletRequest req,
+                                        final HtmlBuilder htm) throws SQLException {
 
         if (this.currentItem != -1) {
             final String reqItem = req.getParameter("currentItem");
@@ -1328,8 +1317,8 @@ public final class UnitExamSession extends HtmlSessionBase {
                 this.state = EUnitExamState.INSTRUCTIONS;
             } else if ("timeout".equals(act)) {
                 appendExamLog("'timeout' action received - scoring exam.");
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+                writeExamRecovery();
+                this.gradingError = scoreAndRecordCompletion(session.getNow());
                 this.state = EUnitExamState.COMPLETED;
             } else {
                 // Navigation ...
@@ -1344,45 +1333,43 @@ public final class UnitExamSession extends HtmlSessionBase {
             }
         }
 
-        generateHtml(cache, session, htm);
+        generateHtml(session, htm);
     }
 
     /**
      * Called when a POST is received while in the SUBMIT_NN state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostSubmit(final Cache cache, final ImmutableSessionInfo session,
-                                   final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostSubmit(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         if (req.getParameter("N") != null) {
             appendExamLog("Submit canceled, returning to exam");
             this.state = EUnitExamState.ITEM_NN;
         } else if (req.getParameter("Y") != null) {
             appendExamLog("Submit confirmed, scoring...");
-            writeExamRecovery(cache);
-            this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+            writeExamRecovery();
+            this.gradingError = scoreAndRecordCompletion(session.getNow());
             this.state = EUnitExamState.COMPLETED;
         }
 
-        generateHtml(cache, session, htm);
+        generateHtml(session, htm);
     }
 
     /**
      * Called when a POST is received while in the COMPLETED state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostCompleted(final Cache cache, final ImmutableSessionInfo session,
-                                      final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostCompleted(final ImmutableSessionInfo session, final ServletRequest req,
+                                      final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("solutions") != null) {
             appendExamLog("Moving to solutions...");
@@ -1390,7 +1377,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             this.state = EUnitExamState.SOLUTION_NN;
         }
 
-        generateHtml(cache, session, htm);
+        generateHtml(session, htm);
     }
 
     /**
@@ -1410,14 +1397,13 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Called when a POST is received while in the SOLUTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a string to which to redirect; null if no redirection should occur
      * @throws SQLException if there is an error accessing the database
      */
-    private String processPostSolution(final Cache cache, final ImmutableSessionInfo session, final ServletRequest req,
+    private String processPostSolution(final ImmutableSessionInfo session, final ServletRequest req,
                                        final HtmlBuilder htm) throws SQLException {
 
         String redirect = null;
@@ -1442,7 +1428,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 }
             }
 
-            generateHtml(cache, session, htm);
+            generateHtml(session, htm);
         }
 
         return redirect;
@@ -1451,15 +1437,14 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Performs a forced abort of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced abort
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceAbort(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceAbort(final ImmutableSessionInfo session) throws SQLException {
 
         if (session.role.canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced abort requested");
-            writeExamRecovery(cache);
+            writeExamRecovery();
 
             if (getExam() != null) {
                 setExam(null);
@@ -1475,16 +1460,15 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Performs a forced submit of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced submit
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceSubmit(final ImmutableSessionInfo session) throws SQLException {
 
         if (session.role.canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced submit requested");
-            writeExamRecovery(cache);
-            this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+            writeExamRecovery();
+            this.gradingError = scoreAndRecordCompletion(session.getNow());
             this.state = EUnitExamState.COMPLETED;
 
             if (getExam() != null) {
@@ -1501,18 +1485,18 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Scores the submitted exam and records the results.
      *
-     * @param cache the data cache
-     * @param now   the date/time to consider now
+     * @param now the date/time to consider now
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    String scoreAndRecordCompletion(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    String scoreAndRecordCompletion(final ChronoZonedDateTime<LocalDate> now) throws SQLException {
 
         appendExamLog("Scoring and recording completion");
 
         final String error;
 
-        final String stuId = this.studentId;
+        final RawStudent student = getStudent();
+        final String stuId = student.stuId;
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
             error = "Guest login exams will not be recorded.";
@@ -1524,12 +1508,10 @@ public final class UnitExamSession extends HtmlSessionBase {
             Log.info("Writing updated exam state");
             final Object[][] answers = getExam().exportState();
 
-            loadStudentInfo(cache);
-
             // Write the updated exam state out somewhere permanent
             new ExamWriter().writeUpdatedExam(stuId, this.active, answers, false);
 
-            error = finalizeExam(cache, now, answers);
+            error = finalizeExam(now, answers);
         }
 
         if (error != null) {
@@ -1544,49 +1526,57 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Finalize the exam record on the server, running all grading processing and applying result to the student's
      * record.
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider now
      * @param answers the submitted answers
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String finalizeExam(final Cache cache, final ChronoZonedDateTime<LocalDate> now,
-                                final Object[][] answers) throws SQLException {
+    private String finalizeExam(final ChronoZonedDateTime<LocalDate> now, final Object[][] answers)
+            throws SQLException {
 
-        final String crsId = getExam().course;
+        final ExamObj exam = getExam();
+        final String crsId = exam.course;
 
-        final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, crsId);
-        if (isTut == null) {
-            return "No data for course '" + getExam().course + "'";
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+
+        final RawCourse course = systemData.getCourse(crsId);
+        if (course == null) {
+            return "No data for course '" + crsId + "'";
         }
+
+        final Boolean isTut = Boolean.valueOf("Y".equals(course.isTutorial));
 
         // Store the presentation and completion times in the exam object
         if (answers[0].length == 4) {
-            // If exam has both presentation and completion time, compute the duration as seen by
-            // the client, then adjust for the server's clock
+            // If exam has both presentation and completion time, compute the duration as seen by the client, then
+            // adjust for the server's clock
             if (answers[0][2] != null && answers[0][3] != null) {
                 final long duration = ((Long) answers[0][3]).longValue() - ((Long) answers[0][2]).longValue();
 
                 if (duration >= 0L && duration < 43200L) {
-                    getExam().presentationTime = System.currentTimeMillis() - duration;
+                    exam.presentationTime = System.currentTimeMillis() - duration;
                 } else {
                     // Time was not reasonable, so set to 0 time.
                     Log.warning("Client gave exam duration as " + duration);
-                    getExam().presentationTime = System.currentTimeMillis();
+                    exam.presentationTime = System.currentTimeMillis();
                 }
             } else {
-                getExam().presentationTime = getExam().realizationTime;
+                exam.presentationTime = exam.realizationTime;
             }
 
             // Set the completion time
-            getExam().finalizeExam();
+            exam.finalizeExam();
         }
 
         // See if the exam has already been inserted
-        final Long ser = getExam().serialNumber;
-        final LocalDateTime start = TemporalUtils.toLocalDateTime(getExam().realizationTime);
+        final Long ser = exam.serialNumber;
+        final LocalDateTime start = TemporalUtils.toLocalDateTime(exam.realizationTime);
 
-        final List<RawStexam> existing = RawStexamLogic.getExams(cache, this.studentId, crsId, true);
+        final RawStudent student = getStudent();
+        final String studentId = student.stuId;
+
+        final List<RawStexam> existing = studentData.getStudentExamsByCourseType(crsId, true);
         for (final RawStexam test : existing) {
             if (test.getStartDateTime() != null && test.serialNbr.equals(ser)
                     && test.getStartDateTime().equals(start)) {
@@ -1600,9 +1590,9 @@ public final class UnitExamSession extends HtmlSessionBase {
         param1.setValue(Boolean.FALSE);
         params.addVariable(param1);
 
-        Log.info("Grading unit exam for student ", this.studentId, ", exam ", getExam().examVersion);
+        Log.info("Grading unit exam for student ", studentId, ", exam ", exam.examVersion);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }
@@ -1616,28 +1606,27 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         // Begin preparing the database object to store exam results
         final StudentExamRec stexam = new StudentExamRec();
-        stexam.studentId = this.studentId;
+        stexam.studentId = studentId;
         stexam.examType = exType;
-        stexam.course = getExam().course;
+        stexam.course = exam.course;
         try {
-            stexam.unit = Integer.valueOf(getExam().courseUnit);
+            stexam.unit = Integer.valueOf(exam.courseUnit);
         } catch (final NumberFormatException ex) {
             Log.warning("Failed to parse unit", ex);
         }
-        stexam.examId = getExam().examVersion;
+        stexam.examId = exam.examVersion;
         stexam.proctored = false;
-        stexam.start = TemporalUtils.toLocalDateTime(getExam().realizationTime);
-        stexam.finish = TemporalUtils.toLocalDateTime(getExam().completionTime);
-        stexam.serialNumber = getExam().serialNumber;
+        stexam.start = TemporalUtils.toLocalDateTime(exam.realizationTime);
+        stexam.finish = TemporalUtils.toLocalDateTime(exam.completionTime);
+        stexam.serialNumber = exam.serialNumber;
 
         RawStcourse stcourse = null;
         String section;
 
         if ("Q".equals(exType)) {
-
             if (RawRecordConstants.M100U.equals(stexam.course)) {
                 // FIXME: Hardcode
-                final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
+                final RawCusection result = systemData.getCourseUnitSection(stexam.course, stexam.unit, "1",
                         this.active.term);
                 if (result == null) {
                     return "Unable to look up course section";
@@ -1645,7 +1634,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 stexam.masteryScore = result.ueMasteryScore;
             }
         } else {
-            stcourse = RawStcourseLogic.getRegistration(cache, stexam.studentId, stexam.course);
+            stcourse = studentData.getActiveRegistration(stexam.course);
 
             if (stcourse == null) {
                 if (isTut.booleanValue()) {
@@ -1685,7 +1674,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 } else {
                     section = "001";
 
-                    final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.active.term);
+                    final List<RawCsection> csections = systemData.getCourseSections(this.active.term);
                     csections.sort(null);
                     for (final RawCsection test : csections) {
                         if (test.course.equals(stexam.course)) {
@@ -1709,9 +1698,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                             || RawRecordConstants.MATH125.equals(stexam.course)
                             || RawRecordConstants.MATH126.equals(stexam.course)) {
 
-                        final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByStudent(cache,
-                                this.studentId, now.toLocalDate());
-
+                        final List<RawSpecialStus> specials = studentData.getActiveSpecialCategories(now.toLocalDate());
                         for (final RawSpecialStus special : specials) {
                             final String type = special.stuType;
 
@@ -1723,7 +1710,6 @@ public final class UnitExamSession extends HtmlSessionBase {
                     }
 
                     if (isSpecial) {
-
                         // Create a fake STCOURSE record
                         stcourse = new RawStcourse(this.active.term, // termKey
                                 stexam.studentId, // stuId
@@ -1760,22 +1746,18 @@ public final class UnitExamSession extends HtmlSessionBase {
                         return "Unable to look up course registration.";
                     }
                 }
-            } else {
-                section = stcourse.sect;
             }
 
             RawCusection cusect;
 
             if ("Y".equals(stcourse.iInProgress)) {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, stcourse.iTermKey);
+                cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect, stcourse.iTermKey);
                 if (cusect == null) {
-                    cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                            stexam.unit, this.active.term);
+                    cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect,
+                            this.active.term);
                 }
             } else {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, this.active.term);
+                cusect = systemData.getCourseUnitSection(stexam.course, stexam.unit, stcourse.sect, this.active.term);
             }
 
             if (cusect == null) {
@@ -1802,18 +1784,17 @@ public final class UnitExamSession extends HtmlSessionBase {
         // Determine problem and subtest scores, add to the parameter set
         computeSubtestScores(stexam, params);
 
-        // Determine grading rule results, and add them to the parameter set for use in outcome
-        // processing.
+        // Determine grading rule results, and add them to the parameter set for use in outcome processing.
         final boolean passed = evaluateGradingRules(stexam, params);
 
-        determineOutcomes(cache, stexam, params);
+        determineOutcomes(stexam, params);
 
         // We have now assembled the student exam record, so insert into the database.
-        String error = insertStudentExam(cache, stexam, passed);
+        String error = insertStudentExam(stexam, passed);
 
         if (error == null && stcourse != null) {
             // Test whether this exam makes the course "complete"
-            error = CourseLogic.checkForComplete(cache, stcourse);
+            error = CourseLogic.checkForComplete(studentData, stcourse);
         }
 
         if (error != null) {
@@ -1943,9 +1924,9 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         this.score = stexam.subtestScores.get("score");
 
-        // If we have a "score" subtest, and we have a mastery score in the record, then
-        // automatically create a "passed" grading rule. Then, as we go through, if there is
-        // another explicit "passed" grading rule, it will override this one.
+        // If we have a "score" subtest, and we have a mastery score in the record, then automatically create a
+        // "passed" grading rule. Then, as we go through, if there is another explicit "passed" grading rule, it will
+        // override this one.
         if (stexam.masteryScore != null && this.score != null) {
             final VariableBoolean param = new VariableBoolean("passed");
 
@@ -2022,17 +2003,19 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Evaluate the formulae for grading rules based on subtest scores.
      *
-     * @param cache  the data cache
      * @param stexam the student exam record being populated
      * @param params the parameter set to which to add the subtest score parameters
      * @throws SQLException if there is an error accessing the database
      */
-    private void determineOutcomes(final Cache cache, final StudentExamRec stexam,
-                                   final EvalContext params) throws SQLException {
+    private void determineOutcomes(final StudentExamRec stexam, final EvalContext params) throws SQLException {
 
+        final ExamObj exam = getExam();
         final Iterator<ExamOutcome> outcomes = getExam().examOutcomes();
 
         String validBy = null;
+
+        final RawStudent student = getStudent();
+        final String studentId = student.stuId;
 
         while (outcomes.hasNext()) {
             String whyDeny = null;
@@ -2070,10 +2053,10 @@ public final class UnitExamSession extends HtmlSessionBase {
                                     whyDeny = RawMpecrDeniedLogic.DENIED_BY_PREREQ;
 
                                     Log.severe("Outcome prerequisite evaluated to ", result.toString(), "\n",
-                                            getExam().toXmlString(0));
+                                            exam.toXmlString(0));
                                 }
                             } else {
-                                Log.severe("Outcome prerequisite has no formula\n", getExam().toXmlString(0));
+                                Log.severe("Outcome prerequisite has no formula\n", exam.toXmlString(0));
                             }
                         }
 
@@ -2096,10 +2079,10 @@ public final class UnitExamSession extends HtmlSessionBase {
                                         }
                                     } else {
                                         Log.severe("Validation formula evaluated to ", result.toString(), "\n",
-                                                getExam().toXmlString(0));
+                                                exam.toXmlString(0));
                                     }
                                 } else {
-                                    Log.severe("Outcome validation has no formula\n", getExam().toXmlString(0));
+                                    Log.severe("Outcome validation has no formula\n", exam.toXmlString(0));
                                 }
                             }
 
@@ -2159,23 +2142,24 @@ public final class UnitExamSession extends HtmlSessionBase {
                                 }
                             } else if (ExamOutcomeAction.INDICATE_LICENSED.equals(action.type)) {
 
-                                final RawStudent stu = RawStudentLogic.query(cache, this.studentId, false);
-
-                                if (stu != null && "N".equals(stu.licensed)) {
-                                    RawStudentLogic.updateLicensed(cache, stu.stuId, "Y");
+                                if ("N".equals(student.licensed)) {
+                                    final Cache cache = getStudentData().getCache();
+                                    RawStudentLogic.updateLicensed(cache, studentId, "Y");
+                                    // Update the cache directly.
+                                    student.licensed = "Y";
                                 }
                             }
                         }
                     }
                 } else if (result instanceof ErrorValue) {
                     Log.warning("Error evaluating outcome formula [", outcome.condition.toString(), "]: ",
-                            result.toString(), ", ", getExam().toXmlString(0));
+                            result.toString(), ", ", exam.toXmlString(0));
                 } else {
                     Log.warning("Outcome formula [", outcome.condition.toString(),
-                            "] did not evaluate to boolean:", getExam().toXmlString(0));
+                            "] did not evaluate to boolean:", exam.toXmlString(0));
                 }
             } else {
-                Log.warning("Outcome has no formula:", getExam().toXmlString(0));
+                Log.warning("Outcome has no formula:", exam.toXmlString(0));
             }
         }
 
@@ -2187,40 +2171,38 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Insert this object into the database.
      *
-     * @param cache       the data cache
      * @param stexam      the StudentExam object with exam data to be inserted
      * @param usersPassed {@code true} if the score was passing; {@code false} if not (used only for user's exam)
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertStudentExam(final Cache cache, final StudentExamRec stexam,
-                                     final boolean usersPassed) throws SQLException {
+    private String insertStudentExam(final StudentExamRec stexam, final boolean usersPassed) throws SQLException {
 
         String error;
 
         if (RawRecordConstants.M100T.equals(stexam.course)) {
-            error = insertExam(cache, stexam);
+            error = insertExam(stexam);
 
             if (error == null && stexam.unit.intValue() == 4) {
-                error = insertELMTutorialResult(cache, stexam);
+                error = insertELMTutorialResult(stexam);
             }
         } else if (RawRecordConstants.M1170.equals(stexam.course)
                 || RawRecordConstants.M1180.equals(stexam.course)
                 || RawRecordConstants.M1240.equals(stexam.course)
                 || RawRecordConstants.M1250.equals(stexam.course)
                 || RawRecordConstants.M1260.equals(stexam.course)) {
-            error = insertExam(cache, stexam);
+            error = insertExam(stexam);
 
             if (error == null && stexam.unit.intValue() >= 4) {
-                error = insertPrecalcTutorialResult(cache, stexam);
+                error = insertPrecalcTutorialResult(stexam);
             }
         } else if (RawRecordConstants.M100U.equals(stexam.course)) {
-            error = insertUsersExam(cache, stexam, usersPassed);
+            error = insertUsersExam(stexam, usersPassed);
             if (error == null) {
-                error = insertExam(cache, stexam);
+                error = insertExam(stexam);
             }
         } else {
-            error = insertExam(cache, stexam);
+            error = insertExam(stexam);
         }
 
         return error;
@@ -2229,12 +2211,11 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Insert a standard (non-placement) exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private static String insertExam(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private String insertExam(final StudentExamRec stexam) throws SQLException {
 
         Log.info("Trying to insert stexam record");
 
@@ -2259,6 +2240,9 @@ public final class UnitExamSession extends HtmlSessionBase {
                 Integer.valueOf(start), Integer.valueOf(end), "Y", passed, null, stexam.course, stexam.unit,
                 stexam.examType, "N", stexam.examSource, null);
 
+        final StudentData studentData = getStudentData();
+        final Cache cache = studentData.getCache();
+
         String error = null;
         if (RawStexamLogic.INSTANCE.insert(cache, record)) {
 
@@ -2278,6 +2262,9 @@ public final class UnitExamSession extends HtmlSessionBase {
                 RawStqaLogic.INSTANCE.insert(cache, answer);
                 ++question;
             }
+
+            studentData.forgetStudentExams();
+            studentData.forgetStudentExamAnswers();
         } else {
             error = "Failed to innsert exam record.";
         }
@@ -2288,27 +2275,27 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Insert an ELM Tutorial exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertELMTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private String insertELMTutorialResult(final StudentExamRec stexam) throws SQLException {
 
         if (stexam.earnedPlacement.contains(RawRecordConstants.M100C)) {
 
+            final LocalDate finishDate = stexam.finish.toLocalDate();
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, RawRecordConstants.M100C, "P",
-                    stexam.finish.toLocalDate(), null, stexam.serialNumber, stexam.examId, null);
+                    finishDate, null, stexam.serialNumber, stexam.examId, null);
 
+            final StudentData studentData = getStudentData();
+            final Cache cache = studentData.getCache();
             RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            studentData.forgetPlacementCredit();
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = getStudent();
 
-            if (stu == null) {
-                RawMpscorequeueLogic.logActivity("Unable to upload ELM exam result for student " + stexam.studentId
-                        + ": student record not found");
-            } else {
+            if (stu.pidm != null) {
                 final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
@@ -2326,12 +2313,11 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Insert a precalculus tutorial exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertPrecalcTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private String insertPrecalcTutorialResult(final StudentExamRec stexam) throws SQLException {
 
         String course = null;
         if (RawRecordConstants.M1170.equals(stexam.course)) {
@@ -2347,18 +2333,18 @@ public final class UnitExamSession extends HtmlSessionBase {
         }
 
         if (course != null && stexam.earnedPlacement.contains(course)) {
+
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, course, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, null);
 
+            final StudentData studentData = getStudentData();
+            final Cache cache = studentData.getCache();
             RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            studentData.forgetPlacementCredit();
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = getStudent();
-
-            if (stu == null) {
-                RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
-                        + ": student record not found");
-            } else {
+            if (stu.pidm != null) {
                 final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
@@ -2377,24 +2363,20 @@ public final class UnitExamSession extends HtmlSessionBase {
     /**
      * Insert a users exam object into the database.
      *
-     * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
      * @param passed {@code true} if the score was passing; {@code false} if not
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertUsersExam(final Cache cache, final StudentExamRec stexam,
-                                   final boolean passed) throws SQLException {
+    private String insertUsersExam(final StudentExamRec stexam, final boolean passed) throws SQLException {
 
-        final RawStudent stu = RawStudentLogic.query(cache, stexam.studentId, false);
-        if (stu == null) {
-            return "User's exam for student " + this.studentId + ", student not found";
-        }
+        final RawStudent student = getStudent();
+        final String studentId = student.stuId;
 
         String calc = CoreConstants.SPC;
 
-        final List<RawStsurveyqa> resp = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, stexam.studentId,
-                "UOOOO");
+        final StudentData studentData = getStudentData();
+        final List<RawStsurveyqa> resp = studentData.getSurveyResponsesByVersion("UOOOO");
 
         String answer = null;
         for (final RawStsurveyqa rawStsurveyqa : resp) {
@@ -2404,24 +2386,34 @@ public final class UnitExamSession extends HtmlSessionBase {
             }
         }
 
+        final Cache cache = studentData.getCache();
+
         if (answer != null) {
-            final List<RawSurveyqa> choices = RawSurveyqaLogic.queryByVersionAndQuestion(cache, "UOOOO",
-                    Integer.valueOf(1));
+            final SystemData systemData = studentData.getSystemData();
+            final List<RawSurveyqa> choices = systemData.getSurveyQuestions("UOOOO", Integer.valueOf(1));
 
             for (final RawSurveyqa choice : choices) {
                 if (answer.equals(choice.answer)) {
                     calc = choice.answerMeaning;
-                    RawStudentLogic.updateCourseOrder(cache, stu.stuId, calc);
+                    if (student.orderEnforce == null || !student.orderEnforce.equals(calc)) {
+                        RawStudentLogic.updateCourseOrder(cache, studentId, calc);
+                        getStudent().orderEnforce = calc;
+                    }
                     break;
                 }
             }
         }
 
+        final Integer scoreValue = stexam.subtestScores.get("score");
+        final LocalDate finishDate = stexam.finish.toLocalDate();
+
         final RawUsers attempt = new RawUsers(this.active.term, stexam.studentId, stexam.serialNumber, stexam.examId,
-                        stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
+                finishDate, scoreValue, calc, passed ? "Y" : "N");
 
         String error = null;
-        if (!RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+        if (RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+            studentData.forgetUsersExams();
+        } else {
             error = "Failed to inser record of User's exam";
         }
 
@@ -2435,12 +2427,18 @@ public final class UnitExamSession extends HtmlSessionBase {
      */
     void appendXml(final HtmlBuilder xml) {
 
+        final String studentId = getStudent().stuId;
+
         if (getExam() != null) {
             xml.addln("<unit-exam-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
-            xml.addln(" <path>", getSiteProfile().path, "</path>");
+
+            final WebSiteProfile siteProfile = getSiteProfile();
+            xml.addln(" <host>", siteProfile.host, "</host>");
+            xml.addln(" <path>", siteProfile.path, "</path>");
+
             xml.addln(" <session>", this.sessionId, "</session>");
-            xml.addln(" <student>", this.studentId, "</student>");
+            xml.addln(" <student>", studentId, "</student>");
+
             xml.addln(" <exam-id>", this.version, "</exam-id>");
             if (this.score != null) {
                 xml.addln(" <score>", this.score, "</score>");
@@ -2464,15 +2462,18 @@ public final class UnitExamSession extends HtmlSessionBase {
 
             final int numSect = getExam().getNumSections();
             for (int i = 0; i < numSect; ++i) {
+                final String sectStr = Integer.toString(i);
+
                 final ExamSection sect = getExam().getSection(i);
                 final int numProb = sect.getNumProblems();
                 for (int j = 0; j < numProb; ++j) {
+                    final String probStr = Integer.toString(j);
+
                     final ExamProblem prob = sect.getProblem(j);
                     if (prob != null) {
                         final AbstractProblemTemplate selected = prob.getSelectedProblem();
                         if (selected != null) {
-                            xml.addln(" <selected-problem sect='", Integer.toString(i), "' prob='", Integer.toString(j),
-                                    "'>");
+                            xml.addln(" <selected-problem sect='", sectStr, "' prob='", probStr, "'>");
                             selected.appendXml(xml, 2);
                             xml.addln(" </selected-problem>");
                         }

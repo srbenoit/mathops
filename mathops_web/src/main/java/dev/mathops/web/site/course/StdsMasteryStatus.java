@@ -2,18 +2,15 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
-import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -83,13 +80,13 @@ final class StdsMasteryStatus {
     /**
      * Constructs a new {@code StdsMasteryStatus}.
      *
-     * @param cache     the data cache
+     * @param data      the web view data
      * @param pace      the student's pace
      * @param paceTrack the student's pace track
      * @param reg       the course registration for which to generate status
      * @param isTutor   true if the user should have TUTOR access to assignments
      */
-    StdsMasteryStatus(final Cache cache, final int pace, final String paceTrack, final RawStcourse reg,
+    StdsMasteryStatus(final WebViewData data, final int pace, final String paceTrack, final RawStcourse reg,
                       final boolean isTutor) {
 
         this.tutor = isTutor;
@@ -110,20 +107,23 @@ final class StdsMasteryStatus {
             final Integer paceObj = Integer.valueOf(pace);
             final int order = reg.paceOrder.intValue();
 
+            final SystemData systemData = data.getSystemData();
+            final StudentData studentData = data.getEffectiveUser();
+
             try {
-                final List<StandardMilestoneRec> standardMilestones = StandardMilestoneLogic.get(cache)
-                        .queryByPaceTrackPace(cache, paceTrack, paceObj);
-                final List<StudentStandardMilestoneRec> studentMilestones = StudentStandardMilestoneLogic
-                        .get(cache).queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
-                final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache)
-                        .queryActiveByCourse(cache, reg.course);
-                final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.get(cache)
-                        .queryByStudent(cache, reg.stuId);
-                final List<RawSthomework> sthomeworks = RawSthomeworkLogic.queryByStudent(cache, reg.stuId, false);
+                final List<StandardMilestoneRec> standardMilestones = systemData.getStandardMilestonesForPaceAndTrack(
+                        paceTrack, paceObj);
+                final List<StudentStandardMilestoneRec> studentMilestones =
+                        studentData.getStudentStandardMilestonesForPaceAndTrack(paceTrack, paceObj);
 
-                Log.info("Found " + masteryAttempts.size() + " mastery attempts");
+                final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(reg.course);
+                final List<MasteryAttemptRec> masteryAttempts = studentData.getMasteryAttempts();
+                final int numMasteryAttempts = masteryAttempts.size();
+                Log.info("Found " + numMasteryAttempts + " mastery attempts");
 
-                for (int unitIdx = 0 ; unitIdx < NUM_UNITS; ++unitIdx) {
+                final List<RawSthomework> sthomeworks = studentData.getStudentHomework();
+
+                for (int unitIdx = 0; unitIdx < NUM_UNITS; ++unitIdx) {
                     final int unit = unitIdx + 1;
                     final Integer unitObj = Integer.valueOf(unit);
 

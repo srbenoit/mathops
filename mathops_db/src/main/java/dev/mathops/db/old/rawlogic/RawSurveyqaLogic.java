@@ -5,6 +5,7 @@ import dev.mathops.db.logic.Cache;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -134,6 +135,26 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
     public List<RawSurveyqa> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM surveyqa");
+    }
+
+    /**
+     * Gets the questions for a profile in a specified term. WARNING: This method will return one row for every possible
+     * answer to a question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
+     *
+     * @param cache the data cache
+     * @param term  the term key
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawSurveyqa> queryByTerm(final Cache cache, final TermKey term)
+            throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM surveyqa",
+                " WHERE term=", sqlStringValue(term.termCode),
+                "   AND term_yr=", sqlIntegerValue(term.shortYear));
+
+        return executeQuery(cache, sql);
     }
 
     /**

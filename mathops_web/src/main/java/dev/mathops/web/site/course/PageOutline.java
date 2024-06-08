@@ -6,6 +6,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
@@ -79,17 +81,17 @@ enum PageOutline {
     /**
      * Starts the page that shows the course outline with student progress.
      *
-     * @param studentData the student data object
-     * @param siteType    the site type
-     * @param site        the owning site
-     * @param req         the request
-     * @param resp        the response
-     * @param session     the user's login session information
-     * @param logic       the course site logic
+     * @param data     the web view data
+     * @param siteType the site type
+     * @param site     the owning site
+     * @param req      the request
+     * @param resp     the response
+     * @param session  the user's login session information
+     * @param logic    the course site logic
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final StudentData studentData, final ESiteType siteType, final CourseSite site,
+    static void doGet(final WebViewData data, final ESiteType siteType, final CourseSite site,
                       final ServletRequest req, final HttpServletResponse resp,
                       final ImmutableSessionInfo session, final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -106,36 +108,35 @@ enum PageOutline {
             Log.warning("  mode='", mode, "'");
             Log.warning("  errorExam='", errorExam, "'");
             Log.warning("  error='", error, "'");
-            PageError.doGet(studentData, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else if (course == null || mode == null) {
-            PageError.doGet(studentData, site, req, resp, session,
-                    "No course and mode provided for course outline");
+            PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else {
             final HtmlBuilder htm = new HtmlBuilder(2000);
             Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
                     false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(studentData, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            doOutline(studentData, siteType, site, session, logic, course, mode, errorExam, error, htm, null);
+            doOutline(data, siteType, site, session, logic, course, mode, errorExam, error, htm, null);
 
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(studentData, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Creates the HTML of the course outline.
      *
-     * @param studentData        the student data object
+     * @param data               the web view data
      * @param siteType           the site type
      * @param site               the owning site
      * @param session            the user's login session information
@@ -150,7 +151,7 @@ enum PageOutline {
      *                           this course is being presented on its own
      * @throws SQLException if there is an error accessing the database
      */
-    static void doOutline(final StudentData studentData, final ESiteType siteType, final CourseSite site,
+    static void doOutline(final WebViewData data, final ESiteType siteType, final CourseSite site,
                           final ImmutableSessionInfo session, final CourseSiteLogic logic, final String courseId,
                           final String mode, final String errorExam, final String error, final HtmlBuilder htm,
                           final String skillsReviewCourse) throws SQLException {
@@ -160,17 +161,17 @@ enum PageOutline {
 
         final boolean isPractice = !"course".equals(mode);
 
-        boolean result;
+        final SystemData systemData = data.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
-        final TermRec activeTerm = studentData.getActiveTerm();
-        final RawCourse course = RawCourseLogic.query(cache, courseId);
+        final RawCourse course = systemData.getCourse(courseId);
 
         String defaultSect;
         if ("Y".equals(course.isTutorial)) {
             defaultSect = "1";
         } else {
             defaultSect = "001";
-            final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, activeTerm.term);
+            final List<RawCsection> csections = systemData.getCourseSections(activeTerm.term);
             csections.sort(null);
 
             for (final RawCsection test : csections) {
@@ -185,9 +186,9 @@ enum PageOutline {
         RawCsection csection;
 
         if (studentCourse != null) {
-            csection = RawCsectionLogic.query(cache, courseId, studentCourse.sect, activeTerm.term);
+            csection = systemData.getCourseSection(courseId, studentCourse.sect, activeTerm.term);
         } else {
-            csection = RawCsectionLogic.query(cache, courseId, defaultSect, activeTerm.term);
+            csection = systemData.getCourseSection(courseId, defaultSect, activeTerm.term);
             if (csection != null) {
                 studentCourse = new RawStcourse();
                 studentCourse.stuId = userId;
@@ -205,7 +206,7 @@ enum PageOutline {
         }
 
         if (csection != null && "MAS".equals(csection.gradingStd)) {
-            PageStdsCourse.masteryCoursePanel(studentData, logic, course, studentCourse, csection, htm);
+            PageStdsCourse.masteryCoursePanel(data, logic, course, studentCourse, csection, htm);
 
             if ("888888888".equals(session.getEffectiveUserId())) {
                 htm.div("vgap");
@@ -254,8 +255,7 @@ enum PageOutline {
 
                         // Displaying the course as a Skills Review, so no checks
                         doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
-                                error,
-                                htm, skillsReviewCourse);
+                                error, htm, skillsReviewCourse);
                     } else {
                         htm.sP().add("FAILED TO GET COURSE DATA 2").br();
                         if (courseStatus.getErrorText() != null) {
@@ -287,19 +287,18 @@ enum PageOutline {
                     } else if (ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
                         // Don't require licensed in practice mode
                         doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam,
-                                error,
-                                htm, null);
+                                error, htm, null);
                     }
                 } else {
                     // Accessing course as a Skills Review in practice/locked out mode...
-                    doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam, error
-                            , htm,
-                            skillsReviewCourse);
+                    doCourseOutline(studentData, siteType, site, session, logic, courseStatus, mode, errorExam, error,
+                            htm, skillsReviewCourse);
                 }
             } else {
                 htm.sP().add("FAILED TO GET COURSE DATA 4").br();
-                if (courseStatus.getErrorText() != null) {
-                    htm.add(courseStatus.getErrorText());
+                final String errorText = courseStatus.getErrorText();
+                if (errorText != null) {
+                    htm.add(errorText);
                 }
                 htm.eP();
             }

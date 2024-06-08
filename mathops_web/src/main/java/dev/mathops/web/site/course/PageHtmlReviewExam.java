@@ -2,7 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -13,6 +14,7 @@ import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -26,7 +28,7 @@ enum PageHtmlReviewExam {
     /**
      * Starts a review exam and presents the exam instructions.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -35,7 +37,7 @@ enum PageHtmlReviewExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void startReviewExam(final Cache cache, final CourseSite site,
+    static void startReviewExam(final WebViewData data, final CourseSite site,
                                 final ServletRequest req, final HttpServletResponse resp,
                                 final ImmutableSessionInfo session, final CourseSiteLogic logic)
             throws IOException, SQLException {
@@ -87,7 +89,7 @@ enum PageHtmlReviewExam {
                     Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             htm.addln("<form id='review_exam_form' action='update_review_exam.html'>");
@@ -102,17 +104,18 @@ enum PageHtmlReviewExam {
             htm.eDiv(); // panelu
             htm.eDiv(); // menupanelu
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+            final SystemData systemData = data.getSystemData();
+            Page.endOrdinaryPage(systemData, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         }
     }
 
     /**
      * Handles a POST request.
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param site    the owning site
      * @param req     the request
      * @param resp    the response
@@ -121,7 +124,7 @@ enum PageHtmlReviewExam {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void updateReviewExam(final Cache cache, final CourseSite site, final ServletRequest req,
+    static void updateReviewExam(final WebViewData data, final CourseSite site, final ServletRequest req,
                                  final HttpServletResponse resp, final ImmutableSessionInfo session,
                                  final CourseSiteLogic logic) throws IOException, SQLException {
 
@@ -142,7 +145,7 @@ enum PageHtmlReviewExam {
                     Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
             htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
+            CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
             final ReviewExamSession res = ReviewExamSessionStore.getInstance()
@@ -170,10 +173,11 @@ enum PageHtmlReviewExam {
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu
 
-                Page.endOrdinaryPage(cache, site, htm, true);
+                final SystemData systemData = data.getSystemData();
+                Page.endOrdinaryPage(systemData, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
             } else {
                 resp.sendRedirect(redirect);
             }

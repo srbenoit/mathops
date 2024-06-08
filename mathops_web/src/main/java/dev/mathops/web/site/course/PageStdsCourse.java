@@ -3,7 +3,7 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -23,13 +23,13 @@ enum PageStdsCourse {
     /**
      * Show the content of the course status page.
      *
-     * @param cache    the data cache
+     * @param data     the web view data
      * @param course   the course
      * @param reg      the registration record
      * @param csection the course section record
      * @param htm      the {@code HtmlBuilder} to which to append
      */
-    static void masteryCoursePanel(final Cache cache, final CourseSiteLogic logic, final RawCourse course,
+    static void masteryCoursePanel(final WebViewData data, final CourseSiteLogic logic, final RawCourse course,
                                    final RawStcourse reg, final RawCsection csection, final HtmlBuilder htm) {
 
         final String section = csection.sect;
@@ -45,15 +45,13 @@ enum PageStdsCourse {
         }
         htm.eH(2).hr();
 
-        emitCourseStatus(cache, logic, reg, csection, htm);
+        emitCourseStatus(data, logic, reg, csection, htm);
 
-        htm.addln("<a href='course_text.html?course=", course.course,
-                "&mode=course'><img style='width:210px;margin-left:10px;' ",
-                "src='/www/images/etext/textbook.png'/></a><br/>");
+        htm.addln("<a href='course_text.html?course=", course.course, "&mode=course'>",
+                "<img style='width:210px;margin-left:10px;' src='/www/images/etext/textbook.png'/></a><br/>");
 
-        htm.addln("<a style='width:202px;margin-left:10px;text-align:center;' ",
-                "class='smallbtn' href='course_text.html?course=", course.course,
-                "&mode=course'>", "Open Textbook", "</a>");
+        htm.addln("<a style='width:202px;margin-left:10px;text-align:center;' class='smallbtn' ",
+                "href='course_text.html?course=", course.course, "&mode=course'>", "Open Textbook", "</a>");
 
         // TODO: Schedule and next steps...
     }
@@ -61,12 +59,12 @@ enum PageStdsCourse {
     /**
      * Emits a display of the student's status in the course.
      *
-     * @param cache    the data cache
+     * @param data     the web view data
      * @param reg      the registration record
      * @param csection the course section record
      * @param htm      the {@code HtmlBuilder} to which to append
      */
-    private static void emitCourseStatus(final Cache cache, final CourseSiteLogic logic, final RawStcourse reg,
+    private static void emitCourseStatus(final WebViewData data, final CourseSiteLogic logic, final RawStcourse reg,
                                          final RawCsection csection, final HtmlBuilder htm) {
 
         Log.info("Status reg: " + reg.course, CoreConstants.SPC, reg.sect, CoreConstants.SPC, reg.paceOrder);
@@ -85,7 +83,7 @@ enum PageStdsCourse {
 
             final boolean isTutor = logic.data.studentData.isSpecialType(ZonedDateTime.now(), "TUTOR");
 
-            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
+            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(data, pace, paceTrack, reg, isTutor);
 
             final int targetsFirstHalf = masteryStatus.getNbrMasteredInFirstHalf();
             final int targetsSecondHalf = masteryStatus.getNbrMasteredInSecondHalf();
@@ -100,7 +98,7 @@ enum PageStdsCourse {
 
             htm.sP();
             final String targetsReachedStr = Integer.toString(targetsReachedTotal);
-            htm.addln("Learning Targets Mastered: <b>" , targetsReachedStr, "</b> (out of 24 total)").br();
+            htm.addln("Learning Targets Mastered: <b>", targetsReachedStr, "</b> (out of 24 total)").br();
 
             // Bar chart showing number of standards mastered in each half of the course
             // 3 pixel border all around, 16 pixels per standard plus 1-pixel dividing line
@@ -203,7 +201,6 @@ enum PageStdsCourse {
             final String secondHalfStr = Integer.toString(targetsSecondHalf);
             htm.addln("  <text x='241' y='34' style='font-size:16px;'>", secondHalfStr,
                     " mastered in second half</text>");
-
 
             final String firstHalfStr2 = Integer.toString(masteryStatus.numStandardsPendingFirstHalf);
             htm.addln("  <text x='6' y='55' style='font-size:16px;'>Eligible for ", firstHalfStr2,

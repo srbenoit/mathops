@@ -1,6 +1,7 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -163,7 +164,8 @@ public final class PrecalcTutorialLogic {
             }
         }
 
-        final TermRec active = studentData.getActiveTerm();
+        final SystemData systemData = studentData.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
         boolean isIncoming = false;
         if (active != null && aplnTerm != null && aplnTerm.name == ETermName.FALL
                 && (active.term.name == ETermName.SUMMER || active.term.name == ETermName.FALL)) {
@@ -252,7 +254,7 @@ public final class PrecalcTutorialLogic {
 
         if (this.status.eligibleForPrecalcTutorial) {
             // Get date range from campus calendar
-            final List<RawCampusCalendar> calendars = studentData.getCampusCalendars();
+            final List<RawCampusCalendar> calendars = systemData.getCampusCalendars();
 
             LocalDate startDate = null;
             LocalDate endDate = null;

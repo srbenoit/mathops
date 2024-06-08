@@ -5,6 +5,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -19,6 +20,7 @@ import dev.mathops.web.websocket.proctor.MPSSessionManager;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -96,7 +98,7 @@ enum PageExam {
             final String examId = ps.examId;
 
             if ("MT4UE".equals(examId)) {
-                emitELMExam(cache, ps, site, session, htm);
+                emitELMExam(data, ps, site, session, htm);
             } else if ("7T4UE".equals(examId)) {
                 emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1170, examId);
             } else if ("8T4UE".equals(examId)) {
@@ -220,14 +222,14 @@ enum PageExam {
     /**
      * Emits an ELM Exam session (exam ID "MT4UE").
      *
-     * @param cache   the data cache
+     * @param data    the web view data
      * @param ps      the proctoring session
      * @param site    the owning site
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitELMExam(final Cache cache, final MPSSession ps, final ProctoringSite site,
+    private static void emitELMExam(final WebViewData data, final MPSSession ps, final ProctoringSite site,
                                     final ImmutableSessionInfo session, final HtmlBuilder htm) throws SQLException {
 
         final String examId = "MT4UE";
@@ -254,7 +256,7 @@ enum PageExam {
                     us.closeSession(session);
 
                     final String redirect = "unit_done.html?course=M%20100T";
-                    us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                    us = new UnitExamSession(data, site.siteProfile, session.loginSessionId,
                             session.getEffectiveUserId(), RawRecordConstants.M100T, examId, redirect);
                     store.setUnitExamSession(us);
                 }
