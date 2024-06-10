@@ -1,13 +1,10 @@
 package dev.mathops.session.sitelogic.data;
 
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A container for the configuration records associated with an objective within one unit of a course.
@@ -18,21 +15,21 @@ final class SiteDataCfgObjective {
     final RawCuobjective courseUnitObjective;
 
     /** The homework associated with the course/unit/objective. */
-    private final List<AssignmentRec> homeworks;
+    private final AssignmentRec homework;
 
     /**
      * Constructs a new {@code SiteDataCfgObjective}.
      *
-     * @param cache            the data cache
+     * @param systemData       the system data object
      * @param theCourseUnitObj the {@code CCourseUnitObjective} model for the objective
      * @throws SQLException if there was an error accessing the database
      */
-    SiteDataCfgObjective(final Cache cache, final RawCuobjective theCourseUnitObj) throws SQLException {
+    SiteDataCfgObjective(final SystemData systemData, final RawCuobjective theCourseUnitObj) throws SQLException {
 
-        this.homeworks = AssignmentLogic.get(cache).queryActiveByCourseUnitObjective(cache,
-                theCourseUnitObj.course, theCourseUnitObj.unit, theCourseUnitObj.objective, "HW");
+        this.homework = systemData.getActiveAssignment(theCourseUnitObj.course, theCourseUnitObj.unit,
+                theCourseUnitObj.objective, "HW");
 
-        if (this.homeworks == null) {
+        if (this.homework == null) {
             this.courseUnitObjective = null;
         } else {
             this.courseUnitObjective = theCourseUnitObj;
@@ -40,12 +37,12 @@ final class SiteDataCfgObjective {
     }
 
     /**
-     * Gets the list of homeworks for the objective.
+     * Gets the homework for the objective.
      *
-     * @return the list of homeworks
+     * @return the list homework
      */
-    public List<AssignmentRec> getHomeworks() {
+    public AssignmentRec getHomework() {
 
-        return new ArrayList<>(this.homeworks);
+        return this.homework;
     }
 }

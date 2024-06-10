@@ -1,10 +1,8 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -64,14 +62,14 @@ public final class SiteDataCourse {
      * configuration data for that course section as needed. Called as the student's registrations and visiting course
      * records are loaded.
      *
-     * @param cache      the data cache
+     * @param systemData the system data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term in which the course was taken
      * @return the generated (or cached) {@code SiteDataCfgCourse} object
      * @throws SQLException if there is an error accessing the database
      */
-    SiteDataCfgCourse addCourse(final Cache cache, final String courseId, final String sectionNum,
+    SiteDataCfgCourse addCourse(final SystemData systemData, final String courseId, final String sectionNum,
                                 final TermKey termKey) throws SQLException {
 
         final Map<String, SiteDataCfgCourse> map = this.courseConfigs.computeIfAbsent(courseId, s -> new TreeMap<>());
@@ -81,23 +79,24 @@ public final class SiteDataCourse {
         if (cfg == null) {
             // final long t0 = System.currentTimeMillis();
 
-            cfg = new SiteDataCfgCourse(cache, courseId, sectionNum, termKey, this.owner);
+            cfg = new SiteDataCfgCourse(systemData, courseId, sectionNum, termKey, this.owner);
             // final long t1 = System.currentTimeMillis();
 
             if (cfg.course == null) {
-                Log.warning("Unable to create information for ", courseId, ", sect ", sectionNum, " for term ", termKey);
+                Log.warning("Unable to create information for ", courseId, ", sect ", sectionNum, " for term ",
+                        termKey);
                 cfg = null;
             } else {
                 final RawPacingStructure pacingStructure = cfg.pacingStructure;
                 if (pacingStructure != null && "Y".equals(pacingStructure.requireLicensed)
-                        && "N".equals(this.owner.studentData.getStudent().licensed)) {
+                        && "N".equals(this.owner.siteStudentData.getStudent().licensed)) {
 
                     cfg.mustTakeUsersExam = true;
                 }
 
                 // final long t2 = System.currentTimeMillis();
 
-                if (loadCourseUnits(cache, courseId, sectionNum, termKey)) {
+                if (loadCourseUnits(systemData, courseId, sectionNum, termKey)) {
                     map.put(sectionNum, cfg);
                 } else {
                     cfg = null;
@@ -116,27 +115,26 @@ public final class SiteDataCourse {
     /**
      * Loads the list of units in the course, and populates the map of {@code SiteDataCfgUnit} objects.
      *
-     * @param cache      the data cache
+     * @param systemData the system data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @return the generated (or cached) {@code SiteDataCfgCourse} object
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadCourseUnits(final Cache cache, final String courseId,
-                                    final String sectionNum, final TermKey termKey) throws SQLException {
+    private boolean loadCourseUnits(final SystemData systemData, final String courseId, final String sectionNum,
+                                    final TermKey termKey) throws SQLException {
 
         boolean success = true;
 
-        final List<RawCusection> courseSectionUnits = RawCusectionLogic.queryByCourseSection(cache,
-                courseId, sectionNum, termKey);
+        final List<RawCusection> courseSectionUnits = systemData.getCourseUnitSections(courseId, sectionNum, termKey);
 
         for (final RawCusection cusect : courseSectionUnits) {
 
-            final SiteDataCfgUnit data = new SiteDataCfgUnit(cache, cusect);
+            final SiteDataCfgUnit data = new SiteDataCfgUnit(systemData, cusect);
 
             final Integer unit = Integer.valueOf(cusect.unit.intValue());
 
-            if (!loadCourseUnitObjectives(cache, courseId, unit, termKey)) {
+            if (!loadCourseUnitObjectives(systemData, courseId, unit, termKey)) {
                 success = false;
                 break;
             }
@@ -155,22 +153,21 @@ public final class SiteDataCourse {
     /**
      * Loads the list of units in the course, and populates the map of {@code SiteDataCfgUnit} objects.
      *
-     * @param cache    the data cache
-     * @param courseId the course ID
-     * @param unit     the unit number
+     * @param systemData the system data object
+     * @param courseId   the course ID
+     * @param unit       the unit number
      * @return the generated (or cached) {@code SiteDataCfgCourse} object
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadCourseUnitObjectives(final Cache cache, final String courseId,
+    private boolean loadCourseUnitObjectives(final SystemData systemData, final String courseId,
                                              final Integer unit, final TermKey termKey) throws SQLException {
 
         boolean success = true;
 
-        final List<RawCuobjective> courseUnitObjectives =
-                RawCuobjectiveLogic.queryByCourseUnit(cache, courseId, unit, termKey);
+        final List<RawCuobjective> courseUnitObjectives = systemData.getCourseUnitObjectives(courseId, unit, termKey);
 
         for (final RawCuobjective cuobj : courseUnitObjectives) {
-            final SiteDataCfgObjective data = new SiteDataCfgObjective(cache, cuobj);
+            final SiteDataCfgObjective data = new SiteDataCfgObjective(systemData, cuobj);
 
             if (data.courseUnitObjective == null) {
                 success = false;
@@ -223,14 +220,14 @@ public final class SiteDataCourse {
     /**
      * Gets the course configuration data for a course section.
      *
-     * @param cache      the data cache
+     * @param systemData the system data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term key
      * @return the {@code SiteDataCfgCourse}
      * @throws SQLException if there is an error accessing the database
      */
-    SiteDataCfgCourse getCourse(final Cache cache, final String courseId, final String sectionNum,
+    SiteDataCfgCourse getCourse(final SystemData systemData, final String courseId, final String sectionNum,
                                 final TermKey termKey) throws SQLException {
 
         SiteDataCfgCourse result;
@@ -243,7 +240,7 @@ public final class SiteDataCourse {
         }
 
         if (result == null) {
-            result = addCourse(cache, courseId, sectionNum, termKey);
+            result = addCourse(systemData, courseId, sectionNum, termKey);
         }
 
         return result;
@@ -349,8 +346,7 @@ public final class SiteDataCourse {
      * @param objective the objective number
      * @return the {@code SiteDataCfgObjective}
      */
-    SiteDataCfgObjective getCourseUnitObjective(final String courseId, final Integer unit,
-                                                final Integer objective) {
+    SiteDataCfgObjective getCourseUnitObjective(final String courseId, final Integer unit, final Integer objective) {
 
         final SiteDataCfgObjective result;
 

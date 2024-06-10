@@ -76,12 +76,12 @@ enum PageStdsCourse {
             htm.addln("Unable to determine class schedule.");
             htm.eP();
         } else {
-            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+            final List<RawStcourse> paceRegs = logic.data.siteRegistrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-            final boolean isTutor = logic.data.studentData.isSpecialType(ZonedDateTime.now(), "TUTOR");
+            final boolean isTutor = logic.data.siteStudentData.isSpecialType(ZonedDateTime.now(), "TUTOR");
 
             final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(data, pace, paceTrack, reg, isTutor);
 

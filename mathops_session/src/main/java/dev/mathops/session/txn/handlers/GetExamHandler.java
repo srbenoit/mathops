@@ -15,21 +15,18 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.logic.ChallengeExamLogic;
 import dev.mathops.db.logic.ChallengeExamStatus;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMpeLog;
@@ -40,7 +37,6 @@ import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.sitelogic.servlet.ExamEligibilityTester;
@@ -137,18 +133,21 @@ public final class GetExamHandler extends AbstractHandlerBase {
         if (ok) {
             LogBase.setSessionInfo("TXN", request.studentId);
 
+            final StudentData studentData = getStudentData();
+            final SystemData systemData = studentData.getSystemData();
+
             // Look up the exam and store it in an AvailableExam object.
             final AvailableExam avail = new AvailableExam();
 
             if (request.examVersion != null) {
-                avail.exam = RawExamLogic.query(cache, request.examVersion);
+                avail.exam = systemData.getActiveExam(request.examVersion);
                 if (avail.exam == null) {
                     reply.error = "No exam found with the requested version";
                     ok = false;
                 }
             } else if (request.examCourse != null && request.examUnit != null && request.examType != null) {
 
-                avail.exam = RawExamLogic.queryActiveByCourseUnitType(cache, request.examCourse, request.examUnit,
+                avail.exam = systemData.getActiveExamByCourseUnitType(request.examCourse, request.examUnit,
                         request.examType);
                 if (avail.exam == null) {
                     reply.error = "Failed to query for exam for course, unit, and type.";
@@ -162,8 +161,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final ZonedDateTime now = ZonedDateTime.now();
 
             if (ok) {
-                final RawStudent student = getStudent();
-                final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, student.stuId);
+                final RawStudent student = studentData.getStudentRecord();
+                final List<RawAdminHold> holds = studentData.getHolds();
 
                 // We need to verify the exam and fill in the remaining fields in AvailableExam
                 final HtmlBuilder reasons = new HtmlBuilder(100);
@@ -181,9 +180,6 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 boolean eligible;
                 StandardsMasteryLogic standardsMasteryLogic = null;
 
-                // FIXME: Move this up, use for student-related data throughout
-                final StudentData studentData = new StudentData(cache, student.stuId, ELiveRefreshes.NONE);
-
                 if ("Q".equals(avail.exam.examType)) {
 
                     // NOTE: This includes user's exams
@@ -195,8 +191,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         }
                     } else {
                         try {
-                            final PlacementLogic logic = new PlacementLogic(cache, student.stuId,
-                                    student.aplnTerm, now);
+                            final PlacementLogic logic = new PlacementLogic(studentData, student.aplnTerm, now);
                             final PlacementStatus status = logic.status;
                             final Set<String> availablePlacement = isProctored ? status.availableLocalProctoredIds
                                     : status.availableUnproctoredIds;
@@ -249,9 +244,9 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     }
 
                 } else {
-                    final ExamEligibilityTester examtest = new ExamEligibilityTester(student.stuId);
+                    final ExamEligibilityTester examtest = new ExamEligibilityTester(studentData);
 
-                    eligible = examtest.isExamEligible(cache, now, avail, reasons, holds, request.checkEligibility);
+                    eligible = examtest.isExamEligible(now, avail, reasons, holds, request.checkEligibility);
 
                     if (examtest.getCourseSection() != null) {
                         section = examtest.getCourseSection().sect;
@@ -262,14 +257,14 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     // Generate a serial number for the exam
                     final long serial = generateSerialNumber(false);
 
-                    final TermRec term = TermLogic.get(cache).queryActive(cache);
+                    final TermRec term = systemData.getActiveTerm();
                     if (Objects.nonNull(term)) {
 
                         final String treeRef = avail.exam.treeRef;
                         if ("synthetic".equals(treeRef) && standardsMasteryLogic != null) {
                             buildSyntheticExam(avail.exam, standardsMasteryLogic, serial, reply, term);
                         } else {
-                            buildPresentedExam(cache, treeRef, serial, reply, term, isProctored);
+                            buildPresentedExam(studentData, treeRef, serial, reply, term, isProctored);
                         }
 
                         final ExamObj exam = reply.presentedExam;
@@ -431,6 +426,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                     avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
 
                             RawPendingExamLogic.INSTANCE.insert(cache, pending);
+                            studentData.forgetPendingExams();
                         }
                     }
                 } else {
@@ -452,14 +448,14 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
     /**
      * Builds a synthetic "ExamObj" object for mastery of course standards based on the set of standards for which the
-     * student is currently eligible.  The exam will have one section for each unit in which the student is eligible
-     * to try to master at least one standard.
+     * student is currently eligible.  The exam will have one section for each unit in which the student is eligible to
+     * try to master at least one standard.
      *
-     * @param examRec  the exam record
-     * @param logic    the standards mastery logic
-     * @param serial   the serial number to associate with the exam
-     * @param reply    the reply message to populate with the realized exam or the error status
-     * @param term     the active term
+     * @param examRec the exam record
+     * @param logic   the standards mastery logic
+     * @param serial  the serial number to associate with the exam
+     * @param reply   the reply message to populate with the realized exam or the error status
+     * @param term    the active term
      */
     private void buildSyntheticExam(final RawExam examRec, final StandardsMasteryLogic logic, final long serial,
                                     final GetExamReply reply, final TermRec term) {
@@ -525,7 +521,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         currentObj = masteryExam.objective;
                         currentSection.sectionName = "Learning Target " + masteryExam.unit + "."
                                 + masteryExam.objective;
-                        currentSection.shortName = "Target " +masteryExam.unit + "." + masteryExam.objective;
+                        currentSection.shortName = "Target " + masteryExam.unit + "." + masteryExam.objective;
                         exam.addSection(currentSection);
                     }
 
@@ -604,12 +600,14 @@ public final class GetExamHandler extends AbstractHandlerBase {
         }
 
         if (exam.realize("Y".equals(getTestingCenter().isRemote), true, serial)) {
+            final StudentData studentData = getStudentData();
+            final String studentId = studentData.getStudentId();
+
             reply.presentedExam = exam;
             reply.status = GetExamReply.SUCCESS;
-            reply.studentId = getStudent().stuId;
+            reply.studentId = studentId;
 
-            if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
-                    reply.toXml())) {
+            if (!new ExamWriter().writePresentedExam(studentId, term, reply.presentedExam, reply.toXml())) {
                 Log.warning("Unable to cache exam " + exam.ref);
                 reply.presentedExam = null;
                 reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
@@ -628,15 +626,17 @@ public final class GetExamHandler extends AbstractHandlerBase {
      * Attempt to construct a realized exam and install it in the reply message. On errors, the reply message errors
      * field will be set to the cause of the error.
      *
-     * @param cache       the data cache
+     * @param studentData the student data object
      * @param ref         the reference to the exam to be loaded
      * @param serial      the serial number to associate with the exam
      * @param reply       the reply message to populate with the realized exam or the error status
      * @param term        the term under which to file the presented exam
      * @param isProctored {@code true} if the exam is proctored; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
      */
-    private void buildPresentedExam(final Cache cache, final String ref, final long serial,
-                                    final GetExamReply reply, final TermRec term, final boolean isProctored) {
+    private void buildPresentedExam(final StudentData studentData, final String ref, final long serial,
+                                    final GetExamReply reply, final TermRec term, final boolean isProctored)
+            throws SQLException {
 
         final ExamObj exam = InstructionalCache.getExam(ref);
 
@@ -650,10 +650,9 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final Collection<Integer> autoPassItems = new ArrayList<>(10);
 
             // See which items the student has already gotten correct twice on this exam version
-            final RawStudent student = getStudent();
+            final RawStudent student = studentData.getStudentRecord();
             try {
-                final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, student.stuId, exam.examVersion,
-                        false);
+                final List<RawStexam> stexams = studentData.getStudentExamsByVersion(exam.examVersion, false);
 
                 final String examCourse = exam.course;
                 if (stexams.size() > 1 && (RawRecordConstants.M117.equals(examCourse)
@@ -662,7 +661,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         || RawRecordConstants.M125.equals(examCourse)
                         || RawRecordConstants.M126.equals(examCourse))) {
 
-                    final List<RawStqa> answers = RawStqaLogic.queryByStudent(cache, student.stuId);
+                    final List<RawStqa> answers = studentData.getStudentExamAnswers();
 
                     // Map from question number to count of correct answers
                     final Map<Integer, Integer> correctCount = new HashMap<>(20);

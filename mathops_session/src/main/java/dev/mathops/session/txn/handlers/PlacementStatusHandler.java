@@ -3,8 +3,8 @@ package dev.mathops.session.txn.handlers;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.PlacementStatusReply;
@@ -90,7 +90,9 @@ public final class PlacementStatusHandler extends AbstractHandlerBase {
      */
     private void populatePlacementStatus(final Cache cache, final PlacementStatusReply reply) throws SQLException {
 
-        final List<RawMpeCredit> credits = RawMpeCreditLogic.queryByStudent(cache, getStudent().stuId);
+        final StudentData studentData = getStudentData();
+
+        final List<RawMpeCredit> credits = studentData.getPlacementCredit();
         final int numCredits = credits.size();
 
         // Determine the number that have "C" or "P" results.

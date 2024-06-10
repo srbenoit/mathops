@@ -143,7 +143,7 @@ enum PageHome {
         }
 
         // Display all holds on the student's account that aren't hold 30
-        final List<RawAdminHold> stuHolds = logic.data.studentData.getStudentHolds();
+        final List<RawAdminHold> stuHolds = logic.data.siteStudentData.getStudentHolds();
 
         for (final RawAdminHold hold : stuHolds) {
             if ("30".equals(hold.holdId)) {
@@ -172,7 +172,7 @@ enum PageHome {
             htm.div("vgap");
         }
 
-        if (logic.data.studentData.getNumLockouts() == 0) {
+        if (logic.data.siteStudentData.getNumLockouts() == 0) {
             if (logic.course == null) {
                 Page.emitFile(htm, "precalc_instr_home_pre_hours.txt");
             } else {

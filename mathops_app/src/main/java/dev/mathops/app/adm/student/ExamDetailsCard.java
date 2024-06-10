@@ -441,8 +441,7 @@ import java.util.Locale;
      * @param cmd      the action command
      */
     @Override
-    public void commandOnRow(final int rowIndex, final RawStqa rowData,
-                             final String cmd) {
+    public void commandOnRow(final int rowIndex, final RawStqa rowData, final String cmd) {
 
         if ("COR".equals(cmd)) {
             this.answersTable.setUpdateButtonStates(rowIndex);
@@ -680,7 +679,7 @@ import java.util.Locale;
 
         String error;
         try {
-            error = CourseLogic.checkForComplete(this.cache, reg);
+            error = CourseLogic.checkForComplete(studentData, reg);
         } catch (final SQLException ex) {
             error = ex.getMessage();
         }

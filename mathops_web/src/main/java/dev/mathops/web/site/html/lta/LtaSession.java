@@ -21,9 +21,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
@@ -31,8 +31,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -110,19 +108,17 @@ public final class LtaSession extends HtmlSessionBase {
      * Constructs a new {@code LtaSession}. This is called when the user clicks a button to start an assignment. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theExamId        the assignment ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
-    public LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-                      final String theStudentId, final String theExamId, final String theRedirectOnEnd)
-            throws SQLException {
+    public LtaSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile, final String theSessionId,
+                      final String theExamId, final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.state = ELtaState.INITIAL;
         this.currentSection = -1;
@@ -135,10 +131,9 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Constructs a new {@code LtaSession}. This method is used during parsing of persisted sessions.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
-     * @param theStudentId     the student ID
      * @param theExamId        the assignment ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @param theState         the session state
@@ -150,14 +145,12 @@ public final class LtaSession extends HtmlSessionBase {
      * @param theHomework      the homework
      * @throws SQLException if there is an error accessing the database
      */
-    LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-               final String theStudentId, final String theExamId, final String theRedirectOnEnd,
-               final ELtaState theState, final int theSection, final int theItem, final Integer theMinMastery,
-               final long theTimeout, final boolean theStarted, final Integer theScore, final String theError,
-               final ExamObj theHomework)
-            throws SQLException {
+    LtaSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile, final String theSessionId,
+               final String theExamId, final String theRedirectOnEnd, final ELtaState theState, final int theSection,
+               final int theItem, final Integer theMinMastery, final long theTimeout, final boolean theStarted,
+               final Integer theScore, final String theError, final ExamObj theHomework) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.currentSection = theSection;
@@ -234,19 +227,18 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Generates HTML for the assignment based on its current state.
      *
-     * @param cache the data cache
      * @param now   the date/time to consider "now"
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    public void generateHtml(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm)
+    public void generateHtml(final ZonedDateTime now, final HtmlBuilder htm)
             throws SQLException {
 
         this.timeout = System.currentTimeMillis() + TIMEOUT;
 
         switch (this.state) {
             case INITIAL:
-                doInitial(cache, now, htm);
+                doInitial(now, htm);
                 break;
 
             case INSTRUCTIONS:
@@ -282,15 +274,17 @@ public final class LtaSession extends HtmlSessionBase {
      * Processes a request for the page while in the INITIAL state, which generates the assignment, then sends its
      * HTML.
      *
-     * @param cache the data cache
      * @param now   the date/time to consider "now"
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void doInitial(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
+    private void doInitial(final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
 
-        final LtaEligibilityTester ltaTest = new LtaEligibilityTester(this.studentId);
-        final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, this.version);
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+        final String studentId = studentData.getStudentId();
+
+        final AssignmentRec avail = systemData.getActiveAssignment(this.version);
 
         final HtmlBuilder reasons = new HtmlBuilder(100);
         final Collection<RawAdminHold> holds = new ArrayList<>(1);
@@ -298,115 +292,121 @@ public final class LtaSession extends HtmlSessionBase {
         String error = null;
         if (avail == null) {
             error = "Learning target assignment " + this.version + " not found.";
-        } else if (ltaTest.isLtaEligible(cache, now, avail, reasons, holds)) {
+        } else {
+            final LtaEligibilityTester ltaTest = new LtaEligibilityTester(studentId);
 
-            final Long serial = Long.valueOf(AbstractHandlerBase.generateSerialNumber(false));
-            this.minMastery = ltaTest.getMinMasteryScore();
-            final ExamObj theExamObj = InstructionalCache.getExam(avail.treeRef);
+            final Cache cache = studentData.getCache();
+            if (ltaTest.isLtaEligible(cache, now, avail, reasons, holds)) {
 
-            if (theExamObj == null) {
-                Log.warning("Unable to load template for ", avail.treeRef);
-                error = "Unable to load assignment";
-            } else if (theExamObj.ref == null) {
-                error = "Unable to load assignment template";
-            } else {
-                boolean alreadyPassed = false;
-                final Set<Integer> alreadyCorrect = new HashSet<>(10);
+                final Long serial = Long.valueOf(AbstractHandlerBase.generateSerialNumber(false));
+                this.minMastery = ltaTest.getMinMasteryScore();
+                final ExamObj theExamObj = InstructionalCache.getExam(avail.treeRef);
 
-                // See if the student has already passed this assignment.  If they have, they get the complete
-                // assignment as practice.  If not, they get only the questions they have not yet answered correctly.
+                if (theExamObj == null) {
+                    Log.warning("Unable to load template for ", avail.treeRef);
+                    error = "Unable to load assignment";
+                } else if (theExamObj.ref == null) {
+                    error = "Unable to load assignment template";
+                } else {
+                    boolean alreadyPassed = false;
+                    final Set<Integer> alreadyCorrect = new HashSet<>(10);
 
-                final List<RawSthomework> allHw = RawSthomeworkLogic.queryByStudentCourseUnit(cache, this.studentId,
-                        avail.courseId, avail.unit, false);
-                for (final RawSthomework hw : allHw) {
-                    if (hw.version.equals(avail.assignmentId) && "Y".equals(hw.passed)) {
-                        alreadyPassed = true;
-                        break;
-                    }
-                }
+                    // See if the student has already passed this assignment.  If they have, they get the complete
+                    // assignment as practice.  If not, they get only the questions they have not yet answered correctly.
 
-                if (!alreadyPassed) {
-                    // Gather a list of item numbers that the student has already gotten correct
-                    final List<RawSthwqa> allQa = RawSthwqaLogic.queryByStudent(cache, this.studentId);
-                    for (final RawSthwqa qa : allQa) {
-                        if (qa.version.equals(avail.assignmentId) && "Y".equals(qa.ansCorrect)) {
-                            alreadyCorrect.add(qa.questionNbr);
-                        }
-                    }
-                }
-
-                final int numProblems = theExamObj.getNumProblems();
-                if (Integer.valueOf(-1).equals(this.minMastery)) {
-                    this.minMastery = Integer.valueOf(numProblems);
-                }
-//                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this.minMastery);
-
-                theExamObj.realizationTime = System.currentTimeMillis();
-                theExamObj.serialNumber = serial;
-
-                final int count = theExamObj.getNumSections();
-                if (count > 0) {
-                    final ExamSection sect = theExamObj.getSection(0);
-                    sect.enabled = true;
-
-                    // Replace problems the student already has correct with "auto-correct" items
-                    if (!alreadyCorrect.isEmpty()) {
-                        final int numProb = sect.getNumProblems();
-                        for (int i = 0; i < numProb; ++i) {
-                            final ExamProblem prob = sect.getProblem(i);
-
-                            if (alreadyCorrect.contains(prob.problemId)) {
-                                prob.clearProblems();
-                                prob.addProblem(new ProblemAutoCorrectTemplate(1));
-                            }
-                        }
-                    }
-
-                    final EvalContext evalContext = theExamObj.getEvalContext();
-
-                    final ExamSection examSect = theExamObj.getSection(0);
-                    for (int attempt = 1; attempt <= 5; attempt++) {
-                        if (examSect.realize(evalContext)) {
-                            examSect.passed = false;
-                            examSect.mastered = false;
-                            examSect.score = Long.valueOf(0L);
+                    final List<RawSthomework> allHw = studentData.getStudentHomeworkForCourseUnit(avail.courseId,
+                            avail.unit);
+                    for (final RawSthomework hw : allHw) {
+                        if (hw.version.equals(avail.assignmentId) && "Y".equals(hw.passed)) {
+                            alreadyPassed = true;
                             break;
                         }
                     }
 
-                    theExamObj.getSection(0).enabled = true;
-                    this.currentItem = 0;
-                    theExamObj.presentationTime = System.currentTimeMillis();
-                    setExam(theExamObj);
+                    if (!alreadyPassed) {
+                        // Gather a list of item numbers that the student has already gotten correct
+                        final List<RawSthwqa> allQa = studentData.getStudentHomeworkAnswers();
+                        for (final RawSthwqa qa : allQa) {
+                            if (qa.version.equals(avail.assignmentId) && "Y".equals(qa.ansCorrect)) {
+                                alreadyCorrect.add(qa.questionNbr);
+                            }
+                        }
+                    }
 
-                    // Write the record of the exam...
+                    final int numProblems = theExamObj.getNumProblems();
+                    if (Integer.valueOf(-1).equals(this.minMastery)) {
+                        this.minMastery = Integer.valueOf(numProblems);
+                    }
+//                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this
+//                .minMastery);
 
-                    final TermRec term = TermLogic.get(cache).queryActive(cache);
-                    final GetReviewExamReply reply = new GetReviewExamReply();
-                    reply.masteryScore = this.minMastery;
-                    reply.status = GetExamReply.SUCCESS;
-                    reply.presentedExam = theExamObj;
-                    reply.studentId = this.studentId;
+                    theExamObj.realizationTime = System.currentTimeMillis();
+                    theExamObj.serialNumber = serial;
 
-                    if (new ExamWriter().writePresentedExam(this.studentId, term, reply.presentedExam, reply.toXml())) {
-                        if (theExamObj.instructions == null) {
-                            this.state = ELtaState.ITEM_NN;
-                            appendAssignmentHtml(htm);
+                    final int count = theExamObj.getNumSections();
+                    if (count > 0) {
+                        final ExamSection sect = theExamObj.getSection(0);
+                        sect.enabled = true;
+
+                        // Replace problems the student already has correct with "auto-correct" items
+                        if (!alreadyCorrect.isEmpty()) {
+                            final int numProb = sect.getNumProblems();
+                            for (int i = 0; i < numProb; ++i) {
+                                final ExamProblem prob = sect.getProblem(i);
+
+                                if (alreadyCorrect.contains(prob.problemId)) {
+                                    prob.clearProblems();
+                                    prob.addProblem(new ProblemAutoCorrectTemplate(1));
+                                }
+                            }
+                        }
+
+                        final EvalContext evalContext = theExamObj.getEvalContext();
+
+                        final ExamSection examSect = theExamObj.getSection(0);
+                        for (int attempt = 1; attempt <= 5; attempt++) {
+                            if (examSect.realize(evalContext)) {
+                                examSect.passed = false;
+                                examSect.mastered = false;
+                                examSect.score = Long.valueOf(0L);
+                                break;
+                            }
+                        }
+
+                        theExamObj.getSection(0).enabled = true;
+                        this.currentItem = 0;
+                        theExamObj.presentationTime = System.currentTimeMillis();
+                        setExam(theExamObj);
+
+                        // Write the record of the exam...
+
+                        final TermRec term = systemData.getActiveTerm();
+                        final GetReviewExamReply reply = new GetReviewExamReply();
+                        reply.masteryScore = this.minMastery;
+                        reply.status = GetExamReply.SUCCESS;
+                        reply.presentedExam = theExamObj;
+                        reply.studentId = studentId;
+
+                        if (new ExamWriter().writePresentedExam(studentId, term, reply.presentedExam, reply.toXml())) {
+                            if (theExamObj.instructions == null) {
+                                this.state = ELtaState.ITEM_NN;
+                                appendAssignmentHtml(htm);
+                            } else {
+                                this.state = ELtaState.INSTRUCTIONS;
+                                appendInstructionsHtml(htm);
+                            }
                         } else {
-                            this.state = ELtaState.INSTRUCTIONS;
-                            appendInstructionsHtml(htm);
+                            error = "Unable to write presented exam";
                         }
                     } else {
-                        error = "Unable to write presented exam";
+                        error = "Learning target assignment has no sections";
                     }
-                } else {
-                    error = "Learning target assignment has no sections";
                 }
+            } else if (reasons.length() == 0) {
+                error = "Not eligible for learning target assignment.";
+            } else {
+                error = "Not eligible for learning target assignment: " + reasons;
             }
-        } else if (reasons.length() == 0) {
-            error = "Not eligible for learning target assignment.";
-        } else {
-            error = "Not eligible for learning target assignment: " + reasons;
         }
 
         if (error != null) {
@@ -766,7 +766,6 @@ public final class LtaSession extends HtmlSessionBase {
                                         final String nextCmd,
                                         final String nextLabel) {
 
-
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:", HEADER_BG_COLOR,
                 "; display:block; border:1px solid ", OUTLINE_COLOR,
                 "; margin:1px; padding:0 12px; text-align:center;'");
@@ -817,42 +816,41 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Called when a POST is received on the page hosting the homework.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a URL to which to redirect; {@code null} to present the generated HTML
      * @throws SQLException if there is an error accessing the database
      */
-    public String processPost(final Cache cache, final ImmutableSessionInfo session,
-                              final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    public String processPost(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         String redirect = null;
 
         switch (this.state) {
             case INSTRUCTIONS:
-                processPostInstructions(cache, session, req, htm);
+                processPostInstructions(session, req, htm);
                 break;
 
             case ITEM_NN:
-                processPostInteracting(cache, session, req, htm);
+                processPostInteracting(session, req, htm);
                 break;
 
             case SUBMIT_NN:
-                processPostSubmit(cache, session, req, htm);
+                processPostSubmit(session, req, htm);
                 break;
 
             case COMPLETED:
-                processPostCompleted(cache, session, req, htm);
+                processPostCompleted(session, req, htm);
                 break;
 
             case SOLUTION_NN:
-                redirect = processPostSolution(cache, session, req, htm);
+                redirect = processPostSolution(session, req, htm);
                 break;
 
             case INITIAL:
             default:
-                generateHtml(cache, session.getNow(), htm);
+                generateHtml(session.getNow(), htm);
                 break;
         }
 
@@ -869,14 +867,13 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Called when a POST is received while in the INSTRUCTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInstructions(final Cache cache, final ImmutableSessionInfo session,
-                                         final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInstructions(final ImmutableSessionInfo session, final ServletRequest req,
+                                         final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("nav_0") != null) {
             this.currentItem = 0;
@@ -903,20 +900,19 @@ public final class LtaSession extends HtmlSessionBase {
             }
         }
 
-        generateHtml(cache, session.getNow(), htm);
+        generateHtml(session.getNow(), htm);
     }
 
     /**
      * Called when a POST is received while in the INTERACTING state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostInteracting(final Cache cache, final ImmutableSessionInfo session,
-                                        final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostInteracting(final ImmutableSessionInfo session, final ServletRequest req,
+                                        final HtmlBuilder htm) throws SQLException {
 
         if (this.currentItem != -1) {
             final String reqItem = req.getParameter("currentItem");
@@ -969,20 +965,19 @@ public final class LtaSession extends HtmlSessionBase {
         }
 
         final ZonedDateTime now = session.getNow();
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the SUBMIT_NN state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostSubmit(final Cache cache, final ImmutableSessionInfo session,
-                                   final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostSubmit(final ImmutableSessionInfo session, final ServletRequest req, final HtmlBuilder htm)
+            throws SQLException {
 
         final ZonedDateTime now = session.getNow();
 
@@ -991,24 +986,23 @@ public final class LtaSession extends HtmlSessionBase {
             this.state = ELtaState.ITEM_NN;
         } else if (req.getParameter("Y") != null) {
             appendExamLog("Submit confirmed, scoring...");
-            this.gradingError = scoreAndRecordCompletion(cache, now);
+            this.gradingError = scoreAndRecordCompletion(now);
             this.state = ELtaState.COMPLETED;
         }
 
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the COMPLETED state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private void processPostCompleted(final Cache cache, final ImmutableSessionInfo session,
-                                      final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private void processPostCompleted(final ImmutableSessionInfo session, final ServletRequest req,
+                                      final HtmlBuilder htm) throws SQLException {
 
         if (req.getParameter("solutions") != null) {
             appendExamLog("Moving to solutions...");
@@ -1017,21 +1011,20 @@ public final class LtaSession extends HtmlSessionBase {
         }
 
         final ZonedDateTime now = session.getNow();
-        generateHtml(cache, now, htm);
+        generateHtml(now, htm);
     }
 
     /**
      * Called when a POST is received while in the SOLUTIONS state.
      *
-     * @param cache   the data cache
      * @param session the user session
      * @param req     the servlet request
      * @param htm     the {@code HtmlBuilder} to which to append
      * @return a string to which to redirect; null if no redirection should occur
      * @throws SQLException if there is an error accessing the database
      */
-    private String processPostSolution(final Cache cache, final ImmutableSessionInfo session,
-                                       final ServletRequest req, final HtmlBuilder htm) throws SQLException {
+    private String processPostSolution(final ImmutableSessionInfo session, final ServletRequest req,
+                                       final HtmlBuilder htm) throws SQLException {
 
         String redirect = null;
 
@@ -1056,7 +1049,7 @@ public final class LtaSession extends HtmlSessionBase {
                 }
             }
 
-            generateHtml(cache, session.getNow(), htm);
+            generateHtml(session.getNow(), htm);
         }
 
         return redirect;
@@ -1065,19 +1058,18 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Scores the submitted exam and records the results.
      *
-     * @param cache the data cache
      * @param now   the date/time to consider now
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String scoreAndRecordCompletion(final Cache cache,
-                                            final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private String scoreAndRecordCompletion(final ChronoZonedDateTime<LocalDate> now) throws SQLException {
 
         final String error;
 
 //        Log.info("Scoring learning target assignment");
 
-        final String stuId = this.studentId;
+        final StudentData studentData = getStudentData();
+        final String stuId = studentData.getStudentId();
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
             error = "Guest login assignments will not be recorded.";
@@ -1087,12 +1079,11 @@ public final class LtaSession extends HtmlSessionBase {
             Log.info("Writing updated learning target assignment state");
 
             final Object[][] answers = getExam().exportState();
-            loadStudentInfo(cache);
 
             // Write the updated exam state out somewhere permanent
             new ExamWriter().writeUpdatedExam(stuId, this.active, answers, false);
 
-            error = finalizeAssignment(cache, now, answers);
+            error = finalizeAssignment(now, answers);
         }
 
         if (error != null) {
@@ -1105,14 +1096,13 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Finalize the assignment record on the server.
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider now
      * @param answers the submitted answers
      * @return {@code null} on success; an error message on any failure
      * @throws SQLException if there is an error accessing the database
      */
-    private String finalizeAssignment(final Cache cache, final ChronoZonedDateTime<LocalDate> now,
-                                      final Object[][] answers) throws SQLException {
+    private String finalizeAssignment(final ChronoZonedDateTime<LocalDate> now, final Object[][] answers)
+            throws SQLException {
 
         final ExamObj exam = getExam();
         final String crsId = exam.course;
@@ -1141,12 +1131,16 @@ public final class LtaSession extends HtmlSessionBase {
             Log.warning("Answers[0] was not length 4: ", Arrays.toString(answers[0]));
         }
 
+        final StudentData studentData = getStudentData();
+        final SystemData systemData = studentData.getSystemData();
+        final String studentId = studentData.getStudentId();
+
         // See if the exam has already been inserted
         final Long ser = exam.serialNumber;
         final LocalDateTime start = TemporalUtils.toLocalDateTime(exam.realizationTime);
         final LocalDateTime finish = TemporalUtils.toLocalDateTime(exam.completionTime);
 
-        final List<RawSthomework> existing = RawSthomeworkLogic.getHomeworks(cache, this.studentId, crsId, false, "ST");
+        final List<RawSthomework> existing = studentData.getStudentHomeworkForCourse(crsId);
         for (final RawSthomework test : existing) {
             if (test.serialNbr.equals(ser)) {
                 return "This assignment has already been recorded.";
@@ -1159,9 +1153,9 @@ public final class LtaSession extends HtmlSessionBase {
         param1.setValue(Boolean.FALSE);
         params.addVariable(param1);
 
-        Log.info("Grading learning target assignment ", exam.examVersion, " for student ", this.studentId);
+        Log.info("Grading learning target assignment ", exam.examVersion, " for student ", studentId);
 
-        final AssignmentRec assignmentRec = AssignmentLogic.get(cache).query(cache, this.version);
+        final AssignmentRec assignmentRec = systemData.getActiveAssignment(this.version);
         if (assignmentRec == null) {
             return "Learning target assignment " + this.version + " not found!";
         }
@@ -1170,7 +1164,7 @@ public final class LtaSession extends HtmlSessionBase {
         final RawSthomework sthw = new RawSthomework();
         sthw.serialNbr = exam.serialNumber;
         sthw.version = exam.examVersion;
-        sthw.stuId = this.studentId;
+        sthw.stuId = studentId;
         sthw.hwDt = finish.toLocalDate();
         sthw.startTime = Integer.valueOf(TemporalUtils.minuteOfDay(start.toLocalTime()));
         sthw.finishTime = Integer.valueOf(TemporalUtils.minuteOfDay(finish.toLocalTime()));
@@ -1181,12 +1175,13 @@ public final class LtaSession extends HtmlSessionBase {
         sthw.objective = assignmentRec.objective;
         sthw.hwCoupon = "N";
 
-        final RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, this.studentId, exam.course);
+        final RawStcourse stcourse = studentData.getActiveRegistration(exam.course);
         if (stcourse == null) {
-            if (RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(), "TUTOR", "M384", "ADMIN")) {
+            final LocalDate today = now.toLocalDate();
+            if (studentData.isSpecialCategory(today, "TUTOR", "M384", "ADMIN")) {
                 sthw.sect = "001";
             } else {
-                return SimpleBuilder.concat("Unable to look up course registration for ", this.studentId, " in ",
+                return SimpleBuilder.concat("Unable to look up course registration for ", studentId, " in ",
                         exam.course);
             }
         } else {
@@ -1207,10 +1202,12 @@ public final class LtaSession extends HtmlSessionBase {
             sthw.passed = "N";
         }
 
-        final String error = recordQuestionAnswers(cache, assignmentRec, exam.serialNumber);
+        final String error = recordQuestionAnswers(assignmentRec, exam.serialNumber);
 
         if (error == null) {
+            final Cache cache = studentData.getCache();
             RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
+            studentData.forgetStudentHomeworks();
         }
 
         return error;
@@ -1275,14 +1272,12 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Write the series of STHWQA records to the database to record the student's answers on the homework assignment.
      *
-     * @param cache        the data cache
      * @param hw           the homework assignment being submitted
      * @param serialNumber the serial number of the homework submission
      * @return {@code null} if the method succeeded; an error message otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private String recordQuestionAnswers(final Cache cache, final AssignmentRec hw,
-                                         final Long serialNumber) throws SQLException {
+    private String recordQuestionAnswers(final AssignmentRec hw, final Long serialNumber) throws SQLException {
 
         final Object[][] answers = getExam().exportState();
 
@@ -1326,11 +1321,16 @@ public final class LtaSession extends HtmlSessionBase {
             final boolean isCorrect = selected.isCorrect(answers[i]);
             selected.score = isCorrect ? 1.0 : 0.0;
 
+            final StudentData studentData = getStudentData();
+            final String studentId = studentData.getStudentId();
+
             final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i), Integer.valueOf(1), obj,
-                    new String(ans), this.studentId, hw.assignmentId, isCorrect ? "Y" : "N", fin.toLocalDate(),
+                    new String(ans), studentId, hw.assignmentId, isCorrect ? "Y" : "N", fin.toLocalDate(),
                     Integer.valueOf(finTime));
 
+            final Cache cache = studentData.getCache();
             if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {
+                studentData.forgetStudentHomeworkAnswers();
                 error = "There was an error recording the assignment score.";
                 break;
             }
@@ -1347,13 +1347,16 @@ public final class LtaSession extends HtmlSessionBase {
     void appendXml(final HtmlBuilder xml) {
 
         if (getExam() != null) {
+            final StudentData studentData = getStudentData();
+            final String studentId = studentData.getStudentId();
+
             final WebSiteProfile siteProfile = getSiteProfile();
 
             xml.addln("<lta-session>");
             xml.addln(" <host>", siteProfile.host, "</host>");
             xml.addln(" <path>", siteProfile.path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
-            xml.addln(" <student>", this.studentId, "</student>");
+            xml.addln(" <student>", studentId, "</student>");
             xml.addln(" <assign-id>", this.version, "</assign-id>");
             xml.addln(" <state>", this.state.name(), "</state>");
             xml.addln(" <cur-sect>", Integer.toString(this.currentSection), "</cur-sect>");
@@ -1430,16 +1433,15 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Performs a forced abort of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced abort
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceAbort(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceAbort(final ImmutableSessionInfo session) throws SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             appendExamLog("Forced abort requested");
             synchronized (this) {
-                writeExamRecovery(cache);
+                writeExamRecovery();
                 if (getExam() != null) {
                     setExam(null);
                 }
@@ -1457,18 +1459,18 @@ public final class LtaSession extends HtmlSessionBase {
     /**
      * Performs a forced submit of a placement exam session.
      *
-     * @param cache   the data cache
      * @param session the login session requesting the forced submit
      * @throws SQLException if there is an error accessing the database
      */
-    public void forceSubmit(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    public void forceSubmit(final ImmutableSessionInfo session) throws SQLException {
 
         if (session == null) {
             appendExamLog("Review exam timed out after being started - submitting");
 
             synchronized (this) {
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, ZonedDateTime.now());
+                writeExamRecovery();
+                final ZonedDateTime now = ZonedDateTime.now();
+                this.gradingError = scoreAndRecordCompletion(now);
                 this.state = ELtaState.COMPLETED;
 
                 if (getExam() != null) {
@@ -1481,8 +1483,9 @@ public final class LtaSession extends HtmlSessionBase {
             appendExamLog("Forced submit requested");
 
             synchronized (this) {
-                writeExamRecovery(cache);
-                this.gradingError = scoreAndRecordCompletion(cache, session.getNow());
+                writeExamRecovery();
+                final ZonedDateTime now = session.getNow();
+                this.gradingError = scoreAndRecordCompletion(now);
                 this.state = ELtaState.COMPLETED;
 
                 if (getExam() != null) {

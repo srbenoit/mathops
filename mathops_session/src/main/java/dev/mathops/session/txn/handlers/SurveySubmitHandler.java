@@ -5,6 +5,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawrecord.RawStsurveyqa;
@@ -83,7 +84,7 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
                 if (loadStudentInfo(cache, request.studentId, reply)) {
                     LogBase.setSessionInfo("TXN", request.studentId);
 
-                    storeAnswers(cache, request.version, request.answers, reply, getStudent().stuId);
+                    storeAnswers(request.version, request.answers, reply);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -98,18 +99,20 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
      * Look up the list of survey questions for the given exam version for the current term, and store the results in
      * the reply, in ascending order of question number.
      *
-     * @param cache     the data cache
      * @param version   the exam version
      * @param answers   the list of submitted answers
-     * @param studentId the ID of the student for which to update answers
      * @param reply     the reply message that will be sent back to the client
      * @throws SQLException if there is an error accessing the database
      */
-    private static void storeAnswers(final Cache cache, final String version, final String[] answers,
-                                     final SurveySubmitReply reply, final String studentId) throws SQLException {
+    private void storeAnswers(final String version, final String[] answers, final SurveySubmitReply reply)
+            throws SQLException {
 
         final LocalDateTime now = LocalDateTime.now();
         final HtmlBuilder htm = new HtmlBuilder(100);
+
+        final StudentData studentData = getStudentData();
+        final String studentId = studentData.getStudentId();
+        final Cache cache = studentData.getCache();
 
         final int numAns = answers.length;
         for (int i = 0; i < numAns; ++i) {
@@ -131,6 +134,7 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
                 RawStsurveyqaLogic.INSTANCE.insert(cache, ans);
             }
         }
+        studentData.forgetSurveyResponses();
 
         // store any error messages in the reply
         reply.error = htm.toString();

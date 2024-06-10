@@ -16,7 +16,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.txn.messages.GetExamReply;
@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
- * A user session used to review a submitted learning target assignment. It takes as arguments a session ID,
- * student name, and assignment ID and retrieves the submitted assignment and presents it to the student.
+ * A user session used to review a submitted learning target assignment. It takes as arguments a session ID, student
+ * name, and assignment ID and retrieves the submitted assignment and presents it to the student.
  */
 public final class PastLtaSession extends HtmlSessionBase {
 
@@ -75,20 +75,19 @@ public final class PastLtaSession extends HtmlSessionBase {
      * Constructs a new {@code PastLtaSession}. This is called when the user clicks a button to view a past learning
      * target assignment. It stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
      * @param theExamId        the exam ID
      * @param theXmlFilename   the XML filename
-     * @param theStudentId     the student ID
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-                          final String theExamId, final String theXmlFilename, final String theStudentId,
+    public PastLtaSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile,
+                          final String theSessionId, final String theExamId, final String theXmlFilename,
                           final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExamId, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -104,11 +103,10 @@ public final class PastLtaSession extends HtmlSessionBase {
     /**
      * Constructs a new {@code PastLtaSession}. This is used when restoring the session from its persisted state.
      *
-     * @param cache            the data cache
+     * @param theStudentData   the student data object
      * @param theSiteProfile   the site profile
      * @param theSessionId     the session ID
      * @param theXmlFilename   the XML filename
-     * @param theStudentId     the student ID
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @param theState         the session state
      * @param theError         the grading error
@@ -117,12 +115,12 @@ public final class PastLtaSession extends HtmlSessionBase {
      * @param theExam          the exam
      * @throws SQLException if there is an error accessing the database
      */
-    PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
-                   final String theXmlFilename, final String theStudentId, final String theRedirectOnEnd,
-                   final EPastLtaState theState, final String theError, final int theCurrentItem, final long theTimeout,
-                   final ExamObj theExam) throws SQLException {
+    PastLtaSession(final StudentData theStudentData, final WebSiteProfile theSiteProfile, final String theSessionId,
+                   final String theXmlFilename, final String theRedirectOnEnd, final EPastLtaState theState,
+                   final String theError, final int theCurrentItem, final long theTimeout, final ExamObj theExam)
+            throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExam.examVersion, theRedirectOnEnd);
+        super(theStudentData, theSiteProfile, theSessionId, theExam.examVersion, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -223,8 +221,7 @@ public final class PastLtaSession extends HtmlSessionBase {
      * @param upd the relative path of the update file
      * @param htm the {@code HtmlBuilder} to which to append
      */
-    private void doInitial(final ZonedDateTime now, final String xml, final String upd,
-                           final HtmlBuilder htm) {
+    private void doInitial(final ZonedDateTime now, final String xml, final String upd, final HtmlBuilder htm) {
 
         // Verify presence of all required files
         final File basePath1 = new File("/imp/data");
@@ -730,7 +727,7 @@ public final class PastLtaSession extends HtmlSessionBase {
             }
 
             htm.addln("<a style='font-family:serif;' href='javascript:invokeAct(\"nav_", Integer.toString(p),
-                      "\");'> Question ", Integer.valueOf(p + 1), "</a>");
+                    "\");'> Question ", Integer.valueOf(p + 1), "</a>");
             htm.eDiv();
         }
 

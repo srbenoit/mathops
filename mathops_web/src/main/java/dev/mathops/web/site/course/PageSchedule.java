@@ -101,7 +101,7 @@ enum PageSchedule {
                                   final HtmlBuilder htm) throws SQLException {
 
         // Build list of registrations relevant to this context
-        final SiteDataRegistration regData = logic.data.registrationData;
+        final SiteDataRegistration regData = logic.data.siteRegistrationData;
 
         final List<RawStcourse> tempList = new ArrayList<>(6);
 
@@ -472,11 +472,11 @@ enum PageSchedule {
 
                 final TermKey incTerm = reg.iTermKey;
 
-                final SiteDataCfgCourse courseData = logic.data.courseData.getCourse(reg.course, reg.sect);
+                final SiteDataCfgCourse courseData = logic.data.siteCourseData.getCourse(reg.course, reg.sect);
                 if (courseData == null) {
                     htm.addln(" <strong>", reg.course, "</strong> - unable to query course status.");
 
-                    final Map<String, Map<String, SiteDataCfgCourse>> courses = logic.data.courseData.getCourses();
+                    final Map<String, Map<String, SiteDataCfgCourse>> courses = logic.data.siteCourseData.getCourses();
                     for (final Map.Entry<String, Map<String, SiteDataCfgCourse>> e1 : courses.entrySet()) {
                         final String courseId = e1.getKey();
                         for (final Map.Entry<String, SiteDataCfgCourse> e2 : e1.getValue().entrySet()) {
@@ -537,7 +537,7 @@ enum PageSchedule {
                     continue;
                 }
 
-                final RawCourse course = logic.data.courseData.getCourse(reg.course, reg.sect).course;
+                final RawCourse course = logic.data.siteCourseData.getCourse(reg.course, reg.sect).course;
 
                 htm.sP().add("<strong>", course.courseLabel, "</strong>").eP();
             }
@@ -566,7 +566,7 @@ enum PageSchedule {
 
         htm.sDiv("indent22");
 
-        final SiteDataCourse courseData = logic.data.courseData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
         for (final RawStcourse reg : paceReg) {
 
             final String courseId = reg.course;
@@ -640,9 +640,9 @@ enum PageSchedule {
 
         boolean started = false;
 
-        final SiteDataActivity actData = logic.data.activityData;
-        final SiteDataCourse courseData = logic.data.courseData;
-        final SiteDataMilestone msData = logic.data.milestoneData;
+        final SiteDataActivity actData = logic.data.siteActivityData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
+        final SiteDataMilestone msData = logic.data.siteMilestoneData;
 
         // Print all pace deadlines, including student override dates
         final SystemData systemData = data.getSystemData();
@@ -2068,7 +2068,7 @@ enum PageSchedule {
     private static int emitKnownCourses(final CourseSiteLogic logic, final HtmlBuilder htm,
                                         final Iterable<RawStcourse> paceReg) {
 
-        final SiteDataCourse courseData = logic.data.courseData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
 
         int next = 1;
         for (; ; ) {
@@ -2152,7 +2152,7 @@ enum PageSchedule {
     private static void emitList(final CourseSiteLogic logic, final HtmlBuilder htm, final int next,
                                  final RawStcourse... regs) {
 
-        final SiteDataCourse courseData = logic.data.courseData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
         int curOrder = next;
 
         for (final RawStcourse reg : regs) {
@@ -2196,7 +2196,7 @@ enum PageSchedule {
             final String whichCourse = req.getParameter("order" + i);
 
             if (whichCourse != null) {
-                final List<RawStcourse> allReg = logic.data.registrationData.getRegistrations();
+                final List<RawStcourse> allReg = logic.data.siteRegistrationData.getRegistrations();
 
                 final int size = allReg.size();
                 for (int j = 0; j < size; ++j) {

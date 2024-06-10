@@ -2,11 +2,7 @@ package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.logic.DbConnection;
-import dev.mathops.db.logic.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;
@@ -21,8 +17,8 @@ public final class SiteData {
     /** A zero-length array used in construction of other arrays. */
     private static final String[] ZERO_LEN_STRING_ARR = new String[0];
 
-    /** The database profile. */
-    private final DbProfile dbProfile;
+    /** The student data object. */
+    private final StudentData studentData;
 
     /** The courses to include. */
     private final String[] courses;
@@ -30,26 +26,23 @@ public final class SiteData {
     /** The date/time to consider "now". */
     public final ZonedDateTime now;
 
-    /** Data relating to context. */
-    public SiteDataContext contextData;
-
     /** Data relating to student. */
-    public final SiteDataStudent studentData;
+    public final SiteDataStudent siteStudentData;
 
     /** Data relating to registrations. */
-    public final SiteDataRegistration registrationData;
+    public final SiteDataRegistration siteRegistrationData;
 
     /** Data relating to milestones. */
-    public final SiteDataMilestone milestoneData;
+    public final SiteDataMilestone siteMilestoneData;
 
     /** Data relating to courses in which the student is enrolled or visiting. */
-    public final SiteDataCourse courseData;
+    public final SiteDataCourse siteCourseData;
 
     /** Data relating to student activity in courses. */
-    public final SiteDataActivity activityData;
+    public final SiteDataActivity siteActivityData;
 
     /** Data relating to student course status, including scores. */
-    public final SiteDataStatus statusData;
+    public final SiteDataStatus siteStatusData;
 
     /** The error message if loading data failed. */
     private String error = null;
@@ -57,22 +50,32 @@ public final class SiteData {
     /**
      * Constructs a new {@code SiteData}.
      *
-     * @param theDbProfile the database profile (host, path, and DbProfile)
-     * @param theNow       the date/time to consider now
-     * @param theCourses   the courses to include
+     * @param thStudentData the student data object
+     * @param theNow        the date/time to consider now
+     * @param theCourses    the courses to include
      */
-    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow, final String... theCourses) {
+    public SiteData(final StudentData thStudentData, final ZonedDateTime theNow, final String... theCourses) {
 
         this.now = theNow;
         this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
-        this.dbProfile = theDbProfile;
+        this.studentData = thStudentData;
 
-        this.studentData = new SiteDataStudent(this);
-        this.registrationData = new SiteDataRegistration(this);
-        this.milestoneData = new SiteDataMilestone(this);
-        this.courseData = new SiteDataCourse(this);
-        this.activityData = new SiteDataActivity(this);
-        this.statusData = new SiteDataStatus(this);
+        this.siteStudentData = new SiteDataStudent(this);
+        this.siteRegistrationData = new SiteDataRegistration(this);
+        this.siteMilestoneData = new SiteDataMilestone(this);
+        this.siteCourseData = new SiteDataCourse(this);
+        this.siteActivityData = new SiteDataActivity(this);
+        this.siteStatusData = new SiteDataStatus(this);
+    }
+
+    /**
+     * Gets the student data object.
+     *
+     * @return the student data object
+     */
+    public StudentData getStudentData() {
+
+        return this.studentData;
     }
 
     /**
@@ -120,9 +123,6 @@ public final class SiteData {
     /**
      * Loads all database data relevant to a session's effective user ID within the session's context, but does not use
      * the database cache objects.
-     * <p>
-     * TODO: support flags that govern which data to load, so this object may be used everywhere, including checkin
-     *    and checkout, the admin site, etc.
      *
      * @param session the session info
      * @return {@code true} if success; {@code false} on any error
@@ -131,19 +131,9 @@ public final class SiteData {
 
         final long start = System.currentTimeMillis();
 
-        final DbContext primaryDbContext = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-
         boolean success;
         try {
-            final DbConnection conn = primaryDbContext.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-            this.contextData = new SiteDataContext(cache);
-
-            try {
-                success = loadData(cache, session);
-            } finally {
-                primaryDbContext.checkInConnection(conn);
-            }
+            success = loadData(session);
         } catch (final SQLException ex) {
             setError("Exception while querying data");
             Log.warning("Failed to query course site data", ex);
@@ -162,48 +152,43 @@ public final class SiteData {
     /**
      * Queries all database data relevant to a session's effective user ID within the session's context.
      *
-     * @param cache   the data cache
      * @param session the session info
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadData(final Cache cache, final ImmutableSessionInfo session)
-            throws SQLException {
+    private boolean loadData(final ImmutableSessionInfo session) throws SQLException {
 
-        // NOTE: The "live reg" query is not done here - this logic will be called on each page
-        // refresh, and live registration updates happen only on login
+        // NOTE: The "live reg" query is not done here - this logic will be called on each page refresh, and live
+        // registration updates happen only on login
+
 
         // final long t0 = System.currentTimeMillis();
 
-//        this.contextData.loadData(cache, this.courses);
+        this.siteStudentData.loadData(this.studentData);
         // final long t1 = System.currentTimeMillis();
 
-        final boolean b2 = this.studentData.loadData(cache, session);
+        final boolean b2 = this.siteMilestoneData.preload(this.studentData);
         // final long t2 = System.currentTimeMillis();
 
-        final boolean b3 = this.milestoneData.preload(cache);
+        final boolean b3 = this.siteRegistrationData.loadData(this.studentData, session);
         // final long t3 = System.currentTimeMillis();
 
-        final boolean b4 = this.registrationData.loadData(cache, session);
+        final boolean b4 = this.siteMilestoneData.loadData(this.studentData);
         // final long t4 = System.currentTimeMillis();
 
-        final boolean b5 = this.milestoneData.loadData(cache);
+        final boolean b5 = this.siteActivityData.loadData(this.studentData);
         // final long t5 = System.currentTimeMillis();
 
-        final boolean b6 = this.activityData.loadData(cache);
+        final boolean b6 = this.siteStatusData.loadData(this.studentData);
         // final long t6 = System.currentTimeMillis();
 
-        final boolean b7 = this.statusData.loadData(cache);
-        // final long t7 = System.currentTimeMillis();
+        // Log.info(" Student data: " + (t1 - t0));
+        // Log.info(" Milestone PRE data: " + (t2 - t1));
+        // Log.info(" Registration data: " + (t3 - t2));
+        // Log.info(" Milestone data: " + (t4 - t3));
+        // Log.info(" Activity data: " + (t5 - t4));
+        // Log.info(" Status data: " + (t6 - t5));
 
-        // Log.info(" Context data: " + (t1 - t0));
-        // Log.info(" Student data: " + (t2 - t1));
-        // Log.info(" Milestone PRE data: " + (t3 - t2));
-        // Log.info(" Registration data: " + (t4 - t3));
-        // Log.info(" Milestone data: " + (t5 - t4));
-        // Log.info(" Activity data: " + (t6 - t5));
-        // Log.info(" Status data: " + (t7 - t6));
-
-        return b2 && b3 && b4 && b5 && b6 && b7;
+        return b2 && b3 && b4 && b5 && b6;
     }
 }

@@ -9,6 +9,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -500,12 +501,13 @@ final class StudentSummaryPanel extends AdminPanelBase {
 
         final StringBuilder remaining = new StringBuilder(50);
         try {
-            final TermRec active = data.getActiveTerm();
+            final SystemData systemData = data.getSystemData();
+
+            final TermRec active = systemData.getActiveTerm();
             final RawStudent student = data.getStudentRecord();
 
             final String studentId = data.getStudentId();
-            final PlacementLogic plcLogic = new PlacementLogic(this.cache, studentId, student.aplnTerm,
-                    ZonedDateTime.now());
+            final PlacementLogic plcLogic = new PlacementLogic(data, student.aplnTerm, ZonedDateTime.now());
 
             final PlacementStatus status = plcLogic.status;
             final int totalRemain = status.attemptsRemaining;
@@ -564,7 +566,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
         final List<RawStcourse> regs = data.getRegistrations();
         final Collection<RawStcourse> current = new ArrayList<>(regs.size());
 
-        final TermRec active = data.getActiveTerm();
+        final SystemData systemData = data.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         for (final RawStcourse reg : regs) {
             if (reg.termKey.equals(active.term)) {
@@ -743,7 +746,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
             }
         }
 
-        final TermRec active = data.getActiveTerm();
+        final SystemData systemData = data.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         // See if student is blocked
         boolean blocked = false;
@@ -757,7 +761,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
                 final String track = studentTerm.paceTrack;
                 final int msNbr = pace * 100 + paceOrder * 10 + 5;
 
-                final List<RawMilestone> milestones = data.getMilestones(active.term, studentTerm.pace,
+                final List<RawMilestone> milestones = systemData.getMilestones(active.term, studentTerm.pace,
                         studentTerm.paceTrack);
 
                 for (final RawMilestone ms : milestones) {
@@ -824,7 +828,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
 
             // FIXME: This will fail for incompletes where section does not exist in this term.
 
-            final List<RawCsection> courseSections = data.getCourseSections(active.term);
+            final List<RawCsection> courseSections = systemData.getCourseSections(active.term);
 
             RawCsection csect = null;
             for (final RawCsection test : courseSections) {
@@ -1088,7 +1092,8 @@ final class StudentSummaryPanel extends AdminPanelBase {
         // Find the due date
         LocalDate dueDate = null;
 
-        final TermRec active = data.getActiveTerm();
+        final SystemData systemData = data.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
         final RawStterm studentTerm = data.getStudentTerm(active.term);
 
         if (studentTerm != null && reg.paceOrder != null) {
@@ -1097,7 +1102,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
             final String track = studentTerm.paceTrack;
             final int msNbr = pace * 100 + paceOrder * 10 + unit;
 
-            final List<RawMilestone> milestones = data.getMilestones(active.term, studentTerm.pace,
+            final List<RawMilestone> milestones = systemData.getMilestones(active.term, studentTerm.pace,
                     studentTerm.paceTrack);
             final List<RawStmilestone> studentMilestones = data.getStudentMilestones(active.term,
                     studentTerm.paceTrack);

@@ -1,8 +1,6 @@
 package dev.mathops.session.sitelogic.data;
 
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
@@ -28,17 +26,16 @@ public final class SiteDataCfgUnit {
     /**
      * Constructs a new {@code SiteDataCfgUnit}.
      *
-     * @param cache        the data cache
+     * @param systemData   the system data object
      * @param theCusection the {@code RawCusection} model for the unit
      * @throws SQLException if there was an error accessing the database
      */
-    SiteDataCfgUnit(final Cache cache, final RawCusection theCusection) throws SQLException {
+    SiteDataCfgUnit(final SystemData systemData, final RawCusection theCusection) throws SQLException {
 
         this.courseSectionUnit = theCusection;
 
-        this.courseUnit = RawCunitLogic.query(cache, theCusection.course, theCusection.unit, theCusection.termKey);
-
-        this.exams = RawExamLogic.queryActiveByCourseUnit(cache, theCusection.course, theCusection.unit);
+        this.courseUnit = systemData.getCourseUnit(theCusection.course, theCusection.unit, theCusection.termKey);
+        this.exams = systemData.getActiveExamByCourseUnit(theCusection.course, theCusection.unit);
     }
 
     /**

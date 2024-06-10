@@ -141,20 +141,20 @@ enum PageStdsTextModule {
                                          final int moduleNumber, final String mode, final HtmlBuilder htm) {
 
         final SiteData siteData = logic.data;
-        final RawStcourse reg = siteData.registrationData.getRegistration(courseId);
+        final RawStcourse reg = siteData.siteRegistrationData.getRegistration(courseId);
 
         if (reg == null) {
             htm.sP().add("ERROR: Unable to find course registration.").eP();
         } else {
-            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+            final List<RawStcourse> paceRegs = logic.data.siteRegistrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
             final ZonedDateTime now = ZonedDateTime.now();
-            final boolean isTutor = siteData.studentData.isSpecialType(now, "TUTOR");
+            final boolean isTutor = siteData.siteStudentData.isSpecialType(now, "TUTOR");
             final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(data, pace, paceTrack, reg, isTutor);
-            final SiteDataCfgCourse courseCfg = siteData.courseData.getCourse(courseId, reg.sect);
+            final SiteDataCfgCourse courseCfg = siteData.siteCourseData.getCourse(courseId, reg.sect);
 
             if (RawRecordConstants.MATH125.equals(reg.course)) {
                 doModule(data, reg.stuId, Math125.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);

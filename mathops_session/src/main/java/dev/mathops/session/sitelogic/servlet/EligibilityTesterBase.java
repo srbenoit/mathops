@@ -3,20 +3,11 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
-import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -29,7 +20,6 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -37,7 +27,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,17 +35,8 @@ import java.util.List;
  */
 class EligibilityTesterBase {
 
-    /** The student ID for whom eligibility is being tested. */
-    final String studentId;
-
-    /** The currently active term. */
-    TermRec activeTerm;
-
-    /** The student record. */
-    RawStudent student;
-
-    /** The special student records. */
-    private List<RawSpecialStus> specials;
+    /** The student data object of the student for whom eligibility is being tested. */
+    final StudentData studentData;
 
     /** The student registration record for the course. */
     RawStcourse studentCourse;
@@ -76,18 +56,27 @@ class EligibilityTesterBase {
     /**
      * Creates a new eligibility test class, which can be used to test several exams for eligibility.
      *
-     * @param theStudentId the student ID for which eligibility is to be tested
+     * @param theStudentData the student data object of the student for whom eligibility is being tested
      */
-    EligibilityTesterBase(final String theStudentId) {
+    EligibilityTesterBase(final StudentData theStudentData) {
 
-        this.studentId = theStudentId;
+        this.studentData = theStudentData;
+    }
+
+    /**
+     * Gets the student data object.
+     *
+     * @return the student data object
+     */
+    public final StudentData getStudentData() {
+
+        return this.studentData;
     }
 
     /**
      * Verify the student submitting the request is really a student, has no fatal holds that would prevent accessing
      * assessments, and (if relevant) has no pending exams on record.
      *
-     * @param cache      the data cache
      * @param now        the date/time to consider "now"
      * @param reasons    a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param holds      a list to which to add holds found for the student; null to skip gathering holds
@@ -95,47 +84,26 @@ class EligibilityTesterBase {
      * @return {@code true} if request completed successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    final boolean validateStudent(final Cache cache, final ChronoZonedDateTime<LocalDate> now,
-                                  final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds,
-                                  final boolean checkHolds) throws SQLException {
+    final boolean validateStudent(final ChronoZonedDateTime<LocalDate> now, final HtmlBuilder reasons,
+                                  final Collection<? super RawAdminHold> holds, final boolean checkHolds)
+            throws SQLException {
 
         boolean ok = true;
 
-        if (isSpecialStudentId()) {
-            this.student = new RawStudent();
-            this.student.stuId = this.studentId;
-            this.student.firstName = "Guest";
-            this.student.lastName = "Student";
-            this.student.licensed = "N";
+        final RawStudent student = this.studentData.getStudentRecord();
 
-            this.specials = new ArrayList<>(0);
-        } else {
-            this.student = RawStudentLogic.query(cache, this.studentId, false);
+        if (student.sevAdminHold != null) {
+            ok = processHolds(reasons, holds, checkHolds);
+        }
 
-            if (this.student == null) {
-                Log.info("No student record found for ID ", this.studentId);
-                reasons.add("Your student information is not yet in the math department database.");
+        // See if there are ungraded exams on record for the student
+        if (ok) {
+            final List<RawPendingExam> pendings = this.studentData.getPendingExams();
+
+            if (!pendings.isEmpty()) {
+                Log.info("Ungraded exams exist for student", student.stuId);
+                reasons.add("Ungraded exams exist on the student record");
                 ok = false;
-            } else {
-                if (this.student.sevAdminHold != null) {
-                    ok = processHolds(cache, reasons, holds, checkHolds);
-                }
-
-                // See if there are ungraded exams on record for the student
-                if (ok) {
-                    final List<RawPendingExam> pendings = RawPendingExamLogic.queryByStudent(cache, this.studentId);
-
-                    if (!pendings.isEmpty()) {
-                        Log.info("Ungraded exams exist for student", this.studentId);
-                        reasons.add("Ungraded exams exist on the student record");
-                        ok = false;
-                    }
-                }
-
-                if (ok) {
-                    this.specials = RawSpecialStusLogic.queryActiveByStudent(cache,
-                            this.student.stuId, now.toLocalDate());
-                }
             }
         }
 
@@ -146,25 +114,25 @@ class EligibilityTesterBase {
      * Read any holds the student has and add the reply. If any of the holds are fatal, return failure, which will
      * prevent further querying of exams.
      *
-     * @param cache      the data cache
      * @param reasons    a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param holds      a list to which to add holds found for the student; null to skip gathering holds
      * @param checkHolds {@code true} to consider holds; false to bypass holds
      * @return true if request completed successfully; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean processHolds(final Cache cache, final HtmlBuilder reasons,
-                                 final Collection<? super RawAdminHold> holds, final boolean checkHolds) throws SQLException {
+    private boolean processHolds(final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds,
+                                 final boolean checkHolds) throws SQLException {
 
         final boolean ok;
 
         // This method is called only if STUDENT record has non-null hold severity.
 
-        final List<RawAdminHold> stuHolds = RawAdminHoldLogic.queryByStudent(cache, this.studentId);
+        final List<RawAdminHold> stuHolds = this.studentData.getHolds();
+        final String studentId = this.studentData.getStudentId();
 
         boolean fatal = false;
         if (stuHolds.isEmpty()) {
-            Log.warning("Student record indicated holds for student ", this.studentId, " when none were present");
+            Log.warning("Student record indicated holds for student ", studentId, " when none were present");
             ok = true;
         } else {
             if (holds != null) {
@@ -178,15 +146,16 @@ class EligibilityTesterBase {
             }
 
             // If there are fatal holds, process them separately
-            if ("F".equals(this.student.sevAdminHold)) {
+            final RawStudent student = this.studentData.getStudentRecord();
+            if ("F".equals(student.sevAdminHold)) {
                 if (fatal) {
                     ok = processFatalHolds(stuHolds, reasons, checkHolds);
                 } else {
-                    Log.warning("Student record '", this.studentId, "' marked fatal, but no fatal holds exist.");
+                    Log.warning("Student record '", studentId, "' marked fatal, but no fatal holds exist.");
                     ok = true;
                 }
             } else if (fatal) {
-                Log.warning("Student record '", this.studentId, "' has fatal holds but is not marked fatal.");
+                Log.warning("Student record '", studentId, "' has fatal holds but is not marked fatal.");
                 ok = processFatalHolds(stuHolds, reasons, checkHolds);
             } else {
                 ok = true;
@@ -208,15 +177,15 @@ class EligibilityTesterBase {
      * @param checkHolds {@code true} to consider holds; false to bypass holds
      * @return true if the client's connection should continue; false if it should be terminated
      */
-    private static boolean processFatalHolds(final Iterable<RawAdminHold> stuHolds,
-                                             final HtmlBuilder reasons, final boolean checkHolds) {
+    private static boolean processFatalHolds(final Iterable<RawAdminHold> stuHolds, final HtmlBuilder reasons,
+                                             final boolean checkHolds) {
 
         boolean ok = true;
 
         // Student can practice any assessment, even with fatal holds
         if (checkHolds) {
-            // See if there is a fatal hold with value other than 30, in which case the student\
-            // may not take assessments at all.
+            // See if there is a fatal hold with value other than 30, in which case the student may not take
+            // assessments at all.
             for (final RawAdminHold hold : stuHolds) {
                 if ("F".equals(hold.sevAdminHold) && !"30".equals(hold.holdId)) {
                     reasons.add("We currently have a problem with your precalculus course records that is ",
@@ -235,19 +204,21 @@ class EligibilityTesterBase {
      * Tests whether the student is in a "special" category that allows access to assessments without a registration.
      *
      * @return true if the student is "special"
+     * @throws SQLException if there is an error accessing the database
      */
-    final boolean isSpecial() {
+    final boolean isSpecial() throws SQLException {
 
         boolean isSpecial = false;
 
-        if (this.specials != null) {
-            for (final RawSpecialStus special : this.specials) {
-                final String type = special.stuType;
+        final LocalDate today = LocalDate.now();
+        final List<RawSpecialStus> specials = this.studentData.getActiveSpecialCategories(today);
 
-                if ("TUTOR".equals(type) || "M384".equals(type) || "ADMIN".equals(type) || "STEVE".equals(type)) {
-                    isSpecial = true;
-                    break;
-                }
+        for (final RawSpecialStus test : specials) {
+            final String type = test.stuType;
+
+            if ("TUTOR".equals(type) || "M384".equals(type) || "ADMIN".equals(type) || "STEVE".equals(type)) {
+                isSpecial = true;
+                break;
             }
         }
 
@@ -261,7 +232,9 @@ class EligibilityTesterBase {
      */
     final boolean isSpecialStudentId() {
 
-        return "GUEST".equals(this.studentId) || "AACTUTOR".equals(this.studentId) || "ETEXT".equals(this.studentId);
+        final String studentId = this.studentData.getStudentId();
+
+        return "GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId);
     }
 
     /**
@@ -269,19 +242,21 @@ class EligibilityTesterBase {
      * start/end dates of a term.
      *
      * @return true if the student is "special"
+     * @throws SQLException if there is an error accessing the database
      */
-    final boolean canAccessOutsideTerm() {
+    final boolean canAccessOutsideTerm() throws SQLException {
 
         boolean canAccess = false;
 
-        if (this.specials != null) {
-            for (final RawSpecialStus special : this.specials) {
-                final String type = special.stuType;
+        final LocalDate today = LocalDate.now();
+        final List<RawSpecialStus> specials = this.studentData.getActiveSpecialCategories(today);
 
-                if ("TUTOR".equals(type) || "ADMIN".equals(type) || "STEVE".equals(type)) {
-                    canAccess = true;
-                    break;
-                }
+        for (final RawSpecialStus test : specials) {
+            final String type = test.stuType;
+
+            if ("TUTOR".equals(type) || "ADMIN".equals(type) || "STEVE".equals(type)) {
+                canAccess = true;
+                break;
             }
         }
 
@@ -294,38 +269,36 @@ class EligibilityTesterBase {
      * there is no active term, or if the active term has not yet started or is over, then a non-success result code is
      * set in the reply object. Otherwise, the active term object is stored in the {@code mActiveTerm} member variable.
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider as "now"
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return true if request completed successfully; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    final boolean checkActiveTerm(final Cache cache, final ZonedDateTime now, final HtmlBuilder reasons)
-            throws SQLException {
+    final boolean checkActiveTerm(final ZonedDateTime now, final HtmlBuilder reasons) throws SQLException {
 
         boolean ok = false;
 
         final LocalDate today = now.toLocalDate();
 
-        this.activeTerm = TermLogic.get(cache).queryActive(cache);
-        if (this.activeTerm == null) {
+        final SystemData systemData = this.studentData.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
+
+        if (activeTerm == null) {
             reasons.add("Unable to query the active term.");
         } else if (canAccessOutsideTerm()) {
             ok = true;
-        } else if (this.activeTerm.startDate == null || this.activeTerm.endDate == null) {
+        } else if (activeTerm.startDate == null || activeTerm.endDate == null) {
             reasons.add("A system error has occurred: Invalid term specification in database");
         } else {
-            final LocalDate start = this.activeTerm.startDate;
+            final LocalDate start = activeTerm.startDate;
 
             if (today.isBefore(start)) {
-                reasons.add("The term has not yet started. It will begin ",
-                        this.activeTerm.startDate.toString());
+                reasons.add("The term has not yet started. It will begin ", activeTerm.startDate.toString());
             } else {
-                final LocalDate end = this.activeTerm.endDate;
+                final LocalDate end = activeTerm.endDate;
 
                 if (today.isAfter(end)) {
-                    reasons.add("The term ended ", this.activeTerm.endDate.toString(),
-                            ".  Testing will resume next term.");
+                    reasons.add("The term ended ", activeTerm.endDate.toString(), ".  Testing will resume next term.");
                 } else {
                     ok = true;
                 }
@@ -342,7 +315,6 @@ class EligibilityTesterBase {
      * <p>
      * This method populates the "studentCourse", "courseSection", and "courseSectionUnit" fields.
      *
-     * @param cache         the data cache
      * @param reasons       a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param course        the course
      * @param unit          the unit
@@ -351,33 +323,38 @@ class EligibilityTesterBase {
      * @return true if information was successfully found; false if an error occurred or the data was not found
      * @throws SQLException if there is an error accessing the database
      */
-    final boolean gatherSectionInfo(final Cache cache, final HtmlBuilder reasons, final String course,
-                                    final Integer unit, final boolean checkLicensed) throws SQLException {
+    final boolean gatherSectionInfo(final HtmlBuilder reasons, final String course, final Integer unit,
+                                    final boolean checkLicensed) throws SQLException {
 
         boolean ok = true;
 
-        final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, course);
+        final SystemData systemData = this.studentData.getSystemData();
+
+        final RawCourse courseRecord = systemData.getCourse(course);
+        final Boolean isTut = courseRecord == null ? null : Boolean.valueOf("Y".equals(courseRecord.isTutorial));
+
         if (isTut == null) {
             reasons.add("Unable to query for this course");
             ok = false;
         } else if (isTut.booleanValue()) {
             gatherTutorialSectionInfo(course);
         } else {
-            ok = gatherCourseSectionInfo(cache, reasons, course);
+            ok = gatherCourseSectionInfo(reasons, course);
         }
 
         if (isTut != null && ok) {
+            final TermRec activeTerm = systemData.getActiveTerm();
             final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
-                    : this.activeTerm.term;
+                    : activeTerm.term;
 
-            this.courseSection = RawCsectionLogic.query(cache, course, this.studentCourse.sect, term);
+            this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect, term);
 
             if (this.courseSection == null) {
                 reasons.add("Unable to query course section information");
                 ok = false;
             } else {
-                final List<RawCusection> cusections = RawCusectionLogic.queryByCourseSection(cache, course,
-                        this.studentCourse.sect, term);
+                final List<RawCusection> cusections = systemData.getCourseUnitSections(course, this.studentCourse.sect,
+                        term);
                 for (final RawCusection cusect : cusections) {
                     if (cusect.unit.equals(unit)) {
                         this.courseSectionUnit = cusect;
@@ -390,17 +367,19 @@ class EligibilityTesterBase {
                     ok = false;
                 } else {
                     String pacingId = null;
+                    final RawStudent student = this.studentData.getStudentRecord();
 
                     if (this.courseSection != null) {
                         pacingId = this.courseSection.pacingStructure;
 
-                        if (!isTut.booleanValue() && this.student != null
-                                && "N".equals(this.studentCourse.iInProgress)
-                                && this.student.pacingStructure == null && pacingId != null) {
+                        if (!isTut.booleanValue() && "N".equals(this.studentCourse.iInProgress)
+                                && student.pacingStructure == null && pacingId != null) {
 
                             // Set the student's rule set if not yet known and this is a real course
                             Log.info("Setting student pacing to ", pacingId, " as part of testing exam eligibility");
-                            RawStudentLogic.updatePacingStructure(cache, this.student.stuId, pacingId);
+                            final Cache cache = this.studentData.getCache();
+                            RawStudentLogic.updatePacingStructure(cache, student.stuId, pacingId);
+                            student.pacingStructure = pacingId;
                         }
                     }
 
@@ -409,15 +388,14 @@ class EligibilityTesterBase {
                         return false;
                     }
 
-                    this.pacingStructure = RawPacingStructureLogic.query(cache, pacingId);
-
+                    this.pacingStructure = systemData.getPacingStructure(pacingId, activeTerm.term);
                     if (this.pacingStructure == null) {
                         reasons.add("Unable to look up pacing structure.");
                         return false;
                     }
 
                     if (checkLicensed && "Y".equals(this.pacingStructure.requireLicensed)
-                            && "N".equals(this.student.licensed)) {
+                            && "N".equals(student.licensed)) {
                         reasons.add("You must complete the User's Exam before you can access this assignment.");
                         return false;
                     }
@@ -435,12 +413,17 @@ class EligibilityTesterBase {
      * This method populates the "studentCourse", "courseSection", and "courseSectionUnit" fields.
      *
      * @param course the course
+     * @throws SQLException if there is an error accessing the database
      */
-    private void gatherTutorialSectionInfo(final String course) {
+    private void gatherTutorialSectionInfo(final String course) throws SQLException {
+
+        final RawStudent student = this.studentData.getStudentRecord();
+        final SystemData systemData = this.studentData.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
         // Make a fake STCOURSE record
-        this.studentCourse = new RawStcourse(this.activeTerm.term, // termKey
-                this.studentId, // stuId
+        this.studentCourse = new RawStcourse(activeTerm.term, // termKey
+                student.stuId, // stuId
                 course, // course
                 "1", // section
                 Integer.valueOf(1), // paceOrder
@@ -477,22 +460,25 @@ class EligibilityTesterBase {
      * <p>
      * This method populates the "studentCourse", "courseSection", and "courseSectionUnit" fields.
      *
-     * @param cache   the data cache
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param course  the course
      * @return true if information was successfully found; false if an error occurred or the data was not found
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean gatherCourseSectionInfo(final Cache cache, final HtmlBuilder reasons,
-                                            final String course) throws SQLException {
+    private boolean gatherCourseSectionInfo(final HtmlBuilder reasons, final String course) throws SQLException {
+
 
         boolean ok = true;
-        this.studentCourse = RawStcourseLogic.getRegistration(cache, this.studentId, course);
+        this.studentCourse = this.studentData.getActiveRegistration(course);
 
         if (this.studentCourse == null) {
 
-            // Some special student types automatically have access to all precalculus courses
-            // without having an actual registration record
+            final RawStudent student = this.studentData.getStudentRecord();
+            final SystemData systemData = this.studentData.getSystemData();
+            final TermRec activeTerm = systemData.getActiveTerm();
+
+            // Some special student types automatically have access to all precalculus courses without having an
+            // actual registration record
             boolean isSpecial = false;
             if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
                     || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
@@ -509,17 +495,14 @@ class EligibilityTesterBase {
             if (isSpecial) {
                 // Make a fake STCOURSE record
                 String sect = "001";
-                final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.activeTerm.term);
-                csections.sort(null);
-                for (final RawCsection test : csections) {
-                    if (test.course.equals(course)) {
-                        sect = test.sect;
-                        break;
-                    }
+                final List<RawCsection> csections = systemData.getCourseSectionsByCourse(course, activeTerm.term);
+                if (!csections.isEmpty()) {
+                    csections.sort(null);
+                    sect = csections.getFirst().sect;
                 }
 
-                this.studentCourse = new RawStcourse(this.activeTerm.term, // termKey
-                        this.studentId, // stuId
+                this.studentCourse = new RawStcourse(activeTerm.term, // termKey
+                        student.stuId, // stuId
                         course, // course
                         sect, // section
                         Integer.valueOf(1), // paceOrder
@@ -563,21 +546,20 @@ class EligibilityTesterBase {
      * method is called, the student is eligible for the final - we assume they were eligible early enough to qualify
      * for the last try).
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider as "now"
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    final boolean checkForCourseLockout(final Cache cache, final ChronoZonedDateTime<LocalDate> now,
-                                        final HtmlBuilder reasons) throws SQLException {
+    final boolean checkForCourseLockout(final ChronoZonedDateTime<LocalDate> now, final HtmlBuilder reasons)
+            throws SQLException {
 
         boolean ok = true;
 
         // If the student has passed the Final, we're done
         boolean stillNeedsFinal = true;
 
-        final List<RawStexam> passedFinals = RawStexamLogic.getExams(cache, this.studentId, this.studentCourse.course,
+        final List<RawStexam> passedFinals = this.studentData.getStudentExamsByCourseType(this.studentCourse.course,
                 true, "F");
         for (final RawStexam test : passedFinals) {
             if (test.course.equals(this.studentCourse.course)) {
@@ -594,17 +576,19 @@ class EligibilityTesterBase {
                     ok = false;
                 }
             } else if (this.studentCourse.paceOrder != null) {
-                final RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, this.studentId);
+                final SystemData systemData = this.studentData.getSystemData();
+                final TermRec activeTerm = systemData.getActiveTerm();
+
+                final RawStterm stterm = this.studentData.getStudentTerm(activeTerm.term);
 
                 if (stterm == null || stterm.pace == null) {
                     reasons.add("Unable to determine your course pace.");
                     ok = false;
                 } else {
-                    final int pace = stterm.pace.intValue();
-                    final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache, this.activeTerm.term,
-                            pace, stterm.paceTrack);
-                    final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(cache,
-                            this.activeTerm.term, stterm.paceTrack, this.studentId);
+                    final List<RawMilestone> allMs = systemData.getMilestones(activeTerm.term, stterm.pace,
+                            stterm.paceTrack);
+                    final List<RawStmilestone> stuMs = this.studentData.getStudentMilestones(activeTerm.term,
+                            stterm.paceTrack);
 
                     // There may not be a "last try", so start with the final deadline
                     LocalDate deadline = null;
@@ -616,6 +600,8 @@ class EligibilityTesterBase {
                         }
                     }
                     if (deadline != null) {
+                        final int pace = stterm.pace.intValue();
+
                         for (final RawStmilestone ms : stuMs) {
                             if (ms.getPace() == pace && ms.getUnit() == 5
                                     && ms.getIndex() == this.studentCourse.paceOrder.intValue()

@@ -4,6 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -32,6 +33,9 @@ public final class CourseSiteLogic {
             RawRecordConstants.MATH118, RawRecordConstants.MATH124, RawRecordConstants.MATH125,
             RawRecordConstants.MATH126);
 
+    /** The student data object. */
+    private final StudentData studentData;
+
     /** The site profile. */
     private final WebSiteProfile siteProfile;
 
@@ -53,15 +57,18 @@ public final class CourseSiteLogic {
     /**
      * Constructs a new {@code CourseSiteLogic}.
      *
+     * @param theStudentData    the student data object
      * @param theSiteProfile the site profile
      * @param theSessionInfo the session info
      */
-    public CourseSiteLogic(final WebSiteProfile theSiteProfile, final ImmutableSessionInfo theSessionInfo) {
+    public CourseSiteLogic(final StudentData theStudentData, final WebSiteProfile theSiteProfile,
+                           final ImmutableSessionInfo theSessionInfo) {
 
+        this.studentData = theStudentData;
         this.siteProfile = theSiteProfile;
         this.sessionInfo = theSessionInfo;
 
-        this.courses = new String[] {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
+        this.courses = new String[]{RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                 RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
                 RawRecordConstants.MATH126};
     }
@@ -127,7 +134,7 @@ public final class CourseSiteLogic {
         final DbProfile profile = getSiteProfile().dbProfile;
 
         final ZonedDateTime now = this.sessionInfo.getNow();
-        final SiteData theData = new SiteData(profile, now, this.courses);
+        final SiteData theData = new SiteData(this.studentData, now, this.courses);
 
         // First, do all database queries we'll need, so we get as close to a consistent image of the data as we can.
         final boolean success = theData.load(this.sessionInfo);

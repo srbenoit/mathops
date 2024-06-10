@@ -7,6 +7,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawHoldType;
@@ -169,8 +170,7 @@ import java.util.Objects;
      * @param msgAdmin   the admin message
      * @return the panel
      */
-    private JPanel createHoldPanel(final RawAdminHold record, final String msgStudent,
-                                   final String msgAdmin) {
+    private JPanel createHoldPanel(final RawAdminHold record, final String msgStudent, final String msgAdmin) {
 
         final JPanel panel = new JPanel(new BorderLayout());
 
@@ -276,13 +276,19 @@ import java.util.Objects;
         if (this.permissionLevel < 3) {
             canDelete = true;
         } else if (this.permissionLevel == 3) {
-            for (final RawHoldType test : this.fixed.holdTypes) {
-                if (test.holdId.equals(record.holdId)) {
-                    if ("Y".equals(test.deleteHold)) {
-                        canDelete = true;
+            final SystemData systemData = this.data.getSystemData();
+
+            try {
+                for (final RawHoldType test : systemData.getHoldTypes()) {
+                    if (test.holdId.equals(record.holdId)) {
+                        if ("Y".equals(test.deleteHold)) {
+                            canDelete = true;
+                        }
+                        break;
                     }
-                    break;
                 }
+            } catch (final SQLException ex) {
+                Log.warning(ex);
             }
         }
 

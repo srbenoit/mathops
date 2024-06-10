@@ -83,7 +83,7 @@ public final class ChallengeExamLogic {
         }
 
         final TermRec active = data.getSystemData().getActiveTerm();
-        this.activeRegs = data.getActiveRegistrations(active.term);
+        this.activeRegs = data.getActiveRegistrations(active.term, false);
         this.allChallengeAttempts = data.getChallengeExams();
         this.prerequisiteLogic = new PrerequisiteLogic(data);
 

@@ -1,6 +1,7 @@
 package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.checkin.CourseNumbers;
 import dev.mathops.app.checkin.DataCheckInAttempt;
@@ -12,9 +13,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.ChallengeExamLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -78,7 +77,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     private static final String MASTERY = "Mastery";
 
     /** An action command. */
-    private static final String CHALLENGE= "Challenge";
+    private static final String CHALLENGE = "Challenge";
 
     /** A commonly used integer. */
     static final Integer ZERO = Integer.valueOf(0);
@@ -93,8 +92,8 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     /** The main window frame. */
     private final JFrame frame;
 
-    /** The data cache. */
-    private final Cache cache;
+    /** The fixed data. */
+    private final FixedData fixed;
 
     /** The check-in logic. */
     private final LogicCheckIn logic;
@@ -117,10 +116,10 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     /**
      * Constructs a new {@code TestingIssueCard}.
      *
-     * @param theCache         the data cache
-     * @param theFrame         the main window frame
+     * @param theFixed the fixed data
+     * @param theFrame the main window frame
      */
-    TestingIssueCard(final Cache theCache, final JFrame theFrame) {
+    TestingIssueCard(final FixedData theFixed, final JFrame theFrame) {
 
         super();
 
@@ -136,10 +135,10 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         setBorder(mainBorder);
         add(panel, BorderLayout.CENTER);
 
-        this.cache = theCache;
+        this.fixed = theFixed;
         this.frame = theFrame;
         final ZonedDateTime now = ZonedDateTime.now();
-        this.logic = new LogicCheckIn(theCache, now);
+        this.logic = new LogicCheckIn(theFixed.systemData, now);
         this.examButtons = new HashMap<>(40);
 
         final JLabel issueExamHdr = makeHeader("Issue Exam", false);
@@ -635,11 +634,11 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         try {
             final Integer unitObj = Integer.valueOf(unit);
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, unitObj,
+            final RawExam examRec = this.fixed.systemData.getActiveExamByCourseUnitType(courseId, unitObj,
                     unit == 5 ? RawStexam.FINAL_EXAM : RawStexam.UNIT_EXAM);
 
             if (examRec != null) {
-                new StartExamDialog(this.cache, this.frame, stuId, courseId, unit, examRec.version,
+                new StartExamDialog(this.fixed, this.frame, stuId, courseId, unit, examRec.version,
                         check).setVisible(true);
                 reset();
             }
@@ -672,12 +671,12 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         Log.info("Attempting to start challenge exam.");
 
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, ZERO, "CH");
+            final RawExam examRec = this.fixed.systemData.getActiveExamByCourseUnitType(courseId, ZERO, "CH");
 
             if (examRec == null) {
                 Log.warning("Could not find an exam of type 'CH' for ", courseId);
             } else {
-                new StartExamDialog(this.cache, this.frame, stuId, courseId, 0, examRec.version,
+                new StartExamDialog(this.fixed, this.frame, stuId, courseId, 0, examRec.version,
                         check).setVisible(true);
                 reset();
             }
@@ -695,11 +694,11 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     private void startUsersExam(final String stuId, final boolean check) {
 
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, RawRecordConstants.M100U, ONE,
+            final RawExam examRec = this.fixed.systemData.getActiveExamByCourseUnitType(RawRecordConstants.M100U, ONE,
                     "Q");
 
             if (examRec != null) {
-                new StartExamDialog(this.cache, this.frame, stuId, RawRecordConstants.M100U, 1, examRec.version,
+                new StartExamDialog(this.fixed, this.frame, stuId, RawRecordConstants.M100U, 1, examRec.version,
                         check).setVisible(true);
                 reset();
             }
@@ -718,7 +717,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         // We want the "MPTTC" version in the testing center.
 
-        new StartExamDialog(this.cache, this.frame, stuId, RawRecordConstants.M100P, 1, "MPTTC",
+        new StartExamDialog(this.fixed, this.frame, stuId, RawRecordConstants.M100P, 1, "MPTTC",
                 check).setVisible(true);
         reset();
     }
@@ -796,7 +795,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
 
         this.studentStatusDisplay.setText(CoreConstants.SPC);
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql1)) {
+        try (final PreparedStatement ps = this.fixed.systemData.getCache().conn.prepareStatement(sql1)) {
             ps.setString(1, cleanStu);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -837,7 +836,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
      * @param cleanedStuId the student ID
      * @throws SQLException if there is an error accessing the database
      */
-    private void studentFound(final String cleanedStuId) throws SQLException{
+    private void studentFound(final String cleanedStuId) throws SQLException {
 
         final boolean enforceElig = this.enforceEligible.isSelected();
         final DataCheckInAttempt info = this.logic.performCheckInLogic(cleanedStuId, enforceElig);

@@ -73,16 +73,16 @@ public final class StartCourse extends LogicBase {
         final TermKey key = activeTerm.term;
 
         // Get all course sections the student has available
-        final List<RawStcourse> current = studentData.getActiveRegistrations(key);
+        final List<RawStcourse> current = studentData.getActiveRegistrations(key, false);
 
-        // From this list, extract all that are open & not completed, then set them to null to
-        // avoid further consideration. Also, set any that are completed or open="N" to null to
-        // avoid consideration of those courses for availability.
+        // From this list, extract all that are open & not completed, then set them to null to avoid further
+        // consideration. Also, set any that are completed or open="N" to null to avoid consideration of those courses
+        // for availability.
         RawStcourse stCourse = null;
         int numOpen = 0;
 
-        // Count the number of open courses that are "counted" toward max open, and while we loop,
-        // try to find the registration for the course the user wants to open
+        // Count the number of open courses that are "counted" toward max open, and while we loop, try to find the
+        // registration for the course the user wants to open
 
         for (final RawStcourse stc : current) {
             final RawCsection csect = systemData.getCourseSection(stc.course, stc.sect, key);

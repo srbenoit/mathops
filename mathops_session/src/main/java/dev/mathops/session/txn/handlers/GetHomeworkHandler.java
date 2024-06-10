@@ -5,6 +5,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
@@ -83,8 +85,7 @@ public final class GetHomeworkHandler extends AbstractHandlerBase {
      * @return the generated reply XML to send to the client
      * @throws SQLException if there is an error accessing the database
      */
-    private String processRequest(final Cache cache, final GetHomeworkRequest request)
-            throws SQLException {
+    private String processRequest(final Cache cache, final GetHomeworkRequest request) throws SQLException {
 
         final GetHomeworkReply reply = new GetHomeworkReply();
 
@@ -92,23 +93,27 @@ public final class GetHomeworkHandler extends AbstractHandlerBase {
 
             LogBase.setSessionInfo("TXN", request.studentId);
 
+            final StudentData studentData = getStudentData();
+
             // If exam was requested as a homework assignment, look up the version
-            final HomeworkEligibilityTester hwtest = new HomeworkEligibilityTester(getStudent().stuId);
+            final HomeworkEligibilityTester hwtest = new HomeworkEligibilityTester(studentData);
 
             // See if the student is eligible to take the homework
-            final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, request.homeworkVersion);
+            final SystemData systemData = studentData.getSystemData();
+
+            final AssignmentRec avail = systemData.getActiveAssignment(request.homeworkVersion);
 
             final HtmlBuilder reasons = new HtmlBuilder(100);
             final List<RawAdminHold> holds = new ArrayList<>(1);
 
-            reply.studentId = getStudent().stuId;
+            reply.studentId = studentData.getStudentId();
 
             if (avail == null) {
                 reply.error = "Homework not found.";
             } else {
                 final ZonedDateTime now = ZonedDateTime.now();
 
-                if (hwtest.isHomeworkEligible(cache, now, avail, reasons, holds, request.isPractice)) {
+                if (hwtest.isHomeworkEligible(now, avail, reasons, holds, request.isPractice)) {
                     reply.minMoveOn = hwtest.getMinMoveOnScore();
                     reply.minMastery = hwtest.getMinMasteryScore();
 

@@ -86,7 +86,7 @@ import java.util.Objects;
                 final List<ExamListRow> rows = new ArrayList<>(0);
                 this.examsTable.setData(rows);
             } else {
-                final List<RawSemesterCalendar> weeks = this.fixed.termWeeks;
+                final List<RawSemesterCalendar> weeks = this.fixed.systemData.getSemesterCalendars();
                 final int count = studentExams.size();
                 final List<ExamListRow> rows = new ArrayList<>(count);
                 final List<RawStqa> answers = new ArrayList<>(20);

@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.WebViewData;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
@@ -122,11 +123,12 @@ public class CourseSite extends AbstractPageSite {
                         }
                     }
                 } else {
-                    LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                    final StudentData studentData = data.getEffectiveUser();
+                    final String studentId = studentData.getStudentId();
 
-                    // TODO: Replace all logic with this
+                    LogBase.setSessionInfo(session.loginSessionId, studentId);
 
-                    final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
+                    final CourseSiteLogic logic = new CourseSiteLogic(studentData, this.siteProfile, session);
                     logic.gatherData();
 
                     switch (subpath) {
@@ -214,9 +216,12 @@ public class CourseSite extends AbstractPageSite {
             final ImmutableSessionInfo session = validateSession(req, resp, "index.html");
 
             if (session != null) {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                final StudentData studentData = data.getEffectiveUser();
+                final String studentId = studentData.getStudentId();
 
-                final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
+                LogBase.setSessionInfo(session.loginSessionId, studentId);
+
+                final CourseSiteLogic logic = new CourseSiteLogic(studentData, this.siteProfile, session);
                 logic.gatherData();
 
                 if ("rolecontrol.html".equals(subpath)) {
@@ -232,7 +237,7 @@ public class CourseSite extends AbstractPageSite {
                 } else if ("process_honorlock_login.html".equals(subpath)) {
                     doProcessHonorlockLogin(req, resp);
                 } else if ("set_course_schedule.html".equals(subpath)) {
-                    PageSchedule.doSetCourseOrder(data, req, resp, logic);
+                    PageSchedule.doSetCourseOrder(studentData, req, resp, logic);
                 } else if ("update_homework.html".equals(subpath)) {
                     PageHtmlHomework.updateHomework(data, this, req, resp, session, logic);
                 } else if ("update_lta.html".equals(subpath)) {

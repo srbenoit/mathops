@@ -10,6 +10,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -311,9 +312,10 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
     private void populateDisplay(final StudentData data) {
 
         this.studentData = data;
+        final SystemData systemData = data.getSystemData();
 
         try {
-            final TermRec activeTerm = data.getActiveTerm();
+            final TermRec activeTerm = systemData.getActiveTerm();
             final RawStterm stterm = data.getStudentTerm(activeTerm.term);
 
             if (stterm != null) {
@@ -359,7 +361,7 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
 
                 final List<RawStexam> exams = data.getStudentExams();
 
-                final List<RawMilestone> milestones = data.getMilestones(activeTerm.term, stterm.pace,
+                final List<RawMilestone> milestones = systemData.getMilestones(activeTerm.term, stterm.pace,
                         stterm.paceTrack);
                 final List<RawStmilestone> stmilestones = data.getStudentMilestones(activeTerm.term, stterm.paceTrack);
                 final List<RawPaceAppeals> paceAppeals = data.getDeadlineAppeals();
@@ -571,28 +573,30 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
 
                     final String studentId = this.studentData.getStudentId();
                     try {
-                        final TermRec activeTerm = this.studentData.getActiveTerm();
+                        final SystemData systemData = this.studentData.getSystemData();
+
+                        final TermRec activeTerm = systemData.getActiveTerm();
                         final RawStterm stterm = this.studentData.getStudentTerm(activeTerm.term);
 
                         if (attemptsStr == null || attemptsStr.isBlank()) {
-                            appealRec = new RawPaceAppeals(this.fixed.activeTerm.term, studentId, appealDate, "Y",
+                            appealRec = new RawPaceAppeals(activeTerm.term, studentId, appealDate, "Y",
                                     stterm.pace, stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                     this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                     newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                     interviewer);
-                            stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, studentId, stterm.paceTrack,
+                            stmilestoneRec = new RawStmilestone(activeTerm.term, studentId, stterm.paceTrack,
                                     this.currentRow.milestoneRecord.msNbr, this.currentRow.milestoneRecord.msType,
                                     newDate, null);
                         } else {
                             try {
                                 final Integer attempts = Integer.valueOf(attemptsStr);
 
-                                appealRec = new RawPaceAppeals(this.fixed.activeTerm.term, studentId, appealDate, "Y",
+                                appealRec = new RawPaceAppeals(activeTerm.term, studentId, appealDate, "Y",
                                         stterm.pace, stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                         this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                         newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                         interviewer);
-                                stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, studentId,
+                                stmilestoneRec = new RawStmilestone(activeTerm.term, studentId,
                                         stterm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                         this.currentRow.milestoneRecord.msType, newDate, attempts);
                             } catch (final NumberFormatException ex) {

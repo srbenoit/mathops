@@ -398,7 +398,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM homework ",
-                    "WHERE version=", sqlStringValue(assignmentId));
+                    "WHERE version=", sqlStringValue(assignmentId), " AND pull_dt IS NULL");
 
             return doSingleQuery(cache, sql);
         }

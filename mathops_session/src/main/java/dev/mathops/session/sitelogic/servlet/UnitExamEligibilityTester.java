@@ -5,14 +5,15 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -20,6 +21,7 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.LiveSessionInfo;
 
@@ -95,11 +97,11 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
     /**
      * Creates a new eligibility test class, which can be used to test several exams for eligibility.
      *
-     * @param theStudentId the student ID for which eligibility is to be tested
+     * @param theStudentData the student data object of the student for whom eligibility is being tested
      */
-    public UnitExamEligibilityTester(final String theStudentId) {
+    public UnitExamEligibilityTester(final StudentData theStudentData) {
 
-        super(theStudentId);
+        super(theStudentData);
     }
 
     /**
@@ -118,7 +120,6 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
      * information is accumulated, including holds on the student record, or the reason the exam cannot be taken at this
      * time.
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param avail   the exam being tested
      * @param reasons a buffer to which to append the reason the exam is unavailable
@@ -126,29 +127,28 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
      * @return {@code true} if the request was handled successfully; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean isExamEligible(final Cache cache, final ImmutableSessionInfo session,
-                                  final UnitExamAvailability avail, final HtmlBuilder reasons,
-                                  final Collection<? super RawAdminHold> holds)
+    public boolean isExamEligible(final ImmutableSessionInfo session, final UnitExamAvailability avail,
+                                  final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds)
             throws SQLException {
 
         final ZonedDateTime now = session.getNow();
 
-        boolean ok = checkActiveTerm(cache, now, reasons)
-                && validateStudent(cache, now, reasons, holds, true)
-                && gatherSectionInfo(cache, reasons, avail.course, avail.unit, true);
+        boolean ok = checkActiveTerm(now, reasons)
+                && validateStudent(now, reasons, holds, true)
+                && gatherSectionInfo(reasons, avail.course, avail.unit, true);
 
         if (ok) {
             if ("Y".equals(this.studentCourse.iInProgress)) {
                 ok = checkIncompleteDeadline(session, reasons)
-                        && checkPassedReview(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
+                        && checkPassedReview(session, reasons, avail)
+                        && checkNumAttempts(session, reasons, avail)
                         && checkCourseRegistration(reasons);
             } else {
-                ok = checkPassedReview(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
+                ok = checkPassedReview(session, reasons, avail)
+                        && checkNumAttempts(session, reasons, avail)
                         && checkCourseRegistration(reasons)
                         && checkUnitTestingDateRange(session, reasons)
-                        && checkForCourseLockout(cache, session, reasons);
+                        && checkForCourseLockout(session, reasons);
             }
         }
 
@@ -163,8 +163,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return true if student is eligible for the exam after this test; false otherwise
      */
-    private boolean checkIncompleteDeadline(final ImmutableSessionInfo session,
-                                            final HtmlBuilder reasons) {
+    private boolean checkIncompleteDeadline(final ImmutableSessionInfo session, final HtmlBuilder reasons) {
 
         boolean ok = false;
 
@@ -184,15 +183,14 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
     /**
      * Checks that the student has passed the unit review exam.
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param avail   the exam to test
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkPassedReview(final Cache cache, final ImmutableSessionInfo session,
-                                      final HtmlBuilder reasons, final UnitExamAvailability avail) throws SQLException {
+    private boolean checkPassedReview(final ImmutableSessionInfo session, final HtmlBuilder reasons,
+                                      final UnitExamAvailability avail) throws SQLException {
 
         final boolean ok;
 
@@ -201,18 +199,19 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.INSTRUCTOR) || role.canActAs(ERole.TUTOR)) {
             ok = true;
         } else {
+            final StudentData stuData = getStudentData();
+
             // Check for passing review exam in the same unit
-            final List<RawStexam> passedrev = RawStexamLogic.getExams(cache, this.student.stuId, avail.course,
-                    avail.unit, true, "R");
+            final List<RawStexam> passedrev = stuData.getStudentExamsByCourseUnitType(avail.course, avail.unit, true,
+                    "R");
 
             if (passedrev.isEmpty()) {
                 reasons.add("Review exam not yet passed.");
                 ok = false;
             } else {
-                // See if the unit exam has been passed (so we don't test for N failures since last
-                // rev)
-                final List<RawStexam> passedunit = RawStexamLogic.getExams(cache,
-                        this.student.stuId, avail.course, avail.unit, true, "U");
+                // See if the unit exam has been passed (so we don't test for N failures since last review)
+                final List<RawStexam> passedunit = stuData.getStudentExamsByCourseUnitType(avail.course, avail.unit,
+                        true, "U");
 
                 if (!passedunit.isEmpty() || this.courseSectionUnit.atmptsPerReview == null) {
                     ok = true;
@@ -226,8 +225,8 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                     }
 
                     // Count failed unit exams since most recent passed review exam
-                    final List<RawStexam> allUnit = RawStexamLogic.getExams(cache, this.student.stuId, avail.course,
-                            avail.unit, false, "U");
+                    final List<RawStexam> allUnit = stuData.getStudentExamsByCourseUnitType(avail.course, avail.unit,
+                            false, "U");
 
                     int count = 0;
                     for (final RawStexam test : allUnit) {
@@ -258,15 +257,14 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
      * If the exam enforces a limit on the total number of attempts or number of attempts on a single version, test
      * those limits.
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param avail   the exam to test
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkNumAttempts(final Cache cache, final ImmutableSessionInfo session,
-                                     final HtmlBuilder reasons, final UnitExamAvailability avail) throws SQLException {
+    private boolean checkNumAttempts(final ImmutableSessionInfo session, final HtmlBuilder reasons,
+                                     final UnitExamAvailability avail) throws SQLException {
 
         boolean ok = true;
 
@@ -280,12 +278,12 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
             }
 
             if (maxAttempts > 0) {
-                // There is a limit on total attempts, so determine total attempts so far, including
-                // possible ungraded (batch) attempts, and test that value against the maximum
-                // allowed attempts.
+                // There is a limit on total attempts, so determine total attempts so far, including possible
+                // ungraded (batch) attempts, and test that value against the maximum allowed attempts.
+                final StudentData stuData = getStudentData();
 
-                final List<RawStexam> examList = RawStexamLogic.getExams(cache, this.studentId, avail.course,
-                        avail.unit, false, "U");
+                final List<RawStexam> examList = stuData.getStudentExamsByCourseUnitType(avail.course, avail.unit,
+                        false, "U");
 
                 if (examList.size() >= maxAttempts) {
                     reasons.add("Maximum number of attempts exceeded.");
@@ -359,24 +357,25 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
      * method is called, the student is eligible for the final - we assume they were eligible early enough to qualify
      * for the last try).
      *
-     * @param cache   the data cache
      * @param session the login session
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return true if student is eligible for the exam after this test; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkForCourseLockout(final Cache cache, final ImmutableSessionInfo session,
-                                          final HtmlBuilder reasons) throws SQLException {
+    private boolean checkForCourseLockout(final ImmutableSessionInfo session, final HtmlBuilder reasons)
+            throws SQLException {
 
         boolean ok = true;
 
         if (Boolean.FALSE.equals(this.courseIsTutorial)) {
 
+            final StudentData stuData = getStudentData();
+
             // If the student has passed the Final, we're done
             boolean finalNotYetPassed = true;
 
-            final List<RawStexam> passedFinals = RawStexamLogic.getExams(cache, this.studentId,
-                    this.studentCourse.course, true, "F");
+            final List<RawStexam> passedFinals = stuData.getStudentExamsByCourseType(this.studentCourse.course, true,
+                    "F");
 
             for (final RawStexam test : passedFinals) {
                 Log.info(test);
@@ -388,17 +387,17 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
             }
 
             if (finalNotYetPassed && this.studentCourse.paceOrder != null) {
-                final RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, this.studentId);
+                final SystemData systemData = stuData.getSystemData();
+                final TermRec activeTerm = systemData.getActiveTerm();
+                final RawStterm stterm = stuData.getStudentTerm(activeTerm.term);
 
                 if (stterm == null || stterm.pace == null) {
                     reasons.add("Unable to determine your course pace.");
                     ok = false;
                 } else {
-                    final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache,
-                            this.activeTerm.term, stterm.pace.intValue(), stterm.paceTrack);
-
-                    final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(
-                            cache, this.activeTerm.term, stterm.paceTrack, this.studentId);
+                    final List<RawMilestone> allMs = systemData.getMilestones(activeTerm.term, stterm.pace,
+                            stterm.paceTrack);
+                    final List<RawStmilestone> stuMs = stuData.getStudentMilestones(activeTerm.term, stterm.paceTrack);
 
                     // There may not be a "last try", so start with the final deadline
                     LocalDate deadline = null;
@@ -463,52 +462,52 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
 
     }
 
-    /**
-     * Main method to test this class.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(final String... args) {
-
-        DbConnection.registerDrivers();
-
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(//
-                "checkin");
-
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                final LiveSessionInfo live = new LiveSessionInfo("abcdef",
-                        "Local", ERole.STUDENT);
-
-                live.setUserInfo("831599651", "Test",
-                        "Student", "Test Student");
-
-                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
-
-                final UnitExamAvailability avail =
-                        new UnitExamAvailability(RawRecordConstants.M125, Integer.valueOf(4));
-
-                final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(session.userId);
-
-                final Collection<RawAdminHold> holds = new ArrayList<>(2);
-                final HtmlBuilder reason = new HtmlBuilder(100);
-                final boolean ok = tester.isExamEligible(cache, session, avail, reason, holds);
-
-                Log.info("Student  : ", live.getUserId());
-                Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
-                Log.info("Eligible : ", Boolean.toString(ok));
-                if (!ok) {
-                    Log.info("Reason   : ", reason.toString());
-                }
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-        }
-    }
+//    /**
+//     * Main method to test this class.
+//     *
+//     * @param args command-line arguments
+//     */
+//    public static void main(final String... args) {
+//
+//        DbConnection.registerDrivers();
+//
+//        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile("checkin");
+//
+//        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+//        try {
+//            final DbConnection conn = ctx.checkOutConnection();
+//            final Cache cache = new Cache(dbProfile, conn);
+//
+//            try {
+//                final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
+//
+//                live.setUserInfo("831599651", "Test", "Student", "Test Student");
+//
+//                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
+//
+//                final UnitExamAvailability avail =
+//                        new UnitExamAvailability(RawRecordConstants.M125, Integer.valueOf(4));
+//
+//                final SystemData systemData = new SystemData(cache);
+//                final StudentData studentData = new StudentData(cache, systemData, session.userId, ELiveRefreshes.NONE);
+//
+//                final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(studentData);
+//
+//                final Collection<RawAdminHold> holds = new ArrayList<>(2);
+//                final HtmlBuilder reason = new HtmlBuilder(100);
+//                final boolean ok = tester.isExamEligible(session, avail, reason, holds);
+//
+//                Log.info("Student  : ", live.getUserId());
+//                Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
+//                Log.info("Eligible : ", Boolean.toString(ok));
+//                if (!ok) {
+//                    Log.info("Reason   : ", reason.toString());
+//                }
+//            } finally {
+//                ctx.checkInConnection(conn);
+//            }
+//        } catch (final SQLException ex) {
+//            Log.warning(ex);
+//        }
+//    }
 }

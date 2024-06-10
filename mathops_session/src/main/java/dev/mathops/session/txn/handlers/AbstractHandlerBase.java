@@ -4,6 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -38,8 +40,8 @@ public abstract class AbstractHandlerBase {
     /** The testing center that the client computer is registered in. */
     private RawTestingCenter testingCenter;
 
-    /** The logged in student. */
-    private RawStudent student;
+    /** The student data object. */
+    private StudentData studentData;
 
     /** The database profile of the request. */
     final DbProfile dbProfile;
@@ -110,23 +112,13 @@ public abstract class AbstractHandlerBase {
     }
 
     /**
-     * Gets the student.
+     * Gets the student data object.
      *
-     * @return the student
+     * @return the student data object
      */
-    final RawStudent getStudent() {
+    final StudentData getStudentData() {
 
-        return this.student;
-    }
-
-    /**
-     * Sets the student.
-     *
-     * @param theStudent the new student
-     */
-    final void setStudent(final RawStudent theStudent) {
-
-        this.student = theStudent;
+        return this.studentData;
     }
 
     /**
@@ -166,53 +158,53 @@ public abstract class AbstractHandlerBase {
     final boolean loadStudentInfo(final Cache cache, final String studentId,
                                   final AbstractReplyBase reply) throws SQLException {
 
-        boolean ok;
+        boolean ok = false;
 
-        if (this.machineId != null) {
-            this.client = RawClientPcLogic.query(cache, this.machineId);
-            if (this.client == null) {
-                reply.error = "Computer " + this.machineId + " is not in the database.";
-                Log.info(reply.error);
-                return false;
-            }
+        final SystemData systemData = new SystemData(cache);
 
-            this.testingCenter = RawTestingCenterLogic.query(cache, this.client.testingCenterId);
-            if (this.testingCenter == null) {
-                reply.error = "Computer " + this.machineId + " is not in a valid testing center";
-                Log.info(reply.error);
-                return false;
-            }
-
-            final String stuId = studentId == null ? this.client.currentStuId : studentId;
-
-            this.student = RawStudentLogic.query(cache, stuId, true);
-
-            if (this.student == null) {
-                reply.error = "Failed to obtain student info.";
-                Log.info(reply.error);
-                return false;
-            }
-
-            ok = true;
-        } else {
+        if (this.machineId == null) {
             // "Testing center" is 0 (Public Internet)
             this.client = null;
             this.testingCenter = RawTestingCenterLogic.query(cache, "0");
             if (this.testingCenter == null) {
                 reply.error = "Unable to query public internet site data";
                 Log.info(reply.error);
-                return false;
-            }
-            ok = true;
-
-            if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
-                this.student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+            } else if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
+                final RawStudent student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+                this.studentData = new StudentData(cache, systemData, student);
+                ok = true;
             } else {
-                this.student = RawStudentLogic.query(cache, studentId, true);
-                if (this.student == null) {
+                final RawStudent student = RawStudentLogic.query(cache, studentId, true);
+                if (student == null) {
                     reply.error = "Unable to look up your student info.";
                     Log.info(reply.error);
-                    ok = false;
+                } else {
+                    this.studentData = new StudentData(cache, systemData, student);
+                    ok = true;
+                }
+            }
+        } else {
+            this.client = RawClientPcLogic.query(cache, this.machineId);
+            if (this.client == null) {
+                reply.error = "Computer " + this.machineId + " is not in the database.";
+                Log.info(reply.error);
+            } else {
+                this.testingCenter = RawTestingCenterLogic.query(cache, this.client.testingCenterId);
+                if (this.testingCenter == null) {
+                    reply.error = "Computer " + this.machineId + " is not in a valid testing center";
+                    Log.info(reply.error);
+                } else {
+                    final String stuId = studentId == null ? this.client.currentStuId : studentId;
+
+                    final RawStudent student = RawStudentLogic.query(cache, stuId, true);
+
+                    if (student == null) {
+                        reply.error = "Failed to obtain student info.";
+                        Log.info(reply.error);
+                    } else {
+                        this.studentData = new StudentData(cache, systemData, student);
+                        ok = true;
+                    }
                 }
             }
         }

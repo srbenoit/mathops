@@ -7,6 +7,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.TestingStationStatusReply;
 import dev.mathops.session.txn.messages.TestingStationStatusRequest;
@@ -94,22 +95,18 @@ public final class TestingStationStatusHandler extends AbstractHandlerBase {
             if ("GROUP".equalsIgnoreCase(pc.currentStuId)) {
                 reply.studentId = "GROUP";
             } else if (pc.currentStuId != null) {
+                final RawStudent student = RawStudentLogic.query(cache, pc.currentStuId, false);
 
-                setStudent(RawStudentLogic.query(cache, pc.currentStuId, false));
-
-                if (getStudent() == null) {
+                if (student == null) {
                     reply.error = "Unable to query student information.";
-                    setStudent(null);
                 } else {
                     reply.studentId = pc.currentStuId;
-                    reply.studentName =
-                            getStudent().prefName + CoreConstants.SPC + getStudent().lastName;
+                    reply.studentName = student.prefName + CoreConstants.SPC + student.lastName;
                 }
             }
 
             if (RawClientPc.POWER_TURNING_ON.equals(pc.powerStatus)) {
-                RawClientPcLogic.updatePowerStatus(cache, getMachineId(),
-                        RawClientPc.POWER_REPORTING_ON);
+                RawClientPcLogic.updatePowerStatus(cache, getMachineId(), RawClientPc.POWER_REPORTING_ON);
             }
         }
 

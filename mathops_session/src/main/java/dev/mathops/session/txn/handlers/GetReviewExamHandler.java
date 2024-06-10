@@ -15,6 +15,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
@@ -22,6 +23,7 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -134,8 +136,10 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
             }
 
             if (ok) {
+                final StudentData studentData = getStudentData();
+
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = getStudent().stuId;
+                reply.studentId = studentData.getStudentId();
 
                 final HtmlBuilder reasons = new HtmlBuilder(100);
                 final List<RawAdminHold> holds = new ArrayList<>(1);
@@ -152,10 +156,9 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                     if ("R".equals(type)) {
 
                         // We need to verify the exam and fill in the remaining fields in AvailableExam
-                        final ReviewExamEligibilityTester examtest =
-                                new ReviewExamEligibilityTester(getStudent().stuId);
+                        final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(studentData);
 
-                        eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
+                        eligible = examtest.isExamEligible(now, avail, reasons, holds);
                         reply.masteryScore = examtest.getMasteryScore(type);
                     } else if ("Q".equals(type)) {
 
@@ -164,10 +167,9 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                             // This exam had to be marked as EnumExamType.QUALIFYING_VAL to avoid a
                             // key duplication, but is treated as a review exam
 
-                            final ReviewExamEligibilityTester examtest =
-                                    new ReviewExamEligibilityTester(getStudent().stuId);
+                            final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(studentData);
 
-                            eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
+                            eligible = examtest.isExamEligible(now, avail, reasons, holds);
 
                             // Adjust mastery scores since ELM exam is twice as long
                             if (examtest.getMasteryScore(type) != null) {
@@ -183,8 +185,9 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                             }
                         } else {
                             try {
-                                final PlacementStatus placementStat = new PlacementLogic(cache,
-                                        getStudent().stuId, getStudent().aplnTerm, now).status;
+                                final RawStudent student = studentData.getStudentRecord();
+                                final PlacementStatus placementStat = new PlacementLogic(studentData, student.aplnTerm,
+                                        now).status;
 
                                 eligible = placementStat.attemptsRemaining > 0;
                             } catch (final SQLException ex) {
@@ -356,12 +359,14 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
             if (exam.realize("Y".equals(getTestingCenter().isRemote),
                     "Y".equals(getTestingCenter().isProctored), serial)) {
 
+                final StudentData studentData = getStudentData();
+                final String studentId = studentData.getStudentId();
+
                 reply.presentedExam = exam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = getStudent().stuId;
+                reply.studentId = studentId;
 
-                if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
-                        reply.toXml())) {
+                if (!new ExamWriter().writePresentedExam(studentId, term, reply.presentedExam, reply.toXml())) {
                     Log.warning("Unable to cache ", ref);
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
                 }

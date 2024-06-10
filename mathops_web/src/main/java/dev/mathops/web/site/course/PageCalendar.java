@@ -139,14 +139,14 @@ enum PageCalendar {
         htm.sH(2).add("Recommended Progress Schedule").eH(2);
 
         // Determine pace and track
-        final TermRec active = logic.data.registrationData.getActiveTerm();
+        final TermRec active = logic.data.siteRegistrationData.getActiveTerm();
 
-        final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+        final List<RawStcourse> paceRegs = logic.data.siteRegistrationData.getPaceRegistrations();
         final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
         final String track = paceRegs == null ? "A" : PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
         final List<RawMilestone> allMilestones =
-                logic.data.milestoneData.getMilestones(active.term);
+                logic.data.siteMilestoneData.getMilestones(active.term);
         final Collection<RawMilestone> milestones = new ArrayList<>(pace << 5);
         for (final RawMilestone row : allMilestones) {
             if (pace == row.pace.intValue() && track.equals(row.paceTrack)) {
@@ -322,7 +322,7 @@ enum PageCalendar {
         final RawStcourse reg1 = paceRegs.getFirst();
 
         final SiteDataCfgCourse courseData1 =
-                logic.data.courseData.getCourse(reg1.course, reg1.sect);
+                logic.data.siteCourseData.getCourse(reg1.course, reg1.sect);
         final RawCourse course1 = courseData1 == null ? null : courseData1.course;
 
         final Collection<RawMilestone> course1Milestones = new ArrayList<>(32);
@@ -351,10 +351,10 @@ enum PageCalendar {
         final RawStcourse reg1 = paceRegs.get(0);
         final RawStcourse reg2 = paceRegs.get(1);
 
-        final SiteDataCfgCourse courseData1 = logic.data.courseData.getCourse(reg1.course, reg1.sect);
+        final SiteDataCfgCourse courseData1 = logic.data.siteCourseData.getCourse(reg1.course, reg1.sect);
         final RawCourse course1 = courseData1 == null ? null : courseData1.course;
 
-        final SiteDataCfgCourse courseData2 = logic.data.courseData.getCourse(reg2.course, reg2.sect);
+        final SiteDataCfgCourse courseData2 = logic.data.siteCourseData.getCourse(reg2.course, reg2.sect);
         final RawCourse course2 = courseData2 == null ? null : courseData2.course;
 
         final Collection<RawMilestone> course1Milestones = new ArrayList<>(32);
@@ -393,13 +393,13 @@ enum PageCalendar {
         final RawStcourse reg2 = paceRegs.get(1);
         final RawStcourse reg3 = paceRegs.get(2);
 
-        final SiteDataCfgCourse courseData1 = logic.data.courseData.getCourse(reg1.course, reg1.sect);
+        final SiteDataCfgCourse courseData1 = logic.data.siteCourseData.getCourse(reg1.course, reg1.sect);
         final RawCourse course1 = courseData1 == null ? null : courseData1.course;
 
-        final SiteDataCfgCourse courseData2 = logic.data.courseData.getCourse(reg2.course, reg2.sect);
+        final SiteDataCfgCourse courseData2 = logic.data.siteCourseData.getCourse(reg2.course, reg2.sect);
         final RawCourse course2 = courseData2 == null ? null : courseData2.course;
 
-        final SiteDataCfgCourse courseData3 = logic.data.courseData.getCourse(reg3.course, reg3.sect);
+        final SiteDataCfgCourse courseData3 = logic.data.siteCourseData.getCourse(reg3.course, reg3.sect);
         final RawCourse course3 = courseData3 == null ? null : courseData3.course;
 
         final Collection<RawMilestone> course1Milestones = new ArrayList<>(32);
@@ -448,16 +448,16 @@ enum PageCalendar {
         final RawStcourse reg3 = paceRegs.get(2);
         final RawStcourse reg4 = paceRegs.get(3);
 
-        final SiteDataCfgCourse courseData1 = logic.data.courseData.getCourse(reg1.course, reg1.sect);
+        final SiteDataCfgCourse courseData1 = logic.data.siteCourseData.getCourse(reg1.course, reg1.sect);
         final RawCourse course1 = courseData1 == null ? null : courseData1.course;
 
-        final SiteDataCfgCourse courseData2 = logic.data.courseData.getCourse(reg2.course, reg2.sect);
+        final SiteDataCfgCourse courseData2 = logic.data.siteCourseData.getCourse(reg2.course, reg2.sect);
         final RawCourse course2 = courseData2 == null ? null : courseData2.course;
 
-        final SiteDataCfgCourse courseData3 = logic.data.courseData.getCourse(reg3.course, reg3.sect);
+        final SiteDataCfgCourse courseData3 = logic.data.siteCourseData.getCourse(reg3.course, reg3.sect);
         final RawCourse course3 = courseData3 == null ? null : courseData3.course;
 
-        final SiteDataCfgCourse courseData4 = logic.data.courseData.getCourse(reg4.course, reg4.sect);
+        final SiteDataCfgCourse courseData4 = logic.data.siteCourseData.getCourse(reg4.course, reg4.sect);
         final RawCourse course4 = courseData4 == null ? null : courseData4.course;
 
         final Collection<RawMilestone> course1Milestones = new ArrayList<>(32);
@@ -516,19 +516,19 @@ enum PageCalendar {
         final RawStcourse reg4 = paceRegs.get(3);
         final RawStcourse reg5 = paceRegs.get(4);
 
-        final SiteDataCfgCourse courseData1 = logic.data.courseData.getCourse(reg1.course, reg1.sect);
+        final SiteDataCfgCourse courseData1 = logic.data.siteCourseData.getCourse(reg1.course, reg1.sect);
         final RawCourse course1 = courseData1 == null ? null : courseData1.course;
 
-        final SiteDataCfgCourse courseData2 = logic.data.courseData.getCourse(reg2.course, reg2.sect);
+        final SiteDataCfgCourse courseData2 = logic.data.siteCourseData.getCourse(reg2.course, reg2.sect);
         final RawCourse course2 = courseData2 == null ? null : courseData2.course;
 
-        final SiteDataCfgCourse courseData3 = logic.data.courseData.getCourse(reg3.course, reg3.sect);
+        final SiteDataCfgCourse courseData3 = logic.data.siteCourseData.getCourse(reg3.course, reg3.sect);
         final RawCourse course3 = courseData3 == null ? null : courseData3.course;
 
-        final SiteDataCfgCourse courseData4 = logic.data.courseData.getCourse(reg4.course, reg4.sect);
+        final SiteDataCfgCourse courseData4 = logic.data.siteCourseData.getCourse(reg4.course, reg4.sect);
         final RawCourse course4 = courseData4 == null ? null : courseData4.course;
 
-        final SiteDataCfgCourse courseData5 = logic.data.courseData.getCourse(reg5.course, reg5.sect);
+        final SiteDataCfgCourse courseData5 = logic.data.siteCourseData.getCourse(reg5.course, reg5.sect);
         final RawCourse course5 = courseData5 == null ? null : courseData5.course;
 
         final Collection<RawMilestone> course1Milestones = new ArrayList<>(32);
