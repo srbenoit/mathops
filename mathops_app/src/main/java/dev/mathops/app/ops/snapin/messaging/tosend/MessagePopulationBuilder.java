@@ -2,11 +2,11 @@ package dev.mathops.app.ops.snapin.messaging.tosend;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -67,7 +67,7 @@ public final class MessagePopulationBuilder {
     private static final String TRACK_C = "C";
 
     /** The cache. */
-    private final Cache cache;
+    private final SystemData systemData;
 
     /** The courses and sections to include. */
     private final Map<String, ? extends List<String>> includeCourseSections;
@@ -174,13 +174,13 @@ public final class MessagePopulationBuilder {
     /**
      * Constructs a new {@code MessagePopulationScanner}.
      *
-     * @param theCache                 the cache
+     * @param theSystemData        the system data object
      * @param theIncCourseSections a map from course ID to a list of section IDs to include
      */
-    MessagePopulationBuilder(final Cache theCache,
+    MessagePopulationBuilder(final SystemData theSystemData,
                              final Map<String, ? extends List<String>> theIncCourseSections) {
 
-        this.cache = theCache;
+        this.systemData = theSystemData;
         this.includeCourseSections = theIncCourseSections;
 
         this.nonCountedIncomplete = new Population();
@@ -209,13 +209,12 @@ public final class MessagePopulationBuilder {
      */
     public void scan() throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(this.cache).queryActive(this.cache);
+        final TermRec activeTerm = this.systemData.getActiveTerm();
 
         if (activeTerm != null) {
-            // Get all non-dropped, non-challenge-credit registrations in the active term (this
-            // will include Incompletes)
-            final List<RawStcourse> allRegs =
-                    RawStcourseLogic.queryByTerm(this.cache, activeTerm.term, false, false);
+            // Get all non-dropped, non-challenge-credit registrations in the active term (will include Incompletes)
+            final Cache cache = this.systemData.getCache();
+            final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, activeTerm.term, false, false);
 
             final Iterator<RawStcourse> iter = allRegs.iterator();
             while (iter.hasNext()) {

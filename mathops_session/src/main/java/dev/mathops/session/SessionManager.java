@@ -215,7 +215,7 @@ public final class SessionManager extends SessionCache implements ISessionManage
             // that the requester has needed permission.
             final Cache cache = data.getCache();
             final SystemData systemData = data.getSystemData();
-            final StudentData studentData = new StudentData(cache, systemData, userId, ELiveRefreshes.IF_MISSING);
+            final StudentData studentData = new StudentData(systemData, userId, ELiveRefreshes.IF_MISSING);
 
             final RawStudent student = studentData.getStudentRecord();
 
@@ -262,7 +262,7 @@ public final class SessionManager extends SessionCache implements ISessionManage
         // the requester has needed permission.
         final Cache cache = data.getCache();
         final SystemData systemData = data.getSystemData();
-        final StudentData studentData = new StudentData(cache, systemData, userId, ELiveRefreshes.IF_MISSING);
+        final StudentData studentData = new StudentData(systemData, userId, ELiveRefreshes.IF_MISSING);
 
         final RawStudent student = RawStudentLogic.query(cache, userId, true);
 

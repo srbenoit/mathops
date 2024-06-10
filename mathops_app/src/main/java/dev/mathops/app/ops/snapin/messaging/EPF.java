@@ -5,23 +5,21 @@ import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -49,18 +47,18 @@ public enum EPF {
      * schedule, and there is a single bucket for all students who are on time or ahead of schedule, and separate
      * buckets for students who have not started their course or not passed the user's exam.
      *
-     * @param cache             the data cache
+     * @param systemData        the system data object
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
      * @return a map from the number of days behind to the list of CSU IDs of students in that state, where -2 means
      *         "not started", "-1" means "no user's exam", and "0" means on-time or ahead
      */
-    private static Map<Integer, List<String>> calculate(final Cache cache,
+    private static Map<Integer, List<String>> calculate(final SystemData systemData,
                                                         final Map<String, ? extends List<String>> incCourseSections) {
 
         final Map<Integer, List<String>> result = new HashMap<>(30);
 
         try {
-            exec(cache, incCourseSections, result);
+            exec(systemData, incCourseSections, result);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }
@@ -96,31 +94,32 @@ public enum EPF {
     /**
      * Executes the job.
      *
-     * @param cache             the data cache
+     * @param systemData        the system data object
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
      * @param result            a map to be populated by this method - keys are the number of days behind, where -2
-     *                          means "not started", "-1" means "no user's exam", and "0" means on-time or ahead,
-     *                          and values are the list of CSU IDs of students in that condition
+     *                          means "not started", "-1" means "no user's exam", and "0" means on-time or ahead, and
+     *                          values are the list of CSU IDs of students in that condition
      * @throws SQLException if there is an error accessing the database
      */
-    private static void exec(final Cache cache, final Map<String, ? extends List<String>> incCourseSections,
+    private static void exec(final SystemData systemData, final Map<String, ? extends List<String>> incCourseSections,
                              final Map<? super Integer, List<String>> result) throws SQLException {
 
         // Map from student ID to map from course ID to registration
-        final Map<String, List<RawStcourse>> stuRegs = gatherMatchingRegistrations(cache, incCourseSections);
+        final Map<String, List<RawStcourse>> stuRegs = gatherMatchingRegistrations(systemData, incCourseSections);
 
-        final TermRec act = TermLogic.get(cache).queryActive(cache);
+        final TermRec act = systemData.getActiveTerm();
         if (act == null) {
             Log.warning("Unable to query the active term.");
         } else {
             // Map from pace to map from pace track to milestones for that pace/track
-            final Map<Integer, Map<String, List<RawMilestone>>> msMap = gatherMilestones(cache, act.term);
+            final Map<Integer, Map<String, List<RawMilestone>>> msMap = gatherMilestones(systemData, act.term);
 
             final LocalDate today = LocalDate.now();
 
             for (final Map.Entry<String, List<RawStcourse>> e : stuRegs.entrySet()) {
                 final String stuId = e.getKey();
-                processStudent(cache, stuId, e.getValue(), today, msMap, act, result);
+                final StudentData studentData = new StudentData(systemData, stuId, ELiveRefreshes.NONE);
+                processStudent(studentData, stuId, e.getValue(), today, msMap, act, result);
             }
         }
     }
@@ -130,13 +129,13 @@ public enum EPF {
      * incompletes here, since they don't need EPF). Then we organize into a map whose key is student ID, then key is
      * course ID.
      *
-     * @param cache             the data cache
+     * @param systemData        the system data object
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
      * @return a map from student ID to the list of that student's registrations
      * @throws SQLException if there is an error accessing the database
      */
     public static Map<String, List<RawStcourse>> gatherMatchingRegistrations(
-            final Cache cache, final Map<String, ? extends List<String>> incCourseSections) throws SQLException {
+            final SystemData systemData, final Map<String, ? extends List<String>> incCourseSections) throws SQLException {
 
         final List<RawStcourse> allRegs = RawStcourseLogic.queryActiveForActiveTerm(cache);
         final Map<String, List<RawStcourse>> stuRegs = new HashMap<>(3000);
@@ -166,18 +165,18 @@ public enum EPF {
     /**
      * Gathers all milestones configured for the active term and organizes them by pace and pace track.
      *
-     * @param cache     the data cache
-     * @param activeKey the active term key
+     * @param systemData the system data object
+     * @param activeKey  the active term key
      * @return a map from pace to a map from pace track to a list of milestones
      * @throws SQLException if there is an error accessing the database
      */
     public static Map<Integer, Map<String, List<RawMilestone>>> gatherMilestones(
-            final Cache cache, final TermKey activeKey) throws SQLException {
+            final SystemData systemData, final TermKey activeKey) throws SQLException {
 
         // Next, we get all milestones and organize into a map from pace to map from track to list of milestones.
         final Map<Integer, Map<String, List<RawMilestone>>> msMap = new HashMap<>(5);
 
-        final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache, activeKey);
+        final List<RawMilestone> allMilestones = systemData.getMilestones(activeKey);
 
         for (final RawMilestone ms : allMilestones) {
             final Integer paceKey = ms.pace;
@@ -194,18 +193,18 @@ public enum EPF {
     /**
      * Processes a single student's registrations.
      *
-     * @param cache  the data cache
-     * @param stuId  the student ID
-     * @param regs   the student's registrations (sorted map from course ID to registration)
-     * @param today  the current date
-     * @param msMap  map from pace to a map from track to list of milestones
-     * @param active the active term
-     * @param result a map to be populated by this method - keys are the number of days behind, where -2 means "not
-     *               started", "-1" means "no user's exam", and "0" means on-time or ahead, and values are the list of
-     *               CSU IDs of students in that condition
+     * @param studentData the student data object
+     * @param stuId      the student ID
+     * @param regs       the student's registrations (sorted map from course ID to registration)
+     * @param today      the current date
+     * @param msMap      map from pace to a map from track to list of milestones
+     * @param active     the active term
+     * @param result     a map to be populated by this method - keys are the number of days behind, where -2 means "not
+     *                   started", "-1" means "no user's exam", and "0" means on-time or ahead, and values are the list
+     *                   of CSU IDs of students in that condition
      * @throws SQLException if there is an error accessing the database
      */
-    private static void processStudent(final Cache cache, final String stuId, final List<RawStcourse> regs,
+    private static void processStudent(final StudentData studentData, final String stuId, final List<RawStcourse> regs,
                                        final ChronoLocalDate today,
                                        final Map<Integer, ? extends Map<String, List<RawMilestone>>> msMap,
                                        final TermRec active, final Map<? super Integer, List<String>> result)
@@ -264,14 +263,13 @@ public enum EPF {
 
                 final Integer paceInt = Integer.valueOf(pace);
                 final List<RawMilestone> milestones = msMap.get(paceInt).get(track);
-                final List<RawStmilestone> stmilestones =
-                        RawStmilestoneLogic.getStudentMilestones(cache, active.term, track, stuId);
+                final List<RawStmilestone> stmilestones = studentData.getStudentMilestones(active.term, track);
 
-                final RawStudent stu = RawStudentLogic.query(cache, stuId, false);
+                final RawStudent stu = studentData.getStudentRecord();
                 if (stu == null) {
                     Log.warning("ERROR: No student record for ", stuId);
                 } else {
-                    final List<RawStexam> exams = RawStexamLogic.queryByStudent(cache, stuId, false);
+                    final List<RawStexam> exams = studentData.getStudentExams();
 
                     switch (pace) {
                         case 1:
@@ -814,7 +812,8 @@ public enum EPF {
      * @return the milestone date
      */
     private static LocalDate findDate(final Iterable<RawMilestone> milestones,
-                                      final Iterable<RawStmilestone> stmilestones, final String type, final int number) {
+                                      final Iterable<RawStmilestone> stmilestones, final String type,
+                                      final int number) {
 
         LocalDate due = null;
 

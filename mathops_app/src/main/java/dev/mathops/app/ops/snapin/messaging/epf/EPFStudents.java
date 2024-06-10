@@ -104,8 +104,7 @@ final class EPFStudents {
     void calculate(final Map<String, ? extends List<String>> incCourseSections,
                    final Map<String, ? super MessageToSend> epf) {
 
-        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning
-        // students.
+        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning students.
 
         this.canceled.set(false);
         try {
