@@ -2,13 +2,12 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.txn.messages.AvailableExam;
 
 import java.sql.SQLException;
@@ -28,11 +27,11 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
     /**
      * Creates a new eligibility test class, which can be used to test several exams for eligibility.
      *
-     * @param theStudentId the student ID for which eligibility is to be tested
+     * @param theStudentData the student data object of the student for whom eligibility is being tested
      */
-    public ExamEligibilityTester(final String theStudentId) {
+    public ExamEligibilityTester(final StudentData theStudentData) {
 
-        super(theStudentId);
+        super(theStudentData);
     }
 
     /**
@@ -51,7 +50,6 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * information is accumulated, including holds on the student record, or the reason the exam cannot be taken at this
      * time.
      *
-     * @param cache            the data cache
      * @param now              the date/time to consider as "now"
      * @param avail            the exam being tested
      * @param reasons          a buffer to which to append the reason the exam is unavailable
@@ -61,16 +59,17 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * @return {@code true} if the request was handled successfully; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean isExamEligible(final Cache cache, final ZonedDateTime now, final AvailableExam avail,
-                                  final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds,
-                                  final boolean checkEligibility) throws SQLException {
+    public boolean isExamEligible(final ZonedDateTime now, final AvailableExam avail, final HtmlBuilder reasons,
+                                  final Collection<? super RawAdminHold> holds, final boolean checkEligibility)
+            throws SQLException {
 
-        boolean ok = validateStudent(cache, now, reasons, holds, checkEligibility)
-                && checkActiveTerm(cache, now, reasons);
+        boolean ok = validateStudent(now, reasons, holds, checkEligibility)
+                && checkActiveTerm(now, reasons);
 
         if (ok) {
-            avail.timelimitFactor = this.student.timelimitFactor;
-            ok = checkExamAvailability(cache, now, reasons, avail, checkEligibility);
+            final RawStudent student = getStudentData().getStudentRecord();
+            avail.timelimitFactor = student.timelimitFactor;
+            ok = checkExamAvailability(now, reasons, avail, checkEligibility);
         }
 
         return ok;
@@ -83,7 +82,6 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * parameters stored in the exam, course, and course-unit objects. ALL exam-specific test logic is database-driven,
      * so this code will not need to change as new exams are defined or exam versions are added.
      *
-     * @param cache            the data cache
      * @param now              the date/time to consider as "now"
      * @param reasons          a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param avail            the exam to test (on entry, only version is set)
@@ -91,14 +89,14 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * @return true if request completed successfully; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkExamAvailability(final Cache cache, final ZonedDateTime now, final HtmlBuilder reasons,
-                                          final AvailableExam avail, final boolean checkEligibility)
+    private boolean checkExamAvailability(final ZonedDateTime now, final HtmlBuilder reasons, final AvailableExam avail,
+                                          final boolean checkEligibility)
             throws SQLException {
 
         boolean ok;
 
         // Gather the information from STCOURSE and CUSECTION, since it is used repeatedly in the checks that follow.
-        ok = gatherSectionInfo(cache, reasons, avail.exam.course, avail.exam.unit, checkEligibility);
+        ok = gatherSectionInfo(reasons, avail.exam.course, avail.exam.unit, checkEligibility);
 
         // If student is finishing an incomplete, they may only test in the course that is incomplete, or courses where
         // this restriction is not enforced.
@@ -108,7 +106,7 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
 
         // If the exam enforces limited number of attempts, test this limit.
         if (ok && checkEligibility) {
-            ok = checkNumAttempts(cache, reasons, avail);
+            ok = checkNumAttempts(reasons, avail);
         }
 
         // See if the student is registered for the exam's course, or is in an exception category and allowed to take
@@ -121,10 +119,14 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
             final String course = this.courseSection.course;
             final String section = this.studentCourse.sect;
 
+            final StudentData stuData = getStudentData();
+
             final boolean isELM = RawRecordConstants.M100T.equals(course);
             final boolean isDistance = section != null && (section.charAt(0) == '8' || section.charAt(0) == '4');
-            final boolean isPuAllowed = RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(),
-                    "RIUSEPU");
+
+            final LocalDate today = now.toLocalDate();
+            final boolean isPuAllowed = stuData.isSpecialCategory(today, "RIUSEPU");
+
             final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
 
             if (isELM || isDistance || isPuAllowed || isIncomplete) {
@@ -176,14 +178,12 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
      * If the exam enforces a limit on the total number of attempts or number of attempts on a single version, test
      * those limits.
      *
-     * @param cache   the data cache
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param avail   the exam to test
      * @return true if request completed successfully; false otherwise
      * @throws SQLException of there is an error accessing the database
      */
-    private boolean checkNumAttempts(final Cache cache, final HtmlBuilder reasons,
-                                     final AvailableExam avail) throws SQLException {
+    private boolean checkNumAttempts(final HtmlBuilder reasons, final AvailableExam avail) throws SQLException {
 
         int maxAttempts = 0;
         final int graded;
@@ -203,13 +203,13 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
             return true;
         }
 
-        // There is a limit on total attempts, so determine total attempts so far, including
-        // possible ungraded (batch) attempts, and test that value against the maximum allowed
-        // attempts.
+        // There is a limit on total attempts, so determine total attempts so far, including possible ungraded
+        // (batch) attempts, and test that value against the maximum allowed attempts.
 
         // Count the number of graded attempts on this exam
-        final List<RawStexam> examList = RawStexamLogic.getExams(cache, this.studentId,
-                avail.exam.course, avail.exam.unit, false, type);
+        final StudentData stuData = getStudentData();
+        final List<RawStexam> examList = stuData.getStudentExamsByCourseUnitType(avail.exam.course, avail.exam.unit,
+                false, type);
         graded = examList.size();
 
         if (graded >= maxAttempts) {

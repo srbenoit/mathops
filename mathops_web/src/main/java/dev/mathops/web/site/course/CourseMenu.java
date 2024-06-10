@@ -71,10 +71,10 @@ enum CourseMenu {
         final ZonedDateTime now = session.getNow();
 
         final boolean isTutor = "AACTUTOR".equals(session.getEffectiveUserId())
-                || logic.data.studentData.isSpecialType(now, "TUTOR");
+                || logic.data.siteStudentData.isSpecialType(now, "TUTOR");
         final boolean isAdmin = session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR);
 
-        final int numLockouts = logic.data.studentData.getNumLockouts();
+        final int numLockouts = logic.data.siteStudentData.getNumLockouts();
         final boolean isLocked = numLockouts > 0;
 
         // Name, profile, logout links, home, student guide, user's exam, and e-text links

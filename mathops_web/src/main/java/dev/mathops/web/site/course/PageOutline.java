@@ -13,7 +13,6 @@ import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
@@ -520,7 +519,7 @@ enum PageOutline {
 
         // Show incomplete status if this is an incomplete.
         if (reg.iTermKey != null) {
-            final TermRec incTerm = logic.data.registrationData.getRegistrationTerm(courseId, sect);
+            final TermRec incTerm = logic.data.siteRegistrationData.getRegistrationTerm(courseId, sect);
 
             htm.sDiv("indent11");
             htm.sP("red");
@@ -530,13 +529,13 @@ enum PageOutline {
             htm.eDiv();
         }
 
-        final SiteDataCourse courseData = logic.data.courseData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
         final SiteDataCfgCourse cfgCourse = courseData.getCourse(courseId, sect);
         final Integer maxUnit = courseData.getMaxUnit(courseId);
 
         if (cfgCourse != null && maxUnit != null) {
-            final SiteDataStatus status = logic.data.statusData;
-            final SiteDataMilestone msData = logic.data.milestoneData;
+            final SiteDataStatus status = logic.data.siteStatusData;
+            final SiteDataMilestone msData = logic.data.siteMilestoneData;
 
             // Print all pace deadlines, including student override dates
             final TermRec term = TermLogic.get(cache).queryActive(cache);
@@ -1252,7 +1251,7 @@ enum PageOutline {
             }
         }
 
-        final String studentId = logic.data.studentData.getStudent().stuId;
+        final String studentId = logic.data.siteStudentData.getStudent().stuId;
 
         final TermRec active = studentData.getActiveTerm();
 
@@ -1444,7 +1443,7 @@ enum PageOutline {
             }
         }
 
-        final String studentId = logic.data.studentData.getStudent().stuId;
+        final String studentId = logic.data.siteStudentData.getStudent().stuId;
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
 
@@ -1547,7 +1546,7 @@ enum PageOutline {
             doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
                     session.getNow());
 
-            final String studentId = logic.data.studentData.getStudent().stuId;
+            final String studentId = logic.data.siteStudentData.getStudent().stuId;
 
             final TermRec active = TermLogic.get(cache).queryActive(cache);
 
@@ -1618,7 +1617,7 @@ enum PageOutline {
             doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
                     session.getNow());
 
-            final String studentId = logic.data.studentData.getStudent().stuId;
+            final String studentId = logic.data.siteStudentData.getStudent().stuId;
 
             final TermRec active = TermLogic.get(cache).queryActive(cache);
 

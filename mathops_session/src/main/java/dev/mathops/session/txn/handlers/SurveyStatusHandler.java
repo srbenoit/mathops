@@ -2,10 +2,10 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
@@ -52,8 +52,7 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
         if (message instanceof final SurveyStatusRequest request) {
             result = processRequest(cache, request);
         } else {
-            Log.info("SurveyStatusHandler called with ",
-                    message.getClass().getName());
+            Log.info("SurveyStatusHandler called with ", message.getClass().getName());
 
             final SurveyStatusReply reply = new SurveyStatusReply();
             reply.error = "Invalid request type for survey status request";
@@ -80,11 +79,16 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
             reply.error = "Version not included in survey status request.";
         } else if (loadStudentInfo(cache, request.studentId, reply)) {
 
-            if (getStudent().stuId == null) {
+            final StudentData studentData = getStudentData();
+
+            if (studentData == null) {
                 reply.error = "Invalid session ID";
-            } else if (populateSurveyQuestions(cache, request.version, reply)) {
-                reply.answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, getStudent().stuId,
-                        request.version);
+            } else {
+                final SystemData systemData = studentData.getSystemData();
+
+                if (populateSurveyQuestions(systemData, request.version, reply)) {
+                    reply.answers = studentData.getSurveyResponsesByVersion(request.version);
+                }
             }
         }
 
@@ -95,23 +99,24 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
      * Look up the list of survey questions for the given exam version for the current term, and store the results in
      * the reply, in ascending order of question number.
      *
-     * @param cache   the data cache
+     * @param systemData   the system data object
      * @param version the exam version for which to retrieve questions
      * @param reply   the reply message that will be sent back to the client
      * @return true if successful; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean populateSurveyQuestions(final Cache cache, final String version,
-                                                   final SurveyStatusReply reply) throws SQLException {
+    private boolean populateSurveyQuestions(final SystemData systemData, final String version,
+                                            final SurveyStatusReply reply) throws SQLException {
 
         final boolean ok;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = systemData.getActiveTerm();
+
         if (active == null) {
             reply.error = "Unable to query active term";
             ok = false;
         } else {
-            reply.questions = RawSurveyqaLogic.queryUniqueQuestionsByVersion(cache, version);
+            reply.questions = systemData.getUniqueQuestionsByVersion(version);
 
             if (reply.questions.isEmpty()) {
                 Log.warning("No survey questions found for ", version);

@@ -1,15 +1,11 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
-import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
-import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -24,7 +20,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -113,13 +108,13 @@ public final class SiteDataStatus {
      * {@code SuteDataProfile} object, and the {@code SiteDateRegistration} object, the {@code SiteDateCourse} object,
      * and the {@code SiteDataActivity} object.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    boolean loadData(final Cache cache) throws SQLException {
+    boolean loadData(final StudentData studentData) throws SQLException {
 
-        final List<RawStcourse> regs = this.owner.registrationData.getRegistrations();
+        final List<RawStcourse> regs = this.owner.siteRegistrationData.getRegistrations();
 
         for (final RawStcourse reg : regs) {
             if ("G".equals(reg.openStatus)) {
@@ -128,17 +123,19 @@ public final class SiteDataStatus {
 
             final String courseId = reg.course;
             final String sectionNum = reg.sect;
-            final SiteDataCfgCourse courseCfg = this.owner.courseData.getCourse(courseId, sectionNum);
-            final RawStudent stu = this.owner.studentData.getStudent();
+            final SiteDataCfgCourse courseCfg = this.owner.siteCourseData.getCourse(courseId, sectionNum);
+            final RawStudent stu = this.owner.siteStudentData.getStudent();
 
             final SiteDataCfgCourseStatus stat = new SiteDataCfgCourseStatus();
             this.courseStatus.put(courseId, stat);
+
+            final SystemData systemData = studentData.getSystemData();
 
             // TODO: Populate "blocked" field
 
             // Run various eligibility tests that affect the entire course
             courseEligByHolds(stu, reg, courseCfg, stat);
-            courseEligByTermDates(cache, stat);
+            courseEligByTermDates(systemData, stat);
             courseEligByInstrType(reg, stat);
             courseEligByOpenStatus(reg, stat);
             courseEligByLicensed(courseCfg, stat);
@@ -153,25 +150,25 @@ public final class SiteDataStatus {
             final Map<Integer, Map<Integer, Map<String, SiteDataCfgHwStatus>>> hwMap = new TreeMap<>();
             this.hwStatus.put(courseId, hwMap);
 
-            final Integer[] units = this.owner.courseData.getUnitsForCourse(courseId);
+            final Integer[] units = this.owner.siteCourseData.getUnitsForCourse(courseId);
             for (final Integer unit : units) {
 
                 final Map<String, SiteDataCfgExamStatus> examUnitMap = new TreeMap<>();
                 examMap.put(unit, examUnitMap);
 
-                populateExamUnitMap(cache, courseId, reg.sect, unit, examUnitMap);
+                populateExamUnitMap(studentData, courseId, reg.sect, unit, examUnitMap);
 
                 final Map<Integer, Map<String, SiteDataCfgHwStatus>> hwUnitMap = new TreeMap<>();
                 hwMap.put(unit, hwUnitMap);
 
-                final Integer[] objectives = this.owner.courseData.getObjectivesForUnit(courseId, unit);
+                final Integer[] objectives = this.owner.siteCourseData.getObjectivesForUnit(courseId, unit);
 
                 if (objectives != null) {
                     for (final Integer objective : objectives) {
                         final Map<String, SiteDataCfgHwStatus> hwUnitObjectiveMap = new TreeMap<>();
                         hwUnitMap.put(objective, hwUnitObjectiveMap);
 
-                        populateHwUnitObjectiveMap(cache, reg, unit, objective, hwUnitObjectiveMap);
+                        populateHwUnitObjectiveMap(studentData, reg, unit, objective, hwUnitObjectiveMap);
                     }
                 }
             }
@@ -197,19 +194,19 @@ public final class SiteDataStatus {
     /**
      * Populates the map from exam type to {@code SiteDataCfgExamStatus} for each exam type in a given course unit.
      *
-     * @param cache       the data cache
+     * @param studentData       the student data object
      * @param courseId    the course ID
      * @param sectionNum  the section number
      * @param unit        the unit number
      * @param examUnitMap the exam unit map
      * @throws SQLException if there is an error accessing the database
      */
-    private void populateExamUnitMap(final Cache cache, final String courseId,
-                                     final String sectionNum, final Integer unit,
+    private void populateExamUnitMap(final StudentData studentData, final String courseId, final String sectionNum,
+                                     final Integer unit,
                                      final Map<? super String, ? super SiteDataCfgExamStatus> examUnitMap)
             throws SQLException {
 
-        final SiteDataCourse courseData = this.owner.courseData;
+        final SiteDataCourse courseData = this.owner.siteCourseData;
         final SiteDataCfgCourse courseCfg = courseData.getCourse(courseId, sectionNum);
         final SiteDataCfgUnit unitCfg = courseData.getCourseUnit(courseId, unit);
 
@@ -227,7 +224,7 @@ public final class SiteDataStatus {
                 }
 
                 if (examApplies) {
-                    final SiteDataCfgExamStatus stat = makeExamStatus(cache, courseId, sectionNum, unit, examType,
+                    final SiteDataCfgExamStatus stat = makeExamStatus(studentData, courseId, sectionNum, unit, examType,
                             exam);
                     examUnitMap.put(examType, stat);
                 }
@@ -238,7 +235,7 @@ public final class SiteDataStatus {
     /**
      * Builds a {@code SiteDataCfgExamStatus} object for a particular course, section, unit, and exam.
      *
-     * @param cache      the data cache
+     * @param studentData      the student data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param unit       the unit
@@ -247,13 +244,13 @@ public final class SiteDataStatus {
      * @return the constructed {@code SiteDataCfgExamStatus}
      * @throws SQLException if there is an error accessing the database
      */
-    private SiteDataCfgExamStatus makeExamStatus(final Cache cache, final String courseId, final String sectionNum,
-                                                 final Integer unit, final String examType, final RawExam exam)
-            throws SQLException {
+    private SiteDataCfgExamStatus makeExamStatus(final StudentData studentData, final String courseId,
+                                                 final String sectionNum, final Integer unit, final String examType,
+                                                 final RawExam exam) throws SQLException {
 
-        final SiteDataCourse courseData = this.owner.courseData;
+        final SiteDataCourse courseData = this.owner.siteCourseData;
         final SiteDataCfgUnit unitCfg = courseData.getCourseUnit(courseId, unit);
-        final SiteDataActivity activity = this.owner.activityData;
+        final SiteDataActivity activity = this.owner.siteActivityData;
 
         final SiteDataCfgExamStatus stat = new SiteDataCfgExamStatus();
 
@@ -319,7 +316,7 @@ public final class SiteDataStatus {
         stat.highestPassingScore = maxPass;
         stat.synthetic = synth;
 
-        final SiteDataRegistration regData = this.owner.registrationData;
+        final SiteDataRegistration regData = this.owner.siteRegistrationData;
         final RawStcourse reg = regData.getRegistration(courseId, sectionNum);
         final SiteDataCfgCourse courseCfg = courseData.getCourse(courseId, sectionNum);
 
@@ -341,6 +338,8 @@ public final class SiteDataStatus {
             stat.countedScore = counted;
         }
 
+        final SystemData systemData = studentData.getSystemData();
+
         // Determine all deadlines, if we have a pace order set, and see whether the student has
         // earned a "U2" deadline extension benefit.
         final Integer paceOrder = reg.paceOrder;
@@ -353,7 +352,7 @@ public final class SiteDataStatus {
                 final TermKey key = reg.iTermKey;
 
                 RawStterm effStterm = null;
-                final List<RawStterm> stterms = RawSttermLogic.queryByStudent(cache, reg.stuId);
+                final List<RawStterm> stterms = studentData.getStudentTerms();
                 for (final RawStterm test : stterms) {
                     if (key.equals(test.termKey)) {
                         effStterm = test;
@@ -366,10 +365,9 @@ public final class SiteDataStatus {
                     final int pace = effStterm.pace.intValue();
                     final int order = reg.paceOrder.intValue();
 
-                    final List<RawMilestone> iMilestones =
-                            RawMilestoneLogic.getAllMilestones(cache, key, pace, effStterm.paceTrack);
-                    final List<RawStmilestone> iStmilestones = RawStmilestoneLogic
-                            .getStudentMilestones(cache, key, effStterm.paceTrack, reg.stuId);
+                    final List<RawMilestone> iMilestones = systemData.getMilestones(key, pace, effStterm.paceTrack);
+                    final List<RawStmilestone> iStmilestones = studentData.getStudentMilestones(key,
+                            effStterm.paceTrack);
 
                     for (final RawMilestone ms : iMilestones) {
                         final int num = ms.msNbr.intValue();
@@ -395,19 +393,18 @@ public final class SiteDataStatus {
                     }
                 }
             }
-
         } else {
             final TermKey key;
 
             if ("Y".equals(reg.iInProgress) && !"Y".equals(reg.iCounted)) {
                 key = reg.iTermKey;
             } else {
-                final TermRec term = TermLogic.get(cache).queryActive(cache);
+                final TermRec term = systemData.getActiveTerm();
                 key = term.term;
             }
 
-            final List<RawMilestone> milestones = this.owner.milestoneData.getMilestones(key);
-            final List<RawStmilestone> stmilestones = this.owner.milestoneData.getStudentMilestones(key);
+            final List<RawMilestone> milestones = this.owner.siteMilestoneData.getMilestones(key);
+            final List<RawStmilestone> stmilestones = this.owner.siteMilestoneData.getStudentMilestones(key);
 
             // FIXME: If pace order is set on a course but there is another course with pace order
             // set, milestones are null but we get here...
@@ -516,17 +513,15 @@ public final class SiteDataStatus {
         }
 
         // Student is ineligible if a fatal hold exists on their account
-        final String studentId = this.owner.studentData.getStudent().stuId;
+        final String studentId = this.owner.siteStudentData.getStudent().stuId;
 
         // Administrators, guest users and tutors need not test exam eligibility
-        if ("GUEST".equals(studentId)
-                || "AACTUTOR".equals(studentId)
-                || "ETEXT".equals(studentId)) {
+        if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
             stat.eligible = true;
         } else {
-            examEligByPendingExam(cache, stat);
+            examEligByPendingExam(studentData, stat);
             examEligByTestWindow(exam, unitCfg, stat);
-            examEligByRules(cache, courseId, unit, exam, courseCfg, stat);
+            examEligByRules(systemData, courseId, unit, exam, courseCfg, stat);
         }
 
         return stat;
@@ -541,8 +536,7 @@ public final class SiteDataStatus {
      * @param stmilestones the list of student milestone overrides
      * @return the correct date
      */
-    private static LocalDate resolveDate(final RawMilestone milestone,
-                                         final Iterable<RawStmilestone> stmilestones) {
+    private static LocalDate resolveDate(final RawMilestone milestone, final Iterable<RawStmilestone> stmilestones) {
 
         final Integer number = milestone.msNbr;
         final String type = milestone.msType;
@@ -566,8 +560,7 @@ public final class SiteDataStatus {
      * @param stmilestones the list of student milestone overrides
      * @return the correct value
      */
-    private static Integer resolveAttempts(final RawMilestone milestone,
-                                           final Iterable<RawStmilestone> stmilestones) {
+    private static Integer resolveAttempts(final RawMilestone milestone, final Iterable<RawStmilestone> stmilestones) {
 
         final Integer number = milestone.msNbr;
         final String type = milestone.msType;
@@ -586,33 +579,31 @@ public final class SiteDataStatus {
     /**
      * Populates the map from exam type to {@code SiteDataCfgExamStatus} for each exam type in a given course unit.
      *
-     * @param cache              the data cache
+     * @param studentData              the student data object
      * @param reg                the student's registration record (could be synthetic)
      * @param unit               the unit number
      * @param objective          the objective number
      * @param hwUnitObjectiveMap the homework unit map
      * @throws SQLException if there is an error accessing the database
      */
-    private void populateHwUnitObjectiveMap(final Cache cache, final RawStcourse reg,
-                                            final Integer unit, final Integer objective,
+    private void populateHwUnitObjectiveMap(final StudentData studentData, final RawStcourse reg, final Integer unit,
+                                            final Integer objective,
                                             final Map<? super String, ? super SiteDataCfgHwStatus> hwUnitObjectiveMap)
             throws SQLException {
 
         final SiteDataCfgObjective objectiveCfg =
-                this.owner.courseData.getCourseUnitObjective(reg.course, unit, objective);
+                this.owner.siteCourseData.getCourseUnitObjective(reg.course, unit, objective);
 
-        final List<AssignmentRec> homeworks = objectiveCfg.getHomeworks();
+        final AssignmentRec homework = objectiveCfg.getHomework();
 
-        for (final AssignmentRec hw : homeworks) {
-            final SiteDataCfgHwStatus stat = makeHwStatus(cache, reg, unit, objective, hw);
-            hwUnitObjectiveMap.put(hw.assignmentType, stat);
-        }
+        final SiteDataCfgHwStatus stat = makeHwStatus(studentData, reg, unit, objective, homework);
+        hwUnitObjectiveMap.put(homework.assignmentType, stat);
     }
 
     /**
      * Builds a {@code SiteDataCfgHwStatus} object for a particular course, section, unit, objective, and homework.
      *
-     * @param cache     the data cache
+     * @param studentData              the student data object
      * @param reg       the student's registration record (could be synthetic)
      * @param unit      the unit
      * @param objective the objective
@@ -620,12 +611,12 @@ public final class SiteDataStatus {
      * @return the constructed {@code SiteDataCfgHwStatus}
      * @throws SQLException if there is an error accessing the database
      */
-    private SiteDataCfgHwStatus makeHwStatus(final Cache cache, final RawStcourse reg, final Integer unit,
+    private SiteDataCfgHwStatus makeHwStatus(final StudentData studentData, final RawStcourse reg, final Integer unit,
                                              final Integer objective, final AssignmentRec homework)
             throws SQLException {
 
         final SiteDataCfgHwStatus stat = new SiteDataCfgHwStatus();
-        final SiteDataActivity actData = this.owner.activityData;
+        final SiteDataActivity actData = this.owner.siteActivityData;
         final String courseId = reg.course;
 
         final String type = homework.assignmentType;
@@ -664,7 +655,8 @@ public final class SiteDataStatus {
         stat.eligible = true;
         final LocalDate today = this.owner.now.toLocalDate();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final SystemData systemData = studentData.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         // Ineligible outside the current term
         final LocalDate termStart = active.startDate;
@@ -678,7 +670,7 @@ public final class SiteDataStatus {
             }
         }
 
-        testHwEligibility(cache, reg, unit, objective, stat);
+        testHwEligibility(studentData, reg, unit, objective, stat);
 
         return stat;
     }
@@ -686,24 +678,24 @@ public final class SiteDataStatus {
     /**
      * Tests whether the student is eligible for a homework assignment.
      *
-     * @param cache     the data cache
+     * @param studentData              the student data object
      * @param reg       the student's registration record (could be synthetic)
      * @param unit      the unit
      * @param objective the objective
      * @param stat      the {@code SiteDataCfgHwStatus} being populated
      * @throws SQLException if there is an error accessing the database
      */
-    private void testHwEligibility(final Cache cache, final RawStcourse reg, final Integer unit,
+    private void testHwEligibility(final StudentData studentData, final RawStcourse reg, final Integer unit,
                                    final Integer objective, final SiteDataCfgHwStatus stat) throws SQLException {
 
         if (stat.eligible) {
             final String courseId = reg.course;
             final String sectionNum = reg.sect;
 
-            if (this.owner.courseData == null) {
+            if (this.owner.siteCourseData == null) {
                 Log.warning("NO CUSECT (2) for ", courseId, " SECT ", sectionNum, " UNIT ", unit);
             } else {
-                final SiteDataCfgCourse courseCfg = this.owner.courseData.getCourse(courseId, sectionNum);
+                final SiteDataCfgCourse courseCfg = this.owner.siteCourseData.getCourse(courseId, sectionNum);
                 final RawPacingStructure pacingStructure = courseCfg.pacingStructure;
 
                 if (pacingStructure == null) {
@@ -711,7 +703,7 @@ public final class SiteDataStatus {
                         Log.warning("NO RULE SET for ", courseId, " SECT ", sectionNum, " UNIT ", unit);
                     }
                 } else {
-                    doTestHwEligibility(cache, reg, unit, objective, stat, pacingStructure);
+                    doTestHwEligibility(studentData, reg, unit, objective, stat, pacingStructure);
                 }
             }
         }
@@ -720,7 +712,7 @@ public final class SiteDataStatus {
     /**
      * Tests whether the student is eligible for a homework assignment.
      *
-     * @param cache           the data cache
+     * @param studentData              the student data object
      * @param reg             the student's registration record (could be synthetic)
      * @param unit            the unit
      * @param objective       the objective
@@ -728,7 +720,7 @@ public final class SiteDataStatus {
      * @param pacingStructure the pacing structure under which the student is operating
      * @throws SQLException if there is an error accessing the database
      */
-    private void doTestHwEligibility(final Cache cache, final RawStcourse reg, final Integer unit,
+    private void doTestHwEligibility(final StudentData studentData, final RawStcourse reg, final Integer unit,
                                      final Integer objective, final SiteDataCfgHwStatus stat,
                                      final RawPacingStructure pacingStructure) throws SQLException {
 
@@ -740,9 +732,11 @@ public final class SiteDataStatus {
         boolean reqUeComp = false;
         boolean reqUeMstr = false;
 
-        final List<RawPacingRules> rsRules =
-                RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                        TermLogic.get(cache).queryActive(cache).term, pacingStructure.pacingStructure);
+        final SystemData systemData = studentData.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
+        final List<RawPacingRules> rsRules = systemData.getPacingRulesByTermAndPacing(active.term,
+                pacingStructure.pacingStructure);
 
         for (final RawPacingRules rule : rsRules) {
             if (RawPacingRulesLogic.ACTIVITY_HOMEWORK.equals(rule.activityType)) {
@@ -767,12 +761,10 @@ public final class SiteDataStatus {
         }
 
         final String courseId = reg.course;
-        final SiteDataActivity actData = this.owner.activityData;
+        final SiteDataActivity actData = this.owner.siteActivityData;
 
         if (reqLect) {
-            final RawStcuobjective stuLesson =
-                    RawStcuobjectiveLogic.query(cache, reg.stuId, courseId, unit, objective);
-
+            final RawStcuobjective stuLesson = studentData.getStudentCourseObjective(courseId, unit, objective);
             if (stuLesson == null || stuLesson.lectureViewedDt == null) {
                 stat.eligible = false;
             }
@@ -780,7 +772,7 @@ public final class SiteDataStatus {
 
         final Integer priorUnit = Integer.valueOf(unit.intValue() - 1);
         final Integer priorObj = Integer.valueOf(objective.intValue() - 1);
-        final SiteDataCfgUnit unitData = this.owner.courseData.getCourseUnit(courseId, priorUnit);
+        final SiteDataCfgUnit unitData = this.owner.siteCourseData.getCourseUnit(courseId, priorUnit);
 
         if (stat.eligible && objective.intValue() > 1 && (reqHwComp || reqHwMstr)) {
 
@@ -882,7 +874,7 @@ public final class SiteDataStatus {
         if (stat.eligible && (!NO_HOLDS_STUDENT_IDS.contains(studentId) && !courseCfg.practiceMode
                 && !courseCfg.openAccess)) {
 
-            if (this.owner.registrationData.isLockedOut()) {
+            if (this.owner.siteRegistrationData.isLockedOut()) {
                 if (reg.paceOrder != null) {
                     stat.eligible = false;
                 }
@@ -896,15 +888,14 @@ public final class SiteDataStatus {
      * Tests whether the student is ineligible to work in a course because the current date is outside the term's
      * start-end date range.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @param stat  the status object being populated
      * @throws SQLException if there is an error accessing the database
      */
-    private void courseEligByTermDates(final Cache cache, final SiteDataCfgStatusBase stat) throws SQLException {
+    private void courseEligByTermDates(final SystemData systemData, final SiteDataCfgStatusBase stat) throws SQLException {
 
         if (stat.eligible) {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
-
+            final TermRec active = systemData.getActiveTerm();
             final LocalDate today = this.owner.now.toLocalDate();
 
             // Ineligible outside the current term
@@ -954,8 +945,8 @@ public final class SiteDataStatus {
      * Tests whether the course section requires the student to be "licensed", and if so, makes the student ineligible
      * if they are not yet licensed.
      *
-     * @param courseCfg the course configuration, used to test whether the course requires licensing but the student
-     *                  is not yet licensed
+     * @param courseCfg the course configuration, used to test whether the course requires licensing but the student is
+     *                  not yet licensed
      * @param stat      the status object being populated
      */
     private static void courseEligByLicensed(final SiteDataCfgCourse courseCfg, final SiteDataCfgStatusBase stat) {
@@ -1007,12 +998,12 @@ public final class SiteDataStatus {
             final LocalDate today = this.owner.now.toLocalDate();
 
             if ("Y".equals(reg.iInProgress)) {
-                if ((this.owner.registrationData.isNonPacedIncompletePending()
+                if ((this.owner.siteRegistrationData.isNonPacedIncompletePending()
                         && "Y".equals(reg.iCounted)) || (reg.iDeadlineDt == null)
                         || today.isAfter(reg.iDeadlineDt)) {
                     stat.eligible = false;
                 }
-            } else if (this.owner.registrationData.isNonPacedIncompletePending() && !reg.synthetic) {
+            } else if (this.owner.siteRegistrationData.isNonPacedIncompletePending() && !reg.synthetic) {
                 // This course is not incomplete, but there are incompletes pending
                 stat.eligible = false;
             }
@@ -1023,16 +1014,15 @@ public final class SiteDataStatus {
      * Tests whether there are open pending exam records for the student, which prevents them from starting any
      * proctored exams (does not apply to homework).
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param stat  the status object being populated
      * @throws SQLException if there is an error accessing the database
      */
-    private void examEligByPendingExam(final Cache cache, final SiteDataCfgStatusBase stat) throws SQLException {
+    private void examEligByPendingExam(final StudentData studentData, final SiteDataCfgStatusBase stat)
+            throws SQLException {
 
         if (stat.eligible) {
-            final String studentId = this.owner.studentData.getStudent().stuId;
-
-            final List<RawPendingExam> pendings = RawPendingExamLogic.queryByStudent(cache, studentId);
+            final List<RawPendingExam> pendings = studentData.getPendingExams();
 
             if (!pendings.isEmpty()) {
                 stat.eligible = false;
@@ -1072,7 +1062,7 @@ public final class SiteDataStatus {
      * Tests whether the student is ineligible for an exam because prerequisites specified in the rule set rules have
      * not been satisfied.
      *
-     * @param cache     the data cache
+     * @param systemData     the system data object
      * @param courseId  the ID of the course
      * @param unit      the unit
      * @param exam      the exam being considered
@@ -1080,7 +1070,7 @@ public final class SiteDataStatus {
      * @param stat      the status object being populated
      * @throws SQLException if there is an error accessing the database
      */
-    private void examEligByRules(final Cache cache, final String courseId, final Integer unit,
+    private void examEligByRules(final SystemData systemData, final String courseId, final Integer unit,
                                  final RawExam exam, final SiteDataCfgCourse courseCfg,
                                  final SiteDataCfgStatusBase stat)
             throws SQLException {
@@ -1109,11 +1099,11 @@ public final class SiteDataStatus {
             if (targetActivity != null && pacingStructure != null) {
 
                 // Find the set of prerequisites for the target activity
-                final SiteDataCourse courseData = this.owner.courseData;
+                final SiteDataCourse courseData = this.owner.siteCourseData;
 
-                final List<RawPacingRules> rsRules =
-                        RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                                TermLogic.get(cache).queryActive(cache).term, pacingStructure.pacingStructure);
+                final TermRec activeTerm = systemData.getActiveTerm();
+                final List<RawPacingRules> rsRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
+                        pacingStructure.pacingStructure);
 
                 boolean reqHwComp = false;
                 boolean reqHwMstr = false;
@@ -1142,7 +1132,7 @@ public final class SiteDataStatus {
                     }
                 }
 
-                final SiteDataActivity actData = this.owner.activityData;
+                final SiteDataActivity actData = this.owner.siteActivityData;
 
                 if (stat.eligible && (reqHwComp || reqHwMstr)) {
                     // See if all homework in the unit has been completed/mastered
@@ -1153,9 +1143,10 @@ public final class SiteDataStatus {
                     Integer firstNotMastered = null;
 
                     for (final Integer objective : objectives) {
-                        final List<AssignmentRec> homeworks =
-                                courseData.getCourseUnitObjective(courseId, unit, objective).getHomeworks();
-                        if (!homeworks.isEmpty()) {
+                        final AssignmentRec homework =
+                                courseData.getCourseUnitObjective(courseId, unit, objective).getHomework();
+
+                        if (homework != null) {
                             final List<RawSthomework> stuHw = actData.getStudentHomework(courseId, unit, objective);
                             boolean needToComplete = true;
                             boolean needToMaster = true;
@@ -1186,9 +1177,9 @@ public final class SiteDataStatus {
                     }
                 }
 
-                final SiteDataCfgUnit unitData = this.owner.courseData.getCourseUnit(courseId, unit);
+                final SiteDataCfgUnit unitData = this.owner.siteCourseData.getCourseUnit(courseId, unit);
                 final Integer priorUnit = Integer.valueOf(unit.intValue() - 1);
-                final SiteDataCfgUnit priorUnitData = this.owner.courseData.getCourseUnit(courseId, priorUnit);
+                final SiteDataCfgUnit priorUnitData = this.owner.siteCourseData.getCourseUnit(courseId, priorUnit);
 
                 if (stat.eligible && (reqReComp || reqReMstr)) {
 

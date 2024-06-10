@@ -9,10 +9,13 @@ import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
+import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
+import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
+import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
@@ -26,10 +29,13 @@ import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.old.rawrecord.RawPacingStructure;
+import dev.mathops.db.old.rawrecord.RawPrereq;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
@@ -45,10 +51,13 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A data container for system data (not related to individual students) used in a single webpage generation or business
@@ -126,11 +135,17 @@ public final class SystemData {
     /** The list of all lesson components. */
     private List<RawLessonComponent> lessonComponents;
 
+    /** A map from term key to a list of pacing structures for that term. */
+    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
+
     /** A map from term key to a list of pacing rules for that term. */
     private Map<TermKey, List<RawPacingRules>> pacingRules;
 
     /** All survey questions for the active term. */
     private List<RawSurveyqa> surveyQuestions;
+
+    /** All hold types. */
+    private List<RawHoldType> holdTypes;
 
     /**
      * Constructs a new {@code SystemData}.
@@ -232,6 +247,20 @@ public final class SystemData {
     }
 
     /**
+     * Gets a specified term.
+     *
+     * @param term the term key
+     * @return the term
+     * @throws SQLException if there is an error accessing the database
+     */
+    public TermRec getTerm(final TermKey term) throws SQLException {
+
+        // TODO: Should we cache all terms, and convert the queries for active/prior/next to lookups?
+
+        return TermLogic.get(this.cache).query(this.cache, term);
+    }
+
+    /**
      * Gets the list of all course milestones.
      *
      * @return the course milestones
@@ -241,9 +270,32 @@ public final class SystemData {
 
         if (this.milestones == null) {
             this.milestones = RawMilestoneLogic.INSTANCE.queryAll(this.cache);
+            Collections.sort(this.milestones);
         }
 
         return this.milestones;
+    }
+
+    /**
+     * Gets the list of all course milestones in a specified term.
+     *
+     * @param term      the term whose milestones to retrieve
+     * @return the course milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawMilestone> getMilestones(final TermKey term) throws SQLException {
+
+        final List<RawMilestone> all = getMilestones();
+        final int size = all.size();
+        final List<RawMilestone> result = new ArrayList<>(size);
+
+        for (final RawMilestone test : all) {
+            if (test.termKey.equals(term)) {
+                result.add(test);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -375,7 +427,7 @@ public final class SystemData {
      * Gets all course sections for a single course in a single term.
      *
      * @param course the course ID
-     * @param term the term key
+     * @param term   the term key
      * @return the list of course sections
      * @throws SQLException if there is an error accessing the database
      */
@@ -393,7 +445,6 @@ public final class SystemData {
 
         return result;
     }
-
 
     /**
      * Gets a particular course sections in a specified term.
@@ -421,10 +472,10 @@ public final class SystemData {
     }
 
     /**
-     * Gets all course sections for a single term.
+     * Gets all course units for a single term.
      *
      * @param term the term key
-     * @return the list of course sections
+     * @return the list of course units
      * @throws SQLException if there is an error accessing the database
      */
     public List<RawCunit> getCourseUnits(final TermKey term) throws SQLException {
@@ -446,12 +497,34 @@ public final class SystemData {
     }
 
     /**
-     * Gets a particular course sections in a specified term.
+     * Gets all course units in a single course for a single term.
+     *
+     * @param course the course ID
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCunit> getCourseUnits(final String course, final TermKey term) throws SQLException {
+
+        final List<RawCunit> all = getCourseUnits(term);
+        final List<RawCunit> result = new ArrayList<>(8);
+
+        for (final RawCunit test : all) {
+            if (test.course.equals(course)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course units in a specified term.
      *
      * @param course the course
      * @param unit   the unit
      * @param term   the term key
-     * @return the list of course sections
+     * @return the course unit
      * @throws SQLException if there is an error accessing the database
      */
     public RawCunit getCourseUnit(final String course, final Integer unit, final TermKey term) throws SQLException {
@@ -473,7 +546,7 @@ public final class SystemData {
      * Gets all course sections for a single term.
      *
      * @param term the term key
-     * @return the list of course sections
+     * @return the list of course unit sections
      * @throws SQLException if there is an error accessing the database
      */
     public List<RawCusection> getCourseUnitSections(final TermKey term) throws SQLException {
@@ -489,6 +562,30 @@ public final class SystemData {
         if (result == null) {
             result = RawCusectionLogic.queryByTerm(this.cache, term);
             this.courseUnitSections.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course unit sections for a specified course and section in a specified term.
+     *
+     * @param course the course
+     * @param sect   the section
+     * @param term   the term key
+     * @return the list of course unit sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCusection> getCourseUnitSections(final String course, final String sect, final TermKey term)
+            throws SQLException {
+
+        final List<RawCusection> all = getCourseUnitSections(term);
+        final List<RawCusection> result = new ArrayList<>(10);
+
+        for (final RawCusection test : all) {
+            if (test.course.equals(course) && test.sect.equals(sect)) {
+                result.add(test);
+            }
         }
 
         return result;
@@ -546,6 +643,31 @@ public final class SystemData {
     }
 
     /**
+     * Gets the course unit objectives in a specified course and unit in a specified term.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCuobjective> getCourseUnitObjectives(final String course, final Integer unit, final TermKey term)
+            throws SQLException {
+
+        final List<RawCuobjective> termObjectives = getCourseUnitObjectives(term);
+        final List<RawCuobjective> result = new ArrayList<>(10);
+
+        for (final RawCuobjective test : termObjectives) {
+            if (test.course.equals(course) && test.unit.equals(unit)) {
+                result.add(test);
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Gets a particular course unit objective in a specified term.
      *
      * @param course    the course
@@ -584,6 +706,69 @@ public final class SystemData {
         }
 
         return this.campusCalendars;
+    }
+
+    /**
+     * Gets all campus calendar records of a specified type.
+     *
+     * @param type the type
+     * @return the list of campus calendar records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCampusCalendar> getCampusCalendarsByType(final String type) throws SQLException {
+
+        final List<RawCampusCalendar> all = getCampusCalendars();
+        final List<RawCampusCalendar> result = new ArrayList<>(4);
+
+        for (final RawCampusCalendar test : all) {
+            if (test.dtDesc.equals(type)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for the first day when students may work on classes.
+     *
+     * @return the first day, or {@code null} if no end dates are configured
+     * @throws SQLException if there is an error performing the query
+     */
+    public LocalDate getFirstClassDay() throws SQLException {
+
+        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_START_DATE_1);
+
+        final LocalDate result;
+
+        if (allOfType.isEmpty()) {
+            result = getActiveTerm().startDate;
+        } else {
+            result = allOfType.getFirst().campusDt;
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for the last day when students may work on classes.
+     *
+     * @return the first day, or {@code null} if no end dates are configured
+     * @throws SQLException if there is an error performing the query
+     */
+    public LocalDate getLastClassDay() throws SQLException {
+
+        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_END_DATE_1);
+
+        final LocalDate result;
+
+        if (allOfType.isEmpty()) {
+            result = getActiveTerm().endDate;
+        } else {
+            result = allOfType.getFirst().campusDt;
+        }
+
+        return result;
     }
 
     /**
@@ -736,14 +921,15 @@ public final class SystemData {
     }
 
     /**
-     * Gets a list of all assignments of a specified type for a course.
+     * Gets a list of all assignments of a specified type for a course and type
      *
      * @param course the course
      * @param type   the type of assignment to retrieve
      * @return the list of assignments
      * @throws SQLException if there is an error accessing the database
      */
-    public List<AssignmentRec> getActiveAssignmentsByCourse(final String course, final String type) throws SQLException {
+    public List<AssignmentRec> getActiveAssignmentsByCourseType(final String course, final String type)
+            throws SQLException {
 
         final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
         final int count = all.size();
@@ -753,6 +939,42 @@ public final class SystemData {
         for (final AssignmentRec test : all) {
             if (test.assignmentType.equals(type)) {
                 match.add(test);
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets a list of all assignments of a specified type for a course, unit, and type.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param types  the type(s) of exams to retrieve (null or empty to retrieve all types)
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<AssignmentRec> getActiveAssignmentsByCourseUnitType(final String course, final Integer unit,
+                                                                    final String... types) throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+        final int count = all.size();
+
+        final List<AssignmentRec> match = new ArrayList<>(count);
+
+        for (final AssignmentRec test : all) {
+            if (test.unit.equals(unit)) {
+
+                if (types == null || types.length == 0) {
+                    match.add(test);
+                } else {
+                    for (final String type : types) {
+                        if (test.assignmentType.equals(type)) {
+                            match.add(test);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -784,6 +1006,38 @@ public final class SystemData {
         }
 
         return match;
+    }
+
+    /**
+     * Gets the unique assignment with a specified ID.
+     *
+     * @param assignmentId the assignment ID
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public AssignmentRec getActiveAssignment(final String assignmentId) throws SQLException {
+
+        AssignmentRec result = null;
+
+        if (this.assignments == null) {
+            result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
+        } else {
+            outer:
+            for (final List<AssignmentRec> list : this.assignments.values()) {
+                for (final AssignmentRec test : list) {
+                    if (test.assignmentId.equals(assignmentId)) {
+                        result = test;
+                        break outer;
+                    }
+                }
+            }
+
+            if (result == null) {
+                result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -840,7 +1094,7 @@ public final class SystemData {
      * Gets a single active exam by its version
      *
      * @param version the version
-     * @return the list of exams
+     * @return the matching exam; null if not found
      * @throws SQLException if there is an error accessing the database
      */
     public RawExam getActiveExam(final String version) throws SQLException {
@@ -861,6 +1115,28 @@ public final class SystemData {
             }
             if (result == null) {
                 result = RawExamLogic.query(this.cache, version);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all exams for a specified course unit.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @return the list of exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawExam> getActiveExamByCourseUnit(final String course, final Integer unit) throws SQLException {
+
+        final List<RawExam> all = getActiveExams(course);
+        final List<RawExam> result = new ArrayList<>(10);
+
+        for (final RawExam test : all) {
+            if (test.unit.equals(unit)) {
+                result.add(test);
             }
         }
 
@@ -966,6 +1242,55 @@ public final class SystemData {
     }
 
     /**
+     * Gets all pacing structures for a single term.
+     *
+     * @param term the term key
+     * @return the list of pacing structures
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawPacingStructure> getPacingStructures(final TermKey term) throws SQLException {
+
+        List<RawPacingStructure> result = null;
+
+        if (this.pacingStructures == null) {
+            this.pacingStructures = new HashMap<>(4);
+        } else {
+            result = this.pacingStructures.get(term);
+        }
+
+        if (result == null) {
+            result = RawPacingStructureLogic.queryByTerm(this.cache, term);
+            this.pacingStructures.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a single pacing structure for a single term.
+     *
+     * @param pacingStructureId the ID of the pacing structure to retrieve
+     * @param term              the term key
+     * @return the  pacing structure; null if not found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawPacingStructure getPacingStructure(final String pacingStructureId, final TermKey term)
+            throws SQLException {
+
+        final List<RawPacingStructure> all = getPacingStructures(term);
+        RawPacingStructure result = null;
+
+        for (final RawPacingStructure test : all) {
+            if (test.pacingStructure.equals(pacingStructureId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Gets all pacing rules for a single term.
      *
      * @param term the term key
@@ -1014,6 +1339,34 @@ public final class SystemData {
     }
 
     /**
+     * Tests whether the pacing rules for a term and pacing structure require some prerequisite condition before
+     * allowing some activity.
+     *
+     * @param term            the term key
+     * @param pacingStructure the pacing structure
+     * @param activity        the activity
+     * @param prerequisite    the condition
+     * @return true if the condition must be met before the activity can take place
+     * @throws SQLException if there is an error accessing the database
+     */
+    public boolean isRequiredByPacingRules(final TermKey term, final String pacingStructure,
+                                           final String activity, final String prerequisite)
+            throws SQLException {
+
+        final List<RawPacingRules> all = getPacingRulesByTermAndPacing(term, pacingStructure);
+        boolean result = false;
+
+        for (final RawPacingRules test : all) {
+            if (test.activityType.equals(activity) && test.requirement.equals(prerequisite)) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Gets all question records for the active term.
      *
      * @return the list of survey records
@@ -1029,6 +1382,27 @@ public final class SystemData {
         }
 
         return this.surveyQuestions;
+    }
+
+    /**
+     * Gets all question records for a single survey version.
+     *
+     * @param version the survey version
+     * @return the list of survey records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getSurveyQuestions(final String version) throws SQLException {
+
+        final List<RawSurveyqa> all = getSurveyQuestions();
+        final List<RawSurveyqa> result = new ArrayList<>(10);
+
+        for (final RawSurveyqa test : all) {
+            if (test.version.equals(version)) {
+                result.add(test);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -1053,4 +1427,60 @@ public final class SystemData {
         return result;
     }
 
+    /**
+     * Gets all questions for a survey, with one record per question (that record will have answer-related fields from
+     * an arbitrary record). Results are ordered by question number.
+     *
+     * @param theVersion the profile ID whose questions to retrieve
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getUniqueQuestionsByVersion(final String theVersion) throws SQLException {
+
+        final List<RawSurveyqa> all = getSurveyQuestions(theVersion);
+
+        final Map<Integer, RawSurveyqa> map = new TreeMap<>();
+        for (final RawSurveyqa record : all) {
+            map.put(record.surveyNbr, record);
+        }
+
+        return new ArrayList<>(map.values());
+    }
+
+    /**
+     * Gets the list of courses that can satisfy the prerequisites of a specified course.
+     *
+     * @param course the course
+     * @return the list of courses
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<String> getPrerequisitesByCourse(final String course) throws SQLException {
+
+        // FIXME: This does no caching...
+
+        final TermRec active = getActiveTerm();
+        final List<RawPrereq> list = RawPrereqLogic.queryByTermAndCourse(this.cache, active.term, course);
+
+        final List<String> result = new ArrayList<>(list.size());
+        for (final RawPrereq rec : list) {
+            result.add(rec.prerequisite);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all hold types.
+     *
+     * @return the list of hold types
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawHoldType> getHoldTypes() throws SQLException {
+
+        if (this.holdTypes == null) {
+            this.holdTypes = RawHoldTypeLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.holdTypes;
+    }
 }

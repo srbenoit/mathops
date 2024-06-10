@@ -2,6 +2,7 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
@@ -75,15 +76,16 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
      * @return the generated reply XML to send to the client
      * @throws SQLException if there was an error accessing the database
      */
-    private String processRequest(final Cache cache, final ExamStartResultRequest request)
-            throws SQLException {
+    private String processRequest(final Cache cache, final ExamStartResultRequest request) throws SQLException {
 
         final ExamStartResultReply reply = new ExamStartResultReply();
 
         if (loadStudentInfo(cache, null, reply)) {
 
-            if (getMachineId() != null) {
+            final StudentData studentData = getStudentData();
+            final String studentId = studentData.getStudentId();
 
+            if (getMachineId() != null) {
                 final boolean started = request.result != null
                         && request.result.intValue() == ExamStartResultRequest.EXAM_STARTED;
 
@@ -106,17 +108,17 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
                     version = null;
 
                     if (request.serialNumber == null) {
-                        Log.warning("ExamStartResultRequest without serial number ",
-                                request.toXml());
+                        Log.warning("ExamStartResultRequest without serial number ", request.toXml());
                     } else {
-                        RawPendingExamLogic.delete(cache, request.serialNumber, getStudent().stuId);
+                        RawPendingExamLogic.delete(cache, request.serialNumber, studentId);
+                        studentData.forgetPendingExams();
                     }
                 }
 
-                RawClientPcLogic.updateAllCurrent(cache, getClient().computerId, state, student,
-                        course, unit, version);
+                RawClientPcLogic.updateAllCurrent(cache, getClient().computerId, state, student, course, unit, version);
             } else {
-                RawPendingExamLogic.delete(cache, request.serialNumber, getStudent().stuId);
+                RawPendingExamLogic.delete(cache, request.serialNumber, studentId);
+                studentData.forgetPendingExams();
             }
         }
 

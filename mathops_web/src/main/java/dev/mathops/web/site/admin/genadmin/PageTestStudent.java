@@ -959,7 +959,7 @@ enum PageTestStudent {
 
         final SystemData systemData = testStudentData.getSystemData();
 
-        final List<AssignmentRec> allAssignments = systemData.getActiveAssignmentsByCourse(reg.course, "ST");
+        final List<AssignmentRec> allAssignments = systemData.getActiveAssignmentsByCourseType(reg.course, "ST");
         final List<MasteryExamRec> allExams = systemData.getActiveMasteryExamsByCourse(reg.course);
         allExams.sort(null);
 

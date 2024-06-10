@@ -106,8 +106,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
 
         this.fixed = new FixedData(this.ifxCache, theUsername);
         this.renderingHint = theRenderingHint;
-
-
+        
         if ("math".equals(theUsername)
                 || "pattison".equals(theUsername)
                 || "bromley".equals(theUsername)

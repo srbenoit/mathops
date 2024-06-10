@@ -6,10 +6,9 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -19,8 +18,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SubmitHomeworkReply;
@@ -98,16 +95,12 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                 if (request.homework == null) {
                     Log.warning("Homework submission with no attached homework");
                     reply.error = "No homework assignment included in submission";
+                } else if ("GUEST".equals(request.studentId) || "AACTUTOR".equals(request.studentId)) {
+                    reply.result = "Guest login homework will not be recorded.";
+                } else if ("ETEXT".equals(request.studentId)) {
+                    reply.result = "Practice homeworks will not be recorded.";
                 } else {
-                    final String studentId = getStudent().stuId;
-
-                    if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId)) {
-                        reply.result = "Guest login homework will not be recorded.";
-                    } else if ("ETEXT".equals(studentId)) {
-                        reply.result = "Practice homeworks will not be recorded.";
-                    } else {
-                        finalizeHomework(cache, request, reply);
-                    }
+                    finalizeHomework(request, reply);
                 }
             }
         } catch (final SQLException ex) {
@@ -122,17 +115,14 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * Finalize the homework record on the server, running all grading processing and applying result to the student's
      * record.
      *
-     * @param cache the data cache
      * @param req   the homework submission request
      * @param rep   the homework submission reply
      * @return true if finalization succeeded; false otherwise
      */
-    private boolean finalizeHomework(final Cache cache, final SubmitHomeworkRequest req,
-                                     final SubmitHomeworkReply rep) {
+    private boolean finalizeHomework(final SubmitHomeworkRequest req, final SubmitHomeworkReply rep) {
 
-        // Client generated the timestamps, and their clock may be off, but we assume the duration
-        // is accurate. We then set the finish time to the current server time, and the start time
-        // based on the duration submitted.
+        // Client generated the timestamps, and their clock may be off, but we assume the duration is accurate. We
+        // then set the finish time to the current server time, and the start time based on the duration submitted.
         long dur = req.homework.completionTime - req.homework.presentationTime;
 
         // Guard against wild values if one timestamp was null.
@@ -148,13 +138,15 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
 
         // TODO: Update finish times on individual problems, if needed
 
+        final StudentData studentData = getStudentData();
+        final String studentId = studentData.getStudentId();
+        final SystemData systemData = studentData.getSystemData();
+
         boolean ok = false;
         try {
-
-            // From the homework version, look up the course, unit in the homework table, then use
-            // that to fetch the course/unit/section data for the student. This gives us the
-            // minimum move-on and mastery scores.
-            final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+            // From the homework version, look up the course, unit in the homework table, then use that to fetch the
+            // course/unit/section data for the student. This gives us the minimum move-on and mastery scores.
+            final TermRec activeTerm = systemData.getActiveTerm();
             if (activeTerm == null) {
                 rep.error = "Unable to lookup active term to submit homework.";
                 return false;
@@ -162,33 +154,21 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
 
             final String ver = req.homework.examVersion;
 
-            final AssignmentRec hw = AssignmentLogic.get(cache).query(cache, ver);
+            final AssignmentRec hw = systemData.getActiveAssignment(ver);
             if (hw == null) {
                 rep.error = "Assignment has been removed from the course!";
                 return false;
             }
 
-            RawStcourse stcourse =
-                    RawStcourseLogic.getRegistration(cache, getStudent().stuId, hw.courseId);
+            RawStcourse stcourse = studentData.getActiveRegistration(hw.courseId);
 
             if (stcourse == null) {
                 boolean isSpecial = false;
 
-                // 'TUTOR', 'ADMIN' special student types automatically in section "001" for
-                // 117, 118, 124, 125, 126.
-                if (RawRecordConstants.M117.equals(hw.courseId)
-                        || RawRecordConstants.M118.equals(hw.courseId)
-                        || RawRecordConstants.M124.equals(hw.courseId)
-                        || RawRecordConstants.M125.equals(hw.courseId)
-                        || RawRecordConstants.M126.equals(hw.courseId)
-                        || RawRecordConstants.MATH117.equals(hw.courseId)
-                        || RawRecordConstants.MATH118.equals(hw.courseId)
-                        || RawRecordConstants.MATH124.equals(hw.courseId)
-                        || RawRecordConstants.MATH125.equals(hw.courseId)
-                        || RawRecordConstants.MATH126.equals(hw.courseId)) {
+                // 'TUTOR', 'ADMIN' special student types automatically in section "001" for 117, 118, 124, 125, 126.
+                if (RawRecordConstants.M117.equals(hw.courseId) || RawRecordConstants.M118.equals(hw.courseId) || RawRecordConstants.M124.equals(hw.courseId) || RawRecordConstants.M125.equals(hw.courseId) || RawRecordConstants.M126.equals(hw.courseId) || RawRecordConstants.MATH117.equals(hw.courseId) || RawRecordConstants.MATH118.equals(hw.courseId) || RawRecordConstants.MATH124.equals(hw.courseId) || RawRecordConstants.MATH125.equals(hw.courseId) || RawRecordConstants.MATH126.equals(hw.courseId)) {
 
-                    final List<RawSpecialStus> specials = RawSpecialStusLogic
-                            .queryActiveByStudent(cache, getStudent().stuId, now.toLocalDate());
+                    final List<RawSpecialStus> specials = studentData.getActiveSpecialCategories(now.toLocalDate());
 
                     for (final RawSpecialStus special : specials) {
                         final String type = special.stuType;
@@ -203,7 +183,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                 if (isSpecial) {
                     // Create a fake STCOURSE record
                     stcourse = new RawStcourse(activeTerm.term, // term
-                            getStudent().stuId, // stuId
+                            studentId, // stuId
                             hw.courseId, // course
                             "001", // sect
                             null, // paceOrder
@@ -239,13 +219,14 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             }
 
             if (!activeTerm.term.equals(stcourse.termKey)) {
-                final TermRec incTerm = TermLogic.get(cache).query(cache, stcourse.termKey);
+                final TermRec incTerm = systemData.getTerm(stcourse.termKey);
                 if (incTerm != null) {
+                    // FIXME: do something with this...
                 }
             }
 
-            final List<RawCusection> cusects = RawCusectionLogic.queryByCourseSection(cache,
-                    stcourse.course, stcourse.sect, activeTerm.term);
+            final List<RawCusection> cusects = systemData.getCourseUnitSections(stcourse.course, stcourse.sect,
+                    activeTerm.term);
 
             RawCusection cusect = null;
             for (final RawCusection rawCusection : cusects) {
@@ -281,17 +262,17 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             if (req.score >= minMastery) {
 
                 // Record a "passing" homework record
-                ok = recordMasteredHomework(cache, req, rep, hw, stcourse);
+                ok = recordMasteredHomework(studentData, req, rep, hw, stcourse);
             } else if (req.score >= minMoveOn) {
 
                 // Record a "not-passing" homework record
-                ok = recordNonMasteredHomework(cache, req, rep, hw, stcourse);
+                ok = recordNonMasteredHomework(studentData, req, rep, hw, stcourse);
             } else {
                 // No entry in the database.
                 rep.result = "Your score was not sufficient to move on.";
             }
         } catch (final Exception ex) {
-            Log.warning("Exception while submitting assignment for student '", getStudent().stuId, ex);
+            Log.warning("Exception while submitting assignment for student '", studentId, ex);
             ok = false;
         }
 
@@ -303,7 +284,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * the first passed homework in this unit, its passed field in set to "Y". Otherwise, the passed field is set to
      * "2", "3", "4", etc.
      *
-     * @param cache    the data cache
+     * @param studentData        the student data object
      * @param req      the homework submission request
      * @param rep      the homework submission reply
      * @param hw       the homework assignment being submitted
@@ -311,16 +292,15 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @return true if insertion succeeded; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
+    private boolean recordMasteredHomework(final StudentData studentData, final SubmitHomeworkRequest req,
                                            final SubmitHomeworkReply rep, final AssignmentRec hw,
-                                           final RawStcourse stcourse)
-            throws SQLException {
+                                           final RawStcourse stcourse) throws SQLException {
 
         // We must first find any existing PASSED homework for this course, unit and objective, and
         // determine what to set this new record's PASSED field to.
 
-        final List<RawSthomework> exist = RawSthomeworkLogic.getHomeworks(cache, getStudent().stuId,
-                hw.courseId, hw.unit, true, hw.assignmentType);
+        final List<RawSthomework> exist = studentData.getStudentHomeworkForCourseUnit(hw.courseId, hw.unit, true,
+                hw.assignmentType);
 
         int max = 0;
         boolean foundY = false;
@@ -370,14 +350,15 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
         final int startTime = TemporalUtils.minuteOfDay(start);
         final int endTime = TemporalUtils.minuteOfDay(end);
 
+        final String studentId = studentData.getStudentId();
         final RawSthomework sthw = new RawSthomework(Long.valueOf(generateSerialNumber(false)),
-                req.homework.examVersion, getStudent().stuId, end.toLocalDate(),
-                Integer.valueOf(req.score), Integer.valueOf(startTime), Integer.valueOf(endTime), "Y",
-                passed, hw.assignmentType, hw.courseId, stcourse.sect, hw.unit, hw.objective, "N", null,
-                null);
+                req.homework.examVersion, studentId, end.toLocalDate(), Integer.valueOf(req.score),
+                Integer.valueOf(startTime), Integer.valueOf(endTime), "Y", passed, hw.assignmentType, hw.courseId,
+                stcourse.sect, hw.unit, hw.objective, "N", null, null);
 
+        final Cache cache = studentData.getCache();
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
-        final boolean ok = recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
+        final boolean ok = recordQuestionAnswers(cache, studentId, req, hw, sthw.serialNbr);
 
         if (ok) {
             if ("LB".equals(hw.assignmentType)) {
@@ -391,6 +372,9 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             rep.error = "Failed to record assignment.";
         }
 
+        studentData.forgetStudentHomeworks();
+        studentData.forgetStudentHomeworkAnswers();
+
         return ok;
     }
 
@@ -398,7 +382,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * Record a non-mastered homework assignment in the database. This creates a new STHOMEWORK record with the passed
      * field set to "N".
      *
-     * @param cache    the data cache
+     * @param studentData        the student data object
      * @param req      the homework submission request
      * @param rep      the homework submission reply
      * @param hw       the homework assignment being submitted
@@ -406,10 +390,9 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @return true if insertion succeeded; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordNonMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
+    private boolean recordNonMasteredHomework(final StudentData studentData, final SubmitHomeworkRequest req,
                                               final SubmitHomeworkReply rep, final AssignmentRec hw,
-                                              final RawStcourse stcourse)
-            throws SQLException {
+                                              final RawStcourse stcourse) throws SQLException {
 
         final LocalDateTime start = TemporalUtils.toLocalDateTime(req.homework.presentationTime);
         final LocalDateTime end = TemporalUtils.toLocalDateTime(req.homework.completionTime);
@@ -417,14 +400,16 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
         final int startTime = TemporalUtils.minuteOfDay(start);
         final int endTime = TemporalUtils.minuteOfDay(end);
 
-        final RawSthomework sthw = new RawSthomework(Long.valueOf(generateSerialNumber(false)),
-                req.homework.examVersion, getStudent().stuId, end.toLocalDate(),
-                Integer.valueOf(req.score), Integer.valueOf(startTime), Integer.valueOf(endTime), "Y",
-                "N", hw.assignmentType, hw.courseId, stcourse.sect, hw.unit, hw.objective,
-                "N", null, null);
+        final String studentId = studentData.getStudentId();
 
+        final RawSthomework sthw = new RawSthomework(Long.valueOf(generateSerialNumber(false)),
+                req.homework.examVersion, studentId, end.toLocalDate(), Integer.valueOf(req.score),
+                Integer.valueOf(startTime), Integer.valueOf(endTime), "Y", "N", hw.assignmentType, hw.courseId,
+                stcourse.sect, hw.unit, hw.objective, "N", null, null);
+
+        final Cache cache = studentData.getCache();
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
-        final boolean ok = recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
+        final boolean ok = recordQuestionAnswers(cache, studentId, req, hw, sthw.serialNbr);
 
         if (ok) {
             rep.result = "Assignment accepted.";
@@ -432,20 +417,24 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             rep.error = "Failed to record assignment.";
         }
 
+        studentData.forgetStudentHomeworks();
+        studentData.forgetStudentHomeworkAnswers();
+
         return ok;
     }
 
     /**
      * Write the series of STHWQA records to the database to record the student's answers on the homework assignment.
      *
-     * @param cache        the data cache
+     * @param cache the data cache
+     * @param studentId the student ID
      * @param req          the homework submission request (with student answers)
      * @param hw           the homework assignment being submitted
      * @param serialNumber the serial number of the homework submission
      * @return true if successful; false on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordQuestionAnswers(final Cache cache, final SubmitHomeworkRequest req,
+    private boolean recordQuestionAnswers(final Cache cache, final String studentId, final SubmitHomeworkRequest req,
                                           final AssignmentRec hw, final Long serialNumber) throws SQLException {
 
         final int numAns = req.answers.length;
@@ -469,7 +458,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             if (req.answers[i] != null) {
                 final int ansLen = req.answers[i].length;
 
-                for (int j = 0; j <ansLen; ++j) {
+                for (int j = 0; j < ansLen; ++j) {
 
                     if (req.answers[i][j] instanceof Long) {
                         final int index = ((Long) req.answers[i][j]).intValue();
@@ -485,9 +474,8 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             final LocalDateTime fin = TemporalUtils.toLocalDateTime(req.homework.completionTime);
             final int finTime = TemporalUtils.minuteOfDay(fin);
 
-            final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i),
-                    Integer.valueOf(1), obj, new String(ans), getStudent().stuId, hw.assignmentId,
-                    selected.isCorrect(req.answers[i]) ? "Y" : "N",
+            final RawSthwqa sthwqa = new RawSthwqa(serialNumber, Integer.valueOf(i), Integer.valueOf(1), obj,
+                    new String(ans), studentId, hw.assignmentId, selected.isCorrect(req.answers[i]) ? "Y" : "N",
                     fin.toLocalDate(), Integer.valueOf(finTime));
 
             if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {

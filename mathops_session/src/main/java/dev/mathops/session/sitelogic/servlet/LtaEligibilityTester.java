@@ -2,8 +2,7 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rec.AssignmentRec;
@@ -22,11 +21,11 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
     /**
      * Creates a new eligibility test class, which can be used to test several exams for eligibility.
      *
-     * @param theStudentId the student ID for which eligibility is to be tested
+     * @param theStudentData the student data object
      */
-    public LtaEligibilityTester(final String theStudentId) {
+    public LtaEligibilityTester(final StudentData theStudentData) {
 
-        super(theStudentId);
+        super(theStudentData);
     }
 
     /**
@@ -49,7 +48,6 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * status information is accumulated, including holds on the student record, or the reason the homework cannot be
      * taken at this time.
      *
-     * @param cache      the data cache
      * @param now        the date/time to consider as "now"
      * @param assignment the assignment being tested
      * @param reasons    a buffer to which to append the reason the exam is unavailable
@@ -57,17 +55,18 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * @return {@code true} if the request was handled successfully; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    public final boolean isLtaEligible(final Cache cache, final ZonedDateTime now, final AssignmentRec assignment,
+    public final boolean isLtaEligible(final ZonedDateTime now, final AssignmentRec assignment,
                                        final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds)
             throws SQLException {
 
         final boolean ok;
 
-        if (validateStudent(cache, now, reasons, holds, true) && checkActiveTerm(cache, now, reasons)) {
+        if (validateStudent(now, reasons, holds, true)
+                && checkActiveTerm(now, reasons)) {
             if (isSpecialStudentId() || isSpecial()) {
                 ok = true;
             } else {
-                ok = checkAssignmentAvailability(cache, now, reasons, assignment);
+                ok = checkAssignmentAvailability(now, reasons, assignment);
             }
         } else {
             ok = false;
@@ -79,24 +78,25 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
     /**
      * Determine whether a learning target assignment may be accessed by the student.
      *
-     * @param cache   the data cache
      * @param now     the date/time to consider as "now"
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param hw      the homework to test
      * @return {@code true} if request completed successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkAssignmentAvailability(final Cache cache, final ZonedDateTime now, final HtmlBuilder reasons,
+    private boolean checkAssignmentAvailability(final ZonedDateTime now, final HtmlBuilder reasons,
                                                 final AssignmentRec hw) throws SQLException {
 
         final boolean ok;
 
         if (isSpecialStudentId() || isSpecial()) {
-            ok = gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, false);
-        } else if (gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, true)) {
-            ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)
-                    && checkTimeWindows(now, reasons) && checkObjectiveEligibility(cache, reasons, hw)
-                    && checkForCourseLockout(cache, now, reasons);
+            ok = gatherSectionInfo(reasons, hw.courseId, hw.unit, false);
+        } else if (gatherSectionInfo(reasons, hw.courseId, hw.unit, true)) {
+            ok = checkSectionStartDate(now, reasons)
+                    && checkIncomplete(now, reasons)
+                    && checkTimeWindows(now, reasons)
+                    && checkObjectiveEligibility(reasons, hw)
+                    && checkForCourseLockout(now, reasons);
         } else {
             ok = false;
         }
@@ -112,8 +112,9 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @return {@code true} if information was successfully found; {@code false} if an error occurred or the data was
      *         not found
+     * @throws SQLException if there is an error accessing the databased
      */
-    private boolean checkSectionStartDate(final ZonedDateTime now, final HtmlBuilder reasons) {
+    private boolean checkSectionStartDate(final ZonedDateTime now, final HtmlBuilder reasons) throws SQLException {
 
         final boolean ok;
 
@@ -210,14 +211,13 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * The "objective 0" assignment is always available in a unit.  And objectives greater than 0 are available if the
      * unit 0 assignment has been passed.
      *
-     * @param cache      the data cache
      * @param reasons    a buffer to populate with the reason the exam is unavailable, to be shown to the student
      * @param assignment the assignment to test
      * @return {@code true} if request completed successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkObjectiveEligibility(final Cache cache, final HtmlBuilder reasons,
-                                              final AssignmentRec assignment) throws SQLException {
+    private boolean checkObjectiveEligibility(final HtmlBuilder reasons, final AssignmentRec assignment)
+            throws SQLException {
 
         boolean ok = true;
 
@@ -230,7 +230,7 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
             final int obj = assignment.objective == null ? -1 : assignment.objective.intValue();
 
             if (obj > 1) {
-                final List<RawSthomework> hws = RawSthomeworkLogic.getHomeworks(cache, this.studentId, courseId,
+                final List<RawSthomework> hws = getStudentData().getStudentHomeworkForCourseUnit(courseId,
                         assignment.unit, true, "ST");
 
                 ok = false;

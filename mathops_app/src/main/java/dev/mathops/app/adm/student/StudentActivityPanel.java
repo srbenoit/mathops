@@ -1,14 +1,13 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
-import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
@@ -16,6 +15,7 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -63,7 +63,6 @@ final class StudentActivityPanel extends AdminPanelBase {
 
     /**
      * Constructs a new {@code StudentActivityPanel}.
-     *
      */
     StudentActivityPanel() {
 
@@ -110,16 +109,15 @@ final class StudentActivityPanel extends AdminPanelBase {
     /**
      * Sets the selected student.
      *
-     * @param fixed the fixed data
      * @param data  the selected student data
      */
-    public void setSelectedStudent(final FixedData fixed, final StudentData data) {
+    public void setSelectedStudent(final StudentData data) {
 
         this.error.setText(CoreConstants.SPC);
         clearDisplay();
 
         if (data != null) {
-            populateDisplay(fixed, data);
+            populateDisplay(data);
 
             this.activityScroll.setPreferredSize(this.activityTable.getPreferredScrollSize(this.activityScroll, 3));
         }
@@ -136,16 +134,17 @@ final class StudentActivityPanel extends AdminPanelBase {
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param fixed the fixed data
      * @param data  the student data
      */
-    private void populateDisplay(final FixedData fixed, final StudentData data) {
+    private void populateDisplay(final StudentData data) {
 
         try {
-            final TermRec active = data.getActiveTerm();
+            final SystemData systemData = data.getSystemData();
+            final TermRec active = systemData.getActiveTerm();
 
             if (active != null) {
-                // Build a list of activities, including course exams, homeworks, placement attempts, challenge attempts,
+                // Build a list of activities, including course exams, homeworks, placement attempts, challenge
+                // attempts,
 
                 final RawStterm stterm = data.getStudentTerm(active.term);
 
@@ -161,7 +160,7 @@ final class StudentActivityPanel extends AdminPanelBase {
                     this.paceTrackDisplay.setText(stterm.paceTrack);
                 }
 
-                final List<RawSemesterCalendar> weeks = fixed.termWeeks;
+                final List<RawSemesterCalendar> weeks = systemData.getSemesterCalendars();
 
                 final List<ActivityRow> rows = new ArrayList<>(10);
 
@@ -221,16 +220,15 @@ final class StudentActivityPanel extends AdminPanelBase {
                     final LocalTime end = placement.getFinishDateTime().toLocalTime();
 
                     final HtmlBuilder score = new HtmlBuilder(20);
-                    score.add(placement.stsA).add('/') //
-                            .add(placement.sts117).add('/') //
-                            .add(placement.sts118).add('/') //
-                            .add(placement.sts124).add('/') //
-                            .add(placement.sts125).add('/') //
+                    score.add(placement.stsA).add('/')
+                            .add(placement.sts117).add('/')
+                            .add(placement.sts118).add('/')
+                            .add(placement.sts124).add('/')
+                            .add(placement.sts125).add('/')
                             .add(placement.sts126);
 
-                    rows.add(new ActivityRow(week, RawRecordConstants.M100P, null, //
-                            "Placement", placement.version, placement.examDt, start, end,
-                            score.toString(), passed, false));
+                    rows.add(new ActivityRow(week, RawRecordConstants.M100P, null, "Placement", placement.version,
+                            placement.examDt, start, end, score.toString(), passed, false));
                     hitWeeks.add(Integer.valueOf(week));
                 }
 

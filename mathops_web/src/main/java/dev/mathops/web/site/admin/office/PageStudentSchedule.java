@@ -195,7 +195,7 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final StudentData studentData, final SiteData data,
                                             final String studentId, final HtmlBuilder htm) throws SQLException {
 
-        final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
+        final List<RawStcourse> regs = data.siteRegistrationData.getPaceRegistrations();
         boolean newCourses = false;
 
         // Make sure each course has a pace order
@@ -258,15 +258,15 @@ enum PageStudentSchedule {
         final TermRec active = studentData.getActiveTerm();
         final String key = active.term.shortString;
 
-        final RawStterm stterm = data.milestoneData.getStudentTerm(key);
+        final RawStterm stterm = data.siteMilestoneData.getStudentTerm(key);
         if (stterm == null || stterm.paceTrack == null) {
             htm.sH(4).add(Integer.toString(max), "-course pace").eH(4);
         } else {
             htm.sH(4).add(Integer.toString(max), "-course pace - track ", stterm.paceTrack).eH(4);
         }
 
-        final List<RawMilestone> ms = data.milestoneData.getMilestones(active.term);
-        final List<RawStmilestone> stms = data.milestoneData.getStudentMilestones(active.term);
+        final List<RawMilestone> ms = data.siteMilestoneData.getMilestones(active.term);
+        final List<RawStmilestone> stms = data.siteMilestoneData.getStudentMilestones(active.term);
 
         htm.sTable("report");
         htm.sTr().sTh().add("Course").eTh()
@@ -279,7 +279,7 @@ enum PageStudentSchedule {
 
         final LocalDate today = LocalDate.now();
 
-        final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
+        final List<RawStcourse> regs = data.siteRegistrationData.getPaceRegistrations();
         for (int order = 1; order <= max; ++order) {
             RawStcourse reg = null;
             for (final RawStcourse sc : regs) {
@@ -325,7 +325,7 @@ enum PageStudentSchedule {
                     htm.add("Final Exam");
 
                     final SiteDataCfgExamStatus finalStatus =
-                            data.statusData.getExamStatus(reg.course, unit, "F");
+                            data.siteStatusData.getExamStatus(reg.course, unit, "F");
 
                     if (finalStatus.passedOnTime) {
                         status = "PASSED (on-time)";
@@ -343,7 +343,7 @@ enum PageStudentSchedule {
                     htm.add("Final Exam - Last try");
 
                     final SiteDataCfgExamStatus finalStatus =
-                            data.statusData.getExamStatus(reg.course, unit, "F");
+                            data.siteStatusData.getExamStatus(reg.course, unit, "F");
 
                     if (finalStatus.firstPassingDate == null) {
                         // TODO: see if student is eligible for last try
@@ -355,7 +355,7 @@ enum PageStudentSchedule {
                     htm.add("Unit " + unit + " Review");
 
                     final SiteDataCfgExamStatus reviewStatus =
-                            data.statusData.getExamStatus(reg.course, unit, "R");
+                            data.siteStatusData.getExamStatus(reg.course, unit, "R");
 
                     if (reviewStatus.passedOnTime) {
                         status = "PASSED (on-time)";
@@ -373,7 +373,7 @@ enum PageStudentSchedule {
                     htm.add("Unit " + unit + " Exam");
 
                     final SiteDataCfgExamStatus unitStatus =
-                            data.statusData.getExamStatus(reg.course, unit, "U");
+                            data.siteStatusData.getExamStatus(reg.course, unit, "U");
 
                     if (unitStatus.passedOnTime) {
                         status = "PASSED (on-time)";
@@ -530,7 +530,7 @@ enum PageStudentSchedule {
         final TermRec active = studentData.getActiveTerm();
         final String key = active.term.shortString;
 
-        final RawStterm stterm = data.milestoneData.getStudentTerm(key);
+        final RawStterm stterm = data.siteMilestoneData.getStudentTerm(key);
         if (stterm == null) {
             htm.sP().add("No STTERM record found").eP();
         } else {
@@ -653,7 +653,7 @@ enum PageStudentSchedule {
 
         RawStcourse result = null;
 
-        final List<RawStcourse> regs = data.registrationData.getPaceRegistrations();
+        final List<RawStcourse> regs = data.siteRegistrationData.getPaceRegistrations();
         if (regs != null) {
             for (final RawStcourse reg : regs) {
                 if (paceIndex.equals(reg.paceOrder)) {

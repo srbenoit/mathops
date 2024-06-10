@@ -670,7 +670,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return A 2-integer array, where [0] contains the number of legal online attempts, and [1] contains the number of
      *         legal proctored attempts
      */
-    private static int[] countTestStudentLegalAttempts(final String studentId, final String examId) {
+    public static int[] countTestStudentLegalAttempts(final String studentId, final String examId) {
 
         final int[] result = new int[2];
 

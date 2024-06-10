@@ -3,35 +3,22 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -50,7 +37,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
@@ -1023,7 +1009,6 @@ public final class StudentCourseStatus extends LogicBase {
      *
      * @param studentData    the student data object
      * @param session        the login session
-     * @param theStudentId   the ID of the student
      * @param theCourseId    the ID of the course whose data to gather
      * @param isSkillsReview {@code true} if the outline is being presented as a skills review
      * @param isPractice     {@code true} if the outline is being presented in practice mode
@@ -1031,17 +1016,22 @@ public final class StudentCourseStatus extends LogicBase {
      * @throws SQLException if there is an error accessing the database
      */
     public boolean gatherData(final StudentData studentData, final ImmutableSessionInfo session,
-                              final String theStudentId, final String theCourseId, final boolean isSkillsReview,
-                              final boolean isPractice) throws SQLException {
+                              final String theCourseId, final boolean isSkillsReview, final boolean isPractice)
+            throws SQLException {
 
         final boolean result;
 
         reset();
 
-        if (queryActiveTerm(studentData) && queryCourse(studentData, theCourseId)
-                && queryCourseUnits(studentData, theCourseId) && queryStudent(studentData, theStudentId)
-                && queryStudentCourse(studentData, session.getNow(), session.getEffectiveRole(), theStudentId,
-                theCourseId, isSkillsReview, isPractice)) {
+        final ZonedDateTime now = session.getNow();
+        final SystemData systemData = studentData.getSystemData();
+
+        if (queryActiveTerm(systemData)
+                && queryCourse(systemData, theCourseId)
+                && queryCourseUnits(systemData, theCourseId)
+                && queryStudent(studentData)
+                && queryStudentCourse(studentData, now, session.getEffectiveRole(), theCourseId, isSkillsReview,
+                isPractice)) {
 
             // Allocate overall unit status variables
             this.unitExams = new RawExam[this.maxUnit + 1];
@@ -1072,11 +1062,12 @@ public final class StudentCourseStatus extends LogicBase {
 
             this.scores = new StudentCourseScores(this.maxUnit);
 
-            if (queryCourseSection(studentData) && queryCourseSectionUnits(studentData, session.getNow())
-                    && queryCourseUnitObjectives(studentData) && queryExams(studentData)) {
+            if (queryCourseSection(systemData)
+                    && queryCourseSectionUnits(systemData, now)
+                    && queryCourseUnitObjectives(systemData)
+                    && queryExams(systemData)) {
 
-                this.homeworks = AssignmentLogic.get(studentData).queryActiveByCourse(studentData,
-                        this.studentCourse.course, "HW");
+                this.homeworks = systemData.getActiveAssignmentsByCourseType(this.studentCourse.course, "HW");
 
                 // Allocate homework status variables
                 this.homeworkAvailable = new boolean[this.homeworks.size()];
@@ -1090,8 +1081,8 @@ public final class StudentCourseStatus extends LogicBase {
 
                 if (result) {
                     buildExamStatus();
-                    checkHomeworkAvailability(studentData, session.getNow());
-                    checkExamAvailability(studentData, session.getNow());
+                    checkHomeworkAvailability(studentData, now);
+                    checkExamAvailability(studentData, now);
                     calculateScore(studentData);
                 }
 
@@ -1099,39 +1090,32 @@ public final class StudentCourseStatus extends LogicBase {
 
                 if (RawRecordConstants.M117.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M117/117TOC.pdf");
+                    map.put("Course Outline", STREAM + "M117/117TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M118.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M118/118TOC.pdf");
+                    map.put("Course Outline", STREAM + "M118/118TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M124.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M124/124TOC.pdf");
+                    map.put("Course Outline", STREAM + "M124/124TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M125.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M125/125TOC.pdf");
+                    map.put("Course Outline", STREAM + "M125/125TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M126.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M126/126TOC.pdf");
+                    map.put("Course Outline", STREAM + "M126/126TOC.pdf");
                     this.media.put("Course Overview", map);
 
                     final Map<String, String> map2 = new TreeMap<>();
-                    map2.put("Identities", //
-                            STREAM + "M126/126Identities.pdf");
+                    map2.put("Identities", STREAM + "M126/126Identities.pdf");
                     this.media.put("References", map2);
                 } else if (RawRecordConstants.M100T.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
                     map.put("Instructions", "/www/media/ELM_information.pdf");
-                    map.put("Tutorial Outline", //
-                            STREAM + "M100T/100TTOC.pdf");
+                    map.put("Tutorial Outline", STREAM + "M100T/100TTOC.pdf");
                     this.media.put("Tutorial Overview", map);
                 } else if (RawRecordConstants.M1170.equals(theCourseId)
                         || RawRecordConstants.M1180.equals(theCourseId)
@@ -1157,13 +1141,13 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the active term.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryActiveTerm(final Cache cache) throws SQLException {
+    private boolean queryActiveTerm(final SystemData systemData) throws SQLException {
 
-        this.activeTerm = TermLogic.get(cache).queryActive(cache);
+        this.activeTerm = systemData.getActiveTerm();
 
         final boolean result;
         if (this.activeTerm == null) {
@@ -1179,16 +1163,16 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the course.
      *
-     * @param cache       the data cache
+     * @param systemData the system data object
      * @param theCourseId the course ID
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourse(final Cache cache, final String theCourseId) throws SQLException {
+    private boolean queryCourse(final SystemData systemData, final String theCourseId) throws SQLException {
 
         final boolean result;
 
-        this.course = RawCourseLogic.query(cache, theCourseId);
+        this.course = systemData.getCourse(theCourseId);
         if (this.course == null) {
             setErrorText("Unable to look up the " + theCourseId + " course.");
             result = false;
@@ -1202,14 +1186,14 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the course units.
      *
-     * @param cache       the data cache
+     * @param systemData the system data object
      * @param theCourseId the course ID
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseUnits(final Cache cache, final String theCourseId) throws SQLException {
+    private boolean queryCourseUnits(final SystemData systemData, final String theCourseId) throws SQLException {
 
-        final List<RawCunit> list = RawCunitLogic.queryByCourse(cache, theCourseId, this.activeTerm.term);
+        final List<RawCunit> list = systemData.getCourseUnits(theCourseId, this.activeTerm.term);
 
         // store the course units in an array indexed by unit number
         int max = -1;
@@ -1233,17 +1217,18 @@ public final class StudentCourseStatus extends LogicBase {
      * Loads the student record (if the student ID is a valid ID), or attempt to build a student record if the ID is
      * that of a pseudo-student, like 'GUEST'.
      *
-     * @param cache the data cache
-     * @param stuId the student ID
+     * @param studentData the student data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryStudent(final Cache cache, final String stuId) throws SQLException {
+    private boolean queryStudent(final StudentData studentData) throws SQLException {
 
         boolean result = true;
 
         // For "special-case" student IDs, generate appropriate data
         // FIXME: new table "guest-users" table with student ID, name, open access?)
+
+        final String stuId = studentData.getStudentId();
 
         if ("GUEST".equalsIgnoreCase(stuId.trim())) {
             this.student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "Guest");
@@ -1260,13 +1245,8 @@ public final class StudentCourseStatus extends LogicBase {
             this.visitingPracticeMode = true;
             this.openAccess = true;
         } else {
-            this.student = RawStudentLogic.query(cache, stuId, false);
-            if (this.student == null) {
-                setErrorText("Student " + stuId + " not found");
-                result = false;
-            } else {
-                this.studentTerm = RawSttermLogic.query(cache, this.activeTerm.term, stuId);
-            }
+            this.student = studentData.getStudentRecord();
+            this.studentTerm = studentData.getStudentTerm(this.activeTerm.term);
         }
 
         return result;
@@ -1275,20 +1255,21 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the student course registration record, or builds simulated records for special case students.
      *
-     * @param cache          the data cache
+     * @param studentData the student data object
      * @param now            the date/time to consider "now"
      * @param role           the role
-     * @param theStudentId   the student ID
      * @param theCourseId    the course ID
      * @param isSkillsReview {@code true} if the outline is being presented as a skills review
      * @param isPractice     {@code true} if the outline is being presented in practice mode
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryStudentCourse(final Cache cache, final ChronoZonedDateTime<LocalDate> now, final ERole role,
-                                       final String theStudentId, final String theCourseId,
-                                       final boolean isSkillsReview, final boolean isPractice)
+    private boolean queryStudentCourse(final StudentData studentData, final ChronoZonedDateTime<LocalDate> now,
+                                       final ERole role, final String theCourseId, final boolean isSkillsReview,
+                                       final boolean isPractice)
             throws SQLException {
+
+        final SystemData systemData = studentData.getSystemData();
 
         boolean result = true;
 
@@ -1297,7 +1278,7 @@ public final class StudentCourseStatus extends LogicBase {
             defaultSect = "1";
         } else {
             defaultSect = "001";
-            final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.activeTerm.term);
+            final List<RawCsection> csections = systemData.getCourseSections(this.activeTerm.term);
             csections.sort(null);
 
             for (final RawCsection test : csections) {
@@ -1308,21 +1289,23 @@ public final class StudentCourseStatus extends LogicBase {
             }
         }
 
+        final String stuId = studentData.getStudentId();
+
         if (isSkillsReview) {
-            this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
+            this.studentCourse = makeStudentCourse(stuId, theCourseId, defaultSect);
         } else if (isPractice) {
-            this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
+            this.studentCourse = makeStudentCourse(stuId, theCourseId, defaultSect);
             this.openAccess = true;
         } else if ("Y".equals(this.course.isTutorial)) {
-            this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
+            this.studentCourse = makeStudentCourse(stuId, theCourseId, defaultSect);
 
-            if (RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(), "ADMIN", "M384", "TUTOR")) {
+            if (studentData.isSpecialCategory(now.toLocalDate(), "ADMIN", "M384", "TUTOR")) {
                 this.openAccess = true;
             }
 
         } else {
             // Query for an actual student course registration
-            this.studentCourse = RawStcourseLogic.getRegistration(cache, theStudentId, theCourseId);
+            this.studentCourse = studentData.getActiveRegistration(theCourseId);
 
             if (this.studentCourse != null) {
                 // We have an actual student-course record, see if it is an incomplete
@@ -1333,7 +1316,7 @@ public final class StudentCourseStatus extends LogicBase {
                 } else {
                     this.incompleteInProgress = "Y".equals(this.studentCourse.iInProgress);
                     this.incompleteTerm = this.studentCourse.iTermKey == null ? null
-                            : TermLogic.get(cache).query(cache, this.studentCourse.iTermKey);
+                            : systemData.getTerm(this.studentCourse.iTermKey);
 
                     if (this.incompleteTerm == null) {
                         setErrorText("Unable to look up the incomplete term.");
@@ -1345,17 +1328,16 @@ public final class StudentCourseStatus extends LogicBase {
             if (this.studentCourse == null) {
                 // No actual or visiting record; some special student types get simulated record
 
-                if (("AACTUTOR".equals(theStudentId)
-                        || RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(),
-                        "ADMIN", "M384", "TUTOR"))
+                if (("AACTUTOR".equals(stuId)
+                        || studentData.isSpecialCategory(now.toLocalDate(), "ADMIN", "M384", "TUTOR"))
                         || role.canActAs(ERole.ADMINISTRATOR)) {
 
                     // FIXME: Why is this not using SiteDataRegistration?
 
-                    this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
+                    this.studentCourse = makeStudentCourse(stuId, theCourseId, defaultSect);
                     this.openAccess = true;
                 } else {
-                    setErrorText("Unable to find student " + theStudentId + " course data for " + theCourseId
+                    setErrorText("Unable to find student " + stuId + " course data for " + theCourseId
                             + " (not a recognized special ID)");
                     result = false;
                 }
@@ -1413,11 +1395,11 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the course section and associated pacing structure based on the student course record.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there was an error accessing the database
      */
-    private boolean queryCourseSection(final Cache cache) throws SQLException {
+    private boolean queryCourseSection(final SystemData systemData) throws SQLException {
 
         final String crs = this.studentCourse.course;
         final String sect = this.studentCourse.sect;
@@ -1425,9 +1407,9 @@ public final class StudentCourseStatus extends LogicBase {
         final boolean result;
 
         if ("Y".equals(this.studentCourse.iInProgress)) {
-            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.studentCourse.iTermKey);
+            this.courseSection = systemData.getCourseSection(crs, sect, this.studentCourse.iTermKey);
         } else {
-            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+            this.courseSection = systemData.getCourseSection(crs, sect, this.activeTerm.term);
         }
 
         if (this.courseSection == null) {
@@ -1441,7 +1423,7 @@ public final class StudentCourseStatus extends LogicBase {
                 ruleSetId = RawPacingStructure.DEF_PACING_STRUCTURE;
             }
 
-            this.pacingStructure = RawPacingStructureLogic.query(cache, ruleSetId);
+            this.pacingStructure = systemData.getPacingStructure(ruleSetId, this.activeTerm.term);
         }
 
         return result;
@@ -1450,12 +1432,13 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the course section units.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @param now   the date/time to consider "now"
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there was an error accessing the database
      */
-    private boolean queryCourseSectionUnits(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private boolean queryCourseSectionUnits(final SystemData systemData, final ChronoZonedDateTime<LocalDate> now)
+            throws SQLException {
 
         final String crs = this.studentCourse.course;
         final String sect = this.studentCourse.sect;
@@ -1463,7 +1446,7 @@ public final class StudentCourseStatus extends LogicBase {
         final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
                 : this.studentCourse.termKey;
 
-        final List<RawCusection> list = RawCusectionLogic.queryByCourseSection(cache, crs, sect, term);
+        final List<RawCusection> list = systemData.getCourseUnitSections(crs, sect, term);
 
         boolean result = true;
         this.courseSectionUnits = new RawCusection[this.maxUnit + 1];
@@ -1483,7 +1466,7 @@ public final class StudentCourseStatus extends LogicBase {
         }
 
         if (result) {
-            queryDeadlineDates(cache, now);
+            queryDeadlineDates(systemData, now);
         }
 
         return result;
@@ -1492,11 +1475,11 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Gathers the registration deadline dates for the current term and all future terms.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there was an error accessing the database
      */
-    private void queryDeadlineDates(final Cache cache, final ChronoZonedDateTime<LocalDate> now)
+    private void queryDeadlineDates(final SystemData systemData, final ChronoZonedDateTime<LocalDate> now)
             throws SQLException {
 
         // The exam delete date represents the add deadline for the course. After this time,
@@ -1522,7 +1505,7 @@ public final class StudentCourseStatus extends LogicBase {
 
         if ("Y".equals(this.course.isTutorial)) {
 
-            final List<TermRec> futureTerms = TermLogic.get(cache).getFutureTerms(cache);
+            final List<TermRec> futureTerms = systemData.getFutureTerms();
 
             final String courseId = this.course.course;
 
@@ -1536,8 +1519,8 @@ public final class StudentCourseStatus extends LogicBase {
 
                 this.termStrings.add(fut.term.longString);
 
-                final LocalDate examDeleteDt = RawCsectionLogic.getExamDeleteDate(cache, courseId,
-                        this.studentCourse.sect, fut.term);
+                final RawCsection csection = systemData.getCourseSection(courseId, this.studentCourse.sect, fut.term);
+                final LocalDate examDeleteDt = csection == null ? null : csection.examDeleteDt;
 
                 if (examDeleteDt == null) {
                     this.examDeleteDates.put(fut.term.longString, "the course add deadline for that term");
@@ -1554,11 +1537,11 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries the course unit objective and lesson data for all units in the course.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseUnitObjectives(final Cache cache) throws SQLException {
+    private boolean queryCourseUnitObjectives(final SystemData systemData) throws SQLException {
 
         final String crs = this.studentCourse.course;
         boolean result = true;
@@ -1568,8 +1551,8 @@ public final class StudentCourseStatus extends LogicBase {
 
         for (int i = 0; i <= this.maxUnit; ++i) {
 
-            final List<RawCuobjective> all = RawCuobjectiveLogic.queryByCourseUnit(cache, crs,
-                    Integer.valueOf(i), this.activeTerm.term);
+            final List<RawCuobjective> all = systemData.getCourseUnitObjectives(crs, Integer.valueOf(i),
+                    this.activeTerm.term);
 
             this.courseUnitObjectives[i] = all.toArray(ZERO_LEN_CUOBJ_ARR);
             final int count = this.courseUnitObjectives[i].length;
@@ -1580,7 +1563,7 @@ public final class StudentCourseStatus extends LogicBase {
                 final RawCuobjective culess = this.courseUnitObjectives[i][j];
                 final String lessonId = culess.lessonId;
 
-                this.lessons[i][j] = RawLessonLogic.query(cache, lessonId);
+                this.lessons[i][j] = systemData.getLesson(lessonId);
                 if (this.lessons[i][j] == null) {
                     setErrorText("Unable to look up lesson " + lessonId);
                     result = false;
@@ -1594,15 +1577,16 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Queries all homework and exam records associated with the course.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryExams(final Cache cache) throws SQLException {
+    private boolean queryExams(final SystemData systemData) throws SQLException {
 
         final String crs = this.studentCourse.course;
 
-        final List<RawExam> exams = RawExamLogic.queryActiveByCourse(cache, crs);
+        final List<RawExam> exams = systemData.getActiveExams(crs);
+
         final int numUnits = this.courseUnits.length;
         for (int i = 0; i < numUnits; ++i) {
             for (final RawExam exam : exams) {
@@ -1624,16 +1608,18 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Loads the review and unit exam deadlines.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @throws SQLException if there is error accessing the database
      */
-    private void loadExamDeadlines(final Cache cache) throws SQLException {
+    private void loadExamDeadlines(final StudentData studentData) throws SQLException {
 
         final String studentId = this.student.stuId;
         final String courseId = this.course.course;
         final String sect = this.courseSection.sect;
 
-        final List<RawStcourse> paced = RawStcourseLogic.getPaced(cache, studentId);
+        final SystemData systemData = studentData.getSystemData();
+
+        final List<RawStcourse> paced = studentData.getPacedRegistrations();
 
         // See if the student has any paced courses, and if so, load the pace milestones
         List<RawMilestone> allMilestones = null;
@@ -1646,20 +1632,17 @@ public final class StudentCourseStatus extends LogicBase {
         // Determine the term to use for deadlines
         if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
 
-            term = TermLogic.get(cache).query(cache, this.studentCourse.iTermKey);
+            term = systemData.getTerm(this.studentCourse.iTermKey);
 
             Log.info("Term to use for milestones: ", term.term);
 
             // To get the right milestone, pace needs to be that from the "stterm" record from the incomplete term
-            stterm = RawSttermLogic.query(cache, term.term, this.student.stuId);
+            stterm = studentData.getStudentTerm(term.term);
             if (stterm != null) {
                 pace = stterm.pace.intValue();
 
-                allMilestones = RawMilestoneLogic.getAllMilestones(cache, term.term, pace,
-                        stterm.paceTrack.substring(0, 1));
-
-                stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
-                        stterm.paceTrack.substring(0, 1), studentId);
+                allMilestones = systemData.getMilestones(term.term, stterm.pace, stterm.paceTrack.substring(0, 1));
+                stMilestones = studentData.getStudentMilestones(term.term, stterm.paceTrack.substring(0, 1));
 
                 Log.info("Found " + allMilestones.size() + " milestones and " + stMilestones.size()
                         + " student milestones");
@@ -1668,12 +1651,8 @@ public final class StudentCourseStatus extends LogicBase {
 
         for (final RawStcourse model : paced) {
             if (stterm != null && courseId.equals(model.course) && sect.equals(model.sect)) {
-
-                allMilestones = RawMilestoneLogic.getAllMilestones(cache, term.term, pace,
-                        stterm.paceTrack.substring(0, 1));
-
-                stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
-                        stterm.paceTrack.substring(0, 1), studentId);
+                allMilestones = systemData.getMilestones(term.term, stterm.pace, stterm.paceTrack.substring(0, 1));
+                stMilestones = studentData.getStudentMilestones(term.term, stterm.paceTrack.substring(0, 1));
                 break;
             }
         }
@@ -1773,7 +1752,7 @@ public final class StudentCourseStatus extends LogicBase {
                     && this.unitExamDeadlines[unit].isBefore(today))) {
 
                 // FIXME: HARDCODES for what makes a student eligible: Passing unit 4 exam
-                final RawStexam firstPassing = RawStexamLogic.getFirstPassing(cache, this.student.stuId, courseId,
+                final RawStexam firstPassing = studentData.getFirstPassingStudentExam(courseId,
                         Integer.valueOf(4), "U");
 
                 if ((firstPassing != null)
@@ -1814,11 +1793,11 @@ public final class StudentCourseStatus extends LogicBase {
      * Loads the set of homework and exams the student has submitted in the course, and populates the raw unit exam
      * scores in the score object, as well as the points for completion of unit and review exams on time or late.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadStudentHistory(final Cache cache) throws SQLException {
+    private boolean loadStudentHistory(final StudentData studentData) throws SQLException {
 
         final String studentId = this.student.stuId;
         final String courseId = this.course.course;
@@ -1837,8 +1816,8 @@ public final class StudentCourseStatus extends LogicBase {
         }
 
         // Load review exam history (count total number of review exams taken, and number passed)
-        final List<RawStexam> stuReviews = RawStexamLogic.getExams(cache, studentId, courseId,
-                false, RawStexamLogic.REVIEW_EXAM_TYPES);
+        final List<RawStexam> stuReviews = studentData.getStudentExamsByCourseType(courseId, false,
+                RawStexamLogic.REVIEW_EXAM_TYPES);
 
         for (final RawStexam stuReview : stuReviews) {
 
@@ -1866,7 +1845,7 @@ public final class StudentCourseStatus extends LogicBase {
 
         // Load unit exam history (count the total number of unit exams taken, the number
         // passed, and keep track of the highest passing score)
-        final List<RawStexam> stuUnits = RawStexamLogic.getExams(cache, studentId, courseId, false,
+        final List<RawStexam> stuUnits = studentData.getStudentExamsByCourseType(courseId, false,
                 RawStexamLogic.UNIT_EXAM_TYPES);
 
         for (final RawStexam stuUnit : stuUnits) {
@@ -1926,8 +1905,7 @@ public final class StudentCourseStatus extends LogicBase {
         }
 
         // Load homework assignment history
-        final List<RawSthomework> stuHomeworks = RawSthomeworkLogic.getHomeworks(cache, studentId, courseId, false,
-                "HW");
+        final List<RawSthomework> stuHomeworks = studentData.getStudentHomeworkForCourse(courseId, false, "HW");
 
         for (final RawSthomework stuHw : stuHomeworks) {
 
@@ -1954,10 +1932,10 @@ public final class StudentCourseStatus extends LogicBase {
      * review exams. This method calculates the counted unit exam scores, stores the unit exam weights, and the coupon
      * point values.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @throws SQLException if there is an error accessing the database
      */
-    private void calculateScore(final Cache cache) throws SQLException {
+    private void calculateScore(final StudentData studentData) throws SQLException {
 
         for (int unit = 0; unit <= this.maxUnit; ++unit) {
 
@@ -2020,12 +1998,15 @@ public final class StudentCourseStatus extends LogicBase {
                     grade = "U";
                 }
 
+                final Cache cache = studentData.getCache();
+
                 if (RawStcourseLogic.updateCompletedScoreGrade(cache, this.studentCourse.stuId,
                         this.studentCourse.course, this.studentCourse.sect, this.studentCourse.termKey, "Y", score,
                         grade)) {
 
                     this.studentCourse.completed = "Y";
                     this.studentCourse.score = score;
+                    studentData.forgetRegistrations();
                 }
 
                 Log.info("Marking course ", this.studentCourse.course, " as completed with score ",
@@ -2034,6 +2015,7 @@ public final class StudentCourseStatus extends LogicBase {
                 // Convert any one-term etext's purchased into permanent-access records
                 ETextLogic.courseCompleted(cache, this.studentCourse.stuId, this.studentCourse.course,
                         ZonedDateTime.now());
+                studentData.forgetStudentETexts();
             }
         }
     }
@@ -2042,14 +2024,17 @@ public final class StudentCourseStatus extends LogicBase {
      * Scans the homework for this course and set the availability of each based on pacing structure settings and
      * historical data.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkHomeworkAvailability(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private void checkHomeworkAvailability(final StudentData studentData, final ChronoZonedDateTime<LocalDate> now)
+            throws SQLException {
 
         final String studentId = this.student.stuId;
         final String pacing = this.pacingStructure.pacingStructure;
+
+        final SystemData systemData = studentData.getSystemData();
 
         // determine availability of each homework assignment
         final int numHw = this.homeworks.size();
@@ -2128,15 +2113,14 @@ public final class StudentCourseStatus extends LogicBase {
                 }
             }
 
-            final boolean skipUnitExams =
-                    RawSpecialStusLogic.isSpecialType(cache, studentId, now.toLocalDate(), "SKIP-UE")
-                            || !"Y".equals(this.pacingStructure.requireUnitExams);
+            final LocalDate today = now.toLocalDate();
+            final boolean skipUnitExams = studentData.isSpecialCategory(today, "SKIP-UE")
+                    || !"Y".equals(this.pacingStructure.requireUnitExams);
 
-            // If homework is only available if the prior unit exam has been done, test for the
-            // required unit exam, and if the homework is only available if the prior review exam
-            // has been done, test for the required review exam. However, if a student is
-            // authorized to skip unit exams based on a special student entry, override this
-            // condition.
+            // If homework is only available if the prior unit exam has been done, test for the required unit exam, and
+            // if the homework is only available if the prior review exam has been done, test for the required review
+            // exam. However, if a student is authorized to skip unit exams based on a special student entry, override
+            // this condition.
             if (unit == 1) {
                 final RawCusection gwSecUnit = getGatewaySectionUnit();
 
@@ -2153,7 +2137,7 @@ public final class StudentCourseStatus extends LogicBase {
             } else if (unit > 1 && !skipUnitExams) {
 
                 if (this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UE_MSTR)
                         && this.unitPassedExams[unit - 1] == 0) {
 
@@ -2161,7 +2145,7 @@ public final class StudentCourseStatus extends LogicBase {
                     this.homeworkReasons[i] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                     break;
                 } else if (this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UE_PASS)
                         && this.unitTotalExams[unit - 1] == 0) {
 
@@ -2169,7 +2153,7 @@ public final class StudentCourseStatus extends LogicBase {
                     this.homeworkReasons[i] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                     break;
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UR_MSTR)
                         && this.unitPassedReviews[unit - 1] == 0) {
 
@@ -2177,7 +2161,7 @@ public final class StudentCourseStatus extends LogicBase {
                     this.homeworkReasons[i] = this.reviewExams[unit - 1].buttonLabel + " not yet passed.";
                     break;
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UR_PASS)
                         && this.unitTotalReviews[unit - 1] == 0) {
 
@@ -2218,7 +2202,7 @@ public final class StudentCourseStatus extends LogicBase {
             // required homework.
 
             if (priorObj > 0) {
-                if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.HW_MSTR)) {
 
                     if (this.unitObjMasteredHw[priorUnit] != null
@@ -2228,7 +2212,7 @@ public final class StudentCourseStatus extends LogicBase {
                         this.homeworkAvailable[i] = false;
                         this.homeworkReasons[i] = "Prior assignment not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.HW_PASS)) {
 
                     if (this.unitObjTotalHw[unit] != null && this.unitObjTotalHw[priorUnit][priorObj - 1] > 0) {
@@ -2240,19 +2224,17 @@ public final class StudentCourseStatus extends LogicBase {
                 }
             }
 
-            // If this is the first objective of a unit, and the pacing structure indicates the
-            // first objective should be available regardless of prior homeworks, then indicate this
+            // If this is the first objective of a unit, and the pacing structure indicates the first objective should
+            // be available regardless of prior homeworks, then indicate this
             if ("Y".equals(this.pacingStructure.firstObjAvail) && obj == 1) {
                 this.homeworkAvailable[i] = true;
             }
 
-            // If the pacing structure requires student to view lecture before accessing HW, check
-            // that
+            // If the pacing structure requires student to view lecture before accessing HW, check that
 
-            if ((this.homeworkAvailable[i] && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+            if ((this.homeworkAvailable[i] && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                     RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.LECT_VIEWED))
-                    && !RawStcuobjectiveLogic.hasLectureBeenViewed(cache, studentId,
-                    this.homeworks.get(i).courseId, unitInt, objInt)) {
+                    && !studentData.hasLectureBeenViewed(this.homeworks.get(i).courseId, unitInt, objInt)) {
                 this.homeworkAvailable[i] = false;
                 this.homeworkReasons[i] = "Instructor Lecture not yet viewed.";
             }
@@ -2297,11 +2279,11 @@ public final class StudentCourseStatus extends LogicBase {
      * Scans the exams for this course and set the availability of each based on pacing structure settings and
      * historical data.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkExamAvailability(final Cache cache, final ZonedDateTime now)
+    private void checkExamAvailability(final StudentData studentData, final ZonedDateTime now)
             throws SQLException {
 
         final String studentId = this.student.stuId;
@@ -2347,10 +2329,10 @@ public final class StudentCourseStatus extends LogicBase {
                 }
             }
         } else if ("Y".equals(this.course.isTutorial)) {
-            checkTutorialExamAvailability(cache, now);
+            checkTutorialExamAvailability(studentData, now);
         } else {
-            checkReviewExamAvailability(cache, now);
-            checkProctoredExamAvailability(cache, now);
+            checkReviewExamAvailability(studentData, now);
+            checkProctoredExamAvailability(studentData, now);
         }
     }
 
@@ -2359,11 +2341,11 @@ public final class StudentCourseStatus extends LogicBase {
      * historical data, assuming the user is not a guest, a special user ID, a visiting user, and the course is a
      * tutorial.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkTutorialExamAvailability(final Cache cache, final ZonedDateTime now)
+    private void checkTutorialExamAvailability(final StudentData studentData, final ZonedDateTime now)
             throws SQLException {
 
         // Determine review exam availability
@@ -2405,9 +2387,11 @@ public final class StudentCourseStatus extends LogicBase {
             }
         }
 
+        final SystemData systemData = studentData.getSystemData();
+
         // Get the first and last dates in the term where students may work
-        final LocalDate termFirst = RawCampusCalendarLogic.getFirstClassDay(cache);
-        final LocalDate termLast = RawCampusCalendarLogic.getLastClassDay(cache);
+        final LocalDate termFirst = systemData.getFirstClassDay();
+        final LocalDate termLast = systemData.getLastClassDay();
 
         // Determine availability of unit/proctored exams in each unit
         for (int unit = 0; unit <= this.maxUnit; ++unit) {
@@ -2445,8 +2429,7 @@ public final class StudentCourseStatus extends LogicBase {
             }
 
             if (this.proctoredAvailable[unit]) {
-                // See if constraints on the number of attempts per passing review make the exam
-                // unavailable
+                // See if constraints on the number of attempts per passing review make the exam unavailable
 
                 final Integer perReview = sectionUnit.atmptsPerReview;
                 Integer total = sectionUnit.nbrAtmptsAllow;
@@ -2467,7 +2450,7 @@ public final class StudentCourseStatus extends LogicBase {
                     final String studentId = this.student.stuId;
                     final String courseId = this.course.course;
 
-                    final List<RawStexam> examsTaken = RawStexamLogic.getExams(cache, studentId,
+                    final List<RawStexam> examsTaken = studentData.getStudentExamsByCourseUnitType(
                             courseId, Integer.valueOf(unit), false, RawStexamLogic.UNIT_EXAM_TYPES);
                     final int taken = examsTaken.size();
 
@@ -2476,8 +2459,7 @@ public final class StudentCourseStatus extends LogicBase {
                     if (perReview == null) {
                         this.earnedProctored[unit] = Math.max(0, total.intValue() - taken);
                     } else {
-                        final int count = RawStexamLogic.countUnitSinceLastPassedReview(cache, studentId,
-                                courseId, Integer.valueOf(unit));
+                        final int count = studentData.countUnitSinceLastPassedReview(courseId, Integer.valueOf(unit));
                         this.earnedProctored[unit] = Math.max(0, perReview.intValue() - count);
                     }
 
@@ -2503,11 +2485,13 @@ public final class StudentCourseStatus extends LogicBase {
      * historical data, assuming the user is not a guest, a special user ID, a visiting user, and the course is not a
      * tutorial.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkReviewExamAvailability(final Cache cache, final ZonedDateTime now) throws SQLException {
+    private void checkReviewExamAvailability(final StudentData studentData, final ZonedDateTime now) throws SQLException {
+
+        final SystemData systemData = studentData.getSystemData();
 
         final String pacing = this.pacingStructure.pacingStructure;
         final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
@@ -2562,40 +2546,37 @@ public final class StudentCourseStatus extends LogicBase {
                 this.reviewAvailable[unit] = true;
             }
 
-            // Now we test whether the pacing structure constraints prevent the review exam from
-            // being available
+            // Now we test whether the pacing structure constraints prevent the review exam from being available
 
             if (unit > 1 && unit < this.unitExams.length) {
 
                 if (this.unitExams[unit - 1] != null
-                        && (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UE_MSTR)
-                        || RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM,
-                        RawPacingRulesLogic.TE_MSTR))
+                        || systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.TE_MSTR))
                         && this.unitPassedExams[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.unitExams[unit - 1] != null
-                        && (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UE_PASS)
-                        || RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM,
-                        RawPacingRulesLogic.TE_PASS))
+                        || systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.TE_PASS))
                         && this.unitTotalExams[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UR_MSTR)
                         && this.unitPassedReviews[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.reviewExams[unit - 1].buttonLabel + " not yet mastered.";
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UR_PASS)
                         && this.unitTotalReviews[unit - 1] == 0) {
 
@@ -2606,7 +2587,7 @@ public final class StudentCourseStatus extends LogicBase {
 
             if (unit < this.unitExams.length && this.reviewAvailable[unit]) {
 
-                if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.HW_MSTR)) {
 
                     final int numObj = this.unitObjMasteredHw[unit] == null ? 0
@@ -2616,7 +2597,7 @@ public final class StudentCourseStatus extends LogicBase {
                         this.reviewAvailable[unit] = false;
                         this.reviewReasons[unit] = "Unit required assignments not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.HW_PASS)) {
 
                     final int numObj = this.unitObjTotalHw[unit] == null ? 0 : this.unitObjTotalHw[unit].length;
@@ -2635,19 +2616,22 @@ public final class StudentCourseStatus extends LogicBase {
      * historical data, assuming the user is not a guest, a special user ID, a visiting user, and the course is not a
      * tutorial.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkProctoredExamAvailability(final Cache cache, final ZonedDateTime now) throws SQLException {
+    private void checkProctoredExamAvailability(final StudentData studentData, final ZonedDateTime now)
+            throws SQLException {
 
         final String pacing = this.pacingStructure.pacingStructure;
         final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
         final boolean isUncounted = "N".equals(this.studentCourse.iCounted);
 
+        final SystemData systemData = studentData.getSystemData();
+
         // Get the first and last dates in the term where students may work
-        final LocalDate termFirst = RawCampusCalendarLogic.getFirstClassDay(cache);
-        final LocalDate termLast = RawCampusCalendarLogic.getLastClassDay(cache);
+        final LocalDate termFirst = systemData.getFirstClassDay();
+        final LocalDate termLast = systemData.getLastClassDay();
         final LocalDate today = now.toLocalDate();
 
         // Determine availability of unit/proctored exams in each unit
@@ -2709,28 +2693,28 @@ public final class StudentCourseStatus extends LogicBase {
                 if (isFinal) {
 
                     if (this.unitExams[unit - 1] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                             RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_MSTR)
                             && this.unitPassedExams[unit - 1] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                     } else if (this.unitExams[unit - 1] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                             RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_PASS)
                             && this.unitTotalExams[unit - 1] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                     } else if (this.reviewExams[unit] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                             RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UR_MSTR)
                             && this.unitPassedReviews[unit] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet passed.";
                     } else if (this.reviewExams[unit] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                             RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UR_PASS)
                             && this.unitTotalReviews[unit] == 0) {
 
@@ -2738,34 +2722,34 @@ public final class StudentCourseStatus extends LogicBase {
                         this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet completed.";
                     }
                 } else if (unit > 0 && this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR)
                         && this.unitPassedExams[unit - 1] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                 } else if (unit > 0 && this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS)
                         && this.unitTotalExams[unit - 1] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.reviewExams[unit] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_MSTR)
                         && this.unitPassedReviews[unit] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet passed.";
                 } else if (this.reviewExams[unit] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS)
                         && this.unitTotalReviews[unit] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet completed.";
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_MSTR)) {
 
                     final int numObj = this.unitObjMasteredHw[unit] == null ? 0 : this.unitObjMasteredHw[unit].length;
@@ -2774,7 +2758,7 @@ public final class StudentCourseStatus extends LogicBase {
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = "Unit required assignments not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
                         RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_PASS)) {
 
                     final int numObj = this.unitObjTotalHw[unit] == null ? 0 : this.unitObjTotalHw[unit].length;
@@ -2807,8 +2791,8 @@ public final class StudentCourseStatus extends LogicBase {
                     final String studentId = this.student.stuId;
                     final String courseId = this.course.course;
 
-                    final List<RawStexam> examsTaken = RawStexamLogic.getExams(cache, studentId,
-                            courseId, Integer.valueOf(unit), false, RawStexamLogic.UNIT_EXAM_TYPES);
+                    final List<RawStexam> examsTaken = studentData.getStudentExamsByCourseUnitType(courseId,
+                            Integer.valueOf(unit), false, RawStexamLogic.UNIT_EXAM_TYPES);
                     final int taken = examsTaken.size();
 
                     this.allAttemptsUsed[unit] = total != null && taken >= total.intValue();
@@ -2816,8 +2800,7 @@ public final class StudentCourseStatus extends LogicBase {
                     if (perReview == null) {
                         this.earnedProctored[unit] = Math.max(0, total.intValue() - taken);
                     } else {
-                        final int count = RawStexamLogic.countUnitSinceLastPassedReview(cache,
-                                studentId, courseId, Integer.valueOf(unit));
+                        final int count = studentData.countUnitSinceLastPassedReview(courseId, Integer.valueOf(unit));
                         this.earnedProctored[unit] = Math.max(0, perReview.intValue() - count);
                     }
 
@@ -2979,19 +2962,21 @@ public final class StudentCourseStatus extends LogicBase {
 
             final LiveSessionInfo live = new LiveSessionInfo(
                     CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "None", ERole.STUDENT);
-            live.setUserInfo("888888888", "Test",
-                    "Student", "Test Student");
+
+            live.setUserInfo("888888888", "Test", "Student", "Test Student");
 
             final DbContext ctx = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
             try {
                 final DbConnection conn = ctx.checkOutConnection();
                 final Cache cache = new Cache(siteProfile.dbProfile, conn);
 
+                final SystemData systemData = new SystemData(cache);
+                final StudentData studentData = new StudentData(cache, systemData, "888888888", ELiveRefreshes.NONE);
+
                 try {
                     final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                    if (status.gatherData(cache, session, "888888888",
-                            RawRecordConstants.M117, false, false)) {
+                    if (status.gatherData(studentData, session, RawRecordConstants.M117, false, false)) {
 
                         final TermRec active = TermLogic.get(cache).queryActive(cache);
                         final RawPacingStructure pacing = status.pacingStructure;
@@ -3052,8 +3037,7 @@ public final class StudentCourseStatus extends LogicBase {
 
                             if (status.isReviewExamAvailable(i)) {
                                 Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") " +
-                                 "On-time: "
-                                        + status.isReviewPassedOnTime(i));
+                                        "On-time: " + status.isReviewPassedOnTime(i));
                             } else {
                                 Log.info(" Review Exam " + i + " unavailable (" + status.getReviewReason(i) + ")");
                             }
@@ -3079,7 +3063,7 @@ public final class StudentCourseStatus extends LogicBase {
                                         + " last try: " + status.getUnitExamLastTry(i));
                             } else {
                                 Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) +
-")");
+                                        ")");
                             }
                         }
                     } else {

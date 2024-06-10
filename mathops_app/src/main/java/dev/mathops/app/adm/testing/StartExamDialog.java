@@ -1,10 +1,10 @@
 package dev.mathops.app.adm.testing;
 
+import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
@@ -61,8 +61,8 @@ class StartExamDialog extends JDialog implements ActionListener {
     /** An action command. */
     private static final String CMD_CANCEL = "CANCEL";
 
-    /** The data cache. */
-    private final Cache cache;
+    /** The fixed data. */
+    private final FixedData fixed;
 
     /** The student ID. */
     private final String studentId;
@@ -88,7 +88,7 @@ class StartExamDialog extends JDialog implements ActionListener {
     /**
      * Constructs a new {@code StartExamDialog}.
      *
-     * @param theCache            the data cache
+     * @param theFixed            the fixed data
      * @param frame               the owning frame
      * @param theStudentId        the student ID
      * @param theCourseId         the course ID
@@ -96,13 +96,13 @@ class StartExamDialog extends JDialog implements ActionListener {
      * @param theExamId           the exam ID
      * @param theCheckEligibility true if the testing station should check eligibility; false if not
      */
-    StartExamDialog(final Cache theCache, final Frame frame, final String theStudentId,
+    StartExamDialog(final FixedData theFixed, final Frame frame, final String theStudentId,
                     final String theCourseId, final int theUnit, final String theExamId,
                     final boolean theCheckEligibility) {
 
         super(frame, "Issue Exam", ModalityType.APPLICATION_MODAL);
 
-        this.cache = theCache;
+        this.fixed = theFixed;
         this.studentId = theStudentId;
         this.courseId = theCourseId;
         this.unit = theUnit;
@@ -135,8 +135,8 @@ class StartExamDialog extends JDialog implements ActionListener {
     /**
      * Creates a header panel that shows the name of the exam being started.
      *
-     * @param course           the course
-     * @param unit             the unit
+     * @param course the course
+     * @param unit   the unit
      * @return the panel
      */
     private static JPanel makeHeader(final String course, final int unit) {

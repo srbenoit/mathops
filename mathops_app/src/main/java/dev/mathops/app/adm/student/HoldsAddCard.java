@@ -21,9 +21,11 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
 
 /**
  * A card within the "Holds" tab of the admin app that allows the user to add a new hold.
@@ -108,13 +110,20 @@ import java.time.Month;
         }
 
         // Generate the list of hold IDs with descriptions for the dropdown
-        final String[] holdIds = new String[this.fixed.holdTypes.size()];
-        int i = 0;
-        for (final RawHoldType type : this.fixed.holdTypes) {
-            holdIds[i] = type.holdId + ": "
-                    + RawAdminHoldLogic.getStaffMessage(type.holdId) + " ("
-                    + type.sevAdminHold + ")";
-            ++i;
+        String[] holdIds;
+        try {
+            final List<RawHoldType> holdTypes = theFixed.systemData.getHoldTypes();
+            holdIds = new String[holdTypes.size()];
+            int i = 0;
+            for (final RawHoldType type : holdTypes) {
+                holdIds[i] = type.holdId + ": "
+                        + RawAdminHoldLogic.getStaffMessage(type.holdId) + " ("
+                        + type.sevAdminHold + ")";
+                ++i;
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            holdIds = new String[0];
         }
 
         final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
@@ -258,11 +267,16 @@ import java.time.Month;
         }
 
         RawHoldType holdType = null;
-        for (final RawHoldType test : this.fixed.holdTypes) {
-            if (test.holdId.equals(selHoldId)) {
-                holdType = test;
-                break;
+        try {
+            final List<RawHoldType> holdTypes = this.fixed.systemData.getHoldTypes();
+            for (final RawHoldType test : holdTypes) {
+                if (test.holdId.equals(selHoldId)) {
+                    holdType = test;
+                    break;
+                }
             }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
         }
 
         if (holdType == null) {

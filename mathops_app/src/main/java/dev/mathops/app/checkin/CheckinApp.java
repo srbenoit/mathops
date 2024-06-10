@@ -12,6 +12,7 @@ import dev.mathops.db.logic.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -150,6 +151,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(this.dbProfile, conn);
 
+            final SystemData systemData = new SystemData(cache);
+
             try {
                 // Clear out old Java font files from the temporary directory.
                 TempFileCleaner.clean();
@@ -161,7 +164,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
                 // Before we begin, we initialize checkin logic. This provides a quick validation that our database
                 // connection is working.
-                final LogicCheckIn logic = new LogicCheckIn(cache, now);
+                final LogicCheckIn logic = new LogicCheckIn(systemData, now);
 
                 // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
                 // everything else on the desktop. All windows this application creates will be children of this

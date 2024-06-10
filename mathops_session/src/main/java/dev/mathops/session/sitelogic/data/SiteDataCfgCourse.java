@@ -1,10 +1,8 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -40,20 +38,20 @@ public final class SiteDataCfgCourse {
     /**
      * Constructs a new {@code SiteDataCfgCourse}.
      *
-     * @param cache      the data cache
+     * @param systemData the system data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term key in which the course was taken
      * @param siteData   the site data, from which some data may be retrieved without doing new queries
      * @throws SQLException if there is an error accessing the database
      */
-    SiteDataCfgCourse(final Cache cache, final String courseId, final String sectionNum,
+    SiteDataCfgCourse(final SystemData systemData, final String courseId, final String sectionNum,
                       final TermKey termKey, final SiteData siteData) throws SQLException {
 
         this.owner = siteData;
 
-        final RawCourse theCourse = RawCourseLogic.query(cache, courseId);
-        final RawCsection theSect = loadCourseSection(courseId, sectionNum, termKey);
+        final RawCourse theCourse = systemData.getCourse(courseId);
+        final RawCsection theSect = loadCourseSection(systemData, courseId, sectionNum, termKey);
 
         if (theCourse == null || theSect == null) {
             this.course = null;
@@ -64,14 +62,12 @@ public final class SiteDataCfgCourse {
             this.courseSection = theSect;
             if (this.courseSection.pacingStructure == null) {
                 if (!"550".equals(this.courseSection.sect)) {
-                    Log.warning("NO RULE SET FOR COURSE ",
-                            this.courseSection.course, ", SECT ",
+                    Log.warning("NO RULE SET FOR COURSE ", this.courseSection.course, ", SECT ",
                             this.courseSection.sect);
                 }
                 this.pacingStructure = null;
             } else {
-                this.pacingStructure =
-                        RawPacingStructureLogic.query(cache, this.courseSection.pacingStructure);
+                this.pacingStructure = systemData.getPacingStructure(this.courseSection.pacingStructure, termKey);
             }
         }
 
@@ -81,14 +77,17 @@ public final class SiteDataCfgCourse {
     /**
      * Loads the course section record (or fetches it from existing data if already loaded).
      *
+     * @param systemData the system data object
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term in which the course was taken
      * @return the loaded course record; {@code null} on error
+     * @throws SQLException if there is an error accessing the database
      */
-    private RawCsection loadCourseSection(final String courseId, final String sectionNum, final TermKey termKey) {
+    private RawCsection loadCourseSection(final SystemData systemData, final String courseId, final String sectionNum,
+                                          final TermKey termKey) throws SQLException {
 
-        final RawCsection result = this.owner.contextData.getCourseSection(courseId, sectionNum, termKey);
+        final RawCsection result = systemData.getCourseSection(courseId, sectionNum, termKey);
 
         if (result == null) {
             this.owner.setError("Unable to query for course " + courseId + " section " + sectionNum + " in term "

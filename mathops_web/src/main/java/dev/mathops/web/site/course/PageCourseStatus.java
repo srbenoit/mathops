@@ -158,7 +158,7 @@ enum PageCourseStatus {
 
         // Show incomplete status if this is an incomplete.
         if (reg.iTermKey != null) {
-            final TermRec incTerm = logic.data.registrationData.getRegistrationTerm(courseId, sect);
+            final TermRec incTerm = logic.data.siteRegistrationData.getRegistrationTerm(courseId, sect);
 
             htm.sDiv("indent11");
             htm.sP("red");
@@ -168,13 +168,13 @@ enum PageCourseStatus {
             htm.eDiv();
         }
 
-        final SiteDataCourse courseData = logic.data.courseData;
+        final SiteDataCourse courseData = logic.data.siteCourseData;
         final SiteDataCfgCourse cfgCourse = courseData.getCourse(courseId, sect);
         final Integer maxUnit = courseData.getMaxUnit(courseId);
         int numStandards = 0;
 
         if (cfgCourse != null && maxUnit != null) {
-            final SiteDataStatus status = logic.data.statusData;
+            final SiteDataStatus status = logic.data.siteStatusData;
 
             htm.sDiv("indent22");
             htm.addln("<details open>");

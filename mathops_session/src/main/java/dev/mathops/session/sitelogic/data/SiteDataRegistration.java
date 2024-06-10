@@ -4,10 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
-import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -21,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
@@ -270,22 +267,24 @@ public final class SiteDataRegistration {
      * records, all pace track rules, the {@code SiteDataContext} object, the {@code SiteDataStudent} object, and the
      * {@code SiteDataProfile} object.
      *
-     * @param cache   the data cache
-     * @param session the login session
+     * @param studentData the student data object
+     * @param session     the login session
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    boolean loadData(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
+    boolean loadData(final StudentData studentData, final ImmutableSessionInfo session) throws SQLException {
 
-        this.active = TermLogic.get(cache).queryActive(cache);
+        final SystemData sysData = studentData.getSystemData();
 
-        final String studentId = this.owner.studentData.getStudent().stuId;
+        this.active = sysData.getActiveTerm();
 
-        final boolean b1 = loadRegistrations(cache, studentId);
+        final String studentId = this.owner.siteStudentData.getStudent().stuId;
 
-        this.transferCredit = RawFfrTrnsLogic.queryByStudent(cache, studentId);
+        final boolean b1 = loadRegistrations(studentData);
 
-        final boolean b2 = buildSpecialStuRegs(cache, session);
+        this.transferCredit = studentData.getTransferCredit();
+
+        final boolean b2 = buildSpecialStuRegs(sysData, session);
 
         boolean success = b1 && b2;
 
@@ -295,17 +294,17 @@ public final class SiteDataRegistration {
             // Allocate arrays
             this.prereqs = new ArrayList<>(numCourses);
 
-            final boolean b5 = loadCoursePrereqs(cache);
-            final boolean b6 = checkPrerequisites(cache);
-            final boolean b7 = loadPaceRegistrations(cache);
-            final boolean b8 = determineStudentRuleSet(cache);
-            final boolean b9 = determinePaceTrack(cache);
+            final boolean b5 = loadCoursePrereqs(sysData);
+            final boolean b6 = checkPrerequisites(studentData);
+            final boolean b7 = loadPaceRegistrations(studentData);
+            final boolean b8 = determineStudentRuleSet(studentData);
+            final boolean b9 = determinePaceTrack(studentData);
 
             success = b5 && b6 && b7 && b8 && b9;
 
             // Determine whether the student may work in paced and non-paced, only non-paced, or
             // neither based on hold status
-            final SiteDataStudent stuData = this.owner.studentData;
+            final SiteDataStudent stuData = this.owner.siteStudentData;
 
             final RawStudent stu = stuData.getStudent();
             if ("F".equals(stu.sevAdminHold)) {
@@ -348,21 +347,23 @@ public final class SiteDataRegistration {
      * Loads all completed course records (regardless of term) for a student, as well as all current term records that
      * have not been dropped. This will include "ignored" records.
      *
-     * @param cache     the data cache
-     * @param studentId the ID of the student
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadRegistrations(final Cache cache, final String studentId) throws SQLException {
+    private boolean loadRegistrations(final StudentData studentData) throws SQLException {
 
         final boolean success = true;
 
         // Load all courses marked as completed (for all terms), that are not credit by exam, used for testing
         // prerequisites (we store credit by exam elsewhere)
-        final List<RawStcourse> allPastAndCurrent = RawStcourseLogic.queryByStudent(cache, studentId, false, false);
+        final List<RawStcourse> allPastAndCurrent = studentData.getNonDroppedRegistrations();
 
         this.allCompletedCourses = new ArrayList<>(allPastAndCurrent.size());
         for (final RawStcourse past : allPastAndCurrent) {
+            if ("OT".equals(past.instrnType)) {
+                continue;
+            }
             if ("Y".equals(past.completed)) {
                 this.allCompletedCourses.add(past);
             }
@@ -370,11 +371,12 @@ public final class SiteDataRegistration {
 
         // Now load current term registrations, but discard any "dropped" (keep those forfeit)
 
-        final List<RawStcourse> curTermReg =
-                RawStcourseLogic.queryByStudent(cache, studentId, this.active.term, true, false);
+        final List<RawStcourse> curTermReg = studentData.getActiveRegistrations(this.active.term, true);
 
         this.registrations = new ArrayList<>(curTermReg.size());
         this.registrationTerms = new ArrayList<>(curTermReg.size());
+
+        final SystemData sysData = studentData.getSystemData();
 
         for (final RawStcourse cur : curTermReg) {
 
@@ -397,8 +399,9 @@ public final class SiteDataRegistration {
             if (cur.iTermKey == null) {
                 this.registrationTerms.add(this.active);
             } else {
+
                 // Load the term in which the incomplete was earned
-                final TermRec incTerm = TermLogic.get(cache).query(cache, cur.iTermKey);
+                final TermRec incTerm = sysData.getTerm(cur.iTermKey);
 
                 if (incTerm == null) {
                     Log.warning("Unable to query I term - using current");
@@ -410,22 +413,22 @@ public final class SiteDataRegistration {
             }
 
             if ("Y".equals(cur.iInProgress)) {
-                this.owner.courseData.addCourse(cache, cur.course, cur.sect, cur.iTermKey);
+                this.owner.siteCourseData.addCourse(sysData, cur.course, cur.sect, cur.iTermKey);
             } else {
-                this.owner.courseData.addCourse(cache, cur.course, cur.sect, cur.termKey);
+                this.owner.siteCourseData.addCourse(sysData, cur.course, cur.sect, cur.termKey);
             }
         }
 
         // Finally, go through all the student's current and past registrations, and see which courses they have access
         // to via a purchased e-text. For each such course, load the course information.
-        final String[] courseIds = this.owner.studentData.getEtextCourseIds();
+        final String[] courseIds = this.owner.siteStudentData.getEtextCourseIds();
         outer:
         for (final String courseId : courseIds) {
 
             // Add current registrations first, so we get the current section number
             for (final RawStcourse test : this.registrations) {
                 if (courseId.equals(test.course)) {
-                    this.owner.courseData.addCourse(cache, test.course, test.sect, test.termKey);
+                    this.owner.siteCourseData.addCourse(sysData, test.course, test.sect, test.termKey);
                     continue outer;
                 }
             }
@@ -448,7 +451,7 @@ public final class SiteDataRegistration {
 //                        sect = "801";
 //                    }
 
-                    this.owner.courseData.addCourse(cache, test.course, test.sect, test.termKey);
+                    this.owner.siteCourseData.addCourse(sysData, test.course, test.sect, test.termKey);
                     break;
                 }
             }
@@ -461,12 +464,12 @@ public final class SiteDataRegistration {
      * Scans the special student categories and installs synthetic student course records to grant course access to
      * certain special categories.
      *
-     * @param cache   the data cache
-     * @param session the login session
+     * @param systemData the system data object
+     * @param session    the login session
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean buildSpecialStuRegs(final Cache cache, final ImmutableSessionInfo session)
+    private boolean buildSpecialStuRegs(final SystemData systemData, final ImmutableSessionInfo session)
             throws SQLException {
 
         boolean addSpecials = false;
@@ -474,7 +477,7 @@ public final class SiteDataRegistration {
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             addSpecials = true;
         } else {
-            final List<RawSpecialStus> specials = this.owner.studentData.getSpecialStudents();
+            final List<RawSpecialStus> specials = this.owner.siteStudentData.getSpecialStudents();
 
             for (final RawSpecialStus spec : specials) {
                 final String type = spec.stuType;
@@ -508,12 +511,11 @@ public final class SiteDataRegistration {
 
                 // Make a synthetic registration for it - try section 001 first, section 401 next, then take any
                 // section we can get
-                RawCsection sect = this.owner.contextData.getCourseSection(courseId, "001", this.active.term);
+                RawCsection sect = systemData.getCourseSection(courseId, "001", this.active.term);
                 if (sect == null) {
-                    sect = this.owner.contextData.getCourseSection(courseId, "401", this.active.term);
+                    sect = systemData.getCourseSection(courseId, "401", this.active.term);
                     if (sect == null) {
-                        final List<RawCsection> all = this.owner.contextData.getAllCourseSections(courseId,
-                                this.active.term);
+                        final List<RawCsection> all = systemData.getCourseSectionsByCourse(courseId, this.active.term);
                         if (all != null && !all.isEmpty()) {
                             sect = all.getFirst();
                         }
@@ -521,10 +523,11 @@ public final class SiteDataRegistration {
                 }
 
                 if (sect != null) {
-                    SiteDataCfgCourse cfgCourse = this.owner.courseData.getCourse(courseId, sect.sect);
+                    SiteDataCfgCourse cfgCourse = this.owner.siteCourseData.getCourse(courseId, sect.sect);
 
                     if (cfgCourse == null) {
-                        cfgCourse = this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
+                        cfgCourse = this.owner.siteCourseData.addCourse(systemData, courseId, sect.sect,
+                                this.active.term);
                     }
 
                     if (cfgCourse != null && cfgCourse.courseSection != null) {
@@ -536,7 +539,7 @@ public final class SiteDataRegistration {
                             ++paceOrder;
                             this.registrationTerms.add(this.active);
 
-                            this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
+                            this.owner.siteCourseData.addCourse(systemData, courseId, sect.sect, this.active.term);
                             break;
                         }
                     }
@@ -559,7 +562,7 @@ public final class SiteDataRegistration {
     private RawStcourse makeSyntheticReg(final String courseId, final String sectionNum, final int paceOrder) {
 
         final RawStcourse result =
-                new RawStcourse(this.active.term, this.owner.studentData.getStudent().stuId, courseId, sectionNum,
+                new RawStcourse(this.active.term, this.owner.siteStudentData.getStudent().stuId, courseId, sectionNum,
                         Integer.valueOf(paceOrder), "Y", null, "N", null, null, "Y", "N", "N", "N", null, null, null,
                         null, "N", null, null, null, null, "RI", null, null, null, null);
 
@@ -571,16 +574,16 @@ public final class SiteDataRegistration {
     /**
      * Populates course prerequisite records for all student registrations.
      *
-     * @param cache the data cache
+     * @param systemData the system data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadCoursePrereqs(final Cache cache) throws SQLException {
+    private boolean loadCoursePrereqs(final SystemData systemData) throws SQLException {
 
         final boolean success = true;
 
         for (final RawStcourse registration : this.registrations) {
-            this.prereqs.add(RawPrereqLogic.getPrerequisitesByCourse(cache, registration.course));
+            this.prereqs.add(systemData.getPrerequisitesByCourse(registration.course));
         }
 
         return success;
@@ -590,11 +593,11 @@ public final class SiteDataRegistration {
      * Tests the prerequisite on a course registration which was not already flagged as having its prerequisites
      * satisfied.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if process succeeded; {@code false} on error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean checkPrerequisites(final Cache cache) throws SQLException {
+    private boolean checkPrerequisites(final StudentData studentData) throws SQLException {
 
         final boolean success = true;
 
@@ -625,7 +628,7 @@ public final class SiteDataRegistration {
 
             if (!prereq) {
                 // See if there is a placement result satisfying prerequisite
-                final List<RawMpeCredit> placeCred = this.owner.studentData.getStudentPlacementCredit();
+                final List<RawMpeCredit> placeCred = this.owner.siteStudentData.getStudentPlacementCredit();
                 outer:
                 for (final String coursePrereq : coursePrereqs) {
                     for (final RawMpeCredit cred : placeCred) {
@@ -651,6 +654,7 @@ public final class SiteDataRegistration {
             }
 
             if (prereq) {
+                final Cache cache = studentData.getCache();
                 if (RawStcourseLogic.updatePrereqSatisfied(cache, stcourse.stuId, stcourse.course,
                         stcourse.sect, stcourse.termKey, "Y")) {
                     stcourse.prereqSatis = "Y";
@@ -669,11 +673,11 @@ public final class SiteDataRegistration {
      * Scans the list of student registrations, and uses course section data to determine which are included in the
      * student's pace, compiling a separate list of pace registrations.
      *
-     * @param cache the data
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadPaceRegistrations(final Cache cache) throws SQLException {
+    private boolean loadPaceRegistrations(final StudentData studentData) throws SQLException {
 
         final int count = this.registrations.size();
         final List<RawStcourse> paceReg = new ArrayList<>(count);
@@ -687,12 +691,15 @@ public final class SiteDataRegistration {
             }
 
             // Call this now, so we load the course data, even if it's an incomplete
+            final SystemData sysData = studentData.getSystemData();
 
             final SiteDataCfgCourse coursedata;
             if ("Y".equals(stcourse.iInProgress) && stcourse.iTermKey != null) {
-                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, stcourse.iTermKey);
+                coursedata = this.owner.siteCourseData.getCourse(sysData, stcourse.course, stcourse.sect,
+                        stcourse.iTermKey);
             } else {
-                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, this.active.term);
+                coursedata = this.owner.siteCourseData.getCourse(sysData, stcourse.course, stcourse.sect,
+                        this.active.term);
             }
 
             // Placement-credit and forfeit registrations are not included in pace
@@ -708,7 +715,7 @@ public final class SiteDataRegistration {
             } else if (stcourse.paceOrder != null) {
                 // Does not count toward pace, so make sure it has no pace order
                 Log.info("loadPaceRegistrations setting ", stcourse.course, " pace order to null for ", stcourse.stuId);
-                updatePaceOrder(cache, stcourse, null);
+                updatePaceOrder(studentData, stcourse, null);
                 this.registrations.set(i, stcourse);
             }
         }
@@ -724,14 +731,16 @@ public final class SiteDataRegistration {
      * Scans the registrations that fall within this context, and see if they have a consistent rule set. If so, set
      * that as the student rule set. If not, store a default rule set.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if process succeeded; {@code false} on error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean determineStudentRuleSet(final Cache cache) throws SQLException {
+    private boolean determineStudentRuleSet(final StudentData studentData) throws SQLException {
 
         final Map<String, RawPacingStructure> ruleSets = new TreeMap<>();
         boolean success = true;
+
+        final SystemData sysData = studentData.getSystemData();
 
         for (final RawStcourse stcourse : this.registrations) {
             // Placement-credit, forfeit registrations, and incompletes are not considered
@@ -744,9 +753,11 @@ public final class SiteDataRegistration {
             final SiteDataCfgCourse coursedata;
 
             if ("Y".equals(stcourse.iInProgress) && stcourse.iTermKey != null) {
-                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, stcourse.iTermKey);
+                coursedata = this.owner.siteCourseData.getCourse(sysData, stcourse.course, stcourse.sect,
+                        stcourse.iTermKey);
             } else {
-                coursedata = this.owner.courseData.getCourse(cache, stcourse.course, stcourse.sect, this.active.term);
+                coursedata = this.owner.siteCourseData.getCourse(sysData, stcourse.course, stcourse.sect,
+                        this.active.term);
             }
 
             final RawPacingStructure ruleSet = coursedata.pacingStructure;
@@ -757,25 +768,31 @@ public final class SiteDataRegistration {
 
         if (ruleSets.size() == 1) {
             final List<RawPacingStructure> set = new ArrayList<>(ruleSets.values());
-            this.owner.studentData.setStudentPacingStructure(set.get(0));
+            final RawPacingStructure newPacing = set.get(0);
 
-            final RawStudent student = this.owner.studentData.getStudent();
+            this.owner.siteStudentData.setStudentPacingStructure(newPacing);
+
+            final RawStudent student = this.owner.siteStudentData.getStudent();
             if (student.pacingStructure == null) {
                 // Update the rule set ID in the database
-                RawStudentLogic.updatePacingStructure(cache, student.stuId, set.get(0).pacingStructure);
+                final Cache cache = studentData.getCache();
+                RawStudentLogic.updatePacingStructure(cache, student.stuId, newPacing.pacingStructure);
+                student.pacingStructure = newPacing.pacingStructure;
             }
         }
 
-        if (this.owner.studentData.getStudentPacingStructure() == null) {
+        if (this.owner.siteStudentData.getStudentPacingStructure() == null) {
+            final TermRec activeTerm = sysData.getActiveTerm();
+
             // Query for the default rule set
-            final RawPacingStructure record =
-                    RawPacingStructureLogic.query(cache, RawPacingStructure.DEF_PACING_STRUCTURE);
+            final RawPacingStructure record = sysData.getPacingStructure(RawPacingStructure.DEF_PACING_STRUCTURE,
+                activeTerm.term);
 
             if (record == null) {
                 this.owner.setError("Unable to query for default rule set " + RawPacingStructure.DEF_PACING_STRUCTURE);
                 success = false;
             } else {
-                this.owner.studentData.setStudentPacingStructure(record);
+                this.owner.siteStudentData.setStudentPacingStructure(record);
             }
         }
 
@@ -785,11 +802,11 @@ public final class SiteDataRegistration {
     /**
      * Determines the student's pace track and updates/verifies the student term record.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean determinePaceTrack(final Cache cache) throws SQLException {
+    private boolean determinePaceTrack(final StudentData studentData) throws SQLException {
 
         final boolean success;
 
@@ -798,7 +815,7 @@ public final class SiteDataRegistration {
 
         // If no rules matched, assign the default track based on the student's rule set
         if (track == null) {
-            final RawPacingStructure pacingstructure = this.owner.studentData.getStudentPacingStructure();
+            final RawPacingStructure pacingstructure = this.owner.siteStudentData.getStudentPacingStructure();
             track = pacingstructure == null ? "A" : pacingstructure.defPaceTrack;
         }
 
@@ -811,21 +828,23 @@ public final class SiteDataRegistration {
 
             // If there is a student term record, validate it; if not, create it
             final String key = this.active.term.shortString;
-            final RawStterm stTerm = this.owner.milestoneData.getStudentTerm(key);
+            final RawStterm stTerm = this.owner.siteMilestoneData.getStudentTerm(key);
 
             if (stTerm == null) {
-                // No record exists - create one and store in database (if we have data to
-                // insert)
+                // No record exists - create one and store in database (if we have data to insert)
 
                 if (pace > 0) {
                     final TermRec term = this.active;
                     final RawStterm model =
-                            new RawStterm(term.term, this.owner.studentData.getStudent().stuId,
+                            new RawStterm(term.term, this.owner.siteStudentData.getStudent().stuId,
                                     Integer.valueOf(pace), track, first, null, null, null);
 
+                    final Cache cache = studentData.getCache();
                     RawSttermLogic.INSTANCE.insert(cache, model);
+                    studentData.forgetStudentTerm();
+
                     // Now, refresh the milestone object's data, so it's current
-                    this.owner.milestoneData.preload(cache);
+                    this.owner.siteMilestoneData.preload(studentData);
                 }
                 success = true;
             } else // Record exists - verify its contents, and update if needed
@@ -842,8 +861,10 @@ public final class SiteDataRegistration {
                         t = track;
                     }
 
-                    success = RawSttermLogic.updatePaceTrackFirstCourse(cache, stTerm.stuId,
-                            stTerm.termKey, pace, t, first);
+                    final Cache cache = studentData.getCache();
+                    success = RawSttermLogic.updatePaceTrackFirstCourse(cache, stTerm.stuId, stTerm.termKey, pace, t,
+                            first);
+                    studentData.forgetStudentTerm();
                 }
         }
 

@@ -20,6 +20,7 @@ import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
@@ -51,6 +52,7 @@ import dev.mathops.db.old.rawrecord.RawStcuobjective;
 import dev.mathops.db.old.rawrecord.RawStetext;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStmpe;
@@ -76,6 +78,7 @@ import dev.mathops.db.type.TermKey;
 import java.sql.SQLException;
 import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +172,9 @@ public final class StudentData {
     /** The list of all homework attempts on record for this student. */
     private List<RawSthomework> studentHomeworks = null;
 
+    /** The list of all homework attempt answers on record for this student. */
+    private List<RawSthwqa> studentHomeworkAnswers = null;
+
     /** The list of all course unit status objects  for this student. */
     private List<RawStcunit> studentCourseUnits = null;
 
@@ -202,17 +208,13 @@ public final class StudentData {
     /**
      * Constructs a new {@code StudentData}.
      *
-     * @param theCache         the cache
      * @param theSystemData    the associated system data
      * @param theStudentId     the student ID
      * @param theLiveRefreshes true if live student data should be queried;
      */
-    public StudentData(final Cache theCache, final SystemData theSystemData, final String theStudentId,
+    public StudentData(final SystemData theSystemData, final String theStudentId,
                        final ELiveRefreshes theLiveRefreshes) {
 
-        if (theCache == null) {
-            throw new IllegalArgumentException("Cache may not be null");
-        }
         if (theSystemData == null) {
             throw new IllegalArgumentException("System data may not be null");
         }
@@ -223,7 +225,7 @@ public final class StudentData {
             throw new IllegalArgumentException("Live refreshes setting may not be null");
         }
 
-        this.cache = theCache;
+        this.cache = theSystemData.getCache();
         this.systemData = theSystemData;
         this.studentId = theStudentId;
         this.liveRefreshes = theLiveRefreshes;
@@ -294,8 +296,13 @@ public final class StudentData {
     public RawStudent getStudentRecord() throws SQLException {
 
         if (this.studentRecord == null) {
-            if ("GUEST".equals(this.studentId) || "AACTUTOR".equals(this.studentId) || "ETEXT".equals(this.studentId)) {
-                this.studentRecord = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+            if ("GUEST".equals(this.studentId)) {
+                this.studentRecord = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "Guest");
+            } else if ("AACTUTOR".equals(this.studentId) || "ETEXT".equals(this.studentId)) {
+                this.studentRecord = RawStudentLogic.makeFakeStudent(this.studentId, CoreConstants.EMPTY, "Tutor");
+            } else if ("BOOKSTORE".equals(this.studentId)) {
+                this.studentRecord = RawStudentLogic.makeFakeStudent(this.studentId, CoreConstants.EMPTY,
+                        "Bookstore Staff");
             } else if (this.liveRefreshes == ELiveRefreshes.ALL) {
                 this.studentRecord = RawStudentLogic.query(this.cache, this.studentId, true);
             } else {
@@ -358,6 +365,28 @@ public final class StudentData {
         }
 
         return this.holds;
+    }
+
+    /**
+     * Retrieves a single hold from teh student's account.
+     *
+     * @param holdId the hold ID
+     * @return the hold, if found; null if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawAdminHold getHold(final String holdId) throws SQLException {
+
+        final List<RawAdminHold> all = getHolds();
+        RawAdminHold result = null;
+
+        for (final RawAdminHold test : all) {
+            if (test.holdId.equals(holdId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -479,6 +508,14 @@ public final class StudentData {
         }
 
         return this.pendingExams;
+    }
+
+    /**
+     * Forgets pending exams, forcing a re-query on next access.
+     */
+    public void forgetPendingExams() {
+
+        this.pendingExams = null;
     }
 
     /**
@@ -660,6 +697,46 @@ public final class StudentData {
     }
 
     /**
+     * Counts placement attempts for a particular version.
+     *
+     * @param version the version of the exam
+     * @return A 2-integer array, where [0] contains the number of legal online attempts, and [1] contains the number of
+     *         legal proctored attempts; or {@code null} on any error
+     * @throws SQLException if there is an error accessing the database
+     */
+    public int[] countLegalAttempts(final String version) throws SQLException {
+
+        final int[] result;
+
+        if (this.studentId.startsWith("99")) {
+            result = RawStmpeLogic.countTestStudentLegalAttempts(this.studentId, version);
+        } else {
+            int numOnline = 0;
+            int numProctored = 0;
+
+            final List<RawStmpe> all = getLegalPlacementAttempts();
+            for (final RawStmpe test : all) {
+                if (test.version.equals(version)) {
+                    final String placed = test.placed;
+                    if ("Y".equals(placed) || "N".equals(placed)) {
+                        final String howValidated = test.howValidated;
+
+                        if ("P".equals(howValidated) || "C".equals(howValidated)) {
+                            ++numProctored;
+                        } else {
+                            ++numOnline;
+                        }
+                    }
+                }
+            }
+
+            result = new int[]{numOnline, numProctored};
+        }
+
+        return result;
+    }
+
+    /**
      * Forgets placement attempts, forcing a re-query on next access.
      */
     public void forgetPlacementAttempts() {
@@ -768,6 +845,58 @@ public final class StudentData {
     }
 
     /**
+     * Counts all legal challenge attempts for a given course ID (there normally should be 0 or 1).
+     *
+     * @param course the course ID for which to query
+     * @return the number of legal attempts
+     * @throws SQLException if there is an error performing the query
+     */
+    public int countLegalChallengeAttempts(final String course) throws SQLException {
+
+        int result = 0;
+
+        final String stuId = getStudentId();
+
+        if (stuId.startsWith("99")) {
+
+            final char ch5 = stuId.charAt(4);
+            final char ch6 = stuId.charAt(5);
+
+            if (ch5 == 'C' && ch6 == 'H') {
+                final String test = stuId.substring(6);
+
+                result = switch (test) {
+                    case "019" -> RawRecordConstants.M117.equals(course) ? 1 : 0;
+                    case "026" -> RawRecordConstants.M118.equals(course) ? 1 : 0;
+                    case "036" -> RawRecordConstants.M124.equals(course) ? 1 : 0;
+                    case "046" -> RawRecordConstants.M125.equals(course) ? 1 : 0;
+                    case "056" -> RawRecordConstants.M126.equals(course) ? 1 : 0;
+                    default -> 0;
+                };
+            }
+        } else {
+            final List<RawStchallenge> all = getChallengeExamsByCourse(course);
+
+            for (final RawStchallenge test : all) {
+                final String passed = test.passed;
+                if ("Y".equals(passed) || "N".equals(passed)) {
+                    ++result;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Forgets challenge exams, forcing a re-query on next access.
+     */
+    public void forgetChallengeExams() {
+
+        this.challengeExams = null;
+    }
+
+    /**
      * Gets the list of all placement attempts on record for the student.
      *
      * @return the list of placement attempts
@@ -816,6 +945,14 @@ public final class StudentData {
         }
 
         return result;
+    }
+
+    /**
+     * Forgets survey responses, forcing a re-query on next access.
+     */
+    public void forgetSurveyResponses() {
+
+        this.surveyResponses = null;
     }
 
     /**
@@ -869,10 +1006,12 @@ public final class StudentData {
      * "D" or "G".  It includes registrations in "OT" sections (challenge credit).
      *
      * @param term the term key
+     * @param includeForfeit true to include courses marked with open_status='G'
      * @return the list of registrations
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawStcourse> getActiveRegistrations(final TermKey term) throws SQLException {
+    public List<RawStcourse> getActiveRegistrations(final TermKey term, final boolean includeForfeit)
+            throws SQLException {
 
         final List<RawStcourse> all = getRegistrations();
 
@@ -880,12 +1019,12 @@ public final class StudentData {
         for (final RawStcourse test : all) {
             if (test.termKey.equals(term)) {
                 final String openStatus = test.openStatus;
-
-                if ("D".equals(openStatus) || "G".equals(openStatus)) {
+                if ("D".equals(openStatus)) {
                     continue;
                 }
-
-                active.add(test);
+                if (includeForfeit || !"G".equals(openStatus)) {
+                    active.add(test);
+                }
             }
         }
 
@@ -1024,6 +1163,31 @@ public final class StudentData {
     }
 
     /**
+     * Retrieves all student registration records that represent credit by exam.
+     *
+     * @return the list of matching exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawStcourse> getCreditByExam() throws SQLException {
+
+        final List<RawStcourse> all = getRegistrations();
+        final List<RawStcourse> result = new ArrayList<>(5);
+
+        // FIXME: Why "F" and "M" below?
+
+        for (final RawStcourse test : all) {
+            if ("OT".equals(test.instrnType)) {
+                final String placed = test.examPlaced;
+                if ("F".equals(placed) || "M".equals(placed)) {
+                    result.add(test);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Forgets student registrations, forcing a re-query on next access.
      */
     public void forgetRegistrations() {
@@ -1086,6 +1250,7 @@ public final class StudentData {
 
         if (this.studentExams == null) {
             this.studentExams = RawStexamLogic.queryByStudent(this.cache, this.studentId, true);
+            this.studentExams.sort(new RawStexam.FinishDateTimeComparator());
         }
 
         return this.studentExams;
@@ -1218,6 +1383,67 @@ public final class StudentData {
     }
 
     /**
+     * Scans all student exams in a course and unit and returns the first passing attempt.
+     *
+     * @param course the course ID
+     * @param unit the unit
+     * @param type the exam type
+     * @return the first passing exam of the specified type in the specified course and unit; null if no passing attempt
+     * was found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawStexam getFirstPassingStudentExam(final String course, final Integer unit, final String type)
+            throws SQLException {
+
+        final List<RawStexam> all = getStudentExams();
+        RawStexam result = null;
+
+        for (final RawStexam test : all) {
+            if (test.course.equals(course) && test.unit.equals(unit) && test.examType.equals(type)
+                    && "Y".equals(test.passed)) {
+
+                if (result == null || result.getFinishDateTime().isAfter(test.getFinishDateTime())) {
+                    result = test;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the number of unit exam attempts taken by a student in a course and unit since the last passing review
+     * exam.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @return the number of unit exam attempts that were found since the most recent passing review exam
+     * @throws SQLException if there is an error accessing the database
+     */
+    public int countUnitSinceLastPassedReview(final String course, final Integer unit) throws SQLException {
+
+        // We rely on the following to generate a list sorted by finish date/time...
+        final List<RawStexam> all = getStudentExamsByCourseUnitType(course, unit, false, RawStexamLogic.ALL_EXAM_TYPES);
+
+        int tries = 0;
+
+        for (int i = all.size() - 1; i >= 0; --i) {
+            final RawStexam test = all.get(i);
+
+            if ("U".equals(test.examType)) {
+                ++tries;
+            }
+            if ("R".equals(test.examType) && "Y".equals(test.passed)) {
+                break;
+            }
+        }
+
+        return tries;
+    }
+
+
+
+    /**
      * Forgets student exams. forcing a re-query on next access.
      */
     public void forgetStudentExams() {
@@ -1226,9 +1452,9 @@ public final class StudentData {
     }
 
     /**
-     * Gets the list of all records of exams taken by the student.
+     * Gets the list of all answers for exams taken by the student.
      *
-     * @return the student exams
+     * @return the student exam answers
      * @throws SQLException if there is an error accessing the database
      */
     public List<RawStqa> getStudentExamAnswers() throws SQLException {
@@ -1267,17 +1493,75 @@ public final class StudentData {
      * Gets the list of all records of homeworks taken by the student in a specified course.
      *
      * @param course the course ID
+     * @param passedOnly true to only return records marked as "passed"
+     * @param hwTypes    an optional list of types to return (if null or empty, all types are returned)
      * @return the student homeworks
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawSthomework> getStudentHomeworkForCourse(final String course) throws SQLException {
+    public List<RawSthomework> getStudentHomeworkForCourse(final String course, final boolean passedOnly,
+                                                           final String... hwTypes) throws SQLException {
 
         final List<RawSthomework> all = getStudentHomework();
         final List<RawSthomework> result = new ArrayList<>(all.size());
 
         for (final RawSthomework test : all) {
             if (test.course.equals(course)) {
-                result.add(test);
+
+                if (passedOnly && !"Y".equals(test.passed)) {
+                    continue;
+                }
+
+                if (hwTypes == null || hwTypes.length == 0) {
+                    result.add(test);
+                } else {
+                    for (final String type : hwTypes) {
+                        if (test.hwType.equals(type)) {
+                            result.add(test);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the list of all records of homeworks taken by the student in a specified course and unit.
+     *
+     * @param course     the course ID
+     * @param unit       the unit
+     * @param passedOnly true to only return records marked as "passed"
+     * @param hwTypes    an optional list of types to return (if null or empty, all types are returned)
+     * @return the student homeworks
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSthomework> getStudentHomeworkForCourseUnit(final String course, final Integer unit,
+                                                               final boolean passedOnly, final String... hwTypes)
+            throws SQLException {
+
+        final List<RawSthomework> all = getStudentHomework();
+        final int size = all.size();
+        final List<RawSthomework> result = new ArrayList<>(size);
+
+        for (final RawSthomework test : all) {
+            if (test.course.equals(course) && test.unit.equals(unit)) {
+
+                if (passedOnly && !"Y".equals(test.passed)) {
+                    continue;
+                }
+
+                if (hwTypes == null || hwTypes.length == 0) {
+                    result.add(test);
+                } else {
+                    for (final String type : hwTypes) {
+                        if (test.hwType.equals(type)) {
+                            result.add(test);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -1293,8 +1577,7 @@ public final class StudentData {
      * @return the student homeworks
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawSthomework> getStudentHomeworkForCourseUnitObjective(final String course,
-                                                                        final Integer unit,
+    public List<RawSthomework> getStudentHomeworkForCourseUnitObjective(final String course, final Integer unit,
                                                                         final Integer objective) throws SQLException {
 
         final List<RawSthomework> all = getStudentHomework();
@@ -1316,6 +1599,29 @@ public final class StudentData {
     public void forgetStudentHomeworks() {
 
         this.studentHomeworks = null;
+    }
+
+    /**
+     * Gets the list of all answers for homework taken by the student.
+     *
+     * @return the student homework answers
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSthwqa> getStudentHomeworkAnswers() throws SQLException {
+
+        if (this.studentHomeworkAnswers == null) {
+            this.studentHomeworkAnswers = RawSthwqaLogic.queryByStudent(this.cache, this.studentId);
+        }
+
+        return this.studentHomeworkAnswers;
+    }
+
+    /**
+     * Forgets student homework answers. forcing a re-query on next access.
+     */
+    public void forgetStudentHomeworkAnswers() {
+
+        this.studentHomeworkAnswers = null;
     }
 
     /**
@@ -1347,6 +1653,48 @@ public final class StudentData {
 
         return this.studentCourseObjectives;
     }
+
+    /**
+     * Gets the list of all student course objective status objects.
+     *
+     * @return the student course objective status objects
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawStcuobjective getStudentCourseObjective(final String course, final Integer unit, final Integer objective)
+            throws SQLException {
+
+        final List<RawStcuobjective> all = getStudentCourseObjectives();
+        RawStcuobjective result = null;
+
+        for (final RawStcuobjective test : all) {
+            if (test.course.equals(course) && test.unit.equals(unit) && test.objective.equals(objective)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the instructional lecture for a unit and objective has been viewed by a student.
+     *
+     * @param courseId  the ID of the course
+     * @param unit      the unit number
+     * @param objective the objective number
+     * @return {@code true} of the lecture has been viewed; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    public boolean hasLectureBeenViewed(final String courseId, final Integer unit, final Integer objective)
+            throws SQLException {
+
+        final RawStcuobjective row = getStudentCourseObjective(courseId, unit, objective);
+
+        return row != null && row.lectureViewedDt != null;
+    }
+
+
+
 
     /**
      * Forgets the list of student course objectives, forcing a re-query on next access.
@@ -1442,6 +1790,7 @@ public final class StudentData {
 
         if (this.studentMilestones == null) {
             this.studentMilestones = RawStmilestoneLogic.queryByStudent(this.cache, this.studentId);
+            Collections.sort(this.studentMilestones);
         }
 
         return this.studentMilestones;

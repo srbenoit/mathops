@@ -195,7 +195,7 @@ public final class CourseSiteLogicCourse {
      */
     private void processData(final Cache cache, final ZonedDateTime now) throws SQLException {
 
-        final SiteDataStudent stuData = this.data.studentData;
+        final SiteDataStudent stuData = this.data.siteStudentData;
 
         this.lockedOut = stuData.hasHold("30");
         loadCourseLabels();
@@ -342,7 +342,7 @@ public final class CourseSiteLogicCourse {
             this.inProgressCourses.add(new CourseInfo(RawRecordConstants.MATH126, lblmath126));
         } else {
             addSpecialStudentCourses();
-            final List<RawStcourse> studentCourses = this.data.registrationData.getRegistrations();
+            final List<RawStcourse> studentCourses = this.data.siteRegistrationData.getRegistrations();
 
             // Filter courses to only those this website supports
             final Collection<RawStcourse> stCoursesInContext = new ArrayList<>(10);
@@ -362,7 +362,7 @@ public final class CourseSiteLogicCourse {
      */
     private void addSpecialStudentCourses() {
 
-        final SiteDataStudent stuData = this.data.studentData;
+        final SiteDataStudent stuData = this.data.siteStudentData;
         final ZonedDateTime now = this.owner.sessionInfo.getNow();
 
         if (stuData.isSpecialType(now, "TUTOR", "M384", "ADMIN")) {
@@ -400,7 +400,7 @@ public final class CourseSiteLogicCourse {
         // TODO: This is the place to store the STTERM info for pace and pace track, but we need to calculate pace track
         // from the pace track rules. If the track is changed from the default, we may need to re-query milestones!
 
-        final SiteDataCourse courseData = this.data.courseData;
+        final SiteDataCourse courseData = this.data.siteCourseData;
 
         // Count up the open courses based strictly on open status and the "counts toward max open"
         // field in the section record
@@ -425,7 +425,7 @@ public final class CourseSiteLogicCourse {
         final TermRec active = TermLogic.get(cache).queryActive(cache);
 
         // Load the OT credit courses that occurred this term
-        final List<RawStcourse> otCredit = this.data.studentData.getStudentOTCredit();
+        final List<RawStcourse> otCredit = this.data.siteStudentData.getStudentOTCredit();
         for (final RawStcourse credit : otCredit) {
             if (credit.termKey.equals(active.term) && this.courseLabels.containsKey(credit.course)) {
                 this.otCreditCourses.add(new CourseInfo(credit.course, this.courseLabels.get(credit.course)));
@@ -436,9 +436,9 @@ public final class CourseSiteLogicCourse {
         outer:
         for (final RawStcourse stcourse : stCoursesInContext) {
 
-            final TermRec regTerm = this.data.registrationData.getRegistrationTerm(stcourse.course, stcourse.sect);
-            final List<RawMilestone> allMilestones = this.data.milestoneData.getMilestones(regTerm.term);
-            final List<RawStmilestone> stuMilestones = this.data.milestoneData.getStudentMilestones(regTerm.term);
+            final TermRec regTerm = this.data.siteRegistrationData.getRegistrationTerm(stcourse.course, stcourse.sect);
+            final List<RawMilestone> allMilestones = this.data.siteMilestoneData.getMilestones(regTerm.term);
+            final List<RawStmilestone> stuMilestones = this.data.siteMilestoneData.getStudentMilestones(regTerm.term);
 
             final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
             if (cfg == null) {
@@ -544,7 +544,7 @@ public final class CourseSiteLogicCourse {
                 // See if the student has passed the final, which leaves the course in the
                 // "in progress" mode, even if we're past the final exam deadline date
                 final Collection<RawStexam> passedFinals = new ArrayList<>(3);
-                final List<RawStexam> allExams = this.data.activityData.getStudentExams(courseId);
+                final List<RawStexam> allExams = this.data.siteActivityData.getStudentExams(courseId);
                 for (final RawStexam exam : allExams) {
                     if ("F".equals(exam.examType) && "Y".equals(exam.passed)) {
                         passedFinals.add(exam);
@@ -566,7 +566,7 @@ public final class CourseSiteLogicCourse {
                         // If there are at least N failed finals after the paceDeadlineDay, STOP
                         final Collection<RawStexam> failedFinals = new ArrayList<>(3);
                         final Collection<RawStexam> passedUnit4 = new ArrayList<>(3);
-                        final List<RawStexam> allExams2 = this.data.activityData.getStudentExams(courseId);
+                        final List<RawStexam> allExams2 = this.data.siteActivityData.getStudentExams(courseId);
                         for (final RawStexam exam : allExams2) {
                             if ("F".equals(exam.examType) && "N".equals(exam.passed)) {
                                 failedFinals.add(exam);
@@ -656,7 +656,7 @@ public final class CourseSiteLogicCourse {
 
                     this.inProgressIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                     final SiteDataCfgCourse cfg =
-                            this.data.courseData.getCourse(studentCourse.course, studentCourse.sect);
+                            this.data.siteCourseData.getCourse(studentCourse.course, studentCourse.sect);
                     if (cfg != null) {
                         final RawCsection courseSect = cfg.courseSection;
                         if ("Y".equals(courseSect.countInMaxCourses)) {
@@ -690,7 +690,7 @@ public final class CourseSiteLogicCourse {
     private boolean checkPrerequisites(final Cache cache, final RawStcourse studentCourse)
             throws SQLException {
 
-        final List<String> prereqs = this.data.registrationData.getPrerequisites(studentCourse.course);
+        final List<String> prereqs = this.data.siteRegistrationData.getPrerequisites(studentCourse.course);
         final int numPrereq = prereqs.size();
 
         boolean prereq = numPrereq == 0;
@@ -718,7 +718,7 @@ public final class CourseSiteLogicCourse {
         boolean hasCourse = false;
 
         // See if student has completed the course at any time in the past
-        final List<RawStcourse> complete = this.data.registrationData.getAllCompletedCourses();
+        final List<RawStcourse> complete = this.data.siteRegistrationData.getAllCompletedCourses();
         if (complete != null) {
             for (final RawStcourse test : complete) {
                 if (courseId.equals(test.course)) {
@@ -730,7 +730,7 @@ public final class CourseSiteLogicCourse {
 
         if (!hasCourse) {
             // See if there is a placement result satisfying prerequisite
-            final List<RawMpeCredit> placeCred = this.data.studentData.getStudentPlacementCredit();
+            final List<RawMpeCredit> placeCred = this.data.siteStudentData.getStudentPlacementCredit();
 
             for (final RawMpeCredit test : placeCred) {
                 if (courseId.equals(test.course)) {
@@ -742,7 +742,7 @@ public final class CourseSiteLogicCourse {
 
         if (!hasCourse) {
             // See if there are OT credits satisfying the prerequisite
-            final List<RawStcourse> otCredit = this.data.studentData.getStudentOTCredit();
+            final List<RawStcourse> otCredit = this.data.siteStudentData.getStudentOTCredit();
 
             for (final RawStcourse test : otCredit) {
                 if (courseId.equals(test.course)) {
@@ -754,7 +754,7 @@ public final class CourseSiteLogicCourse {
 
         if (!hasCourse) {
             // See if there are transfer credits satisfying the prerequisite
-            final List<RawFfrTrns> trans = this.data.registrationData.getTransferCredit();
+            final List<RawFfrTrns> trans = this.data.siteRegistrationData.getTransferCredit();
             if (trans != null) {
                 for (final RawFfrTrns test : trans) {
                     if (courseId.equals(test.course)) {
@@ -784,8 +784,8 @@ public final class CourseSiteLogicCourse {
     private RawPacingStructure getPacingStructure(final Cache cache, final ZonedDateTime now,
                                                   final Iterable<RawStcourse> studentCourses) throws SQLException {
 
-        final SiteDataStudent stuData = this.data.studentData;
-        final SiteDataCourse courseData = this.data.courseData;
+        final SiteDataStudent stuData = this.data.siteStudentData;
+        final SiteDataCourse courseData = this.data.siteCourseData;
 
         final boolean isTutor = stuData.isSpecialType(now, "TUTOR", "M384", "ADMIN");
 
@@ -857,7 +857,7 @@ public final class CourseSiteLogicCourse {
             }
 
             // If no pacing structure is stored for the student, store the one we found for reference
-            final RawStudent student = this.data.studentData.getStudent();
+            final RawStudent student = this.data.siteStudentData.getStudent();
             final String stuRuleSetId = student.pacingStructure;
             if (pacingStructure == null) {
                 // No pacing structure found based on course registrations, check student record
@@ -900,7 +900,7 @@ public final class CourseSiteLogicCourse {
                 continue;
             }
 
-            final SiteDataCfgCourse cfg = this.data.courseData.getCourse(stcourse.course, stcourse.sect);
+            final SiteDataCfgCourse cfg = this.data.siteCourseData.getCourse(stcourse.course, stcourse.sect);
             if (cfg == null) {
                 continue;
             }

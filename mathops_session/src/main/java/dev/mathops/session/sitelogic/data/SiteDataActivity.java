@@ -1,8 +1,6 @@
 package dev.mathops.session.sitelogic.data;
 
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 
@@ -140,63 +138,6 @@ public final class SiteDataActivity {
         return result;
     }
 
-//    /**
-//     * Searches for the earliest passing exam date for a specified course, unit, and exam type.
-//     *
-//     * @param course   the course
-//     * @param unit     the unit
-//     * @param examType the exam type
-//     * @return the earliest date of a passed exam; null if none passed
-//     */
-//    public LocalDate findEarliestPassingExam(final String course, final Integer unit, final String examType) {
-//
-//        LocalDate result = null;
-//
-//        final Map<Integer, List<RawStexam>> courseExams = this.studentExams.get(course);
-//        if (courseExams != null) {
-//            final List<RawStexam> unitExams = courseExams.get(unit);
-//
-//            // Exams are sorted by date/time, so we can stop as soon as we find one.
-//            for (final RawStexam stexam : unitExams) {
-//                if ("Y".equals(stexam.passed) && stexam.examType.equals(examType)) {
-//                    result = stexam.examDt;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
-
-//    /**
-//     * Searches for the earliest attempted exam date for a specified course, unit, and exam type.
-//     *
-//     * @param course   the course
-//     * @param unit     the unit
-//     * @param examType the exam type
-//     * @return the earliest date of a passed exam; null if none passed
-//     */
-//    public LocalDate findEarliestAttempt(final String course, final Integer unit,
-//                                         final String examType) {
-//
-//        LocalDate result = null;
-//
-//        final Map<Integer, List<RawStexam>> courseExams = this.studentExams.get(course);
-//        if (courseExams != null) {
-//            final List<RawStexam> unitExams = courseExams.get(unit);
-//
-//            // Exams are sorted by date/time, so we can stop as soon as we find one.
-//            for (final RawStexam stexam : unitExams) {
-//                if (stexam.examType.equals(examType)) {
-//                    result = stexam.examDt;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
-
     /**
      * Queries all database data relevant to a session's effective user ID within the session's context.
      * <p>
@@ -205,36 +146,39 @@ public final class SiteDataActivity {
      * {@code SuteDataProfile} object, and the {@code SiteDateRegistration} object, and the {@code SiteDateCourse}
      * object will have been populated in the process.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    boolean loadData(final Cache cache) throws SQLException {
+    boolean loadData(final StudentData studentData) throws SQLException {
 
         // We assume that only current, relevant exam/homework/lesson date is retained, so there
         // is no harm in simply querying all of it!
-        return loadExams(cache) && loadHomework(cache);
+        return loadExams(studentData) && loadHomework(studentData);
     }
 
     /**
      * Loads and organizes all submitted exams for the student.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadExams(final Cache cache) throws SQLException {
+    private boolean loadExams(final StudentData studentData) throws SQLException {
 
         final boolean success = true;
 
-        final List<RawStexam> allExams =
-                RawStexamLogic.queryByStudent(cache, this.owner.studentData.getStudent().stuId, true);
+        final List<RawStexam> allExams = studentData.getStudentExams();
 
         for (final RawStexam exam : allExams) {
-            final Map<Integer, List<RawStexam>> map = this.studentExams.computeIfAbsent(exam.course,
-                    s -> new TreeMap<>());
-            final List<RawStexam> list = map.computeIfAbsent(exam.unit, k -> new LinkedList<>());
-            list.add(exam);
+            final String passed = exam.passed;
+
+            if ("Y".equals(passed) || "N".equals(passed)) {
+                final Map<Integer, List<RawStexam>> map = this.studentExams.computeIfAbsent(exam.course,
+                        s -> new TreeMap<>());
+                final List<RawStexam> list = map.computeIfAbsent(exam.unit, k -> new LinkedList<>());
+                list.add(exam);
+            }
         }
 
         return success;
@@ -243,27 +187,30 @@ public final class SiteDataActivity {
     /**
      * Loads and organizes all submitted homework for the student.
      *
-     * @param cache the data cache
+     * @param studentData the student data object
      * @return {@code true} if success; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadHomework(final Cache cache) throws SQLException {
+    private boolean loadHomework(final StudentData studentData) throws SQLException {
 
         final boolean success = true;
 
-        final List<RawSthomework> allHw = RawSthomeworkLogic.queryByStudent(cache,
-                this.owner.studentData.getStudent().stuId, false);
+        final List<RawSthomework> allHw = studentData.getStudentHomework();
 
         for (final RawSthomework hw : allHw) {
-            final String courseId = hw.course;
-            final Integer unit = hw.unit;
-            final Integer obj = hw.objective;
+            final String passed = hw.passed;
 
-            final Map<Integer, Map<Integer, List<RawSthomework>>> map1 =
-                    this.studentHomework.computeIfAbsent(courseId, s -> new TreeMap<>());
-            final Map<Integer, List<RawSthomework>> map2 = map1.computeIfAbsent(unit, k -> new TreeMap<>());
-            final List<RawSthomework> list = map2.computeIfAbsent(obj, k -> new LinkedList<>());
-            list.add(hw);
+            if ("Y".equals(passed) || "N".equals(passed)) {
+                final String courseId = hw.course;
+                final Integer unit = hw.unit;
+                final Integer obj = hw.objective;
+
+                final Map<Integer, Map<Integer, List<RawSthomework>>> map1 =
+                        this.studentHomework.computeIfAbsent(courseId, s -> new TreeMap<>());
+                final Map<Integer, List<RawSthomework>> map2 = map1.computeIfAbsent(unit, k -> new TreeMap<>());
+                final List<RawSthomework> list = map2.computeIfAbsent(obj, k -> new LinkedList<>());
+                list.add(hw);
+            }
         }
 
         return success;

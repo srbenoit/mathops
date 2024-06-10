@@ -79,7 +79,7 @@ enum PageStdsText {
         } else if (course == null || mode == null) {
             PageError.doGet(data, site, req, resp, session, "No course and mode provided for course outline");
         } else {
-            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+            final List<RawStcourse> paceRegs = logic.data.siteRegistrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
@@ -93,12 +93,12 @@ enum PageStdsText {
             CourseMenu.buildMenu(data, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            final RawStcourse reg = logic.data.registrationData.getRegistration(course);
+            final RawStcourse reg = logic.data.siteRegistrationData.getRegistration(course);
             if (reg == null) {
                 htm.sP("error").addln("You are not registered in this course.").eP();
             } else {
                 final ZonedDateTime now = session.getNow();
-                final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
+                final boolean isTutor = logic.data.siteStudentData.isSpecialType(now, "TUTOR");
                 final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(data, pace, paceTrack, reg, isTutor);
 
                 if (RawRecordConstants.MATH125.equals(course)) {
@@ -139,7 +139,7 @@ enum PageStdsText {
                                        final String mode, final HtmlBuilder htm) {
 
         final SiteData data = logic.data;
-        final RawStcourse reg = data.registrationData.getRegistration(courseData.courseId);
+        final RawStcourse reg = data.siteRegistrationData.getRegistration(courseData.courseId);
 
         if (reg == null) {
             htm.sP().add("ERROR: Unable to find course registration.").eP();
@@ -172,7 +172,7 @@ enum PageStdsText {
                                      final StdsMasteryStatus masteryStatus,
                                      final String mode, final HtmlBuilder htm) {
 
-        final RawStcourse reg = logic.data.registrationData.getRegistration(courseData.courseId);
+        final RawStcourse reg = logic.data.siteRegistrationData.getRegistration(courseData.courseId);
 
         if ("Y".equals(reg.iInProgress)) {
             // TODO: Incomplete status

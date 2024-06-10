@@ -45,7 +45,7 @@ public final class StandardsMasteryLogic {
      */
     public StandardsMasteryLogic(final StudentData studentData, final String courseId) throws SQLException {
 
-        this.stHomeworks = studentData.getStudentHomeworkForCourse(courseId);
+        this.stHomeworks = studentData.getStudentHomeworkForCourse(courseId, false);
 
         final Cache cache = studentData.getCache();
 

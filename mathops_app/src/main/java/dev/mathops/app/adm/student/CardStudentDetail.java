@@ -191,7 +191,7 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
         this.infoPanel.setSelectedStudent(theData);
         this.coursePanel.setSelectedStudent(theData);
         this.deadlinesPanel.setSelectedStudent(theData);
-        this.activityPanel.setSelectedStudent(this.fixed, theData);
+        this.activityPanel.setSelectedStudent(theData);
         if (this.disciplinePanel != null) {
             this.disciplinePanel.setSelectedStudent(theData);
         }

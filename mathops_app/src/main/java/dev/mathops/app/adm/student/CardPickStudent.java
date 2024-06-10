@@ -5,15 +5,15 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.logic.Cache;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -102,9 +102,9 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
     /**
      * Constructs a new {@code CardPickStudent}.
      *
-     * @param theOwner         the owning top-level student panel
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
+     * @param theOwner the owning top-level student panel
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
     CardPickStudent(final TopPanelStudent theOwner, final Cache theCache, final FixedData theFixed) {
 
@@ -279,7 +279,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
 
         final String actualStr = actual.toString();
 
-        final StudentData data = new StudentData(this.cache, actualStr, ELiveRefreshes.IF_MISSING);
+        final StudentData data = new StudentData(this.cache, this.fixed.systemData, actualStr,
+                ELiveRefreshes.IF_MISSING);
 
         try {
             final RawStudent stuRec = data.getStudentRecord();
@@ -390,8 +391,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                         if (found.size() == 1) {
                             final RawStudent stuRec = found.get(0);
                             addToHistory(stuRec);
-                            this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId,
-                                    ELiveRefreshes.IF_MISSING));
+                            this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData,
+                                    stuRec.stuId, ELiveRefreshes.IF_MISSING));
                             this.stuIdField.setText(CoreConstants.EMPTY);
                         } else {
                             processStudentList(found);
@@ -443,8 +444,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                     if (found.size() == 1) {
                         final RawStudent stuRec = found.get(0);
                         addToHistory(stuRec);
-                        this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId,
-                                ELiveRefreshes.IF_MISSING));
+                        this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData,
+                                stuRec.stuId, ELiveRefreshes.IF_MISSING));
                         this.stuIdField.setText(CoreConstants.EMPTY);
                     } else {
                         processStudentList(found);
@@ -568,7 +569,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 final RawStudent stuRec = this.pickListRecords.get(index);
                 addToHistory(stuRec);
 
-                this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId, ELiveRefreshes.IF_MISSING));
+                this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData, stuRec.stuId,
+                        ELiveRefreshes.IF_MISSING));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);
 
@@ -579,7 +581,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 final int index = this.history.locationToIndex(point);
                 final RawStudent stuRec = this.historyRecords.get(index);
 
-                this.owner.setStudent(this.cache, new StudentData(this.cache, stuRec.stuId, ELiveRefreshes.NONE));
+                this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData, stuRec.stuId,
+                        ELiveRefreshes.NONE));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);
             }

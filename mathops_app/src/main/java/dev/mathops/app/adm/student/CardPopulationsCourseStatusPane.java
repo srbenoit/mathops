@@ -5,11 +5,11 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -71,15 +71,22 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
     /**
      * Constructs a new {@code CardPopulationsCourseStatusPane}.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
     CardPopulationsCourseStatusPane(final Cache theCache, final FixedData theFixed) {
 
         super(new BorderLayout());
 
+        TermRec activeTerm = null;
+        try {
+            activeTerm = theFixed.systemData.getActiveTerm();
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query active term and milestone data.", ex);
+        }
+
         this.cache = theCache;
-        this.activeKey = theFixed.activeTerm.term;
+        this.activeKey = activeTerm == null ? null : activeTerm.term;
         this.frontBoxes = new HashMap<>(5);
         this.boxes = new HashMap<>(5);
 
@@ -90,7 +97,7 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
         final List<RawMilestone> milestones;
 
         try {
-            milestones = RawMilestoneLogic.getAllMilestones(theCache, this.activeKey);
+            milestones = theFixed.systemData.getMilestones(this.activeKey);
 
             for (final RawMilestone ms : milestones) {
                 final Set<String> tracks = paceTracks.computeIfAbsent(ms.pace, k -> new TreeSet<>());
@@ -162,10 +169,10 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
     /**
      * Creates a pane with checkboxes to select a student's status in a single course.
      *
-     * @param label            the label to prefix the row
-     * @param pace             the pace
-     * @param track            the pace track
-     * @param courseIndex      the course index (1-based)
+     * @param label       the label to prefix the row
+     * @param pace        the pace
+     * @param track       the pace track
+     * @param courseIndex the course index (1-based)
      * @return the panel
      */
     private JPanel makeCourseStatusPane(final String label, final Integer pace, final String track,
