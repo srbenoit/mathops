@@ -68,7 +68,7 @@ public final class WebViewData {
     public StudentData setLoggedInUser(final String studentId) {
 
         if (this.loggedInUser == null || !this.loggedInUser.getStudentId().equals(studentId)) {
-            this.loggedInUser = new StudentData(this.cache, this.systemData, studentId, ELiveRefreshes.IF_MISSING);
+            this.loggedInUser = new StudentData(this.systemData, studentId, ELiveRefreshes.IF_MISSING);
         }
 
         return this.loggedInUser;
@@ -105,7 +105,7 @@ public final class WebViewData {
     public StudentData setActAsUser(final String studentId) {
 
         if (this.actAsUser == null || !this.actAsUser.getStudentId().equals(studentId)) {
-            this.actAsUser = new StudentData(this.cache, this.systemData, studentId, ELiveRefreshes.IF_MISSING);
+            this.actAsUser = new StudentData(this.systemData, studentId, ELiveRefreshes.IF_MISSING);
         }
 
         return this.actAsUser;
@@ -152,7 +152,7 @@ public final class WebViewData {
     public StudentData getStudent(final String studentId) {
 
         return this.studentData.computeIfAbsent(studentId,
-                key -> new StudentData(this.cache, this.systemData, key, ELiveRefreshes.IF_MISSING));
+                key -> new StudentData(this.systemData, key, ELiveRefreshes.IF_MISSING));
     }
 
     /**

@@ -1080,7 +1080,7 @@ public final class ImportBannerStudentRegistrations {
             placedByExam = "A";
         } else {
             final SystemData systemData = new SystemData(cache);
-            final StudentData studentData = new StudentData(cache, systemData, bannerReg.stuId, ELiveRefreshes.NONE);
+            final StudentData studentData = new StudentData(systemData, bannerReg.stuId, ELiveRefreshes.NONE);
 
             final PrerequisiteLogic logic = new PrerequisiteLogic(studentData);
             if (logic.hasSatisfiedPrereqsFor(bannerReg.course)) {

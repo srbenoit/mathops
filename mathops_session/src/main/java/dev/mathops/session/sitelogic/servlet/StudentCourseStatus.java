@@ -2971,7 +2971,7 @@ public final class StudentCourseStatus extends LogicBase {
                 final Cache cache = new Cache(siteProfile.dbProfile, conn);
 
                 final SystemData systemData = new SystemData(cache);
-                final StudentData studentData = new StudentData(cache, systemData, "888888888", ELiveRefreshes.NONE);
+                final StudentData studentData = new StudentData(systemData, "888888888", ELiveRefreshes.NONE);
 
                 try {
                     final ImmutableSessionInfo session = new ImmutableSessionInfo(live);

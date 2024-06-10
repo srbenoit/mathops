@@ -5,6 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -33,8 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> implements IProgressListener {
 
-    /** The data cache. */
-    private final Cache cache;
+    /** The system data object. */
+    private final SystemData systemData;
 
     /** The owning window to provide with results of the scan. */
     private final MessagingFull owner;
@@ -64,7 +65,7 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
                              final JButton theInvokingButton, final JLabel theProgressLabel) {
         super();
 
-        this.cache = theCache;
+        this.systemData = new SystemData(theCache);
         this.owner = theOwner;
 
         this.progressBar = theProgress;
@@ -95,8 +96,7 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
         incCourseSections.put(RawRecordConstants.M125, sect125);
         incCourseSections.put(RawRecordConstants.M126, sect126);
 
-        final MessagePopulationBuilder popScanner =
-                new MessagePopulationBuilder(this.cache, incCourseSections);
+        final MessagePopulationBuilder popScanner = new MessagePopulationBuilder(this.systemData, incCourseSections);
 
         try {
             publish(new ScannerStatus(0, 300, "Scanning registrations"));
@@ -109,7 +109,7 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
                 progress("Querying instructors", 1, 300);
 
                 final Map<Integer, Map<String, String>> instructors = EmailsNeeded.getInstructors();
-                final TermRec act = TermLogic.get(this.cache).queryActive(this.cache);
+                final TermRec act = this.systemData.getActiveTerm();
 
                 if (act == null) {
                     Log.warning("ERROR: Cannot query active term");
@@ -117,8 +117,8 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
                     progress("Gathering milestones", 2, 300);
 
                     // Map from pace to map from track to list of milestones.
-                    final Map<Integer, Map<String, List<RawMilestone>>> msMap =
-                            EPF.gatherMilestones(this.cache, act.term);
+                    final Map<Integer, Map<String, List<RawMilestone>>> msMap = EPF.gatherMilestones(this.systemData,
+                            act.term);
 
                     // Now see who is due for a communication that they have not been sent.
                     final LocalDate today = LocalDate.now();

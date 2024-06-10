@@ -4,6 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
@@ -130,7 +131,7 @@ final class LogicCheckInCourseExams {
         if (isSpecial()) {
             setSpecialStudentStatus();
         } else {
-            final List<RawStcourse> regs = data.getActiveRegistrations(this.activeTerm.term);
+            final List<RawStcourse> regs = data.getActiveRegistrations(this.activeTerm.term, false);
 
             determineAvailableChallengeExams(data, regs, enforceEligibility);
             determineAvailableCourseExams(data, regs, enforceEligibility);
@@ -656,7 +657,8 @@ final class LogicCheckInCourseExams {
             courseDeadlines = new CourseDeadlines(null, null, null, null, null, null, 0, deadline);
         } else {
             // Old course - look for "FE" and "F1" milestones
-            final List<RawMilestone> allMilestones = studentData.getMilestones(this.activeTerm.term, paceObj,
+            final SystemData systemData = studentData.getSystemData();
+            final List<RawMilestone> allMilestones = systemData.getMilestones(this.activeTerm.term, paceObj,
                     paceTrack);
             final List<RawStmilestone> allStMilestones = studentData.getStudentMilestones(this.activeTerm.term,
                     paceTrack);
@@ -731,7 +733,7 @@ final class LogicCheckInCourseExams {
             throws SQLException {
 
         final List<RawStexam> stexams = studentData.getStudentExamsForCourse(reg.course);;
-        final List<RawSthomework> sthws = studentData.getStudentHomeworkForCourse(reg.course);
+        final List<RawSthomework> sthws = studentData.getStudentHomeworkForCourse(reg.course, false);
 
         return new OldCourseWorkRecord(sthws, stexams);
     }
