@@ -96,13 +96,19 @@ final class StudentNamesToMixedCase {
     private static void exec(final Cache cache, final DbConnection bannerConn) throws SQLException {
 
         final List<RawStudent> allStudents = RawStudentLogic.INSTANCE.queryAll(cache);
+        final int numStudents = allStudents.size();
 
-        if (!allStudents.isEmpty()) {
-            Log.info("Loaded " + allStudents.size() + " students");
+        if (numStudents > 0) {
+            Log.info("Loaded " + numStudents + " students");
 
             final ILiveStudent impl1 = bannerConn.getImplementation(ILiveStudent.class);
 
+            int onStudent = 0;
             for (final RawStudent student : allStudents) {
+                ++onStudent;
+                if ((onStudent % 100) == 0) {
+                    Log.fine("-> Processing student " + onStudent + " out of " + numStudents);
+                }
                 final String stuId = student.stuId;
 
                 if ("888888888".equals(stuId)) {
@@ -121,13 +127,29 @@ final class StudentNamesToMixedCase {
                                 !Objects.equals(student.lastName, live.lastName) ||
                                 !Objects.equals(student.prefName, live.prefFirstName)) {
 
-                            Log.info("  ", student.stuId, " - Existing: ", student.firstName, " (", student.prefName,
+                            Log.fine("    ", student.stuId, " - Existing: ", student.firstName, " (", student.prefName,
                                     ") ", student.lastName, "  New: ", live.firstName, " (", live.prefFirstName, ") "
                                     , live.lastName);
 
                             if (!DEBUG) {
                                 RawStudentLogic.updateName(cache, student.stuId, live.lastName, live.firstName,
                                         live.prefFirstName, student.middleInitial);
+                            }
+                        }
+
+                        if (!(Objects.equals(live.collegeCode, student.college)
+                                && Objects.equals(live.departmentCode, student.dept)
+                                && Objects.equals(live.programCode, student.programCode)
+                                && Objects.equals(live.minorCode, student.minor))) {
+
+                            Log.fine("    Update student ", student.stuId, " College [", student.college,
+                                    "->", live.collegeCode, "] Dept [", student.dept, "->", live.departmentCode,
+                                    "] Program [", student.programCode, "->", live.programCode, "] Minor [",
+                                    student.minor, "->", live.minorCode, "]");
+
+                            if (!DEBUG) {
+                                RawStudentLogic.updateProgram(cache, student.stuId, live.collegeCode,
+                                        live.departmentCode, live.programCode, live.minorCode);
                             }
                         }
                     }

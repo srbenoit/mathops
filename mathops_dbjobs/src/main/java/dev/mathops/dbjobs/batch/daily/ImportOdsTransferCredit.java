@@ -137,8 +137,7 @@ public final class ImportOdsTransferCredit {
 
         try (final Statement stmt = conn.createStatement()) {
 
-            final String sql = //
-                    "SELECT A.ID x, B.COURSE_IDENTIFICATION y "
+            final String sql = "SELECT A.ID x, B.COURSE_IDENTIFICATION y "
                             + "FROM CSUBAN.CSUS_SECTION_INFO_SPR A, ODSMGR.STUDENT_COURSE B "
                             + "WHERE A.PERSON_UID = B.PERSON_UID "
                             + " AND ((B.COURSE_IDENTIFICATION='MATH002'"

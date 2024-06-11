@@ -22,6 +22,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,9 +38,13 @@ import java.util.Set;
  * The logic for an individual student is as follows:
  * <pre>
  * IF
- *     the student has any responses to MATH PLAN records
+ *     the student has any MATH PLAN 'WLCM5' response records
  * THEN
  *     IF
+ *         the student's program on record is any that needs only AUCC-1B
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
  *         the student's Math Plan recommendation is any AUCC-1B course
  *     THEN
  *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
@@ -60,6 +65,53 @@ import java.util.Set;
  * </pre>
  */
 public class BulkUpdateMPLTestScores {
+
+    private static final List<String> MAJORS_NEEDING_ONLY_AUCC = Arrays.asList("ECHE-BS", "FACS-BS", "FACS-FCSZ-BS",
+            "FACS-IDSZ-BS", "HDFS-BS", "HDFS-ECPZ-BS", "HDFS-HDEZ-BS", "HDFS-LADZ-BS", "HDFS-PHPZ-BS", "HDFS-PISZ-BS"
+            , "SOWK-BSW", "HDFS-BS", "HDFS-ECPZ-BS", "HDFS-HDEZ-BS", "HDFS-LADZ-BS", "HDFS-PHPZ-BS", "HDFS-PISZ-BS",
+            "SOWK-BSW", "SOWK-ADSZ-BSW", "ANTH-BA", "ANTH-ARCZ-BA", "ANTH-BIOZ-BA", "ANTH-CLTZ-BA", "ARTI-BA",
+            "ARTI-ARTZ-BA", "ARTI-IVSZ-BA", "ARTM-BFA", "ARTM-DRAZ-BF", "ARTM-ELAZ-BF", "ARTM-FIBZ-BF", "ARTM-GRDZ-BF",
+            "ARTM-METZ-BF", "ARTM-PNTZ-BF", "ARTM-PHIZ-BF", "ARTM-POTZ-BF", "ARTM-PRTZ-BF", "ARTM-SCLZ-BF",
+            "ARTM-AREZ-BF", "CMST-BA", "CMST-TCLZ-BA", "DNCE-BA", "DANC-BFA", "ENGL-BA", "ENGL-CRWZ-BA", "ENGL-ENEZ-BA",
+            "ENGL-LINZ-BA", "ENGL-LITZ-BA", "ENGL-WRLZ-BA", "ETST-BA", "ETST-COIZ-BA", "ETST-RPRZ-BA", "ETST-SOTZ-BA",
+            "GEOG-BS", "HIST-BA", "HIST-GENZ-BA", "HIST-LNGZ-BA", "HIST-SBSZ-BA", "HIST-SSTZ-BA", "HIST-DPUZ-BA",
+            "JAMC-BA", "LLAC-BA", "LLAC-LFRZ-BA", "LLAC-LGEZ-BA", "LLAC-LSPZ-BA", "LLAC-SPPZ-BA", "MUSI-BA", "MUSC-BM",
+            "MUSC-MUEZ-BM", "MUSC-MUTZ-BM", "MUSC-PERZ-BM", "PHIL-GNPZ-BA", "PHIL-GPRZ-BA", "PHIL-PSAZ-BA", "POLS-BA",
+            "POLS-EPAZ-BA", "POLS-GPPZ-BA", "POLS-ULPZ-BA", "SOCI-BA", "SOCI-CRCZ-BA", "SOCI-ENSZ-BA", "SOCI-GNSZ-BA",
+            "THTR-BA", "THTR-MUSZ-BA", "THTR-PRFZ-BA", "THTR-CDTZ-BA", "THTR-LDTZ-BA", "THTR-PDTZ-BA", "THTR-SDSZ-BA",
+            "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA", "INST-GBLZ-BA", "INST-LTSZ-BA",
+            "INST-MEAZ-BA", "ILAR-BA",
+            // Below are not in catalog
+            "THTR-DTHZ-BA");
+
+    private static final List<String> MAJORS_NEEDING_MORE = Arrays.asList(
+            "AGBI-BS", "AGBI-ENTZ-BS", "AGBI-PLPZ-BS", "AGBI-WEEZ-BS", "AGBU-BS", "AGBU-AECZ-BS", "AGBU-FRCZ-BS",
+            "AGBU-FSSZ-BS", "AGED-BS", "AGED-AGLZ-BS", "AGED-TDLZ-BS", "ANIM-BS", "ENRE-BS", "ENHR-BS", "ENHR-LDAZ-BS",
+            "ENHR-NALZ-BS", "ENHR-TURZ-BS", "EQSC-BS", "HORT-BS", "HORT-CEHZ-BS", "HORT-HBMZ-BS", "HORT-HFCZ-BS",
+            "HORT-HOSZ-BS", "LDAR-BS", "LSBM-BS", "SOCR-BS", "SOCR-PBTZ-BS", "SOCR-SESZ-BS", "SOCR-SAMZ-BS", "BUSA-BS",
+            "BUSA-ACCZ-BS", "BUSA-FINZ-BS", "BUSA-FPLZ-BS", "BUSA-HRMZ-BS", "BUSA-INSZ-BS", "BUSA-MINZ-BS",
+            "BUSA-MKTZ-BS", "BUSA-REAZ-BS", "BUSA-SCMZ-BS", "CBEG-DUAL", "CBEG-BMEC-BS", "CPEG-BMEP-BS", "ELEG-BMEE-BS",
+            "ELEG-BMEL-BS", "MECH-BMEM-BS", "CBEG-BS", "CIVE-BS", "CPEG-BS", "CPEG-AESZ-BS", "CPEG-EISZ-BS",
+            "CPEG-NDTZ-BS", "CPEG-VICZ-BS", "ELEG-BS", "ELEG-ELEZ-BS", "ELEG-LOEZ-BS", "ELEG-ASPZ-BS", "ENVE-BS",
+            "MECH-BS", "MECH-ACEZ-BS", "MECH-ADMZ-BS", "APAM-BS", "APAM-ADAZ-BS", "APAM-MDSZ-BS", "APAM-PDVZ-BS",
+            "CTMG-BS", "FMST-BS", "HAES-BS", "HAES-HPRZ-BS", "HAES-SPMZ-BS", "HSMG-BS", "IARD-BS", "NAFS-BS",
+            "NAFS-DNMZ-BS", "NAFS-FSCZ-BS", "NAFS-NFTZ-BS", "NAFS-PHNZ-BS", "ECON-BA", "ECSS-BS", "FWCB-BS",
+            "FWCB-CNVZ-BS", "FWCB-FASZ-BS", "FWCB-WDBZ-BS", "FRRS-BS", "FRRS-FRBZ-BS", "FRRS-FRFZ-BS", "FRRS-FMGZ-BS",
+            "FRRS-RFMZ-BS", "FRRS-RCMZ-BS", "GEOL-BS", "GEOL-EVGZ-BS", "GEOL-GEOZ-BS", "GEOL-GPYZ-BS", "GEOL-HYDZ-BS",
+            "HDNR-BS", "NRRT-BS", "NRRT-GLTZ-BS", "NRRT-NRTZ-BS", "NRMG-BS", "RECO-BS", "WRSC-BS", "WRSC-WSDZ-BS",
+            "WRSC-WSSZ-BS", "WRSC-WSUZ-BS", "BCHM-BS", "BCHM-ASBZ-BS", "BCHM-DTSZ-BS", "BCHM-HMSZ-BS", "BCHM-PPHZ-BS",
+            "BLSC-BS", "BLSC-BLSZ-BS", "BLSC-BTNZ-BS", "CHEM-BS", "CHEM-ECHZ-BS", "CHEM-FCHZ-BS", "CHEM-HSCZ-BS",
+            "CHEM-SCHZ-BS", "CPSC-BS", "CPSC-CPSZ-BS", "CPSC-HCCZ-BS", "CPSC-AIMZ-BS", "CPSC-CSYZ-BS", "CPSC-NSCZ-BS",
+            "CPSC-SEGZ-BS", "CPSC-CSEZ-BS", "DSCI-BS", "DSCI-CSCZ-BS", "DSCI-ECNZ-BS", "DSCI-MATZ-BS", "DSCI-STSZ-BS",
+            "DSCI-NEUZ-BS", "MATH-BS", "MATH-ALSZ-BS", "MATH-AMTZ-BS", "MATH-GNMZ-BS", "MATH-MTEZ-BS", "MATH-CPMZ-BS",
+            "NSCI-BS", "NSCI-BLEZ-BS", "NSCI-CHEZ-BS", "NSCI-GLEZ-BS", "NSCI-PHSZ-BS", "NSCI-PHEZ-BS", "PHYS-BS",
+            "PHYS-APPZ-BS", "PHYS-PHYZ-BS", "PSYC-BS", "PSYC-CCPZ-BS", "PSYC-GPSZ-BS", "PSYC-IOPZ-BS", "PSYC-MBBZ-BS",
+            "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS", "NERO-BCNZ-BS",
+            "NERO-CMNZ-BS",
+            // Below are not in catalog
+            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS",
+            "USBU" // Exploratory studies: Business interest
+            );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
     private static final boolean DEBUG = true;
@@ -142,7 +194,7 @@ public class BulkUpdateMPLTestScores {
     /**
      * Executes the job.
      *
-     * @param cache the data cache
+     * @param cache  the data cache
      * @param report a list of strings to which to add report output lines
      * @throws SQLException if there is an error accessing the database
      */
@@ -243,24 +295,28 @@ public class BulkUpdateMPLTestScores {
                         }
                     }
 
-                    final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, stuId);
-
                     String wantValue = null;
-                    if (latest1.containsKey(stuId)) {
-                        if (status.isPlacementComplete) {
-                            wantValue = "1";
-                        } else if (status.isPlacementNeeded) {
-                            wantValue = "2";
-                        } else {
-                            wantValue = "1";
+                    if (isProgramOnlyAUCC(student, report)) {
+                        wantValue = "1";
+                    } else {
+                        final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, stuId);
+
+                        if (latest1.containsKey(stuId)) {
+                            if (status.isPlacementComplete) {
+                                wantValue = "1";
+                            } else if (status.isPlacementNeeded) {
+                                wantValue = "2";
+                            } else {
+                                wantValue = "1";
+                            }
                         }
                     }
 
                     boolean doInsert = false;
                     if (wantValue == null) {
                         if (mostRecent != null) {
-                            final String msg = HtmlBuilder.concat("Student ", stuId,
-                                    " who has not completed MathPlan has a MPL score of ", mostRecent.testScore);
+                            final String msg = HtmlBuilder.concat("Student ", stuId, " who has not completed " +
+                                    "MathPlan" + " has a MPL score of ", mostRecent.testScore);
                             Log.warning(msg);
                             report.add(msg);
                         }
@@ -276,7 +332,7 @@ public class BulkUpdateMPLTestScores {
                         // Score has changed - insert a new score
                         if (DEBUG) {
                             final String msg = HtmlBuilder.concat("   Need to insert MPL=", wantValue,
-                                    " test score for ", stuId);
+                                    " test score " + "for ", stuId);
                             Log.fine(msg);
                             report.add(msg);
                         } else {
@@ -296,7 +352,7 @@ public class BulkUpdateMPLTestScores {
                         }
                         if ("2".equals(wantValue)) {
                             ++count2;
-                        } else{
+                        } else {
                             ++count1;
                         }
                     }
@@ -325,6 +381,33 @@ public class BulkUpdateMPLTestScores {
         } finally {
             this.liveCtx.checkInConnection(liveConn);
         }
+    }
+
+    /**
+     * Tests whether the student's program code is one of those that needs only AUCC-1B.
+     *
+     * @param student the student record
+     * @return true if this code only needs AUCC 1B
+     */
+    private boolean isProgramOnlyAUCC(final RawStudent student, final Collection<? super String> report) {
+
+        boolean auccOnly;
+
+        final String programCode = student.programCode;
+
+        if (MAJORS_NEEDING_ONLY_AUCC.contains(programCode)) {
+            auccOnly = true;
+        } else if (MAJORS_NEEDING_MORE.contains(programCode)) {
+            auccOnly = false;
+        } else {
+            final String msg = HtmlBuilder.concat("Unrecognized program code: ", programCode, ", student ",
+                    student.stuId, " college is ", student.college, " and department is ", student.dept);
+            Log.fine(msg);
+            report.add(msg);
+            auccOnly = false;
+        }
+
+        return auccOnly;
     }
 
     /**

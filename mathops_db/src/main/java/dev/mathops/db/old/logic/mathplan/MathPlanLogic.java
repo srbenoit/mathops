@@ -2397,58 +2397,58 @@ public final class MathPlanLogic {
 
                 // *** Major in International Studies (with five concentrations)
 
-                final Major mINST = new Major(5190, "INST-BS", Boolean.FALSE,
+                final Major mINST = new Major(5190, "INST-BA", Boolean.FALSE,
                         "International Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major/");
-                final MajorMathRequirement rINST = new MajorMathRequirement("INST-BS")
+                final MajorMathRequirement rINST = new MajorMathRequirement("INST-BA")
                         .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINST, rINST);
 
-                final Major mINSTASTZ = new Major(5191, "INST-ASTZ-BS",
+                final Major mINSTASTZ = new Major(5191, "INST-ASTZ-BA",
                         Boolean.TRUE, "International Studies",
                         "Asian Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major-asian-concentration/");
                 final MajorMathRequirement rINSTASTZ =
-                        new MajorMathRequirement("INST-ASTZ-BS")
+                        new MajorMathRequirement("INST-ASTZ-BA")
                                 .setSemesterCourses(null, MathPlanConstants.AUCC3, null);
                 map.put(mINSTASTZ, rINSTASTZ);
 
-                final Major mINSTEUSZ = new Major(5192, "INST-EUSZ-BS",
+                final Major mINSTEUSZ = new Major(5192, "INST-EUSZ-BA",
                         Boolean.TRUE, "International Studies",
                         "European Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major-european-concentration/");
                 final MajorMathRequirement rINSTEUSZ =
-                        new MajorMathRequirement("INST-EUSZ-BS")
+                        new MajorMathRequirement("INST-EUSZ-BA")
                                 .setSemesterCourses(null, "AUCC3.", null);
                 map.put(mINSTEUSZ, rINSTEUSZ);
 
-                final Major mINSTGBLZ = new Major(5195, "INST-GBLZ-BS",
+                final Major mINSTGBLZ = new Major(5195, "INST-GBLZ-BA",
                         Boolean.TRUE, "International Studies",
                         "Global Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major-global-studies" +
                                 "-concentration/");
                 final MajorMathRequirement rINSTGBLZ =
-                        new MajorMathRequirement("INST-GBLZ-BS")
+                        new MajorMathRequirement("INST-GBLZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTGBLZ, rINSTGBLZ);
 
-                final Major mINSTLTSZ = new Major(5193, "INST-LTSZ-BS",
+                final Major mINSTLTSZ = new Major(5193, "INST-LTSZ-BA",
                         Boolean.TRUE, "International Studies",
                         "Latin American Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major-latin-american" +
                                 "-concentration/");
                 final MajorMathRequirement rINSTLTSZ =
-                        new MajorMathRequirement("INST-LTSZ-BS")
+                        new MajorMathRequirement("INST-LTSZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTLTSZ, rINSTLTSZ);
 
-                final Major mINSTMEAZ = new Major(5194, "INST-MEAZ-BS",
+                final Major mINSTMEAZ = new Major(5194, "INST-MEAZ-BA",
                         Boolean.TRUE, "International Studies",
                         "Middle East and North African Studies",
                         MathPlanConstants.CAT + "liberal-arts/international-studies-major-middle-east-north-african" +
                                 "-concentration/");
                 final MajorMathRequirement rINSTMEAZ =
-                        new MajorMathRequirement("INST-MEAZ-BS")
+                        new MajorMathRequirement("INST-MEAZ-BA")
                                 .setSemesterCourses(null, "AUCC3!", null);
                 map.put(mINSTMEAZ, rINSTMEAZ);
 
@@ -2467,11 +2467,11 @@ public final class MathPlanLogic {
 
                 // *** Major in Ecosystem Science and Sustainability
 
-                final Major mECSS = new Major(6000, "ECSS-BA", Boolean.TRUE,
+                final Major mECSS = new Major(6000, "ECSS-BS", Boolean.TRUE,
                         "Ecosystem Science and Sustainability",
                         MathPlanConstants.CAT + "natural-resources/ecosystem-science-sustainability/"
                                 + "ecosystem-science-sustainability-major/");
-                final MajorMathRequirement rECSS = new MajorMathRequirement("ECSS-BA")
+                final MajorMathRequirement rECSS = new MajorMathRequirement("ECSS-BS")
                         .setSemesterCourses(null, MathPlanConstants.CALC1BIO, null);
                 map.put(mECSS, rECSS);
 
