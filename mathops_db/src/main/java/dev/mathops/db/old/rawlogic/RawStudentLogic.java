@@ -709,9 +709,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateProgram(final Cache cache, final String studentId,
-                                        final String newCollege, final String newDepartment,
-                                        final String newProgramCode,
+    public static boolean updateProgram(final Cache cache, final String studentId, final String newCollege,
+                                        final String newDepartment, final String newProgramCode,
                                         final String newMinor) throws SQLException {
 
         final boolean result;
@@ -863,8 +862,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateTestScores(final Cache cache, final String studentId,
-                                           final Integer newAct, final Integer newSat, final String newAp) throws SQLException {
+    public static boolean updateTestScores(final Cache cache, final String studentId, final Integer newAct,
+                                           final Integer newSat, final String newAp) throws SQLException {
 
         final boolean result;
 

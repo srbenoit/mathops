@@ -82,7 +82,9 @@ public class BulkUpdateMPLTestScores {
             "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA", "INST-GBLZ-BA", "INST-LTSZ-BA",
             "INST-MEAZ-BA", "ILAR-BA",
             // Below are not in catalog
-            "THTR-DTHZ-BA");
+            "THTR-DTHZ-BA", "CMST-DD-BA", "HDFS-DHDZ-BS", "HDFS-DECZ-BS",
+            "MUS0" // Pre-music
+            );
 
     private static final List<String> MAJORS_NEEDING_MORE = Arrays.asList(
             "AGBI-BS", "AGBI-ENTZ-BS", "AGBI-PLPZ-BS", "AGBI-WEEZ-BS", "AGBU-BS", "AGBU-AECZ-BS", "AGBU-FRCZ-BS",
@@ -107,10 +109,18 @@ public class BulkUpdateMPLTestScores {
             "NSCI-BS", "NSCI-BLEZ-BS", "NSCI-CHEZ-BS", "NSCI-GLEZ-BS", "NSCI-PHSZ-BS", "NSCI-PHEZ-BS", "PHYS-BS",
             "PHYS-APPZ-BS", "PHYS-PHYZ-BS", "PSYC-BS", "PSYC-CCPZ-BS", "PSYC-GPSZ-BS", "PSYC-IOPZ-BS", "PSYC-MBBZ-BS",
             "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS", "NERO-BCNZ-BS",
-            "NERO-CMNZ-BS",
+            "NERO-CMNZ-BS", "HEMG-BS",
             // Below are not in catalog
-            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS",
-            "USBU" // Exploratory studies: Business interest
+            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS",
+            "CTM0", // Pre-construction management
+            "USBU", // Exploratory studies: Business interest
+            "EXPL", "EXLA", // Exploratory studies: Land, Plant, and Animal Science
+            "EXHF", // Exploratory studies: Health, Life, and Food
+            "EXOM", // Exploratory studies: Organization, Management, Ent.
+            "EXNR", // Exploratory studies: Environmental and Natural Sci.
+            "USEG", // Exploratory studies
+            "USBS", // Exploratory studies: Life Sciences
+            "USCS" // ???
             );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
@@ -395,7 +405,9 @@ public class BulkUpdateMPLTestScores {
 
         final String programCode = student.programCode;
 
-        if (MAJORS_NEEDING_ONLY_AUCC.contains(programCode)) {
+        if (programCode == null || programCode.isBlank()) {
+            auccOnly = false;
+        } else if (MAJORS_NEEDING_ONLY_AUCC.contains(programCode)) {
             auccOnly = true;
         } else if (MAJORS_NEEDING_MORE.contains(programCode)) {
             auccOnly = false;

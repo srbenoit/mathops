@@ -3,6 +3,7 @@ package dev.mathops.dbjobs.batch;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -12,6 +13,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -105,24 +107,20 @@ final class BulkUpdateStudentInformation {
             Log.info("Loaded " + numStudents + " students");
 
             final Map<String, OdsPersonData> personData = queryAllPersons(odsConn);
+            final Map<String, OdsTermData> termData = queryAllTerms(odsConn);
 
-//            int onStudent = 0;
-//            for (final RawStudent student : allStudents) {
-//                ++onStudent;
-//                if ((onStudent % 100) == 0) {
-//                    Log.fine("-> Processing student " + onStudent + " out of " + numStudents);
-//                }
-//
-//                if ("888888888".equals(student.stuId)) {
-//                    continue;
-//                }
-//
-//                try {
-//                    processStudent(cache, odsConn, student);
-//                } catch (final SQLException ex) {
-//                    Log.warning("Failed to query student from LIVE database.", ex);
-//                }
-//            }
+            for (final RawStudent student : allStudents) {
+                final String stuId = student.stuId;
+                if ("888888888".equals(stuId)) {
+                    continue;
+                }
+
+                try {
+                    processStudent(cache, student, personData.get(stuId), termData.get(stuId));
+                } catch (final SQLException ex) {
+                    Log.warning("Failed to query student from LIVE database.", ex);
+                }
+            }
         }
     }
 
@@ -230,25 +228,24 @@ final class BulkUpdateStudentInformation {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT CSU_ID, PIDM, FIRST_NAME, MIDDLE_NAME, LAST_NAME, PREFERRED_FIRST_NAME, EMAIL, BIRTH_DATE, ",
-                "SATR_MATH, SAT_MATH, ACT_MATH, HS_GPA hs_gpa, HS_CODE, HS_CLASS_SIZE, HS_CLASS_RANK ",
+                "SATR_MATH, SAT_MATH, ACT_MATH, HS_GPA, HS_CODE, HS_CLASS_SIZE, HS_CLASS_RANK ",
                 "FROM CSUBAN.CSUG_GP_ADMISSIONS");
 
-        int count = 0;
         try (final Statement stmt = odsConn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
                     final String csuId = rs.getString("CSU_ID");
                     final Integer pidm = DbUtils.getInteger(rs, "PIDM");
-                    final String firstName = rs.getString("FIRST_NAME");
-                    final String middleName = rs.getString("MIDDLE_NAME");
-                    final String lastName = rs.getString("LAST_NAME");
-                    final String prefName = rs.getString("PREFERRED_FIRST_NAME");
-                    final String email = rs.getString("EMAIL");
+                    final String firstName = prune(rs.getString("FIRST_NAME"), 30);
+                    final String middleName = prune(rs.getString("MIDDLE_NAME"), 1);
+                    final String lastName = prune(rs.getString("LAST_NAME"), 30);
+                    final String prefName = prune(rs.getString("PREFERRED_FIRST_NAME"), 30);
+                    final String email = prune(rs.getString("EMAIL"), 60);
                     final String birthDate = rs.getString("BIRTH_DATE");
                     final Integer satr = DbUtils.getInteger(rs, "SATR_MATH");
                     final Integer sat = DbUtils.getInteger(rs, "SAT_MATH");
                     final Integer act = DbUtils.getInteger(rs, "ACT_MATH");
-                    final String hsGpa = rs.getString("HS_GPA");
+                    final String hsGpa = prune(rs.getString("HS_GPA"), 4);
                     final String hsCode = rs.getString("HS_CODE");
                     final Integer hsClassSize = DbUtils.getInteger(rs, "HS_CLASS_SIZE");
                     final Integer hsClassRank = DbUtils.getInteger(rs, "HS_CLASS_RANK");
@@ -277,7 +274,6 @@ final class BulkUpdateStudentInformation {
                             Log.warning(" *** Duplicate ODS record for student ", csuId);
                         }
                         result.put(csuId, rec);
-                        ++count;
 
                     } catch (final NumberFormatException | DateTimeException ex) {
                         Log.warning("Unable to parse fields from ODS for student ", csuId, ex);
@@ -286,222 +282,382 @@ final class BulkUpdateStudentInformation {
             }
         }
 
-        Log.info("Loaded " + count + " ODS students");
+        Log.info("Loaded " + result.size() + " ODS students");
 
         return result;
     }
 
     /**
-     * Processes a single student.
+     * Queries for all the most recent term record for all students in the ODS.
      *
-     * @param cache   the data cache
      * @param odsConn the connection to the ODS database
-     * @param student the student record
+     * @return a map from CSU ID number to the person data record
      * @throws SQLException if there is an error accessing either database
      */
-    private static void processStudent(final Cache cache, final DbConnection odsConn, final RawStudent student)
-            throws SQLException {
-
-//        Table CSUBAN.CSUG_GP_DEMO:
-//        CSU_ID                        : VARCHAR2(63)
-//        PIDM                          : NUMBER
-//        LEGAL_NAME                    : VARCHAR2(500)
-//        UPPER_NAME                    : VARCHAR2(255)
-//        FIRST_NAME                    : VARCHAR2(63)
-//        MIDDLE_NAME                   : VARCHAR2(63)
-//        LAST_NAME                     : VARCHAR2(63)
-//        NAME_SUFFIX                   : VARCHAR2(20)
-//        PREFERRED_FIRST_NAME          : VARCHAR2(63)
-//        PREFERRED_LAST_NAME           : VARCHAR2(60)
-//        EMAIL                         : VARCHAR2(90)
-//        ADDR_1                        : VARCHAR2(255)
-//        ADDR_2                        : VARCHAR2(255)
-//        ADDR_3                        : VARCHAR2(255)
-//        BIRTH_DATE                    : DATE
-//        AGE                           : NUMBER
-//        CITY                          : VARCHAR2(63)
-//        COUNTY                        : VARCHAR2(63)
-//        COUNTY_DESC                   : VARCHAR2(255)
-//        STATE                         : VARCHAR2(63)
-//        STATE_DESC                    : VARCHAR2(255)
-//        NATION                        : VARCHAR2(63)
-//        NATION_DESC                   : VARCHAR2(255)
-//        ZIP                           : VARCHAR2(30)
-//        TELEPHONE                     : VARCHAR2(30)
-//        CONFIDENTIALITY_IND           : VARCHAR2(1)
-//        GENDER                        : VARCHAR2(63)
-//        ETHNIC                        : VARCHAR2(63)
-//        ETHNIC_DESC                   : VARCHAR2(255)
-//        LOST_ID_DIGIT                 : VARCHAR2(300)
-//        INTERNATIONAL_FLAG            : VARCHAR2(4000)
-//        CITIZENSHIP_COUNTRY_CODE      : VARCHAR2(4000)
-//        CITIZENSHIP_COUNTRY_DESC      : VARCHAR2(4000)
-//        HISPANIC_LATINO_ETHNICITY_IND : VARCHAR2(1)
-//        AMERICAN_INDIAN_RACE_IND      : VARCHAR2(1)
-//        ASIAN_RACE_IND                : VARCHAR2(1)
-//        BLACK_RACE_IND                : VARCHAR2(1)
-//        HAWAIIAN_RACE_IND             : VARCHAR2(1)
-//        WHITE_RACE_IND                : VARCHAR2(1)
-//        MULTI_RACE_IND                : VARCHAR2(1)
-//        MULTI_SOURCE                  : VARCHAR2(6)
-//        MULTI_SOURCE_DESC             : VARCHAR2(30)
-
-        String odsPidm = null;
-        String odsFirstName = null;
-        String odsLastName = null;
-        String odsMiddleName = null;
-        String odsPrefName = null;
-        String odsEmail = null;
-        String odsBirthDate = null;
-
-        final String sql1 = SimpleBuilder.concat(
-                "SELECT A.CSU_ID csuid, A.PIDM pidm, A.FIRST_NAME first, A.MIDDLE_NAME middle, A.LAST_NAME last, ",
-                "A.PREFERRED_FIRST_NAME pref, A.EMAIL email, A.BIRTH_DATE birth ",
-                "FROM CSUBAN.CSUG_GP_DEMO A WHERE A.CSU_ID = '", student.stuId, "'");
-
-        try (final Statement stmt = odsConn.createStatement()) {
-            try (final ResultSet rs = stmt.executeQuery(sql1)) {
-                while (rs.next()) {
-                    odsPidm = rs.getString("pidm");
-                    odsFirstName = rs.getString("first");
-                    odsMiddleName = rs.getString("middle");
-                    odsLastName = rs.getString("last");
-                    odsPrefName = rs.getString("pref");
-                    odsEmail = rs.getString("email");
-                    odsBirthDate = rs.getString("birth");
-                }
-            }
-        }
+    private static Map<String, OdsTermData> queryAllTerms(final DbConnection odsConn) throws SQLException {
 
 //        Table CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH:
-//        PIDM                          : NUMBER
-//        CSU_ID                        : VARCHAR2(63)
-//        NAME                          : VARCHAR2(255)
-//        TERM                          : VARCHAR2(63)
-//        TERM_DESC                     : VARCHAR2(255)
-//        YEAR                          : VARCHAR2(63)
-//        ACADEMIC_STANDING             : VARCHAR2(63)
-//        ACADEMIC_STANDING_DESC        : VARCHAR2(255)
-//        ADM_INDEX                     : NUMBER
-//        ANTICIPATED_GRAD_ACAD_YR      : VARCHAR2(63)
-//        ANTICIPATED_GRAD_ACAD_YR_DESC : VARCHAR2(255)
-//        ANTICIPATED_GRAD_DATE         : DATE
-//        ANTICIPATED_GRAD_TERM         : VARCHAR2(63)
-//        CONTINUOUS_REG                : VARCHAR2(1)
-//        CREDITS_CE                    : NUMBER
-//        CREDITS_RI                    : NUMBER
-//        CREDITS_NON_CSU               : NUMBER
-//        CREDITS_SI                    : NUMBER
-//        CREDITS_OTHER                 : NUMBER
-//        CREDITS_TOTAL                 : NUMBER
-//        GPA                           : NUMBER
-//        GPA_ATTEMPTED_CREDITS         : NUMBER
-//        GPA_CREDITS                   : NUMBER
-//        GPA_EARNED_CREDITS            : NUMBER
-//        GPA_PASSED_CREDITS            : NUMBER
-//        DEANS_LIST                    : VARCHAR2(63)
-//        DEANS_LIST_DESC               : VARCHAR2(255)
-//        CREDIT_LOAD                   : VARCHAR2(63)
-//        CAMPUS                        : VARCHAR2(63)
-//        CAMPUS_DESC                   : VARCHAR2(255)
-//        PRIMARY_COLLEGE               : VARCHAR2(63)
-//        PRIMARY_COLLEGE_DESC          : VARCHAR2(255)
-//        PRIMARY_DEPARTMENT            : VARCHAR2(63)
-//        PRIMARY_DEPARTMENT_DESC       : VARCHAR2(255)
-//        PRIMARY_MAJOR                 : VARCHAR2(63)
-//        PRIMARY_MAJOR_DESC            : VARCHAR2(255)
-//        PROGRAM_OF_STUDY              : VARCHAR2(63)
-//        PROGRAM_OF_STUDY_DESC         : VARCHAR2(255)
-//        RESIDENCY                     : VARCHAR2(63)
-//        RESIDENCY_DESC                : VARCHAR2(255)
-//        RESIDENCY_INDICATOR           : VARCHAR2(1)
-//        STUDENT_CLASS                 : VARCHAR2(63)
-//        STUDENT_CLASS_DESC            : VARCHAR2(255)
-//        STUDENT_LEVEL                 : VARCHAR2(63)
-//        STUDENT_LEVEL_DESC            : VARCHAR2(255)
-//        STUDENT_TYPE                  : VARCHAR2(63)
-//        STUDENT_TYPE_DESC             : VARCHAR2(255)
-//        TERM_DEGREE                   : VARCHAR2(63)
-//        TERM_DEGREE_DESC              : VARCHAR2(255)
-//        ADMISSIONS_POPULATION         : VARCHAR2(63)
-//        ADMISSIONS_POPULATION_DESC    : VARCHAR2(255)
-//        SITE                          : VARCHAR2(63)
-//        SITE_DESC                     : VARCHAR2(255)
-//        PROGRAM_SITE                  : VARCHAR2(127)
-//        MULTI_SOURCE                  : VARCHAR2(6)
-//        MULTI_SOURCE_DESC             : VARCHAR2(30)
-//        EXTRACT_DATE                  : DATE
+//         PIDM                          : NUMBER
+//         CSU_ID                        : VARCHAR2(63)
+//         NAME                          : VARCHAR2(255)
+//         TERM                          : VARCHAR2(63)
+//         TERM_DESC                     : VARCHAR2(255)
+//         YEAR                          : VARCHAR2(63)
+//         ACADEMIC_STANDING             : VARCHAR2(63)
+//         ACADEMIC_STANDING_DESC        : VARCHAR2(255)
+//         ADM_INDEX                     : NUMBER
+//         ANTICIPATED_GRAD_ACAD_YR      : VARCHAR2(63)
+//         ANTICIPATED_GRAD_ACAD_YR_DESC : VARCHAR2(255)
+//         ANTICIPATED_GRAD_DATE         : DATE
+//         ANTICIPATED_GRAD_TERM         : VARCHAR2(63)
+//         CONTINUOUS_REG                : VARCHAR2(1)
+//         CREDITS_CE                    : NUMBER
+//         CREDITS_RI                    : NUMBER
+//         CREDITS_NON_CSU               : NUMBER
+//         CREDITS_SI                    : NUMBER
+//         CREDITS_OTHER                 : NUMBER
+//         CREDITS_TOTAL                 : NUMBER
+//         GPA                           : NUMBER
+//         GPA_ATTEMPTED_CREDITS         : NUMBER
+//         GPA_CREDITS                   : NUMBER
+//         GPA_EARNED_CREDITS            : NUMBER
+//         GPA_PASSED_CREDITS            : NUMBER
+//         DEANS_LIST                    : VARCHAR2(63)
+//         DEANS_LIST_DESC               : VARCHAR2(255)
+//         CREDIT_LOAD                   : VARCHAR2(63)
+//         CAMPUS                        : VARCHAR2(63)
+//         CAMPUS_DESC                   : VARCHAR2(255)
+//         PRIMARY_COLLEGE               : VARCHAR2(63)
+//         PRIMARY_COLLEGE_DESC          : VARCHAR2(255)
+//         PRIMARY_DEPARTMENT            : VARCHAR2(63)
+//         PRIMARY_DEPARTMENT_DESC       : VARCHAR2(255)
+//         PRIMARY_MAJOR                 : VARCHAR2(63)
+//         PRIMARY_MAJOR_DESC            : VARCHAR2(255)
+//         PROGRAM_OF_STUDY              : VARCHAR2(63)
+//         PROGRAM_OF_STUDY_DESC         : VARCHAR2(255)
+//         RESIDENCY                     : VARCHAR2(63)
+//         RESIDENCY_DESC                : VARCHAR2(255)
+//         RESIDENCY_INDICATOR           : VARCHAR2(1)
+//         STUDENT_CLASS                 : VARCHAR2(63)
+//         STUDENT_CLASS_DESC            : VARCHAR2(255)
+//         STUDENT_LEVEL                 : VARCHAR2(63)
+//         STUDENT_LEVEL_DESC            : VARCHAR2(255)
+//         STUDENT_TYPE                  : VARCHAR2(63)
+//         STUDENT_TYPE_DESC             : VARCHAR2(255)
+//         TERM_DEGREE                   : VARCHAR2(63)
+//         TERM_DEGREE_DESC              : VARCHAR2(255)
+//         ADMISSIONS_POPULATION         : VARCHAR2(63)
+//         ADMISSIONS_POPULATION_DESC    : VARCHAR2(255)
+//         SITE                          : VARCHAR2(63)
+//         SITE_DESC                     : VARCHAR2(255)
+//         PROGRAM_SITE                  : VARCHAR2(127)
+//         MULTI_SOURCE                  : VARCHAR2(6)
+//         MULTI_SOURCE_DESC             : VARCHAR2(30)
+//         EXTRACT_DATE                  : DATE
 
-        int maxTerm = 0;
-        String odsCollege = null;
-        String odsDept = null;
-        String odsProgram = null;
-        String odsClass = null;
-        String odsGradTerm = null;
-        String odsResidency = null;
-        String odsCampus = null;
+        final Map<String, OdsTermData> result = new HashMap<>(600_000);
 
-        final String sql2 = SimpleBuilder.concat("SELECT A.TERM term, A.PRIMARY_COLLEGE college, ",
-                "A.PRIMARY_DEPARTMENT dept, A.PROGRAM_OF_STUDY program, A.STUDENT_CLASS cls, ",
-                "A.ANTICIPATED_GRAD_TERM gradTerm, A.RESIDENCY residency, A.CAMPUS campus ",
-                "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH A WHERE A.CSU_ID = '", student.stuId, "'");
+        final String sql = SimpleBuilder.concat(
+                "SELECT CSU_ID, TERM, ANTICIPATED_GRAD_TERM, CAMPUS, PRIMARY_COLLEGE, PRIMARY_DEPARTMENT, ",
+                "PROGRAM_OF_STUDY, RESIDENCY, STUDENT_CLASS ",
+                "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH");
 
         try (final Statement stmt = odsConn.createStatement()) {
-            try (final ResultSet rs = stmt.executeQuery(sql2)) {
+            try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
-                    final String termStr = rs.getString("term");
+                    final String csuId = rs.getString("CSU_ID");
+                    final Integer term = DbUtils.getInteger(rs, "TERM");
 
-                    if (termStr != null) {
+                    if (term == null) {
+                        Log.warning("Null term field in ODS for student ", csuId);
+                    } else {
+                        final Integer gradTerm = DbUtils.getInteger(rs, "ANTICIPATED_GRAD_TERM");
+                        final String campus = rs.getString("CAMPUS");
+                        final String college = rs.getString("PRIMARY_COLLEGE");
+                        final String dept = rs.getString("PRIMARY_DEPARTMENT");
+                        final String program = rs.getString("PROGRAM_OF_STUDY");
+                        final String residency = rs.getString("RESIDENCY");
+                        final String studentClass = rs.getString("STUDENT_CLASS");
+
                         try {
-                            int termValue = Integer.parseInt(termStr);
+                            final OdsTermData rec = new OdsTermData(csuId, term, gradTerm, campus, college, dept,
+                                    program,
+                                    residency, studentClass);
 
-                            if (termValue > maxTerm) {
-                                maxTerm = termValue;
-                                odsCollege = rs.getString("college");
-                                odsDept = rs.getString("dept");
-                                odsProgram = rs.getString("program");
-                                odsClass = rs.getString("cls");
-                                odsGradTerm = rs.getString("gradTerm");
-                                odsResidency = rs.getString("residency");
-                                odsCampus = rs.getString("campus");
+                            final OdsTermData existing = result.get(csuId);
+                            if (existing == null || existing.term.intValue() < term.intValue()) {
+                                result.put(csuId, rec);
                             }
-                        } catch (final NumberFormatException ex) {
-                            Log.warning("Unable to parse term string [", termStr, "]", ex);
+                        } catch (final NumberFormatException | DateTimeException ex) {
+                            Log.warning("Unable to parse fields from ODS for student ", csuId, ex);
                         }
                     }
                 }
             }
         }
 
-        if (maxTerm > 0) {
+        Log.info("Loaded " + result.size() + " ODS term records");
 
-            if (odsPidm == null) {
-                Log.warning("PIDM from ODS was null for student ", student.stuId);
-            } else if (odsFirstName == null) {
-                Log.warning("First name from ODS was null for student ", student.stuId);
-            } else if (odsLastName == null) {
-                Log.warning("Last name from ODS was null for student ", student.stuId);
+        return result;
+    }
+
+    /**
+     * Trims and prunes a string to a maximum length.
+     *
+     * @param raw       the raw string
+     * @param maxLength the maximum length
+     * @return the trimmed and pruned string
+     */
+    private static String prune(final String raw, final int maxLength) {
+
+        String pruned = null;
+
+        if (raw != null) {
+            final String trimmed = raw.trim();
+            if (!trimmed.isEmpty()) {
+                pruned = trimmed.length() > maxLength ? trimmed.substring(0, maxLength).trim() : trimmed;
+
+                if (pruned.indexOf('\u2019') > -1) {
+                    pruned = pruned.replace('\u2019', '\'');
+                }
+                if (pruned.indexOf('\u00B4') > -1) {
+                    pruned = pruned.replace('\u00B4', '\'');
+                }
+            }
+        }
+
+        return pruned;
+    }
+
+    /**
+     * Processes a single student.
+     *
+     * @param cache      the data cache
+     * @param student    the student record
+     * @param personData the ODS person data, if found
+     * @param termData   the ODS term data, if found
+     * @throws SQLException if there is an error accessing either database
+     */
+    private static void processStudent(final Cache cache, final RawStudent student, final OdsPersonData personData,
+                                       final OdsTermData termData) throws SQLException {
+
+        if (personData == null) {
+            if (termData == null) {
+                Log.warning("*** No [person] or [term] data for student ", student.stuId);
             } else {
-                try {
-                    final Integer pidmValue = Integer.valueOf(odsPidm);
-                    final String initial = odsMiddleName == null || odsMiddleName.isBlank() ? null :
-                            odsMiddleName.trim().substring(0, 1);
+                Log.warning("*** No [person] data for student ", student.stuId);
+                updateTermData(cache, student, termData);
+            }
+        } else {
+            updatePersonData(cache, student, personData);
+            if (termData != null) {
+                updateTermData(cache, student, termData);
+            }
+        }
+    }
 
-                    final boolean match = pidmValue.equals(student.pidm)
-                            && odsFirstName.equals(student.firstName)
-                            && odsLastName.equals(student.lastName)
-                            && Objects.equals(initial, student.middleInitial)
-                            && Objects.equals(odsPrefName, student.prefName)
-                            && Objects.equals(odsEmail, student.stuEmail)
-                            && Objects.equals(odsCollege, student.college)
-                            && Objects.equals(odsDept, student.dept)
-                            && Objects.equals(odsProgram, student.programCode);
+    /**
+     * Updates person data on a single student.
+     *
+     * @param cache      the data cache
+     * @param student    the student record
+     * @param personData the ODS person data
+     * @throws SQLException if there is an error accessing either database
+     */
+    private static void updatePersonData(final Cache cache, final RawStudent student, final OdsPersonData personData)
+            throws SQLException {
 
-                    if (!match) {
-                        Log.info("Need to update ", student.stuId);
-                    }
-                } catch (final NumberFormatException ex) {
-                    Log.warning("Unable to parse PIDM from ODS [", odsPidm, "] for student ", student.stuId, ex);
+        final Integer pidm = personData.pidm();
+        final String firstName = personData.firstName();
+        final String middleInitial = personData.middleInitial();
+        final String lastName = personData.lastName();
+        final String prefName = personData.prefName();
+        final String email = personData.email();
+        final LocalDate birthDate = personData.birthDate();
+        final Integer satR = personData.satR();
+        final Integer sat = personData.sat();
+        final Integer act = personData.act();
+        final String hsGpa = personData.hsGpa();
+        final String hsCode = personData.hsCode();
+        final Integer hsClassSize = personData.hsClassSize();
+        final Integer hsClassRank = personData.hsClassRank();
+
+        final Integer effectiveSat = satR == null ? sat : satR;
+
+        final boolean matchPidm = Objects.equals(student.pidm, pidm);
+        final boolean matchFirstName = Objects.equals(student.firstName, firstName);
+        final boolean matchMiddleInitial = Objects.equals(student.middleInitial, middleInitial);
+        final boolean matchLastName = Objects.equals(student.lastName, lastName);
+        final boolean matchPrefName = Objects.equals(student.prefName, prefName);
+        final boolean matchEmail = Objects.equals(student.stuEmail, email);
+        final boolean matchBirthDate = Objects.equals(student.birthdate, birthDate);
+        final boolean matchAct = Objects.equals(student.actScore, act);
+        final boolean matchSat = Objects.equals(student.satScore, effectiveSat);
+        final boolean matchHsGpa = Objects.equals(student.hsGpa, hsGpa);
+        final boolean matchHsCode = Objects.equals(student.hsCode, hsCode);
+        final boolean matchHsClassSize = Objects.equals(student.hsSizeClass, hsClassSize);
+        final boolean matchHsClassRank = Objects.equals(student.hsClassRank, hsClassRank);
+
+        final boolean changed = !(matchPidm && matchFirstName && matchMiddleInitial && matchLastName && matchPrefName
+                && matchEmail && matchBirthDate && matchAct && matchSat && matchHsGpa && matchHsCode && matchHsClassSize
+                && matchHsClassRank);
+
+        if (changed) {
+            final String stuId = student.stuId;
+            Log.fine("PERSON data for student ", stuId, " needs to be updated:");
+
+            if (!matchPidm) {
+                Log.fine("    PIDM           : [", student.pidm, "] -> [", pidm, "]");
+            }
+            if (!matchFirstName) {
+                Log.fine("    FIRST NAME     : [", student.firstName, "] -> [", firstName, "]");
+            }
+            if (!matchMiddleInitial) {
+                Log.fine("    MIDDLE INITIAL : [", student.middleInitial, "] -> [", middleInitial, "]");
+            }
+            if (!matchLastName) {
+                Log.fine("    LAST NAME      : [", student.lastName, "] -> [", lastName, "]");
+            }
+            if (!matchPrefName) {
+                Log.fine("    PREF NAME      : [", student.prefName, "] -> [", prefName, "]");
+            }
+            if (!matchEmail) {
+                Log.fine("    EMAIL          : [", student.stuEmail, "] -> [", email, "]");
+            }
+            if (!matchBirthDate) {
+                Log.fine("    BIRTH DATE     : [", student.birthdate, "] -> [", birthDate, "]");
+            }
+            if (!matchAct) {
+                Log.fine("    ACT SCORE      : [", student.actScore, "] -> [", act, "]");
+            }
+            if (!matchSat) {
+                Log.fine("    SAT SCORE      : [", student.satScore, "] -> [", effectiveSat, "]");
+            }
+            if (!matchHsGpa) {
+                Log.fine("    HS GPA         : [", student.hsGpa, "] -> [", hsGpa, "]");
+            }
+            if (!matchHsCode) {
+                Log.fine("    HS CODE        : [", student.hsCode, "] -> [", hsCode, "]");
+            }
+            if (!matchHsClassSize) {
+                Log.fine("    HS CLASS SIZE  : [", student.hsSizeClass, "] -> [", hsClassSize, "]");
+            }
+            if (!matchHsClassRank) {
+                Log.fine("    HS CLASS RANK  : [", student.hsClassRank, "] -> [", hsClassRank, "]");
+            }
+
+            if (!DEBUG) {
+                // TODO: Do the actual updates!
+                if (!matchPidm) {
+                    RawStudentLogic.updateInternalId(cache, stuId, pidm);
+                }
+                if (!(matchFirstName && matchLastName && matchMiddleInitial && matchPrefName)) {
+                    RawStudentLogic.updateName(cache, stuId, lastName, firstName, prefName, middleInitial);
+                }
+                if (!matchEmail) {
+                    RawStudentLogic.updateEmail(cache, stuId, email, student.adviserEmail);
+                }
+                if (!matchBirthDate) {
+                    RawStudentLogic.updateBirthDate(cache, stuId, birthDate);
+                }
+                if (!(matchAct && matchSat)) {
+                    RawStudentLogic.updateTestScores(cache, stuId, act, effectiveSat, student.apScore);
+                }
+                if (!(matchHsGpa && matchHsCode && matchHsClassSize && matchHsClassRank)) {
+                    RawStudentLogic.updateHighSchool(cache, stuId, hsCode, hsGpa, hsClassRank, hsClassSize);
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates person data on a single student.
+     *
+     * @param cache    the data cache
+     * @param student  the student record
+     * @param termData the ODS term data
+     * @throws SQLException if there is an error accessing either database
+     */
+    private static void updateTermData(final Cache cache, final RawStudent student, final OdsTermData termData)
+            throws SQLException {
+
+        final Integer expectGradTerm = termData.expectGradTerm();
+        // Format of term: "202410", "202460", "202490"
+        TermKey effectiveTerm = null;
+        if (expectGradTerm != null) {
+            final int value = expectGradTerm.intValue();
+            if (value > 100000) {
+                final int which = value % 100;
+                final int year = value / 100;
+                if (which == 10) {
+                    effectiveTerm = new TermKey(ETermName.SPRING, year);
+                } else if (which == 60) {
+                    effectiveTerm = new TermKey(ETermName.SUMMER, year);
+                } else if (which == 90) {
+                    effectiveTerm = new TermKey(ETermName.FALL, year);
+                }
+            }
+        }
+
+        final String campus = termData.campus();
+        final String college = termData.college();
+        final String dept = termData.dept();
+        final String program = termData.program();
+        final String residency = termData.residency();
+        final String studentClass = termData.studentClass();
+
+        final boolean matchGradTerm = Objects.equals(student.estGraduation, effectiveTerm);
+        final boolean matchCampus = Objects.equals(student.campus, campus);
+        final boolean matchCollege = Objects.equals(student.college, college);
+        final boolean matchDept = Objects.equals(student.dept, dept);
+        final boolean matchProgram = Objects.equals(student.programCode, program);
+        final boolean matchResidency = Objects.equals(student.resident, residency);
+        final boolean matchStudentClass = Objects.equals(student.clazz, studentClass);
+
+        final boolean changed = !(matchGradTerm && matchCampus && matchCollege && matchDept && matchProgram
+                && matchResidency && matchStudentClass);
+
+        if (changed) {
+            final String stuId = student.stuId;
+            Log.fine("TERM data for student ", student.stuId, " needs to be updated:");
+
+            if (!matchGradTerm) {
+                Log.fine("    EST GRAD TERM  : [", student.estGraduation, "] -> [", effectiveTerm, "]");
+            }
+            if (!matchCampus) {
+                Log.fine("    CAMPUS         : [", student.campus, "] -> [", campus, "]");
+            }
+            if (!matchCollege) {
+                Log.fine("    COLLEGE        : [", student.college, "] -> [", college, "]");
+            }
+            if (!matchDept) {
+                Log.fine("    DEPARTMENT     : [", student.dept, "] -> [", dept, "]");
+            }
+            if (!matchProgram) {
+                Log.fine("    PROGRAM        : [", student.programCode, "] -> [", program, "]");
+            }
+            if (!matchResidency) {
+                Log.fine("    RESIDENCY      : [", student.resident, "] -> [", residency, "]");
+            }
+            if (!matchStudentClass) {
+                Log.fine("    STUDENT CLASS  : [", student.clazz, "] -> [", studentClass, "]");
+            }
+
+            if (!DEBUG) {
+                if (!matchGradTerm) {
+                    RawStudentLogic.updateAnticGradTerm(cache, stuId, effectiveTerm);
+                }
+                if (!matchCampus) {
+                    RawStudentLogic.updateCampus(cache, stuId, campus);
+                }
+                if (!(matchCollege && matchDept && matchProgram)) {
+                    RawStudentLogic.updateProgram(cache, stuId, college, dept, program, student.minor);
+                }
+                if (!matchResidency) {
+                    RawStudentLogic.updateResidency(cache, stuId, residency);
+                }
+                if (!matchStudentClass) {
+                    RawStudentLogic.updateClassLevel(cache, stuId, studentClass);
                 }
             }
         }
@@ -522,19 +678,17 @@ final class BulkUpdateStudentInformation {
     /**
      * A container for data from the ODS about a single person
      */
-    private record OdsPersonData(String csuId, Integer pidm, String firstName, String middleInitial, String lastName,
+    private record OdsPersonData(String csuId, Integer pidm, String firstName, String middleInitial,
+                                 String lastName,
                                  String prefName, String email, LocalDate birthDate, Integer satR, Integer sat,
-                                 Integer act, String hsGpa, String hsCode, Integer hsClassSize, Integer hsClassRank) {
+                                 Integer act, String hsGpa, String hsCode, Integer hsClassSize,
+                                 Integer hsClassRank) {
     }
 
     /**
-     * A container for data from the ODS about a single person
+     * A container for data from the ODS about a person in a single term.
      */
-    private record OdsTermData(String csuId, Integer term, Integer expectGradTerm,
-
-
-                               Integer pidm, String firstName, String middleInitial, String lastName,
-                                 String prefName, String email, LocalDate birthDate, Integer satR, Integer sat,
-                                 Integer act, String hsGpa, String hsCode, Integer hsClassSize, Integer hsClassRank) {
+    private record OdsTermData(String csuId, Integer term, Integer expectGradTerm, String campus, String college,
+                               String dept, String program, String residency, String studentClass) {
     }
 }
