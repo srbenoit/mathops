@@ -47,6 +47,7 @@ enum PageHome {
                     " (used by course owners)").eP();
             htm.sP().add("<a href='mathrefresherstudent.html'>CSU Math Refresher Student View</a>",
                     " (used by students)").eP();
+            htm.sP().add("<a href='assessmentdev.html'>Assessment System Development</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
