@@ -40,6 +40,9 @@ final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandLi
     /** A card to add a new hold. */
     private final ExamDetailsCard examDetailsCard;
 
+    /** The student data for the selected student. */
+    private StudentData studentData = null;
+
     /**
      * Constructs a new {@code AdminExamsPanel}.
      *
@@ -78,16 +81,18 @@ final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandLi
     /**
      * Sets the selected student.
      *
-     * @param data the selected student data
+     * @param theStudentData the selected student data
      */
-    public void setSelectedStudent(final StudentData data) {
+    public void setSelectedStudent(final StudentData theStudentData) {
+
+        this.studentData = theStudentData;
 
         this.examDetailsCard.reset();
 
-        if (data == null) {
+        if (theStudentData == null) {
             this.examsCard.clear();
         } else {
-            this.examsCard.populateDisplay(data);
+            this.examsCard.populateDisplay(theStudentData);
         }
 
         this.cards.show(this.cardPane, LIST_CMD);
@@ -132,7 +137,7 @@ final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandLi
     @Override
     public void commandOnRow(final int rowIndex, final ExamListRow rowData, final String cmd) {
 
-        this.examDetailsCard.setCurrent(rowData);
+        this.examDetailsCard.setCurrent(this.studentData, rowData);
         this.cards.show(this.cardPane, DETAIL_CMD);
     }
 

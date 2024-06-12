@@ -279,8 +279,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
 
         final String actualStr = actual.toString();
 
-        final StudentData data = new StudentData(this.cache, this.fixed.systemData, actualStr,
-                ELiveRefreshes.IF_MISSING);
+        final StudentData data = new StudentData(this.fixed.systemData, actualStr, ELiveRefreshes.IF_MISSING);
 
         try {
             final RawStudent stuRec = data.getStudentRecord();
@@ -391,8 +390,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                         if (found.size() == 1) {
                             final RawStudent stuRec = found.get(0);
                             addToHistory(stuRec);
-                            this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData,
-                                    stuRec.stuId, ELiveRefreshes.IF_MISSING));
+                            this.owner.setStudent(this.cache, new StudentData(this.fixed.systemData, stuRec.stuId,
+                                    ELiveRefreshes.IF_MISSING));
                             this.stuIdField.setText(CoreConstants.EMPTY);
                         } else {
                             processStudentList(found);
@@ -444,8 +443,8 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                     if (found.size() == 1) {
                         final RawStudent stuRec = found.get(0);
                         addToHistory(stuRec);
-                        this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData,
-                                stuRec.stuId, ELiveRefreshes.IF_MISSING));
+                        this.owner.setStudent(this.cache, new StudentData(this.fixed.systemData, stuRec.stuId,
+                                ELiveRefreshes.IF_MISSING));
                         this.stuIdField.setText(CoreConstants.EMPTY);
                     } else {
                         processStudentList(found);
@@ -569,7 +568,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 final RawStudent stuRec = this.pickListRecords.get(index);
                 addToHistory(stuRec);
 
-                this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData, stuRec.stuId,
+                this.owner.setStudent(this.cache, new StudentData(this.fixed.systemData, stuRec.stuId,
                         ELiveRefreshes.IF_MISSING));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);
@@ -581,7 +580,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 final int index = this.history.locationToIndex(point);
                 final RawStudent stuRec = this.historyRecords.get(index);
 
-                this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed.systemData, stuRec.stuId,
+                this.owner.setStudent(this.cache, new StudentData(this.fixed.systemData, stuRec.stuId,
                         ELiveRefreshes.NONE));
 
                 this.stuIdField.setText(CoreConstants.EMPTY);

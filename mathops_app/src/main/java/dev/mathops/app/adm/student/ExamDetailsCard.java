@@ -7,6 +7,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.Cache;
 import dev.mathops.db.logic.DbConnection;
 import dev.mathops.db.logic.DbContext;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
@@ -118,6 +119,9 @@ import java.util.Locale;
 
     /** The scroll pane for the exam answers table. */
     private final JScrollPane answersScroll;
+
+    /** The student data object. */
+    private StudentData studentData;
 
     /**
      * Constructs a new {@code ExamDetailsCard}.
@@ -343,9 +347,12 @@ import java.util.Locale;
     /**
      * Sets the current record.
      *
-     * @param record the current record
+     * @param theStudentData the student data object
+     * @param record         the current record
      */
-    public void setCurrent(final ExamListRow record) {
+    public void setCurrent(final StudentData theStudentData, final ExamListRow record) {
+
+        this.studentData = theStudentData;
 
         final RawStexam stexam = record.examRecord;
 
@@ -549,7 +556,7 @@ import java.util.Locale;
 
                             JOptionPane.showMessageDialog(this, message);
                         } else {
-                            courseExamConsequences(reg);
+                            courseExamConsequences(studentData, reg);
                         }
                     } else if (RawRecordConstants.M1170.equals(crs)
                             || RawRecordConstants.M1180.equals(crs)
@@ -673,9 +680,10 @@ import java.util.Locale;
      * Determines consequences of a changed exam record in a course. The consequence here could be a change to the
      * "Completed" status if the course.
      *
-     * @param reg the student's registration
+     * @param studentData the student data object
+     * @param reg         the student's registration
      */
-    private void courseExamConsequences(final RawStcourse reg) {
+    private void courseExamConsequences(final StudentData studentData, final RawStcourse reg) {
 
         String error;
         try {

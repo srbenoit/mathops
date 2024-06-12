@@ -150,7 +150,7 @@ public final class TestingTabPane extends JPanel implements ActionListener {
         this.manageCard = new TestingManageCard(theCache, theServerSiteUrl, this);
         this.cardPane.add(this.manageCard, MANAGE_CMD);
 
-        this.issueCard = new TestingIssueCard(theCache, theFrame);
+        this.issueCard = new TestingIssueCard(fixed, theFrame);
         this.cardPane.add(this.issueCard, ISSUE_CMD);
 
         this.cancelCard = new TestingCancelCard(theCache);
