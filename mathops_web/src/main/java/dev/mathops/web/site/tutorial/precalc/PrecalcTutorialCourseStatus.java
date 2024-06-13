@@ -170,8 +170,18 @@ final class PrecalcTutorialCourseStatus {
                 if ("R".equals(exam.examType) || "Q".equals(exam.examType)) {
                     final int unit = exam.unit.intValue();
                     final int finishTime = exam.finishTime.intValue();
-                    final LocalTime endTime = LocalTime.of(finishTime / 60, finishTime % 60);
-                    final LocalDateTime whenFinished = LocalDateTime.of(exam.examDt, endTime);
+
+                    LocalTime endTime;
+                    LocalDateTime whenFinished;
+
+                    if (finishTime < 1440) {
+                        endTime = LocalTime.of(finishTime / 60, finishTime % 60);
+                        whenFinished = LocalDateTime.of(exam.examDt, endTime);
+                    } else {
+                        endTime = LocalTime.of((finishTime - 1440) / 60, (finishTime - 1440)% 60);
+                        whenFinished = LocalDateTime.of(exam.examDt.plusDays(1), endTime);
+                    }
+
                     final boolean passed = "Y".equals(exam.passed);
 
                     if (unit == 0) {
