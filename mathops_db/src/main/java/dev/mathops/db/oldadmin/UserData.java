@@ -60,7 +60,7 @@ class UserData {
      * @param clearFunction the clearance function
      * @return the type; {@code null} if the function was not found
      */
-    public Integer getClearType(final String clearFunction) {
+    final Integer getClearType(final String clearFunction) {
 
         Integer result = null;
 
@@ -82,7 +82,7 @@ class UserData {
      * @param clearFunction the clearance function
      * @return the type; {@code null} if the function was not found
      */
-    public String getClearPassword(final String clearFunction) {
+    final String getClearPassword(final String clearFunction) {
 
         String result = null;
 

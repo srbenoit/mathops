@@ -3,14 +3,15 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 /**
  * Generates the page with instructions for the student who believes that some transfer credit scores are missing.
@@ -36,7 +37,9 @@ enum PageMissing {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final ZonedDateTime now = session.getNow();
+        final StudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);

@@ -3,18 +3,19 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.CourseInfo;
-import dev.mathops.session.sitelogic.mathplan.data.CourseInfoGroup;
-import dev.mathops.session.sitelogic.mathplan.data.CourseRecommendations;
-import dev.mathops.session.sitelogic.mathplan.data.CourseSequence;
-import dev.mathops.session.sitelogic.mathplan.data.ENextStep;
-import dev.mathops.session.sitelogic.mathplan.data.Major;
-import dev.mathops.session.sitelogic.mathplan.data.MajorMathRequirement;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
+import dev.mathops.db.old.logic.mathplan.data.CourseInfoGroup;
+import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
+import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
+import dev.mathops.db.old.logic.mathplan.data.ENextStep;
+import dev.mathops.db.old.logic.mathplan.data.Major;
+import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -70,7 +71,8 @@ enum PagePlanView {
                       final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
@@ -83,7 +85,7 @@ enum PagePlanView {
             htm.sDiv("inset2");
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
-                    session.getEffectiveUserId(), MathPlanLogic.ONLY_RECOM_PROFILE);
+                    session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
 
             if (existing.containsKey(Integer.valueOf(1))) {
                 showPlan(cache, session, htm, logic);
@@ -115,7 +117,7 @@ enum PagePlanView {
 
         htm.sDiv("advice");
         htm.addln("<form action='plan_view.html' method='post'>");
-        htm.addln("<input type='hidden' name='cmd' value='", MathPlanLogic.ONLY_RECOM_PROFILE, "'/>");
+        htm.addln("<input type='hidden' name='cmd' value='", MathPlanConstants.ONLY_RECOM_PROFILE, "'/>");
 
         htm.add("Read and affirm each statement to access your Math Plan...");
 
@@ -166,7 +168,8 @@ enum PagePlanView {
                                  final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         htm.sDiv("shaded2left");
 
@@ -206,7 +209,7 @@ enum PagePlanView {
 
                 htm.addln("<form action='plan_next.html' method='get'>");
                 htm.sDiv("center");
-                htm.addln("<input type='hidden' name='cmd' value='", MathPlanLogic.EXISTING_PROFILE, "'/>");
+                htm.addln("<input type='hidden' name='cmd' value='", MathPlanConstants.EXISTING_PROFILE, "'/>");
 
                 htm.addln("<button type='submit' class='btn'>Go to the next step...</button>");
                 htm.eDiv();
@@ -240,7 +243,8 @@ enum PagePlanView {
                               final HtmlBuilder htm, final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         htm.sDiv("indent");
 
@@ -584,11 +588,12 @@ enum PagePlanView {
         final String cmd = req.getParameter("cmd");
 
         // Only perform updates if this is not an adviser using "Act As"
-        if (session.actAsUserId == null && (MathPlanLogic.EXISTING_PROFILE.equals(cmd)
-                || MathPlanLogic.ONLY_RECOM_PROFILE.equals(cmd))) {
+        if (session.actAsUserId == null && (MathPlanConstants.EXISTING_PROFILE.equals(cmd)
+                || MathPlanConstants.ONLY_RECOM_PROFILE.equals(cmd))) {
 
             final String studentId = session.getEffectiveUserId();
-            final StudentData data = logic.getStudentData(cache, studentId, session);
+            final StudentData data = logic.getStudentData(cache, studentId, session.getNow(), session.loginSessionTag,
+                    session.actAsUserId == null);
             final Integer key = Integer.valueOf(1);
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId, cmd);
@@ -600,9 +605,10 @@ enum PagePlanView {
 
                 questions.add(key);
                 answers.add("Y");
-                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, session);
+                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, session.getNow(),
+                        session.loginSessionTag);
 
-                data.recordPlan(cache, logic, session);
+                data.recordPlan(cache, logic, session.getNow(), session.getEffectiveUserId(), session.loginSessionTag);
             }
         }
 

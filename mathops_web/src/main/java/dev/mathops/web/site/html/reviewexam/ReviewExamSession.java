@@ -41,6 +41,7 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -55,6 +56,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -1464,45 +1466,66 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     }
 
                     if (isSpecial) {
-                        // Create a fake STCOURSE record
-                        stcourse = new RawStcourse(this.active.term, // term
-                                stexam.studentId, // stuId
-                                stexam.course, // course
-                                "001", // sect
-                                null, // paceOrder
-                                "Y", // openStatus
-                                null, // gradingOption,
-                                "N", // completed
-                                null, // score
-                                null, // courseGrade
-                                "Y", // prereqSatis
-                                "N", // initClassRoll
-                                "N", // stuProvided
-                                "N", // finalClassRoll
-                                null, // examPaced
-                                null, // zeroUnit
-                                null, // timeoutFactor
-                                null, // forfeitI
-                                "N", // iInProgress
-                                null, // iCounted
-                                "N", // ctrlTest
-                                null, // deferredFDt
-                                Integer.valueOf(0), // bypassTimeout
-                                null, // instrnType
-                                null, // registrationStatus
-                                null, // lastClassRollDate
-                                null, // iTermKey
-                                null); // iDeadlineDt
+                        final List<RawCsection> sections = RawCsectionLogic.queryByCourseTerm(cache, stexam.course,
+                                this.active.term);
 
-                        stcourse.synthetic = true;
-                    } else {
+                        if (sections.isEmpty()) {
+                            return "No sections configured";
+                        } else {
+                            // Create a fake STCOURSE record
+                            sections.sort(null);
+                            final RawCsection sect = sections.getFirst();
+
+                            stcourse = new RawStcourse(this.active.term, // term
+                                    stexam.studentId, // stuId
+                                    stexam.course, // course
+                                    sect.sect, // sect
+                                    null, // paceOrder
+                                    "Y", // openStatus
+                                    null, // gradingOption,
+                                    "N", // completed
+                                    null, // score
+                                    null, // courseGrade
+                                    "Y", // prereqSatis
+                                    "N", // initClassRoll
+                                    "N", // stuProvided
+                                    "N", // finalClassRoll
+                                    null, // examPaced
+                                    null, // zeroUnit
+                                    null, // timeoutFactor
+                                    null, // forfeitI
+                                    "N", // iInProgress
+                                    null, // iCounted
+                                    "N", // ctrlTest
+                                    null, // deferredFDt
+                                    Integer.valueOf(0), // bypassTimeout
+                                    null, // instrnType
+                                    null, // registrationStatus
+                                    null, // lastClassRollDate
+                                    null, // iTermKey
+                                    null); // iDeadlineDt
+
+                            stcourse.synthetic = true;
+                        }
+                    } else{
                         return "Unable to look up course registration.";
                     }
                 }
             }
 
-            final RawCusection cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                    stexam.unit, this.active.term);
+            RawCusection cusect;
+
+            if ("Y".equals(stcourse.iInProgress)) {
+                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                        stexam.unit, stcourse.iTermKey);
+                if (cusect == null) {
+                    cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                            stexam.unit, this.active.term);
+                }
+            } else {
+                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                        stexam.unit, this.active.term);
+            }
 
             if (cusect == null) {
                 return "Unable to look up course section.";

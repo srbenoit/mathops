@@ -356,13 +356,15 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
 
         final Integer sat = liveReg.satrScore == null ? liveReg.satScore : liveReg.satrScore;
 
+        final LocalDate now = LocalDate.now();
+
         final RawStudent record = new RawStudent(liveReg.studentId, liveReg.internalId, liveReg.lastName,
                 liveReg.firstName, null, null, null, liveReg.classLevel, liveReg.college, liveReg.department,
                 liveReg.major1, null, liveReg.anticGradTerm, liveReg.numTransferCredits, liveReg.highSchoolCode,
                 liveReg.highSchoolGpa, liveReg.highSchoolClassRank, liveReg.highSchoolClassSize, liveReg.actScore, sat,
                 liveReg.apScore, liveReg.residency, liveReg.birthDate, null, liveReg.gender, "N", null, null, null, "N",
-                liveReg.campus, liveReg.email, liveReg.adviserEmail, null, liveReg.admitType, "N", null,
-                LocalDate.now(), null, null);
+                liveReg.campus, liveReg.email, liveReg.adviserEmail, null, liveReg.admitType, "N", null, now, null,
+                null);
 
         return insert(cache, record);
     }
@@ -378,8 +380,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     @Override
     public boolean delete(final Cache cache, final RawStudent record) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("DELETE FROM student ",
-                "WHERE stu_id=", sqlStringValue(record.stuId));
+        final String sql = SimpleBuilder.concat("DELETE FROM student WHERE stu_id=", sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -424,9 +425,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         if (stuId.startsWith("99")) {
             result = getTestStudent(cache, stuId);
         } else {
-            final String sql = SimpleBuilder.concat(
-                    "SELECT * FROM student WHERE stu_id=",
-                    sqlStringValue(stuId));
+            final String sql = SimpleBuilder.concat("SELECT * FROM student WHERE stu_id=", sqlStringValue(stuId));
 
             try (final Statement stmt = cache.conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
@@ -447,8 +446,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 LIVE_QUERIED_STUDENTS.put(stuId, Long.valueOf(System.currentTimeMillis()));
 
                 if (result == null) {
-                    Log.warning("Student ", stuId,
-                            " was not found - doing live query");
+                    Log.warning("Student ", stuId, " was not found - doing live query");
 
                     result = liveQueryStudent(cache, stuId);
                 } else {
@@ -505,8 +503,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param cache     the data cache
      * @param firstName the first name
      * @param lastName  the last name
-     * @return if the first and last name uniquely determined a student, that student record; if there are no
-     *         students with the specified name, or if there are multiple students with the name, {@code null}
+     * @return if the first and last name uniquely determined a student, that student record; if there are no students
+     *         with the specified name, or if there are multiple students with the name, {@code null}
      * @throws SQLException if there is an error accessing the database
      */
     public static RawStudent queryByName(final Cache cache, final String firstName,
@@ -711,9 +709,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateProgram(final Cache cache, final String studentId,
-                                        final String newCollege, final String newDepartment,
-                                        final String newProgramCode,
+    public static boolean updateProgram(final Cache cache, final String studentId, final String newCollege,
+                                        final String newDepartment, final String newProgramCode,
                                         final String newMinor) throws SQLException {
 
         final boolean result;
@@ -865,8 +862,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateTestScores(final Cache cache, final String studentId,
-                                           final Integer newAct, final Integer newSat, final String newAp) throws SQLException {
+    public static boolean updateTestScores(final Cache cache, final String studentId, final Integer newAct,
+                                           final Integer newSat, final String newAp) throws SQLException {
 
         final boolean result;
 

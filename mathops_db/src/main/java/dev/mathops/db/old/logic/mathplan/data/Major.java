@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 /**
  * An academic major in which students could express interest for determining potential math requirements. Programs may
@@ -17,19 +17,19 @@ public final class Major implements Comparable<Major> {
     public final String programCode;
 
     /** True if concentration should be auto-checked when user checks major. */
-    public Boolean autoCheck;
+    public Boolean autoCheck = null;
 
     /**
      * True if major or concentration can be selected by itself (FALSE for majors in which the student MUST choose a
      * concentration).
      */
-    public Boolean checkable;
+    public Boolean checkable = null;
 
     /** The major name. */
     public final String majorName;
 
     /** The concentration name. */
-    public String concentrationName;
+    public String concentrationName = null;
 
     /** The catalog URL. */
     public final String catalogUrl;

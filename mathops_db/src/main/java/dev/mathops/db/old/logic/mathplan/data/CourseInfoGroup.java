@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.db.old.rawrecord.RawCourse;
 
@@ -237,7 +237,8 @@ public final class CourseInfoGroup implements Comparable<CourseInfoGroup> {
         final boolean equal;
 
         if (obj instanceof CourseInfoGroup) {
-            equal = ((CourseInfoGroup) obj).getGroupCode().equals(getGroupCode());
+            final String code = getGroupCode();
+            equal = ((CourseInfoGroup) obj).getGroupCode().equals(code);
         } else {
             equal = false;
         }

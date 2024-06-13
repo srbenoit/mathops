@@ -3,8 +3,8 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.AbstractAdminTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -73,19 +73,19 @@ final class JTableMathPlanResponses extends AbstractAdminTable<RawStmathplan> {
             row[2] = FMT_HM.format(datetime.toLocalTime());
             row[3] = record.version;
 
-            if (MathPlanLogic.MAJORS_PROFILE.equals(record.version)) {
+            if (MathPlanConstants.MAJORS_PROFILE.equals(record.version)) {
                 row[4] = "Majors of interest";
-            } else if (MathPlanLogic.PLAN_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.PLAN_PROFILE.equals(record.version)) {
                 row[4] = "Recommendations";
-            } else if (MathPlanLogic.ONLY_RECOM_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.ONLY_RECOM_PROFILE.equals(record.version)) {
                 row[4] = "Affirm 'only a recommendation'";
-            } else if (MathPlanLogic.EXISTING_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.EXISTING_PROFILE.equals(record.version)) {
                 row[4] = "Existing work";
-            } else if (MathPlanLogic.INTENTIONS_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.INTENTIONS_PROFILE.equals(record.version)) {
                 row[4] = "Indicated intentions";
-            } else if (MathPlanLogic.REVIEWED_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.REVIEWED_PROFILE.equals(record.version)) {
                 row[4] = "Plan reviewed";
-            } else if (MathPlanLogic.CHECKED_RESULTS_PROFILE.equals(record.version)) {
+            } else if (MathPlanConstants.CHECKED_RESULTS_PROFILE.equals(record.version)) {
                 row[4] = "Placement results checked";
             } else {
                 row[4] = "(unrecognized)";

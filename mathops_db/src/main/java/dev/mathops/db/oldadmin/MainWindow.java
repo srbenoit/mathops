@@ -8,7 +8,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import javax.swing.JFrame;
 import java.awt.Cursor;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
@@ -23,22 +22,40 @@ import java.io.IOException;
 public final class MainWindow extends JFrame implements KeyListener, MouseListener {
 
     /** The console. */
-    private Console console = null;
+    private final Console console;
 
     /** The cache. */
     private final Cache cache;
 
-    /** Data on the logged in user. */
+    /** Data on the logged-in user. */
     private final UserData userData;
 
     /** The main screen. */
-    private ScreenMain main;
+    private ScreenMain main = null;
 
-    /** The course screen. */
-    private ScreenCourse course;
+    /** The Course screen. */
+    private ScreenCourse course = null;
+
+    /** The Schedule screen. */
+    private ScreenSchedule schedule = null;
+
+    /** The Discipline screen. */
+    private ScreenDiscipline discipline = null;
+
+    /** The Holds screen. */
+    private ScreenHolds holds = null;
+
+    /** The Exams screen. */
+    private ScreenExams exams = null;
+
+    /** The MPE screen. */
+    private ScreenMPE mpe = null;
+
+    /** The Resource screen. */
+    private ScreenResource resource = null;
 
     /** The currently active screen. */
-    private IScreen activeScreen;
+    private IScreen activeScreen = null;
 
     /**
      * Constructs a new {@code MainWindow}.
@@ -90,6 +107,12 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
 
         this.main = new ScreenMain(this.cache, this);
         this.course = new ScreenCourse(this.cache, this);
+        this.schedule = new ScreenSchedule(this.cache, this);
+        this.discipline = new ScreenDiscipline(this.cache, this);
+        this.holds = new ScreenHolds(this.cache, this);
+        this.exams = new ScreenExams(this.cache, this);
+        this.mpe = new ScreenMPE(this.cache, this);
+        this.resource = new ScreenResource(this.cache, this);
 
         this.activeScreen = this.main;
 
@@ -101,14 +124,107 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     }
 
     /**
+     * Jumps to the Main screen.
+     */
+    void goToMain() {
+
+        this.activeScreen = this.main;
+        this.main.setSelection(0);
+
+        this.activeScreen.draw();
+    }
+
+    /**
      * Jumps to the Course screen.
      *
      * @param student the student
      */
-    public void goToCourse(final RawStudent student) {
+    void goToCourse(final RawStudent student) {
 
         this.course.setStudent(student);
+        this.course.setSelection(0);
         this.activeScreen = this.course;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Schedule screen.
+     *
+     * @param student the student
+     */
+    void goToSchedule(final RawStudent student) {
+
+        this.schedule.setStudent(student);
+        this.schedule.setSelection(0);
+        this.activeScreen = this.schedule;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Discipline screen.
+     *
+     * @param student the student
+     */
+    void goToDiscipline(final RawStudent student) {
+
+        this.discipline.setStudent(student);
+        this.discipline.setSelection(0);
+        this.activeScreen = this.discipline;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Holds screen.
+     *
+     * @param student the student
+     */
+    void goToHolds(final RawStudent student) {
+
+        this.holds.setStudent(student);
+        this.holds.setSelection(0);
+        this.activeScreen = this.holds;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Exams screen.
+     *
+     * @param student the student
+     */
+    void goToExams(final RawStudent student) {
+
+        this.exams.setStudent(student);
+        this.exams.setSelection(0);
+        this.activeScreen = this.exams;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the MPE screen.
+     *
+     * @param student the student
+     */
+    void goToMPE(final RawStudent student) {
+
+        this.mpe.setStudent(student);
+        this.mpe.setSelection(0);
+        this.activeScreen = this.mpe;
+
+        this.activeScreen.draw();
+    }
+
+    /**
+     * Jumps to the Resource screen.
+     */
+    void goToResource() {
+
+        this.activeScreen = this.resource;
+        this.resource.setSelection(0);
 
         this.activeScreen.draw();
     }
@@ -116,7 +232,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
     /**
      * Called when the application is exited.
      */
-    public void quit() {
+    void quit() {
 
         setVisible(false);
         dispose();
@@ -173,7 +289,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
 
         final int btn = e.getButton();
 
-        Log.info("Mouse clicked: Btn = " + btn);
+//        Log.info("Mouse clicked: Btn = " + btn);
 
         if (btn == 3) {
             try {

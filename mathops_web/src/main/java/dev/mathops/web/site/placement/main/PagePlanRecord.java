@@ -4,14 +4,15 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -50,7 +51,8 @@ enum PagePlanRecord {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
@@ -77,7 +79,7 @@ enum PagePlanRecord {
 
             htm.addln("<form action='plan_view.html' method='post'>");
             htm.sDiv("center");
-            htm.addln("<input type='hidden' name='cmd' value='", MathPlanLogic.EXISTING_PROFILE, "'/>");
+            htm.addln("<input type='hidden' name='cmd' value='", MathPlanConstants.EXISTING_PROFILE, "'/>");
 
             htm.addln("<button type='submit' class='btn'>Go to the next step...</button>");
             htm.eDiv();

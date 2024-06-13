@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStcunit;
 
 import java.sql.ResultSet;
@@ -137,7 +138,35 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
 
         final String sql = "SELECT * FROM stcunit";
 
-        final List<RawStcunit> result = new ArrayList<>(500);
+        return doListQuery(cache, sql);
+    }
+
+    /**
+     * Gets all records for a student.
+     *
+     * @param cache the data cache
+     * @param stuId the student ID
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawStcunit> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        final String sql = SimpleBuilder.concat("SELECT * FROM stcunit where stu_id=", sqlStringValue(stuId));
+
+        return doListQuery(cache, sql);
+    }
+
+    /**
+     * Performs a query that returns list of records.
+     *
+     * @param cache the data cache
+     * @param sql   the query SQL
+     * @return the list of records returned
+     * @throws SQLException if there is an error performing the query
+     */
+    private static List<RawStcunit> doListQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawStcunit> result = new ArrayList<>(50);
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

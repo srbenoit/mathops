@@ -12,8 +12,8 @@ import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

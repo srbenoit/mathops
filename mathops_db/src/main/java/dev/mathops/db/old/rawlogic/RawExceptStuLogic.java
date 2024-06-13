@@ -125,6 +125,21 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
     }
 
     /**
+     * Queries for all records for a student.
+     *
+     * @param cache  the data cache
+     * @param stuId  the student ID
+     * @return the complete set of records in the database
+     * @throws SQLException if there is an error performing the query
+     */
+    public static List<RawExceptStu> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        final String sql = SimpleBuilder.concat( "SELECT * FROM except_stu WHERE stu_id=", sqlStringValue(stuId));
+
+        return doListQuery(cache, sql);
+    }
+
+    /**
      * Queries for all records for a student and course.
      *
      * @param cache  the data cache

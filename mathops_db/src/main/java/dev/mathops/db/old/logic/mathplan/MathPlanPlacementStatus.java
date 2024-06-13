@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan;
+package dev.mathops.db.old.logic.mathplan;
 
 /**
  * A container for status of Math Placement relative to a Math Plan.

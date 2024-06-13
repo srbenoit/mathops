@@ -1,7 +1,9 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -47,6 +49,9 @@ final class PrecalcTutorialSiteLogic {
 
     /** The course for which the student is eligible; {@code null} if none. */
     private RawCourse eligibleCourse;
+
+    /** The list of all special student categories. */
+    private List<RawSpecialStus> specials;
 
     /** The list of all holds on the student account. */
     private List<RawAdminHold> studentHolds;
@@ -128,6 +133,13 @@ final class PrecalcTutorialSiteLogic {
         this.prereqLogic = localPrereqLogic;
 
         try {
+            this.specials = RawSpecialStusLogic.queryActiveByStudent(theCache, this.studentId, today);
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query special student categories", ex);
+            this.specials = new ArrayList<>(0);
+        }
+
+        try {
             this.studentHolds = RawAdminHoldLogic.queryByStudent(theCache, this.studentId);
         } catch (final SQLException ex) {
             Log.warning("Failed to query student holds", ex);
@@ -197,15 +209,43 @@ final class PrecalcTutorialSiteLogic {
 
         if (isPossiblyEligible()) {
             final TermKey activeTermKey = this.activeTerm.term;
-            final TermKey applicationTermKey = this.student.aplnTerm;
+            TermKey aplnTerm = this.student.aplnTerm;
 
-            final int comparison = activeTermKey.compareTo(applicationTermKey);
-            if (comparison < 0) {
-                // Application term is in the future
-                result = true;
-            } else if (comparison == 0) {
-                // Application term is in current term - eligible if before free drop date
-                result = !today.isAfter(this.activeTerm.dropDeadline);
+            if (aplnTerm != null) {
+                for (final RawSpecialStus spec : this.specials) {
+                    final String type = spec.stuType;
+
+                    if ("PLCSP".equals(type)) {
+                        // Force a "SPRING" application term
+                        if (aplnTerm.name != ETermName.SPRING) {
+                            aplnTerm = new TermKey(ETermName.SPRING, aplnTerm.year.intValue() + 1);
+                        }
+                    } else if ("PLCSM".equals(type)) {
+                        // Force a "SUMMER" application term
+                        if (aplnTerm.name == ETermName.SPRING) {
+                            aplnTerm = new TermKey(ETermName.SUMMER, aplnTerm.year.intValue());
+                        } else if (aplnTerm.name == ETermName.FALL) {
+                            aplnTerm = new TermKey(ETermName.SUMMER, aplnTerm.year.intValue() + 1);
+                        }
+                    } else if ("PLCFA".equals(type) || "PCT117".equals(type)
+                            || "PCT118".equals(type) || "PCT124".equals(type)
+                            || "PCT125".equals(type) || "PCT126".equals(type)) {
+
+                        // Force a "FALL" application term
+                        if (aplnTerm.name != ETermName.FALL) {
+                            aplnTerm = new TermKey(ETermName.FALL, aplnTerm.year.intValue());
+                        }
+                    }
+                }
+
+                final int comparison = activeTermKey.compareTo(aplnTerm);
+                if (comparison < 0) {
+                    // Application term is in the future
+                    result = true;
+                } else if (comparison == 0) {
+                    // Application term is in current term - eligible if before free drop date
+                    result = !today.isAfter(this.activeTerm.dropDeadline);
+                }
             }
         }
 

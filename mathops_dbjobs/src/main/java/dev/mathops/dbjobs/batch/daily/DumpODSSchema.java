@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,8 +55,8 @@ final class DumpODSSchema {
                 final DbConnection conn = this.odsCtx.checkOutConnection();
 
                 try {
-                    dumpMetadata(conn);
-                    // debugQuery(conn);
+//                    dumpMetadata(conn);
+                    debugQuery(conn);
                 } finally {
                     this.odsCtx.checkInConnection(conn);
                 }
@@ -66,113 +67,115 @@ final class DumpODSSchema {
         }
     }
 
-//    /**
-//     * Performs a debugging query to see why we get back many rows for applicant student query.
-//     *
-//     * @param conn the ODS connection
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//     private static void debugQuery(final DbConnection conn) throws SQLException {
-//
-//     // This query diagnoses why we get multiple records for students in the
-//     // ODS applicant import - it appears to be for multiple applications.
-//
-//     final int curYear = LocalDate.now().getYear();
-//     final String start = Integer.toString(curYear - 1) + "90";
-//     final String end = Integer.toString(curYear + 2) + "90";
-//
-//     final String sql1 = "SELECT "
-//     + " A.CSU_ID csuid, "
-//     + " A.FIRST_NAME first, "
-//     + " A.LAST_NAME last, "
-//     + " A.PREFERRED_FIRST_NAME pref, "
-//     + " A.MIDDLE_NAME middle, "
-//     + " A.BIRTH_DATE bday, "
-//     + " A.GENDER gender, "
-//     + " A.RESIDENCY_STATE ressate, "
-//     + " A.HS_CODE hscode, "
-//     + " A.HS_GPA hsgpa, "
-//     + " A.HS_CLASS_RANK hsrank, "
-//     + " A.HS_CLASS_SIZE hssize, "
-//     + " A.ACT_MATH act, "
-//     + " A.SAT_MATH sat, "
-//     + " A.SATR_MATH satr, "
-//     + " A.EMAIL email "
-//     + "FROM CSUBAN.CSUG_GP_ADMISSIONS A "
-//     + "WHERE A.CSU_ID = '831645739' AND A.LAST_NAME Not Like '-Purge%'";
-//
-//     try (Statement stmt = conn.createStatement()) {
-//     try (ResultSet rs = stmt.executeQuery(sql1)) {
-//     while (rs.next()) {
-//     Log.info("Found a CSUBAN.CSUG_GP_ADMISSIONS record");
-//     }
-//     }
-//     }
-//
-//     final String sql2 = "SELECT "
-//     + " B.PIDM pidm, "
-//     + " B.TERM appterm, "
-//     + " B.APLCT_LATEST_DECN decision, "
-//     + " B.ADMITTED_FLAG admitted, "
-//     + " B.ADM_TYPE admType, "
-//     + " B.ADM_COLLEGE admCollege, "
-//     + " B.ADM_DEPT admDept, "
-//     + " B.ADM_PROGRAM_OF_STUDY admProgram, "
-//     + " B.ADM_CAMPUS admCampus, "
-//     + " B.ADM_RESIDENCY admResidency, "
-//     + " B.APLN_DATE aplnDate "
-//
-//     + "FROM CSUBAN.CSUS_APPLICANT B "
-//     + "WHERE B.CSU_ID = '831645739' AND (B.APLN_STATUS <> 'U') "
-//     + " AND (B.APLCT_LATEST_DECN IS NULL OR B.APLCT_LATEST_DECN <> 'RA') "
-//     + " AND (B.APLN_COUNT_PRIORITY_FLAG = 'Y') "
-//     + " AND (B.TERM Between '" + start
-//     + "' And '" + end + "') " 
-//     + " AND ( (B.ADM_CAMPUS = 'MC')"
-//     + " OR ((B.STUDENT_LEVEL = 'GR') And (B.STUDENT_TYPE = 'N')) "
-//     + " OR ((B.STUDENT_LEVEL = 'UG') And (B.STUDENT_TYPE In ('N','T','R'))) "
-//     + " OR ((B.STUDENT_LEVEL In ('UG','GR')) And (B.STUDENT_TYPE = 'E') "
-//     + " And (SUBSTR(B.ADM_PROGRAM_OF_STUDY,1,2) = 'N2')))";
-//
-//     try (Statement stmt = conn.createStatement()) {
-//     try (ResultSet rs = stmt.executeQuery(sql2)) {
-//     while (rs.next()) {
-//     Log.info("Found a CSUBAN.CSUS_APPLICANT record");
-//
-//     Log.info(" pidm = " + rs.getString("pidm"));
-//     Log.info(" appterm = " + rs.getString("appterm"));
-//     Log.info(" decision = " + rs.getString("decision"));
-//     Log.info(" admitted = " + rs.getString("admitted"));
-//     Log.info(" admType = " + rs.getString("admType"));
-//     Log.info(" admCollege = " + rs.getString("admCollege"));
-//     Log.info(" admDept = " + rs.getString("admDept"));
-//     Log.info(" admProgram = " + rs.getString("admProgram"));
-//     Log.info(" admCampus = " + rs.getString("admCampus"));
-//     Log.info(" admResidency = " + rs.getString("admResidency"));
-//     Log.info(" aplnDate = " + rs.getString("aplnDate"));
-//     }
-//     }
-//     }
-//
-//     final String sql3 = "SELECT "
-//     + " C.STUDENT_CLASS cls, "
-//     + " C.PRIMARY_COLLEGE college, "
-//     + " C.PRIMARY_DEPARTMENT dept, "
-//     + " C.PROGRAM_OF_STUDY program, "
-//     + " C.ANTICIPATED_GRAD_TERM gradterm, "
-//     + " C.RESIDENCY res, "
-//     + " C.CAMPUS campus "
-//     + "FROM CSUBAN.CSUS_TERM_INFO_SPR C "
-//     + "WHERE C.CSU_ID = '831645739'";
-//
-//     try (Statement stmt = conn.createStatement()) {
-//     try (ResultSet rs = stmt.executeQuery(sql3)) {
-//     while (rs.next()) {
-//     Log.info("Found a CSUBAN.CSUS_TERM_INFO_SPR record");
-//     }
-//     }
-//     }
-//     }
+    /**
+     * Performs a debugging query to see why we get back many rows for applicant student query.
+     *
+     * @param conn the ODS connection
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void debugQuery(final DbConnection conn) throws SQLException {
+
+        final String sql= "SELECT COUNT(*) FROM CSUBAN.CSUG_GP_DEMO";
+
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    Log.info(" number of rows = " + rs.getInt(1));
+                }
+            }
+        }
+
+        final String sql1 = "SELECT "
+                + " A.CSU_ID csuid, "
+                + " A.PIDM pidm, "
+                + " A.FIRST_NAME first, "
+                + " A.MIDDLE_NAME middle, "
+                + " A.LAST_NAME last, "
+                + " A.PREFERRED_FIRST_NAME pref, "
+                + " A.EMAIL email, "
+                + " A.BIRTH_DATE birth "
+                + "FROM CSUBAN.CSUG_GP_DEMO A "
+                + "WHERE A.CSU_ID = '831645739'";
+
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql1)) {
+                while (rs.next()) {
+                    Log.info("Found a CSUBAN.CSUG_GP_DEMO record");
+
+                    Log.info(" csuid = " + rs.getString("csuid"));
+                    Log.info(" pidm = " + rs.getString("pidm"));
+                    Log.info(" first = " + rs.getString("first"));
+                    Log.info(" middle = " + rs.getString("middle"));
+                    Log.info(" last = " + rs.getString("last"));
+                    Log.info(" pref = " + rs.getString("pref"));
+                    Log.info(" email = " + rs.getString("email"));
+                    Log.info(" birth = " + rs.getString("birth"));
+                }
+            }
+        }
+
+        final String sql2 = "SELECT "
+                + " A.PERSON_UID pidm, "
+                + " A.ID id, "
+                + " A.NAME name, "
+                + " A.HS_CODE hs_code, "
+                + " A.PRIMARY_COLLEGE college, "
+                + " A.PRIMARY_DEPARTMENT dept, "
+                + " A.PRIMARY_MAJOR major, "
+                + " A.PROGRAM_OF_STUDY program, "
+                + " A.START_DATE startDt, "
+                + " A.END_DATE endDt "
+                + "FROM CSUBAN.CSUS_ENROLL_MASTER_AH A "
+                + "WHERE A.PERSON_UID = 11612982";
+
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql2)) {
+                while (rs.next()) {
+                    Log.info("Found a CSUBAN.CSUS_ENROLL_MASTER_AH record");
+
+                    Log.info(" pidm = " + rs.getString("pidm"));
+                    Log.info(" id = " + rs.getString("id"));
+                    Log.info(" name = " + rs.getString("name"));
+                    Log.info(" hs_code = " + rs.getString("hs_code"));
+                    Log.info(" college = " + rs.getString("college"));
+                    Log.info(" dept = " + rs.getString("dept"));
+                    Log.info(" major = " + rs.getString("major"));
+                    Log.info(" program = " + rs.getString("program"));
+                    Log.info(" start = " + rs.getDate("startDt"));
+                    Log.info(" end = " + rs.getDate("endDt"));
+                }
+            }
+        }
+
+        final String sql3 = "SELECT "
+                + " A.PIDM pidm, "
+                + " A.CSU_ID id, "
+                + " A.NAME name, "
+                + " A.TERM term, "
+                + " A.PRIMARY_COLLEGE college, "
+                + " A.PRIMARY_DEPARTMENT dept, "
+                + " A.PRIMARY_MAJOR major, "
+                + " A.PROGRAM_OF_STUDY program "
+                + "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH A "
+                + "WHERE A.PIDM = 11612982";
+
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql3)) {
+                while (rs.next()) {
+                    Log.info("Found a CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH record");
+
+                    Log.info(" pidm = " + rs.getString("pidm"));
+                    Log.info(" csu ID = " + rs.getString("id"));
+                    Log.info(" name = " + rs.getString("name"));
+                    Log.info(" term = " + rs.getString("term"));
+                    Log.info(" college = " + rs.getString("college"));
+                    Log.info(" dept = " + rs.getString("dept"));
+                    Log.info(" major = " + rs.getString("major"));
+                    Log.info(" program = " + rs.getString("program"));
+                }
+            }
+        }
+    }
 
     /**
      * Dumps metadata.
@@ -248,11 +251,11 @@ final class DumpODSSchema {
                 builder.add(fieldNames.get(j));
                 int len = builder.length();
                 while (len < maxlen) {
-                   builder.add(CoreConstants.SPC_CHAR);
-                   ++len;
+                    builder.add(CoreConstants.SPC_CHAR);
+                    ++len;
                 }
 
-                Log.fine(" ", builder.toString() , " : ", fieldTypes.get(j));
+                Log.fine(" ", builder.toString(), " : ", fieldTypes.get(j));
                 builder.reset();
             }
 

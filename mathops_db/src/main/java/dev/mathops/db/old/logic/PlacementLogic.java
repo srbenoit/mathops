@@ -41,53 +41,47 @@ import java.util.Set;
  * </ul>
  *
  * <p>
- * The general design is that a student gets two attempts on the math placement tool. For incoming
- * students (or DCE students), the first of these can be unproctored.
+ * The general design is that a student gets two attempts on the math placement tool. For incoming students (or DCE
+ * students), the first of these can be unproctored.
  *
  * <p>
- * This is a change to an older policy that allowed two proctored attempts, plus an additional
- * unproctored attempt for incoming students. To transition between the two policies, we use the
- * following logic:
+ * This is a change to an older policy that allowed two proctored attempts, plus an additional unproctored attempt
+ * for incoming students. To transition between the two policies, we use the following logic:
  *
  * <ul>
- * <li>Let the total attempts used (N) be the sum of all attempts with version PPPPP or any of the
- * versions above (POOOO attempts are ignored).
- * <li>If the total attempts used is 2 or more, the student is no longer eligible to complete the
- * placement tool. Otherwise, they have 2-N attempts remaining.
- * <li>If a student is eligible for an unproctored attempt based on student status (DCE student or
- * inbound first-year student based on application term), and has not used either an unproctored
- * attempt or two proctored attempts, they are eligible to complete the tool unproctored as one of
- * these attempts.
+ * <li>Let the total attempts used (N) be the sum of all attempts with version PPPPP or any of the versions above
+ * (POOOO attempts are ignored).
+ * <li>If the total attempts used is 2 or more, the student is no longer eligible to complete the placement tool.
+ * Otherwise, they have 2-N attempts remaining.
+ * <li>If a student is eligible for an unproctored attempt based on student status (DCE student or inbound first-year
+ * student based on application term), and has not used either an unproctored attempt or two proctored attempts, they
+ * are eligible to complete the tool unproctored as one of these attempts.
  * <li>
  * </ul>
  * <p>
- * Logic permits the option (as a static boolean) of whether to allow DCE/DCEN students (as
- * indicated in special student records) to use the unproctored exam. Detailed logic is as follows:
+ * Logic permits the option (as a static boolean) of whether to allow DCE/DCEN students (as indicated in special
+ * student records) to use the unproctored exam. Detailed logic is as follows:
  *
  * <ul>
- * <li>Count attempts on record, classify as proctored or unproctored, determine if any attempts
- * remain or not.
+ * <li>Count attempts on record, classify as proctored or unproctored, determine if any attempts remain or not.
  * <li>If attempts remain, do the following to determine when each form of testing is available:
  * <ul>
- * <li>Query all remote MPE records with course "M 100P" based on the student's application term
- * (use an empty list if the student has no application term) - these will indicate when unproctored
- * placement exams are available.
+ * <li>Query all remote MPE records with course "M 100P" based on the student's application term (use an empty list
+ * if the student has no application term) - these will indicate when unproctored placement exams are available.
  * <li>Query all special student records for the student.
  * <li>Create a list of date ranges for unproctored exams
  * <li>For each remote MPE record, crate a date range and add to the list.
- * <li>If any date ranges in these lists are current or future, set the flag that indicates the
- * student is allowed to use the unproctored exam (this does not mean they are eligible now, or have
- * not used their unproctored attempt)
- * <li>If the student is a member of the "DCE" or "DCEN" special category, and the boolean flag
- * indicates DCE students are allowed unproctored attempts, add a synthetic remote MPE record to the
- * list with date ranges from the special student record
+ * <li>If any date ranges in these lists are current or future, set the flag that indicates the student is allowed to
+ * use the unproctored exam (this does not mean they are eligible now, or have not used their unproctored attempt)
+ * <li>If the student is a member of the "DCE" or "DCEN" special category, and the boolean flag indicates DCE
+ * students are allowed unproctored attempts, add a synthetic remote MPE record to the list with date ranges from the
+ * special student record
  * <li>Merge any overlapping date ranges that result
- * <li>If the student is a member of the "ORIENTN" special category, remove date ranges for those
- * special student records from the list.
- * <li>Categorize date ranges in the list as past, current, and future based on a given "today"
- * date.
- * <li>Based on current available types of testing and the supported types of remote proctoring,
- * generate a list of exam IDs available in each of the three formats.
+ * <li>If the student is a member of the "ORIENTN" special category, remove date ranges for those special student
+ * records from the list.
+ * <li>Categorize date ranges in the list as past, current, and future based on a given "today" date.
+ * <li>Based on current available types of testing and the supported types of remote proctoring, generate a list of
+ * exam IDs available in each of the three formats.
  * </ul>
  * </ul>
  */
@@ -111,9 +105,7 @@ public class PlacementLogic {
     /** An exam ID. */
     private static final String UNPROCTORED_MPT_ID = "MPTUN";
 
-    /**
-     * The list of locally proctored IDs currently supported (one per online proctoring service).
-     */
+    /** The list of locally proctored IDs currently supported (one per online proctoring service). */
     private static final List<String> LOCALLY_PROCTORED_IDS = List.of(PROCTORED_MPT_DEPT_TC_ID);
 
     /** The list of online proctored IDs currently supported (one per online proctoring service). */
@@ -176,7 +168,7 @@ public class PlacementLogic {
         if (cache == null) {
             throw new IllegalArgumentException("Cache may not be null");
         }
-        if (theStudentId == null)  {
+        if (theStudentId == null) {
             throw new IllegalArgumentException("Student ID may not be null");
         }
         if (now == null) {
@@ -335,8 +327,6 @@ public class PlacementLogic {
 
         // If the student is a member of the "ORIENTN" special category, remove date
         // ranges for those special student records from the list.
-
-        // FIXME: Commented during remote orientation - restore when orientation is back in person
 
         // boolean isOrientationToday = false;
         // for (final StudentCategory spec : active) {
@@ -525,9 +515,9 @@ public class PlacementLogic {
 //    }
 //
 //    /**
-//     * Prints the contents of a {@code PlacementToolStatus}.
+//     * Prints the contents of a {@code PlacementStatus}.
 //     *
-//     * @param status the {@code PlacementToolStatus} whose contents to print
+//     * @param status the {@code PlacementStatus} whose contents to print
 //     */
 //    private static void mainPrintStatus(final PlacementStatus status) {
 //

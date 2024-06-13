@@ -4,12 +4,13 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
@@ -143,19 +144,19 @@ public enum PageStudentMathPlan {
                                            final RawStudent student) throws SQLException {
 
         final List<RawStmathplan> wlcm1 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.MAJORS_PROFILE);
+                student.stuId, MathPlanConstants.MAJORS_PROFILE);
         final List<RawStmathplan> wlcm2 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.PLAN_PROFILE);
+                student.stuId, MathPlanConstants.PLAN_PROFILE);
         final List<RawStmathplan> wlcm3 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.ONLY_RECOM_PROFILE);
+                student.stuId, MathPlanConstants.ONLY_RECOM_PROFILE);
         final List<RawStmathplan> wlcm4 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.EXISTING_PROFILE);
+                student.stuId, MathPlanConstants.EXISTING_PROFILE);
         final List<RawStmathplan> wlcm5 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.INTENTIONS_PROFILE);
+                student.stuId, MathPlanConstants.INTENTIONS_PROFILE);
         final List<RawStmathplan> wlcm6 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.REVIEWED_PROFILE);
+                student.stuId, MathPlanConstants.REVIEWED_PROFILE);
         final List<RawStmathplan> wlcm7 = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                student.stuId, MathPlanLogic.CHECKED_RESULTS_PROFILE);
+                student.stuId, MathPlanConstants.CHECKED_RESULTS_PROFILE);
 
         if (wlcm1.isEmpty() && wlcm2.isEmpty() && wlcm3.isEmpty() && wlcm4.isEmpty()
                 && wlcm5.isEmpty() && wlcm6.isEmpty() && wlcm7.isEmpty()) {

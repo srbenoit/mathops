@@ -2,16 +2,18 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
-import dev.mathops.session.sitelogic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.data.StudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,8 @@ enum PagePlanStart {
                               final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session);
+        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+                session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
@@ -225,19 +228,21 @@ enum PagePlanStart {
             throws IOException, SQLException {
 
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final ZonedDateTime now = session.getNow();
 
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
             final String studentId = session.getEffectiveUserId();
 
-            final StudentData data = logic.getStudentData(cache, studentId, session);
+            final StudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
+                    session.actAsUserId == null);
 
             if (req.getParameter(INPUT_NAME) != null) {
 
                 final Integer key = Integer.valueOf(1);
 
                 final Map<Integer, RawStmathplan> existing = MathPlanLogic
-                        .getMathPlanResponses(cache, studentId, MathPlanLogic.ONLY_RECOM_PROFILE);
+                        .getMathPlanResponses(cache, studentId, MathPlanConstants.ONLY_RECOM_PROFILE);
 
                 if (!existing.containsKey(key)) {
 
@@ -247,9 +252,9 @@ enum PagePlanStart {
                     questions.add(key);
                     answers.add("Y");
                     logic.storeMathPlanResponses(cache, data.student,
-                            MathPlanLogic.ONLY_RECOM_PROFILE, questions, answers, session);
+                            MathPlanConstants.ONLY_RECOM_PROFILE, questions, answers, now, session.loginSessionTag);
 
-                    data.recordPlan(cache, logic, session);
+                    data.recordPlan(cache, logic, now, session.getEffectiveUserId(), session.loginSessionTag);
                 }
             }
         }

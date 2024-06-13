@@ -2,6 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -9,9 +10,9 @@ import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
-import dev.mathops.session.sitelogic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,7 +50,7 @@ enum PageSecureLanding {
         boolean hasReviewed = false;
         if (stu != null) {
             final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                    stu.stuId, MathPlanLogic.REVIEWED_PROFILE);
+                    stu.stuId, MathPlanConstants.REVIEWED_PROFILE);
             hasReviewed = responses != null && !responses.isEmpty();
         }
 
@@ -57,22 +58,21 @@ enum PageSecureLanding {
         boolean placementCompleted = false;
         boolean attemptsRemain = true;
         if (stu != null && stu.pidm != null) {
-            if (planCompleted) {
-                final MathPlanPlacementStatus placementStatus = MathPlanLogic.getMathPlacementStatus(cache, stu.stuId);
+            final MathPlanPlacementStatus placementStatus = MathPlanLogic.getMathPlacementStatus(cache, stu.stuId);
 
-                if (!placementStatus.isPlacementNeeded) {
-                    placementRequired = false;
-                } else if (placementStatus.isPlacementComplete) {
-                    placementCompleted = true;
-                }
-            } else {
+            if (!placementStatus.isPlacementNeeded) {
+                placementRequired = false;
+            }
+            if (placementStatus.isPlacementComplete) {
+                placementCompleted = true;
+            }
+
+            if (!planCompleted) {
                 // No plan completed yet, so assume Placement will be needed
                 final List<RawStmpe> tries = RawStmpeLogic.queryLegalByStudent(cache, stu.stuId);
+
                 // 1 if not completed, 2 if completed
-                if (tries.isEmpty()) {
-                } else {
-                    placementCompleted = true;
-                }
+                placementCompleted = !tries.isEmpty();
                 attemptsRemain = tries.size() < 2;
             }
         }
@@ -215,7 +215,8 @@ enum PageSecureLanding {
             htm.add("<img src='/www/images/square-dim.svg' style='height:24px;position:relative;top:-2px;'/>");
         }
         htm.add(" Step 3: &nbsp;").eH(2).eDiv();
-        htm.sP("question").add("If needed, complete the Math Placement Tool, and see if further action is necessary.")
+        htm.sP("question").add("Go to the Math Placement Tool website to learn about testing options, access your ",
+                        "results, and check if further action is necessary.")
                 .eP();
         htm.div("clear");
 

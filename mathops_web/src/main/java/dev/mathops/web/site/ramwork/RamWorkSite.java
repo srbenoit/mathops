@@ -177,6 +177,9 @@ public final class RamWorkSite extends AbstractSite {
                     PageMathRefresherLibrary.showPage(req, resp, session);
                 } else if ("mathrefresherstudent.html".equals(subpath)) {
                     PageMathRefresherStudent.showPage(cache, req, resp, session);
+                } else if ("assessmentdev.html".equals(subpath)) {
+                    PageAssessmentDev.showPage(req, resp, session);
+
                 } else if ("secure/shibboleth.html".equals(subpath)) {
                     doShibbolethLogin(cache, req, resp, session);
                 } else {

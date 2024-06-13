@@ -1,5 +1,6 @@
 package dev.mathops.web.cron;
 
+import dev.mathops.dbjobs.batch.BulkUpdateMPLTestScores;
 import dev.mathops.dbjobs.batch.daily.AuditBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.CheckStudentTerm;
 import dev.mathops.dbjobs.batch.daily.CleanPending;
@@ -138,6 +139,7 @@ public final class CronJobs implements ICronJob {
         }
 
         if (now.isAfter(this.earlyMorning)) {
+            new BulkUpdateMPLTestScores().execute();
             new ImportOdsApplicants().execute();
             new ImportOdsTransferCredit().execute();
             new ImportOdsPastCourses().execute();

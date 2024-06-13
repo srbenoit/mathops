@@ -145,6 +145,34 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
      * Gets all records for a particular student.
      *
      * @param cache   the data cache
+     * @param stuId   the student ID
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawStmilestone> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+        final HtmlBuilder sql = new HtmlBuilder(100);
+
+        sql.add("SELECT * FROM stmilestone",
+                " WHERE stu_id=", sqlStringValue(stuId));
+
+        final List<RawStmilestone> result = new ArrayList<>(20);
+
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql.toString())) {
+
+            while (rs.next()) {
+                result.add(RawStmilestone.fromResultSet(rs));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all records for a particular student.
+     *
+     * @param cache   the data cache
      * @param termKey the term key
      * @param stuId   the student ID
      * @return the list of records

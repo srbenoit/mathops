@@ -1,4 +1,4 @@
-package dev.mathops.session.sitelogic.mathplan.data;
+package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -136,7 +136,8 @@ public final class CourseSequence {
             if (courses.size() == 1) {
                 iterator.remove();
 
-                final RawCourse course = allCourses.get(courses.get(0));
+                final String first = courses.getFirst();
+                final RawCourse course = allCourses.get(first);
                 if (course != null) {
                     final CourseInfo info = new CourseInfo(course, false);
                     courseSet.put(course.course, info);
@@ -150,7 +151,7 @@ public final class CourseSequence {
      * courses to the place where the group occurs, reducing the credit/course requirement of the group accordingly
      * (this may remove groups).
      */
-    void resolveGroups() {
+    public void resolveGroups() {
 
         final Iterable<CourseInfoGroup> copy1 = new ArrayList<>(this.semester1CourseGroups);
         for (final CourseInfoGroup group : copy1) {
@@ -210,12 +211,14 @@ public final class CourseSequence {
 
                 final int courseCredits = info.course.nbrCredits.intValue();
 
-                if (courseCredits >= numCredits.intValue()) {
+                final int count = numCredits.intValue();
+
+                if (courseCredits >= count) {
                     groupSatisfied = true;
                     break;
                 }
 
-                numCredits = Integer.valueOf(numCredits.intValue() - courseCredits);
+                numCredits = Integer.valueOf(count - courseCredits);
 
                 group.setCourseGroup(new CourseGroup(courseGroup.groupCode, numCredits,
                         courseGroup.lowestLastCourse, courseGroup.courseNumbers));
@@ -583,25 +586,6 @@ public final class CourseSequence {
         checkAdditionalPrerequisites(prereqData, courseData, data);
     }
 
-    ///**
-    // * Fills in any missing prerequisite courses for pre-arrival (this may only add courses to
-    // * pre-arrival).
-    // *
-    // * @param prereqData a map from course ID to its required prerequisites
-    // * @param courseData a map from course ID to course data
-    // * @param data the student data with past word on record
-    // */
-    // private void checkPreArrivalPrerequisites(final Map<String, List<RequiredPrereq>>
-    // prereqData,
-    // final Map<String, Course> courseData, final StudentData data) {
-    //
-    // // Courses only... (loop over a copy since the course list may be altered within loop)
-    // final Map<String, CourseInfo> copy = new HashMap<>(this.preArrivalCourses);
-    // for (final String course : copy.keySet()) {
-    // checkSinglePreArrivalPrerequisite(course, prereqData, courseData, data);
-    // }
-    // }
-
     /**
      * Checks a single course in the pre-arrival category. If the course's prerequisites are not present they are added,
      * and this method is called recursively to add any prerequisites for the newly added course.
@@ -613,19 +597,18 @@ public final class CourseSequence {
      */
     private void checkSinglePreArrivalPrerequisite(final String course,
                                                    final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                                   final Map<String, RawCourse> courseData,
-                                                   final StudentData data) {
+                                                   final Map<String, RawCourse> courseData, final StudentData data) {
 
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
                 if (!isPrereqMet(prereq, this.preArrivalCourses, this.preArrivalCourses, null, null, false)) {
-                    final String courseToAdd = prereq.prereqCourses.get(0);
+                    final String courseToAdd = prereq.prereqCourses.getFirst();
 
                     final RawCourse crs = courseData.get(courseToAdd);
                     if (crs != null) {
                         final CourseInfo info = new CourseInfo(crs, true);
-                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.get(0);
+                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.getFirst();
                         info.status = isAlreadySatisfied(info, data);
 
                         this.preArrivalCourses.put(courseToAdd, info);
@@ -647,21 +630,19 @@ public final class CourseSequence {
      */
     private void checkSingleSem1Prerequisite(final String course,
                                              final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                             final Map<String, RawCourse> courseData,
-                                             final StudentData data) {
+                                             final Map<String, RawCourse> courseData, final StudentData data) {
 
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
                 if (!isPrereqMet(prereq, this.semester1Courses, this.preArrivalCourses, this.semester1CourseGroups,
-                        null,
-                        false)) {
-                    final String courseToAdd = prereq.prereqCourses.get(0);
+                        null, false)) {
+                    final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
 
                     if (crs != null) {
                         final CourseInfo info = new CourseInfo(crs, true);
-                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.get(0);
+                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.getFirst();
                         info.status = isAlreadySatisfied(info, data);
 
                         if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -688,8 +669,7 @@ public final class CourseSequence {
      */
     private void checkSingleSem2Prerequisite(final String course,
                                              final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                             final Map<String, RawCourse> courseData,
-                                             final StudentData data) {
+                                             final Map<String, RawCourse> courseData, final StudentData data) {
 
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester1Courses);
         prior.putAll(this.preArrivalCourses);
@@ -698,14 +678,13 @@ public final class CourseSequence {
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
                 if (!isPrereqMet(prereq, this.semester2Courses, prior, this.semester2CourseGroups,
-                        this.semester1CourseGroups,
-                        false)) {
-                    final String courseToAdd = prereq.prereqCourses.get(0);
+                        this.semester1CourseGroups, false)) {
+                    final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
 
                     if (crs != null) {
                         final CourseInfo info = new CourseInfo(crs, true);
-                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.get(0);
+                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.getFirst();
                         info.status = isAlreadySatisfied(info, data);
 
                         if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -747,12 +726,12 @@ public final class CourseSequence {
             for (final RequiredPrereq prereq : prereqList) {
                 if (!isPrereqMet(prereq, this.additionalCourses, prior, this.additionalCourseGroups, priorGroups,
                         true)) {
-                    final String courseToAdd = prereq.prereqCourses.get(0);
+                    final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
 
                     if (crs != null) {
                         final CourseInfo info = new CourseInfo(crs, true);
-                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.get(0);
+                        info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.getFirst();
                         info.status = isAlreadySatisfied(info, data);
 
                         this.additionalCourses.put(courseToAdd, info);
@@ -787,23 +766,26 @@ public final class CourseSequence {
         // Now course groups (only multi-course groups remain)...
         for (final CourseInfoGroup group : this.semester1CourseGroups) {
 
+            final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
-                final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups, null,
+                final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups
+                        , null,
                         false);
 
                 if (unsatisfied) {
                     // Add the prerequisites for the first course
-                    for (final RequiredPrereq prereq : prereqData.get(group.getCourseNumbers().get(0))) {
+                    for (final RequiredPrereq prereq : prereqData.get(courseNumbers.getFirst())) {
 
                         if (!isPrereqMet(prereq, current, prior, this.semester1CourseGroups, null, false)) {
                             // Add the prerequisite course and check its prerequisites
-                            final String courseToAdd = prereq.prereqCourses.get(0);
+                            final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
 
                             if (crs != null) {
                                 final CourseInfo info = new CourseInfo(crs, true);
-                                info.requiredGrade = prereq.prereqGrades.isEmpty() ? null : prereq.prereqGrades.get(0);
+                                info.requiredGrade = prereq.prereqGrades.isEmpty() ? null :
+                                        prereq.prereqGrades.getFirst();
                                 info.status = isAlreadySatisfied(info, data);
 
                                 if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -827,7 +809,7 @@ public final class CourseSequence {
                         found, false) == 0) {
 
                     // Add the prerequisite for the first course in the group with course data
-                    for (final String course : group.getCourseNumbers()) {
+                    for (final String course : courseNumbers) {
                         final RawCourse cdata = courseData.get(course);
                         if (cdata == null) {
                             continue;
@@ -839,13 +821,13 @@ public final class CourseSequence {
                             for (final RequiredPrereq prereq : prereqList) {
                                 if (!isPrereqMet(prereq, current, prior, currentGroups, null, false)) {
                                     // Add the prerequisite course and check its prerequisites
-                                    final String courseToAdd = prereq.prereqCourses.get(0);
+                                    final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
 
                                     if (crs != null) {
                                         final CourseInfo info = new CourseInfo(crs, true);
                                         info.requiredGrade = prereq.prereqGrades.isEmpty() ? null
-                                                : prereq.prereqGrades.get(0);
+                                                : prereq.prereqGrades.getFirst();
                                         info.status = isAlreadySatisfied(info, data);
 
                                         if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -895,6 +877,7 @@ public final class CourseSequence {
         // Now course groups (only multi-course groups remain)...
         for (final CourseInfoGroup group : this.semester2CourseGroups) {
 
+            final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
                 final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups,
@@ -902,11 +885,11 @@ public final class CourseSequence {
 
                 if (unsatisfied) {
                     // Add the prerequisites for the first course
-                    for (final RequiredPrereq prereq : prereqData.get(group.getCourseNumbers().get(0))) {
+                    for (final RequiredPrereq prereq : prereqData.get(courseNumbers.getFirst())) {
 
                         if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, false)) {
                             // Add the prerequisite course and check its prerequisites
-                            final String courseToAdd = prereq.prereqCourses.get(0);
+                            final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
 
                             if (crs != null) {
@@ -936,7 +919,7 @@ public final class CourseSequence {
                         currentGroups, priorGroups, found, false) == 0) {
 
                     // Add the prerequisite for the first course in the group with course data
-                    for (final String course : group.getCourseNumbers()) {
+                    for (final String course : courseNumbers) {
                         final RawCourse cdata = courseData.get(course);
                         if (cdata == null) {
                             continue;
@@ -948,13 +931,13 @@ public final class CourseSequence {
                             for (final RequiredPrereq prereq : prereqList) {
                                 if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, false)) {
                                     // Add the prerequisite course and check its prerequisites
-                                    final String courseToAdd = prereq.prereqCourses.get(0);
+                                    final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
 
                                     if (crs != null) {
                                         final CourseInfo info = new CourseInfo(crs, true);
                                         info.requiredGrade = prereq.prereqGrades.isEmpty() ? null
-                                                : prereq.prereqGrades.get(0);
+                                                : prereq.prereqGrades.getFirst();
                                         info.status = isAlreadySatisfied(info, data);
 
                                         if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -986,8 +969,7 @@ public final class CourseSequence {
      * @param data       the student data with past word on record
      */
     private void checkAdditionalPrerequisites(final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                              final Map<String, RawCourse> courseData,
-                                              final StudentData data) {
+                                              final Map<String, RawCourse> courseData, final StudentData data) {
 
         final Map<String, CourseInfo> current = new HashMap<>(this.additionalCourses);
         final Map<String, CourseInfo> prior = new HashMap<>(this.semester2Courses);
@@ -1006,6 +988,7 @@ public final class CourseSequence {
         // Now course groups (only multi-course groups remain)...
         for (final CourseInfoGroup group : this.additionalCourseGroups) {
 
+            final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
                 final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups,
@@ -1013,17 +996,18 @@ public final class CourseSequence {
 
                 if (unsatisfied) {
                     // Add the prerequisites for the first course
-                    for (final RequiredPrereq prereq : prereqData.get(group.getCourseNumbers().get(0))) {
+                    final String first = courseNumbers.getFirst();
+                    for (final RequiredPrereq prereq : prereqData.get(first)) {
 
                         if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, true)) {
                             // Add the prerequisite course and check its prerequisites
-                            final String courseToAdd = prereq.prereqCourses.get(0);
+                            final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
 
                             if (crs != null) {
                                 final CourseInfo info = new CourseInfo(crs, true);
                                 info.requiredGrade = prereq.prereqGrades.isEmpty() ? null
-                                        : prereq.prereqGrades.get(0);
+                                        : prereq.prereqGrades.getFirst();
                                 info.status = isAlreadySatisfied(info, data);
 
                                 this.additionalCourses.put(courseToAdd, info);
@@ -1042,7 +1026,7 @@ public final class CourseSequence {
                         currentGroups, priorGroups, found, true) == 0) {
 
                     // Add the prerequisite for the first course in the group with course data
-                    for (final String course : group.getCourseNumbers()) {
+                    for (final String course : courseNumbers) {
                         final RawCourse cdata = courseData.get(course);
                         if (cdata == null) {
                             continue;
@@ -1635,7 +1619,8 @@ public final class CourseSequence {
 
         if (!req) {
             for (final CourseInfoGroup grp : this.semester1CourseGroups) {
-                if ("AGED3".equals(grp.getGroupCode()) || "ANIM3".equals(grp.getGroupCode())) {
+                final String code = grp.getGroupCode();
+                if ("AGED3".equals(code) || "ANIM3".equals(code)) {
                     req = true;
                     break;
                 }
@@ -1650,7 +1635,7 @@ public final class CourseSequence {
      *
      * @return {@code true} if there are semester 2 courses that the student could place out of
      */
-    public boolean isPrecalcCourseInSemester2() {
+    boolean isPrecalcCourseInSemester2() {
 
         boolean req = this.semester2Courses.containsKey(RawRecordConstants.M117)
                 || this.semester2Courses.containsKey(RawRecordConstants.M118)
@@ -1660,7 +1645,8 @@ public final class CourseSequence {
 
         if (!req) {
             for (final CourseInfoGroup grp : this.semester2CourseGroups) {
-                if ("AGED3".equals(grp.getGroupCode()) || "ANIM3".equals(grp.getGroupCode())) {
+                final String code = grp.getGroupCode();
+                if ("AGED3".equals(code) || "ANIM3".equals(code)) {
                     req = true;
                     break;
                 }
@@ -1691,8 +1677,10 @@ public final class CourseSequence {
 
         if (isGroupInSemester1("AUCC2") || isGroupInSemester1("AUCC3")) {
             needs117 = false;
-        } else needs117 = isCourseInSemester1(RawRecordConstants.M117) || isGroupInSemester1("AGED3")
-                || isGroupInSemester1("ANIM3");
+        } else {
+            needs117 = isCourseInSemester1(RawRecordConstants.M117) || isGroupInSemester1("AGED3")
+                    || isGroupInSemester1("ANIM3");
+        }
 
         return needs117;
     }
@@ -1702,33 +1690,10 @@ public final class CourseSequence {
      *
      * @return {@code true} if MATH 101 is needed in semester 2.
      */
-    boolean needs101InSem2() {
+    public boolean needs101InSem2() {
 
         return isCourseInSemester2("M 101") || isGroupInSemester2("AUCC3") || isGroupInSemester2("AUCC2");
     }
-
-    ///**
-    // * Tests whether MATH 117 is needed in semester 2.
-    // *
-    // * @return {@code true} if MATH 117 is needed in semester 2.
-    // */
-    // public boolean needs117InSem2() {
-    //
-    // return isCourseInSemester2(RawRecordConstants.M117)
-    // || isGroupInSemester2("AGED3")
-    // || isGroupInSemester2("ANIM3");
-    // }
-
-    ///**
-    // * Tests whether a specific course is in semester 1.
-    // *
-    // * @param course the course ID
-    // * @return {@code true} if the course is listed in semester 1 (courses, not groups)
-    // */
-    // public boolean isCourseInPrearrival(final String course) {
-    //
-    // return this.preArrivalCourses.containsKey(course);
-    // }
 
     /**
      * Tests whether a specific course is in semester 1.
@@ -1752,7 +1717,8 @@ public final class CourseSequence {
         boolean found = false;
 
         for (final CourseInfoGroup g : this.semester1CourseGroups) {
-            if (group.equals(g.getGroupCode())) {
+            final String code = g.getGroupCode();
+            if (group.equals(code)) {
                 found = true;
                 break;
             }
@@ -1783,7 +1749,8 @@ public final class CourseSequence {
         boolean found = false;
 
         for (final CourseInfoGroup g : this.semester2CourseGroups) {
-            if (group.equals(g.getGroupCode())) {
+            final String code = g.getGroupCode();
+            if (group.equals(code)) {
                 found = true;
                 break;
             }
@@ -1799,7 +1766,7 @@ public final class CourseSequence {
      * @return {@code true} if the student can register for at least one first-semester course; {@code false} if there
      *         are no first-semester courses, or the student is not eligible for any of them
      */
-    public boolean isEligibleToRegisterForSemester1(final Collection<String> canRegisterFor) {
+    boolean isEligibleToRegisterForSemester1(final Collection<String> canRegisterFor) {
 
         boolean eligible = false;
 

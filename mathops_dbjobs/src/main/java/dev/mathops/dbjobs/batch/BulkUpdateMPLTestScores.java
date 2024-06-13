@@ -1,6 +1,7 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
@@ -9,6 +10,8 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -18,6 +21,8 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,23 +35,93 @@ import java.util.Set;
  * corresponding "MPL" test score in SORTEST.  If the SORTEST record is missing, a record is inserted.
  *
  * <p>
- * The logic for an individual student (based on the most recent completion of the Math Plan) is as follows:
+ * The logic for an individual student is as follows:
  * <pre>
  * IF
- *     the student has a response with version='WLCM5' and survey_nbr=2 and stu_answer='Y'
+ *     the student has any MATH PLAN 'WLCM5' response records
  * THEN
- *     the student should have a "MPL" test score of "2" to indicate Math Placement is indicated by the Math Plan
- * ELSE IF
- *     the student has a response with version='WLCM5' and survey_nbr=1 and stu_answer='Y'
- * THEN
- *     the student should have a "MPL" test score of "1" to indicate Math Placement is not indicated by the Math Plan
+ *     IF
+ *         the student's program on record is any that needs only AUCC-1B
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
+ *         the student's Math Plan recommendation is any AUCC-1B course
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
+ *         the student has completed the Math Placement tool
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE IF
+ *         the student has any MATH transfer credit that clears 1B or satisfies the prerequisite for MATH 117
+ *     THEN
+ *         the student should have a "MPL" test score of "1" to indicate Math Placement is not needed
+ *     ELSE
+ *         the student should have a "MPL" test score of "2" to indicate Math Placement is needed
+ *     END IF
  * ELSE
- *     the student should not have a "MPL" test score at all
+ *     the student should not have any "MPL" test score at all, to indicate the Math Plan is not yet complete
  * END IF
  * </pre>
  */
-public enum BulkUpdateMPLTestScores {
-    ;
+public class BulkUpdateMPLTestScores {
+
+    private static final List<String> MAJORS_NEEDING_ONLY_AUCC = Arrays.asList("ECHE-BS", "FACS-BS", "FACS-FCSZ-BS",
+            "FACS-IDSZ-BS", "HDFS-BS", "HDFS-ECPZ-BS", "HDFS-HDEZ-BS", "HDFS-LADZ-BS", "HDFS-PHPZ-BS", "HDFS-PISZ-BS"
+            , "SOWK-BSW", "HDFS-BS", "HDFS-ECPZ-BS", "HDFS-HDEZ-BS", "HDFS-LADZ-BS", "HDFS-PHPZ-BS", "HDFS-PISZ-BS",
+            "SOWK-BSW", "SOWK-ADSZ-BSW", "ANTH-BA", "ANTH-ARCZ-BA", "ANTH-BIOZ-BA", "ANTH-CLTZ-BA", "ARTI-BA",
+            "ARTI-ARTZ-BA", "ARTI-IVSZ-BA", "ARTM-BFA", "ARTM-DRAZ-BF", "ARTM-ELAZ-BF", "ARTM-FIBZ-BF", "ARTM-GRDZ-BF",
+            "ARTM-METZ-BF", "ARTM-PNTZ-BF", "ARTM-PHIZ-BF", "ARTM-POTZ-BF", "ARTM-PRTZ-BF", "ARTM-SCLZ-BF",
+            "ARTM-AREZ-BF", "CMST-BA", "CMST-TCLZ-BA", "DNCE-BA", "DANC-BFA", "ENGL-BA", "ENGL-CRWZ-BA", "ENGL-ENEZ-BA",
+            "ENGL-LINZ-BA", "ENGL-LITZ-BA", "ENGL-WRLZ-BA", "ETST-BA", "ETST-COIZ-BA", "ETST-RPRZ-BA", "ETST-SOTZ-BA",
+            "GEOG-BS", "HIST-BA", "HIST-GENZ-BA", "HIST-LNGZ-BA", "HIST-SBSZ-BA", "HIST-SSTZ-BA", "HIST-DPUZ-BA",
+            "JAMC-BA", "LLAC-BA", "LLAC-LFRZ-BA", "LLAC-LGEZ-BA", "LLAC-LSPZ-BA", "LLAC-SPPZ-BA", "MUSI-BA", "MUSC-BM",
+            "MUSC-MUEZ-BM", "MUSC-MUTZ-BM", "MUSC-PERZ-BM", "PHIL-GNPZ-BA", "PHIL-GPRZ-BA", "PHIL-PSAZ-BA", "POLS-BA",
+            "POLS-EPAZ-BA", "POLS-GPPZ-BA", "POLS-ULPZ-BA", "SOCI-BA", "SOCI-CRCZ-BA", "SOCI-ENSZ-BA", "SOCI-GNSZ-BA",
+            "THTR-BA", "THTR-MUSZ-BA", "THTR-PRFZ-BA", "THTR-CDTZ-BA", "THTR-LDTZ-BA", "THTR-PDTZ-BA", "THTR-SDSZ-BA",
+            "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA", "INST-GBLZ-BA", "INST-LTSZ-BA",
+            "INST-MEAZ-BA", "ILAR-BA",
+            // Below are not in catalog
+            "THTR-DTHZ-BA", "CMST-DD-BA", "HDFS-DHDZ-BS", "HDFS-DECZ-BS",
+            "MUS0" // Pre-music
+            );
+
+    private static final List<String> MAJORS_NEEDING_MORE = Arrays.asList(
+            "AGBI-BS", "AGBI-ENTZ-BS", "AGBI-PLPZ-BS", "AGBI-WEEZ-BS", "AGBU-BS", "AGBU-AECZ-BS", "AGBU-FRCZ-BS",
+            "AGBU-FSSZ-BS", "AGED-BS", "AGED-AGLZ-BS", "AGED-TDLZ-BS", "ANIM-BS", "ENRE-BS", "ENHR-BS", "ENHR-LDAZ-BS",
+            "ENHR-NALZ-BS", "ENHR-TURZ-BS", "EQSC-BS", "HORT-BS", "HORT-CEHZ-BS", "HORT-HBMZ-BS", "HORT-HFCZ-BS",
+            "HORT-HOSZ-BS", "LDAR-BS", "LSBM-BS", "SOCR-BS", "SOCR-PBTZ-BS", "SOCR-SESZ-BS", "SOCR-SAMZ-BS", "BUSA-BS",
+            "BUSA-ACCZ-BS", "BUSA-FINZ-BS", "BUSA-FPLZ-BS", "BUSA-HRMZ-BS", "BUSA-INSZ-BS", "BUSA-MINZ-BS",
+            "BUSA-MKTZ-BS", "BUSA-REAZ-BS", "BUSA-SCMZ-BS", "CBEG-DUAL", "CBEG-BMEC-BS", "CPEG-BMEP-BS", "ELEG-BMEE-BS",
+            "ELEG-BMEL-BS", "MECH-BMEM-BS", "CBEG-BS", "CIVE-BS", "CPEG-BS", "CPEG-AESZ-BS", "CPEG-EISZ-BS",
+            "CPEG-NDTZ-BS", "CPEG-VICZ-BS", "ELEG-BS", "ELEG-ELEZ-BS", "ELEG-LOEZ-BS", "ELEG-ASPZ-BS", "ENVE-BS",
+            "MECH-BS", "MECH-ACEZ-BS", "MECH-ADMZ-BS", "APAM-BS", "APAM-ADAZ-BS", "APAM-MDSZ-BS", "APAM-PDVZ-BS",
+            "CTMG-BS", "FMST-BS", "HAES-BS", "HAES-HPRZ-BS", "HAES-SPMZ-BS", "HSMG-BS", "IARD-BS", "NAFS-BS",
+            "NAFS-DNMZ-BS", "NAFS-FSCZ-BS", "NAFS-NFTZ-BS", "NAFS-PHNZ-BS", "ECON-BA", "ECSS-BS", "FWCB-BS",
+            "FWCB-CNVZ-BS", "FWCB-FASZ-BS", "FWCB-WDBZ-BS", "FRRS-BS", "FRRS-FRBZ-BS", "FRRS-FRFZ-BS", "FRRS-FMGZ-BS",
+            "FRRS-RFMZ-BS", "FRRS-RCMZ-BS", "GEOL-BS", "GEOL-EVGZ-BS", "GEOL-GEOZ-BS", "GEOL-GPYZ-BS", "GEOL-HYDZ-BS",
+            "HDNR-BS", "NRRT-BS", "NRRT-GLTZ-BS", "NRRT-NRTZ-BS", "NRMG-BS", "RECO-BS", "WRSC-BS", "WRSC-WSDZ-BS",
+            "WRSC-WSSZ-BS", "WRSC-WSUZ-BS", "BCHM-BS", "BCHM-ASBZ-BS", "BCHM-DTSZ-BS", "BCHM-HMSZ-BS", "BCHM-PPHZ-BS",
+            "BLSC-BS", "BLSC-BLSZ-BS", "BLSC-BTNZ-BS", "CHEM-BS", "CHEM-ECHZ-BS", "CHEM-FCHZ-BS", "CHEM-HSCZ-BS",
+            "CHEM-SCHZ-BS", "CPSC-BS", "CPSC-CPSZ-BS", "CPSC-HCCZ-BS", "CPSC-AIMZ-BS", "CPSC-CSYZ-BS", "CPSC-NSCZ-BS",
+            "CPSC-SEGZ-BS", "CPSC-CSEZ-BS", "DSCI-BS", "DSCI-CSCZ-BS", "DSCI-ECNZ-BS", "DSCI-MATZ-BS", "DSCI-STSZ-BS",
+            "DSCI-NEUZ-BS", "MATH-BS", "MATH-ALSZ-BS", "MATH-AMTZ-BS", "MATH-GNMZ-BS", "MATH-MTEZ-BS", "MATH-CPMZ-BS",
+            "NSCI-BS", "NSCI-BLEZ-BS", "NSCI-CHEZ-BS", "NSCI-GLEZ-BS", "NSCI-PHSZ-BS", "NSCI-PHEZ-BS", "PHYS-BS",
+            "PHYS-APPZ-BS", "PHYS-PHYZ-BS", "PSYC-BS", "PSYC-CCPZ-BS", "PSYC-GPSZ-BS", "PSYC-IOPZ-BS", "PSYC-MBBZ-BS",
+            "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS", "NERO-BCNZ-BS",
+            "NERO-CMNZ-BS", "HEMG-BS",
+            // Below are not in catalog
+            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS",
+            "CTM0", // Pre-construction management
+            "USBU", // Exploratory studies: Business interest
+            "EXPL", "EXLA", // Exploratory studies: Land, Plant, and Animal Science
+            "EXHF", // Exploratory studies: Health, Life, and Food
+            "EXOM", // Exploratory studies: Organization, Management, Ent.
+            "EXNR", // Exploratory studies: Environmental and Natural Sci.
+            "USEG", // Exploratory studies
+            "USBS", // Exploratory studies: Life Sciences
+            "USCS" // ???
+            );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
     private static final boolean DEBUG = true;
@@ -57,28 +132,98 @@ public enum BulkUpdateMPLTestScores {
     /** A commonly used integer. */
     private static final Integer ONE = Integer.valueOf(1);
 
-    /** A commonly used integer. */
-    private static final Integer TWO = Integer.valueOf(2);
+    /** The database profile through which to access the database. */
+    private final DbProfile dbProfile;
+
+    /** The Primary database context. */
+    private final DbContext primaryCtx;
+
+    /** The live data database context. */
+    private final DbContext liveCtx;
+
+    /**
+     * Constructs a new {@code BulkUpdateMPLTestScores}.
+     */
+    public BulkUpdateMPLTestScores() {
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+
+        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+    }
 
     /**
      * Executes the job.
      *
-     * @param cache the data cache
-     * @param liveCtx the "LIVE" database context
+     * @return the report
+     */
+    public String execute() {
+
+        final Collection<String> report = new ArrayList<>(10);
+
+        if (this.dbProfile == null) {
+            final String msg = "Unable to create production context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else if (this.primaryCtx == null) {
+            final String msg = "Unable to create PRIMARY database context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else if (this.liveCtx == null) {
+            final String msg = "Unable to create LIVE database context.";
+            Log.warning(msg);
+            report.add(msg);
+        } else {
+            try {
+                final DbConnection conn = this.primaryCtx.checkOutConnection();
+                final Cache cache = new Cache(this.dbProfile, conn);
+                try {
+                    execute(cache, report);
+                } finally {
+                    this.primaryCtx.checkInConnection(conn);
+                }
+            } catch (final SQLException ex) {
+                final String exMsg = ex.getMessage();
+                final String msg = HtmlBuilder.concat("EXCEPTION: ", exMsg);
+                Log.warning(msg);
+                report.add(msg);
+            }
+        }
+
+        final HtmlBuilder htm = new HtmlBuilder(1000);
+        htm.addln("<pre>");
+        for (final String rep : report) {
+            htm.addln(rep);
+        }
+        htm.addln("</pre>");
+
+        return htm.toString();
+    }
+
+    /**
+     * Executes the job.
+     *
+     * @param cache  the data cache
+     * @param report a list of strings to which to add report output lines
      * @throws SQLException if there is an error accessing the database
      */
-    public static void execute(final Cache cache, final DbContext liveCtx) throws SQLException {
+    public void execute(final Cache cache, final Collection<? super String> report) throws SQLException {
 
         // Determine the list of students who should have MPL test scores of some kind
-        Log.fine("Scanning student MathPlan status...");
+        final String msg1 = "Scanning student MathPlan status...";
+        Log.fine(msg1);
+        report.add(msg1);
 
         final List<RawStmathplan> allStMathPlan = RawStmathplanLogic.INSTANCE.queryAll(cache);
         final int size = allStMathPlan.size();
         final String sizeStr = Integer.toString(size);
-        Log.fine("    Found ", sizeStr, " MathPlan responses");
+
+        final String msg2 = HtmlBuilder.concat("    Found ", sizeStr, " MathPlan responses");
+        report.add(msg2);
+        Log.fine(msg2);
 
         final Map<String, RawStmathplan> latest1 = new HashMap<>(25000);
-        final Map<String, RawStmathplan> latest2 = new HashMap<>(25000);
 
         // Find the most recent "WLCM5" rows
         for (final RawStmathplan row : allStMathPlan) {
@@ -95,59 +240,58 @@ public enum BulkUpdateMPLTestScores {
                             latest1.put(row.stuId, row);
                         }
                     }
-                } else if (TWO.equals(row.surveyNbr)) {
-                    final RawStmathplan existing2 = latest2.get(row.stuId);
-                    if (existing2 == null) {
-                        latest2.put(row.stuId, row);
-                    } else {
-                        final LocalDateTime existingWhen = existing2.getWhen();
-                        if (existingWhen == null || existingWhen.isBefore(when)) {
-                            latest2.put(row.stuId, row);
-                        }
-                    }
                 }
             }
         }
 
         final int size1 = latest1.size();
         final String size1Str = Integer.toString(size1);
-        Log.fine("    Found ", size1Str, " 'WLCM5' question 1 responses");
-
-        final int size2 = latest2.size();
-        final String size2Str = Integer.toString(size2);
-        Log.fine("    Found ", size2Str, " 'WLCM5' question 2 responses");
+        final String msg3 = HtmlBuilder.concat("    Found ", size1Str, " 'WLCM5' question 1 responses");
+        Log.fine(msg3);
+        report.add(msg3);
 
         final Collection<String> stuIds = new HashSet<>(25000);
         final Set<String> keys1 = latest1.keySet();
-        final Set<String> keys2 = latest2.keySet();
         stuIds.addAll(keys1);
-        stuIds.addAll(keys2);
 
         final int sizeAll = stuIds.size();
         final String sizeAllStr = Integer.toString(sizeAll);
-        Log.fine("    Found ", sizeAllStr, " distinct students with responses");
+        final String msg4 = HtmlBuilder.concat("    Found ", sizeAllStr, " distinct students with responses");
+        Log.fine(msg4);
+        report.add(msg4);
 
         // Compare results with SORTEST table
         Log.fine(CoreConstants.EMPTY);
-        Log.fine("Scanning SORTEST table...");
+        final String msg5 = "Scanning SORTEST table...";
+        Log.fine(msg5);
+        report.add(msg5);
 
-        final DbConnection liveConn = liveCtx.checkOutConnection();
+        final DbConnection liveConn = this.liveCtx.checkOutConnection();
+        final LocalDateTime now = LocalDateTime.now();
         try {
             int count1 = 0;
             int count2 = 0;
             int already1 = 0;
             int already2 = 0;
+
             for (final String stuId : stuIds) {
+
                 RawStudent student = RawStudentLogic.query(cache, stuId, false);
                 if (student == null) {
-                    Log.fine("   WARNING: Student ", stuId, " needed to be retrieved");
+                    final String msg = HtmlBuilder.concat("   WARNING: Student ", stuId, " needed to be retrieved");
+                    Log.fine(msg);
+                    report.add(msg);
                     student = RawStudentLogic.query(cache, stuId, true);
                 }
 
                 if (student == null) {
-                    Log.fine("   ERROR: Student ", stuId, " not found!");
+                    final String msg = HtmlBuilder.concat("   ERROR: Student ", stuId, " not found!");
+                    Log.warning(msg);
+                    report.add(msg);
                 } else if (student.pidm == null) {
-                    Log.fine("   ERROR: Student ", stuId, " has no PIDM!");
+                    final String msg = HtmlBuilder.concat("   ERROR: Student ", stuId, " has no PIDM!");
+                    Log.warning(msg);
+                    report.add(msg);
                 } else {
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
                             student.pidm);
@@ -161,63 +305,64 @@ public enum BulkUpdateMPLTestScores {
                         }
                     }
 
-                    if (latest2.containsKey(stuId)) {
-                        // Student should have a "2" MPL score
-                        boolean doInsert = false;
+                    String wantValue = null;
+                    if (isProgramOnlyAUCC(student, report)) {
+                        wantValue = "1";
+                    } else {
+                        final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, stuId);
 
-                        if (mostRecent == null) {
-                            doInsert = true;
-                        } else if ("2".equals(mostRecent.testScore)) {
-                            ++already2;
-                        } else {
-                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '2'");
-                            doInsert = true;
-                        }
-
-                        if (doInsert) {
-                            final RawStmathplan submission = latest2.get(stuId);
-                            final LocalDateTime when = submission.getWhen();
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "2");
-
-                            if (DEBUG) {
-                                Log.fine("   Need to insert MPL=2 test score for ", stuId);
+                        if (latest1.containsKey(stuId)) {
+                            if (status.isPlacementComplete) {
+                                wantValue = "1";
+                            } else if (status.isPlacementNeeded) {
+                                wantValue = "2";
                             } else {
-                                Log.fine("   Inserting MPL=2 test score for ", stuId);
-                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                    Log.fine("   ERROR: Failed to inserting MPL=2 test score for ", stuId);
-                                }
+                                wantValue = "1";
                             }
+                        }
+                    }
 
+                    boolean doInsert = false;
+                    if (wantValue == null) {
+                        if (mostRecent != null) {
+                            final String msg = HtmlBuilder.concat("Student ", stuId, " who has not completed " +
+                                    "MathPlan" + " has a MPL score of ", mostRecent.testScore);
+                            Log.warning(msg);
+                            report.add(msg);
+                        }
+                    } else if (mostRecent == null) {
+                        // Insert the new score
+                        doInsert = true;
+                    } else if (!wantValue.equals(mostRecent.testScore)) {
+                        // Score has changed - insert a new score
+                        doInsert = true;
+                    }
+
+                    if (doInsert) {
+                        // Score has changed - insert a new score
+                        if (DEBUG) {
+                            final String msg = HtmlBuilder.concat("   Need to insert MPL=", wantValue,
+                                    " test score " + "for ", stuId);
+                            Log.fine(msg);
+                            report.add(msg);
+                        } else {
+                            final String msg = HtmlBuilder.concat("   Inserting MPL=", wantValue, " test score for ",
+                                    stuId);
+                            Log.fine(msg);
+                            report.add(msg);
+
+                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, now,
+                                    wantValue);
+                            if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
+                                final String msg6 = HtmlBuilder.concat("   ERROR: Failed to insert MPL=", wantValue,
+                                        " test score for ", stuId);
+                                Log.warning(msg6);
+                                report.add(msg6);
+                            }
+                        }
+                        if ("2".equals(wantValue)) {
                             ++count2;
-                        }
-                    } else if (latest1.containsKey(stuId)) {
-                        // Student should have a "1" MPL score
-                        boolean doInsert = false;
-
-                        if (mostRecent == null) {
-                            doInsert = true;
-                        } else if ("1".equals(mostRecent.testScore)) {
-                            ++already1;
                         } else {
-                            Log.fine("   Student ", stuId, " has ", mostRecent.testScore, " rather than '1'");
-                            doInsert = true;
-                        }
-
-                        if (doInsert) {
-                            final RawStmathplan submission = latest1.get(stuId);
-                            final LocalDateTime when = submission.getWhen();
-
-                            final RawMpscorequeue toInsert = new RawMpscorequeue(student.pidm, TEST_CODE, when, "1");
-
-                            if (DEBUG) {
-                                Log.fine("   Need to insert MPL=1 test score for ", stuId);
-                            } else {
-                                Log.fine("   Inserting MPL=1 test score for ", stuId);
-                                if (!RawMpscorequeueLogic.insertSORTEST(liveConn, toInsert)) {
-                                    Log.fine("   ERROR: Failed to inserting MPL=1 test score for ", stuId);
-                                }
-                            }
-
                             ++count1;
                         }
                     }
@@ -225,19 +370,56 @@ public enum BulkUpdateMPLTestScores {
             }
 
             final String count1Str = Integer.toString(count1);
-            Log.fine("    Found ", count1Str, " to update to score 1");
+            final String msg6 = HtmlBuilder.concat("    Found ", count1Str, " to update to score 1");
+            Log.fine(msg6);
+            report.add(msg6);
 
             final String count2Str = Integer.toString(count2);
-            Log.fine("    Found ", count2Str, " to update to score 2");
+            final String msg7 = HtmlBuilder.concat("    Found ", count2Str, " to update to score 2");
+            Log.fine(msg7);
+            report.add(msg7);
 
             final String already1Str = Integer.toString(already1);
-            Log.fine("    Found ", already1Str, " already with score 1");
+            final String msg8 = HtmlBuilder.concat("    Found ", already1Str, " already with score 1");
+            Log.fine(msg8);
+            report.add(msg8);
 
             final String already2Str = Integer.toString(already2);
-            Log.fine("    Found ", already2Str, " already with score 2");
+            final String msg9 = HtmlBuilder.concat("    Found ", already2Str, " already with score 2");
+            Log.fine(msg9);
+            report.add(msg9);
         } finally {
-            liveCtx.checkInConnection(liveConn);
+            this.liveCtx.checkInConnection(liveConn);
         }
+    }
+
+    /**
+     * Tests whether the student's program code is one of those that needs only AUCC-1B.
+     *
+     * @param student the student record
+     * @return true if this code only needs AUCC 1B
+     */
+    private boolean isProgramOnlyAUCC(final RawStudent student, final Collection<? super String> report) {
+
+        boolean auccOnly;
+
+        final String programCode = student.programCode;
+
+        if (programCode == null || programCode.isBlank()) {
+            auccOnly = false;
+        } else if (MAJORS_NEEDING_ONLY_AUCC.contains(programCode)) {
+            auccOnly = true;
+        } else if (MAJORS_NEEDING_MORE.contains(programCode)) {
+            auccOnly = false;
+        } else {
+            final String msg = HtmlBuilder.concat("Unrecognized program code: ", programCode, ", student ",
+                    student.stuId, " college is ", student.college, " and department is ", student.dept);
+            Log.fine(msg);
+            report.add(msg);
+            auccOnly = false;
+        }
+
+        return auccOnly;
     }
 
     /**
@@ -247,23 +429,8 @@ public enum BulkUpdateMPLTestScores {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        final DbContext liveCtx = dbProfile.getDbContext(ESchemaUse.LIVE);
+        final BulkUpdateMPLTestScores job = new BulkUpdateMPLTestScores();
 
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                execute(cache, liveCtx);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-        }
-
+        Log.fine(job.execute());
     }
 }

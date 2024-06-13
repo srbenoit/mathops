@@ -1766,8 +1766,19 @@ public final class UnitExamSession extends HtmlSessionBase {
                 section = stcourse.sect;
             }
 
-            final RawCusection cusect = RawCusectionLogic.query(cache, stexam.course, section, stexam.unit,
-                    this.active.term);
+            RawCusection cusect;
+
+            if ("Y".equals(stcourse.iInProgress)) {
+                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                        stexam.unit, stcourse.iTermKey);
+                if (cusect == null) {
+                    cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                            stexam.unit, this.active.term);
+                }
+            } else {
+                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                        stexam.unit, this.active.term);
+            }
 
             if (cusect == null) {
                 return "Unable to look up course section.";

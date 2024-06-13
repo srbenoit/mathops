@@ -149,10 +149,8 @@ final class Res extends ResBundle {
             {PLAN_THESE_COURSES, "those courses"},
             {PLAN_IDEALLY_SINGULAR, "Ideally, you will register for this course during Orientation."},
             {PLAN_IDEALLY_PLURAL, "Ideally, you will register for those courses during Orientation."},
-            {PLAN_1A_SINGULAR_1, "It is important to satisfy the prerequisite for {0} "
-                    + "so you can take it during {1}."},
-            {PLAN_1A_SINGULAR_2, "It is important to satisfy the prerequisites for {0} "
-                    + "so you can take it during {1}."},
+            {PLAN_1A_SINGULAR_1, "It is important to satisfy the prerequisite for {0} so you can take it during {1}."},
+            {PLAN_1A_SINGULAR_2, "It is important to satisfy the prerequisites for {0} so you can take it during {1}."},
             {PLAN_1A_PLURAL_1, "It is important to satisfy the prerequisite for {0} "
                     + "so you can take those courses during {1}."},
             {PLAN_1A_PLURAL_2, "It is important to satisfy the prerequisites for {0} "

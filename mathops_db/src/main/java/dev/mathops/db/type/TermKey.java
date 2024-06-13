@@ -53,9 +53,8 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
         this.termCode = theName.termName;
         this.year = Integer.valueOf(theYear);
 
-        final Integer shortYr = Integer.valueOf(this.year.intValue() % 100);
-
         final int intYear = this.year.intValue();
+        final Integer shortYr = Integer.valueOf(intYear % 100);
 
         final HtmlBuilder builder = new HtmlBuilder(50);
         builder.add(this.name.fullName, ", ").add(intYear);
@@ -91,9 +90,8 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
         this.termCode = theName.termName;
         this.year = theYear;
 
-        final Integer shortYr = Integer.valueOf(this.year.intValue() % 100);
-
         final int intYear = this.year.intValue();
+        final Integer shortYr = Integer.valueOf(intYear % 100);
 
         final HtmlBuilder builder = new HtmlBuilder(50);
         builder.add(this.name.fullName, ", ").add(intYear);
@@ -211,17 +209,23 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
                         this.name = ETermName.SPRING;
                         this.year = Integer.valueOf(intYear);
                     } else {
-                        throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString));
+                        final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString);
+                        throw new IllegalArgumentException(msg);
                     }
                 } catch (final NumberFormatException ex) {
-                    throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString), ex);
+                    final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString);
+                    throw new IllegalArgumentException(msg, ex);
                 }
             } else {
                 try {
-                    this.year = Integer.valueOf(2000 + Integer.parseInt(shortTermString.substring(2)));
+                    final String yearString = shortTermString.substring(2);
+                    final int yearValue = Integer.parseInt(yearString);
+
+                    this.year = yearValue >= 80 ? Integer.valueOf(1900 + yearValue) : Integer.valueOf(2000 + yearValue);
                     this.name = term;
                 } catch (final NumberFormatException ex) {
-                    throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString, ex));
+                    final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString, ex);
+                    throw new IllegalArgumentException(msg);
                 }
             }
         } else if (shortTermString.length() == 2) {
@@ -232,18 +236,20 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
                     this.name = ETermName.SPRING;
                     this.year = Integer.valueOf(2000 + intYear);
                 } else {
-                    throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString));
+                    final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString);
+                    throw new IllegalArgumentException(msg);
                 }
             } catch (final NumberFormatException ex) {
-                throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString), ex);
+                final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString);
+                throw new IllegalArgumentException(msg, ex);
             }
         } else {
-            throw new IllegalArgumentException(Res.fmt(Res.BAD_SHORT_TERM, shortTermString));
+            final String msg = Res.fmt(Res.BAD_SHORT_TERM, shortTermString);
+            throw new IllegalArgumentException(msg);
         }
 
-        final Integer shortYr = Integer.valueOf(this.year.intValue() % 100);
-
         final int intYear = this.year.intValue();
+        final Integer shortYr = Integer.valueOf(intYear % 100);
 
         final HtmlBuilder builder = new HtmlBuilder(50);
         builder.add(this.name.fullName, ", ").add(intYear);
@@ -301,8 +307,7 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
      * @return the parsed {@code TermKey}.
      * @throws IllegalArgumentException if the term string cannot be parsed
      */
-    public static TermKey parseNumericString(final String bannerTermString)
-            throws IllegalArgumentException {
+    public static TermKey parseNumericString(final String bannerTermString) throws IllegalArgumentException {
 
         if (bannerTermString == null) {
             throw new IllegalArgumentException(Res.get(Res.NULL_LONG_TERM));
@@ -337,12 +342,14 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
     public static TermKey parseLongString(final String longTermString) throws IllegalArgumentException {
 
         if (longTermString == null) {
-            throw new IllegalArgumentException(Res.get(Res.NULL_LONG_TERM));
+            final String s = Res.get(Res.NULL_LONG_TERM);
+            throw new IllegalArgumentException(s);
         }
 
-        final int comma = longTermString.indexOf(CoreConstants.COMMA_CHAR);
+        final int comma = longTermString.indexOf((int) CoreConstants.COMMA_CHAR);
         if (comma == -1) {
-            throw new IllegalArgumentException(Res.fmt(Res.BAD_LONG_TERM, longTermString));
+            final String msg = Res.fmt(Res.BAD_LONG_TERM, longTermString);
+            throw new IllegalArgumentException(msg);
         }
 
         final String termStr = longTermString.substring(0, comma).trim();
@@ -350,7 +357,8 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
 
         final ETermName term = ETermName.forFullName(termStr);
         if (term == null) {
-            throw new IllegalArgumentException(Res.fmt(Res.BAD_LONG_TERM, longTermString));
+            final String msg = Res.fmt(Res.BAD_LONG_TERM, longTermString);
+            throw new IllegalArgumentException(msg);
         }
 
         final int year = Integer.parseInt(yearStr);
@@ -372,7 +380,9 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
         int result = this.year.compareTo(o.year);
 
         if (result == 0) {
-            result = Integer.compare(this.name.ordinal(), o.name.ordinal());
+            final int nameIndex = this.name.ordinal();
+            final int otherNameIndex = o.name.ordinal();
+            result = Integer.compare(nameIndex, otherNameIndex);
         }
 
         return result;
