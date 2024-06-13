@@ -227,7 +227,7 @@ enum PageToolHome {
                 htm.eP();
 
                 htm.addln("<ul class='options'>");
-                htm.addln(" <li><a href='tool_instructions_precalc.html'>Tell me about the Precalculus Tutorial",
+                htm.addln(" <li><a href='/precalc-tutorial/home.html'>Tell me about the Precalculus Tutorial",
                         "</a></li>");
                 htm.addln("</ul>");
                 htm.eP();

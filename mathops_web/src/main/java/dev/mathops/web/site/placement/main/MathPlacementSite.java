@@ -190,8 +190,7 @@ public final class MathPlacementSite extends AbstractPageSite {
             } else if ("tool_start_re.html".equals(subpath)) {
                 PageToolStartRe.doGet(this, req, resp, session);
             } else if ("tool_taking_exam_re.html".equals(subpath)) {
-                PageToolHtmlPlacementExam.startPlacementTool(cache, this, req, resp, session,
-                        EProctoringType.NONE);
+                PageToolHtmlPlacementExam.startPlacementTool(cache, this, req, resp, session, EProctoringType.NONE);
             } else {
                 Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
