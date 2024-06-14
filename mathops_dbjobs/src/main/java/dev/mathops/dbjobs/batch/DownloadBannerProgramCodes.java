@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.batch.daily;
+package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
@@ -92,18 +92,27 @@ public final class DownloadBannerProgramCodes {
      */
     private void execute(final Cache cache, final Collection<? super String> report) throws SQLException {
 
+//        final String sql = SimpleBuilder.concat( //
+//                "SELECT DISTINCT n.sgbstdn_program_1,n.sgbstdn_coll_code_1,n.sgbstdn_majr_code_1,n.sgbstdn_degc_code_1",
+//                "  FROM sgbstdn n",
+//                " INNER JOIN swrslat t ON t.swrslat_pidm = n.sgbstdn_pidm",
+//                "                     AND t.swrslat_levl_code = n.sgbstdn_levl_code",
+//                "                     AND t.swrslat_term_code_entry = n.sgbstdn_term_code_eff",
+//                "                     AND t.swrslat_styp_code = n.sgbstdn_styp_code",
+//                " INNER JOIN swrsicd s ON s.swrsicd_sbgi_code = 'YZAD01'",
+//                "                     AND s.swrsicd_orig_code = 8020",
+//                "                     AND s.swrsicd_sicd_code = 'TERMS'",
+//                "                     AND t.swrslat_term_code_entry BETWEEN s.swrsicd_attr1 AND s.swrsicd_attr2",
+//                " WHERE n.sgbstdn_stst_code = 'AS'",
+//                "   AND n.sgbstdn_levl_code = 'UG'",
+//                "   AND n.sgbstdn_styp_code in ('N','T')",
+//                " ORDER BY n.sgbstdn_program_1");
+
         final String sql = SimpleBuilder.concat( //
                 "SELECT DISTINCT n.sgbstdn_program_1,n.sgbstdn_coll_code_1,n.sgbstdn_majr_code_1,n.sgbstdn_degc_code_1",
                 "  FROM sgbstdn n",
-                " INNER JOIN swrslat t ON t.swrslat_pidm = n.sgbstdn_pidm",
-                "                     AND t.swrslat_levl_code = n.sgbstdn_levl_code",
-                "                     AND t.swrslat_term_code_entry = n.sgbstdn_term_code_eff",
-                "                     AND t.swrslat_styp_code = n.sgbstdn_styp_code",
-                " INNER JOIN swrsicd s ON s.swrsicd_sbgi_code = 'YZAD01'",
-                "                     AND s.swrsicd_orig_code = 8020",
-                "                     AND s.swrsicd_sicd_code = 'TERMS'",
-                "                     AND t.swrslat_term_code_entry BETWEEN s.swrsicd_attr1 AND s.swrsicd_attr2",
-                " WHERE n.sgbstdn_stst_code = 'AS'",
+                " WHERE n.sgbstdn_program_1 IS NOT NULL",
+                "   AND n.sgbstdn_stst_code = 'AS'",
                 "   AND n.sgbstdn_levl_code = 'UG'",
                 "   AND n.sgbstdn_styp_code in ('N','T')",
                 " ORDER BY n.sgbstdn_program_1");
