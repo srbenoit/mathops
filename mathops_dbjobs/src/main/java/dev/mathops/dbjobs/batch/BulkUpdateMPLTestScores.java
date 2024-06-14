@@ -64,7 +64,7 @@ import java.util.Set;
  * END IF
  * </pre>
  */
-public class BulkUpdateMPLTestScores {
+public final class BulkUpdateMPLTestScores {
 
     private static final List<String> MAJORS_NEEDING_ONLY_AUCC = Arrays.asList("ECHE-BS", "FACS-BS", "FACS-FCSZ-BS",
             "FACS-IDSZ-BS", "HDFS-BS", "HDFS-ECPZ-BS", "HDFS-HDEZ-BS", "HDFS-LADZ-BS", "HDFS-PHPZ-BS", "HDFS-PISZ-BS"
@@ -82,8 +82,13 @@ public class BulkUpdateMPLTestScores {
             "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA", "INST-GBLZ-BA", "INST-LTSZ-BA",
             "INST-MEAZ-BA", "ILAR-BA",
             // Below are not in catalog
-            "THTR-DTHZ-BA", "CMST-DD-BA", "HDFS-DHDZ-BS", "HDFS-DECZ-BS",
-            "MUS0" // Pre-music
+            "THTR-DTHZ-BA", "CMST-DD-BA", "HDFS-DHDZ-BS", "HDFS-DECZ-BS", "SOCI-DGSZ-BA", "ANTH-DD-BA", "HDFS-DPHZ-BS",
+            "MUSC-COMZ-BM", "JAMC-DD-BA", "ILAR-DD-BA", "POLS-DD-BA", "DANC-DEDZ-BF", "HDFS-LEPZ-BS", "PHIL-BA",
+            "HDFS-DPIZ-BS", "ENGL-LANZ-BA", "HDFS-DLAZ-BS", "SOWK-ADSZ-BW", "HDFS-DLEZ-BS", "SPCM-TCLZ-BA",
+            "MUS0", // Pre-music
+            "UNLA", // Assuming liberal arts
+            "DNC0", // Assuming Dance
+            "THR0" // Assuming Theatre
             );
 
     private static final List<String> MAJORS_NEEDING_MORE = Arrays.asList(
@@ -111,7 +116,12 @@ public class BulkUpdateMPLTestScores {
             "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS", "NERO-BCNZ-BS",
             "NERO-CMNZ-BS", "HEMG-BS",
             // Below are not in catalog
-            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS",
+            "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS", "WSSS-WSDZ-BS", "WSSS-BS",
+            "NRTM-NRTZ-BS", "PSYC-ADCZ-BS", "NRTM-GLTZ-BS", "FESV-DD-BS", "CHEM-ACSZ-BS", "WSSS-WSSZ-BS", "EVHL-BS",
+            "WSSS-WSUZ-BS", "NAFS-NUSZ-BS", "ENRE-DD-BS", "ECON-DD-BA", "SOCR-DSAZ-BS", "CPSC-DSEZ-BS", "MICR-BS",
+            "N2CP-CPSY-UG", "WSSS-WSUZ-BS", "NAFS-FSNZ-BS", "NRTM-DNRZ-BS", "BUSA-DACZ-BS", "CPSC-DHCZ-BS",
+            "CPSC-DCYZ-BS", "CPSC-DAIZ-BS", "SOCR-SOEZ-BS", "APCT-CPTZ-BS", "BCHM-GBCZ-BS", "CPSC-DNSZ-BS",
+            "FRST-FMGZ-BS", "SOCR-PBGZ-BS", "SOCR-ISCZ-BS", "CPSC-CFCZ-BS", "SOCR-APMZ-BS", "NAFS-FSYZ-BS",
             "CTM0", // Pre-construction management
             "EXPL", "EXLA", // Exploratory studies: Land, Plant, and Animal Science
             "EXHF", // Exploratory studies: Health, Life, and Food
@@ -119,14 +129,30 @@ public class BulkUpdateMPLTestScores {
             "EXNR", // Exploratory studies: Environmental and Natural Sci.
             "EXPE", // Exploratory studies: Physical Science and Engineering
             "EXTC", // Exploratory studies: Education and Teaching
+            "EXPO", // Exploratory studies: ???
+            "EXCO", // Exploratory studies: ???
+            "EXAD", // Exploratory studies: ???
+            "EXGS", // Exploratory studies: ???
             "USEG", // Exploratory studies: Engineering
             "USBU", // Exploratory studies: Business interest
             "USBS", // Exploratory studies: Life Sciences
-            "USCS" // Exploratory studies: IT
+            "USCS", // Exploratory studies: IT
+            "USJC", // Exploratory studies: ???
+            "IAD0", // Unknown - assume it needs some math...
+            "EGOP", // Unknown - assume it needs some math...
+            "CSOR", // Unknown - assume it needs some math...
+            "N2IE-SI", // Unknown - assume it needs some math...
+            "GUES-CEUG", // Unknown - assume it needs some math...
+            "N2EG-ENGX-UG", // Unknown - assume it needs some math...
+            "GRAD-UG", // Unknown - assume it needs some math...
+            "SPCL-UG", // Unknown - assume it needs some math...
+            "CTED-UG", // Unknown - assume it needs some math...
+            "FCST-UG",  // Unknown - assume it needs some math...
+            "SSAS-UG"  // Unknown - assume it needs some math...
             );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** The test code. */
     private static final String TEST_CODE = "MPL";
@@ -273,8 +299,6 @@ public class BulkUpdateMPLTestScores {
         try {
             int count1 = 0;
             int count2 = 0;
-            int already1 = 0;
-            int already2 = 0;
 
             for (final String stuId : stuIds) {
 
@@ -380,16 +404,6 @@ public class BulkUpdateMPLTestScores {
             final String msg7 = HtmlBuilder.concat("    Found ", count2Str, " to update to score 2");
             Log.fine(msg7);
             report.add(msg7);
-
-            final String already1Str = Integer.toString(already1);
-            final String msg8 = HtmlBuilder.concat("    Found ", already1Str, " already with score 1");
-            Log.fine(msg8);
-            report.add(msg8);
-
-            final String already2Str = Integer.toString(already2);
-            final String msg9 = HtmlBuilder.concat("    Found ", already2Str, " already with score 2");
-            Log.fine(msg9);
-            report.add(msg9);
         } finally {
             this.liveCtx.checkInConnection(liveConn);
         }
@@ -403,7 +417,7 @@ public class BulkUpdateMPLTestScores {
      */
     private boolean isProgramOnlyAUCC(final RawStudent student, final Collection<? super String> report) {
 
-        boolean auccOnly;
+        final boolean auccOnly;
 
         final String programCode = student.programCode;
 
@@ -413,12 +427,57 @@ public class BulkUpdateMPLTestScores {
             auccOnly = true;
         } else if (MAJORS_NEEDING_MORE.contains(programCode)) {
             auccOnly = false;
+        } else if (programCode.endsWith("-GR")
+                || programCode.endsWith("-MS")
+                || programCode.endsWith("-MA")
+                || programCode.endsWith("-MFA")
+                || programCode.endsWith("-CT")
+                || programCode.endsWith("-SI")
+                || programCode.endsWith("-MAS")
+                || programCode.endsWith("-ME")
+                || programCode.endsWith("-MBA")
+                || programCode.endsWith("-DVM")
+                || programCode.endsWith("-MTM")
+                || programCode.endsWith("-MCS")
+                || programCode.endsWith("-MAGR")
+                || programCode.endsWith("-MPSM")
+                || programCode.endsWith("-MACC")
+                || programCode.endsWith("-MCIS")
+                || programCode.endsWith("-MCMM")
+                || programCode.endsWith("-MPPA")
+                || programCode.endsWith("-MFIN")
+                || programCode.endsWith("-MIOP")
+                || programCode.endsWith("-MSW")
+                || programCode.endsWith("-MED")
+                || programCode.endsWith("-DOT")
+                || programCode.endsWith("-MCL")
+                || programCode.endsWith("-PHD")) {
+            // Don't force grad students through the placement tool...
+            auccOnly = true;
         } else {
-            final String msg = HtmlBuilder.concat("Unrecognized program code: ", programCode, ", student ",
-                    student.stuId, " college is ", student.college, " and department is ", student.dept);
-            Log.fine(msg);
-            report.add(msg);
-            auccOnly = false;
+            final int ddIndex = programCode.indexOf("-DD-");
+
+            if (ddIndex == -1) {
+                final String msg = HtmlBuilder.concat("Unrecognized program code: ", programCode, ", student ",
+                        student.stuId, " college is ", student.college, " and department is ", student.dept);
+                Log.fine(msg);
+                report.add(msg);
+                auccOnly = false;
+            } else {
+                final String newCode = programCode.substring(0, ddIndex) + programCode.substring(ddIndex + 3);
+
+                if (MAJORS_NEEDING_ONLY_AUCC.contains(newCode)) {
+                    auccOnly = true;
+                } else if (MAJORS_NEEDING_MORE.contains(newCode)) {
+                    auccOnly = false;
+                } else {
+                    final String msg = HtmlBuilder.concat("Unrecognized program code: ", programCode, ", student ",
+                            student.stuId, " college is ", student.college, " and department is ", student.dept);
+                    Log.fine(msg);
+                    report.add(msg);
+                    auccOnly = false;
+                }
+            }
         }
 
         return auccOnly;
@@ -433,6 +492,7 @@ public class BulkUpdateMPLTestScores {
 
         final BulkUpdateMPLTestScores job = new BulkUpdateMPLTestScores();
 
-        Log.fine(job.execute());
+        final String log = job.execute();
+        Log.fine(log);
     }
 }
