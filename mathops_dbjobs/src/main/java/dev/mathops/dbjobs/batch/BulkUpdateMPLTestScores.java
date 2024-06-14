@@ -113,14 +113,16 @@ public class BulkUpdateMPLTestScores {
             // Below are not in catalog
             "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS",
             "CTM0", // Pre-construction management
-            "USBU", // Exploratory studies: Business interest
             "EXPL", "EXLA", // Exploratory studies: Land, Plant, and Animal Science
             "EXHF", // Exploratory studies: Health, Life, and Food
             "EXOM", // Exploratory studies: Organization, Management, Ent.
             "EXNR", // Exploratory studies: Environmental and Natural Sci.
-            "USEG", // Exploratory studies
+            "EXPE", // Exploratory studies: Physical Science and Engineering
+            "EXTC", // Exploratory studies: Education and Teaching
+            "USEG", // Exploratory studies: Engineering
+            "USBU", // Exploratory studies: Business interest
             "USBS", // Exploratory studies: Life Sciences
-            "USCS" // ???
+            "USCS" // Exploratory studies: IT
             );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */

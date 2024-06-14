@@ -154,7 +154,7 @@ public enum DocObjectInstConverter {
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
                         "width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;", //
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
                         "&lt;text x=&apos;2&apos; y=&apos;37&apos;&gt;(&lt;/text&gt;",
                         "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;)&lt;/text&gt;",
                         "&lt;/svg&gt;\");");
