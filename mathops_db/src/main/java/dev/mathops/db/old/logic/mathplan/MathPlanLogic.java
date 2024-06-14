@@ -3990,28 +3990,23 @@ public final class MathPlanLogic {
         boolean satisfiedByTransfer = false;
         boolean satisfiedByCourse = false;
 
-        final Map<Integer, RawStmathplan> responses = getMathPlanResponses(cache, studentId,
-                MathPlanConstants.INTENTIONS_PROFILE);
-        final RawStmathplan record = responses.get(MathPlanConstants.TWO);
-        if (record != null && "Y".equals(record.stuAnswer)) {
-            // See of their latest recommendation was "3 cr. of Core Math*"
-            final Map<Integer, RawStmathplan> profile = getMathPlanResponses(cache, studentId,
-                    MathPlanConstants.PLAN_PROFILE);
-            final RawStmathplan rec = profile.get(MathPlanConstants.TWO);
+        // See of their latest recommendation was "3 cr. of Core Math*"
+        final Map<Integer, RawStmathplan> profile = getMathPlanResponses(cache, studentId,
+                MathPlanConstants.PLAN_PROFILE);
+        final RawStmathplan rec = profile.get(MathPlanConstants.TWO);
 
-            if (rec == null) {
-                planSaysPlacementNeeded = true;
-            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("(none)")) {
-                planSaysPlacementNeeded = false;
-            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("3 cr. of Core")) {
-                planSaysPlacementNeeded = false;
-            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("2 cr. of Core")) {
-                planSaysPlacementNeeded = false;
-            } else if (rec.stuAnswer != null && rec.stuAnswer.startsWith("1 cr. of Core")) {
-                planSaysPlacementNeeded = false;
-            } else {
-                planSaysPlacementNeeded = true;
-            }
+        if (rec == null || rec.stuAnswer == null) {
+            planSaysPlacementNeeded = true;
+        } else if (rec.stuAnswer.startsWith("(none)")) {
+            planSaysPlacementNeeded = false;
+        } else if (rec.stuAnswer.startsWith("3 cr. of Core")) {
+            planSaysPlacementNeeded = false;
+        } else if (rec.stuAnswer.startsWith("2 cr. of Core")) {
+            planSaysPlacementNeeded = false;
+        } else if (rec.stuAnswer.startsWith("1 cr. of Core")) {
+            planSaysPlacementNeeded = false;
+        } else {
+            planSaysPlacementNeeded = true;
         }
 
         final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
@@ -4068,8 +4063,7 @@ public final class MathPlanLogic {
         final MathPlanPlacementStatus result;
 
         if (satisfiedByPlacement) {
-            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true,
-                    EHowSatisfiedPlacement.MATH_PLACEMENT_COMPLETED);
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.MATH_PLACEMENT_COMPLETED);
         } else if (satisfiedByTransfer) {
             result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.TRANSFER_CREDIT);
         } else if (satisfiedByCourse) {
@@ -4206,7 +4200,7 @@ public final class MathPlanLogic {
                 final String status1 = getMathPlanStatus(cache, 11806361);
                 Log.info("Student 833004236  plan status: " + status1);
 
-                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "833004236");
+                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "837045910");
                 Log.info("Student 833004236  placement status: ");
                 Log.info("    Placement needed:   ", status2.isPlacementNeeded);
                 Log.info("    Placement complete: ", status2.isPlacementComplete);

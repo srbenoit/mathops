@@ -253,20 +253,19 @@ public final class BulkUpdateMPLTestScores {
 
         final Map<String, RawStmathplan> latest1 = new HashMap<>(25000);
 
-        // Find the most recent "WLCM5" rows
-        for (final RawStmathplan row : allStMathPlan) {
-            if ("WLCM5".equals(row.version) && "Y".equals(row.stuAnswer)) {
-                final LocalDateTime when = row.getWhen();
+        // Find the most recent "WLCM5" row with survey_nbr='1', use that as date/time of Math Plan completion - we
+        // scan for the most recent such record.
 
-                if (ONE.equals(row.surveyNbr)) {
-                    final RawStmathplan existing1 = latest1.get(row.stuId);
-                    if (existing1 == null) {
+        for (final RawStmathplan row : allStMathPlan) {
+            if ("WLCM5".equals(row.version) && ONE.equals(row.surveyNbr)) {
+                final LocalDateTime when = row.getWhen();
+                final RawStmathplan existing1 = latest1.get(row.stuId);
+                if (existing1 == null) {
+                    latest1.put(row.stuId, row);
+                } else {
+                    final LocalDateTime existingWhen = existing1.getWhen();
+                    if (existingWhen == null || when.isAfter(existingWhen)) {
                         latest1.put(row.stuId, row);
-                    } else {
-                        final LocalDateTime existingWhen = existing1.getWhen();
-                        if (existingWhen == null || existingWhen.isBefore(when)) {
-                            latest1.put(row.stuId, row);
-                        }
                     }
                 }
             }
@@ -301,7 +300,6 @@ public final class BulkUpdateMPLTestScores {
             int count2 = 0;
 
             for (final String stuId : stuIds) {
-
                 RawStudent student = RawStudentLogic.query(cache, stuId, false);
                 if (student == null) {
                     final String msg = HtmlBuilder.concat("   WARNING: Student ", stuId, " needed to be retrieved");
