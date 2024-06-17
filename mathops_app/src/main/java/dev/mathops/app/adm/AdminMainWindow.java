@@ -9,7 +9,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.session.scramsha256.ScramClientStub;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;

@@ -93,28 +93,22 @@ public final class ScramClientStub {
         } else {
             final ClientFirstMessage clientFirst = new ClientFirstMessage(theUsername, this.rnd);
 
-            final String serverFirstHex = getServerResponse("client-first.ws",
-                    "first=" + clientFirst.hex);
+            final String serverFirstHex = getServerResponse("client-first.ws", "first=" + clientFirst.hex);
 
             if (serverFirstHex == null) {
                 result = "Server not responding.";
             } else {
                 try {
-                    final ServerFirstMessage serverFirst =
-                            new ServerFirstMessage(serverFirstHex, clientFirst);
+                    final ServerFirstMessage serverFirst = new ServerFirstMessage(serverFirstHex, clientFirst);
+                    final ClientFinalMessage clientFinal = new ClientFinalMessage(thePassword, clientFirst,
+                            serverFirst);
 
-                    final ClientFinalMessage clientFinal =
-                            new ClientFinalMessage(thePassword, clientFirst, serverFirst);
-
-                    final String serverFinalHex = getServerResponse(//
-                            "client-final.ws",
-                            "final=" + clientFinal.hex);
+                    final String serverFinalHex = getServerResponse("client-final.ws", "final=" + clientFinal.hex);
                     if (serverFinalHex == null) {
                         result = "Server not responding.";
                     } else {
                         try {
-                            final ServerFinalMessage serverFinal =
-                                    new ServerFinalMessage(serverFinalHex);
+                            final ServerFinalMessage serverFinal = new ServerFinalMessage(serverFinalHex);
 
                             this.token = serverFinal.token;
                             this.username = theUsername;
@@ -166,11 +160,12 @@ public final class ScramClientStub {
                 url = new URL(this.siteUrl + page + "?" + query);
             }
 
+            Log.info(url);
+
             final URLConnection conn = url.openConnection();
             final Object content = conn.getContent();
             if (content == null) {
-                Log.warning("Server response from '", page,
-                        "' was null");
+                Log.warning("Server response from '", page, "' was null");
             } else if (content instanceof InputStream) {
 
                 try (final InputStream in = (InputStream) content) {
@@ -183,6 +178,7 @@ public final class ScramClientStub {
                     }
 
                     result = baos.toString();
+                    Log.info(result);
 
                     if ("!Unable to validate token.".equals(result)) {
                         // Make one attempt to re-validate
@@ -191,13 +187,11 @@ public final class ScramClientStub {
                             final URLConnection conn2 = url.openConnection();
                             final Object content2 = conn2.getContent();
                             if (content2 == null) {
-                                Log.warning("Server response from '", page,
-                                        "' was null");
+                                Log.warning("Server response from '", page, "' was null");
                             } else if (content2 instanceof InputStream) {
 
                                 try (final InputStream in2 = (InputStream) content2) {
-                                    final ByteArrayOutputStream baos2 =
-                                            new ByteArrayOutputStream(1024);
+                                    final ByteArrayOutputStream baos2 = new ByteArrayOutputStream(1024);
                                     count = in2.read(buffer);
                                     while (count > 0) {
                                         baos2.write(buffer, 0, count);
@@ -207,16 +201,14 @@ public final class ScramClientStub {
                                     result = baos2.toString();
                                 }
                             } else {
-                                Log.warning("Server response from '", page,
-                                        "' was ", content.getClass().getName());
+                                Log.warning("Server response from '", page, "' was ", content.getClass().getName());
                             }
 
                         }
                     }
                 }
             } else {
-                Log.warning("Server response from '", page, "' was ",
-                        content.getClass().getName());
+                Log.warning("Server response from '", page, "' was ", content.getClass().getName());
             }
         } catch (final IOException ex) {
             Log.warning(ex);

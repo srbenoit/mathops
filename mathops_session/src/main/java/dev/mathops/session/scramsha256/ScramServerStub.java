@@ -87,7 +87,8 @@ public final class ScramServerStub {
                 try {
                     final ClientFirstMessage clientFirst = new ClientFirstMessage(hex);
                     final UserCredentials cred =
-                            this.credManager.getCredentials(new String(clientFirst.normalizedUsername, StandardCharsets.UTF_8));
+                            this.credManager.getCredentials(new String(clientFirst.normalizedUsername,
+                                    StandardCharsets.UTF_8));
 
                     if (cred == null) {
                         Log.warning("Invalid username");

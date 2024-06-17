@@ -88,11 +88,12 @@ public final class WebServiceSite extends AbstractSite {
     public void doGet(final Cache cache, final String subpath, final ESiteType type,
                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
-        // Log.info("GET Request to WebServiceSite, subpath=", subpath);
+        Log.info("GET Request to WebServiceSite, subpath=", subpath);
 
         synchronized (this.sync) {
             if (this.stub == null) {
                 this.stub = new ScramServerStub(cache);
+                Log.info("SCRAM stub created");
             }
         }
 
@@ -187,6 +188,8 @@ public final class WebServiceSite extends AbstractSite {
 
         final String reply;
 
+        Log.info("SCRAM client first");
+
         synchronized (this.sync) {
             if (this.stub == null) {
                 reply = "!Failed to initialize web services.";
@@ -200,6 +203,8 @@ public final class WebServiceSite extends AbstractSite {
                 }
             }
         }
+
+        Log.info("SCRAM client first reply is ", reply);
 
         sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
     }
@@ -215,6 +220,8 @@ public final class WebServiceSite extends AbstractSite {
     private void doScramClientFinal(final ServletRequest request,
                                     final HttpServletResponse response) throws IOException {
 
+        Log.info("SCRAM client final");
+
         final String finalData = request.getParameter("final");
         final String reply;
 
@@ -225,6 +232,8 @@ public final class WebServiceSite extends AbstractSite {
                 reply = this.stub.handleClientFinal(finalData);
             }
         }
+
+        Log.info("SCRAM client final reply is ", reply);
 
         sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
     }

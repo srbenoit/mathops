@@ -44,8 +44,8 @@ class ServerFirstMessage {
      * @throws IllegalArgumentException if either argument is null or the credentials do not match the username in the
      *                                  client-first message
      */
-    /* default */ ServerFirstMessage(final ClientFirstMessage theClientFirst,
-                                     final UserCredentials theCredentials, final RandomGenerator rnd) throws IllegalArgumentException {
+    /* default */ ServerFirstMessage(final ClientFirstMessage theClientFirst, final UserCredentials theCredentials,
+                                     final RandomGenerator rnd) throws IllegalArgumentException {
 
         if (theClientFirst == null) {
             throw new IllegalArgumentException("ClientFirst message may not be null");

@@ -61,19 +61,15 @@ final class UserCredentialsManager {
                             final byte[] storedKey = HexEncoder.decode(storedKeyHex);
                             final byte[] serverKey = HexEncoder.decode(serverKeyHex);
 
-                            if (salt.length == 24 && storedKey.length == 32
-                                    && serverKey.length == 32) {
-                                final UserCredentials cred =
-                                        new UserCredentials(record.userId, record.userType,
-                                                record.userName, salt, storedKey, serverKey, ITERATIONS);
+                            if (salt.length == 24 && storedKey.length == 32 && serverKey.length == 32) {
+                                final UserCredentials cred = new UserCredentials(record.userId, record.userType,
+                                        record.userName, salt, storedKey, serverKey, ITERATIONS);
 
                                 this.credentials.put(new String(cred.normalizedUsername, StandardCharsets.UTF_8), cred);
                             }
                         } catch (final ParsingException ex) {
-                            Log.warning("Failed to decode salt from Base64 '", saltBase64,
-                                    "', stored key from hex '", storedKeyHex,
-                                    "', or server key from hex ", serverKeyHex,
-                                    "'", ex);
+                            Log.warning("Failed to decode salt from Base64 '", saltBase64, "', stored key from hex '"
+                                    , storedKeyHex, "', or server key from hex ", serverKeyHex, "'", ex);
                         } catch (final IllegalArgumentException ex) {
                             Log.warning("Failed to create user credentials", ex);
                         }
