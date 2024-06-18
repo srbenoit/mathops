@@ -24,25 +24,25 @@ import java.io.Serial;
 import java.util.Objects;
 
 /**
- * A document object that supports the entry of a String value. The input control allows definition of all document
- * formatting characteristics. String fields are drawn in a shaded outline, which highlights when the object is
+ * A document object that supports the entry of a point value. The input control allows definition of all document
+ * formatting characteristics. Point fields are drawn in a shaded outline, which highlights when the object is
  * selected. When selected, a text edit caret is shown and editing is supported.
  */
-public final class DocInputStringField extends AbstractDocInputField {
+public final class DocInputPointField extends AbstractDocInputField {
 
     /** Version number for serialization. */
     @Serial
-    private static final long serialVersionUID = -2623932136331916256L;
+    private static final long serialVersionUID = 5940287274469842482L;
 
     /** The width. */
     public Integer width;
 
     /**
-     * Construct a new {@code DocInputStringField}.
+     * Construct a new {@code DocInputPointField}.
      *
      * @param theName the name of the input's value in the parameter set
      */
-    DocInputStringField(final String theName) {
+    DocInputPointField(final String theName) {
 
         super(theName);
     }
@@ -76,9 +76,9 @@ public final class DocInputStringField extends AbstractDocInputField {
      * @return the cloned object
      */
     @Override
-    public DocInputStringField deepCopy() {
+    public DocInputPointField deepCopy() {
 
-        final DocInputStringField copy = new DocInputStringField(getName());
+        final DocInputPointField copy = new DocInputPointField(getName());
         copy.copyObjectFromInput(this);
 
         copy.innerSetTextValue(getTextValue());
@@ -340,7 +340,7 @@ public final class DocInputStringField extends AbstractDocInputField {
 
         // Since the text value should never contain any characters that would be invalid in XML
         // (", ', <, >, \, /), we can just write out the text.
-        xml.add("<input type='string'");
+        xml.add("<input type='point'");
         addXmlAttributes(xml); // Add name, enabled, visible, maxLength
 
         if (this.width != null) {
@@ -376,7 +376,7 @@ public final class DocInputStringField extends AbstractDocInputField {
     @Override
     public void printTree(final PrintStream ps) {
 
-        ps.print("<li>Input (String) '");
+        ps.print("<li>Input (Point) '");
         ps.print(getTextValue());
         ps.println('\'');
         printTreeContents(ps);
@@ -447,7 +447,7 @@ public final class DocInputStringField extends AbstractDocInputField {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocInputStringField field) {
+        } else if (obj instanceof final DocInputPointField field) {
             equal = fieldInnerEquals(field) && Objects.equals(this.width, field.width);
         } else {
             equal = false;

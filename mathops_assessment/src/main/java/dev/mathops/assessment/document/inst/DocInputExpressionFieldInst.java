@@ -5,17 +5,26 @@ import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
- * An instance of an input that supports the entry of a String value. The input control allows definition of all
- * document formatting characteristics. String fields are drawn in a shaded outline, which highlights when the object is
- * selected. When selected, a text edit caret is shown and editing is supported.
+ * An instance of an input that supports the entry of an expression value. The input control allows definition of all
+ * document formatting characteristics. Expression fields are drawn in a shaded outline, which highlights when the
+ * object is selected. When selected, an edit caret is shown and editing is supported.
+ *
+ * <p>
+ * Expression fields support entry of digits, decimal points, variables, arithmetic operators, fractions, exponents and
+ * roots, functions, and paired parentheses.  Attributes control which of these are allowed for a given input.
+ *
+ * <p>
+ * As the user exits the expression, the input simultaneously builds a plain-text representation.  The text
+ * representation is the content that is submitted as the input value.  The input can attempt to parse the text into a
+ * valid (evaluable) expression, and if this fails, the input's background is set to an error indicator color.
  */
-public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
+public final class DocInputExpressionFieldInst extends AbstractDocInputFieldInst {
 
     /** The width. */
     private final int width;
 
     /**
-     * Construct a new {@code DocInputStringFieldInst}.
+     * Construct a new {@code DocInputExpressionFieldInst}.
      *
      * @param theStyle           the style object ({@code null} to inherit the parent object's style)
      * @param theBgColorName     the background color name ({@code null} if transparent)
@@ -25,9 +34,10 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
      * @param theFieldStyle      the style in which to present the field
      * @param theWidth           the width of the field's entry area, in units of digit widths
      */
-    public DocInputStringFieldInst(final DocObjectInstStyle theStyle, final String theBgColorName, final String theName,
-                                   final String theEnabledVarName, final Object theEnabledVarValue,
-                                   final EFieldStyle theFieldStyle, final int theWidth) {
+    public DocInputExpressionFieldInst(final DocObjectInstStyle theStyle, final String theBgColorName,
+                                       final String theName, final String theEnabledVarName,
+                                       final Object theEnabledVarValue, final EFieldStyle theFieldStyle,
+                                       final int theWidth) {
 
         super(theStyle, theBgColorName, theName, theEnabledVarName, theEnabledVarValue, theFieldStyle);
 
@@ -54,7 +64,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
     @Override
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
-        xml.add("<input type='string'");
+        xml.add("<input type='expression'");
         addDocInputFieldInstXmlAttributes(xml); // style, name, enabled var settings, field style
         xml.addAttribute("width", Integer.toString(this.width), 0);
         xml.add("/>");
@@ -70,7 +80,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
 
         final HtmlBuilder builder = new HtmlBuilder(500);
 
-        builder.add("DocInputStringFieldInst");
+        builder.add("DocInputExpressionFieldInst");
         appendInputFieldString(builder);
         builder.add("{width=", Integer.toString(this.width));
         builder.add('}');
@@ -102,7 +112,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocInputStringFieldInst field) {
+        } else if (obj instanceof final DocInputExpressionFieldInst field) {
             equal = checkDocInputFieldInstEquals(field) && this.width == field.width;
         } else {
             equal = false;

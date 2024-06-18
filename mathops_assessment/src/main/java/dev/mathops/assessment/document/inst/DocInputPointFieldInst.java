@@ -5,17 +5,17 @@ import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
- * An instance of an input that supports the entry of a String value. The input control allows definition of all
- * document formatting characteristics. String fields are drawn in a shaded outline, which highlights when the object is
+ * An instance of an input that supports the entry of a Point value. The input control allows definition of all
+ * document formatting characteristics. Point fields are drawn in a shaded outline, which highlights when the object is
  * selected. When selected, a text edit caret is shown and editing is supported.
  */
-public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
+public final class DocInputPointFieldInst extends AbstractDocInputFieldInst {
 
     /** The width. */
     private final int width;
 
     /**
-     * Construct a new {@code DocInputStringFieldInst}.
+     * Construct a new {@code DocInputPointFieldInst}.
      *
      * @param theStyle           the style object ({@code null} to inherit the parent object's style)
      * @param theBgColorName     the background color name ({@code null} if transparent)
@@ -25,9 +25,9 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
      * @param theFieldStyle      the style in which to present the field
      * @param theWidth           the width of the field's entry area, in units of digit widths
      */
-    public DocInputStringFieldInst(final DocObjectInstStyle theStyle, final String theBgColorName, final String theName,
-                                   final String theEnabledVarName, final Object theEnabledVarValue,
-                                   final EFieldStyle theFieldStyle, final int theWidth) {
+    public DocInputPointFieldInst(final DocObjectInstStyle theStyle, final String theBgColorName, final String theName,
+                                  final String theEnabledVarName, final Object theEnabledVarValue,
+                                  final EFieldStyle theFieldStyle, final int theWidth) {
 
         super(theStyle, theBgColorName, theName, theEnabledVarName, theEnabledVarValue, theFieldStyle);
 
@@ -54,7 +54,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
     @Override
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
-        xml.add("<input type='string'");
+        xml.add("<input type='point'");
         addDocInputFieldInstXmlAttributes(xml); // style, name, enabled var settings, field style
         xml.addAttribute("width", Integer.toString(this.width), 0);
         xml.add("/>");
@@ -70,7 +70,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
 
         final HtmlBuilder builder = new HtmlBuilder(500);
 
-        builder.add("DocInputStringFieldInst");
+        builder.add("DocInputPointFieldInst");
         appendInputFieldString(builder);
         builder.add("{width=", Integer.toString(this.width));
         builder.add('}');
@@ -102,7 +102,7 @@ public final class DocInputStringFieldInst extends AbstractDocInputFieldInst {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocInputStringFieldInst field) {
+        } else if (obj instanceof final DocInputPointFieldInst field) {
             equal = checkDocInputFieldInstEquals(field) && this.width == field.width;
         } else {
             equal = false;

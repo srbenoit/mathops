@@ -2,7 +2,7 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.ELayoutMode;
-import dev.mathops.assessment.document.inst.DocInputStringFieldInst;
+import dev.mathops.assessment.document.inst.DocInputExpressionFieldInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
@@ -24,25 +24,34 @@ import java.io.Serial;
 import java.util.Objects;
 
 /**
- * A document object that supports the entry of a String value. The input control allows definition of all document
- * formatting characteristics. String fields are drawn in a shaded outline, which highlights when the object is
- * selected. When selected, a text edit caret is shown and editing is supported.
+ * A document object that supports the entry of a general expression. The input control allows definition of all
+ * document formatting characteristics. Expression fields are drawn in a shaded outline, which highlights when the
+ * object is selected. When selected, an edit caret is shown and editing is supported.
+ *
+ * <p>
+ * Expression fields support entry of digits, decimal points, variables, arithmetic operators, fractions, exponents and
+ * roots, functions, and paired parentheses.  Attributes control which of these are allowed for a given input.
+ *
+ * <p>
+ * As the user exits the expression, the input simultaneously builds a plain-text representation.  The text
+ * representation is the content that is submitted as the input value.  The input can attempt to parse the text into a
+ * valid (evaluable) expression, and if this fails, the input's background is set to an error indicator color.
  */
-public final class DocInputStringField extends AbstractDocInputField {
+public final class DocInputExpressionField extends AbstractDocInputField {
 
     /** Version number for serialization. */
     @Serial
-    private static final long serialVersionUID = -2623932136331916256L;
+    private static final long serialVersionUID = 1523313633615080761L;
 
     /** The width. */
     public Integer width;
 
     /**
-     * Construct a new {@code DocInputStringField}.
+     * Construct a new {@code DocInputExpressionField}.
      *
      * @param theName the name of the input's value in the parameter set
      */
-    DocInputStringField(final String theName) {
+    DocInputExpressionField(final String theName) {
 
         super(theName);
     }
@@ -76,9 +85,9 @@ public final class DocInputStringField extends AbstractDocInputField {
      * @return the cloned object
      */
     @Override
-    public DocInputStringField deepCopy() {
+    public DocInputExpressionField deepCopy() {
 
-        final DocInputStringField copy = new DocInputStringField(getName());
+        final DocInputExpressionField copy = new DocInputExpressionField(getName());
         copy.copyObjectFromInput(this);
 
         copy.innerSetTextValue(getTextValue());
@@ -320,12 +329,12 @@ public final class DocInputStringField extends AbstractDocInputField {
      * @return the instance document object; null if unable to create the instance
      */
     @Override
-    public DocInputStringFieldInst createInstance(final EvalContext evalContext) {
+    public DocInputExpressionFieldInst createInstance(final EvalContext evalContext) {
 
         final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
-        return new DocInputStringFieldInst(objStyle, null, getName(), getEnabledVarName(), getEnabledVarValue(),
+        return new DocInputExpressionFieldInst(objStyle, null, getName(), getEnabledVarName(), getEnabledVarValue(),
                 this.style, this.width.intValue());
     }
 
@@ -340,7 +349,7 @@ public final class DocInputStringField extends AbstractDocInputField {
 
         // Since the text value should never contain any characters that would be invalid in XML
         // (", ', <, >, \, /), we can just write out the text.
-        xml.add("<input type='string'");
+        xml.add("<input type='expression'");
         addXmlAttributes(xml); // Add name, enabled, visible, maxLength
 
         if (this.width != null) {
@@ -376,7 +385,7 @@ public final class DocInputStringField extends AbstractDocInputField {
     @Override
     public void printTree(final PrintStream ps) {
 
-        ps.print("<li>Input (String) '");
+        ps.print("<li>Input (Expression) '");
         ps.print(getTextValue());
         ps.println('\'');
         printTreeContents(ps);
@@ -447,7 +456,7 @@ public final class DocInputStringField extends AbstractDocInputField {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocInputStringField field) {
+        } else if (obj instanceof final DocInputExpressionField field) {
             equal = fieldInnerEquals(field) && Objects.equals(this.width, field.width);
         } else {
             equal = false;
