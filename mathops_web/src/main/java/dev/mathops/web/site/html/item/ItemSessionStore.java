@@ -269,7 +269,17 @@ public final class ItemSessionStore {
                             timeout = content;
                         }
                     } else if ("problem".equals(tag)) {
-                        item = ProblemTemplateFactory.parseFromElement(child, EParserMode.NORMAL);
+                        item = ProblemTemplateFactory.parseFromProblemElement(child, EParserMode.NORMAL);
+                    } else if ("problem-multiple-choice".equals(tagName)) {
+                        item = ProblemTemplateFactory.parseFromProblemMultipleChoiceElement(child, EParserMode.NORMAL);
+                    } else if ("problem-multiple-selection".equals(tagName)) {
+                        item = ProblemTemplateFactory.parseFromProblemMultipleSelectionElement(child, EParserMode.NORMAL);
+                    } else if ("problem-numeric".equals(tagName)) {
+                        item = ProblemTemplateFactory.parseFromProblemNumericElement(child, EParserMode.NORMAL);
+                    } else if ("problem-embedded-input".equals(tagName)) {
+                        item = ProblemTemplateFactory.parseFromProblemEmbeddedInputElement(child, EParserMode.NORMAL);
+                    } else if ("problem-auto-correct".equals(tagName)) {
+                        item = ProblemTemplateFactory.parseAutocorrectProblem();
                     }
                 }
             }

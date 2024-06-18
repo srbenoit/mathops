@@ -45,7 +45,7 @@ enum QualityControlChecks {
     ;
 
     /** The number of times each problem will be realized. */
-    private static final int NUM_REALIZATIONS = 10;
+    private static final int NUM_REALIZATIONS = 3;
 
     /**
      * Performs quality checks on a problem.

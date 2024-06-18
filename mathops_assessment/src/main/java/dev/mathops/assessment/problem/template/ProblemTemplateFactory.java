@@ -22,6 +22,7 @@ import dev.mathops.assessment.variable.VariableRandomChoice;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.CharSpan;
+import dev.mathops.commons.parser.ICharSpan;
 import dev.mathops.commons.parser.xml.CData;
 import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.commons.parser.xml.INode;
@@ -49,7 +50,6 @@ public enum ProblemTemplateFactory {
 
     /** Am empty array used when allocating arrays of objects. */
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-
 
     /**
      * Loads the problem from an {@code XmlSource}.
@@ -272,25 +272,42 @@ public enum ProblemTemplateFactory {
 
         final IElement top = content.getToplevel();
 
-        if (top instanceof final NonemptyElement nonempty && "problem".equals(top.getTagName())) {
-            problem = parseFromElement(nonempty, mode);
+        if (top instanceof final NonemptyElement nonempty) {
+            final String tagName = top.getTagName();
+
+            if ("problem".equals(tagName)) {
+                problem = parseFromProblemElement(nonempty, mode);
+            } else if ("problem-multiple-choice".equals(tagName)) {
+                problem = parseFromProblemMultipleChoiceElement(nonempty, mode);
+            } else if ("problem-multiple-selection".equals(tagName)) {
+                problem = parseFromProblemMultipleSelectionElement(nonempty, mode);
+            } else if ("problem-numeric".equals(tagName)) {
+                problem = parseFromProblemNumericElement(nonempty, mode);
+            } else if ("problem-embedded-input".equals(tagName)) {
+                problem = parseFromProblemEmbeddedInputElement(nonempty, mode);
+            } else if ("problem-auto-correct".equals(tagName)) {
+                problem = parseAutocorrectProblem();
+            } else {
+                content.logError(top, "Unrecognized top-level element: " + tagName);
+            }
         } else {
-            content.logError(Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1)),
-                    "Problem must have nonempty top-level &lt;problem&gt; element.");
+            final ICharSpan source = Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1));
+            content.logError(source, "Problem must be defined in a nonempty top-level element.");
         }
 
         return problem;
     }
 
     /**
-     * Generates the {@code Problem} object from a nonempty "problem" element. Any errors encountered are logged in the
+     * Generates the Problem object from a nonempty "problem" element. Any errors encountered are logged in the
      * element.
      *
      * @param nonempty the {@code NonemptyElement} from which to parse
-     * @param mode    the parser mode
+     * @param mode     the parser mode
      * @return the loaded {@code Problem}, or null on any error
      */
-    public static AbstractProblemTemplate parseFromElement(final NonemptyElement nonempty, final EParserMode mode) {
+    public static AbstractProblemTemplate parseFromProblemElement(final NonemptyElement nonempty,
+                                                                  final EParserMode mode) {
 
         AbstractProblemTemplate problem = null;
 
@@ -316,32 +333,9 @@ public enum ProblemTemplateFactory {
                 nonempty.logError("Invalid 'type' attribute on &lt;problem&gt; element: " + problemType);
             }
 
-            if (problem != null) {
-                final String calculator = nonempty.getStringAttr("calculator");
-
-                if (calculator == null) {
-                    problem.calculator = ECalculatorType.FULL_CALC;
-                } else {
-                    problem.calculator = ECalculatorType.forLabel(calculator);
-                    if (problem.calculator == null) {
-                        nonempty.logError("Calculator attribute on problem tag must be one of 'none', "
-                                + "'basic', 'scientific', 'graphing', or 'full'.");
-                        problem = null;
-                    }
-                }
-            }
-
-            if (problem != null) {
-                final String completedStr = nonempty.getStringAttr("completed");
-
-                if (completedStr != null) {
-                    try {
-                        problem.completionTime = Long.parseLong(completedStr);
-                    } catch (final NumberFormatException ex) {
-                        nonempty.logError("Completed attribute on problem tag must be valid timestamp");
-                        problem = null;
-                    }
-                }
+            if (problem != null &&
+                    (!parseCalculatorAttr(problem, nonempty) || !parseCompletedAttr(problem, nonempty))) {
+                problem = null;
             }
         } else {
             nonempty.logError("Attempt to extract problem from '" + tagName + "' element (expected 'problem' element)");
@@ -350,6 +344,127 @@ public enum ProblemTemplateFactory {
         return problem;
     }
 
+    /**
+     * Generates a ProblemMultipleChoiceTemplate object from a nonempty "problem-multiple-choice" element. Any errors
+     * encountered are logged in the element.
+     *
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @param mode     the parser mode
+     * @return the loaded {@code Problem}, or null on any error
+     */
+    public static ProblemMultipleChoiceTemplate parseFromProblemMultipleChoiceElement(final NonemptyElement nonempty,
+                                                                                      final EParserMode mode) {
+
+        final ProblemMultipleChoiceTemplate parsed = parseMultipleChoiceProblem(nonempty, mode);
+
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
+                ? parsed : null;
+    }
+
+    /**
+     * Generates a ProblemMultipleSelectionTemplate object from a nonempty "problem-multiple-selection" element. Any
+     * errors encountered are logged in the element.
+     *
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @param mode     the parser mode
+     * @return the loaded {@code Problem}, or null on any error
+     */
+    public static ProblemMultipleSelectionTemplate parseFromProblemMultipleSelectionElement(
+            final NonemptyElement nonempty, final EParserMode mode) {
+
+        final ProblemMultipleSelectionTemplate parsed = parseMultipleSelectionProblem(nonempty, mode);
+
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
+                ? parsed : null;
+    }
+
+    /**
+     * Generates a ProblemNumericTemplate object from a nonempty "problem-numeric" element. Any errors encountered are
+     * logged in the element.
+     *
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @param mode     the parser mode
+     * @return the loaded {@code Problem}, or null on any error
+     */
+    public static ProblemNumericTemplate parseFromProblemNumericElement(final NonemptyElement nonempty,
+                                                                        final EParserMode mode) {
+
+        final ProblemNumericTemplate parsed = parseNumericProblem(nonempty, mode);
+
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
+                ? parsed : null;
+    }
+
+    /**
+     * Generates a ProblemEmbeddedInputTemplate object from a nonempty "problem-embedded-input" element. Any errors
+     * encountered are logged in the element.
+     *
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @param mode     the parser mode
+     * @return the loaded {@code Problem}, or null on any error
+     */
+    public static ProblemEmbeddedInputTemplate parseFromProblemEmbeddedInputElement(final NonemptyElement nonempty,
+                                                                                    final EParserMode mode) {
+
+        final ProblemEmbeddedInputTemplate parsed = parseEmbeddedInputProblem(nonempty, mode);
+
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
+                ? parsed : null;
+    }
+
+    /**
+     * Parses and interprets the "calculator" attribute on a problem element.
+     *
+     * @param problem  the loaded problem
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @return true if successful; false if an error occurred
+     */
+    private static boolean parseCalculatorAttr(final AbstractProblemTemplate problem,
+                                               final NonemptyElement nonempty) {
+
+        boolean ok = true;
+
+        final String calculatorStr = nonempty.getStringAttr("calculator");
+
+        if (calculatorStr == null) {
+            problem.calculator = ECalculatorType.FULL_CALC;
+        } else {
+            problem.calculator = ECalculatorType.forLabel(calculatorStr);
+            if (problem.calculator == null) {
+                nonempty.logError("Calculator attribute on problem tag must be one of 'none', "
+                        + "'basic', 'scientific', 'graphing', or 'full'.");
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
+
+    /**
+     * Parses and interprets the "completed" attribute on a problem element.
+     *
+     * @param problem  the loaded problem
+     * @param nonempty the {@code NonemptyElement} from which to parse
+     * @return true if successful; false if an error occurred
+     */
+    private static boolean parseCompletedAttr(final AbstractProblemTemplate problem,
+                                              final NonemptyElement nonempty) {
+
+        boolean ok = true;
+
+        final String completedStr = nonempty.getStringAttr("completed");
+
+        if (completedStr != null) {
+            try {
+                problem.completionTime = Long.parseLong(completedStr);
+            } catch (final NumberFormatException ex) {
+                nonempty.logError("Completed attribute on problem tag must be valid timestamp");
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
 
     /**
      * Generates a {@code ProblemNumeric} object from the source XML. Any errors encountered are logged in the
@@ -361,15 +476,10 @@ public enum ProblemTemplateFactory {
      */
     private static ProblemNumericTemplate parseNumericProblem(final NonemptyElement elem, final EParserMode mode) {
 
-        ProblemNumericTemplate problem = new ProblemNumericTemplate();
+        final ProblemNumericTemplate problem = new ProblemNumericTemplate();
 
-        if (!parseCommonElements(elem, problem, mode)
-                || !parseStudentStringAnswer(elem, problem)
-                || !parseAcceptNumber(elem, problem, mode)) {
-            problem = null;
-        }
-
-        return problem;
+        return parseCommonElements(elem, problem, mode) && parseStudentStringAnswer(elem, problem)
+                && parseAcceptNumber(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -380,21 +490,17 @@ public enum ProblemTemplateFactory {
      * @param mode the parser mode
      * @return the {@code ProblemMultipleChoice}, or {@code null} on any error
      */
-    private static AbstractProblemTemplate parseMultipleChoiceProblem(final NonemptyElement elem,
-                                                                      final EParserMode mode) {
+    private static ProblemMultipleChoiceTemplate parseMultipleChoiceProblem(final NonemptyElement elem,
+                                                                            final EParserMode mode) {
 
-        ProblemMultipleChoiceTemplate problem = new ProblemMultipleChoiceTemplate();
+        final ProblemMultipleChoiceTemplate problem = new ProblemMultipleChoiceTemplate();
 
-        if (!parseCommonElements(elem, problem, mode)
-                || !parseNumChoices(elem, problem, mode)
-                || !parseRandomOrder(elem, problem, mode)
-                || !parseChoiceOrder(elem, problem)
-                || !parseStudentChoices(elem, problem)
-                || !parseChoices(elem, problem, mode)) {
-            problem = null;
-        }
-
-        return problem;
+        return parseCommonElements(elem, problem, mode)
+                && parseNumChoices(elem, problem, mode)
+                && parseRandomOrder(elem, problem, mode)
+                && parseChoiceOrder(elem, problem)
+                && parseStudentChoices(elem, problem)
+                && parseChoices(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -405,23 +511,19 @@ public enum ProblemTemplateFactory {
      * @param mode the parser mode
      * @return the {@code ProblemMultipleSelection}, or {@code null} on any error
      */
-    private static AbstractProblemTemplate parseMultipleSelectionProblem(final NonemptyElement elem,
-                                                                         final EParserMode mode) {
+    private static ProblemMultipleSelectionTemplate parseMultipleSelectionProblem(final NonemptyElement elem,
+                                                                                  final EParserMode mode) {
 
-        ProblemMultipleSelectionTemplate problem = new ProblemMultipleSelectionTemplate();
+        final ProblemMultipleSelectionTemplate problem = new ProblemMultipleSelectionTemplate();
 
-        if (!parseCommonElements(elem, problem, mode)
-                || !parseNumChoices(elem, problem, mode)
-                || !parseRandomOrder(elem, problem, mode)
-                || !parseMinCorrect(elem, problem, mode)
-                || !parseMaxCorrect(elem, problem, mode)
-                || !parseChoiceOrder(elem, problem)
-                || !parseStudentChoices(elem, problem)
-                || !parseChoices(elem, problem, mode)) {
-            problem = null;
-        }
-
-        return problem;
+        return parseCommonElements(elem, problem, mode)
+                && parseNumChoices(elem, problem, mode)
+                && parseRandomOrder(elem, problem, mode)
+                && parseMinCorrect(elem, problem, mode)
+                && parseMaxCorrect(elem, problem, mode)
+                && parseChoiceOrder(elem, problem)
+                && parseStudentChoices(elem, problem)
+                && parseChoices(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -432,8 +534,8 @@ public enum ProblemTemplateFactory {
      * @param mode the parser mode
      * @return the {@code ProblemNumeric}, or null on any error
      */
-    private static AbstractProblemTemplate parseEmbeddedInputProblem(final NonemptyElement elem,
-                                                                     final EParserMode mode) {
+    private static ProblemEmbeddedInputTemplate parseEmbeddedInputProblem(final NonemptyElement elem,
+                                                                          final EParserMode mode) {
 
         ProblemEmbeddedInputTemplate problem = new ProblemEmbeddedInputTemplate();
 
@@ -457,7 +559,7 @@ public enum ProblemTemplateFactory {
      *
      * @return the {@code ProblemMultipleSelection}, or {@code null} on any error
      */
-    private static AbstractProblemTemplate parseAutocorrectProblem() {
+    public static ProblemAutoCorrectTemplate parseAutocorrectProblem() {
 
         return new ProblemAutoCorrectTemplate(2);
     }

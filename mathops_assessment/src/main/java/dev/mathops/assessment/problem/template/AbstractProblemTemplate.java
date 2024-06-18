@@ -30,8 +30,7 @@ import java.util.Objects;
  * Problems are stored in an XML format, defined by {@code problem.dtd}, and can come from the local file system, a
  * remote URL, a database, or a network repository.
  */
-public abstract class AbstractProblemTemplate extends AbstractXmlObject
-        implements ProblemTemplateInt, Realizable {
+public abstract class AbstractProblemTemplate extends AbstractXmlObject implements ProblemTemplateInt, Realizable {
 
     /** The problem type. */
     private EProblemType type;

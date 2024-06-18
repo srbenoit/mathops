@@ -1,7 +1,8 @@
 package dev.mathops.dbjobs.report.usage;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -9,11 +10,17 @@ import java.util.Set;
  */
 final class DayHistogram {
 
+    /** A commonly-used constant. */
+    private static final int HOURS_PER_DAY = 24;
+
+    /** A commonly-used constant. */
+    private static final int MINUTES_PER_HOUR = 60;
+
     /** Total number of exams that finish on the day. */
-    private int totalExams;
+    private int totalExams = 0;
 
     /** Total number of homeworks that finish on the day. */
-    private int totalHomeworks;
+    private int totalHomeworks = 0;
 
     /** Number of exams in progress during the hour. */
     private final int[] numExams;
@@ -28,21 +35,21 @@ final class DayHistogram {
     private final int[] homeworkMinutes;
 
     /** The set of student IDs who were active during each hour. */
-    private final Set<?>[] studentIds;
+    private final List<Set<String>> studentIds;
 
     /**
      * Constructs a new {@code DayHistogram}.
      */
     DayHistogram() {
 
-        this.numExams = new int[24];
-        this.numHomeworks = new int[24];
-        this.examMinutes = new int[24];
-        this.homeworkMinutes = new int[24];
-        this.studentIds = new Set<?>[24];
+        this.numExams = new int[HOURS_PER_DAY];
+        this.numHomeworks = new int[HOURS_PER_DAY];
+        this.examMinutes = new int[HOURS_PER_DAY];
+        this.homeworkMinutes = new int[HOURS_PER_DAY];
 
-        for (int i = 0; i < 24; ++i) {
-            this.studentIds[i] = new HashSet<>(100);
+        this.studentIds = new ArrayList<>(HOURS_PER_DAY);
+        for (int i = 0; i < HOURS_PER_DAY; ++i) {
+            this.studentIds.add(new HashSet<>(100));
         }
     }
 
@@ -78,7 +85,7 @@ final class DayHistogram {
     }
 
     /**
-     * Gets the number of exams whose time overalapped the hour.
+     * Gets the number of exams whose time overlapped the hour.
      *
      * @param hour the hour
      * @return the number of exams
@@ -116,9 +123,9 @@ final class DayHistogram {
      * @param hour the hour
      * @return the set of active students
      */
-    Set<?> getActiveStudents(final int hour) {
+    Set<String> getActiveStudents(final int hour) {
 
-        return this.studentIds[hour];
+        return this.studentIds.get(hour);
     }
 
     /**
@@ -130,15 +137,15 @@ final class DayHistogram {
      */
     void recordExam(final int startTime, final int endTime, final boolean finishedToday) {
 
-        for (int i = 0; i < 24; ++i) {
-            final int hourBegin = i * 60;
-            final int hourEnd = (i + 1) * 60;
+        for (int i = 0; i < HOURS_PER_DAY; ++i) {
+            final int hourBegin = i * MINUTES_PER_HOUR;
+            final int hourEnd = (i + 1) * MINUTES_PER_HOUR;
 
             if (startTime < hourEnd && endTime >= hourBegin) {
                 ++this.numExams[i];
                 if (startTime <= hourBegin) {
                     if (endTime > hourEnd) {
-                        this.examMinutes[i] += 60;
+                        this.examMinutes[i] += MINUTES_PER_HOUR;
                     } else {
                         this.examMinutes[i] += endTime - hourBegin;
                     }
@@ -163,7 +170,7 @@ final class DayHistogram {
      */
     void recordActivity(final String studentId, final int hour) {
 
-        ((Collection<Object>) this.studentIds[hour]).add(studentId);
+        this.studentIds.get(hour).add(studentId);
     }
 
     /**
@@ -175,15 +182,15 @@ final class DayHistogram {
      */
     void recordHomework(final int startTime, final int endTime, final boolean finishedToday) {
 
-        for (int i = 0; i < 24; ++i) {
-            final int hourBegin = i * 60;
-            final int hourEnd = (i + 1) * 60;
+        for (int i = 0; i < HOURS_PER_DAY; ++i) {
+            final int hourBegin = i * MINUTES_PER_HOUR;
+            final int hourEnd = (i + 1) * MINUTES_PER_HOUR;
 
             if (startTime < hourEnd && endTime >= hourBegin) {
                 ++this.numHomeworks[i];
                 if (startTime <= hourBegin) {
                     if (endTime > hourEnd) {
-                        this.homeworkMinutes[i] += 60;
+                        this.homeworkMinutes[i] += MINUTES_PER_HOUR;
                     } else {
                         this.homeworkMinutes[i] += endTime - hourBegin;
                     }
