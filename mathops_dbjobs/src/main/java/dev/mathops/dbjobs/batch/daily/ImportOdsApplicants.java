@@ -8,6 +8,7 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -495,7 +496,7 @@ public final class ImportOdsApplicants {
 
         final Map<String, RawStudent> newMap = new HashMap<>(applicants.size());
 
-        final ILiveStudent impl = liveConn.getImplementation(ILiveStudent.class);
+        final ILiveStudent impl = ImplLiveStudent.INSTANCE;
 
         for (final ApplicantRecord app : applicants.values()) {
 

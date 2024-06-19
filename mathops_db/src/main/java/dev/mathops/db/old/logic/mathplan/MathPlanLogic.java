@@ -33,6 +33,8 @@ import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
 import dev.mathops.db.old.logic.mathplan.data.RequiredPrereq;
 import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.schema.csubanner.ImplLiveCsuCredit;
+import dev.mathops.db.old.schema.csubanner.ImplLiveTransferCredit;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -3793,7 +3795,7 @@ public final class MathPlanLogic {
                 final DbContext banner = this.dbProfile.getDbContext(ESchemaUse.LIVE);
                 final DbConnection conn = banner.checkOutConnection();
                 try {
-                    final ILiveCsuCredit impl = conn.getImplementation(ILiveCsuCredit.class);
+                    final ILiveCsuCredit impl = ImplLiveCsuCredit.INSTANCE;
                     if (impl == null) {
                         result = new ArrayList<>(0);
                     } else {
@@ -3845,14 +3847,8 @@ public final class MathPlanLogic {
                 final DbContext banner = this.dbProfile.getDbContext(ESchemaUse.LIVE);
                 final DbConnection bannerConn = banner.checkOutConnection();
 
-                final ILiveTransferCredit impl = bannerConn.getImplementation(ILiveTransferCredit.class);
-
-                if (impl == null) {
-                    Log.warning("No ILiveTransferCredit implementation found");
-                    result = new ArrayList<>(0);
-                } else {
-                    result = impl.query(bannerConn, studentId);
-                }
+                final ILiveTransferCredit impl = ImplLiveTransferCredit.INSTANCE;
+                result = impl.query(bannerConn, studentId);
                 banner.checkInConnection(bannerConn);
             } catch (final Exception ex) {
                 AbstractLogicModule.indicateBannerDown();

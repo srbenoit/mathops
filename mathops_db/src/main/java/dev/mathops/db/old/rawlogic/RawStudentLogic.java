@@ -6,6 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
+import dev.mathops.db.old.schema.csubanner.ImplLiveTransferCredit;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
@@ -1413,16 +1415,10 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             final DbConnection bannerConn = banner.checkOutConnection();
 
             try {
-                final ILiveStudent impl1 = bannerConn.getImplementation(ILiveStudent.class);
-                final ILiveTransferCredit impl2 = bannerConn.getImplementation(ILiveTransferCredit.class);
+                final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
+                final ILiveTransferCredit impl2 = ImplLiveTransferCredit.INSTANCE;
 
-                if (impl1 == null) {
-                    Log.warning("Unable to find ILiveStudent interface");
-                } else if (impl2 == null) {
-                    Log.warning("Unable to find ILiveTransferCredit interface");
-                } else {
-                    result = fetchLiveStudent(cache, bannerConn, studentId, impl1, impl2);
-                }
+                result = fetchLiveStudent(cache, bannerConn, studentId, impl1, impl2);
             } finally {
                 banner.checkInConnection(bannerConn);
             }
@@ -1560,7 +1556,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             final DbConnection bannerConn = banner.checkOutConnection();
 
             try {
-                final ILiveStudent impl1 = bannerConn.getImplementation(ILiveStudent.class);
+                final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
 
                 final List<LiveStudent> liveList = impl1.query(bannerConn, stuId);
 

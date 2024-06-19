@@ -47,9 +47,6 @@ public final class DbConnection {
     /** The database context this connection uses. */
     final DbContext dbContext;
 
-    /** The factory for schema-specific implementations used by this connection. */
-    private ISchemaBuilder factory;
-
     /** The currently active JDBC connection. */
     private Connection jdbcConnection;
 
@@ -93,15 +90,15 @@ public final class DbConnection {
         }
     }
 
-    /**
-     * Sets the schema factory this connection uses to build implementation objects.
-     *
-     * @param theFactory the factory
-     */
-    public void setFactory(final ISchemaBuilder theFactory) {
-
-        this.factory = theFactory;
-    }
+//    /**
+//     * Sets the schema factory this connection uses to build implementation objects.
+//     *
+//     * @param theFactory the factory
+//     */
+//    public void setFactory(final ISchemaBuilder theFactory) {
+//
+//        this.factory = theFactory;
+//    }
 
     /**
      * Gets the currently active JDBC connection, creating a new connection to the database if the active connection has
@@ -171,17 +168,5 @@ public final class DbConnection {
 
         final Connection connection = getConnection();
         connection.rollback();
-    }
-
-    /**
-     * Gets an implementation of a specific model interface appropriate to the schema.
-     *
-     * @param <T>          the type of interface to retrieve
-     * @param interfaceCls the interface class whose implementation to retrieve
-     * @return the implementation
-     */
-    public <T extends IDataDomainObject> T getImplementation(final Class<T> interfaceCls) {
-
-        return this.factory.getImplementation(interfaceCls);
     }
 }

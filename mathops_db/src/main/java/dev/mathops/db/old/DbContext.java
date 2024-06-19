@@ -103,7 +103,7 @@ public final class DbContext {
         synchronized (this.synch) {
             if (this.available.isEmpty()) {
                 conn = new DbConnection(this);
-                conn.setFactory(this.schema.getBuilder());
+//                conn.setFactory(this.schema.getBuilder());
             } else {
                 conn = this.available.poll();
             }

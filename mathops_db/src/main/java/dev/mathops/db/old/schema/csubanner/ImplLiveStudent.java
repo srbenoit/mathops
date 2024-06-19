@@ -19,6 +19,9 @@ import java.util.List;
  */
 public final class ImplLiveStudent extends AbstractImpl<LiveStudent> implements ILiveStudent {
 
+    /** The single instance. */
+    public static final ImplLiveStudent INSTANCE = new ImplLiveStudent();
+
     /** Numeric code for the Spring term. */
     private static final int SP_CODE = 10;
 
@@ -34,7 +37,7 @@ public final class ImplLiveStudent extends AbstractImpl<LiveStudent> implements 
     /**
      * Constructs a new {@code ImplLiveStudent}.
      */
-    public ImplLiveStudent() {
+    private ImplLiveStudent() {
 
         super();
     }

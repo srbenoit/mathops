@@ -5,6 +5,8 @@ import dev.mathops.commons.log.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
@@ -153,13 +155,14 @@ public final class ScramClientStub {
         String result = null;
 
         try {
-            final URL url;
+            final URI uri;
             if (query == null) {
-                url = new URL(this.siteUrl + page);
+                uri = new URI(this.siteUrl + page);
             } else {
-                url = new URL(this.siteUrl + page + "?" + query);
+                uri = new URI(this.siteUrl + page + "?" + query);
             }
 
+            final URL url= uri.toURL();
             Log.info(url);
 
             final URLConnection conn = url.openConnection();
@@ -210,7 +213,7 @@ public final class ScramClientStub {
             } else {
                 Log.warning("Server response from '", page, "' was ", content.getClass().getName());
             }
-        } catch (final IOException ex) {
+        } catch (final URISyntaxException | IOException ex) {
             Log.warning(ex);
         }
 

@@ -17,3 +17,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+allprojects {
+    tasks.withType<JavaCompile> {
+        val compilerArgs = options.compilerArgs
+        compilerArgs.add("-Xlint:unchecked")
+        compilerArgs.add("-Xlint:deprecation")
+    }
+}

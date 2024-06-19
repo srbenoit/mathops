@@ -14,8 +14,10 @@ import java.util.List;
 /**
  * Implementation of the {@code ILiveTransferCredit} interface for the CSU Banner schema.
  */
-public final class ImplLiveTransferCredit
-        extends AbstractImpl<LiveTransferCredit> implements ILiveTransferCredit {
+public final class ImplLiveTransferCredit extends AbstractImpl<LiveTransferCredit> implements ILiveTransferCredit {
+
+    /** The single instance. */
+    public static final ImplLiveTransferCredit INSTANCE = new ImplLiveTransferCredit();
 
     /** The name of the primary table. */
     private static final String TABLE_NAME = "Artificial";
@@ -23,7 +25,7 @@ public final class ImplLiveTransferCredit
     /**
      * Constructs a new {@code ImplLiveTransferCredit}.
      */
-    public ImplLiveTransferCredit() {
+    private ImplLiveTransferCredit() {
 
         super();
     }

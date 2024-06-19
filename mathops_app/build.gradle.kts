@@ -40,6 +40,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+tasks {
+    withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:unchecked")
+    }
+}
 
 javafx {
     version = "21.0.1"

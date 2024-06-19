@@ -2,14 +2,10 @@ package dev.mathops.db.old.cfg;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.db.old.ISchemaBuilder;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 
 /**
  * Represents a particular database schema, with which is associated a factory class that can generate implementations
@@ -100,33 +96,6 @@ public final class SchemaConfig {
         } catch (final ClassNotFoundException | NoSuchMethodException ex) {
             final String msg = Res.fmt(Res.SCH_BAD_BUILDER, this.builderClassName);
             throw new IllegalArgumentException(msg, ex);
-        }
-    }
-
-    /**
-     * Gets the builder associated with the schema.
-     *
-     * @return the builder
-     * @throws SQLException if the builder could not be instantiated
-     */
-    public ISchemaBuilder getBuilder() throws SQLException {
-
-        try {
-            final Object obj = this.builderConstr.newInstance();
-
-            ISchemaBuilder builder = null;
-
-            if (obj instanceof ISchemaBuilder) {
-                builder = (ISchemaBuilder) obj;
-                builder.load();
-            } else {
-                Log.warning(Res.fmt(Res.SCH_NOT_IMPLEMENTS, obj.getClass().getName()));
-            }
-
-            return builder;
-        } catch (final InstantiationException | IllegalAccessException | IllegalArgumentException
-                       | InvocationTargetException ex) {
-            throw new SQLException(Res.get(Res.SCH_CANT_MK_BUILDER), ex);
         }
     }
 

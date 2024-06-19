@@ -12,13 +12,16 @@ import java.util.List;
  */
 public final class ImplLiveRegSp extends AbstractImplLiveReg implements ILiveRegSp {
 
+    /** A single instance. */
+    public static ImplLiveRegSp INSTANCE = new ImplLiveRegSp();
+
     /** The name of the primary table. */
     private static final String TABLE_NAME = "CSUS_MATH_REGISTRATION_SPR";
 
     /**
      * Constructs a new {@code ImplLiveReg}.
      */
-    public ImplLiveRegSp() {
+    private ImplLiveRegSp() {
 
         super();
     }

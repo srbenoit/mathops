@@ -1,16 +1,19 @@
 package dev.mathops.session;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveRegFa;
 import dev.mathops.db.old.ifaces.ILiveRegSm;
 import dev.mathops.db.old.ifaces.ILiveRegSp;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rec.LiveReg;
+import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
+import dev.mathops.db.old.schema.csubanner.ImplLiveRegSm;
+import dev.mathops.db.old.schema.csubanner.ImplLiveRegSp;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
@@ -49,19 +52,19 @@ enum LiveRegCache {
 
             try {
                 if (active.term.name == ETermName.SPRING) {
-                    final ILiveRegSp iface = liveConn.getImplementation(ILiveRegSp.class);
+                    final ILiveRegSp iface = ImplLiveRegSp.INSTANCE;
 
                     if (iface != null) {
                         result = iface.query(liveConn, studentId);
                     }
                 } else if (active.term.name == ETermName.SUMMER) {
-                    final ILiveRegSm iface = liveConn.getImplementation(ILiveRegSm.class);
+                    final ILiveRegSm iface = ImplLiveRegSm.INSTANCE;
 
                     if (iface != null) {
                         result = iface.query(liveConn, studentId);
                     }
                 } else if (active.term.name == ETermName.FALL) {
-                    final ILiveRegFa iface = liveConn.getImplementation(ILiveRegFa.class);
+                    final ILiveRegFa iface = ImplLiveRegFa.INSTANCE;
 
                     if (iface != null) {
                         result = iface.query(liveConn, studentId);

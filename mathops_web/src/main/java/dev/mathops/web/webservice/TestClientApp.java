@@ -6,6 +6,8 @@ import dev.mathops.session.scramsha256.ScramClientStub;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -38,7 +40,8 @@ final class TestClientApp {
             Log.info("Authentication token is: ", tok);
 
             try {
-                final URL url = new URL(this.stub.siteUrl + "do-something.ws?token=" + tok);
+                final URI uri = new URI(this.stub.siteUrl + "do-something.ws?token=" + tok);
+                final URL url = uri.toURL();
 
                 final URLConnection conn = url.openConnection();
                 final Object content = conn.getContent();
@@ -55,12 +58,14 @@ final class TestClientApp {
                             count = in.read(buffer);
                         }
 
-                        Log.info(baos.toString());
+                        final String msg = baos.toString();
+                        Log.info(msg);
                     }
                 } else {
-                    Log.warning("Server response from 'do-something.ws' was ", content.getClass().getName());
+                    final String clsName = content.getClass().getName();
+                    Log.warning("Server response from 'do-something.ws' was ", clsName);
                 }
-            } catch (final IOException ex) {
+            } catch (final URISyntaxException | IOException ex) {
                 Log.warning(ex);
             }
         } else {
