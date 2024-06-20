@@ -323,8 +323,7 @@ public final class DocTable extends AbstractDocContainer {
             }
         }
 
-        // Allocate storage for X/Y position data, testing, so we avoid
-        // expensive object creation if not needed
+        // Allocate storage for X/Y position data, testing, so we avoid expensive object creation if not needed
         if ((this.rowY == null) || (this.rowY.length != (this.objectData.length + 1))) {
             this.rowY = new int[this.objectData.length + 1];
         }
@@ -352,8 +351,6 @@ public final class DocTable extends AbstractDocContainer {
         if (this.spacing == UNIFORM) {
 
             // Determine maximum width and height of data
-            int aMax = 0;
-            int dMax = 0;
             int wMax = 0;
 
             for (int i = 0; i < objDataLen; i++) {
@@ -361,6 +358,9 @@ public final class DocTable extends AbstractDocContainer {
                 if (this.objectData[i] == null) {
                     continue;
                 }
+
+                int aMax = 0;
+                int dMax = 0;
 
                 final int innerLen = this.objectData[i].length;
                 for (int j = 0; j < innerLen; j++) {
@@ -384,20 +384,22 @@ public final class DocTable extends AbstractDocContainer {
                     }
                 }
 
+                aMax += tIns;
+                dMax += bIns;
+
                 this.rowBase[i] = aMax + tIns;
+                this.rowY[i + 1] += aMax + dMax;
             }
 
             // Adjust height and width for insets
             wMax += lIns + rIns;
-            aMax += tIns;
-            dMax += bIns;
 
             // Now set ALL rows and columns to consistent sizes
             this.rowY[0] = this.boxWidth;
             this.rowBase[0] += this.rowY[0];
 
             for (int i = 1; i < rowYLen; i++) {
-                this.rowY[i] = this.rowY[i - 1] + aMax + dMax + this.hLineWidth;
+                this.rowY[i] += this.rowY[i - 1] + this.hLineWidth;
                 this.rowBase[i] += this.rowY[i];
             }
 
@@ -407,8 +409,7 @@ public final class DocTable extends AbstractDocContainer {
                 this.colX[i] = this.colX[i - 1] + wMax + this.vLineWidth;
             }
         } else {
-            // Find height of each row, storing in mRowY for now, and build
-            // max width of each column in mColX.
+            // Find height of each row, storing in mRowY for now, and build max width of each column in mColX.
             for (int i = 0; i < objDataLen; i++) {
 
                 if (this.objectData[i] == null) {

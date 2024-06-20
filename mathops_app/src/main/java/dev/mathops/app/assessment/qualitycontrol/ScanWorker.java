@@ -53,9 +53,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         report.sH(2).add("Quality Control Report").eH(2);
 
         final File dir = this.owner.getLibraryDir();
-        report.add("Scanning <span style='color:blue;'>", dir.getAbsolutePath(), "</span>").br().addln();
+        final String dirPath = dir.getAbsolutePath();
+        report.add("Scanning <span style='color:blue;'>", dirPath, "</span>").br().addln();
 
-        publish(new ProgressUpdate(0.0f, "Determining number of files to scan", report.toString()));
+        final String reportStr = report.toString();
+        publish(new ProgressUpdate(0.0f, "Determining number of files to scan", reportStr));
 
         final List<File> problemFiles = new ArrayList<>(1000);
         final List<File> examFiles = new ArrayList<>(200);
@@ -67,8 +69,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final int numHomeworks = homeworkFiles.size();
 
         // Recursively scan, testing as we go.
-        report.add("&bull; Found ", Integer.toString(numProblems), " problems, ", Integer.toString(numExams),
-                " exams, and ", Integer.toString(numHomeworks), " homeworks.").br().addln();
+        final String numProblemsStr = Integer.toString(numProblems);
+        final String numExamsStr = Integer.toString(numExams);
+        final String numHomeworksStr = Integer.toString(numHomeworks);
+        report.add("&bull; Found ", numProblemsStr, " problems, ", numExamsStr, " exams, and ", numHomeworksStr, " " +
+                "homeworks.").br().addln();
 
         try {
             final float pct1 = 100.0f * (float) numProblems / (float) total;
@@ -76,26 +81,31 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
 
             if (!isCancelled()) {
                 report.sH(3).add("Scanning Problems").eH(3);
-                publish(new ProgressUpdate(0.5f, "Scanning Problems...", report.toString()));
-                scanProblems(report, problemFiles, pct1);
+                final String reportText = report.toString();
+                publish(new ProgressUpdate(0.5f, "Scanning Problems...", reportText));
+                final int dirLen = dirPath.length();
+                scanProblems(report, dirLen, problemFiles, pct1);
             }
 
             if (!isCancelled()) {
                 report.sH(3).add("Scanning Exams").eH(3);
-                publish(new ProgressUpdate(pct1, "Scanning Exams...", report.toString()));
+                final String reportText = report.toString();
+                publish(new ProgressUpdate(pct1, "Scanning Exams...", reportText));
                 scanExams(report, examFiles, pct1, pct2);
             }
 
             if (!isCancelled()) {
                 report.sH(3).add("Scanning Homeworks").eH(3);
-                publish(new ProgressUpdate(pct2, "Scanning Homework...", report.toString()));
+                final String reportText = report.toString();
+                publish(new ProgressUpdate(pct2, "Scanning Homework...", reportText));
                 scanHomeworks(report, homeworkFiles, pct2);
             }
         } catch (final RuntimeException ex) {
             Log.warning(ex);
         }
 
-        publish(new ProgressUpdate(100.0f, "Scan Finished", report.toString()));
+        final String reportText = report.toString();
+        publish(new ProgressUpdate(100.0f, "Scan Finished", reportText));
 
         return null;
     }
@@ -104,10 +114,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
      * Scans all problems, updating the displayed report after each.
      *
      * @param report       the report being constructed
+     * @param dirLen       the length of the directory path being scanned
      * @param problemFiles the problem files to scan
      * @param endPct       the ending completion percentage
      */
-    private void scanProblems(final HtmlBuilder report, final Collection<? extends File> problemFiles,
+    private void scanProblems(final HtmlBuilder report, final int dirLen, final Collection<? extends File> problemFiles,
                               final float endPct) {
 
         final float step = (endPct - 0.5f) / (float) problemFiles.size();
@@ -117,7 +128,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
             if (isCancelled()) {
                 break;
             }
-            scanProblem(report, file);
+            scanProblem(report, dirLen, file);
             pct += step;
             publish(new ProgressUpdate(pct, "Scanning Problems...", report.toString()));
         }
@@ -127,11 +138,14 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
      * Scans a single problem.
      *
      * @param report      the report being constructed
+     * @param dirLen       the length of the directory path being scanned
      * @param problemFile the problem file to scan
      */
-    private void scanProblem(final HtmlBuilder report, final File problemFile) {
+    private void scanProblem(final HtmlBuilder report, final int dirLen, final File problemFile) {
 
-        report.addln(problemFile.getAbsolutePath()).br();
+        final String filePath = problemFile.getAbsolutePath();
+        final String relativePath = filePath.substring(dirLen);
+        report.addln(relativePath).br();
 
         final String xml = FileLoader.loadFileAsString(problemFile, true);
         if (xml == null) {

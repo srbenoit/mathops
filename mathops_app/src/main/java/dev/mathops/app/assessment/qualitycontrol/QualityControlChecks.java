@@ -71,8 +71,8 @@ enum QualityControlChecks {
         // TODO: Test that all branches in "test" or "switch" formulas result in compatible value types.
         //  In particular, if any return SPAN values, all should.
 
-        // TODO: Test for SPAN variables that do not depend on any parameters - candidates
-        // for direct substitution in source files
+        // TODO: Test for SPAN variables that do not depend on any parameters - candidates for direct substitution in
+        //  source files
 
         // TODO: Test for font size on fractions other than 85%
 
@@ -96,8 +96,8 @@ enum QualityControlChecks {
 
         // TODO: Real constants that are very close to multiples of PI
 
-        // TODO: Deeply nested Tests might be candidate for SWITCH (if conditions all equate one
-        // variable to an integer value)
+        // TODO: Deeply nested Tests might be candidate for SWITCH (if conditions all equate one variable to an integer
+        //  value)
 
         // TODO: Scan source for "] U [" or ") U (" or similar - suggest {\cup}
 
@@ -660,9 +660,16 @@ enum QualityControlChecks {
                     || follows.startsWith("shift")
                     || follows.startsWith("letter")
                     || follows.startsWith("line")
-                    || follows.startsWith("degree")) {
+                    || follows.startsWith("degree")
+                    || follows.startsWith("looking")) {
                 error = false;
             } else {
+                if (index >= 1) {
+                    final String sub1 = txt.substring(index - 1, index);
+                    if ("n".equals(sub1) && follows.startsWith("th")) {
+                        error = false;
+                    }
+                }
                 if (index >= 2) {
                     final String sub2 = txt.substring(index - 2, index);
                     if ("+/".equals(sub2) || "TI".equals(sub2)) {
