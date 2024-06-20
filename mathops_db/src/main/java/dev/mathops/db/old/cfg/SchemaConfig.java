@@ -5,8 +5,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.EmptyElement;
 
-import java.lang.reflect.Constructor;
-
 /**
  * Represents a particular database schema, with which is associated a factory class that can generate implementations
  * of the various interfaces used to manage each distinct model type.
@@ -37,12 +35,6 @@ public final class SchemaConfig {
     /** The ID of the schema (unique among all loaded schemata). */
     public final String id;
 
-    /** The class name of the schema factory class. */
-    private final String builderClassName;
-
-    /** The constructor for schema factory that takes a single DbConnection argument. */
-    private final Constructor<?> builderConstr;
-
     /** The use of the schema. */
     public final ESchemaUse use;
 
@@ -54,49 +46,37 @@ public final class SchemaConfig {
      */
     SchemaConfig(final EmptyElement theElem) throws ParsingException {
 
-        if (ELEM_TAG.equals(theElem.getTagName())) {
-
+        final String tagName = theElem.getTagName();
+        if (ELEM_TAG.equals(tagName)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
-            if (this.id.indexOf(CoreConstants.COMMA_CHAR) >= 0) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.fmt(Res.SCH_BAD_ID, this.id));
+            if (this.id.indexOf((int) CoreConstants.COMMA_CHAR) >= 0) {
+                final int start = theElem.getStart();
+                final int end = theElem.getEnd();
+                final String msg = Res.fmt(Res.SCH_BAD_ID, this.id);
+                throw new ParsingException(start, end, msg);
             }
-            this.builderClassName = theElem.getRequiredStringAttr(BUILDER_ATTR);
-            try {
-                final Class<?> cls = Class.forName(this.builderClassName);
-                this.builderConstr = cls.getConstructor();
-            } catch (final ClassNotFoundException | NoSuchMethodException ex) {
-                throw new ParsingException(theElem.getStart(), theElem.getEnd(),
-                        Res.fmt(Res.SCH_BAD_BUILDER, this.builderClassName), ex);
-            }
-            this.use = ESchemaUse.forName(theElem.getStringAttr(USE_ATTR));
+            final String attr = theElem.getStringAttr(USE_ATTR);
+            this.use = ESchemaUse.forName(attr);
 
         } else {
-            throw new ParsingException(theElem.getStart(), theElem.getEnd(), Res.get(Res.SCH_BAD_ELEM_TAG));
+            final int start = theElem.getStart();
+            final int end = theElem.getEnd();
+            final String msg = Res.get(Res.SCH_BAD_ELEM_TAG);
+            throw new ParsingException(start, end, msg);
         }
     }
 
     /**
      * Constructs a new {@code SchemaConfig}.
      *
-     * @param theId the schema ID
-     * @param theBuilderClassName the fully-qualified name of the builder class
+     * @param theId  the schema ID
      * @param theUse the schema use
      * @throws IllegalArgumentException if the builder class name is not valid
      */
-    public SchemaConfig(final String theId, final String theBuilderClassName, final ESchemaUse theUse)
-            throws IllegalArgumentException{
+    public SchemaConfig(final String theId, final ESchemaUse theUse) throws IllegalArgumentException {
 
         this.id = theId;
-        this.builderClassName = theBuilderClassName;
         this.use = theUse;
-
-        try {
-            final Class<?> cls = Class.forName(this.builderClassName);
-            this.builderConstr = cls.getConstructor();
-        } catch (final ClassNotFoundException | NoSuchMethodException ex) {
-            final String msg = Res.fmt(Res.SCH_BAD_BUILDER, this.builderClassName);
-            throw new IllegalArgumentException(msg, ex);
-        }
     }
 
     /**
@@ -144,7 +124,7 @@ public final class SchemaConfig {
         final String useName = this.use.name;
         htm.add(useName).padToLength(5);
 
-        htm.add(CoreConstants.QUOTE, this.id, "\": (", this.builderClassName, ")");
+        htm.add(CoreConstants.QUOTE, this.id, "\"");
 
         return htm.toString();
     }

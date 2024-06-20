@@ -151,8 +151,7 @@ public final class LoginDialog extends JFrame implements ActionListener {
         final ServerConfig server = new ServerConfig(EDbProduct.INFORMIX, "baer.math.colostate.edu", port, serverName);
 
         // Create the "Primary" schema object
-        final SchemaConfig schema = new SchemaConfig("CSU PRI", "dev.mathops.db.old.schema.csuprimary.Builder",
-                ESchemaUse.PRIMARY);
+        final SchemaConfig schema = new SchemaConfig("CSU PRI", ESchemaUse.PRIMARY);
 
         // Create the database configurations
         final DbConfig mathDb;
