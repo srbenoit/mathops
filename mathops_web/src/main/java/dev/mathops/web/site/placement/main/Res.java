@@ -40,7 +40,7 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String BACK_TO_TOOL = key(index++);
 
-    // Used by PageExploing
+    // Used by PageExploring
 
     /** A resource key. */
     static final String EXPLORE_MAJORS_BTN = key(index++);
@@ -114,6 +114,9 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String MISSING_XFER_HEADING = key(index++);
 
+    /** A resource key. */
+    static final String THE_ZERO_SEMESTER = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -161,6 +164,7 @@ final class Res extends ResBundle {
 
             {MISSING_XFER_HEADING,
                     "If my <span class='hidebelow500'>Mathematics</span> Transfer Credit is not up to date:"},
+            {THE_ZERO_SEMESTER, "the {0} semester"},
 
             //
     };

@@ -163,11 +163,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                         report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err).eSpan().br().addln();
                     }
                 }
-                final long start = System.currentTimeMillis();
+//                final long start = System.currentTimeMillis();
                 QualityControlChecks.problemQualityChecks(report, problemFile, prob);
-                final long end = System.currentTimeMillis();
-                final long duration = end - start;
-                Log.info("Tests on ", prob.ref, " took " + duration + " ms.");
+//                final long end = System.currentTimeMillis();
+//                final long duration = end - start;
+//                Log.info("Tests on ", prob.ref, " took " + duration + " ms.");
             } catch (final ParsingException ex) {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
                         .eSpan().br().addln();

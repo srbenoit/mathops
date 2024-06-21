@@ -306,7 +306,7 @@ enum PagePlanNext {
         final int typPrearrivalPrereqs = typical.getNumPrearrivalPrereqs();
 
         final String semester = applicationTerm == null ? "your first semester"
-                : Res.fmt("the {0} semester", applicationTerm.fullName);
+                : Res.fmt(Res.THE_ZERO_SEMESTER, applicationTerm.fullName);
 
         final String m101OrFirst;
         final String m101OrThat;

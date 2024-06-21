@@ -1,7 +1,5 @@
 package dev.mathops.assessment;
 
-import dev.mathops.commons.log.Log;
-
 // MOVE TO Mathemetric "math" library
 
 /**
@@ -47,7 +45,6 @@ public enum NumberParser {
                     result = Double.valueOf(str);
                 } catch (final NumberFormatException ex2) {
                     final String toParse = str.replace("\u03C0", "PI");
-                    Log.info("Attempting to parse [", toParse, "] as irrational");
                     result = Irrational.valueOf(toParse);
                 }
             }
@@ -77,7 +74,6 @@ public enum NumberParser {
                 }
             } else {
                 final String toParse = str.replace("\u03C0", "PI");
-                Log.info("Attempting to parse [", toParse, "] as irrational");
                 result = Irrational.valueOf(toParse);
             }
         }

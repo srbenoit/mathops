@@ -68,15 +68,14 @@ enum QualityControlChecks {
         problemTest9(report, problem);
         problemTest10(report, problem);
 
-        // TODO: Test that all branches in "test" or "switch" formulas result in compatible value types.
+        // TODO: all branches in "test" or "switch" formulas result in compatible value types.
         //  In particular, if any return SPAN values, all should.
 
-        // TODO: Test for SPAN variables that do not depend on any parameters - candidates for direct substitution in
-        //  source files
+        // TODO: SPAN variables that do not depend on any parameters; candidates for direct substitution in source file
 
-        // TODO: Test for font size on fractions other than 85%
+        // TODO: font size on fractions other than 85%
 
-        // TODO: Test for font name usage
+        // TODO: font name usage
 
         // TODO: Graph formula whose domain is graph's window (unneeded minx/maxx)
 
@@ -84,34 +83,43 @@ enum QualityControlChecks {
 
         // TODO: missing specification of domain variable in graph formula
 
-        // TODO: Test for empty paragraphs used as vertical spacing.
+        // TODO: empty paragraphs used as vertical spacing.
 
-        // TODO: Test for variable names that aren't valid Java identifiers.
+        // TODO: variable names that aren't valid Java identifiers.
 
-        // TODO: Test for &nbsp; used for horizontal spacing.
+        // TODO: &nbsp; used for horizontal spacing.
 
-        // TODO: Test for variables with constant values.
+        // TODO: variables with constant values.
 
-        // TODO: Test for exact comparison of real values using '='.
+        // TODO: exact comparison of real values using '='.
 
-        // TODO: Real constants that are very close to multiples of PI
+        // TODO: real constants that are very close to multiples of PI
 
-        // TODO: Deeply nested Tests might be candidate for SWITCH (if conditions all equate one variable to an integer
+        // TODO: expressions with a number raised to power 2 - replace with multiplication by itself
+
+        // TODO: deeply nested Tests might be candidate for SWITCH (if conditions all equate one variable to an integer
         //  value)
 
-        // TODO: Scan source for "] U [" or ") U (" or similar - suggest {\cup}
+        // TODO: "] U [" or ") U (" or similar - suggest {\cup}
 
-        // TODO: Embedded input problem without answer
+        // TODO: embedded input problem without answer
 
-        // TODO: Any problem without solution
+        // TODO: any problem without solution
 
-        // TODO: Use of unrecognized attributes or child elements
+        // TODO: use of unrecognized attributes or child elements or unrecognized attributes
 
-        // TODO: Constructions like "integer 1 divided by function sine of x" - suggest csc(x)
+        // TODO: constructions like "integer 1 divided by function sine of x" - suggest csc(x)
 
-        // TODO: Constructions like unary minus of a positive constant - use negative constant
+        // TODO: nested sums within sums (or any other N-ary operator) that can be simplified as N-ary
 
-        // TODO: Constructions like adding or subtracting zero, multiplying or dividing by 1
+        // TODO: constructions like unary minus of a positive constant - use negative constant
+
+        // TODO: constructions like adding or subtracting zero, multiplying or dividing by 1
+
+        // TODO: constraints on multiple choice/selection on number of choices shown or min/max correct that are
+        //  unnecessary based on the number of choices defined
+
+        // TODO: child elements that replace attributes with an expression, but where that expression is a constant
     }
 
     /**
