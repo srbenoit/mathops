@@ -31,13 +31,28 @@ enum PageToolStartRe {
         htm.sDiv("shaded2left");
 
         htm.addln("<ul>");
-
         htm.addln("<li>",
-                "You may not use reference materials or receive assistance from others during the ",
-                "Math Placement Tool. Misrepresenting your current mathematical knowledge will ",
-                "cause you to be placed into a course in which you are unlikely to succeed.", //
+                "Clicking the button below starts your attempt, which will <strong>count as your one unproctored ",
+                "attempt</strong>. Do not click the button below until you are ready to complete the entire ",
+                "MathPlacement Tool.",
                 "</li>");
+        htm.addln("</ul>");
+        htm.div("vgap");
 
+        htm.addln("<ul>");
+        htm.addln("<li>",
+                "Once the tool begins, you may <strong>NOT</strong> leave and come back to your session later.  You ",
+                "must complete the entire Math Placement Tool in one session.",
+                "</li>");
+        htm.addln("</ul>");
+        htm.div("vgap");
+
+        htm.addln("<ul>");
+        htm.addln("<li>",
+                "You may not use reference materials or receive assistance from others during the Math Placement ",
+                "Tool. Misrepresenting your current mathematical knowledge will cause you to be placed into a course ",
+                "in which you are unlikely to succeed.",
+                "</li>");
         htm.addln("</ul>");
 
         htm.div("vgap");

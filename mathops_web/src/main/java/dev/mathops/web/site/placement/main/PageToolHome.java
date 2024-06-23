@@ -3,6 +3,7 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
@@ -59,8 +60,8 @@ enum PageToolHome {
 
         final RawStudent stu = RawStudentLogic.query(cache, effId, false);
 
-        final PlacementLogic logic =
-                new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm, session.getNow());
+        final PlacementLogic logic = new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm,
+                session.getNow());
         final PlacementStatus status = logic.status;
 
         if (status.attemptsUsed > 0) {

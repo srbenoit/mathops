@@ -2,7 +2,17 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
@@ -477,93 +487,94 @@ public class PlacementLogic {
         cleared.removeAll(earnedCredit);
     }
 
-//    /**
-//     * Main method to exercise the logic object.
-//     *
-//     * @param args command-line arguments
-//     */
-//    public static void main(final String... args) {
-//
-//        final ContextMap map = ContextMap.getDefaultInstance();
-//        DbConnection.registerDrivers();
-//
-//        final WebSiteProfile webProfile =map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
-//        if (webProfile == null) {
-//            Log.warning("Web profile not found");
-//        } else {
-//            final DbProfile dbProfile = webProfile.dbProfile;
-//            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-//
-//            final ZonedDateTime now = ZonedDateTime.now();
-//
-//            try {
-//                final DbConnection conn = ctx.checkOutConnection();
-//
-//                try {
-//                    final Cache cache = new Cache(dbProfile, conn);
-//                    final PlacementLogic logic = new PlacementLogic(cache, "835820000",
-//                            new TermKey(ETermName.SUMMER, 2023), now);
-//
-//                    mainPrintStatus(logic.status);
-//                } finally {
-//                    ctx.checkInConnection(conn);
-//                }
-//            } catch (final SQLException ex) {
-//                Log.warning(ex);
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Prints the contents of a {@code PlacementStatus}.
-//     *
-//     * @param status the {@code PlacementStatus} whose contents to print
-//     */
-//    private static void mainPrintStatus(final PlacementStatus status) {
-//
-//        Log.fine(" Proctored IDs available : " + status.availableLocalProctoredIds.size());
-//        Log.fine(" Unproctored IDs available : " + status.availableUnproctoredIds.size());
-//        Log.fine(" Allowed to take Unproctored : " + status.allowedToUseUnproctored);
-//
-//        if (status.whyUnproctoredAllowed != null) {
-//            Log.fine(" Reason Unproctored allowed : ", status.whyUnproctoredAllowed);
-//        }
-//
-//        if (status.whyUnproctoredUnavailable != null) {
-//            Log.fine(" Why unproctored unavailable : ", status.whyUnproctoredUnavailable);
-//        }
-//
-//        Log.fine(" Attempts : " + status.attemptsUsed + " used, " + status.attemptsRemaining + " remaining");
-//
-//        if (status.whyProctoredUnavailable != null) {
-//            Log.fine(" Why unavailable : ", status.whyProctoredUnavailable);
-//        }
-//        if (status.shortWhyProctoredUnavailable != null) {
-//            Log.fine(" Short why unavailable : ", status.shortWhyProctoredUnavailable);
-//        }
-//
-//        final DateRangeGroups unproc = status.unproctoredDateRanges;
-//
-//        if (unproc != null) {
-//            for (final DateRange r : unproc.past) {
-//                Log.fine(" Unproctored was available : ", r);
-//            }
-//            if (unproc.current != null) {
-//                Log.fine(" Unproctored is available : ", unproc.current);
-//            }
-//            for (final DateRange r : unproc.future) {
-//                Log.fine(" Unproctored will be available : ", r);
-//            }
-//        }
-//
-//        for (final String placed : status.placedOutOf) {
-//            Log.fine(" Placed out of : ", placed);
-//        }
-//        for (final String credit : status.earnedCreditFor) {
-//            Log.fine(" Earned credit for : ", credit);
-//        }
-//        for (final String cleared : status.clearedFor) {
-//            Log.fine(" Cleared to register for : ", cleared);
-//        }
-//    }
+    /**
+     * Main method to exercise the logic object.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(final String... args) {
+
+        final ContextMap map = ContextMap.getDefaultInstance();
+        DbConnection.registerDrivers();
+
+        final WebSiteProfile webProfile =map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
+        if (webProfile == null) {
+            Log.warning("Web profile not found");
+        } else {
+            final DbProfile dbProfile = webProfile.dbProfile;
+            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+
+            final ZonedDateTime now = ZonedDateTime.now();
+
+            try {
+                final DbConnection conn = ctx.checkOutConnection();
+
+                try {
+                    final Cache cache = new Cache(dbProfile, conn);
+
+                    final PlacementLogic logic = new PlacementLogic(cache, "888888888",
+                            new TermKey(ETermName.SPRING, 2025), now);
+
+                    mainPrintStatus(logic.status);
+                } finally {
+                    ctx.checkInConnection(conn);
+                }
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+            }
+        }
+    }
+
+    /**
+     * Prints the contents of a {@code PlacementStatus}.
+     *
+     * @param status the {@code PlacementStatus} whose contents to print
+     */
+    private static void mainPrintStatus(final PlacementStatus status) {
+
+        Log.fine(" Proctored IDs available : " + status.availableLocalProctoredIds.size());
+        Log.fine(" Unproctored IDs available : " + status.availableUnproctoredIds.size());
+        Log.fine(" Allowed to take Unproctored : " + status.allowedToUseUnproctored);
+
+        if (status.whyUnproctoredAllowed != null) {
+            Log.fine(" Reason Unproctored allowed : ", status.whyUnproctoredAllowed);
+        }
+
+        if (status.whyUnproctoredUnavailable != null) {
+            Log.fine(" Why unproctored unavailable : ", status.whyUnproctoredUnavailable);
+        }
+
+        Log.fine(" Attempts : " + status.attemptsUsed + " used, " + status.attemptsRemaining + " remaining");
+
+        if (status.whyProctoredUnavailable != null) {
+            Log.fine(" Why unavailable : ", status.whyProctoredUnavailable);
+        }
+        if (status.shortWhyProctoredUnavailable != null) {
+            Log.fine(" Short why unavailable : ", status.shortWhyProctoredUnavailable);
+        }
+
+        final DateRangeGroups unproc = status.unproctoredDateRanges;
+
+        if (unproc != null) {
+            for (final DateRange r : unproc.past) {
+                Log.fine(" Unproctored was available : ", r);
+            }
+            if (unproc.current != null) {
+                Log.fine(" Unproctored is available : ", unproc.current);
+            }
+            for (final DateRange r : unproc.future) {
+                Log.fine(" Unproctored will be available : ", r);
+            }
+        }
+
+        for (final String placed : status.placedOutOf) {
+            Log.fine(" Placed out of : ", placed);
+        }
+        for (final String credit : status.earnedCreditFor) {
+            Log.fine(" Earned credit for : ", credit);
+        }
+        for (final String cleared : status.clearedFor) {
+            Log.fine(" Cleared to register for : ", cleared);
+        }
+    }
 }
