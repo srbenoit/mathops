@@ -169,28 +169,33 @@ public final class FEConstantString extends AbstractFEObject {
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
 
-        Log.info("String constant container processing '", Character.toString(ch), "'");
+        final String chStr = Character.toString(ch);
+        Log.info("String constant container processing '", chStr, "'");
 
         final int cursorPos = fECursor.cursorPosition - getFirstCursorPosition();
 
-        if (ch >= 0x20 && ch <= 0x7E) {
+        if ((int) ch >= 0x20 && (int) ch <= 0x7E) {
             final String pre = this.value.substring(0, cursorPos);
             final String post = this.value.substring(cursorPos);
             final String newValue = pre + ch + post;
             setValue(newValue, true);
-        } else if (ch == 0x08 && cursorPos > 0) {
+        } else if ((int) ch == 0x08 && cursorPos > 0) {
             --fECursor.cursorPosition;
             if (this.value.length() == 1) {
                 getParent().replaceChild(this, null);
             } else {
-                setValue(this.value.substring(0, cursorPos - 1) + this.value.substring(cursorPos), true);
+                final String firstPart = this.value.substring(0, cursorPos - 1);
+                final String substring = this.value.substring(cursorPos);
+                setValue(firstPart + substring, true);
             }
-        } else if (ch == 0x7f && cursorPos < getNumCursorSteps()) {
+        } else if ((int) ch == 0x7f && cursorPos < getNumCursorSteps()) {
             // Delete
             if (this.value.length() == 1) {
                 getParent().replaceChild(this, null);
             } else {
-                setValue(this.value.substring(0, cursorPos) + this.value.substring(cursorPos + 1), true);
+                final String firstPart = this.value.substring(0, cursorPos);
+                final String lastPart = this.value.substring(cursorPos + 1);
+                setValue(firstPart + lastPart, true);
             }
         }
     }
@@ -230,8 +235,10 @@ public final class FEConstantString extends AbstractFEObject {
 
         if (this.value.isEmpty()) {
             // Set our bounds to zero width, but a reasonable height/ascent for our font
-            final int ascent = Math.round(lineMetrics.getAscent());
-            final int descent = Math.round(lineMetrics.getDescent());
+            final float lineAscent = lineMetrics.getAscent();
+            final float lineDescent = lineMetrics.getDescent();
+            final int ascent = Math.round(lineAscent);
+            final int descent = Math.round(lineDescent);
 
             setAdvance(0);
             getOrigin().setLocation(0, 0);
@@ -242,9 +249,11 @@ public final class FEConstantString extends AbstractFEObject {
             int botY = 0;
 
             for (final char ch : this.value.toCharArray()) {
-                final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+                final String chStr = Character.toString(ch);
+                final RenderedBox charBox = new RenderedBox(chStr);
                 this.rendered.add(charBox);
-                charBox.setFontSize(getFontSize());
+                final int fontSize = getFontSize();
+                charBox.setFontSize(fontSize);
                 charBox.layout(g2d);
                 charBox.getOrigin().setLocation(x, 0);
                 x += charBox.getAdvance();
@@ -254,8 +263,11 @@ public final class FEConstantString extends AbstractFEObject {
                 botY = Math.max(botY, charBounds.y + charBounds.height);
             }
 
+            final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+            final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
             setAdvance(x);
-            setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+            setCenterAscent(center);
             getOrigin().setLocation(0, 0);
             getBounds().setBounds(0, topY, x, botY - topY);
         }
@@ -315,8 +327,8 @@ public final class FEConstantString extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "String*: '" : "String: '"), this.value, "' (",
-                this.value, ")");
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "String*: '" : "String: '"), this.value, "' (", this.value, ")");
     }
 
     /**
@@ -327,11 +339,16 @@ public final class FEConstantString extends AbstractFEObject {
     @Override
     public FEConstantString duplicate() {
 
-        final FEConstantString dup = new FEConstantString(getFontSize());
+        final int fontSize = getFontSize();
+        final FEConstantString dup = new FEConstantString(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+                dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.value != null) {
             dup.setValue(this.value, false);

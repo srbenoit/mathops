@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 
@@ -31,13 +32,13 @@ public final class RenderedBox extends AbstractFEDrawable {
     private static final Color SELECTED_TEXT_COLOR = Color.WHITE;
 
     /** The selection highlight color. */
-    public static final Color CURSOR_COLOR = Color.BLACK;
+    static final Color CURSOR_COLOR = Color.BLACK;
 
     /** The test this box displays. */
     private final String text;
 
     /** True if this is a "cursor-phobic" box. */
-    private boolean cursorPhobic;
+    private boolean cursorPhobic = false;
 
     /**
      * Constructs a new {@code RenderedBox}.
@@ -94,14 +95,19 @@ public final class RenderedBox extends AbstractFEDrawable {
         final FontMetrics metrics = g2d.getFontMetrics(font);
         final LineMetrics lineMetrics = font.getLineMetrics(this.text, frc);
 
-        final int ascent = Math.round(lineMetrics.getAscent());
-        final int descent = Math.round(lineMetrics.getDescent());
+        final float lineAscent = lineMetrics.getAscent();
+        final float lineDescent = lineMetrics.getDescent();
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+
+        final int ascent = Math.round(lineAscent);
+        final int descent = Math.round(lineDescent);
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
 
         final int adv = metrics.stringWidth(this.text);
         setAdvance(adv);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, -ascent, adv, ascent + descent);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
     }
 
     /**
@@ -128,14 +134,16 @@ public final class RenderedBox extends AbstractFEDrawable {
         if (selected) {
             g2d.setColor(SELECTION_HIGHLIGHT_COLOR);
             g2d.translate(origin.x, origin.y);
-            g2d.fill(getBounds());
+            final Rectangle bounds = getBounds();
+            g2d.fill(bounds);
             g2d.translate(-origin.x, -origin.y);
             g2d.setColor(SELECTED_TEXT_COLOR);
         } else {
             g2d.setColor(TEXT_COLOR);
         }
 
-        g2d.setFont(getFont());
+        final Font font = getFont();
+        g2d.setFont(font);
         g2d.drawString(this.text, origin.x, origin.y);
     }
 }

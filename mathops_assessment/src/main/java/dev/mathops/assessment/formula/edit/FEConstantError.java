@@ -17,26 +17,26 @@ import java.util.List;
 /**
  * A container for an Error constant that can generate a {@code ErrorValue}.
  */
-public final class FEError extends AbstractFEObject {
+public final class FEConstantError extends AbstractFEObject {
 
-    /** The current text value (may be empty, never {@code null}). */
+    /** The current text value (can be empty, never {@code null}). */
     private String text;
 
     /** The opening quote box. */
-    private RenderedBox openStar;
+    private RenderedBox openStar = null;
 
     /** The closing quote box. */
-    private RenderedBox closeStar;
+    private RenderedBox closeStar = null;
 
     /** The rendered boxes. */
     private final List<RenderedBox> rendered;
 
     /**
-     * Constructs a new {@code FEError}.
+     * Constructs a new {@code FEConstantError}.
      *
      * @param theFontSize the font size for the component
      */
-    public FEError(final int theFontSize) {
+    public FEConstantError(final int theFontSize) {
 
         super(theFontSize);
 
@@ -49,12 +49,12 @@ public final class FEError extends AbstractFEObject {
     }
 
     /**
-     * Constructs a new {@code FEError}.
+     * Constructs a new {@code FEConstantError}.
      *
      * @param theFontSize the font size for the component
      * @param theText     the error text
      */
-    public FEError(final int theFontSize, final String theText) {
+    public FEConstantError(final int theFontSize, final String theText) {
 
         this(theFontSize);
 
@@ -115,8 +115,7 @@ public final class FEError extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         return false;
     }
@@ -179,11 +178,12 @@ public final class FEError extends AbstractFEObject {
 
         final int innerPos = fECursor.cursorPosition - getFirstCursorPosition() - 1;
 
-        if (ch >= 0x20 && ch <= 0x7E) {
+        if ((int) ch >= 0x20 && (int) ch <= 0x7E) {
             ++fECursor.cursorPosition;
-            setText(this.text.substring(0, innerPos) + ch
-                    + this.text.substring(innerPos), true);
-        } else if (ch == 0x08) {
+            final String firstPart = this.text.substring(0, innerPos);
+            final String lastPart = this.text.substring(innerPos);
+            setText(firstPart + ch + lastPart, true);
+        } else if ((int) ch == 0x08) {
             // Backspace
             if (this.text.isEmpty()) {
                 if (innerPos > 0) {
@@ -194,9 +194,11 @@ public final class FEError extends AbstractFEObject {
                 getParent().replaceChild(this, null);
             } else if (innerPos > 0 && innerPos <= this.text.length()) {
                 --fECursor.cursorPosition;
-                setText(this.text.substring(0, innerPos - 1) + this.text.substring(innerPos), true);
+                final String firstPart = this.text.substring(0, innerPos - 1);
+                final String lastPart = this.text.substring(innerPos);
+                setText(firstPart + lastPart, true);
             }
-        } else if (ch == 0x7f) {
+        } else if ((int) ch == 0x7f) {
             // Delete
             if (this.text.isEmpty()) {
                 if (innerPos >= 0) {
@@ -205,7 +207,9 @@ public final class FEError extends AbstractFEObject {
                 }
                 getParent().replaceChild(this, null);
             } else if (innerPos >= 0 && innerPos < this.text.length()) {
-                setText(this.text.substring(0, innerPos) + this.text.substring(innerPos + 1), true);
+                final String firstPart = this.text.substring(0, innerPos);
+                final String lastPart = this.text.substring(innerPos + 1);
+                setText(firstPart + lastPart, true);
             }
         }
     }
@@ -237,12 +241,14 @@ public final class FEError extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.openStar = new RenderedBox("*");
-        this.openStar.setFontSize(getFontSize());
+        this.openStar.setFontSize(fontSize);
         this.openStar.layout(g2d);
 
         this.closeStar = new RenderedBox("*");
-        this.closeStar.setFontSize(getFontSize());
+        this.closeStar.setFontSize(fontSize);
         this.closeStar.layout(g2d);
 
         this.rendered.clear();
@@ -260,9 +266,10 @@ public final class FEError extends AbstractFEObject {
         botY = Math.max(botY, openQuoteBounds.y + openQuoteBounds.height);
 
         for (final char ch : this.text.toCharArray()) {
-            final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+            final String chStr = Character.toString(ch);
+            final RenderedBox charBox = new RenderedBox(chStr);
             this.rendered.add(charBox);
-            charBox.setFontSize(getFontSize());
+            charBox.setFontSize(fontSize);
             charBox.layout(g2d);
             charBox.getOrigin().setLocation(x, 0);
             x += charBox.getAdvance();
@@ -280,8 +287,11 @@ public final class FEError extends AbstractFEObject {
 
         x += this.closeStar.getAdvance();
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -366,7 +376,8 @@ public final class FEError extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Error*: '" : "Error: '"), this.text, "'");
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "Error*: '" : "Error: '"), this.text, "'");
     }
 
     /**
@@ -375,13 +386,18 @@ public final class FEError extends AbstractFEObject {
      * @return the duplicate
      */
     @Override
-    public FEError duplicate() {
+    public FEConstantError duplicate() {
 
-        final FEError dup = new FEError(getFontSize());
+        final int fontSize = getFontSize();
+        final FEConstantError dup = new FEConstantError(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.text != null) {
             dup.setText(this.text, false);

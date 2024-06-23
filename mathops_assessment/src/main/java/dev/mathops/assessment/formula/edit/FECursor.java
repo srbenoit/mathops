@@ -22,7 +22,7 @@ public final class FECursor {
      * <p>
      * When there is a selection active, the current cursor position is the "selection end".
      */
-    public int selectionStart;
+    int selectionStart;
 
     /**
      * Constructs a new {@code FECursor}.

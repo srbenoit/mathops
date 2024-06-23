@@ -9,6 +9,7 @@ import dev.mathops.commons.log.Log;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -30,6 +31,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * A panel that allows the user to edit a formula.
@@ -88,7 +90,8 @@ public final class FormulaEditorPanel extends JPanel
 
         this.minWidth = 30;
 
-        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        final Border emptyBorder = BorderFactory.createEmptyBorder(1, 1, 1, 1);
+        setBorder(emptyBorder);
 
         setBackground(Color.WHITE);
         this.cursor = new FECursor();
@@ -122,7 +125,8 @@ public final class FormulaEditorPanel extends JPanel
             specified.add(EType.STRING);
             specified.add(EType.SPAN);
         } else {
-            specified.addAll(Arrays.asList(theTypes));
+            final List<EType> typesList = Arrays.asList(theTypes);
+            specified.addAll(typesList);
         }
 
         final EnumSet<EType> allowed = this.root.getAllowedTypes();
@@ -207,21 +211,22 @@ public final class FormulaEditorPanel extends JPanel
         } else if (theFormula.getFormula() != null) {
             this.root = theFormula.getFormula().generateFEFormula(this.fontSize, this, this.insets);
             this.root.getAllowedTypes().addAll(allowed);
-            this.root.getPossibleTypes().addAll(possible);
+            final EnumSet<EType> newPossible = this.root.getPossibleTypes();
+            newPossible.addAll(possible);
 
             final EType rootType = this.root.getCurrentType();
 
-            final boolean compatible;
+            final boolean mismatch;
             if (rootType == null) {
-                final EnumSet<EType> filtered = EType.filter(allowed, this.root.getPossibleTypes());
-                compatible = !filtered.isEmpty();
+                final EnumSet<EType> filtered = EType.filter(allowed, newPossible);
+                mismatch = filtered.isEmpty();
             } else {
-                compatible = allowed.contains(rootType);
+                mismatch = !allowed.contains(rootType);
             }
 
-            if (!compatible) {
-                throw new IllegalArgumentException("Specified type(s) not copmpatible with type ("
-                        + rootType + ") of given formula");
+            if (mismatch) {
+                throw new IllegalArgumentException("Specified type(s) not compatible with type (" + rootType +
+                        ") of given formula");
             }
         }
 
@@ -269,13 +274,15 @@ public final class FormulaEditorPanel extends JPanel
 
         super.paintComponent(g);
 
+        final boolean hasFocus = hasFocus();
+
         final Color bg = isEnabled() ? getBackground() : FEFormula.DISABLED_BG;
-        this.root.render(this.cursor, hasFocus(), bg);
+        this.root.render(this.cursor, hasFocus, bg);
         this.root.paint(g);
 
         final Dimension size = getSize();
 
-        if (hasFocus()) {
+        if (hasFocus) {
             g.setColor(FOCUSED_INNER_COLOR);
             g.drawRoundRect(1, 1, size.width - 3, size.height - 3, 2, 2);
             g.setColor(FOCUSED_OUTER_COLOR);
@@ -565,21 +572,21 @@ public final class FormulaEditorPanel extends JPanel
 
                 final HtmlBuilder htm1 = new HtmlBuilder(100);
                 curState.formula.emitDiagnostics(htm1, 0);
-                Log.info("State moved to REDO: " + htm1);
+                Log.info("State moved to REDO: ", htm1);
 
                 final UndoRedoState priorState = this.undo.peek();
                 if (priorState != null) {
 
                     final HtmlBuilder htm2 = new HtmlBuilder(100);
                     priorState.formula.emitDiagnostics(htm2, 0);
-                    Log.info("PEEKED UNDO state: " + htm2);
+                    Log.info("PEEKED UNDO state: ", htm2);
 
                     this.root = priorState.formula.duplicate();
                     this.cursor = priorState.cursor.duplicate();
 
                     final HtmlBuilder htm3 = new HtmlBuilder(100);
                     this.root.emitDiagnostics(htm3, 0);
-                    Log.info("Undo restored state: " + htm3);
+                    Log.info("Undo restored state: ", htm3);
 
                     this.root.update(false);
                 }
@@ -588,7 +595,7 @@ public final class FormulaEditorPanel extends JPanel
     }
 
     /**
-     * Performs an "redo" operation.
+     * Performs a "redo" operation.
      */
     private void redo() {
 
@@ -604,7 +611,7 @@ public final class FormulaEditorPanel extends JPanel
     }
 
     /**
-     * Performs an "redo" operation.
+     * Performs a "copy" operation.
      */
     private void copy() {
 

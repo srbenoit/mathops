@@ -599,6 +599,7 @@ enum QualityControlChecks {
             boolean error = true;
 
             if (follows.startsWith("axis")
+                    || follows.startsWith("axes")
                     || follows.startsWith("coordinate")
                     || follows.startsWith("like")
                     || follows.startsWith("clockwise")
@@ -655,6 +656,7 @@ enum QualityControlChecks {
                     || follows.startsWith("sum")
                     || follows.startsWith("to-product")
                     || follows.startsWith("product")
+                    || follows.startsWith("radius")
                     || follows.startsWith("max")
                     || follows.startsWith("min")
                     || follows.startsWith("than")
@@ -669,12 +671,16 @@ enum QualityControlChecks {
                     || follows.startsWith("letter")
                     || follows.startsWith("line")
                     || follows.startsWith("degree")
-                    || follows.startsWith("looking")) {
+                    || follows.startsWith("looking")
+                    || follows.startsWith("turn")
+                    || follows.startsWith("th")) {
                 error = false;
             } else {
                 if (index >= 1) {
                     final String sub1 = txt.substring(index - 1, index);
                     if ("n".equals(sub1) && follows.startsWith("th")) {
+                        error = false;
+                    } else if ("x".equals(sub1) && follows.isEmpty()) {
                         error = false;
                     }
                 }

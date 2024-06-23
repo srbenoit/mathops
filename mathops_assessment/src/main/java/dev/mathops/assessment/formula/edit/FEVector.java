@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * A container for an Vector that can generate an {@code IntegerVectorValue} or {@code RealVectorValue}.
+ * A container for a Vector that can generate an {@code IntegerVectorValue} or {@code RealVectorValue}.
  */
 public final class FEVector extends AbstractFEObject {
 
@@ -32,7 +32,7 @@ public final class FEVector extends AbstractFEObject {
     /** The closing bracket box. */
     private RenderedBox closeBracket;
 
-    /** The array of entries (may be empty, never {@code null}). */
+    /** The array of entries (can be empty, never {@code null}). */
     private AbstractFEObject[] entries;
 
     /** The rendered commas between vector entries (one less than the number of entries). */
@@ -137,7 +137,7 @@ public final class FEVector extends AbstractFEObject {
      * Gets the value at an index.
      *
      * @param index the index (if this is negative or beyond the end of the vector, {@code null} is returned)
-     * @return the value (may be {@code null})
+     * @return the value (can be {@code null})
      */
     public AbstractFEObject getEntry(final int index) {
 
@@ -268,8 +268,7 @@ public final class FEVector extends AbstractFEObject {
                     setEntry(index, newChild, true);
                 }
             } else {
-                Log.warning("Attempt to add ", newType,
-                        " type child to vector");
+                Log.warning("Attempt to add ", newType, " type child to vector");
                 result = false;
             }
         }
@@ -385,8 +384,7 @@ public final class FEVector extends AbstractFEObject {
                     } else if (objects[i] instanceof ConstRealValue) {
                         allIntegers = false;
                     } else if (!(objects[i] instanceof ConstIntegerValue)) {
-                        Log.warning("Element in vector generated ",
-                                objects[i].getClass().getName());
+                        Log.warning("Element in vector generated ", objects[i].getClass().getName());
                         valid = false;
                     }
                 }
@@ -428,8 +426,7 @@ public final class FEVector extends AbstractFEObject {
      *                             position
      */
     @Override
-    public void indicateValidModifications(final FECursor fECursor,
-                                           final EnumSet<EModification> allowedModifications) {
+    public void indicateValidModifications(final FECursor fECursor, final EnumSet<EModification> allowedModifications) {
 
         final int cursorPos = fECursor.cursorPosition;
 
@@ -483,11 +480,13 @@ public final class FEVector extends AbstractFEObject {
         final int end = start + getNumCursorSteps();
         final boolean realAllowed = getAllowedTypes().contains(EType.REAL_VECTOR);
 
-        // Log.info("Vector processing '", Character.toString(ch),
-        // "' start=" + start + ", end=" + end + ", pos=" + cursorPos);
+        // Log.info("Vector processing '", Character.toString(ch), "' start=" + start + ", end=" + end + ",
+        // pos=" + cursorPos);
 
         if (cursorPos > start && cursorPos < end) {
-            if (ch == CoreConstants.COMMA_CHAR) {
+            final int fontSize = getFontSize();
+
+            if ((int) ch == (int) CoreConstants.COMMA_CHAR) {
                 // Create a new entry - perhaps split a number if the cursor is within a number
                 int pos = start + 1;
                 final int count = this.entries.length;
@@ -508,8 +507,7 @@ public final class FEVector extends AbstractFEObject {
                             final int entryEnd = entry.getFirstCursorPosition() + entry.getNumCursorSteps();
 
                             if (cursorPos == entryEnd) {
-                                // At end of entry "i" - create a new entry and push entries greater
-                                // than "i" forward
+                                // At end of entry "i" - create a new entry and push entries greater than "i" forward
 
                                 final AbstractFEObject[] newEntries = new AbstractFEObject[count + 1];
 
@@ -521,20 +519,21 @@ public final class FEVector extends AbstractFEObject {
                                 ++fECursor.cursorPosition;
                                 update(true);
                             } else if (cursorPos < entryEnd) {
-                                // We are within an entry - if it is a simple Integer or Real
-                                // number, the comma can split it into two entries. If it is
-                                // anything more complex, we do not attempt to split. For example
-                                // "123+456" going to "123+4,56" is not supported
+                                // We are within an entry - if it is a simple Integer or Real number, the comma can
+                                // split it into two entries. If it is anything more complex, we do not attempt to
+                                // split. For example "123+456" going to "123+4,56" is not supported
 
                                 if (entry instanceof final FEConstantInteger intEntry) {
                                     final String text = intEntry.getText();
                                     final int offset = fECursor.cursorPosition - entry.getNumCursorSteps();
 
-                                    final FEConstantInteger preInt = new FEConstantInteger(getFontSize());
-                                    preInt.setText(text.substring(0, offset), false);
+                                    final FEConstantInteger preInt = new FEConstantInteger(fontSize);
+                                    final String firstPart = text.substring(0, offset);
+                                    preInt.setText(firstPart, false);
 
-                                    final FEConstantInteger postInt = new FEConstantInteger(getFontSize());
-                                    postInt.setText(text.substring(offset), false);
+                                    final FEConstantInteger postInt = new FEConstantInteger(fontSize);
+                                    final String lastPart = text.substring(offset);
+                                    postInt.setText(lastPart, false);
 
                                     final AbstractFEObject[] newEntries = new AbstractFEObject[count + 1];
                                     if (i > 0) {
@@ -574,51 +573,53 @@ public final class FEVector extends AbstractFEObject {
                         // At start of entry "i"
                         if (this.entries[i] == null) {
 
-                            if (ch >= '0' && ch <= '9') {
+                            if ((int) ch >= '0' && (int) ch <= '9') {
                                 ++fECursor.cursorPosition;
-                                final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                                constInt.setText(Character.toString(ch), false);
+                                final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                                final String txt = Character.toString(ch);
+                                constInt.setText(txt, false);
                                 setEntry(i, constInt, true);
-                            } else if (ch == '\u03c0' || ch == '\u0435' || ch == '.') {
+                            } else if ((int) ch == '\u03c0' || (int) ch == '\u0435' || (int) ch == '.') {
                                 if (realAllowed) {
                                     ++fECursor.cursorPosition;
-                                    final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                                    constReal.setText(Character.toString(ch), false);
+                                    final FEConstantReal constReal = new FEConstantReal(fontSize);
+                                    final String txt = Character.toString(ch);
+                                    constReal.setText(txt, false);
                                     setEntry(i, constReal, true);
                                 }
-                            } else if (ch == '+' || ch == '-') {
+                            } else if ((int) ch == '+' || ch == '-') {
                                 ++fECursor.cursorPosition;
-                                final FEUnaryOper unary = new FEUnaryOper(getFontSize(),
-                                        ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                                final FEUnaryOper unary = new FEUnaryOper(fontSize,
+                                        (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
                                 if (!realAllowed) {
                                     unary.getAllowedTypes().remove(EType.REAL);
                                 }
                                 setEntry(i, unary, true);
-                            } else if (ch == '{') {
+                            } else if ((int) ch == '{') {
                                 ++fECursor.cursorPosition;
-                                final FEVarRef varRef = new FEVarRef(getFontSize());
+                                final FEVarRef varRef = new FEVarRef(fontSize);
                                 varRef.getAllowedTypes().clear();
                                 varRef.getAllowedTypes().add(EType.INTEGER);
                                 if (!realAllowed) {
                                     varRef.getAllowedTypes().remove(EType.REAL);
                                 }
                                 setEntry(i, varRef, true);
-                            } else if (ch == '(') {
+                            } else if ((int) ch == '(') {
                                 ++fECursor.cursorPosition;
-                                final FEGrouping grouping = new FEGrouping(getFontSize());
+                                final FEGrouping grouping = new FEGrouping(fontSize);
                                 grouping.getAllowedTypes().clear();
                                 grouping.getAllowedTypes().add(EType.INTEGER);
                                 if (!realAllowed) {
                                     grouping.getAllowedTypes().remove(EType.REAL);
                                 }
                                 setEntry(i, grouping, true);
-                            } else if (ch >= '\u2720' && ch <= '\u274F') {
+                            } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
                                 final EFunction f = EFunction.forChar(ch);
                                 if (f != null) {
                                     if (realAllowed) {
                                         if (f != EFunction.NOT) {
                                             ++fECursor.cursorPosition;
-                                            final FEFunction function = new FEFunction(getFontSize(), f);
+                                            final FEFunction function = new FEFunction(fontSize, f);
                                             function.getAllowedTypes().clear();
                                             function.getAllowedTypes().add(EType.INTEGER);
                                             function.getAllowedTypes().remove(EType.REAL);
@@ -628,7 +629,7 @@ public final class FEVector extends AbstractFEObject {
                                             || f == EFunction.ROUND || f == EFunction.GCD || f == EFunction.SRAD2
                                             || f == EFunction.SRAD3) {
                                         ++fECursor.cursorPosition;
-                                        final FEFunction function = new FEFunction(getFontSize(), f);
+                                        final FEFunction function = new FEFunction(fontSize, f);
                                         function.getAllowedTypes().clear();
                                         function.getAllowedTypes().add(EType.INTEGER);
                                         setEntry(i, function, true);
@@ -636,7 +637,7 @@ public final class FEVector extends AbstractFEObject {
                                 }
                             } else if (ch == '<') {
                                 ++fECursor.cursorPosition;
-                                final FETest test = new FETest(getFontSize());
+                                final FETest test = new FETest(fontSize);
                                 test.getAllowedTypes().clear();
                                 test.getAllowedTypes().add(EType.INTEGER);
                                 if (!realAllowed) {
@@ -664,11 +665,11 @@ public final class FEVector extends AbstractFEObject {
                 }
             }
         } else if (end == 2) {
-            if (ch == 0x08 && cursorPos == 2) {
+            if ((int) ch == 0x08 && cursorPos == 2) {
                 // Backspace at end of vector when empty
                 --fECursor.cursorPosition;
                 getParent().replaceChild(this, null);
-            } else if (ch == 0x7f && cursorPos == 0) {
+            } else if ((int) ch == 0x7f && cursorPos == 0) {
                 // Delete at start of vector when empty
                 getParent().replaceChild(this, null);
             }
@@ -762,12 +763,14 @@ public final class FEVector extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.openBracket = new RenderedBox("[");
-        this.openBracket.setFontSize(getFontSize());
+        this.openBracket.setFontSize(fontSize);
         this.openBracket.layout(g2d);
 
         this.closeBracket = new RenderedBox("]");
-        this.closeBracket.setFontSize(getFontSize());
+        this.closeBracket.setFontSize(fontSize);
         this.closeBracket.layout(g2d);
 
         final int numEntries = this.entries.length;
@@ -776,7 +779,7 @@ public final class FEVector extends AbstractFEObject {
         final int numCommas = this.commas.length;
         for (int i = 0; i < numCommas; ++i) {
             this.commas[i] = new RenderedBox(",");
-            this.commas[i].setFontSize(getFontSize());
+            this.commas[i].setFontSize(fontSize);
             this.commas[i].layout(g2d);
         }
 
@@ -829,8 +832,11 @@ public final class FEVector extends AbstractFEObject {
 
         x += this.closeBracket.getAdvance();
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -935,13 +941,15 @@ public final class FEVector extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln(getParent() == null ? "Vector*:" : "Vector:");
+        final AbstractFEObject parent = getParent();
+        builder.addln(parent == null ? "Vector*:" : "Vector:");
 
         final int numEntries = this.entries.length;
         for (int i = 0; i < numEntries; ++i) {
             if (this.entries[i] == null) {
                 indent(builder, indent + 1);
-                builder.addln("(No [", Integer.toString(i), "] entry)");
+                final String iStr = Integer.toString(i);
+                builder.addln("(No [", iStr, "] entry)");
             } else {
                 this.entries[i].emitDiagnostics(builder, indent + 1);
             }
@@ -956,18 +964,24 @@ public final class FEVector extends AbstractFEObject {
     @Override
     public FEVector duplicate() {
 
-        final FEVector dup = new FEVector(getFontSize());
+        final int fontSize = getFontSize();
+        final FEVector dup = new FEVector(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         final int numEntries = this.entries.length;
         dup.setNumEntries(numEntries, false);
         for (int i = 0; i < numEntries; ++i) {
             if (this.entries[i] != null) {
                 // The following sets the parent on the duplicate entry
-                dup.setEntry(i, this.entries[i].duplicate(), false);
+                final AbstractFEObject dupEntry = this.entries[i].duplicate();
+                dup.setEntry(i, dupEntry, false);
             }
         }
 

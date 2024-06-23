@@ -23,11 +23,11 @@ public final class FEVarRef extends AbstractFEObject {
     /** Characters valid in a variable name. */
     private static final String VALID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_,.?:;~";
 
-    /** The variable name (may be empty; never {@code null}). */
+    /** The variable name (can be empty; never {@code null}). */
     private String varName;
 
     /** The index ({@code null} if none). */
-    private Integer index;
+    private Integer index = null;
 
     /** The rendered boxes for the variable name. */
     private final List<RenderedBox> renderedVarName;
@@ -36,19 +36,19 @@ public final class FEVarRef extends AbstractFEObject {
     private final List<RenderedBox> renderedIndex;
 
     /** The opening brace box ("{"). */
-    private RenderedBox openBrace;
+    private RenderedBox openBrace = null;
 
     /** The mid brace box ("[" when there is an index). */
-    private RenderedBox midBrace;
+    private RenderedBox midBrace = null;
 
     /** The closing brace box ("}" when no index, or "]}" when there is an index). */
-    private RenderedBox closeBrace;
+    private RenderedBox closeBrace = null;
 
     /**
      * The current index string ({@code null} if none, can be blank to indicate an index has been requested but not yet
      * typed).
      */
-    private String indexString;
+    private String indexString = null;
 
     /**
      * Constructs a new {@code FEVarRef}.
@@ -89,7 +89,8 @@ public final class FEVarRef extends AbstractFEObject {
 
         this.varName = theVarName == null ? CoreConstants.EMPTY : theVarName;
         if (theIndex != null) {
-            setIndexString(theIndex.toString(), false);
+            final String indexStr = theIndex.toString();
+            setIndexString(indexStr, false);
         }
     }
 
@@ -191,8 +192,8 @@ public final class FEVarRef extends AbstractFEObject {
             valid = this.index != null;
         }
 
-        // TODO: If we had an EvalContext, we could check that the variable name is valid, and if
-        // there is an index, if the variable has vector type
+        // TODO: If we had an EvalContext, we could check that the variable name is valid, and if there is an index,
+        //  if the variable has vector type
 
         return valid;
     }
@@ -282,7 +283,9 @@ public final class FEVarRef extends AbstractFEObject {
 
         if (VALID_CHARS.indexOf(ch) >= 0) {
             ++fECursor.cursorPosition;
-            setVarName(this.varName.substring(0, innerPos) + ch + this.varName.substring(innerPos), true);
+            final String firstPart = this.varName.substring(0, innerPos);
+            final String lastPart = this.varName.substring(innerPos);
+            setVarName(firstPart + ch + lastPart, true);
         } else if (ch == 0x08) {
             // Backspace
             if (this.varName.isEmpty()) {
@@ -294,7 +297,9 @@ public final class FEVarRef extends AbstractFEObject {
                 getParent().replaceChild(this, null);
             } else if (innerPos > 0 && innerPos <= this.varName.length()) {
                 --fECursor.cursorPosition;
-                setVarName(this.varName.substring(0, innerPos - 1) + this.varName.substring(innerPos), true);
+                final String firstPart = this.varName.substring(0, innerPos - 1);
+                final String lasTPart = this.varName.substring(innerPos);
+                setVarName(firstPart + lasTPart, true);
             }
         } else if (ch == 0x7f) {
             // Delete
@@ -305,7 +310,9 @@ public final class FEVarRef extends AbstractFEObject {
                 }
                 getParent().replaceChild(this, null);
             } else if (innerPos >= 0 && innerPos < this.varName.length()) {
-                setVarName(this.varName.substring(0, innerPos) + this.varName.substring(innerPos + 1), true);
+                final String firstPart = this.varName.substring(0, innerPos);
+                final String lastPart = this.varName.substring(innerPos + 1);
+                setVarName(firstPart + lastPart, true);
             }
         }
     }
@@ -337,8 +344,10 @@ public final class FEVarRef extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.openBrace = new RenderedBox("{");
-        this.openBrace.setFontSize(getFontSize());
+        this.openBrace.setFontSize(fontSize);
         this.openBrace.layout(g2d);
 
         if (this.indexString == null) {
@@ -346,11 +355,11 @@ public final class FEVarRef extends AbstractFEObject {
             this.closeBrace = new RenderedBox("}");
         } else {
             this.midBrace = new RenderedBox("[");
-            this.midBrace.setFontSize(getFontSize());
+            this.midBrace.setFontSize(fontSize);
             this.midBrace.layout(g2d);
             this.closeBrace = new RenderedBox("]}");
         }
-        this.closeBrace.setFontSize(getFontSize());
+        this.closeBrace.setFontSize(fontSize);
         this.closeBrace.layout(g2d);
 
         this.renderedVarName.clear();
@@ -365,9 +374,10 @@ public final class FEVarRef extends AbstractFEObject {
         int botY = 0;
 
         for (final char ch : this.varName.toCharArray()) {
-            final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+            final String txt = Character.toString(ch);
+            final RenderedBox charBox = new RenderedBox(txt);
             this.renderedVarName.add(charBox);
-            charBox.setFontSize(getFontSize());
+            charBox.setFontSize(fontSize);
             charBox.layout(g2d);
             charBox.getOrigin().setLocation(x, 0);
             x += charBox.getAdvance();
@@ -386,9 +396,10 @@ public final class FEVarRef extends AbstractFEObject {
             botY = Math.max(botY, midBraceBounds.y + midBraceBounds.height);
 
             for (final char ch : this.indexString.toCharArray()) {
-                final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+                final String txt = Character.toString(ch);
+                final RenderedBox charBox = new RenderedBox(txt);
                 this.renderedIndex.add(charBox);
-                charBox.setFontSize(getFontSize());
+                charBox.setFontSize(fontSize);
                 charBox.layout(g2d);
                 charBox.getOrigin().setLocation(x, 0);
                 x += charBox.getAdvance();
@@ -406,8 +417,11 @@ public final class FEVarRef extends AbstractFEObject {
         topY = Math.min(topY, closeBraceBounds.y);
         botY = Math.max(botY, closeBraceBounds.y + closeBraceBounds.height);
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -516,8 +530,8 @@ public final class FEVarRef extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.add((getParent() == null ? "Variable Reference*: {" : "Variable Reference: {"),
-                this.varName);
+        final AbstractFEObject parent = getParent();
+        builder.add((parent == null ? "Variable Reference*: {" : "Variable Reference: {"), this.varName);
         if (this.index == null) {
             builder.addln("}");
         } else {
@@ -525,7 +539,8 @@ public final class FEVarRef extends AbstractFEObject {
         }
 
         if (getCurrentType() != null) {
-            builder.addln(" of type ", getCurrentType());
+            final EType currentType = getCurrentType();
+            builder.addln(" of type ", currentType);
         }
     }
 
@@ -537,11 +552,16 @@ public final class FEVarRef extends AbstractFEObject {
     @Override
     public FEVarRef duplicate() {
 
-        final FEVarRef dup = new FEVarRef(getFontSize());
+        final int fontSize = getFontSize();
+        final FEVarRef dup = new FEVarRef(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.varName != null) {
             dup.setVarName(this.varName, false);
@@ -571,7 +591,7 @@ public final class FEVarRef extends AbstractFEObject {
         if (pos <= myStart) {
             result = CursorPosition.OUTSIDE;
         } else if (pos == myStart + 1) {
-            result = CursorPosition.WITHIN_VARNAME;
+            result = CursorPosition.WITHIN_VAR_NAME;
         } else if (this.varName.isEmpty()) {
             if (this.indexString == null) {
                 // No index is indicated
@@ -589,7 +609,7 @@ public final class FEVarRef extends AbstractFEObject {
             // Var name has data
             final int varNameEnd = myStart + 1 + this.varName.length();
             if (pos <= varNameEnd) {
-                result = CursorPosition.WITHIN_VARNAME;
+                result = CursorPosition.WITHIN_VAR_NAME;
             } else if (this.indexString == null) {
                 // No index is indicated
                 result = CursorPosition.OUTSIDE;
@@ -613,7 +633,7 @@ public final class FEVarRef extends AbstractFEObject {
     public enum CursorPosition {
 
         /** Variable name is present, cursor is within variable name. */
-        WITHIN_VARNAME,
+        WITHIN_VAR_NAME,
 
         /** Index is present, cursor is within index. */
         WITHIN_INDEX,

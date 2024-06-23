@@ -24,16 +24,16 @@ import java.util.List;
 public final class FEBinaryOper extends AbstractFEObject {
 
     /** The first argument. */
-    private AbstractFEObject arg1;
+    private AbstractFEObject arg1 = null;
 
     /** The operator. */
     private final EBinaryOp op;
 
     /** The operator box. */
-    private RenderedBox opBox;
+    private RenderedBox opBox = null;
 
     /** The second argument. */
-    private AbstractFEObject arg2;
+    private AbstractFEObject arg2 = null;
 
     /**
      * Constructs a new {@code FEBinaryOper} and sets the default set of allowed types. The set of allowed types can be
@@ -163,7 +163,8 @@ public final class FEBinaryOper extends AbstractFEObject {
             final boolean isAllowed;
 
             if (childType == null) {
-                final EnumSet<EType> filtered = EType.filter(allowed, newArg1.getPossibleTypes());
+                final EnumSet<EType> possibleArg1 = newArg1.getPossibleTypes();
+                final EnumSet<EType> filtered = EType.filter(allowed, possibleArg1);
                 isAllowed = !filtered.isEmpty();
             } else {
                 isAllowed = allowed.contains(childType);
@@ -182,11 +183,13 @@ public final class FEBinaryOper extends AbstractFEObject {
 
                 final HtmlBuilder diag = new HtmlBuilder(150);
                 newArg1.emitDiagnostics(diag, 0);
-                Log.warning(diag.toString());
+                final String diagStr = diag.toString();
+                Log.warning(diagStr);
 
                 AbstractFEObject par = newArg1.getParent();
                 while (par != null) {
-                    Log.warning("    Parent is ", par.getClass().getSimpleName());
+                    final String simpleName = par.getClass().getSimpleName();
+                    Log.warning("    Parent is ", simpleName);
                     par = par.getParent();
                 }
             }
@@ -224,7 +227,8 @@ public final class FEBinaryOper extends AbstractFEObject {
             final boolean isAllowed;
 
             if (childType == null) {
-                final EnumSet<EType> filtered = EType.filter(allowed, newArg2.getPossibleTypes());
+                final EnumSet<EType> possibleArg2 = newArg2.getPossibleTypes();
+                final EnumSet<EType> filtered = EType.filter(allowed, possibleArg2);
                 isAllowed = !filtered.isEmpty();
             } else {
                 isAllowed = allowed.contains(childType);
@@ -243,11 +247,13 @@ public final class FEBinaryOper extends AbstractFEObject {
 
                 final HtmlBuilder diag = new HtmlBuilder(150);
                 newArg2.emitDiagnostics(diag, 0);
-                Log.warning(diag.toString());
+                final String diagStr = diag.toString();
+                Log.warning(diagStr);
 
                 AbstractFEObject par = newArg2.getParent();
                 while (par != null) {
-                    Log.warning("    Parent is ", par.getClass().getSimpleName());
+                    final String simpleName = par.getClass().getSimpleName();
+                    Log.warning("    Parent is ", simpleName);
                     par = par.getParent();
                 }
             }
@@ -460,6 +466,7 @@ public final class FEBinaryOper extends AbstractFEObject {
             } else {
                 final EType newType = newChild.getCurrentType();
                 final EnumSet<EType> allowed = getAllowedTypes();
+                final String opStr = Character.toString(this.op.op);
 
                 switch (this.op) {
                     case ADD:
@@ -474,8 +481,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                             recomputeCurrentType();
                             update(true);
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
@@ -483,9 +489,8 @@ public final class FEBinaryOper extends AbstractFEObject {
                     case EQ:
                     case APPROX:
                     case NE:
-                        if (newType == EType.BOOLEAN || newType == EType.INTEGER
-                                || newType == EType.REAL || newType == EType.INTEGER_VECTOR
-                                || newType == EType.REAL_VECTOR) {
+                        if (newType == EType.BOOLEAN || newType == EType.INTEGER || newType == EType.REAL
+                                || newType == EType.INTEGER_VECTOR || newType == EType.REAL_VECTOR) {
                             if (isArg1) {
                                 this.arg1 = null;
                             } else {
@@ -495,8 +500,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                             update(true);
                             result = true;
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
@@ -515,8 +519,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                             update(true);
                             result = true;
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
@@ -533,8 +536,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                             update(true);
                             result = true;
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
@@ -551,8 +553,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                                 update(true);
                                 result = true;
                             } else {
-                                Log.warning("Attempt to add argument of type ", newType,
-                                        " to binary ", Character.toString(this.op.op));
+                                Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                                 result = false;
                             }
                         } else if (newType == EType.INTEGER) {
@@ -565,8 +566,7 @@ public final class FEBinaryOper extends AbstractFEObject {
                             update(true);
                             result = true;
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
@@ -582,15 +582,13 @@ public final class FEBinaryOper extends AbstractFEObject {
                             update(true);
                             result = true;
                         } else {
-                            Log.warning("Attempt to add argument of type ", newType,
-                                    " to binary ", Character.toString(this.op.op));
+                            Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                             result = false;
                         }
                         break;
 
                     default:
-                        Log.warning("Attempt to add argument of type ", newType,
-                                " to binary ", Character.toString(this.op.op));
+                        Log.warning("Attempt to add argument of type ", newType, " to binary ", opStr);
                         result = false;
                         break;
                 }
@@ -876,74 +874,79 @@ public final class FEBinaryOper extends AbstractFEObject {
     private void processCharEmptyArg1Slot(final FECursor cursor, final Collection<EModification> allowedModifications,
                                           final char ch) {
 
-        if (ch >= '0' && ch <= '9') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch >= '0' && (int) ch <= '9') {
+            final String chStr = Character.toString(ch);
+
             if (allowedModifications.contains(EModification.INSERT_INTEGER)) {
                 ++cursor.cursorPosition;
-                final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                constInt.setText(Character.toString(ch), false);
+                final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                constInt.setText(chStr, false);
                 setArg1(constInt, true);
             } else if (allowedModifications.contains(EModification.INSERT_REAL)) {
                 ++cursor.cursorPosition;
-                final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                constReal.setText(Character.toString(ch), false);
+                final FEConstantReal constReal = new FEConstantReal(fontSize);
+                constReal.setText(chStr, false);
                 setArg1(constReal, true);
             }
-        } else if (ch == '.') {
+        } else if ((int) ch == '.') {
             if (allowedModifications.contains(EModification.INSERT_REAL)) {
-                final FEConstantReal constReal = new FEConstantReal(getFontSize());
+                final FEConstantReal constReal = new FEConstantReal(fontSize);
                 constReal.setText(".", false);
                 setArg1(constReal, true);
             }
-        } else if (ch == '+' || ch == '-') {
+        } else if ((int) ch == '+' || (int) ch == '-') {
             if (allowedModifications.contains(EModification.INSERT_INTEGER)
                     || allowedModifications.contains(EModification.INSERT_REAL)) {
                 ++cursor.cursorPosition;
-                final FEUnaryOper unary = new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                final FEUnaryOper unary = new FEUnaryOper(fontSize, (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
                 setArg1(unary, true);
             }
-        } else if (ch == '{') {
+        } else if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             varRef.getAllowedTypes().clear();
-            varRef.getAllowedTypes().addAll(getAllowedTypes());
+            final EnumSet<EType> allowedTypes = getAllowedTypes();
+            varRef.getAllowedTypes().addAll(allowedTypes);
             setArg1(varRef, true);
-        } else if (ch == '"') {
+        } else if ((int) ch == '"') {
             if (allowedModifications.contains(EModification.INSERT_SPAN)) {
                 ++cursor.cursorPosition;
-                final FEConstantSpan span = new FEConstantSpan(getFontSize());
+                final FEConstantSpan span = new FEConstantSpan(fontSize);
                 setArg1(span, true);
             }
-        } else if (ch == '\u22A4' || ch == '\u22A5') {
+        } else if ((int) ch == '\u22A4' || (int) ch == '\u22A5') {
             if (allowedModifications.contains(EModification.INSERT_BOOLEAN)) {
                 ++cursor.cursorPosition;
-                final FEConstantBoolean bool = new FEConstantBoolean(getFontSize(), ch == '\u22A4');
-                setArg1(bool, true);
+                final FEConstantBoolean boolValue = new FEConstantBoolean(fontSize, (int) ch == '\u22A4');
+                setArg1(boolValue, true);
             }
-        } else if (ch == '[') {
+        } else if ((int) ch == '[') {
             if (allowedModifications.contains(EModification.INSERT_INTEGER_VECTOR)
                     || allowedModifications.contains(EModification.INSERT_REAL_VECTOR)) {
                 ++cursor.cursorPosition;
-                final FEVector vec = new FEVector(getFontSize());
+                final FEVector vec = new FEVector(fontSize);
                 setArg1(vec, true);
             }
-        } else if (ch == '(') {
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             setArg1(grouping, true);
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
             final EFunction fxn = EFunction.forChar(ch);
             if (fxn != null) {
                 ++cursor.cursorPosition;
-                final FEFunction function = new FEFunction(getFontSize(), fxn);
+                final FEFunction function = new FEFunction(fontSize, fxn);
                 setArg1(function, true);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FETest test = new FETest(getFontSize());
+            final FETest test = new FETest(fontSize);
             setArg1(test, true);
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            final FEError error = new FEError(getFontSize());
+            final FEConstantError error = new FEConstantError(fontSize);
             setArg2(error, true);
         }
     }
@@ -959,76 +962,80 @@ public final class FEBinaryOper extends AbstractFEObject {
     private void processCharEmptyArg2Slot(final FECursor cursor, final Collection<EModification> allowedModifications,
                                           final char ch) {
 
-        if (ch >= '0' && ch <= '9') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch >= '0' && (int) ch <= '9') {
+            final String chStr = Character.toString(ch);
+
             if (allowedModifications.contains(EModification.INSERT_INTEGER)) {
                 ++cursor.cursorPosition;
-                final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                constInt.setText(Character.toString(ch), false);
+                final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                constInt.setText(chStr, false);
                 setArg2(constInt, true);
             } else if (allowedModifications.contains(EModification.INSERT_REAL)) {
                 ++cursor.cursorPosition;
-                final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                constReal.setText(Character.toString(ch), false);
+                final FEConstantReal constReal = new FEConstantReal(fontSize);
+                constReal.setText(chStr, false);
                 setArg2(constReal, true);
             }
-        } else if (ch == '.') {
+        } else if ((int) ch == '.') {
             if (allowedModifications.contains(EModification.INSERT_REAL)) {
                 ++cursor.cursorPosition;
-                final FEConstantReal constReal = new FEConstantReal(getFontSize());
+                final FEConstantReal constReal = new FEConstantReal(fontSize);
                 constReal.setText(".", false);
                 setArg2(constReal, true);
             }
-        } else if (ch == '+' || ch == '-') {
+        } else if ((int) ch == '+' || (int) ch == '-') {
             if (allowedModifications.contains(EModification.INSERT_INTEGER)
                     || allowedModifications.contains(EModification.INSERT_REAL)) {
                 ++cursor.cursorPosition;
-                final FEUnaryOper unary =
-                        new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                final FEUnaryOper unary = new FEUnaryOper(fontSize, (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
                 setArg2(unary, true);
             }
-        } else if (ch == '{') {
+        } else if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             varRef.getAllowedTypes().clear();
-            varRef.getAllowedTypes().addAll(getAllowedTypes());
+            final EnumSet<EType> allowedTypes = getAllowedTypes();
+            varRef.getAllowedTypes().addAll(allowedTypes);
             setArg2(varRef, true);
-        } else if (ch == '"') {
+        } else if ((int) ch == '"') {
             if (allowedModifications.contains(EModification.INSERT_SPAN)) {
                 ++cursor.cursorPosition;
-                final FEConstantSpan span = new FEConstantSpan(getFontSize());
+                final FEConstantSpan span = new FEConstantSpan(fontSize);
                 setArg2(span, true);
             }
-        } else if (ch == '\u22A4' || ch == '\u22A5') {
+        } else if ((int) ch == '\u22A4' || (int) ch == '\u22A5') {
             if (allowedModifications.contains(EModification.INSERT_BOOLEAN)) {
                 ++cursor.cursorPosition;
-                final FEConstantBoolean bool = new FEConstantBoolean(getFontSize(), ch == '\u22A4');
-                setArg2(bool, true);
+                final FEConstantBoolean boolValue = new FEConstantBoolean(fontSize, (int) ch == '\u22A4');
+                setArg2(boolValue, true);
             }
-        } else if (ch == '[') {
+        } else if ((int) ch == '[') {
             if (allowedModifications.contains(EModification.INSERT_INTEGER_VECTOR)
                     || allowedModifications.contains(EModification.INSERT_REAL_VECTOR)) {
                 ++cursor.cursorPosition;
-                final FEVector vec = new FEVector(getFontSize());
+                final FEVector vec = new FEVector(fontSize);
                 setArg2(vec, true);
             }
-        } else if (ch == '(') {
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             setArg2(grouping, true);
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
             final EFunction fxn = EFunction.forChar(ch);
             if (fxn != null) {
                 ++cursor.cursorPosition;
-                final FEFunction function = new FEFunction(getFontSize(), fxn);
+                final FEFunction function = new FEFunction(fontSize, fxn);
                 setArg2(function, true);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FETest test = new FETest(getFontSize());
+            final FETest test = new FETest(fontSize);
             setArg2(test, true);
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            final FEError error = new FEError(getFontSize());
+            final FEConstantError error = new FEConstantError(fontSize);
             setArg2(error, true);
         }
     }
@@ -1151,8 +1158,8 @@ public final class FEBinaryOper extends AbstractFEObject {
                 case SPAN:
                     result = allowedModifications.contains(EModification.INSERT_SPAN);
                     break;
-                default:
                 case ERROR:
+                default:
                     break;
             }
         }
@@ -1174,8 +1181,11 @@ public final class FEBinaryOper extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
-        this.opBox = new RenderedBox(Character.toString(this.op.op));
-        this.opBox.setFontSize(getFontSize());
+        final String opStr = Character.toString(this.op.op);
+
+        this.opBox = new RenderedBox(opStr);
+        final int fontSize = getFontSize();
+        this.opBox.setFontSize(fontSize);
         this.opBox.layout(g2d);
 
         final FontRenderContext frc = g2d.getFontRenderContext();
@@ -1212,8 +1222,11 @@ public final class FEBinaryOper extends AbstractFEObject {
             botY = Math.max(botY, arg2Bounds.y + arg2Bounds.height);
         }
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -1295,8 +1308,12 @@ public final class FEBinaryOper extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Binary Operator*: (" : "Binary Operator: ("),
-                Character.toString(this.op.op), ") Possible=", getPossibleTypes());
+        final AbstractFEObject parent = getParent();
+        final String opStr = Character.toString(this.op.op);
+        final EnumSet<EType> possibleTypes = getPossibleTypes();
+
+        builder.addln((parent == null ? "Binary Operator*: (" : "Binary Operator: ("), opStr, ") Possible=",
+                possibleTypes);
 
         if (this.arg1 == null) {
             indent(builder, indent + 1);
@@ -1321,18 +1338,25 @@ public final class FEBinaryOper extends AbstractFEObject {
     @Override
     public FEBinaryOper duplicate() {
 
-        final FEBinaryOper dup = new FEBinaryOper(getFontSize(), this.op);
+        final int fontSize = getFontSize();
+        final FEBinaryOper dup = new FEBinaryOper(fontSize, this.op);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         // (The following sets parent on the duplicate arguments
         if (this.arg1 != null) {
-            dup.setArg1(this.arg1.duplicate(), false);
+            final AbstractFEObject arg1Dup = this.arg1.duplicate();
+            dup.setArg1(arg1Dup, false);
         }
         if (this.arg2 != null) {
-            dup.setArg2(this.arg2.duplicate(), false);
+            final AbstractFEObject arg2Dup = this.arg2.duplicate();
+            dup.setArg2(arg2Dup, false);
         }
 
         return dup;

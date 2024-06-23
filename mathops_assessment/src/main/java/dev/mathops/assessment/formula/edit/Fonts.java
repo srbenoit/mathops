@@ -20,13 +20,13 @@ import java.util.Map;
 public final class Fonts {
 
     /** The single instance. */
-    private static Fonts INSTANCE;
+    private static Fonts INSTANCE = null;
 
     /** The one-point version of Serif. */
-    private Font onePointSerif;
+    private Font onePointSerif = null;
 
     /** The one-point version of Sans. */
-    private Font onePointSans;
+    private Font onePointSans = null;
 
     /** Graphics object used to create font metrics. */
     private final Graphics2D g2d;
@@ -84,7 +84,8 @@ public final class Fonts {
 
         synchronized (this) {
             if (this.onePointSerif == null) {
-                final byte[] data = FileLoader.loadFileAsBytes(getClass(), "STIX2Math.otf", true);
+                final Class<? extends Fonts> cls = getClass();
+                final byte[] data = FileLoader.loadFileAsBytes(cls, "STIX2Math.otf", true);
                 if (data != null) {
                     final ByteArrayInputStream fontStream = new ByteArrayInputStream(data);
                     try {
@@ -110,7 +111,8 @@ public final class Fonts {
 
         synchronized (this) {
             if (this.onePointSans == null) {
-                final byte[] data = FileLoader.loadFileAsBytes(getClass(), "RobotoCondensed-Regular.otf", true);
+                final Class<? extends Fonts> cls = getClass();
+                final byte[] data = FileLoader.loadFileAsBytes(cls, "RobotoCondensed-Regular.otf", true);
                 if (data != null) {
                     final ByteArrayInputStream fontStream = new ByteArrayInputStream(data);
                     try {
@@ -146,7 +148,8 @@ public final class Fonts {
                     result = onePt.deriveFont((float) pointSize);
                     this.g2d.setFont(result);
                     this.serifSized.put(key, result);
-                    this.serifSizedMetrics.put(key, this.g2d.getFontMetrics());
+                    final FontMetrics fontMetrics = this.g2d.getFontMetrics();
+                    this.serifSizedMetrics.put(key, fontMetrics);
                 }
             }
 
@@ -201,7 +204,8 @@ public final class Fonts {
                     result = onePt.deriveFont((float) pointSize);
                     this.g2d.setFont(result);
                     this.sansSized.put(key, result);
-                    this.sansMetrics.put(key, this.g2d.getFontMetrics());
+                    final FontMetrics fontMetrics = this.g2d.getFontMetrics();
+                    this.sansMetrics.put(key, fontMetrics);
                 }
             }
 

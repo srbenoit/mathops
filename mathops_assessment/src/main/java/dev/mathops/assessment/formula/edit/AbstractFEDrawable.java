@@ -13,13 +13,13 @@ import java.awt.Rectangle;
 abstract class AbstractFEDrawable {
 
     /** The font size to use for the component. */
-    private int fontSize;
+    private int fontSize = 0;
 
     /** True for the Stix font; false for OpenSans. */
     private boolean isStix;
 
     /** The current font. */
-    private Font font;
+    private Font font = null;
 
     /** The origin-relative bounding box. */
     private final Rectangle bounds;
@@ -28,13 +28,13 @@ abstract class AbstractFEDrawable {
     private final Point origin;
 
     /** The advance of this object as a unit. */
-    private int advance;
+    private int advance = 0;
 
     /** The ascent of the center baseline above the typographic baseline. */
-    private int centerAscent;
+    private int centerAscent = 0;
 
-    /** True to use the centerline as the alignment point; false for baseline. */
-    private boolean alignToCenter;
+    /** True to use the center line as the alignment point; false for baseline. */
+    private boolean alignToCenter = false;
 
     /**
      * Constructs a new {@code AbstractFEDrawable}.
@@ -136,9 +136,9 @@ abstract class AbstractFEDrawable {
     }
 
     /**
-     * Sets the ascent of the centerline.
+     * Sets the ascent of the center line.
      *
-     * @param theCenterAscent the new ascent of the centerline
+     * @param theCenterAscent the new ascent of the center line
      */
     final void setCenterAscent(final int theCenterAscent) {
 
@@ -146,9 +146,9 @@ abstract class AbstractFEDrawable {
     }
 
     /**
-     * Gets the ascent of the centerline.
+     * Gets the ascent of the center line.
      *
-     * @return the ascent of the centerline
+     * @return the ascent of the center line
      */
     final int getCenterAscent() {
 
@@ -158,7 +158,7 @@ abstract class AbstractFEDrawable {
     /**
      * Sets the vertical alignment method for the object.
      *
-     * @param isAlignToCenter {@code true} if object should align to the centerline rather than baseline; {@code false}
+     * @param isAlignToCenter {@code true} if object should align to the center line rather than baseline; {@code false}
      *                        to align to the baseline
      */
     public final void setAlignToCenter(final boolean isAlignToCenter) {
@@ -169,8 +169,8 @@ abstract class AbstractFEDrawable {
     /**
      * Tests the vertical alignment method for the object.
      *
-     * @return {@code true} if object should align to the centerline rather than baseline; {@code false} to align to the
-     *         baseline
+     * @return {@code true} if object should align to the center line rather than baseline; {@code false} to align to
+     *         the baseline
      */
     public final boolean isAlignToCenter() {
 

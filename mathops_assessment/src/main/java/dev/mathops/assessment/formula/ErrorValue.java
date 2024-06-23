@@ -2,11 +2,10 @@ package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.formula.edit.AbstractFEObject;
-import dev.mathops.assessment.formula.edit.FEError;
+import dev.mathops.assessment.formula.edit.FEConstantError;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 
 /**
@@ -116,7 +115,7 @@ public final class ErrorValue extends AbstractFormulaObject implements IEditable
     @Override
     public AbstractFEObject generateFEObject(final int theFontSize) {
 
-        return new FEError(theFontSize, this.error);
+        return new FEConstantError(theFontSize, this.error);
     }
 
     /**

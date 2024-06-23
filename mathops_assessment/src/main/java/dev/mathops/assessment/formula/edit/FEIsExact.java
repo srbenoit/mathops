@@ -23,19 +23,19 @@ import java.util.List;
 public final class FEIsExact extends AbstractFEObject {
 
     /** The value to test. */
-    private AbstractFEObject valueToTest;
+    private AbstractFEObject valueToTest = null;
 
     /** The number of places. */
-    private AbstractFEObject numberOfPlaces;
+    private AbstractFEObject numberOfPlaces = null;
 
     /** The "IsExact" box. */
-    private RenderedBox isExactBox;
+    private RenderedBox isExactBox = null;
 
     /** The comma box. */
-    private RenderedBox commaBox;
+    private RenderedBox commaBox = null;
 
     /** The closing parenthesis box. */
-    private RenderedBox closeParenBox;
+    private RenderedBox closeParenBox = null;
 
     /**
      * Constructs a new {@code FETest}.
@@ -237,8 +237,7 @@ public final class FEIsExact extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         boolean result = false;
 
@@ -276,14 +275,12 @@ public final class FEIsExact extends AbstractFEObject {
                         setValueToTest(newChild, true);
                         possible.clear();
                         possible.addAll(filtered);
-                        result = true;
                     } else if (currentChild == this.numberOfPlaces) {
                         currentChild.setParent(null);
                         newChild.setParent(this);
                         setNumPlaces(newChild, true);
                         possible.clear();
                         possible.addAll(filtered);
-                        result = true;
                     } else {
                         Log.warning("Attempt to replace object that is not child of this object");
                     }
@@ -303,8 +300,7 @@ public final class FEIsExact extends AbstractFEObject {
                     Log.warning("Attempt to replace object that is not child of this object");
                 }
             } else {
-                Log.warning("Attempt to add ", newType,
-                        " type child as test condition; number is required");
+                Log.warning("Attempt to add ", newType, " type child as test condition; number is required");
             }
         }
 
@@ -378,11 +374,11 @@ public final class FEIsExact extends AbstractFEObject {
                 final int cursorPos = fECursor.cursorPosition - getFirstCursorPosition();
                 final int lastPos = getFirstCursorPosition() + getNumCursorSteps();
 
-                if (ch == 0x08 && cursorPos == lastPos) {
+                if ((int) ch == 0x08 && cursorPos == lastPos) {
                     // Backspace
                     fECursor.cursorPosition = getFirstCursorPosition();
                     getParent().replaceChild(this, null);
-                } else if (ch == 0x7f && cursorPos == 0) {
+                } else if ((int) ch == 0x7f && cursorPos == 0) {
                     // Delete
                     getParent().replaceChild(this, null);
                 }
@@ -403,52 +399,56 @@ public final class FEIsExact extends AbstractFEObject {
 
         AbstractFEObject newObject = null;
 
-        if (ch >= '0' && ch <= '9') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch >= '0' && (int) ch <= '9') {
             ++cursor.cursorPosition;
-            final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-            constInt.setText(Character.toString(ch), false);
+            final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+            final String txt = Character.toString(ch);
+            constInt.setText(txt, false);
             newObject = constInt;
-        } else if (ch == '\u03c0' || ch == '\u0435' || ch == '.') {
+        } else if ((int) ch == '\u03c0' || (int) ch == '\u0435' || (int) ch == '.') {
             ++cursor.cursorPosition;
-            final FEConstantReal constReal = new FEConstantReal(getFontSize());
-            constReal.setText(Character.toString(ch), false);
+            final FEConstantReal constReal = new FEConstantReal(fontSize);
+            final String txt = Character.toString(ch);
+            constReal.setText(txt, false);
             newObject = constReal;
-        } else if (ch == '+' || ch == '-') {
+        } else if ((int) ch == '+' || (int) ch == '-') {
             ++cursor.cursorPosition;
-            newObject = new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
-        } else if (ch == '{') {
+            newObject = new FEUnaryOper(fontSize, (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+        } else if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
             varAllowed.clear();
             varAllowed.add(EType.INTEGER);
             varAllowed.add(EType.REAL);
             newObject = varRef;
-        } else if (ch == '(') {
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
             groupingAllowed.clear();
             groupingAllowed.add(EType.INTEGER);
             groupingAllowed.add(EType.REAL);
             newObject = grouping;
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
-            final EFunction f = EFunction.forChar(ch);
-            if (f != null) {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
+            final EFunction fxn = EFunction.forChar(ch);
+            if (fxn != null) {
                 ++cursor.cursorPosition;
-                newObject = new FEFunction(getFontSize(), f);
+                newObject = new FEFunction(fontSize, fxn);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FEIsExact test = new FEIsExact(getFontSize());
+            final FEIsExact test = new FEIsExact(fontSize);
             final EnumSet<EType> testAllowed = test.getAllowedTypes();
             testAllowed.clear();
             testAllowed.add(EType.INTEGER);
             testAllowed.add(EType.REAL);
             newObject = test;
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            newObject = new FEError(getFontSize());
+            newObject = new FEConstantError(fontSize);
         }
 
         if (newObject != null) {
@@ -467,41 +467,44 @@ public final class FEIsExact extends AbstractFEObject {
 
         AbstractFEObject newObject = null;
 
-        if (ch >= '0' && ch <= '9') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch >= '0' && (int) ch <= '9') {
             ++cursor.cursorPosition;
-            final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-            constInt.setText(Character.toString(ch), false);
+            final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+            final String txt = Character.toString(ch);
+            constInt.setText(txt, false);
             newObject = constInt;
-        } else if (ch == '{') {
+        } else if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
             varAllowed.clear();
             varAllowed.add(EType.INTEGER);
             newObject = varRef;
-        } else if (ch == '(') {
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
             groupingAllowed.clear();
             groupingAllowed.add(EType.INTEGER);
             newObject = grouping;
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
             final EFunction f = EFunction.forChar(ch);
             if (f != null) {
                 ++cursor.cursorPosition;
-                newObject = new FEFunction(getFontSize(), f);
+                newObject = new FEFunction(fontSize, f);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FEIsExact test = new FEIsExact(getFontSize());
+            final FEIsExact test = new FEIsExact(fontSize);
             final EnumSet<EType> testAllowed = test.getAllowedTypes();
             testAllowed.clear();
             testAllowed.add(EType.INTEGER);
             newObject = test;
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            newObject = new FEError(getFontSize());
+            newObject = new FEConstantError(fontSize);
         }
 
         if (newObject != null) {
@@ -562,8 +565,9 @@ public final class FEIsExact extends AbstractFEObject {
             case WITHIN_PLACES:
                 this.numberOfPlaces.processInsert(fECursor, toInsert);
                 break;
-            default:
+
             case OUTSIDE:
+            default:
                 break;
         }
 
@@ -584,19 +588,21 @@ public final class FEIsExact extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.isExactBox = new RenderedBox("IsExact(");
         this.isExactBox.useSans();
-        this.isExactBox.setFontSize(getFontSize());
+        this.isExactBox.setFontSize(fontSize);
         this.isExactBox.layout(g2d);
 
         this.commaBox = new RenderedBox(", ");
         this.commaBox.useSans();
-        this.commaBox.setFontSize(getFontSize());
+        this.commaBox.setFontSize(fontSize);
         this.commaBox.layout(g2d);
 
         this.closeParenBox = new RenderedBox(")");
         this.closeParenBox.useSans();
-        this.closeParenBox.setFontSize(getFontSize());
+        this.closeParenBox.setFontSize(fontSize);
         this.closeParenBox.layout(g2d);
 
         final FontRenderContext frc = g2d.getFontRenderContext();
@@ -604,8 +610,12 @@ public final class FEIsExact extends AbstractFEObject {
         final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
 
         int x = this.isExactBox.getAdvance();
-        int topY = Math.min(Math.min(this.isExactBox.getBounds().y, this.commaBox.getBounds().y),
-                this.closeParenBox.getBounds().y);
+        final Rectangle openBounds = this.isExactBox.getBounds();
+        final Rectangle commaBounds = this.commaBox.getBounds();
+        final Rectangle closeBounds = this.closeParenBox.getBounds();
+
+        final int minY = Math.min(openBounds.y, commaBounds.y);
+        int topY = Math.min(minY, closeBounds.y);
         int botY = 0;
 
         if (this.valueToTest != null) {
@@ -634,8 +644,11 @@ public final class FEIsExact extends AbstractFEObject {
         this.closeParenBox.translate(x, 0);
         x += this.closeParenBox.getAdvance();
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -738,7 +751,8 @@ public final class FEIsExact extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "IS_EXACT* {" : "IS_EXACT {"));
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "IS_EXACT* {" : "IS_EXACT {"));
 
         if (this.valueToTest == null) {
             indent(builder, indent + 1);
@@ -767,17 +781,24 @@ public final class FEIsExact extends AbstractFEObject {
     @Override
     public FEIsExact duplicate() {
 
-        final FEIsExact dup = new FEIsExact(getFontSize());
+        final int fontSize = getFontSize();
+        final FEIsExact dup = new FEIsExact(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.valueToTest != null) {
-            dup.setValueToTest(this.valueToTest.duplicate(), false);
+            final AbstractFEObject valueDup = this.valueToTest.duplicate();
+            dup.setValueToTest(valueDup, false);
         }
         if (this.numberOfPlaces != null) {
-            dup.setNumPlaces(this.numberOfPlaces.duplicate(), false);
+            final AbstractFEObject placesDup = this.numberOfPlaces.duplicate();
+            dup.setNumPlaces(placesDup, false);
         }
 
         return dup;

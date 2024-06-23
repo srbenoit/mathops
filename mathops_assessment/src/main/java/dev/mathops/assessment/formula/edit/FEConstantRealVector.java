@@ -24,7 +24,7 @@ import java.util.List;
 public final class FEConstantRealVector extends AbstractFEObject {
 
     /** The constant value. */
-    private RealVectorValue value;
+    private RealVectorValue value = null;
 
     /**
      * The text representation of the value (comma-separated list of values, each consisting only of digits or PI or E
@@ -166,8 +166,7 @@ public final class FEConstantRealVector extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         return false;
     }
@@ -206,7 +205,7 @@ public final class FEConstantRealVector extends AbstractFEObject {
     /**
      * Asks the object what modifications are valid for a specified cursor position or selection range.
      *
-     * @param fECursor               cursor position information
+     * @param fECursor             cursor position information
      * @param allowedModifications a set that will be populated with the set of allowed modifications at the specified
      *                             position
      */
@@ -221,64 +220,73 @@ public final class FEConstantRealVector extends AbstractFEObject {
      * Processes a typed character.
      *
      * @param fECursor the cursor position and selection range
-     * @param ch     the character typed
+     * @param ch       the character typed
      */
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
 
-        Log.info("Real vector constant container processing '", Character.toString(ch), "'");
+        final String chStr = Character.toString(ch);
+        Log.info("Real vector constant container processing '", chStr, "'");
 
         final int cursorPos = fECursor.cursorPosition - getFirstCursorPosition();
 
-        if (ch == '+' || ch == '-') {
+        if ((int) ch == '+' || (int) ch == '-') {
+            final int fontSize = getFontSize();
+
             ++fECursor.cursorPosition;
             if (cursorPos == 0) {
-                final FEUnaryOper unary = new FEUnaryOper(getFontSize(), EUnaryOp.forOp(ch));
+                final EUnaryOp theUnary = EUnaryOp.forOp(ch);
+                final FEUnaryOper unary = new FEUnaryOper(fontSize, theUnary);
                 getParent().replaceChild(this, unary);
                 unary.setArg1(this, true);
             } else if (cursorPos == this.text.length()) {
-                final FEBinaryOper binary = new FEBinaryOper(getFontSize(), EBinaryOp.forOp(ch));
+                final EBinaryOp theBinary = EBinaryOp.forOp(ch);
+                final FEBinaryOper binary = new FEBinaryOper(fontSize, theBinary);
                 getParent().replaceChild(this, binary);
                 binary.setArg1(this, true);
             } else {
                 final String pre = this.text.substring(0, cursorPos);
                 final String post = this.text.substring(cursorPos);
-                final FEConstantRealVector preReal = new FEConstantRealVector(getFontSize());
+                final FEConstantRealVector preReal = new FEConstantRealVector(fontSize);
                 preReal.setText(pre, true);
-                final FEConstantRealVector postReal = new FEConstantRealVector(getFontSize());
+                final FEConstantRealVector postReal = new FEConstantRealVector(fontSize);
                 postReal.setText(post, true);
-                final FEBinaryOper binary = new FEBinaryOper(getFontSize(), EBinaryOp.forOp(ch));
+                final EBinaryOp theBinary = EBinaryOp.forOp(ch);
+                final FEBinaryOper binary = new FEBinaryOper(fontSize, theBinary);
                 getParent().replaceChild(this, binary);
                 binary.setArg1(preReal, false);
                 binary.setArg2(postReal, true);
             }
-        } else if ((ch >= '0' && ch <= '9') || ch == '.') {
+        } else if (((int) ch >= '0' && (int) ch <= '9') || (int) ch == '.') {
             if (!FEConstantReal.PI_STRING.equals(this.text)) {
                 ++fECursor.cursorPosition;
-                setText(this.text.substring(0, cursorPos) + ch
-                        + this.text.substring(cursorPos), true);
+                final String firstPart = this.text.substring(0, cursorPos);
+                final String lastPart = this.text.substring(cursorPos);
+                setText(firstPart + ch + lastPart, true);
             }
-        } else if (ch == '\u03C0' && this.text.isEmpty()) {
+        } else if ((int) ch == '\u03C0' && this.text.isEmpty()) {
             ++fECursor.cursorPosition;
             setText(FEConstantReal.PI_STRING, true);
-        } else if (ch == '\u0435' && this.text.isEmpty()) {
+        } else if ((int) ch == '\u0435' && this.text.isEmpty()) {
             ++fECursor.cursorPosition;
             setText(FEConstantReal.E_STRING, true);
-        } else if (ch == 0x08 && cursorPos > 0) {
+        } else if ((int) ch == 0x08 && cursorPos > 0) {
             --fECursor.cursorPosition;
             if (this.text.length() == 1) {
                 getParent().replaceChild(this, null);
             } else {
-                setText(this.text.substring(0, cursorPos - 1) + this.text.substring(cursorPos),
-                        true);
+                final String firstPart = this.text.substring(0, cursorPos - 1);
+                final String lastPart = this.text.substring(cursorPos);
+                setText(firstPart + lastPart, true);
             }
-        } else if (ch == 0x7f && cursorPos < getNumCursorSteps()) {
+        } else if ((int) ch == 0x7f && cursorPos < getNumCursorSteps()) {
             // Delete
             if (this.text.length() == 1) {
                 getParent().replaceChild(this, null);
             } else {
-                setText(this.text.substring(0, cursorPos) + this.text.substring(cursorPos + 1),
-                        true);
+                final String firstPart = this.text.substring(0, cursorPos);
+                final String lastPart = this.text.substring(cursorPos + 1);
+                setText(firstPart + lastPart, true);
             }
         }
 
@@ -290,7 +298,7 @@ public final class FEConstantRealVector extends AbstractFEObject {
     /**
      * Processes an insert.
      *
-     * @param fECursor   the cursor position and selection range
+     * @param fECursor the cursor position and selection range
      * @param toInsert the object to insert (never {@code null})
      * @return {@code null} on success; an error message on failure
      */
@@ -322,8 +330,11 @@ public final class FEConstantRealVector extends AbstractFEObject {
 
         if (this.text.isEmpty()) {
             // Set our bounds to zero width, but a reasonable height/ascent for our font
-            final int ascent = Math.round(lineMetrics.getAscent());
-            final int descent = Math.round(lineMetrics.getDescent());
+            final float lineAscent = lineMetrics.getAscent();
+            final float lineDescent = lineMetrics.getDescent();
+
+            final int ascent = Math.round(lineAscent);
+            final int descent = Math.round(lineDescent);
 
             setAdvance(0);
             getOrigin().setLocation(0, 0);
@@ -334,9 +345,11 @@ public final class FEConstantRealVector extends AbstractFEObject {
             int botY = 0;
 
             for (final char ch : this.text.toCharArray()) {
-                final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+                final String chStr = Character.toString(ch);
+                final RenderedBox charBox = new RenderedBox(chStr);
                 this.rendered.add(charBox);
-                charBox.setFontSize(getFontSize());
+                final int fontSize = getFontSize();
+                charBox.setFontSize(fontSize);
                 charBox.layout(g2d);
                 charBox.getOrigin().setLocation(x, 0);
                 x += charBox.getAdvance();
@@ -346,8 +359,11 @@ public final class FEConstantRealVector extends AbstractFEObject {
                 botY = Math.max(botY, charBounds.y + charBounds.height);
             }
 
+            final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+            final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
             setAdvance(x);
-            setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+            setCenterAscent(center);
             getOrigin().setLocation(0, 0);
             getBounds().setBounds(0, topY, x, botY - topY);
         }
@@ -407,8 +423,8 @@ public final class FEConstantRealVector extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Real Vector*: '" : "Real Vector: '"), this.text,
-                "' (", this.value, ")");
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "Real Vector*: '" : "Real Vector: '"), this.text, "' (", this.value, ")");
     }
 
     /**
@@ -419,11 +435,16 @@ public final class FEConstantRealVector extends AbstractFEObject {
     @Override
     public FEConstantRealVector duplicate() {
 
-        final FEConstantRealVector dup = new FEConstantRealVector(getFontSize());
+        final int fontSize = getFontSize();
+        final FEConstantRealVector dup = new FEConstantRealVector(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.text != null) {
             dup.setText(this.text, false);

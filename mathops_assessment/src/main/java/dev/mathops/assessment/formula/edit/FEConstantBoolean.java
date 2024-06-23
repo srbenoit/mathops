@@ -5,6 +5,7 @@ import dev.mathops.assessment.formula.ConstBooleanValue;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public final class FEConstantBoolean extends AbstractFEObject {
     private boolean value;
 
     /** The rendered box. */
-    private RenderedBox rendered;
+    private RenderedBox rendered = null;
 
     /**
      * Constructs a new {@code FEConstantBoolean}.
@@ -95,8 +96,7 @@ public final class FEConstantBoolean extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         return false;
     }
@@ -135,7 +135,7 @@ public final class FEConstantBoolean extends AbstractFEObject {
     /**
      * Asks the object what modifications are valid for a specified cursor position or selection range.
      *
-     * @param fECursor               cursor position information
+     * @param fECursor             cursor position information
      * @param allowedModifications a set that will be populated with the set of allowed modifications at the specified
      *                             position
      */
@@ -150,18 +150,18 @@ public final class FEConstantBoolean extends AbstractFEObject {
      * Processes a typed character.
      *
      * @param fECursor the cursor position and selection range
-     * @param ch     the character typed
+     * @param ch       the character typed
      */
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
 
         final int cursorPos = fECursor.cursorPosition - getFirstCursorPosition();
 
-        if (ch == 0x08 && cursorPos > 0) {
+        if ((int) ch == 0x08 && cursorPos > 0) {
             // Backspace
             --fECursor.cursorPosition;
             getParent().replaceChild(this, null);
-        } else if (ch == 0x7f && cursorPos < getNumCursorSteps()) {
+        } else if ((int) ch == 0x7f && cursorPos < getNumCursorSteps()) {
             // Delete
             getParent().replaceChild(this, null);
         }
@@ -170,7 +170,7 @@ public final class FEConstantBoolean extends AbstractFEObject {
     /**
      * Processes an insert.
      *
-     * @param fECursor   the cursor position and selection range
+     * @param fECursor the cursor position and selection range
      * @param toInsert the object to insert (never {@code null})
      * @return {@code null} on success; an error message on failure
      */
@@ -196,13 +196,17 @@ public final class FEConstantBoolean extends AbstractFEObject {
 
         this.rendered = new RenderedBox(this.value ? TRUE : FALSE);
         this.rendered.useSans();
-        this.rendered.setFontSize(getFontSize());
+        final int fontSize = getFontSize();
+        this.rendered.setFontSize(fontSize);
         this.rendered.layout(g2d);
 
-        getBounds().setBounds(this.rendered.getBounds());
+        final Rectangle bounds = this.rendered.getBounds();
+        getBounds().setBounds(bounds);
         getOrigin().setLocation(0, 0);
-        setAdvance(this.rendered.getAdvance());
-        setCenterAscent(this.rendered.getCenterAscent());
+        final int advance = this.rendered.getAdvance();
+        setAdvance(advance);
+        final int centerAscent = this.rendered.getCenterAscent();
+        setCenterAscent(centerAscent);
     }
 
     /**
@@ -259,8 +263,9 @@ public final class FEConstantBoolean extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Boolean*: '" : "Boolean: '"),
-                (this.value ? TRUE : FALSE), "' (", Boolean.toString(this.value), ")");
+        final AbstractFEObject parent = getParent();
+        final String str = Boolean.toString(this.value);
+        builder.addln((parent == null ? "Boolean*: '" : "Boolean: '"), (this.value ? TRUE : FALSE), "' (", str, ")");
     }
 
     /**
@@ -271,11 +276,16 @@ public final class FEConstantBoolean extends AbstractFEObject {
     @Override
     public FEConstantBoolean duplicate() {
 
-        final FEConstantBoolean dup = new FEConstantBoolean(getFontSize(), this.value);
+        final int fontSize = getFontSize();
+        final FEConstantBoolean dup = new FEConstantBoolean(fontSize, this.value);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         return dup;
     }

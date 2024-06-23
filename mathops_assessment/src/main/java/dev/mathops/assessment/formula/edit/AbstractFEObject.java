@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class AbstractFEObject extends AbstractFEDrawable {
 
     /** The parent object. */
-    private AbstractFEObject parent;
+    private AbstractFEObject parent = null;
 
     /** The allowed type of value this object can generate. */
     private final EnumSet<EType> allowedTypes;
@@ -26,10 +26,10 @@ public abstract class AbstractFEObject extends AbstractFEDrawable {
     private final EnumSet<EType> possibleTypes;
 
     /** The type of value this object generates. */
-    private EType currentType;
+    private EType currentType = null;
 
     /** The cursor position just before the first cursor step in this object. */
-    private int firstCursorPosition;
+    private int firstCursorPosition = 0;
 
     /**
      * Constructs a new {@code AbstractFEObject}.

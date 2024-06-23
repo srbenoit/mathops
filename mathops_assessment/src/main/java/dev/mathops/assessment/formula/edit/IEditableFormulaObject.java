@@ -12,5 +12,5 @@ public interface IEditableFormulaObject {
      * @param theFontSize the font size for the generated object
      * @return the generated {@code AbstractFEObject}
      */
-    AbstractFEObject generateFEObject(final int theFontSize);
+    AbstractFEObject generateFEObject(int theFontSize);
 }

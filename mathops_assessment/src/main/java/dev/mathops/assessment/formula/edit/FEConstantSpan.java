@@ -27,17 +27,17 @@ import java.util.List;
  */
 public final class FEConstantSpan extends AbstractFEObject {
 
-    /** The current text value (may be empty, never {@code null}). */
+    /** The current text value (can be empty, never {@code null}). */
     private String text;
 
     /** The constant value as a {@code DocSimpleSpan}. */
-    private DocSimpleSpan value;
+    private DocSimpleSpan value = null;
 
     /** The opening quote box. */
-    private RenderedBox openQuote;
+    private RenderedBox openQuote = null;
 
     /** The closing quote box. */
-    private RenderedBox closeQuote;
+    private RenderedBox closeQuote = null;
 
     /** The rendered boxes. */
     private final List<RenderedBox> rendered;
@@ -150,8 +150,7 @@ public final class FEConstantSpan extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         return false;
     }
@@ -214,10 +213,11 @@ public final class FEConstantSpan extends AbstractFEObject {
 
         final int innerPos = fECursor.cursorPosition - getFirstCursorPosition() - 1;
 
-        if (ch >= 0x20 && ch <= 0x7E) {
+        if ((int) ch >= 0x20 && (int) ch <= 0x7E) {
             ++fECursor.cursorPosition;
-            setText(this.text.substring(0, innerPos) + ch
-                    + this.text.substring(innerPos), true);
+            final String firstPart = this.text.substring(0, innerPos);
+            final String lastPart = this.text.substring(innerPos);
+            setText(firstPart + ch + lastPart, true);
         } else if (ch == 0x08) {
             // Backspace
             if (this.text.isEmpty()) {
@@ -229,9 +229,11 @@ public final class FEConstantSpan extends AbstractFEObject {
                 getParent().replaceChild(this, null);
             } else if (innerPos > 0 && innerPos <= this.text.length()) {
                 --fECursor.cursorPosition;
-                setText(this.text.substring(0, innerPos - 1) + this.text.substring(innerPos), true);
+                final String firstPart = this.text.substring(0, innerPos - 1);
+                final String lastPart = this.text.substring(innerPos);
+                setText(firstPart + lastPart, true);
             }
-        } else if (ch == 0x7f) {
+        } else if ((int) ch == 0x7f) {
             // Delete
             if (this.text.isEmpty()) {
                 if (innerPos >= 0) {
@@ -240,7 +242,9 @@ public final class FEConstantSpan extends AbstractFEObject {
                 }
                 getParent().replaceChild(this, null);
             } else if (innerPos >= 0 && innerPos < this.text.length()) {
-                setText(this.text.substring(0, innerPos) + this.text.substring(innerPos + 1), true);
+                final String firstPart = this.text.substring(0, innerPos);
+                final String lastPart = this.text.substring(innerPos + 1);
+                setText(firstPart + lastPart, true);
             }
         }
     }
@@ -272,12 +276,14 @@ public final class FEConstantSpan extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.openQuote = new RenderedBox("\"");
-        this.openQuote.setFontSize(getFontSize());
+        this.openQuote.setFontSize(fontSize);
         this.openQuote.layout(g2d);
 
         this.closeQuote = new RenderedBox("\"");
-        this.closeQuote.setFontSize(getFontSize());
+        this.closeQuote.setFontSize(fontSize);
         this.closeQuote.layout(g2d);
 
         this.rendered.clear();
@@ -295,9 +301,10 @@ public final class FEConstantSpan extends AbstractFEObject {
         botY = Math.max(botY, openQuoteBounds.y + openQuoteBounds.height);
 
         for (final char ch : this.text.toCharArray()) {
-            final RenderedBox charBox = new RenderedBox(Character.toString(ch));
+            final String chStr = Character.toString(ch);
+            final RenderedBox charBox = new RenderedBox(chStr);
             this.rendered.add(charBox);
-            charBox.setFontSize(getFontSize());
+            charBox.setFontSize(fontSize);
             charBox.layout(g2d);
             charBox.getOrigin().setLocation(x, 0);
             x += charBox.getAdvance();
@@ -315,8 +322,11 @@ public final class FEConstantSpan extends AbstractFEObject {
 
         x += this.closeQuote.getAdvance();
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -402,7 +412,9 @@ public final class FEConstantSpan extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Span*: '" : "Span: '"), this.text, "'");
+
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "Span*: '" : "Span: '"), this.text, "'");
     }
 
     /**
@@ -413,11 +425,16 @@ public final class FEConstantSpan extends AbstractFEObject {
     @Override
     public FEConstantSpan duplicate() {
 
-        final FEConstantSpan dup = new FEConstantSpan(getFontSize());
+        final int fontSize = getFontSize();
+        final FEConstantSpan dup = new FEConstantSpan(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.text != null) {
             dup.setText(this.text, false);

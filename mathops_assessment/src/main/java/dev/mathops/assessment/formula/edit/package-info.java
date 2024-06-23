@@ -12,18 +12,25 @@
  * the cursor is positioned before step N, and a selection range from M to N covers steps M to N - 1.
  *
  * <pre>
- * FEFormulaContainer - holds a single argument, generates a formula
- * FEConstantBool     - A fixed Boolean constant
- * FEConstantInt      - A fixed Integer constant
- * FEConstantReal     - A fixed Real constant
- * FEConstantSpan     - A fixed Span constant
- * FEVector           - A vector of N Integer or Real arguments
- * FEVarRef           - A reference to a variable with optional index
- * FEUnaryOper        - A unary operator with a single Integer or Real argument
- * FEBinaryOper       - A binary operator with two Integer, Real, or Boolean arguments
- * FEGrouping         - A container with a single Integer or Real argument
- * FEFunction         - A function of a single argument
- * FETest             - A Boolean-valued condition with two additional (compatible) arguments
+ * FEBinaryOper            - A binary operator with two Integer, Real, or Boolean arguments
+ * FEConstantBoolean       - A fixed Boolean constant
+ * FEConstantError         - A fixed Error constant
+ * FEConstantInteger       - A fixed Integer constant
+ * FEConstantIntegerVector - A fixed Integer vector constant
+ * FEConstantReal          - A fixed Real constant
+ * FEConstantRealVector    - A fixed Real vector constant
+ * FEConstantSpan          - A fixed Span constant
+ * FEConstantString        - A fixed String constant
+ * FECursor                - The current cursor
+ * FEFormula               - Holds a single argument, generates a formula
+ * FEFunction              - A function of a single argument
+ * FEGrouping              - A container with a single Integer or Real argument
+ * FEIsExact               - An exactness test
+ * FESwitch                - A switch operation
+ * FETest                  - A test (IF/THEN/ELSE) operation
+ * FEUnaryOper             - A unary operator with a single Integer or Real argument
+ * FEVarRef                - A reference to a variable with optional index
+ * FEVector                - A vector that can generate integer or real vector values
  * </pre>
  */
 package dev.mathops.assessment.formula.edit;

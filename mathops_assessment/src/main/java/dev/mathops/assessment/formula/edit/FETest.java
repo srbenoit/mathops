@@ -23,25 +23,25 @@ import java.util.List;
 public final class FETest extends AbstractFEObject {
 
     /** The condition. */
-    private AbstractFEObject condition;
+    private AbstractFEObject condition = null;
 
     /** The "then" clause. */
-    private AbstractFEObject thenClause;
+    private AbstractFEObject thenClause = null;
 
     /** The "else" clause. */
-    private AbstractFEObject elseClause;
+    private AbstractFEObject elseClause = null;
 
     /** The "If" box. */
-    private RenderedBox ifBox;
+    private RenderedBox ifBox = null;
 
     /** The "Then" box. */
-    private RenderedBox thenBox;
+    private RenderedBox thenBox = null;
 
     /** The "Else" box. */
-    private RenderedBox elseBox;
+    private RenderedBox elseBox = null;
 
     /** The "End If" box. */
-    private RenderedBox endifBox;
+    private RenderedBox endifBox = null;
 
     /**
      * Constructs a new {@code FETest}.
@@ -137,8 +137,8 @@ public final class FETest extends AbstractFEObject {
             final boolean isAllowed;
 
             if (childType == null) {
-                final EnumSet<EType> filtered =
-                        EType.filter(allowed, newThenClause.getAllowedTypes());
+                final EnumSet<EType> allowedTypes = newThenClause.getAllowedTypes();
+                final EnumSet<EType> filtered = EType.filter(allowed, allowedTypes);
                 isAllowed = !filtered.isEmpty();
             } else {
                 isAllowed = allowed.contains(childType);
@@ -187,8 +187,8 @@ public final class FETest extends AbstractFEObject {
             final boolean isAllowed;
 
             if (childType == null) {
-                final EnumSet<EType> filtered =
-                        EType.filter(allowed, newElseClause.getAllowedTypes());
+                final EnumSet<EType> allowedTypes = newElseClause.getAllowedTypes();
+                final EnumSet<EType> filtered = EType.filter(allowed, allowedTypes);
                 isAllowed = !filtered.isEmpty();
             } else {
                 isAllowed = allowed.contains(childType);
@@ -252,8 +252,7 @@ public final class FETest extends AbstractFEObject {
         boolean valid = false;
 
         if (this.condition != null && this.thenClause != null && this.elseClause != null) {
-            valid =
-                    this.condition.isValid() && this.thenClause.isValid() && this.elseClause.isValid();
+            valid = this.condition.isValid() && this.thenClause.isValid() && this.elseClause.isValid();
         }
 
         return valid;
@@ -294,17 +293,19 @@ public final class FETest extends AbstractFEObject {
         final EnumSet<EType> possible = getPossibleTypes();
         possible.clear();
 
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+
         if (this.thenClause == null) {
             if (this.elseClause == null) {
                 setCurrentType(null);
-                possible.addAll(getAllowedTypes());
+                possible.addAll(allowedTypes);
             } else {
                 final EType elseType = this.elseClause.getCurrentType();
                 setCurrentType(elseType);
 
                 if (elseType == null) {
-                    final EnumSet<EType> filtered =
-                            EType.filter(getAllowedTypes(), this.elseClause.getPossibleTypes());
+                    final EnumSet<EType> possibleElse = this.elseClause.getPossibleTypes();
+                    final EnumSet<EType> filtered = EType.filter(allowedTypes, possibleElse);
                     possible.addAll(filtered);
                 } else {
                     possible.add(elseType);
@@ -315,8 +316,8 @@ public final class FETest extends AbstractFEObject {
             setCurrentType(thenType);
 
             if (thenType == null) {
-                final EnumSet<EType> filtered =
-                        EType.filter(getAllowedTypes(), this.thenClause.getPossibleTypes());
+                final EnumSet<EType> possibleThen = this.thenClause.getPossibleTypes();
+                final EnumSet<EType> filtered = EType.filter(allowedTypes, possibleThen);
                 possible.addAll(filtered);
             } else {
                 possible.add(thenType);
@@ -329,11 +330,10 @@ public final class FETest extends AbstractFEObject {
 
             if (thenType == null || elseType == null) {
                 setCurrentType(null);
-
-                final EnumSet<EType> filtered1 =
-                        EType.filter(getAllowedTypes(), this.thenClause.getPossibleTypes());
-                final EnumSet<EType> filtered2 =
-                        EType.filter(filtered1, this.elseClause.getPossibleTypes());
+                final EnumSet<EType> possibleThen = this.thenClause.getPossibleTypes();
+                final EnumSet<EType> possibleElse = this.elseClause.getPossibleTypes();
+                final EnumSet<EType> filtered1 = EType.filter(allowedTypes, possibleThen);
+                final EnumSet<EType> filtered2 = EType.filter(filtered1, possibleElse);
                 possible.addAll(filtered2);
             } else if (thenType == elseType) {
                 setCurrentType(thenType);
@@ -390,8 +390,7 @@ public final class FETest extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         boolean result = false;
 
@@ -425,8 +424,7 @@ public final class FETest extends AbstractFEObject {
                     setCondition(newChild, true);
                     result = true;
                 } else {
-                    Log.warning("Attempt to add ", newType,
-                            " type child as test condition; Boolean is required");
+                    Log.warning("Attempt to add ", newType, " type child as test condition; Boolean is required");
                 }
             } else if (newType == EType.BOOLEAN) {
                 currentChild.setParent(null);
@@ -434,8 +432,7 @@ public final class FETest extends AbstractFEObject {
                 setCondition(newChild, true);
                 result = true;
             } else {
-                Log.warning("Attempt to add ", newType,
-                        " type child as test condition; Boolean is required");
+                Log.warning("Attempt to add ", newType, " type child as test condition; Boolean is required");
             }
         } else {
             final EType newType = newChild.getCurrentType();
@@ -459,14 +456,12 @@ public final class FETest extends AbstractFEObject {
                         setThenClause(newChild, true);
                         possible.clear();
                         possible.addAll(filtered);
-                        result = true;
                     } else if (currentChild == this.elseClause) {
                         currentChild.setParent(null);
                         newChild.setParent(this);
                         setElseClause(newChild, true);
                         possible.clear();
                         possible.addAll(filtered);
-                        result = true;
                     } else {
                         Log.warning("Attempt to replace object that is not child of this object");
                     }
@@ -486,8 +481,7 @@ public final class FETest extends AbstractFEObject {
                     Log.warning("Attempt to replace object that is not child of this object");
                 }
             } else {
-                Log.warning("Attempt to add ", newType,
-                        " type child as test condition; Boolean is required");
+                Log.warning("Attempt to add ", newType, " type child as test condition; Boolean is required");
             }
         }
 
@@ -497,7 +491,7 @@ public final class FETest extends AbstractFEObject {
     /**
      * Asks the object what modifications are valid for a specified cursor position or selection range.
      *
-     * @param fECursor               cursor position information
+     * @param fECursor             cursor position information
      * @param allowedModifications a set that will be populated with the set of allowed modifications at the specified
      *                             position
      */
@@ -579,8 +573,8 @@ public final class FETest extends AbstractFEObject {
                 this.elseClause.indicateValidModifications(fECursor, allowedModifications);
                 break;
 
-            default:
             case OUTSIDE:
+            default:
                 break;
         }
     }
@@ -589,7 +583,7 @@ public final class FETest extends AbstractFEObject {
      * Processes a typed character.
      *
      * @param fECursor the cursor position and selection range
-     * @param ch     the character typed
+     * @param ch       the character typed
      */
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
@@ -623,11 +617,11 @@ public final class FETest extends AbstractFEObject {
                 final int cursorPos = fECursor.cursorPosition - getFirstCursorPosition();
                 final int lastPos = getFirstCursorPosition() + getNumCursorSteps();
 
-                if (ch == 0x08 && cursorPos == lastPos) {
+                if ((int) ch == 0x08 && cursorPos == lastPos) {
                     // Backspace
                     fECursor.cursorPosition = getFirstCursorPosition();
                     getParent().replaceChild(this, null);
-                } else if (ch == 0x7f && cursorPos == 0) {
+                } else if ((int) ch == 0x7f && cursorPos == 0) {
                     // Delete
                     getParent().replaceChild(this, null);
                 }
@@ -646,41 +640,43 @@ public final class FETest extends AbstractFEObject {
      */
     private void processCharEmptyConditionSlot(final FECursor cursor, final char ch) {
 
-        if (ch == '{') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
             varAllowed.clear();
             varAllowed.add(EType.BOOLEAN);
             setCondition(varRef, true);
-        } else if (ch == '\u22A4' || ch == '\u22A5') {
+        } else if ((int) ch == '\u22A4' || (int) ch == '\u22A5') {
             ++cursor.cursorPosition;
-            final FEConstantBoolean bool = new FEConstantBoolean(getFontSize(), ch == '\u22A4');
-            setCondition(bool, true);
-        } else if (ch == '(') {
+            final FEConstantBoolean boolValue = new FEConstantBoolean(fontSize, (int) ch == '\u22A4');
+            setCondition(boolValue, true);
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
             groupingAllowed.clear();
             groupingAllowed.add(EType.BOOLEAN);
             setCondition(grouping, true);
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
             final EFunction function1 = EFunction.forChar(ch);
             if (function1 == EFunction.NOT) {
                 ++cursor.cursorPosition;
-                final FEFunction function = new FEFunction(getFontSize(), EFunction.NOT);
+                final FEFunction function = new FEFunction(fontSize, EFunction.NOT);
                 setCondition(function, true);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FETest test = new FETest(getFontSize());
+            final FETest test = new FETest(fontSize);
             final EnumSet<EType> testAllowed = test.getAllowedTypes();
             testAllowed.clear();
             testAllowed.add(EType.BOOLEAN);
             setCondition(test, true);
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            final FEError error = new FEError(getFontSize());
+            final FEConstantError error = new FEConstantError(fontSize);
             setCondition(error, true);
         }
     }
@@ -693,82 +689,85 @@ public final class FETest extends AbstractFEObject {
      * @param ch     the character typed
      * @param isThen true for "then", false for "else"
      */
-    private void processCharEmptyThenElseSlot(final FECursor cursor, final char ch,
-                                              final boolean isThen) {
+    private void processCharEmptyThenElseSlot(final FECursor cursor, final char ch, final boolean isThen) {
 
         final EnumSet<EType> actualAllowed =
                 isThen ? getTypesAllowedForThen() : getTypesAllowedForElse();
 
         AbstractFEObject newObject = null;
 
-        if (ch >= '0' && ch <= '9') {
+        final int fontSize = getFontSize();
+
+        if ((int) ch >= '0' && (int) ch <= '9') {
             if (actualAllowed.contains(EType.REAL) || actualAllowed.contains(EType.INTEGER)) {
                 ++cursor.cursorPosition;
-                final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                constInt.setText(Character.toString(ch), false);
+                final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                final String txt = Character.toString(ch);
+                constInt.setText(txt, false);
                 newObject = constInt;
             }
-        } else if (ch == '\u03c0' || ch == '\u0435' || ch == '.') {
+        } else if ((int) ch == '\u03c0' || (int) ch == '\u0435' || (int) ch == '.') {
             if (actualAllowed.contains(EType.REAL)) {
                 ++cursor.cursorPosition;
-                final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                constReal.setText(Character.toString(ch), false);
+                final FEConstantReal constReal = new FEConstantReal(fontSize);
+                final String txt = Character.toString(ch);
+                constReal.setText(txt, false);
                 newObject = constReal;
             }
-        } else if (ch == '+' || ch == '-') {
+        } else if ((int) ch == '+' || (int) ch == '-') {
             if (actualAllowed.contains(EType.REAL) || actualAllowed.contains(EType.INTEGER)) {
                 ++cursor.cursorPosition;
-                newObject = new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                newObject = new FEUnaryOper(fontSize, (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
             }
-        } else if (ch == '{') {
+        } else if ((int) ch == '{') {
             ++cursor.cursorPosition;
-            final FEVarRef varRef = new FEVarRef(getFontSize());
+            final FEVarRef varRef = new FEVarRef(fontSize);
             final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
             varAllowed.clear();
             varAllowed.addAll(actualAllowed);
             newObject = varRef;
-        } else if (ch == '"') {
+        } else if ((int) ch == '"') {
             if (actualAllowed.contains(EType.SPAN)) {
                 ++cursor.cursorPosition;
-                newObject = new FEConstantSpan(getFontSize());
+                newObject = new FEConstantSpan(fontSize);
             }
-        } else if (ch == '\u22A4' || ch == '\u22A5') {
+        } else if ((int) ch == '\u22A4' || (int) ch == '\u22A5') {
             if (actualAllowed.contains(EType.BOOLEAN)) {
                 ++cursor.cursorPosition;
-                newObject = new FEConstantBoolean(getFontSize(), ch == '\u22A4');
+                newObject = new FEConstantBoolean(fontSize, (int) ch == '\u22A4');
             }
-        } else if (ch == '[') {
+        } else if ((int) ch == '[') {
             if (actualAllowed.contains(EType.REAL_VECTOR) || actualAllowed.contains(EType.INTEGER_VECTOR)) {
                 ++cursor.cursorPosition;
-                final FEVector vec = new FEVector(getFontSize());
+                final FEVector vec = new FEVector(fontSize);
                 if (!actualAllowed.contains(EType.REAL_VECTOR)) {
                     vec.getAllowedTypes().remove(EType.REAL_VECTOR);
                 }
                 newObject = vec;
             }
-        } else if (ch == '(') {
+        } else if ((int) ch == '(') {
             ++cursor.cursorPosition;
-            final FEGrouping grouping = new FEGrouping(getFontSize());
+            final FEGrouping grouping = new FEGrouping(fontSize);
             final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
             groupingAllowed.clear();
             groupingAllowed.addAll(actualAllowed);
             newObject = grouping;
-        } else if (ch >= '\u2720' && ch <= '\u274F') {
+        } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
             final EFunction function = EFunction.forChar(ch);
             if (function != null) {
                 ++cursor.cursorPosition;
-                newObject = new FEFunction(getFontSize(), function);
+                newObject = new FEFunction(fontSize, function);
             }
-        } else if (ch == '<') {
+        } else if ((int) ch == '<') {
             ++cursor.cursorPosition;
-            final FETest test = new FETest(getFontSize());
+            final FETest test = new FETest(fontSize);
             final EnumSet<EType> testAllowed = test.getAllowedTypes();
             testAllowed.clear();
             testAllowed.addAll(actualAllowed);
             newObject = test;
-        } else if (ch == '*') {
+        } else if ((int) ch == '*') {
             ++cursor.cursorPosition;
-            newObject = new FEError(getFontSize());
+            newObject = new FEConstantError(fontSize);
         }
 
         if (newObject != null) {
@@ -783,7 +782,7 @@ public final class FETest extends AbstractFEObject {
     /**
      * Processes an insert.
      *
-     * @param fECursor   the cursor position and selection range
+     * @param fECursor the cursor position and selection range
      * @param toInsert the object to insert (never {@code null})
      * @return {@code null} on success; an error message on failure
      */
@@ -869,8 +868,9 @@ public final class FETest extends AbstractFEObject {
             case WITHIN_ELSE:
                 this.elseClause.processInsert(fECursor, toInsert);
                 break;
-            default:
+
             case OUTSIDE:
+            default:
                 break;
         }
 
@@ -963,24 +963,26 @@ public final class FETest extends AbstractFEObject {
     @Override
     public void layout(final Graphics2D g2d) {
 
+        final int fontSize = getFontSize();
+
         this.ifBox = new RenderedBox("IF (");
         this.ifBox.useSans();
-        this.ifBox.setFontSize(getFontSize());
+        this.ifBox.setFontSize(fontSize);
         this.ifBox.layout(g2d);
 
         this.thenBox = new RenderedBox(") THEN (");
         this.thenBox.useSans();
-        this.thenBox.setFontSize(getFontSize());
+        this.thenBox.setFontSize(fontSize);
         this.thenBox.layout(g2d);
 
         this.elseBox = new RenderedBox(") ELSE (");
         this.elseBox.useSans();
-        this.elseBox.setFontSize(getFontSize());
+        this.elseBox.setFontSize(fontSize);
         this.elseBox.layout(g2d);
 
         this.endifBox = new RenderedBox(")");
         this.endifBox.useSans();
-        this.endifBox.setFontSize(getFontSize());
+        this.endifBox.setFontSize(fontSize);
         this.endifBox.layout(g2d);
 
         final FontRenderContext frc = g2d.getFontRenderContext();
@@ -988,8 +990,13 @@ public final class FETest extends AbstractFEObject {
         final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
 
         int x = this.ifBox.getAdvance();
-        int topY = Math.min(Math.min(this.ifBox.getBounds().y, this.thenBox.getBounds().y),
-                this.elseBox.getBounds().y);
+
+        final Rectangle ifBounds = this.ifBox.getBounds();
+        final Rectangle thenBounds = this.thenBox.getBounds();
+        final Rectangle elseBounds = this.elseBox.getBounds();
+        final int minY = Math.min(ifBounds.y, thenBounds.y);
+
+        int topY = Math.min(minY, elseBounds.y);
         int botY = 0;
 
         if (this.condition != null) {
@@ -1010,7 +1017,6 @@ public final class FETest extends AbstractFEObject {
             this.thenClause.translate(x, 0);
             x += this.thenClause.getAdvance();
 
-            final Rectangle thenBounds = this.thenClause.getBounds();
             topY = Math.min(topY, thenBounds.y);
             botY = Math.max(botY, thenBounds.y + thenBounds.height);
         }
@@ -1023,7 +1029,6 @@ public final class FETest extends AbstractFEObject {
             this.elseClause.translate(x, 0);
             x += this.elseClause.getAdvance();
 
-            final Rectangle elseBounds = this.elseClause.getBounds();
             topY = Math.min(topY, elseBounds.y);
             botY = Math.max(botY, elseBounds.y + elseBounds.height);
         }
@@ -1031,8 +1036,11 @@ public final class FETest extends AbstractFEObject {
         this.endifBox.translate(x, 0);
         x += this.endifBox.getAdvance();
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -1168,7 +1176,8 @@ public final class FETest extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "IF* {" : "IF {"));
+        final AbstractFEObject parent = getParent();
+        builder.addln((parent == null ? "IF* {" : "IF {"));
 
         if (this.condition == null) {
             indent(builder, indent + 1);
@@ -1209,20 +1218,28 @@ public final class FETest extends AbstractFEObject {
     @Override
     public FETest duplicate() {
 
-        final FETest dup = new FETest(getFontSize());
+        final int fontSize = getFontSize();
+        final FETest dup = new FETest(fontSize);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.condition != null) {
-            dup.setCondition(this.condition.duplicate(), false);
+            final AbstractFEObject conditionDup = this.condition.duplicate();
+            dup.setCondition(conditionDup, false);
         }
         if (this.thenClause != null) {
-            dup.setThenClause(this.thenClause.duplicate(), false);
+            final AbstractFEObject thenDup = this.thenClause.duplicate();
+            dup.setThenClause(thenDup, false);
         }
         if (this.elseClause != null) {
-            dup.setElseClause(this.elseClause.duplicate(), false);
+            final AbstractFEObject elseDup = this.elseClause.duplicate();
+            dup.setElseClause(elseDup, false);
         }
 
         return dup;
@@ -1240,12 +1257,9 @@ public final class FETest extends AbstractFEObject {
 
         final int cursorPos = cursor.cursorPosition;
         final int myStart = getFirstCursorPosition();
-        final int conditionEnd =
-                myStart + 1 + (this.condition == null ? 0 : this.condition.getNumCursorSteps());
-        final int thenEnd =
-                conditionEnd + 1 + (this.thenClause == null ? 0 : this.thenClause.getNumCursorSteps());
-        final int elseEnd =
-                thenEnd + 1 + (this.elseClause == null ? 0 : this.elseClause.getNumCursorSteps());
+        final int conditionEnd = myStart + 1 + (this.condition == null ? 0 : this.condition.getNumCursorSteps());
+        final int thenEnd = conditionEnd + 1 + (this.thenClause == null ? 0 : this.thenClause.getNumCursorSteps());
+        final int elseEnd = thenEnd + 1 + (this.elseClause == null ? 0 : this.elseClause.getNumCursorSteps());
 
         if (cursorPos < myStart + 1) {
             result = CursorPosition.OUTSIDE;

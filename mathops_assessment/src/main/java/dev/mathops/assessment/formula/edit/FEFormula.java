@@ -36,10 +36,10 @@ import java.util.List;
 public final class FEFormula extends AbstractFEObject {
 
     /** The background when enabled. */
-    public static final Color ENABLED_BG = Color.WHITE;
+    static final Color ENABLED_BG = Color.WHITE;
 
     /** The background when enabled. */
-    public static final Color DISABLED_BG = new Color(245, 245, 245);
+    static final Color DISABLED_BG = new Color(245, 245, 245);
 
     /** The single top-level child. */
     private AbstractFEObject topLevel;
@@ -53,10 +53,10 @@ public final class FEFormula extends AbstractFEObject {
     /** The laid out size. */
     private final Dimension size;
 
-    /** The offscreen image with the rendered formula, including cursor and selection highlight. */
+    /** The off-screen image with the rendered formula, including cursor and selection highlight. */
     private BufferedImage offscreen;
 
-    /** A {@code Graphics2D} that will render to the offscreen image. */
+    /** A {@code Graphics2D} that will render to the off-screen image. */
     private Graphics2D offscreenG2d;
 
     /** Listeners to notify when a formula is edited. */
@@ -69,8 +69,7 @@ public final class FEFormula extends AbstractFEObject {
      * @param theOwner    owning panel - needed to trigger repaints when size or contents change
      * @param theInsets   the insets
      */
-    public FEFormula(final int theFontSize, final FormulaEditorPanel theOwner,
-                     final Insets theInsets) {
+    public FEFormula(final int theFontSize, final FormulaEditorPanel theOwner, final Insets theInsets) {
 
         super(theFontSize);
 
@@ -124,16 +123,14 @@ public final class FEFormula extends AbstractFEObject {
                 isAllowed = !filtered.isEmpty();
 
                 if (!isAllowed) {
-                    error =
-                            SimpleBuilder.concat("Object of null type cannot be added to this formula");
+                    error = SimpleBuilder.concat("Object of null type cannot be added to this formula");
                     Log.warning(error);
                 }
             } else {
                 isAllowed = allowed.contains(childType);
 
                 if (!isAllowed) {
-                    error = SimpleBuilder.concat("Object of type '", childType,
-                            "' cannot be added to this formula");
+                    error = SimpleBuilder.concat("Object of type '", childType, "' cannot be added to this formula");
                     Log.warning(error);
                 }
             }
@@ -195,8 +192,7 @@ public final class FEFormula extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         final boolean result;
 
@@ -225,8 +221,7 @@ public final class FEFormula extends AbstractFEObject {
                     setTopLevel(newChild, true);
                     result = true;
                 } else {
-                    Log.warning("Attempt to add ", newType,
-                            " type child to formula when not allowed");
+                    Log.warning("Attempt to add ", newType, " type child to formula when not allowed");
                     result = false;
                 }
             }
@@ -244,19 +239,20 @@ public final class FEFormula extends AbstractFEObject {
     @Override
     public void recomputeCurrentType() {
 
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
         final EnumSet<EType> possible = getPossibleTypes();
         possible.clear();
 
         if (this.topLevel == null) {
             setCurrentType(null);
-            possible.addAll(getAllowedTypes());
+            possible.addAll(allowedTypes);
         } else {
             final EType topLevelType = this.topLevel.getCurrentType();
             setCurrentType(topLevelType);
 
             if (topLevelType == null) {
-                final EnumSet<EType> filtered =
-                        EType.filter(getAllowedTypes(), this.topLevel.getPossibleTypes());
+                final EnumSet<EType> topPossible = this.topLevel.getPossibleTypes();
+                final EnumSet<EType> filtered = EType.filter(allowedTypes, topPossible);
                 possible.addAll(filtered);
             } else {
                 possible.add(topLevelType);
@@ -303,7 +299,7 @@ public final class FEFormula extends AbstractFEObject {
     /**
      * Asks the object what modifications are valid for a specified cursor position or selection range.
      *
-     * @param fECursor               cursor position information
+     * @param fECursor             cursor position information
      * @param allowedModifications a set that will be populated with the set of allowed modifications at the specified
      *                             position
      */
@@ -369,99 +365,101 @@ public final class FEFormula extends AbstractFEObject {
      * </ul>
      *
      * @param fECursor the cursor position and selection range
-     * @param ch     the character typed
+     * @param ch       the character typed
      */
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
 
-        if (ch >= 0x20 && ch < 0x7F) {
-            Log.info("Formula container processing '", Character.toString(ch), "'");
+        final String chStr = Character.toString(ch);
+        if ((int) ch >= 0x20 && (int) ch < 0x7F) {
+            Log.info("Formula container processing '", chStr, "'");
         } else {
-            Log.info("Formula container processing '\\u", Integer.toHexString(ch), "'");
+            final String chHex = Integer.toHexString((int) ch);
+            Log.info("Formula container processing '\\u", chHex, "'");
         }
 
         if (this.topLevel == null) {
             final EnumSet<EType> allowed = getAllowedTypes();
 
-            if (ch >= '0' && ch <= '9') {
+            final int fontSize = getFontSize();
+
+            if ((int) ch >= '0' && (int) ch <= '9') {
                 if (allowed.contains(EType.REAL) || allowed.contains(EType.INTEGER)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                    constInt.setText(Character.toString(ch), false);
+                    final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                    constInt.setText(chStr, false);
                     setTopLevel(constInt, true);
                 }
-            } else if (ch == '\u03c0' || ch == '\u0435' || ch == '.') {
+            } else if ((int) ch == '\u03c0' || (int) ch == '\u0435' || (int) ch == '.') {
                 if (allowed.contains(EType.REAL)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                    constReal.setText(Character.toString(ch), false);
+                    final FEConstantReal constReal = new FEConstantReal(fontSize);
+                    constReal.setText(chStr, false);
                     setTopLevel(constReal, true);
                 }
-            } else if (ch == '+' || ch == '-') {
+            } else if ((int) ch == '+' || (int) ch == '-') {
                 if (allowed.contains(EType.REAL) || allowed.contains(EType.INTEGER)) {
                     ++fECursor.cursorPosition;
-                    final FEUnaryOper unary =
-                            new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                    final FEUnaryOper unary = new FEUnaryOper(fontSize,
+                            (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
                     setTopLevel(unary, true);
                 }
-            } else if (ch == '{') {
+            } else if ((int) ch == '{') {
                 ++fECursor.cursorPosition;
-                final FEVarRef varRef = new FEVarRef(getFontSize());
+                final FEVarRef varRef = new FEVarRef(fontSize);
                 final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
                 varAllowed.clear();
                 varAllowed.addAll(allowed);
                 setTopLevel(varRef, true);
-            } else if (ch == '"') {
+            } else if ((int) ch == '"') {
                 if (allowed.contains(EType.SPAN)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantSpan span = new FEConstantSpan(getFontSize());
+                    final FEConstantSpan span = new FEConstantSpan(fontSize);
                     setTopLevel(span, true);
                 }
-            } else if (ch == '\u22A4' || ch == '\u22A5') {
+            } else if ((int) ch == '\u22A4' || (int) ch == '\u22A5') {
                 if (allowed.contains(EType.BOOLEAN)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantBoolean bool =
-                            new FEConstantBoolean(getFontSize(), ch == '\u22A4');
-                    setTopLevel(bool, true);
+                    final FEConstantBoolean boolValue = new FEConstantBoolean(fontSize, (int) ch == '\u22A4');
+                    setTopLevel(boolValue, true);
                 }
-            } else if (ch == '[') {
+            } else if ((int) ch == '[') {
                 if (allowed.contains(EType.REAL_VECTOR) || allowed.contains(EType.INTEGER_VECTOR)) {
                     ++fECursor.cursorPosition;
-                    final FEVector vec = new FEVector(getFontSize());
+                    final FEVector vec = new FEVector(fontSize);
                     if (!allowed.contains(EType.REAL_VECTOR)) {
                         vec.getAllowedTypes().remove(EType.REAL_VECTOR);
                     }
                     setTopLevel(vec, true);
                 }
-            } else if (ch == '(') {
+            } else if ((int) ch == '(') {
                 ++fECursor.cursorPosition;
-                final FEGrouping grouping = new FEGrouping(getFontSize());
+                final FEGrouping grouping = new FEGrouping(fontSize);
                 final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
                 groupingAllowed.clear();
                 groupingAllowed.addAll(allowed);
                 setTopLevel(grouping, true);
-            } else if (ch >= '\u2720' && ch <= '\u274F') {
-                final EFunction f = EFunction.forChar(ch);
-                if (f != null) {
+            } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
+                final EFunction fxn = EFunction.forChar(ch);
+                if (fxn != null) {
                     ++fECursor.cursorPosition;
-                    final FEFunction function = new FEFunction(getFontSize(), f);
+                    final FEFunction function = new FEFunction(fontSize, fxn);
                     setTopLevel(function, true);
                 }
-            } else if (ch == '<') {
+            } else if ((int) ch == '<') {
                 ++fECursor.cursorPosition;
-                final FETest test = new FETest(getFontSize());
+                final FETest test = new FETest(fontSize);
                 final EnumSet<EType> testAllowed = test.getAllowedTypes();
                 testAllowed.clear();
                 testAllowed.addAll(allowed);
                 setTopLevel(test, true);
-            } else if (ch == '*') {
+            } else if ((int) ch == '*') {
                 ++fECursor.cursorPosition;
-                final FEError error = new FEError(getFontSize());
+                final FEConstantError error = new FEConstantError(fontSize);
                 setTopLevel(error, true);
             }
         } else {
-            // Log.info("Passing character " + ch + " to " +
-            // this.topLevel.getClass().getSimpleName());
+            // Log.info("Passing character " + ch + " to " + this.topLevel.getClass().getSimpleName());
             this.topLevel.processChar(fECursor, ch);
         }
     }
@@ -469,7 +467,7 @@ public final class FEFormula extends AbstractFEObject {
     /**
      * Processes an insert.
      *
-     * @param fECursor   the cursor position and selection range
+     * @param fECursor the cursor position and selection range
      * @param toInsert the object to insert (never {@code null})
      * @return {@code null} on success; an error message on failure
      */
@@ -544,8 +542,11 @@ public final class FEFormula extends AbstractFEObject {
         final Font font = getFont();
         final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
 
-        final int ascent = Math.round(lineMetrics.getAscent());
-        final int descent = Math.round(lineMetrics.getDescent());
+        final float lineAscent = lineMetrics.getAscent();
+        final float lineDescent = lineMetrics.getDescent();
+
+        final int ascent = Math.round(lineAscent);
+        final int descent = Math.round(lineDescent);
 
         final int minW = this.insets.left + this.insets.right;
         final int minH = this.insets.top + this.insets.bottom + ascent + descent;
@@ -577,7 +578,7 @@ public final class FEFormula extends AbstractFEObject {
 
     /**
      * Performs layout when something changes. Containers should call this method on child components to set their size
-     * and centerline heights, then should set the locations of those child components relative to its own bounding
+     * and center line heights, then should set the locations of those child components relative to its own bounding
      * rectangle.
      *
      * <p>
@@ -592,8 +593,12 @@ public final class FEFormula extends AbstractFEObject {
         final FontRenderContext frc = g2d.getFontRenderContext();
         final Font font = getFont();
         final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
-        final int ascent = Math.round(lineMetrics.getAscent());
-        final int descent = Math.round(lineMetrics.getDescent());
+
+        final float lineAscent = lineMetrics.getAscent();
+        final float lineDescent = lineMetrics.getDescent();
+
+        final int ascent = Math.round(lineAscent);
+        final int descent = Math.round(lineDescent);
 
         int x = 0;
         final int topY;
@@ -604,8 +609,7 @@ public final class FEFormula extends AbstractFEObject {
 
             setAdvance(0);
             getOrigin().setLocation(this.insets.left, this.insets.top + ascent);
-            getBounds().setBounds(-this.insets.left, -ascent - this.insets.top,
-                    this.insets.left + this.insets.right,
+            getBounds().setBounds(-this.insets.left, -ascent - this.insets.top, this.insets.left + this.insets.right,
                     this.insets.top + this.insets.bottom + ascent + descent);
 
             topY = -ascent;
@@ -622,13 +626,15 @@ public final class FEFormula extends AbstractFEObject {
             this.topLevel.translate(this.insets.left, this.insets.top - topY);
         }
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(this.insets.left, this.insets.top);
         getBounds().setBounds(0, topY, x, botY - topY);
 
-        this.size.setSize(this.insets.left + this.insets.right + x,
-                this.insets.top + this.insets.bottom + botY - topY);
+        this.size.setSize(this.insets.left + this.insets.right + x, this.insets.top + this.insets.bottom + botY - topY);
     }
 
     /**
@@ -671,7 +677,9 @@ public final class FEFormula extends AbstractFEObject {
     public void render(final FECursor cursor, final boolean hasFocus, final Color bg) {
 
         this.offscreenG2d.setColor(bg);
-        this.offscreenG2d.fillRect(0, 0, this.offscreen.getWidth(), this.offscreen.getHeight());
+        final int width = this.offscreen.getWidth();
+        final int height = this.offscreen.getHeight();
+        this.offscreenG2d.fillRect(0, 0, width, height);
 
         // Draw the top-level object if present
         if (this.topLevel != null) {
@@ -687,10 +695,11 @@ public final class FEFormula extends AbstractFEObject {
 
             if (this.topLevel == null) {
                 final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
-                final int ascent = Math.round(lineMetrics.getAscent());
-                final int descent = Math.round(lineMetrics.getDescent());
-                this.offscreenG2d.fillRect(this.insets.left - 1, this.insets.top, 2,
-                        ascent + descent);
+                final float lineAscent = lineMetrics.getAscent();
+                final float lineDescent = lineMetrics.getDescent();
+                final int ascent = Math.round(lineAscent);
+                final int descent = Math.round(lineDescent);
+                this.offscreenG2d.fillRect(this.insets.left - 1, this.insets.top, 2, ascent + descent);
             } else {
                 final List<RenderedBox> charboxes = new ArrayList<>(10);
                 this.topLevel.gatherRenderedBoxes(charboxes);
@@ -698,17 +707,18 @@ public final class FEFormula extends AbstractFEObject {
 
                 if (numBoxes == 0) {
                     final LineMetrics lineMetrics = font.getLineMetrics("0", frc);
-                    final int ascent = Math.round(lineMetrics.getAscent());
-                    final int descent = Math.round(lineMetrics.getDescent());
-                    this.offscreenG2d.fillRect(this.insets.left - 1, this.insets.top, 2,
-                            ascent + descent);
+                    final float lineAscent = lineMetrics.getAscent();
+                    final float lineDescent = lineMetrics.getDescent();
+                    final int ascent = Math.round(lineAscent);
+                    final int descent = Math.round(lineDescent);
+                    this.offscreenG2d.fillRect(this.insets.left - 1, this.insets.top, 2, ascent + descent);
                 } else if (cursor.cursorPosition == 0) {
                     // Draw cursor at start
                     final RenderedBox box = charboxes.get(0);
                     final Rectangle boxBounds = box.getBounds();
                     final Point boxOrigin = box.getOrigin();
-                    this.offscreenG2d.fillRect(boxOrigin.x + boxBounds.x - 1,
-                            boxOrigin.y + boxBounds.y, 2, boxBounds.height);
+                    this.offscreenG2d.fillRect(boxOrigin.x + boxBounds.x - 1, boxOrigin.y + boxBounds.y, 2,
+                            boxBounds.height);
                 } else if (cursor.cursorPosition < numBoxes) {
                     // Draw cursor between boxes
                     final RenderedBox left = charboxes.get(cursor.cursorPosition - 1);
@@ -717,13 +727,12 @@ public final class FEFormula extends AbstractFEObject {
                     if (left.isCursorPhobic() || !right.isCursorPhobic()) {
                         final Rectangle rightBounds = right.getBounds();
                         final Point rightOrigin = right.getOrigin();
-                        this.offscreenG2d.fillRect(rightOrigin.x + rightBounds.x - 1,
-                                rightOrigin.y + rightBounds.y, 2, rightBounds.height);
+                        this.offscreenG2d.fillRect(rightOrigin.x + rightBounds.x - 1, rightOrigin.y + rightBounds.y, 2,
+                                rightBounds.height);
                     } else {
                         final Rectangle leftBounds = left.getBounds();
                         final Point leftOrigin = left.getOrigin();
-                        this.offscreenG2d.fillRect(
-                                leftOrigin.x + leftBounds.x + leftBounds.width - 1,
+                        this.offscreenG2d.fillRect(leftOrigin.x + leftBounds.x + leftBounds.width - 1,
                                 leftOrigin.y + leftBounds.y, 2, leftBounds.height);
                     }
                 } else {
@@ -750,7 +759,8 @@ public final class FEFormula extends AbstractFEObject {
             this.topLevel.gatherRenderedBoxes(target);
         }
 
-        Log.info("There are " + target.size() + " rendered boxes");
+        final int count = target.size();
+        Log.info("There are " + count + " rendered boxes");
     }
 
     /**
@@ -773,7 +783,8 @@ public final class FEFormula extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln(getParent() == null ? "Formula*:" : "Formula:");
+        final AbstractFEObject parent = getParent();
+        builder.addln(parent == null ? "Formula*:" : "Formula:");
 
         if (this.topLevel == null) {
             indent(builder, indent + 1);
@@ -791,18 +802,23 @@ public final class FEFormula extends AbstractFEObject {
     @Override
     public FEFormula duplicate() {
 
-        final FEFormula dup = new FEFormula(getFontSize(), this.owner, this.insets);
+        final int fontSize = getFontSize();
+        final FEFormula dup = new FEFormula(fontSize, this.owner, this.insets);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
 
         dup.getPossibleTypes().clear();
-        dup.getPossibleTypes().addAll(getPossibleTypes());
+        final EnumSet<EType> possibleTypes = getPossibleTypes();
+        dup.getPossibleTypes().addAll(possibleTypes);
 
-        dup.setCurrentType(getCurrentType());
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.topLevel != null) {
-            dup.setTopLevel(this.topLevel.duplicate(), false);
+            final AbstractFEObject topDup = this.topLevel.duplicate();
+            dup.setTopLevel(topDup, false);
         }
         dup.listeners.addAll(this.listeners);
 
@@ -816,14 +832,15 @@ public final class FEFormula extends AbstractFEObject {
      */
     public String getText() {
 
-        final List<RenderedBox> charboxes = new ArrayList<>(10);
-        this.topLevel.gatherRenderedBoxes(charboxes);
+        final List<RenderedBox> charBoxes = new ArrayList<>(10);
+        this.topLevel.gatherRenderedBoxes(charBoxes);
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        for (final RenderedBox box : charboxes) {
+        for (final RenderedBox box : charBoxes) {
 
-            htm.add(box.getText());
+            final String txt = box.getText();
+            htm.add(txt);
         }
 
         return htm.toString();

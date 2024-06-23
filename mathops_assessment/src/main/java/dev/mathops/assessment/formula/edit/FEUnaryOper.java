@@ -25,10 +25,10 @@ public final class FEUnaryOper extends AbstractFEObject {
     private final EUnaryOp op;
 
     /** The operator box. */
-    private RenderedBox opBox;
+    private RenderedBox opBox = null;
 
     /** The single argument. */
-    private AbstractFEObject arg1;
+    private AbstractFEObject arg1 = null;
 
     /**
      * Constructs a new {@code FEUnaryOper}.
@@ -219,8 +219,7 @@ public final class FEUnaryOper extends AbstractFEObject {
      * @return true if the replacement was allowed (and performed); false if it is not allowed
      */
     @Override
-    public boolean replaceChild(final AbstractFEObject currentChild,
-                                final AbstractFEObject newChild) {
+    public boolean replaceChild(final AbstractFEObject currentChild, final AbstractFEObject newChild) {
 
         boolean result;
 
@@ -232,8 +231,8 @@ public final class FEUnaryOper extends AbstractFEObject {
                 setArg1(null, true);
                 result = true;
             } else {
-                // At this time, all unary operators return the same type as their argument, so
-                // allowed argument types is identical to allowed types
+                // At this time, all unary operators return the same type as their argument, so allowed argument types
+                // is identical to allowed types
                 final EnumSet<EType> allowedArgs = getAllowedTypes();
 
                 final EType newType = newChild.getCurrentType();
@@ -259,8 +258,7 @@ public final class FEUnaryOper extends AbstractFEObject {
                     setArg1(newChild, true);
                     result = true;
                 } else {
-                    Log.warning("Attempt to add ", newType,
-                            " type child to unary operator when not allowed");
+                    Log.warning("Attempt to add ", newType, " type child to unary operator when not allowed");
                     result = false;
                 }
             }
@@ -275,7 +273,7 @@ public final class FEUnaryOper extends AbstractFEObject {
     /**
      * Asks the object what modifications are valid for a specified cursor position or selection range.
      *
-     * @param fECursor               cursor position information
+     * @param fECursor             cursor position information
      * @param allowedModifications a set that will be populated with the set of allowed modifications at the specified
      *                             position
      */
@@ -339,7 +337,7 @@ public final class FEUnaryOper extends AbstractFEObject {
      * </ul>
      *
      * @param fECursor the cursor position and selection range
-     * @param ch     the character typed
+     * @param ch       the character typed
      */
     @Override
     public void processChar(final FECursor fECursor, final char ch) {
@@ -351,80 +349,83 @@ public final class FEUnaryOper extends AbstractFEObject {
         if (this.arg1 == null) {
             final EnumSet<EType> allowed = getAllowedTypes();
 
-            if (ch >= '0' && ch <= '9') {
+            final int fontSize = getFontSize();
+            if ((int) ch >= '0' && (int) ch <= '9') {
                 if (allowed.contains(EType.REAL) || allowed.contains(EType.INTEGER)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantInteger constInt = new FEConstantInteger(getFontSize());
-                    constInt.setText(Character.toString(ch), false);
+                    final FEConstantInteger constInt = new FEConstantInteger(fontSize);
+                    final String txt = Character.toString(ch);
+                    constInt.setText(txt, false);
                     setArg1(constInt, true);
                 }
-            } else if (ch == '\u03c0' || ch == '\u0435' || ch == '.') {
+            } else if ((int) ch == '\u03c0' || (int) ch == '\u0435' || (int) ch == '.') {
                 if (allowed.contains(EType.REAL)) {
                     ++fECursor.cursorPosition;
-                    final FEConstantReal constReal = new FEConstantReal(getFontSize());
-                    constReal.setText(Character.toString(ch), false);
+                    final FEConstantReal constReal = new FEConstantReal(fontSize);
+                    final String txt = Character.toString(ch);
+                    constReal.setText(txt, false);
                     setArg1(constReal, true);
                 }
-            } else if (ch == '+' || ch == '-') {
+            } else if ((int) ch == '+' || (int) ch == '-') {
                 if (allowed.contains(EType.REAL) || allowed.contains(EType.INTEGER)) {
                     ++fECursor.cursorPosition;
-                    final FEUnaryOper unary =
-                            new FEUnaryOper(getFontSize(), ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
+                    final FEUnaryOper unary = new FEUnaryOper(fontSize,
+                            (int) ch == '+' ? EUnaryOp.PLUS : EUnaryOp.MINUS);
                     setArg1(unary, true);
                 }
-            } else if (ch == '{') {
+            } else if ((int) ch == '{') {
                 ++fECursor.cursorPosition;
-                final FEVarRef varRef = new FEVarRef(getFontSize());
+                final FEVarRef varRef = new FEVarRef(fontSize);
                 final EnumSet<EType> varAllowed = varRef.getAllowedTypes();
                 varAllowed.clear();
                 varAllowed.addAll(allowed);
                 setArg1(varRef, true);
-            } else if (ch == '[') {
+            } else if ((int) ch == '[') {
                 if (allowed.contains(EType.REAL_VECTOR) || allowed.contains(EType.INTEGER_VECTOR)) {
                     ++fECursor.cursorPosition;
-                    final FEVector vec = new FEVector(getFontSize());
+                    final FEVector vec = new FEVector(fontSize);
                     if (!allowed.contains(EType.REAL_VECTOR)) {
                         vec.getAllowedTypes().remove(EType.REAL_VECTOR);
                     }
                     setArg1(vec, true);
                 }
-            } else if (ch == '(') {
+            } else if ((int) ch == '(') {
                 ++fECursor.cursorPosition;
-                final FEGrouping grouping = new FEGrouping(getFontSize());
+                final FEGrouping grouping = new FEGrouping(fontSize);
                 final EnumSet<EType> groupingAllowed = grouping.getAllowedTypes();
                 groupingAllowed.clear();
                 groupingAllowed.addAll(allowed);
                 setArg1(grouping, true);
-            } else if (ch >= '\u2720' && ch <= '\u274F') {
+            } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
                 ++fECursor.cursorPosition;
                 final EFunction f = EFunction.forChar(ch);
                 if (f != null) {
-                    final FEFunction function = new FEFunction(getFontSize(), f);
+                    final FEFunction function = new FEFunction(fontSize, f);
                     setArg1(function, true);
                 }
-            } else if (ch == '<') {
+            } else if ((int) ch == '<') {
                 ++fECursor.cursorPosition;
-                final FETest test = new FETest(getFontSize());
+                final FETest test = new FETest(fontSize);
                 final EnumSet<EType> testAllowed = test.getAllowedTypes();
                 testAllowed.clear();
                 testAllowed.addAll(allowed);
                 setArg1(test, true);
-            } else if (ch == 0x08 && cursorPos > 0) {
+            } else if ((int) ch == 0x08 && cursorPos > 0) {
                 --fECursor.cursorPosition;
                 // Backspace
                 if (this.arg1 == null) {
                     getParent().replaceChild(this, null);
                 }
-            } else if (ch == 0x7f && cursorPos < getNumCursorSteps()) {
+            } else if ((int) ch == 0x7f && cursorPos < getNumCursorSteps()) {
                 // Delete
                 getParent().replaceChild(this, null);
             }
         } else if (cursorPos == 0) {
-            if (ch == 0x7f) {
+            if ((int) ch == 0x7f) {
                 // Delete with cursor before operator - replace this operator with its argument
                 getParent().replaceChild(this, this.arg1);
             }
-        } else if (cursorPos == 1 && ch == 0x08) {
+        } else if (cursorPos == 1 && (int) ch == 0x08) {
             // Backspace with cursor after operator - replace this operator with its argument
             --fECursor.cursorPosition;
             getParent().replaceChild(this, this.arg1);
@@ -437,7 +438,7 @@ public final class FEUnaryOper extends AbstractFEObject {
     /**
      * Processes an insert.
      *
-     * @param fECursor   the cursor position and selection range
+     * @param fECursor the cursor position and selection range
      * @param toInsert the object to insert (never {@code null})
      * @return {@code null} on success; an error message on failure
      */
@@ -446,12 +447,13 @@ public final class FEUnaryOper extends AbstractFEObject {
 
         String error = null;
 
+        final int first = getFirstCursorPosition();
+
         if (this.arg1 == null) {
             this.arg1 = toInsert;
             this.arg1.setParent(this);
-            this.arg1.setFirstCursorPosition(getFirstCursorPosition());
+            this.arg1.setFirstCursorPosition(first);
         } else {
-            final int first = getFirstCursorPosition();
             final int last = first + getNumCursorSteps();
 
             if (fECursor.cursorPosition > first && fECursor.cursorPosition < last) {
@@ -484,7 +486,8 @@ public final class FEUnaryOper extends AbstractFEObject {
         };
 
         this.opBox = new RenderedBox(opStr);
-        this.opBox.setFontSize(getFontSize());
+        final int fontSize = getFontSize();
+        this.opBox.setFontSize(fontSize);
         this.opBox.layout(g2d);
 
         final FontRenderContext frc = g2d.getFontRenderContext();
@@ -509,8 +512,11 @@ public final class FEUnaryOper extends AbstractFEObject {
             botY = Math.max(botY, argBounds.y + argBounds.height);
         }
 
+        final float[] lineBaselines = lineMetrics.getBaselineOffsets();
+        final int center = Math.round(lineBaselines[Font.CENTER_BASELINE]);
+
         setAdvance(x);
-        setCenterAscent(Math.round(lineMetrics.getBaselineOffsets()[Font.CENTER_BASELINE]));
+        setCenterAscent(center);
         getOrigin().setLocation(0, 0);
         getBounds().setBounds(0, topY, x, botY - topY);
     }
@@ -581,8 +587,9 @@ public final class FEUnaryOper extends AbstractFEObject {
     public void emitDiagnostics(final HtmlBuilder builder, final int indent) {
 
         indent(builder, indent);
-        builder.addln((getParent() == null ? "Unary Operator*: (" : "Unary Operator: ("),
-                Character.toString(this.op.op), ")");
+        final AbstractFEObject parent = getParent();
+        final String opStr = Character.toString(this.op.op);
+        builder.addln((parent == null ? "Unary Operator*: (" : "Unary Operator: ("), opStr, ")");
 
         if (this.arg1 == null) {
             indent(builder, indent + 1);
@@ -600,14 +607,20 @@ public final class FEUnaryOper extends AbstractFEObject {
     @Override
     public FEUnaryOper duplicate() {
 
-        final FEUnaryOper dup = new FEUnaryOper(getFontSize(), this.op);
+        final int fontSize = getFontSize();
+        final FEUnaryOper dup = new FEUnaryOper(fontSize, this.op);
 
         dup.getAllowedTypes().clear();
-        dup.getAllowedTypes().addAll(getAllowedTypes());
-        dup.setCurrentType(getCurrentType());
+
+        final EnumSet<EType> allowedTypes = getAllowedTypes();
+        dup.getAllowedTypes().addAll(allowedTypes);
+
+        final EType currentType = getCurrentType();
+        dup.setCurrentType(currentType);
 
         if (this.arg1 != null) {
-            dup.setArg1(this.arg1.duplicate(), false);
+            final AbstractFEObject dupArg = this.arg1.duplicate();
+            dup.setArg1(dupArg, false);
         }
 
         return dup;
