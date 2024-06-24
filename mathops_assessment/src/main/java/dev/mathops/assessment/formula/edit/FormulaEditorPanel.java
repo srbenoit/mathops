@@ -83,8 +83,7 @@ public final class FormulaEditorPanel extends JPanel
      * @param theInsets   the insets for the contained formula UI object
      * @param theTypes    the types of formula this panel will edit; null to allow all types
      */
-    public FormulaEditorPanel(final int theFontSize, final Insets theInsets,
-                              final EType... theTypes) {
+    public FormulaEditorPanel(final int theFontSize, final Insets theInsets, final EType... theTypes) {
 
         super();
 
