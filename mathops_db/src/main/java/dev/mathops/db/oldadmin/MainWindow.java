@@ -1,8 +1,13 @@
 package dev.mathops.db.oldadmin;
 
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.JFrame;
@@ -65,7 +70,7 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
      */
     MainWindow(final Cache theCache, final String username) {
 
-        super("ADMIN");
+        super(makeWindowName(theCache));
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -78,6 +83,21 @@ public final class MainWindow extends JFrame implements KeyListener, MouseListen
         this.console.addKeyListener(this);
         this.console.addMouseListener(this);
         setContentPane(this.console);
+    }
+
+    /**
+     * Generates a window name from a {@code Cache} that includes the server to which we are connected.
+     *
+     * @param theCache the cache
+     * @return the window name
+     */
+    private static String makeWindowName(final Cache theCache) {
+
+        final DbProfile dbProfile = theCache.getDbProfile();
+        final DbContext primary = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final LoginConfig login = primary.getLoginConfig();
+
+        return SimpleBuilder.concat("ADMIN (", login.user, " - ", login.db.server.host, " - ", dbProfile.id, ")");
     }
 
     /**

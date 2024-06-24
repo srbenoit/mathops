@@ -247,16 +247,18 @@ abstract class AbstractScreen implements IScreen {
      */
     final void drawErrors() {
 
+        final int numLines = this.console.getNumLines();
+
         if (!this.errorMessage1.isBlank()) {
-            this.console.print(this.errorMessage1, 1, 21);
+            this.console.print(this.errorMessage1, 1, numLines - 2);
             final int len = this.errorMessage1.length();
-            this.console.reverse(0, 21, len + 2);
+            this.console.reverse(0, numLines - 2, len + 2);
         }
 
         if (!this.errorMessage2.isBlank()) {
-            this.console.print(this.errorMessage2, 1, 22);
+            this.console.print(this.errorMessage2, 1, numLines - 1);
             final int len = this.errorMessage2.length();
-            this.console.reverse(0, 22, len + 2);
+            this.console.reverse(0, numLines - 1, len + 2);
         }
     }
 

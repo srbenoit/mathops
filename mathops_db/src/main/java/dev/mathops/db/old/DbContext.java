@@ -76,6 +76,16 @@ public final class DbContext {
     }
 
     /**
+     * Gets the login configuration.
+     *
+     * @return the login configuration
+     */
+    public LoginConfig getLoginConfig() {
+
+        return this.loginConfig;
+    }
+
+    /**
      * Checks out a database connection, creating a new one if there are none available.
      *
      * @return the connection

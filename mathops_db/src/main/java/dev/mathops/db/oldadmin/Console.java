@@ -107,6 +107,26 @@ public final class Console extends JPanel implements Runnable {
     }
 
     /**
+     * Gets the number of lines.
+     *
+     * @return the number of lines
+     */
+    int getNumLines() {
+
+        return this.numLines;
+    }
+
+    /**
+     * Gets the number of columns.
+     *
+     * @return the number of columns
+     */
+    int getNumColumns() {
+
+        return this.numColumns;
+    }
+
+    /**
      * Clears all characters to spaces.
      */
     public void clear() {
@@ -132,7 +152,7 @@ public final class Console extends JPanel implements Runnable {
     /**
      * Gets the cursor location.
      *
-     * @return the cursor.
+     * @return the cursor
      */
     Point getCursorPoint() {
 
