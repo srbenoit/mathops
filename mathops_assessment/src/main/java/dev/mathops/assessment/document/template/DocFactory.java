@@ -12,7 +12,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.AbstractAttributedElementBase;
 import dev.mathops.commons.parser.xml.CData;
@@ -40,6 +39,357 @@ import java.util.Locale;
 public enum DocFactory {
     ;
 
+    /** A commonly-used string. */
+    private static final String V_SPACE = "v-space";
+
+    /** A commonly-used string. */
+    private static final String P = "p";
+
+    /** A commonly-used string. */
+    private static final String SPAN = "span";
+
+    /** A commonly-used string. */
+    private static final String NONWRAP = "nonwrap";
+
+    /** A commonly-used string. */
+    private static final String MATH = "math";
+
+    /** A commonly-used string. */
+    private static final String FRACTION = "fraction";
+
+    /** A commonly-used string. */
+    private static final String RADICAL = "radical";
+
+    /** A commonly-used string. */
+    private static final String REL_OFFSET = "rel-offset";
+
+    /** A commonly-used string. */
+    private static final String FENCE = "fence";
+
+    /** A commonly-used string. */
+    private static final String H_SPACE = "h-space";
+
+    /** A commonly-used string. */
+    private static final String TABLE = "table";
+
+    /** A commonly-used string. */
+    private static final String TR = "tr";
+
+    /** A commonly-used string. */
+    private static final String TD = "td";
+
+    /** A commonly-used string. */
+    private static final String DRAWING = "drawing";
+
+    /** A commonly-used string. */
+    private static final String GRAPH_XY = "graphxy";
+
+    /** A commonly-used string. */
+    private static final String INPUT = "input";
+
+    /** A commonly-used string. */
+    private static final String IMAGE = "image";
+
+    /** A commonly-used string. */
+    private static final String SYMBOL_PALETTE = "symbol-palette";
+
+    /** A commonly-used string. */
+    private static final String NUMERATOR = "numerator";
+
+    /** A commonly-used string. */
+    private static final String DENOMINATOR = "denominator";
+
+    /** A commonly-used string. */
+    private static final String BASE = "base";
+
+    /** A commonly-used string. */
+    private static final String ROOT = "root";
+
+    /** A commonly-used string. */
+    private static final String SUPER = "super";
+
+    /** A commonly-used string. */
+    private static final String SUB = "sub";
+
+    /** A commonly-used string. */
+    private static final String OVER = "over";
+
+    /** A commonly-used string. */
+    private static final String UNDER = "under";
+
+    /** A commonly-used string. */
+    private static final String FORMULA = "formula";
+
+    /** A commonly-used string. */
+    private static final String LINE = "line";
+
+    /** A commonly-used string. */
+    private static final String ARC = "arc";
+
+    /** A commonly-used string. */
+    private static final String OVAL = "oval";
+
+    /** A commonly-used string. */
+    private static final String RECTANGLE = "rectangle";
+
+    /** A commonly-used string. */
+    private static final String POLYGON = "polygon";
+
+    /** A commonly-used string. */
+    private static final String PROTRACTOR = "protractor";
+
+    /** A commonly-used string. */
+    private static final String RASTER = "raster";
+
+    /** A commonly-used string. */
+    private static final String TEXT = "text";
+
+    //
+    //
+
+    /** A commonly-used string. */
+    private static final String WIDTH = "width";
+
+    /** A commonly-used string. */
+    private static final String HEIGHT = "height";
+
+    /** A commonly-used string. */
+    private static final String JUSTIFICATION = "justification";
+
+    /** A commonly-used string. */
+    private static final String LEFT = "left";
+
+    /** A commonly-used string. */
+    private static final String RIGHT = "right";
+
+    /** A commonly-used string. */
+    private static final String CENTER = "center";
+
+    /** A commonly-used string. */
+    private static final String FULL = "full";
+
+    /** A commonly-used string. */
+    private static final String BGCOLOR = "bgcolor";
+
+    /** A commonly-used string. */
+    private static final String SRC = "src";
+
+    /** A commonly-used string. */
+    private static final String ALT = "alt";
+
+    /** A commonly-used string. */
+    private static final String MIN_X = "minx";
+
+    /** A commonly-used string. */
+    private static final String MIN_Y = "miny";
+
+    /** A commonly-used string. */
+    private static final String MAX_X = "maxx";
+
+    /** A commonly-used string. */
+    private static final String MAX_Y = "maxy";
+
+    /** A commonly-used string. */
+    private static final String X_TICK_INTERVAL = "xtickinterval";
+
+    /** A commonly-used string. */
+    private static final String Y_TICK_INTERVAL = "ytickinterval";
+
+    /** A commonly-used string. */
+    private static final String BORDER_COLOR = "bordercolor";
+
+    /** A commonly-used string. */
+    private static final String GRID_COLOR = "gridcolor";
+
+    /** A commonly-used string. */
+    private static final String TICK_COLOR = "tickcolor";
+
+    /** A commonly-used string. */
+    private static final String AXIS_COLOR = "axiscolor";
+
+    /** A commonly-used string. */
+    private static final String BORDER_WIDTH = "borderwidth";
+
+    /** A commonly-used string. */
+    private static final String GRID_WIDTH = "gridwidth";
+
+    /** A commonly-used string. */
+    private static final String TICK_WIDTH = "tickwidth";
+
+    /** A commonly-used string. */
+    private static final String TICK_SIZE = "ticksize";
+
+    /** A commonly-used string. */
+    private static final String AXIS_WIDTH = "axiswidth";
+
+    /** A commonly-used string. */
+    private static final String AXIS_LABEL_FONT_SIZE = "axislabelfontsize";
+
+    /** A commonly-used string. */
+    private static final String TICK_LABEL_FONT_SIZE = "ticklabelfontsize";
+
+    /** A commonly-used string. */
+    private static final String X_AXIS_LABEL = "xaxislabel";
+
+    /** A commonly-used string. */
+    private static final String Y_AXIS_LABEL = "yaxislabel";
+
+    /** A commonly-used string. */
+    private static final String TYPE = "type";
+
+    /** A commonly-used string. */
+    private static final String PARENTHESES = "parentheses";
+
+    /** A commonly-used string. */
+    private static final String BRACKETS = "brackets";
+
+    /** A commonly-used string. */
+    private static final String BRACES = "braces";
+
+    /** A commonly-used string. */
+    private static final String BARS = "bars";
+
+    /** A commonly-used string. */
+    private static final String LBRACE = "lbrace";
+
+    /** A commonly-used string. */
+    private static final String VALIGN = "valign";
+
+    /** A commonly-used string. */
+    private static final String BASELINE = "baseline";
+
+    /** A commonly-used string. */
+    private static final String BOX_WIDTH = "box-width";
+
+    /** A commonly-used string. */
+    private static final String V_LINE_WIDTH = "v-line-width";
+
+    /** A commonly-used string. */
+    private static final String H_LINE_WIDTH = "h-line-width";
+
+    /** A commonly-used string. */
+    private static final String COLUMN_WIDTH = "column-width";
+
+    /** A commonly-used string. */
+    private static final String UNIFORM = "uniform";
+
+    /** A commonly-used string. */
+    private static final String NONUNIFORM = "nonuniform";
+
+    /** A commonly-used string. */
+    private static final String CELL_MARGINS = "cell-margins";
+
+    /** A commonly-used string. */
+    private static final String LINES = "lines";
+
+    /** A commonly-used string. */
+    private static final String TOP = "top";
+
+    /** A commonly-used string. */
+    private static final String BOTTOM = "bottom";
+
+    /** A commonly-used string. */
+    private static final String DOMAIN_VAR = "domain-var";
+
+    /** A commonly-used string. */
+    private static final String COLOR = "color";
+
+    /** A commonly-used string. */
+    private static final String X = "x";
+
+    /** A commonly-used string. */
+    private static final String Y = "y";
+
+    /** A commonly-used string. */
+    private static final String STROKE_WIDTH = "stroke-width";
+
+    /** A commonly-used string. */
+    private static final String DASH = "dash";
+
+    /** A commonly-used string. */
+    private static final String ALPHA = "alpha";
+
+    /** A commonly-used string. */
+    private static final String CX = "cx";
+
+    /** A commonly-used string. */
+    private static final String CY = "cy";
+
+    /** A commonly-used string. */
+    private static final String R = "r";
+
+    /** A commonly-used string. */
+    private static final String RX = "rx";
+
+    /** A commonly-used string. */
+    private static final String RY = "ry";
+
+    /** A commonly-used string. */
+    private static final String START_ANGLE = "start-angle";
+
+    /** A commonly-used string. */
+    private static final String ARC_ANGLE = "arc-angle";
+
+    /** A commonly-used string. */
+    private static final String STROKE_COLOR = "stroke-color";
+
+    /** A commonly-used string. */
+    private static final String STROKE_DASH = "stroke-dash";
+
+    /** A commonly-used string. */
+    private static final String STROKE_ALPHA = "stroke-alpha";
+
+    /** A commonly-used string. */
+    private static final String FILL_STYLE = "fill-style";
+
+    /** A commonly-used string. */
+    private static final String FILL_COLOR = "fill-color";
+
+    /** A commonly-used string. */
+    private static final String FILL_ALPHA = "fill-alpha";
+
+    /** A commonly-used string. */
+    private static final String FILLED = "filled";
+
+    /** A commonly-used string. */
+    private static final String RAYS_SHOWN = "rays-shown";
+
+    /** A commonly-used string. */
+    private static final String RAY_WIDTH = "ray-width";
+
+    /** A commonly-used string. */
+    private static final String RAY_LENGTH = "ray-length";
+
+    /** A commonly-used string. */
+    private static final String RAY_COLOR = "ray-color";
+
+    /** A commonly-used string. */
+    private static final String RAY_DASH = "ray-dash";
+
+    /** A commonly-used string. */
+    private static final String RAY_ALPHA = "ray-alpha";
+
+    /** A commonly-used string. */
+    private static final String LABEL = "label";
+
+    /** A commonly-used string. */
+    private static final String LABEL_COLOR = "label-color";
+
+    /** A commonly-used string. */
+    private static final String LABEL_ALPHA = "label-alpha";
+
+    /** A commonly-used string. */
+    private static final String LABEL_OFFSET = "label-offset";
+
+    /** A commonly-used string. */
+    private static final String FONT_NAME = "fontname";
+
+    /** A commonly-used string. */
+    private static final String FONT_SIZE = "fontsize";
+
+    /** A commonly-used string. */
+    private static final String FONT_STYLE = "fontstyle";
+
     /**
      * Generate a {@code DocColumn} object from an XML element that contains a document tag (with an optional ID), and a
      * contained set of paragraph elements. Any errors encountered while generating the document object will be
@@ -55,18 +405,19 @@ public enum DocFactory {
 
         final String tagName = elem.getTagName();
 
-        DocColumn doc = new DocColumn();
+        DocColumn result = null;
+
+        final DocColumn doc = new DocColumn();
         doc.tag = tagName;
 
         final boolean valid = extractFormattable(elem, doc);
 
         if (valid && extractParagraphs(evalContext, elem, doc, mode)) {
             doc.refreshInputs(evalContext, true);
-        } else {
-            doc = null;
+            result = doc;
         }
 
-        return doc;
+        return result;
     }
 
     /**
@@ -92,40 +443,40 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("span".equalsIgnoreCase(childTag)) {
+                    if (SPAN.equalsIgnoreCase(childTag)) {
                         valid = valid && extractWrappingSpan(evalContext, childTag, nonempty, span, mode);
-                    } else if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    } else if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, span, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, span, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, span, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, span, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, span, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, span, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
                         elem.logError("The " + childTag + " tag is not valid within a span.");
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, span);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within this a span.");
@@ -158,9 +509,9 @@ public enum DocFactory {
 
             if (child instanceof final NonemptyElement nonempty) {
 
-                if ("v-space".equalsIgnoreCase(tagName)) {
+                if (V_SPACE.equalsIgnoreCase(tagName)) {
                     valid = valid && extractVSpace(evalContext, nonempty, doc, mode);
-                } else if ("p".equalsIgnoreCase(tagName)) {
+                } else if (P.equalsIgnoreCase(tagName)) {
                     valid = valid && extractParagraph(evalContext, nonempty, doc, mode);
                 } else {
                     elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
@@ -168,7 +519,7 @@ public enum DocFactory {
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
-                if ("v-space".equalsIgnoreCase(tagName)) {
+                if (V_SPACE.equalsIgnoreCase(tagName)) {
                     valid = valid && extractVSpace(empty, doc);
                 } else {
                     elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
@@ -196,7 +547,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String heightStr = elem.getStringAttr("height");
+        final String heightStr = elem.getStringAttr(HEIGHT);
         Number heightC = null;
 
         if (heightStr != null) {
@@ -238,7 +589,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String heightStr = elem.getStringAttr("height");
+        final String heightStr = elem.getStringAttr(HEIGHT);
         Number heightC = null;
         Formula heightF = null;
 
@@ -255,7 +606,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("height".equalsIgnoreCase(childTag)) {
+                if (HEIGHT.equalsIgnoreCase(childTag)) {
                     if (heightC == null) {
                         if (heightF == null) {
                             heightF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
@@ -316,13 +667,13 @@ public enum DocFactory {
 
         boolean valid = extractFormattable(elem, par);
 
-        final String justificationStr = elem.getStringAttr("justification");
+        final String justificationStr = elem.getStringAttr(JUSTIFICATION);
         if (justificationStr != null) {
             switch (justificationStr) {
-                case "left" -> par.setJustification(DocParagraph.LEFT);
-                case "right" -> par.setJustification(DocParagraph.RIGHT);
-                case "center" -> par.setJustification(DocParagraph.CENTER);
-                case "full" -> par.setJustification(DocParagraph.FULL);
+                case LEFT -> par.setJustification(DocParagraph.LEFT);
+                case RIGHT -> par.setJustification(DocParagraph.RIGHT);
+                case CENTER -> par.setJustification(DocParagraph.CENTER);
+                case FULL -> par.setJustification(DocParagraph.FULL);
                 default -> {
                     elem.logError("Invalid justification (should be 'left', 'right', 'center' or 'full').");
                     valid = false;
@@ -337,44 +688,44 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("span".equalsIgnoreCase(childTag)) {
+                    if (SPAN.equalsIgnoreCase(childTag)) {
                         valid = valid && extractWrappingSpan(evalContext, childTag, nonempty, par, mode);
-                    } else if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    } else if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, par, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, par, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, par, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, par, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, par, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, par, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, par, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, par, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, par, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, par, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, par, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, par, mode);
                     } else {
                         elem.logError("The " + childTag + " element is not valid within a paragraph.");
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, par);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, par, mode);
-                    } else if ("symbol-palette".equalsIgnoreCase(childTag)) {
+                    } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, par);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, par);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within a paragraph.");
@@ -421,44 +772,44 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (childElem instanceof final NonemptyElement nonempty) {
-                    if ("span".equalsIgnoreCase(childTag)) {
+                    if (SPAN.equalsIgnoreCase(childTag)) {
                         valid = valid && extractWrappingSpan(evalContext, childTag, nonempty, span, mode);
-                    } else if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    } else if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, span, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, span, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, span, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, span, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, span, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, span, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
                         elem.logError("The " + childTag + " element is not valid within nonwrap span.");
                         valid = false;
                     }
                 } else if (childElem instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, span);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
-                    } else if ("symbol-palette".equalsIgnoreCase(childTag)) {
+                    } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, span);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
@@ -503,7 +854,7 @@ public enum DocFactory {
         boolean valid = extractFormattable(elem, span);
 
         final Color bg;
-        final String bgColorStr = elem.getStringAttr("bgcolor");
+        final String bgColorStr = elem.getStringAttr(BGCOLOR);
         if (bgColorStr != null) {
             span.backgroundColorName = bgColorStr;
 
@@ -523,42 +874,42 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, span, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, span, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, span, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, span, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, span, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, span, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
                         elem.logError("The " + childTag + " element is not valid within nonwrap span.");
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, span);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
-                    } else if ("symbol-palette".equalsIgnoreCase(childTag)) {
+                    } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, span);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
@@ -607,40 +958,40 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, span, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, span, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, span, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, span, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, span, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, span, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, span, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
                         elem.logError("The " + childTag + " element is not valid within math.");
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, span);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within math.");
@@ -683,7 +1034,7 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("numerator".equalsIgnoreCase(childTag)) {
+                    if (NUMERATOR.equalsIgnoreCase(childTag)) {
                         if (num == null) {
                             num = new DocNonwrappingSpan();
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, num, true, mode);
@@ -691,7 +1042,7 @@ public enum DocFactory {
                             elem.logError("Multiple <numerator> tags in fraction.");
                             valid = false;
                         }
-                    } else if ("denominator".equalsIgnoreCase(childTag)) {
+                    } else if (DENOMINATOR.equalsIgnoreCase(childTag)) {
                         if (den == null) {
                             den = new DocNonwrappingSpan();
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, den, true, mode);
@@ -749,7 +1100,7 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("base".equalsIgnoreCase(childTag)) {
+                    if (BASE.equalsIgnoreCase(childTag)) {
                         if (base == null) {
                             base = new DocNonwrappingSpan();
                             base.tag = childTag;
@@ -758,7 +1109,7 @@ public enum DocFactory {
                             elem.logError("Multiple <base> tags in radical.");
                             valid = false;
                         }
-                    } else if ("root".equalsIgnoreCase(childTag)) {
+                    } else if (ROOT.equalsIgnoreCase(childTag)) {
                         if (root == null) {
                             root = new DocNonwrappingSpan();
                             root.tag = childTag;
@@ -827,7 +1178,7 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("base".equalsIgnoreCase(childTag)) {
+                    if (BASE.equalsIgnoreCase(childTag)) {
                         if (base == null) {
                             final DocNonwrappingSpan span = new DocNonwrappingSpan();
                             valid = extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
@@ -841,7 +1192,7 @@ public enum DocFactory {
                             elem.logError("Multiple &lt;base&gt; tags in &lt;rel-offset&gt; element.");
                             valid = false;
                         }
-                    } else if ("super".equalsIgnoreCase(childTag)) {
+                    } else if (SUPER.equalsIgnoreCase(childTag)) {
                         if (sup == null) {
                             final DocNonwrappingSpan span = new DocNonwrappingSpan();
 
@@ -861,7 +1212,7 @@ public enum DocFactory {
                             elem.logError("Multiple &lt;super&gt; tags in &lt;rel-offset&gt; element.");
                             valid = false;
                         }
-                    } else if ("sub".equalsIgnoreCase(childTag)) {
+                    } else if (SUB.equalsIgnoreCase(childTag)) {
                         if (sub == null) {
                             final DocNonwrappingSpan span = new DocNonwrappingSpan();
 
@@ -881,7 +1232,7 @@ public enum DocFactory {
                             elem.logError("Multiple &lt;sub&gt; tags in &lt;rel-offset&gt; element.");
                             valid = false;
                         }
-                    } else if ("over".equalsIgnoreCase(childTag)) {
+                    } else if (OVER.equalsIgnoreCase(childTag)) {
                         if (over == null) {
                             final DocNonwrappingSpan span = new DocNonwrappingSpan();
 
@@ -893,7 +1244,8 @@ public enum DocFactory {
                                     over = span.getChildren().get(0);
                                 }
 
-                                if (base != null && over.getFontSize() == base.getFontSize() && base.getFontSize() > 8) {
+                                if (base != null && over.getFontSize() == base.getFontSize()
+                                        && base.getFontSize() > 8) {
                                     over.setFontScale(0.75f);
                                 }
                             }
@@ -901,7 +1253,7 @@ public enum DocFactory {
                             elem.logError("Multiple &lt;over&gt; tags in &lt;rel-offset&gt; element.");
                             valid = false;
                         }
-                    } else if ("under".equalsIgnoreCase(childTag)) {
+                    } else if (UNDER.equalsIgnoreCase(childTag)) {
                         if (under == null) {
                             final DocNonwrappingSpan span = new DocNonwrappingSpan();
 
@@ -965,17 +1317,17 @@ public enum DocFactory {
 
         boolean valid = extractFormattable(elem, fence);
 
-        final String typeStr = elem.getStringAttr("type");
+        final String typeStr = elem.getStringAttr(TYPE);
         if (typeStr != null) {
-            if ("parentheses".equalsIgnoreCase(typeStr)) {
+            if (PARENTHESES.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.PARENTHESES;
-            } else if ("brackets".equalsIgnoreCase(typeStr)) {
+            } else if (BRACKETS.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.BRACKETS;
-            } else if ("braces".equalsIgnoreCase(typeStr)) {
+            } else if (BRACES.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.BRACES;
-            } else if ("bars".equalsIgnoreCase(typeStr)) {
+            } else if (BARS.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.BARS;
-            } else if ("lbrace".equalsIgnoreCase(typeStr)) {
+            } else if (LBRACE.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.LBRACE;
             } else {
                 elem.logError(
@@ -1014,11 +1366,11 @@ public enum DocFactory {
             fence.openFence = text;
         }
 
-        final String valignStr = elem.getStringAttr("valign");
+        final String valignStr = elem.getStringAttr(VALIGN);
         if (valignStr != null) {
-            if ("center".equals(valignStr)) {
+            if (CENTER.equals(valignStr)) {
                 fence.leftAlign = AbstractDocObjectTemplate.CENTERLINE;
-            } else if ("baseline".equals(valignStr)) {
+            } else if (BASELINE.equals(valignStr)) {
                 fence.leftAlign = AbstractDocObjectTemplate.BASELINE;
             } else {
                 elem.logError("Invalid fence valign setting (should be 'center', 'baseline').");
@@ -1033,40 +1385,40 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("span".equalsIgnoreCase(childTag)) {
+                    if (SPAN.equalsIgnoreCase(childTag)) {
                         valid = valid && extractWrappingSpan(evalContext, childTag, nonempty, fence, mode);
-                    } else if ("nonwrap".equalsIgnoreCase(childTag)) {
+                    } else if (NONWRAP.equalsIgnoreCase(childTag)) {
                         valid = valid && extractNonwrap(evalContext, childTag, nonempty, fence, false, mode);
-                    } else if ("math".equalsIgnoreCase(childTag)) {
+                    } else if (MATH.equalsIgnoreCase(childTag)) {
                         valid = valid && extractMath(evalContext, childTag, nonempty, fence, false, mode);
-                    } else if ("fraction".equalsIgnoreCase(childTag)) {
+                    } else if (FRACTION.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFraction(evalContext, nonempty, fence, mode);
-                    } else if ("radical".equalsIgnoreCase(childTag)) {
+                    } else if (RADICAL.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRadical(evalContext, nonempty, fence, mode);
-                    } else if ("rel-offset".equalsIgnoreCase(childTag)) {
+                    } else if (REL_OFFSET.equalsIgnoreCase(childTag)) {
                         valid = valid && extractRelOffset(evalContext, nonempty, fence, mode);
-                    } else if ("fence".equalsIgnoreCase(childTag)) {
+                    } else if (FENCE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractFence(evalContext, nonempty, fence, mode);
-                    } else if ("h-space".equalsIgnoreCase(childTag)) {
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, fence, mode);
-                    } else if ("table".equalsIgnoreCase(childTag)) {
+                    } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, fence, mode);
-                    } else if ("drawing".equalsIgnoreCase(childTag)) {
+                    } else if (DRAWING.equalsIgnoreCase(childTag)) {
                         valid = valid && extractDrawing(evalContext, nonempty, fence, mode);
-                    } else if ("graphxy".equalsIgnoreCase(childTag)) {
+                    } else if (GRAPH_XY.equalsIgnoreCase(childTag)) {
                         valid = valid && extractGraphxy(evalContext, nonempty, fence, mode);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, nonempty, fence, mode);
-                    } else if ("image".equalsIgnoreCase(childTag)) {
+                    } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, fence, mode);
                     } else {
                         elem.logError("The " + childTag + " element is not valid within fence.");
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
-                    if ("image".equalsIgnoreCase(childTag)) {
+                    if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(empty, fence);
-                    } else if ("input".equalsIgnoreCase(childTag)) {
+                    } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, fence, mode);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within fence.");
@@ -1126,7 +1478,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         Number widthC = null;
 
         if (widthStr != null) {
@@ -1168,7 +1520,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String heightStr = elem.getStringAttr("width");
+        final String heightStr = elem.getStringAttr(WIDTH);
         Number widthC = null;
         Formula widthF = null;
 
@@ -1185,7 +1537,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("width".equalsIgnoreCase(childTag)) {
+                if (WIDTH.equalsIgnoreCase(childTag)) {
                     if (widthC == null) {
                         if (widthF == null) {
                             widthF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
@@ -1254,7 +1606,7 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("tr".equalsIgnoreCase(childTag)) {
+                    if (TR.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTableRow(evalContext, nonempty, rows, mode);
                     } else {
                         elem.logError("The " + childTag + " tag is not valid within table.");
@@ -1281,7 +1633,7 @@ public enum DocFactory {
 
             final DocTable table = new DocTable(objects);
 
-            final String boxWidthStr = elem.getStringAttr("box-width");
+            final String boxWidthStr = elem.getStringAttr(BOX_WIDTH);
             if (boxWidthStr != null) {
                 try {
                     table.boxWidth = Integer.parseInt(boxWidthStr);
@@ -1291,7 +1643,7 @@ public enum DocFactory {
                 }
             }
 
-            final String vLineWidthStr = elem.getStringAttr("v-line-width");
+            final String vLineWidthStr = elem.getStringAttr(V_LINE_WIDTH);
             if (vLineWidthStr != null) {
                 try {
                     table.vLineWidth = Integer.parseInt(vLineWidthStr);
@@ -1301,7 +1653,7 @@ public enum DocFactory {
                 }
             }
 
-            final String hLineWidthStr = elem.getStringAttr("h-line-width");
+            final String hLineWidthStr = elem.getStringAttr(H_LINE_WIDTH);
             if (hLineWidthStr != null) {
                 try {
                     table.hLineWidth = Integer.parseInt(hLineWidthStr);
@@ -1311,11 +1663,11 @@ public enum DocFactory {
                 }
             }
 
-            final String columnWidthStr = elem.getStringAttr("column-width");
+            final String columnWidthStr = elem.getStringAttr(COLUMN_WIDTH);
             if (columnWidthStr != null) {
-                if ("uniform".equalsIgnoreCase(columnWidthStr)) {
+                if (UNIFORM.equalsIgnoreCase(columnWidthStr)) {
                     table.setSpacing(DocTable.UNIFORM);
-                } else if ("nonuniform".equalsIgnoreCase(columnWidthStr)) {
+                } else if (NONUNIFORM.equalsIgnoreCase(columnWidthStr)) {
                     table.setSpacing(DocTable.NONUNIFORM);
                 } else {
                     elem.logError("Invalid column width, use 'uniform' or 'nonuniform'");
@@ -1323,13 +1675,13 @@ public enum DocFactory {
                 }
             }
 
-            final String justificationStr = elem.getStringAttr("justification");
+            final String justificationStr = elem.getStringAttr(JUSTIFICATION);
             if (justificationStr != null) {
-                if ("left".equalsIgnoreCase(justificationStr)) {
+                if (LEFT.equalsIgnoreCase(justificationStr)) {
                     table.setJustification(DocTable.LEFT);
-                } else if ("right".equalsIgnoreCase(justificationStr)) {
+                } else if (RIGHT.equalsIgnoreCase(justificationStr)) {
                     table.setJustification(DocTable.RIGHT);
-                } else if ("center".equalsIgnoreCase(justificationStr)) {
+                } else if (CENTER.equalsIgnoreCase(justificationStr)) {
                     table.setJustification(DocTable.CENTER);
                 } else {
                     elem.logError("Invalid justification, use 'left', 'right', or 'center'");
@@ -1337,7 +1689,7 @@ public enum DocFactory {
                 }
             }
 
-            final String bgColorStr = elem.getStringAttr("bgcolor");
+            final String bgColorStr = elem.getStringAttr(BGCOLOR);
             if (bgColorStr != null) {
                 if (ColorNames.isColorNameValid(bgColorStr)) {
                     table.setBackgroundColor(bgColorStr, ColorNames.getColor(bgColorStr));
@@ -1347,7 +1699,7 @@ public enum DocFactory {
                 }
             }
 
-            final String cellMarginsStr = elem.getStringAttr("cell-margins");
+            final String cellMarginsStr = elem.getStringAttr(CELL_MARGINS);
             if (cellMarginsStr != null) {
                 if (cellMarginsStr.indexOf(CoreConstants.COMMA_CHAR) == -1) {
                     try {
@@ -1416,7 +1768,7 @@ public enum DocFactory {
                 final String childTag = childElem.getTagName();
 
                 if (child instanceof final NonemptyElement nonempty) {
-                    if ("td".equalsIgnoreCase(childTag)) {
+                    if (TD.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTableCell(evalContext, nonempty, cells, mode);
                     } else {
                         elem.logError("The " + childTag + " tag is not valid within table row.");
@@ -1451,7 +1803,7 @@ public enum DocFactory {
 
         int which = 0xFFFF;
 
-        final String linesStr = elem.getStringAttr("lines");
+        final String linesStr = elem.getStringAttr(LINES);
         if (linesStr != null) {
             which = 0;
 
@@ -1462,13 +1814,13 @@ public enum DocFactory {
                         continue;
                     }
 
-                    if ("left".equalsIgnoreCase(value)) {
+                    if (LEFT.equalsIgnoreCase(value)) {
                         which |= DocTable.LEFTLINE;
-                    } else if ("right".equalsIgnoreCase(value)) {
+                    } else if (RIGHT.equalsIgnoreCase(value)) {
                         which |= DocTable.RIGHTLINE;
-                    } else if ("top".equalsIgnoreCase(value)) {
+                    } else if (TOP.equalsIgnoreCase(value)) {
                         which |= DocTable.TOPLINE;
-                    } else if ("bottom".equalsIgnoreCase(value)) {
+                    } else if (BOTTOM.equalsIgnoreCase(value)) {
                         which |= DocTable.BOTTOMLINE;
                     } else {
                         elem.logError("Invalid table cell line position, use a comma-separated list of 'left', " +
@@ -1480,11 +1832,11 @@ public enum DocFactory {
         }
 
         final DocNonwrappingSpan obj = new DocNonwrappingSpan();
-        obj.tag = "td";
+        obj.tag = TD;
         obj.outlines = which;
 
         if (valid) {
-            valid = extractNonwrap(evalContext, "td", elem, obj, true, mode);
+            valid = extractNonwrap(evalContext, TD, elem, obj, true, mode);
             if (valid) {
                 cells.add(obj);
             }
@@ -1508,7 +1860,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         int width = 0;
         if (widthStr != null) {
             try {
@@ -1519,7 +1871,7 @@ public enum DocFactory {
             }
         }
 
-        final String heightStr = elem.getStringAttr("height");
+        final String heightStr = elem.getStringAttr(HEIGHT);
         int height = 0;
         if (heightStr != null) {
             try {
@@ -1530,7 +1882,7 @@ public enum DocFactory {
             }
         }
 
-        final String altStr = elem.getStringAttr("alt");
+        final String altStr = elem.getStringAttr(ALT);
 
         final DocDrawing drawing = new DocDrawing(width, height, altStr);
 
@@ -1538,32 +1890,32 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("line".equalsIgnoreCase(childTag)) {
+                if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, nonempty, drawing, mode);
-                } else if ("arc".equalsIgnoreCase(childTag)) {
+                } else if (ARC.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveArc(evalContext, nonempty, drawing, mode);
-                } else if ("oval".equalsIgnoreCase(childTag)) {
+                } else if (OVAL.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveOval(evalContext, nonempty, drawing, mode);
-                } else if ("rectangle".equalsIgnoreCase(childTag)) {
+                } else if (RECTANGLE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRectangle(evalContext, nonempty, drawing, mode);
-                } else if ("polygon".equalsIgnoreCase(childTag)) {
+                } else if (POLYGON.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, nonempty, drawing, mode);
-                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                } else if (PROTRACTOR.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveProtractor(evalContext, nonempty, drawing, mode);
-                } else if ("raster".equalsIgnoreCase(childTag)) {
+                } else if (RASTER.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, nonempty, drawing, mode);
-                } else if ("text".equalsIgnoreCase(childTag)) {
+                } else if (TEXT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveText(evalContext, nonempty, drawing, mode);
-                } else if ("span".equalsIgnoreCase(childTag)) {
+                } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, nonempty, drawing, mode);
-                } else if ("width".equals(childTag)) {
+                } else if (WIDTH.equals(childTag)) {
                     final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theWidth == null) {
                         elem.logError("Invalid 'width' formula.");
                         valid = false;
                     }
                     drawing.setWidthFormula(theWidth);
-                } else if ("height".equals(childTag)) {
+                } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {
                         elem.logError("Invalid 'height' formula.");
@@ -1577,23 +1929,23 @@ public enum DocFactory {
             } else if (child instanceof final EmptyElement empty) {
                 final String childTag = empty.getTagName();
 
-                if ("line".equalsIgnoreCase(childTag)) {
+                if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, empty, drawing, mode);
-                } else if ("arc".equalsIgnoreCase(childTag)) {
+                } else if (ARC.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveArc(evalContext, empty, drawing, mode);
-                } else if ("oval".equalsIgnoreCase(childTag)) {
+                } else if (OVAL.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveOval(evalContext, empty, drawing, mode);
-                } else if ("rectangle".equalsIgnoreCase(childTag)) {
+                } else if (RECTANGLE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRectangle(evalContext, empty, drawing, mode);
-                } else if ("polygon".equalsIgnoreCase(childTag)) {
+                } else if (POLYGON.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, empty, drawing, mode);
-                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                } else if (PROTRACTOR.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveProtractor(evalContext, empty, drawing, mode);
-                } else if ("raster".equalsIgnoreCase(childTag)) {
+                } else if (RASTER.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, empty, drawing, mode);
-                } else if ("text".equalsIgnoreCase(childTag)) {
+                } else if (TEXT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveText(evalContext, empty, drawing, mode);
-                } else if ("span".equalsIgnoreCase(childTag)) {
+                } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, empty, drawing, mode);
                 } else {
                     elem.logError("Empty " + childTag + " tag is not valid within drawing.");
@@ -1629,29 +1981,29 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String widthStr = elem.getStringAttr("width");
-        final String heightStr = elem.getStringAttr("height");
-        final String altStr = elem.getStringAttr("alt");
-        final String minxStr = elem.getStringAttr("minx");
-        final String minyStr = elem.getStringAttr("miny");
-        final String maxxStr = elem.getStringAttr("maxx");
-        final String maxyStr = elem.getStringAttr("maxy");
-        final String xtickintervalStr = elem.getStringAttr("xtickinterval");
-        final String ytickintervalStr = elem.getStringAttr("ytickinterval");
-        final String bgcolorStr = elem.getStringAttr("bgcolor");
-        final String bordercolorStr = elem.getStringAttr("bordercolor");
-        final String gridcolorStr = elem.getStringAttr("gridcolor");
-        final String tickcolorStr = elem.getStringAttr("tickcolor");
-        final String axiscolorStr = elem.getStringAttr("axiscolor");
-        final String borderwidthStr = elem.getStringAttr("borderwidth");
-        final String gridwidthStr = elem.getStringAttr("gridwidth");
-        final String tickwidthStr = elem.getStringAttr("tickwidth");
-        final String ticksizeStr = elem.getStringAttr("ticksize");
-        final String axiswidthStr = elem.getStringAttr("axiswidth");
-        final String axislabelfontsizeStr = elem.getStringAttr("axislabelfontsize");
-        final String ticklabelfontsizeStr = elem.getStringAttr("ticklabelfontsize");
-        final String xaxislabelStr = elem.getStringAttr("xaxislabel");
-        final String yaxislabelStr = elem.getStringAttr("yaxislabel");
+        final String widthStr = elem.getStringAttr(WIDTH);
+        final String heightStr = elem.getStringAttr(HEIGHT);
+        final String altStr = elem.getStringAttr(ALT);
+        final String minxStr = elem.getStringAttr(MIN_X);
+        final String minyStr = elem.getStringAttr(MIN_Y);
+        final String maxxStr = elem.getStringAttr(MAX_X);
+        final String maxyStr = elem.getStringAttr(MAX_Y);
+        final String xtickintervalStr = elem.getStringAttr(X_TICK_INTERVAL);
+        final String ytickintervalStr = elem.getStringAttr(Y_TICK_INTERVAL);
+        final String bgcolorStr = elem.getStringAttr(BGCOLOR);
+        final String bordercolorStr = elem.getStringAttr(BORDER_COLOR);
+        final String gridcolorStr = elem.getStringAttr(GRID_COLOR);
+        final String tickcolorStr = elem.getStringAttr(TICK_COLOR);
+        final String axiscolorStr = elem.getStringAttr(AXIS_COLOR);
+        final String borderwidthStr = elem.getStringAttr(BORDER_WIDTH);
+        final String gridwidthStr = elem.getStringAttr(GRID_WIDTH);
+        final String tickwidthStr = elem.getStringAttr(TICK_WIDTH);
+        final String ticksizeStr = elem.getStringAttr(TICK_SIZE);
+        final String axiswidthStr = elem.getStringAttr(AXIS_WIDTH);
+        final String axislabelfontsizeStr = elem.getStringAttr(AXIS_LABEL_FONT_SIZE);
+        final String ticklabelfontsizeStr = elem.getStringAttr(TICK_LABEL_FONT_SIZE);
+        final String xaxislabelStr = elem.getStringAttr(X_AXIS_LABEL);
+        final String yaxislabelStr = elem.getStringAttr(Y_AXIS_LABEL);
 
         int width = 0;
         if (widthStr == null) {
@@ -1837,25 +2189,25 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("formula".equalsIgnoreCase(childTag)) {
+                if (FORMULA.equalsIgnoreCase(childTag)) {
                     valid = valid && extractGraphFormula(evalContext, nonempty, graph, mode);
-                } else if ("line".equalsIgnoreCase(childTag)) {
+                } else if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, nonempty, graph, mode);
-                } else if ("arc".equalsIgnoreCase(childTag)) {
+                } else if (ARC.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveArc(evalContext, nonempty, graph, mode);
-                } else if ("oval".equalsIgnoreCase(childTag)) {
+                } else if (OVAL.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveOval(evalContext, nonempty, graph, mode);
-                } else if ("rectangle".equalsIgnoreCase(childTag)) {
+                } else if (RECTANGLE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRectangle(evalContext, nonempty, graph, mode);
-                } else if ("polygon".equalsIgnoreCase(childTag)) {
+                } else if (POLYGON.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, nonempty, graph, mode);
-                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                } else if (PROTRACTOR.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveProtractor(evalContext, nonempty, graph, mode);
-                } else if ("raster".equalsIgnoreCase(childTag)) {
+                } else if (RASTER.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, nonempty, graph, mode);
-                } else if ("text".equalsIgnoreCase(childTag)) {
+                } else if (TEXT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveText(evalContext, nonempty, graph, mode);
-                } else if ("span".equalsIgnoreCase(childTag)) {
+                } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, nonempty, graph, mode);
                 } else {
                     elem.logError("The " + childTag + " tag is not valid within GraphXY.");
@@ -1864,23 +2216,23 @@ public enum DocFactory {
             } else if (child instanceof final EmptyElement empty) {
                 final String childTag = empty.getTagName();
 
-                if ("line".equalsIgnoreCase(childTag)) {
+                if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, empty, graph, mode);
-                } else if ("arc".equalsIgnoreCase(childTag)) {
+                } else if (ARC.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveArc(evalContext, empty, graph, mode);
-                } else if ("oval".equalsIgnoreCase(childTag)) {
+                } else if (OVAL.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveOval(evalContext, empty, graph, mode);
-                } else if ("rectangle".equalsIgnoreCase(childTag)) {
+                } else if (RECTANGLE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRectangle(evalContext, empty, graph, mode);
-                } else if ("polygon".equalsIgnoreCase(childTag)) {
+                } else if (POLYGON.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitivePolygon(evalContext, empty, graph, mode);
-                } else if ("protractor".equalsIgnoreCase(childTag)) {
+                } else if (PROTRACTOR.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveProtractor(evalContext, empty, graph, mode);
-                } else if ("raster".equalsIgnoreCase(childTag)) {
+                } else if (RASTER.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveRaster(evalContext, empty, graph, mode);
-                } else if ("text".equalsIgnoreCase(childTag)) {
+                } else if (TEXT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveText(evalContext, empty, graph, mode);
-                } else if ("span".equalsIgnoreCase(childTag)) {
+                } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, empty, graph, mode);
                 } else {
                     elem.logError("Empty " + childTag + " tag is not valid within graphxy.");
@@ -1914,10 +2266,10 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String domainVarStr = elem.getStringAttr("domain-var");
-        final String colorStr = elem.getStringAttr("color");
-        final String minxStr = elem.getStringAttr("minx");
-        final String maxxStr = elem.getStringAttr("maxx");
+        final String domainVarStr = elem.getStringAttr(DOMAIN_VAR);
+        final String colorStr = elem.getStringAttr(COLOR);
+        final String minxStr = elem.getStringAttr(MIN_X);
+        final String maxxStr = elem.getStringAttr(MAX_X);
 
         Color color = Color.BLACK;
         if (colorStr != null) {
@@ -1980,7 +2332,7 @@ public enum DocFactory {
         if (count == 1 && elem.getChild(0) instanceof final CData cdata) {
             // Deprecated format (1)
             if (mode.reportDeprecated) {
-                elem.logError("Deprecated text-format expresion in graph formula");
+                elem.logError("Deprecated text-format expression in graph formula");
             }
             form = FormulaFactory.parseFormulaString(evalContext, cdata.content, mode);
             if (form == null) {
@@ -2004,13 +2356,13 @@ public enum DocFactory {
 
                     if (child instanceof final NonemptyElement nonempty) {
 
-                        if ("minx".equals(tag)) {
+                        if (MIN_X.equals(tag)) {
                             minXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minXF == null) {
                                 elem.logError("Invalid 'minx' formula");
                                 valid = false;
                             }
-                        } else if ("maxx".equals(tag)) {
+                        } else if (MAX_X.equals(tag)) {
                             maxXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxXF == null) {
                                 elem.logError("Invalid 'maxx' formula");
@@ -2087,42 +2439,42 @@ public enum DocFactory {
 
         final DocPrimitiveLine p = new DocPrimitiveLine(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
-                && p.setAttr("width", e.getStringAttr("width"), e, mode)
-                && p.setAttr("height", e.getStringAttr("height"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
-                && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
                         p.setXCoord(new NumberOrFormula(theXCoord));
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
                         }
                         p.setYCoord(new NumberOrFormula(theYCoord));
-                    } else if ("width".equals(tag)) {
+                    } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
                         }
                         p.setWidth(new NumberOrFormula(theWidth));
-                    } else if ("height".equals(tag)) {
+                    } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
@@ -2155,49 +2507,48 @@ public enum DocFactory {
 
         final DocPrimitiveArc p = new DocPrimitiveArc(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
-                && p.setAttr("width", e.getStringAttr("width"), e, mode)
-                && p.setAttr("height", e.getStringAttr("height"), e, mode)
-                && p.setAttr("cx", e.getStringAttr("cx"), e, mode)
-                && p.setAttr("cy", e.getStringAttr("cy"), e, mode)
-                && p.setAttr("r", e.getStringAttr("r"), e, mode)
-                && p.setAttr("rx", e.getStringAttr("rx"), e, mode)
-                && p.setAttr("ry", e.getStringAttr("ry"), e, mode)
-                && p.setAttr("start-angle", e.getStringAttr("start-angle"), e, mode)
-                && p.setAttr("arc-angle", e.getStringAttr("arc-angle"), e, mode)
-                && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("stroke-color", e.getStringAttr("stroke-color"), e, mode)
-                && p.setAttr("stroke-dash", e.getStringAttr("stroke-dash"), e, mode)
-                && p.setAttr("stroke-alpha", e.getStringAttr("stroke-alpha"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode) // *** Deprecated
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode) // *** Deprecated
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode) // *** Deprecated
-                && p.setAttr("fill-style", e.getStringAttr("fill-style"), e, mode)
-                && p.setAttr("fill-color", e.getStringAttr("fill-color"), e, mode)
-                && p.setAttr("fill-alpha", e.getStringAttr("fill-alpha"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode) // *** Deprecated
-                && p.setAttr("rays-shown", e.getStringAttr("rays-shown"), e, mode)
-                && p.setAttr("ray-width", e.getStringAttr("ray-width"), e, mode)
-                && p.setAttr("ray-length", e.getStringAttr("ray-length"), e, mode)
-                && p.setAttr("ray-color", e.getStringAttr("ray-color"), e, mode)
-                && p.setAttr("ray-dash", e.getStringAttr("ray-dash"), e, mode)
-                && p.setAttr("ray-alpha", e.getStringAttr("ray-alpha"), e, mode)
-                && p.setAttr("label", e.getStringAttr("label"), e, mode)
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                && p.setAttr(CX, e.getStringAttr(CX), e, mode)
+                && p.setAttr(CY, e.getStringAttr(CY), e, mode)
+                && p.setAttr(R, e.getStringAttr(R), e, mode)
+                && p.setAttr(RX, e.getStringAttr(RX), e, mode)
+                && p.setAttr(RY, e.getStringAttr(RY), e, mode)
+                && p.setAttr(START_ANGLE, e.getStringAttr(START_ANGLE), e, mode)
+                && p.setAttr(ARC_ANGLE, e.getStringAttr(ARC_ANGLE), e, mode)
+                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                && p.setAttr(STROKE_COLOR, e.getStringAttr(STROKE_COLOR), e, mode)
+                && p.setAttr(STROKE_DASH, e.getStringAttr(STROKE_DASH), e, mode)
+                && p.setAttr(STROKE_ALPHA, e.getStringAttr(STROKE_ALPHA), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode) // *** Deprecated
+                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode) // *** Deprecated
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode) // *** Deprecated
+                && p.setAttr(FILL_STYLE, e.getStringAttr(FILL_STYLE), e, mode)
+                && p.setAttr(FILL_COLOR, e.getStringAttr(FILL_COLOR), e, mode)
+                && p.setAttr(FILL_ALPHA, e.getStringAttr(FILL_ALPHA), e, mode)
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode) // *** Deprecated
+                && p.setAttr(RAYS_SHOWN, e.getStringAttr(RAYS_SHOWN), e, mode)
+                && p.setAttr(RAY_WIDTH, e.getStringAttr(RAY_WIDTH), e, mode)
+                && p.setAttr(RAY_LENGTH, e.getStringAttr(RAY_LENGTH), e, mode)
+                && p.setAttr(RAY_COLOR, e.getStringAttr(RAY_COLOR), e, mode)
+                && p.setAttr(RAY_DASH, e.getStringAttr(RAY_DASH), e, mode)
+                && p.setAttr(RAY_ALPHA, e.getStringAttr(RAY_ALPHA), e, mode)
+                && p.setAttr(LABEL, e.getStringAttr(LABEL), e, mode)
                 && p.setAttr("label-color", e.getStringAttr("label-color"), e, mode)
                 && p.setAttr("label-alpha", e.getStringAttr("label-alpha"), e, mode)
                 && p.setAttr("label-offset", e.getStringAttr("label-offset"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
-                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
-        ;
+                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement inner) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theX = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theX == null) {
                             e.logError("Invalid 'x' formula.");
@@ -2205,7 +2556,7 @@ public enum DocFactory {
                         } else {
                             p.setXCoord(new NumberOrFormula(theX));
                         }
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theY = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theY == null) {
                             e.logError("Invalid 'y' formula.");
@@ -2213,7 +2564,7 @@ public enum DocFactory {
                         } else {
                             p.setYCoord(new NumberOrFormula(theY));
                         }
-                    } else if ("width".equals(tag)) {
+                    } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
@@ -2221,7 +2572,7 @@ public enum DocFactory {
                         } else {
                             p.setWidth(new NumberOrFormula(theWidth));
                         }
-                    } else if ("height".equals(tag)) {
+                    } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
@@ -2229,7 +2580,7 @@ public enum DocFactory {
                         } else {
                             p.setHeight(new NumberOrFormula(theHeight));
                         }
-                    } else if ("cx".equals(tag)) {
+                    } else if (CX.equals(tag)) {
                         final Formula theCx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theCx == null) {
                             e.logError("Invalid 'cx' formula.");
@@ -2237,7 +2588,7 @@ public enum DocFactory {
                         } else {
                             p.setCenterX(new NumberOrFormula(theCx));
                         }
-                    } else if ("cy".equals(tag)) {
+                    } else if (CY.equals(tag)) {
                         final Formula theCy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theCy == null) {
                             e.logError("Invalid 'cy' formula.");
@@ -2245,7 +2596,7 @@ public enum DocFactory {
                         } else {
                             p.setCenterY(new NumberOrFormula(theCy));
                         }
-                    } else if ("r".equals(tag)) {
+                    } else if (R.equals(tag)) {
                         final Formula theR = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theR == null) {
                             e.logError("Invalid 'r' formula.");
@@ -2253,7 +2604,7 @@ public enum DocFactory {
                         } else {
                             p.setRadius(new NumberOrFormula(theR));
                         }
-                    } else if ("rx".equals(tag)) {
+                    } else if (RX.equals(tag)) {
                         final Formula theRx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theRx == null) {
                             e.logError("Invalid 'rx' formula.");
@@ -2261,7 +2612,7 @@ public enum DocFactory {
                         } else {
                             p.setXRadius(new NumberOrFormula(theRx));
                         }
-                    } else if ("ry".equals(tag)) {
+                    } else if (RY.equals(tag)) {
                         final Formula theRy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theRy == null) {
                             e.logError("Invalid 'ry' formula.");
@@ -2269,7 +2620,7 @@ public enum DocFactory {
                         } else {
                             p.setYRadius(new NumberOrFormula(theRy));
                         }
-                    } else if ("start-angle".equals(tag)) {
+                    } else if (START_ANGLE.equals(tag)) {
                         final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theStartAngle == null) {
                             e.logError("Invalid 'start-angle' formula.");
@@ -2277,7 +2628,7 @@ public enum DocFactory {
                         } else {
                             p.setStartAngle(new NumberOrFormula(theStartAngle));
                         }
-                    } else if ("arc-angle".equals(tag)) {
+                    } else if (ARC_ANGLE.equals(tag)) {
                         final Formula theArcAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theArcAngle == null) {
                             e.logError("Invalid 'arc-angle' formula.");
@@ -2285,7 +2636,7 @@ public enum DocFactory {
                         } else {
                             p.setArcAngle(new NumberOrFormula(theArcAngle));
                         }
-                    } else if ("label".equals(tag)) {
+                    } else if (LABEL.equals(tag)) {
                         final DocSimpleSpan innerSpan = parseSpan(evalContext, inner, mode);
                         if (innerSpan == null) {
                             e.logError("Failed to parse <label> in span primitive.");
@@ -2322,43 +2673,43 @@ public enum DocFactory {
 
         final DocPrimitiveOval p = new DocPrimitiveOval(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
-                && p.setAttr("width", e.getStringAttr("width"), e, mode)
-                && p.setAttr("height", e.getStringAttr("height"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
-                && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
                         p.setXCoord(new NumberOrFormula(theXCoord));
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
                         }
                         p.setYCoord(new NumberOrFormula(theYCoord));
-                    } else if ("width".equals(tag)) {
+                    } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
                         }
                         p.setWidth(new NumberOrFormula(theWidth));
-                    } else if ("height".equals(tag)) {
+                    } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
@@ -2393,43 +2744,43 @@ public enum DocFactory {
 
         final DocPrimitiveRectangle p = new DocPrimitiveRectangle(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
-                && p.setAttr("width", e.getStringAttr("width"), e, mode)
-                && p.setAttr("height", e.getStringAttr("height"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
-                && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
                         p.setXCoord(new NumberOrFormula(theXCoord));
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
                         }
                         p.setYCoord(new NumberOrFormula(theYCoord));
-                    } else if ("width".equals(tag)) {
+                    } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
                         }
                         p.setWidth(new NumberOrFormula(theWidth));
-                    } else if ("height".equals(tag)) {
+                    } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
@@ -2465,11 +2816,11 @@ public enum DocFactory {
 
         boolean valid = p.setAttr("x-list", e.getStringAttr("x-list"), e, mode)
                 && p.setAttr("y-list", e.getStringAttr("y-list"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
-                && p.setAttr("stroke-width", e.getStringAttr("stroke-width"), e, mode)
-                && p.setAttr("dash", e.getStringAttr("dash"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
 
@@ -2480,7 +2831,7 @@ public enum DocFactory {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula in child element.");
@@ -2488,7 +2839,7 @@ public enum DocFactory {
                         } else {
                             xList.add(theXCoord);
                         }
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula in child element.");
@@ -2532,15 +2883,15 @@ public enum DocFactory {
 
         final DocPrimitiveProtractor p = new DocPrimitiveProtractor(container);
 
-        boolean valid = p.setAttr("cx", e.getStringAttr("cx"), e, mode)
-                && p.setAttr("cy", e.getStringAttr("cy"), e, mode)
-                && p.setAttr("r", e.getStringAttr("r"), e, mode)
+        boolean valid = p.setAttr(CX, e.getStringAttr(CX), e, mode)
+                && p.setAttr(CY, e.getStringAttr(CY), e, mode)
+                && p.setAttr(R, e.getStringAttr(R), e, mode)
                 && p.setAttr("orientation", e.getStringAttr("orientation"), e, mode)
                 && p.setAttr("units", e.getStringAttr("units"), e, mode)
                 && p.setAttr("quadrants", e.getStringAttr("quadrants"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
                 && p.setAttr("text-color", e.getStringAttr("text-color"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
 
@@ -2607,40 +2958,40 @@ public enum DocFactory {
 
         final DocPrimitiveRaster p = new DocPrimitiveRaster(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
-                && p.setAttr("width", e.getStringAttr("width"), e, mode)
-                && p.setAttr("height", e.getStringAttr("height"), e, mode)
-                && p.setAttr("src", e.getStringAttr("src"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                && p.setAttr(SRC, e.getStringAttr(SRC), e, mode)
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
                         p.setXCoord(new NumberOrFormula(theXCoord));
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
                         }
                         p.setYCoord(new NumberOrFormula(theYCoord));
-                    } else if ("width".equals(tag)) {
+                    } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
                         }
                         p.setWidth(new NumberOrFormula(theWidth));
-                    } else if ("height".equals(tag)) {
+                    } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
@@ -2673,15 +3024,15 @@ public enum DocFactory {
 
         final DocPrimitiveText p = new DocPrimitiveText(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
                 && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
                 && p.setAttr("highlight", e.getStringAttr("highlight"), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
                 && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         String valueStr = e.getStringAttr("value");
         if (valueStr != null) {
@@ -2710,14 +3061,14 @@ public enum DocFactory {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("x".equals(tag)) {
+                    if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
                         }
                         p.setXCoord(new NumberOrFormula(theXCoord));
-                    } else if ("y".equals(tag)) {
+                    } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
@@ -2750,21 +3101,21 @@ public enum DocFactory {
 
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
-        final boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
+        final boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
                 && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
                 && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         // <span x="((30+{lb})/2)+10" y="35+{la}" fontsize="20.0">{db2}</span>
         if (valid) {
             String value = e.getStringAttr("value");
             if (value == null) {
-                value = e.getStringAttr("span");
+                value = e.getStringAttr(SPAN);
             }
 
             final String xml = "<A>" + value + "</A>";
@@ -2777,7 +3128,7 @@ public enum DocFactory {
                         e.logError("Failed to parsed 'value' attribute in span primitive.");
                     } else {
                         final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
-                        nonwrap.tag = "nonwrap";
+                        nonwrap.tag = NONWRAP;
                         nonwrap.add(innerSpan);
                         p.setSpan(nonwrap);
                     }
@@ -2808,20 +3159,20 @@ public enum DocFactory {
 
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
-        boolean valid = p.setAttr("x", e.getStringAttr("x"), e, mode)
-                && p.setAttr("y", e.getStringAttr("y"), e, mode)
+        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
+                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
                 && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
-                && p.setAttr("filled", e.getStringAttr("filled"), e, mode)
-                && p.setAttr("color", e.getStringAttr("color"), e, mode)
+                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
                 && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
                 && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
                 && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
-                && p.setAttr("alpha", e.getStringAttr("alpha"), e, mode);
+                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         boolean newFormat = false;
         for (final IElement grandchild : e.getElementChildrenAsList()) {
             final String tag = grandchild.getTagName();
-            if ("x".equals(tag) || "y".equals(tag) || "content".equals(tag)) {
+            if (X.equals(tag) || Y.equals(tag) || "content".equals(tag)) {
                 newFormat = true;
             }
         }
@@ -2836,7 +3187,7 @@ public enum DocFactory {
                     if (child instanceof final NonemptyElement nonemptyChild) {
                         final String tag = child.getTagName();
 
-                        if ("x".equals(tag)) {
+                        if (X.equals(tag)) {
                             final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, nonemptyChild,
                                     mode);
                             if (theXCoord == null) {
@@ -2844,7 +3195,7 @@ public enum DocFactory {
                                 valid = false;
                             }
                             p.setXCoord(new NumberOrFormula(theXCoord));
-                        } else if ("y".equals(tag)) {
+                        } else if (Y.equals(tag)) {
                             final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, nonemptyChild,
                                     mode);
                             if (theYCoord == null) {
@@ -2899,10 +3250,10 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String widthStr = elem.getStringAttr("width");
-        final String heightStr = elem.getStringAttr("height");
-        final String srcStr = elem.getStringAttr("src");
-        final String altStr = elem.getStringAttr("alt");
+        final String widthStr = elem.getStringAttr(WIDTH);
+        final String heightStr = elem.getStringAttr(HEIGHT);
+        final String srcStr = elem.getStringAttr(SRC);
+        final String altStr = elem.getStringAttr(ALT);
 
         NumberOrFormula width = null;
         if (widthStr != null) {
@@ -2964,10 +3315,10 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String widthStr = elem.getStringAttr("width");
-        final String heightStr = elem.getStringAttr("height");
-        final String srcStr = elem.getStringAttr("src");
-        final String altStr = elem.getStringAttr("alt");
+        final String widthStr = elem.getStringAttr(WIDTH);
+        final String heightStr = elem.getStringAttr(HEIGHT);
+        final String srcStr = elem.getStringAttr(SRC);
+        final String altStr = elem.getStringAttr(ALT);
 
         NumberOrFormula width = null;
         if (widthStr != null) {
@@ -3007,10 +3358,10 @@ public enum DocFactory {
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
-                if ("width".equals(childTag)) {
+                if (WIDTH.equals(childTag)) {
                     final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     width = new NumberOrFormula(theWidth);
-                } else if ("height".equals(childTag)) {
+                } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {
                         elem.logError("Invalid 'height' formula.");
@@ -3656,7 +4007,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String type = elem.getStringAttr("type");
+        final String type = elem.getStringAttr(TYPE);
         if (type == null) {
             elem.logError("<input> element missing required 'type' attribute");
             valid = false;
@@ -3704,7 +4055,7 @@ public enum DocFactory {
 
         final String textValue = elem.getStringAttr("textValue");
         final String value = elem.getStringAttr("value");
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         final String defaultStr = elem.getStringAttr("default");
         final String styleStr = elem.getStringAttr("style");
         final String treatMinusAsStr = elem.getStringAttr("treat-minus-as");
@@ -3843,7 +4194,7 @@ public enum DocFactory {
 
         final String textValue = elem.getStringAttr("textValue");
         final String value = elem.getStringAttr("value");
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         final String defaultStr = elem.getStringAttr("default");
         final String styleStr = elem.getStringAttr("style");
         final String treatMinusAsStr = elem.getStringAttr("treat-minus-as");
@@ -3981,7 +4332,7 @@ public enum DocFactory {
         boolean valid = true;
 
         final String textValue = elem.getStringAttr("textValue");
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         final String styleStr = elem.getStringAttr("style");
         final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
         final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
@@ -4287,7 +4638,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String type = elem.getStringAttr("type");
+        final String type = elem.getStringAttr(TYPE);
         if (type == null) {
             elem.logError("<input> element missing required 'type' attribute");
             valid = false;
@@ -4300,7 +4651,7 @@ public enum DocFactory {
         }
 
         Integer width = null;
-        final String widthStr = elem.getStringAttr("width");
+        final String widthStr = elem.getStringAttr(WIDTH);
         if (widthStr != null) {
             try {
                 width = Integer.valueOf(widthStr);
@@ -4546,7 +4897,7 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String colorStr = elem.getStringAttr("color");
+        final String colorStr = elem.getStringAttr(COLOR);
         if (colorStr != null) {
             if (ColorNames.isColorNameValid(colorStr)) {
                 obj.setColorName(colorStr);
