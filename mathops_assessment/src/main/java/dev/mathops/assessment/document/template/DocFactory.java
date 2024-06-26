@@ -144,9 +144,6 @@ public enum DocFactory {
     /** A commonly-used string. */
     private static final String TEXT = "text";
 
-    //
-    //
-
     /** A commonly-used string. */
     private static final String WIDTH = "width";
 
@@ -389,6 +386,120 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String FONT_STYLE = "fontstyle";
+
+    /** A commonly-used string. */
+    private static final String EXPR = "expr";
+
+    /** A commonly-used string. */
+    private static final String X_LIST = "x-list";
+
+    /** A commonly-used string. */
+    private static final String Y_LIST = "y-list";
+
+    /** A commonly-used string. */
+    private static final String ORIENTATION = "orientation";
+
+    /** A commonly-used string. */
+    private static final String UNITS = "units";
+
+    /** A commonly-used string. */
+    private static final String QUADRANTS = "quadrants";
+
+    /** A commonly-used string. */
+    private static final String TEXT_COLOR = "text-color";
+
+    /** A commonly-used string. */
+    private static final String CENTER_X = "center-x";
+
+    /** A commonly-used string. */
+    private static final String CENTER_Y = "center-y";
+
+    /** A commonly-used string. */
+    private static final String RADIUS = "radius";
+
+    /** A commonly-used string. */
+    private static final String ANCHOR = "anchor";
+
+    /** A commonly-used string. */
+    private static final String HIGHLIGHT = "highlight";
+
+    /** A commonly-used string. */
+    private static final String VALUE = "value";
+
+    /** A commonly-used string. */
+    private static final String CONTENT = "content";
+
+    /** A commonly-used string. */
+    private static final String INTEGER = "integer";
+
+    /** A commonly-used string. */
+    private static final String REAL = "real";
+
+    /** A commonly-used string. */
+    private static final String STRING = "string";
+
+    /** A commonly-used string. */
+    private static final String RADIO_BUTTON = "radio-button";
+
+    /** A commonly-used string. */
+    private static final String CHECKBOX = "checkbox";
+
+    /** A commonly-used string. */
+    private static final String TEXT_VALUE = "textvalue";
+
+    /** A commonly-used string. */
+    private static final String DEFAULT = "default";
+
+    /** A commonly-used string. */
+    private static final String STYLE = "style";
+
+    /** A commonly-used string. */
+    private static final String TREAT_MINUS_AS = "treat-minus-as";
+
+    /** A commonly-used string. */
+    private static final String ENABLED_VAR_NAME = "enabled-var-name";
+
+    /** A commonly-used string. */
+    private static final String ENABLED_VAR_VALUE = "enabled-var-value";
+
+    /** A commonly-used string. */
+    private static final String BOX = "box";
+
+    /** A commonly-used string. */
+    private static final String UNDERLINE = "underline";
+
+    /** A commonly-used string. */
+    private static final String TRUE = "TRUE";
+
+    /** A commonly-used string. */
+    private static final String FALSE = "FALSE";
+
+    /** A commonly-used string. */
+    private static final String SELECTED = "selected";
+
+    /** A commonly-used string. */
+    private static final String PLAIN = "plain";
+
+    /** A commonly-used string. */
+    private static final String BOLD = "bold";
+
+    /** A commonly-used string. */
+    private static final String ITALIC = "italic";
+
+    /** A commonly-used string. */
+    private static final String OVERLINE = "overline";
+
+    /** A commonly-used string. */
+    private static final String STRIKETHROUGH = "strikethrough";
+
+    /** A commonly-used string. */
+    private static final String BOXED = "boxed";
+
+    /** A commonly-used string. */
+    private static final String ENABLED = "enabled";
+
+    /** A commonly-used string. */
+    private static final String SYMBOLS = "symbols";
 
     /**
      * Generate a {@code DocColumn} object from an XML element that contains a document tag (with an optional ID), and a
@@ -1184,7 +1295,7 @@ public enum DocFactory {
                             valid = extractNonwrap(evalContext, childTag, nonempty, span, false, mode);
 
                             if (valid && span.getChildren() != null && !span.getChildren().isEmpty()) {
-                                base = span.getChildren().get(0);
+                                base = span.getChildren().getFirst();
                             } else {
                                 elem.logError("Failed to parse &lt;base&gt; content from '" + nonempty.print(0) + "'");
                             }
@@ -1201,7 +1312,7 @@ public enum DocFactory {
 
                             if (valid) {
                                 if (span.getChildren() != null) {
-                                    sup = span.getChildren().get(0);
+                                    sup = span.getChildren().getFirst();
                                 }
 
                                 if (base != null && sup.getFontSize() == base.getFontSize() && base.getFontSize() > 8) {
@@ -1221,7 +1332,7 @@ public enum DocFactory {
 
                             if (valid) {
                                 if (span.getChildren() != null) {
-                                    sub = span.getChildren().get(0);
+                                    sub = span.getChildren().getFirst();
                                 }
 
                                 if (base != null && sub.getFontSize() == base.getFontSize() && base.getFontSize() > 8) {
@@ -1241,7 +1352,7 @@ public enum DocFactory {
 
                             if (valid) {
                                 if (span.getChildren() != null) {
-                                    over = span.getChildren().get(0);
+                                    over = span.getChildren().getFirst();
                                 }
 
                                 if (base != null && over.getFontSize() == base.getFontSize()
@@ -1262,7 +1373,7 @@ public enum DocFactory {
 
                             if (valid) {
                                 if (span.getChildren() != null) {
-                                    under = span.getChildren().get(0);
+                                    under = span.getChildren().getFirst();
                                 }
 
                                 if (base != null && under.getFontSize() == base.getFontSize()
@@ -1361,7 +1472,8 @@ public enum DocFactory {
         }
 
         if (text != null) {
-            text.setFontStyle(Integer.valueOf(AbstractDocObjectTemplate.HIDDEN));
+            final Integer styleInt = Integer.valueOf(AbstractDocObjectTemplate.HIDDEN);
+            text.setFontStyle(styleInt);
             fence.add(text);
             fence.openFence = text;
         }
@@ -1454,7 +1566,8 @@ public enum DocFactory {
         }
 
         if (text != null) {
-            text.setFontStyle(Integer.valueOf(AbstractDocObjectTemplate.HIDDEN));
+            final Integer styleInt = Integer.valueOf(AbstractDocObjectTemplate.HIDDEN);
+            text.setFontStyle(styleInt);
             fence.add(text);
             fence.closeFence = text;
         }
@@ -1701,7 +1814,7 @@ public enum DocFactory {
 
             final String cellMarginsStr = elem.getStringAttr(CELL_MARGINS);
             if (cellMarginsStr != null) {
-                if (cellMarginsStr.indexOf(CoreConstants.COMMA_CHAR) == -1) {
+                if (cellMarginsStr.indexOf((int) CoreConstants.COMMA_CHAR) == -1) {
                     try {
                         final int size = Integer.parseInt(cellMarginsStr);
                         table.cellInsets = new Insets(size, size, size, size);
@@ -2043,7 +2156,7 @@ public enum DocFactory {
                 final Number maxy = NumberParser.parse(maxyStr);
                 graph.setWindow(minx, maxx, miny, maxy);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid window min/max attribute value (must be an integer).");
+                elem.logError("Invalid window min or max attribute value (must be an integer).");
                 valid = false;
             }
         } else if (minxStr != null || minyStr != null || maxxStr != null || maxyStr != null) {
@@ -2071,7 +2184,8 @@ public enum DocFactory {
 
         if (bgcolorStr != null) {
             if (ColorNames.isColorNameValid(bgcolorStr)) {
-                graph.setBackgroundColor(bgcolorStr, ColorNames.getColor(bgcolorStr));
+                final Color color = ColorNames.getColor(bgcolorStr);
+                graph.setBackgroundColor(bgcolorStr, color);
             } else {
                 elem.logError("Invalid 'bgcolor' color name.");
                 valid = false;
@@ -2080,7 +2194,8 @@ public enum DocFactory {
 
         if (bordercolorStr != null) {
             if (ColorNames.isColorNameValid(bordercolorStr)) {
-                graph.setBorderColor(bordercolorStr, ColorNames.getColor(bordercolorStr));
+                final Color color = ColorNames.getColor(bordercolorStr);
+                graph.setBorderColor(bordercolorStr, color);
             } else {
                 elem.logError("Invalid 'bordercolor' color name.");
                 valid = false;
@@ -2089,7 +2204,8 @@ public enum DocFactory {
 
         if (gridcolorStr != null) {
             if (ColorNames.isColorNameValid(gridcolorStr)) {
-                graph.setGridColor(gridcolorStr, ColorNames.getColor(gridcolorStr));
+                final Color color = ColorNames.getColor(gridcolorStr);
+                graph.setGridColor(gridcolorStr, color);
             } else {
                 elem.logError("Invalid 'gridcolor' color name.");
                 valid = false;
@@ -2098,7 +2214,8 @@ public enum DocFactory {
 
         if (tickcolorStr != null) {
             if (ColorNames.isColorNameValid(tickcolorStr)) {
-                graph.setTickColor(tickcolorStr, ColorNames.getColor(tickcolorStr));
+                final Color color = ColorNames.getColor(tickcolorStr);
+                graph.setTickColor(tickcolorStr, color);
             } else {
                 elem.logError("Invalid 'tickcolor' color name.");
                 valid = false;
@@ -2107,7 +2224,8 @@ public enum DocFactory {
 
         if (axiscolorStr != null) {
             if (ColorNames.isColorNameValid(axiscolorStr)) {
-                graph.setAxisColor(axiscolorStr, ColorNames.getColor(axiscolorStr));
+                final Color color = ColorNames.getColor(axiscolorStr);
+                graph.setAxisColor(axiscolorStr, color);
             } else {
                 elem.logError("Invalid 'axiscolor' color name.");
                 valid = false;
@@ -2319,12 +2437,12 @@ public enum DocFactory {
 
         // The content of this element has evolved...
 
-        // There are two old (deprecated) formats: (1) the content is a CDATA with the formula
-        // in text format, and (2) the content is the XML contents of a single formula
+        // There are two old (deprecated) formats: (1) the content is a CDATA with the formula in text format, and
+        // (2) the content is the XML contents of a single formula
 
-        // The new format defines three child elements: <minx> (with an XML formula for domain lower
-        // bound), <maxx> (with an XML formula for domain upper bound), and <expr> with the XML
-        // formula defining the function to be graphed.
+        // The new format defines three child elements: <minx> (with an XML formula for domain lower bound), <maxx>
+        // (with an XML formula for domain upper bound), and <expr> with the XML formula defining the function to be
+        // graphed.
 
         Formula form = null;
         final int count = elem.getNumChildren();
@@ -2344,9 +2462,12 @@ public enum DocFactory {
             boolean newFormat = false;
             for (int i = 0; i < count; ++i) {
                 final INode child = elem.getChild(i);
-                if (child instanceof final IElement childElement && "expr".equals(childElement.getTagName())) {
-                    newFormat = true;
-                    break;
+                if (child instanceof final IElement childElement) {
+                    final String tagName = childElement.getTagName();
+                    if (EXPR.equals(tagName)) {
+                        newFormat = true;
+                        break;
+                    }
                 }
             }
 
@@ -2368,7 +2489,7 @@ public enum DocFactory {
                                 elem.logError("Invalid 'maxx' formula");
                                 valid = false;
                             }
-                        } else if ("expr".equals(tag)) {
+                        } else if (EXPR.equals(tag)) {
                             form = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (form == null) {
                                 elem.logError("Invalid 'expr' formula");
@@ -2385,7 +2506,7 @@ public enum DocFactory {
                 }
             } else {
                 if (mode.reportDeprecated) {
-                    elem.logError("Deprecated wrapperless XML expresion in graph formula");
+                    elem.logError("Deprecated wrapperless XML expression in graph formula");
                 }
                 form = XmlFormulaFactory.extractFormula(evalContext, elem, mode);
             }
@@ -2413,8 +2534,8 @@ public enum DocFactory {
                 primitive.setDomainVarName(domainVarStr);
             }
             final String name = primitive.getDomainVarName();
-            final AbstractVariable var = evalContext.getVariable(name);
-            if (var == null) {
+            final AbstractVariable variable = evalContext.getVariable(name);
+            if (variable == null) {
                 final VariableInputReal domainVar = new VariableInputReal(name);
                 evalContext.addVariable(domainVar);
             }
@@ -2536,12 +2657,12 @@ public enum DocFactory {
                 && p.setAttr(RAY_DASH, e.getStringAttr(RAY_DASH), e, mode)
                 && p.setAttr(RAY_ALPHA, e.getStringAttr(RAY_ALPHA), e, mode)
                 && p.setAttr(LABEL, e.getStringAttr(LABEL), e, mode)
-                && p.setAttr("label-color", e.getStringAttr("label-color"), e, mode)
-                && p.setAttr("label-alpha", e.getStringAttr("label-alpha"), e, mode)
-                && p.setAttr("label-offset", e.getStringAttr("label-offset"), e, mode)
-                && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
-                && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
-                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode);
+                && p.setAttr(LABEL_COLOR, e.getStringAttr(LABEL_COLOR), e, mode)
+                && p.setAttr(LABEL_ALPHA, e.getStringAttr(LABEL_ALPHA), e, mode)
+                && p.setAttr(LABEL_OFFSET, e.getStringAttr(LABEL_OFFSET), e, mode)
+                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -2814,8 +2935,8 @@ public enum DocFactory {
 
         final DocPrimitivePolygon p = new DocPrimitivePolygon(container);
 
-        boolean valid = p.setAttr("x-list", e.getStringAttr("x-list"), e, mode)
-                && p.setAttr("y-list", e.getStringAttr("y-list"), e, mode)
+        boolean valid = p.setAttr(X_LIST, e.getStringAttr(X_LIST), e, mode)
+                && p.setAttr(Y_LIST, e.getStringAttr(Y_LIST), e, mode)
                 && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
                 && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
                 && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
@@ -2886,11 +3007,11 @@ public enum DocFactory {
         boolean valid = p.setAttr(CX, e.getStringAttr(CX), e, mode)
                 && p.setAttr(CY, e.getStringAttr(CY), e, mode)
                 && p.setAttr(R, e.getStringAttr(R), e, mode)
-                && p.setAttr("orientation", e.getStringAttr("orientation"), e, mode)
-                && p.setAttr("units", e.getStringAttr("units"), e, mode)
-                && p.setAttr("quadrants", e.getStringAttr("quadrants"), e, mode)
+                && p.setAttr(ORIENTATION, e.getStringAttr(ORIENTATION), e, mode)
+                && p.setAttr(UNITS, e.getStringAttr(UNITS), e, mode)
+                && p.setAttr(QUADRANTS, e.getStringAttr(QUADRANTS), e, mode)
                 && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr("text-color", e.getStringAttr("text-color"), e, mode)
+                && p.setAttr(TEXT_COLOR, e.getStringAttr(TEXT_COLOR), e, mode)
                 && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
@@ -2899,7 +3020,7 @@ public enum DocFactory {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if ("center-x".equals(tag)) {
+                    if (CENTER_X.equals(tag)) {
                         final Formula theCenterX = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theCenterX == null) {
                             e.logError("Invalid 'center-x' formula in child element.");
@@ -2907,7 +3028,7 @@ public enum DocFactory {
                         } else {
                             p.setCenterX(new NumberOrFormula(theCenterX));
                         }
-                    } else if ("center-y".equals(tag)) {
+                    } else if (CENTER_Y.equals(tag)) {
                         final Formula theCenterY = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theCenterY == null) {
                             e.logError("Invalid 'center-y' formula in child element.");
@@ -2915,7 +3036,7 @@ public enum DocFactory {
                         } else {
                             p.setCenterY(new NumberOrFormula(theCenterY));
                         }
-                    } else if ("radius".equals(tag)) {
+                    } else if (RADIUS.equals(tag)) {
                         final Formula theRadius = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theRadius == null) {
                             e.logError("Invalid 'radius' formula in child element.");
@@ -2923,7 +3044,7 @@ public enum DocFactory {
                         } else {
                             p.setRadius(new NumberOrFormula(theRadius));
                         }
-                    } else if ("orientation".equals(tag)) {
+                    } else if (ORIENTATION.equals(tag)) {
                         final Formula theOrientation = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theOrientation == null) {
                             e.logError("Invalid 'orientation' formula in child element.");
@@ -3026,22 +3147,23 @@ public enum DocFactory {
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
                 && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
+                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
                 && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr("highlight", e.getStringAttr("highlight"), e, mode)
-                && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
-                && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
-                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
+                && p.setAttr(HIGHLIGHT, e.getStringAttr(HIGHLIGHT), e, mode)
+                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
                 && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
-        String valueStr = e.getStringAttr("value");
+        String valueStr = e.getStringAttr(VALUE);
         if (valueStr != null) {
             // Identify and replace {\tag} tags for special characters
             int index = valueStr.indexOf("{\\");
             while (index != -1) {
                 final int endIndex = valueStr.indexOf('}', index + 2);
                 if (endIndex != -1) {
-                    final String cp = parseNamedEntity(valueStr.substring(index + 1, endIndex));
+                    final String substring = valueStr.substring(index + 1, endIndex);
+                    final String cp = parseNamedEntity(substring);
 
                     if (!cp.isEmpty()) {
                         valueStr = valueStr.substring(0, index) + cp + valueStr.substring(endIndex + 1);
@@ -3050,7 +3172,7 @@ public enum DocFactory {
                 index = valueStr.indexOf("{\\", index + 1);
             }
 
-            valid = p.setAttr("value", valueStr, e, mode);
+            valid = p.setAttr(VALUE, valueStr, e, mode);
             if (!valid) {
                 e.logError("Invalid value for 'value' attribute for drawing primitive (" + valueStr + ").");
             }
@@ -3103,17 +3225,17 @@ public enum DocFactory {
 
         final boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
                 && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
+                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
                 && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
                 && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
-                && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
-                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
+                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
                 && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         // <span x="((30+{lb})/2)+10" y="35+{la}" fontsize="20.0">{db2}</span>
         if (valid) {
-            String value = e.getStringAttr("value");
+            String value = e.getStringAttr(VALUE);
             if (value == null) {
                 value = e.getStringAttr(SPAN);
             }
@@ -3161,18 +3283,18 @@ public enum DocFactory {
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
                 && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr("anchor", e.getStringAttr("anchor"), e, mode)
+                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
                 && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
                 && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr("fontname", e.getStringAttr("fontname"), e, mode)
-                && p.setAttr("fontsize", e.getStringAttr("fontsize"), e, mode)
-                && p.setAttr("fontstyle", e.getStringAttr("fontstyle"), e, mode)
+                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
                 && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         boolean newFormat = false;
         for (final IElement grandchild : e.getElementChildrenAsList()) {
             final String tag = grandchild.getTagName();
-            if (X.equals(tag) || Y.equals(tag) || "content".equals(tag)) {
+            if (X.equals(tag) || Y.equals(tag) || CONTENT.equals(tag)) {
                 newFormat = true;
             }
         }
@@ -3203,7 +3325,7 @@ public enum DocFactory {
                                 valid = false;
                             }
                             p.setYCoord(new NumberOrFormula(theYCoord));
-                        } else if ("content".equals(tag)) {
+                        } else if (CONTENT.equals(tag)) {
                             final DocSimpleSpan innerSpan = parseSpan(evalContext, nonemptyChild, mode);
                             if (innerSpan == null) {
                                 e.logError("Failed to parse <content> in span primitive.");
@@ -3258,7 +3380,8 @@ public enum DocFactory {
         NumberOrFormula width = null;
         if (widthStr != null) {
             try {
-                width = new NumberOrFormula(NumberParser.parse(widthStr));
+                final Number parsed = NumberParser.parse(widthStr);
+                width = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
                 elem.logError("Invalid 'width' attribute value (must be a number).");
                 valid = false;
@@ -3268,7 +3391,8 @@ public enum DocFactory {
         NumberOrFormula height = null;
         if (heightStr != null) {
             try {
-                height = new NumberOrFormula(NumberParser.parse(heightStr));
+                final Number parsed = NumberParser.parse(heightStr);
+                height = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
                 elem.logError("Invalid 'height' attribute value (must be a number).");
                 valid = false;
@@ -3323,7 +3447,8 @@ public enum DocFactory {
         NumberOrFormula width = null;
         if (widthStr != null) {
             try {
-                width = new NumberOrFormula(NumberParser.parse(widthStr));
+                final Number parsed = NumberParser.parse(widthStr);
+                width = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
                 elem.logError("Invalid 'width' attribute value (must be a number).");
                 valid = false;
@@ -3333,7 +3458,8 @@ public enum DocFactory {
         NumberOrFormula height = null;
         if (heightStr != null) {
             try {
-                height = new NumberOrFormula(NumberParser.parse(heightStr));
+                final Number parsed = NumberParser.parse(heightStr);
+                height = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
                 elem.logError("Invalid 'height' attribute value (must be a number).");
                 valid = false;
@@ -3422,7 +3548,7 @@ public enum DocFactory {
 
         final int len = content.length();
         for (end = 0; end < len; ++end) {
-            final char currentChar = content.charAt(end);
+            final int currentChar = (int) content.charAt(end);
 
             if (isXmlWhitespace(currentChar)) {
 
@@ -3433,7 +3559,8 @@ public enum DocFactory {
                 if (inText) {
                     // End of run of text
                     final String str = content.substring(start, end);
-                    final AbstractDocObjectTemplate obj = new DocText(unescape(cdata, str, mode));
+                    final String unescaped = unescape(cdata, str, mode);
+                    final AbstractDocObjectTemplate obj = new DocText(unescaped);
                     container.add(obj);
                     inText = false;
                 }
@@ -3453,7 +3580,8 @@ public enum DocFactory {
                     if (inText) {
                         // End the text, start the parameter
                         final String str = content.substring(start, end);
-                        final AbstractDocObjectTemplate obj = new DocText(unescape(cdata, str, mode));
+                        final String unescaped = unescape(cdata, str, mode);
+                        final AbstractDocObjectTemplate obj = new DocText(unescaped);
                         container.add(obj);
                         inText = false;
                     } else if (inParameter) {
@@ -3506,7 +3634,8 @@ public enum DocFactory {
         if (inText) {
             // End of run of text
             final String str = content.substring(start, end);
-            final DocText obj = new DocText(unescape(cdata, str, mode));
+            final String unescaped = unescape(cdata, str, mode);
+            final DocText obj = new DocText(unescaped);
             container.add(obj);
         } else if (inWhitespace) {
             // End of a run of whitespace
@@ -3544,7 +3673,7 @@ public enum DocFactory {
         // text are merged into DocText objects
         final int len = content.length();
         for (end = 0; end < len; ++end) {
-            final char currentChar = content.charAt(end);
+            final int currentChar = (int) content.charAt(end);
 
             if (currentChar == '{') {
 
@@ -3595,7 +3724,9 @@ public enum DocFactory {
         if (inText) {
             // End of run of text
             final String str = content.substring(start, end);
-            final AbstractDocObjectTemplate obj = new DocText(unescape(cdata, collapseWhitespace(str), mode));
+            final String collapsed = collapseWhitespace(str);
+            final String unescaped = unescape(cdata, collapsed, mode);
+            final AbstractDocObjectTemplate obj = new DocText(unescaped);
             container.add(obj);
         } else if (inParameter) {
             cdata.logError("No matching '}' found.");
@@ -3616,7 +3747,8 @@ public enum DocFactory {
 
         final DocSymbolPalette palette = new DocSymbolPalette();
 
-        final boolean valid = palette.setAttribute("symbols", elem.getStringAttr("symbols"), elem);
+        final String stringAttr = elem.getStringAttr(SYMBOLS);
+        final boolean valid = palette.setAttribute(SYMBOLS, stringAttr, elem);
 
         if (valid) {
             container.add(palette);
@@ -3631,12 +3763,11 @@ public enum DocFactory {
      * @param name the entity name, such as "\lll"
      * @return the entity string (a single-character string)
      */
-    public static String parseNamedEntity(final String name) {
+    static String parseNamedEntity(final String name) {
 
-        char ch = 0;
+        char ch = (char) 0;
 
-        // TODO: Extract first character and test, then group codes by first char to make search
-        // more efficient
+        // TODO: Extract first character and test, then group codes by first char to make search more efficient
 
         if ("\\nbsp".equals(name)) {
             ch = '\u00A0';
@@ -3960,7 +4091,7 @@ public enum DocFactory {
             ch = '\u2ADB';
         }
 
-        return ch == 0 ? CoreConstants.EMPTY : Character.toString(ch);
+        return (int) ch == 0 ? CoreConstants.EMPTY : Character.toString(ch);
     }
 
     /**
@@ -4021,11 +4152,11 @@ public enum DocFactory {
 
         if (valid) {
             switch (type) {
-                case "integer" -> valid = extractInputInteger(evalContext, name, elem, container, mode);
-                case "real" -> valid = extractInputReal(evalContext, name, elem, container, mode);
-                case "string" -> valid = extractInputString(evalContext, name, elem, container, mode);
-                case "radio-button" -> valid = extractInputRadioButton(evalContext, name, elem, container, mode);
-                case "checkbox" -> valid = extractInputCheckbox(evalContext, name, elem, container, mode);
+                case INTEGER -> valid = extractInputInteger(evalContext, name, elem, container, mode);
+                case REAL -> valid = extractInputReal(evalContext, name, elem, container, mode);
+                case STRING -> valid = extractInputString(evalContext, name, elem, container, mode);
+                case RADIO_BUTTON -> valid = extractInputRadioButton(evalContext, name, elem, container, mode);
+                case CHECKBOX -> valid = extractInputCheckbox(evalContext, name, elem, container, mode);
                 default -> {
                     elem.logError("Unrecognized type of input: " + type);
                     valid = false;
@@ -4053,14 +4184,14 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String textValue = elem.getStringAttr("textValue");
-        final String value = elem.getStringAttr("value");
+        final String textValue = elem.getStringAttr(TEXT_VALUE);
+        final String value = elem.getStringAttr(VALUE);
         final String widthStr = elem.getStringAttr(WIDTH);
-        final String defaultStr = elem.getStringAttr("default");
-        final String styleStr = elem.getStringAttr("style");
-        final String treatMinusAsStr = elem.getStringAttr("treat-minus-as");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String defaultStr = elem.getStringAttr(DEFAULT);
+        final String styleStr = elem.getStringAttr(STYLE);
+        final String treatMinusAsStr = elem.getStringAttr(TREAT_MINUS_AS);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         Formula enabledF = null;
 
@@ -4068,7 +4199,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("enabled".equalsIgnoreCase(childTag)) {
+                if (ENABLED.equalsIgnoreCase(childTag)) {
                     if (mode == EParserMode.NORMAL) {
                         elem.logError("Deprecated 'enabled' formula on input");
                     }
@@ -4100,9 +4231,9 @@ public enum DocFactory {
         }
 
         if (styleStr != null) {
-            if ("box".equalsIgnoreCase(styleStr)) {
+            if (BOX.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.BOX;
-            } else if ("underline".equalsIgnoreCase(styleStr)) {
+            } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
                 elem.logError("Invalid 'style' attribute value");
@@ -4134,7 +4265,8 @@ public enum DocFactory {
 
         if (value != null) {
             try {
-                input.setOnlyLongValue(Long.valueOf(value));
+                final Long longValue = Long.valueOf(value);
+                input.setOnlyLongValue(longValue);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid 'value' attribute value");
                 valid = false;
@@ -4148,13 +4280,14 @@ public enum DocFactory {
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
 
-                if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.TRUE);
-                } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.FALSE);
                 } else {
                     try {
-                        input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
+                        final Long varValue = Long.valueOf(enabledVarValueStr);
+                        input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
                         elem.logError("Invalid 'enabled-var-value' attribute value");
                         valid = false;
@@ -4192,14 +4325,14 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String textValue = elem.getStringAttr("textValue");
-        final String value = elem.getStringAttr("value");
+        final String textValue = elem.getStringAttr(TEXT_VALUE);
+        final String value = elem.getStringAttr(VALUE);
         final String widthStr = elem.getStringAttr(WIDTH);
-        final String defaultStr = elem.getStringAttr("default");
-        final String styleStr = elem.getStringAttr("style");
-        final String treatMinusAsStr = elem.getStringAttr("treat-minus-as");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String defaultStr = elem.getStringAttr(DEFAULT);
+        final String styleStr = elem.getStringAttr(STYLE);
+        final String treatMinusAsStr = elem.getStringAttr(TREAT_MINUS_AS);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         Formula enabledF = null;
 
@@ -4207,7 +4340,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("enabled".equalsIgnoreCase(childTag)) {
+                if (ENABLED.equalsIgnoreCase(childTag)) {
                     if (mode == EParserMode.NORMAL) {
                         elem.logError("Deprecated 'enabled' formula on input");
                     }
@@ -4239,9 +4372,9 @@ public enum DocFactory {
         }
 
         if (styleStr != null) {
-            if ("box".equalsIgnoreCase(styleStr)) {
+            if (BOX.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.BOX;
-            } else if ("underline".equalsIgnoreCase(styleStr)) {
+            } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
                 elem.logError("Invalid 'style' attribute value");
@@ -4273,7 +4406,8 @@ public enum DocFactory {
 
         if (value != null) {
             try {
-                input.setOnlyDoubleValue(Double.valueOf(value));
+                final Double dblValue = Double.valueOf(value);
+                input.setOnlyDoubleValue(dblValue);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid 'value' attribute value");
                 valid = false;
@@ -4287,13 +4421,14 @@ public enum DocFactory {
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
 
-                if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.TRUE);
-                } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.FALSE);
                 } else {
                     try {
-                        input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
+                        final Long varValue = Long.valueOf(enabledVarValueStr);
+                        input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
                         elem.logError("Invalid 'enabled-var-value' attribute value");
                         valid = false;
@@ -4331,11 +4466,11 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String textValue = elem.getStringAttr("textValue");
+        final String textValue = elem.getStringAttr(TEXT_VALUE);
         final String widthStr = elem.getStringAttr(WIDTH);
-        final String styleStr = elem.getStringAttr("style");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String styleStr = elem.getStringAttr(STYLE);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         Formula enabledF = null;
 
@@ -4343,7 +4478,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("enabled".equalsIgnoreCase(childTag)) {
+                if (ENABLED.equalsIgnoreCase(childTag)) {
                     if (mode == EParserMode.NORMAL) {
                         elem.logError("Deprecated 'enabled' formula on input");
                     }
@@ -4366,9 +4501,9 @@ public enum DocFactory {
         input.setEnabledFormula(enabledF);
 
         if (styleStr != null) {
-            if ("box".equalsIgnoreCase(styleStr)) {
+            if (BOX.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.BOX;
-            } else if ("underline".equalsIgnoreCase(styleStr)) {
+            } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
                 elem.logError("Invalid 'style' attribute value");
@@ -4396,13 +4531,14 @@ public enum DocFactory {
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
 
-                if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.TRUE);
-                } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.FALSE);
                 } else {
                     try {
-                        input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
+                        final Long varValue = Long.valueOf(enabledVarValueStr);
+                        input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
                         elem.logError("Invalid 'enabled-var-value' attribute value");
                         valid = false;
@@ -4440,9 +4576,9 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String valueStr = elem.getStringAttr(VALUE);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         Formula enabledF = null;
 
@@ -4450,7 +4586,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("enabled".equalsIgnoreCase(childTag)) {
+                if (ENABLED.equalsIgnoreCase(childTag)) {
                     if (mode == EParserMode.NORMAL) {
                         elem.logError("Deprecated 'enabled' formula on input");
                     }
@@ -4475,11 +4611,11 @@ public enum DocFactory {
 
             input.setEnabledFormula(enabledF);
 
-            final String selectedStr = elem.getStringAttr("selected");
+            final String selectedStr = elem.getStringAttr(SELECTED);
             if (selectedStr != null) {
-                if ("true".equalsIgnoreCase(selectedStr)) {
+                if (TRUE.equalsIgnoreCase(selectedStr)) {
                     input.selectChoice();
-                } else if (!"false".equalsIgnoreCase(selectedStr)) {
+                } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
                     elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
                     valid = false;
                 }
@@ -4492,9 +4628,9 @@ public enum DocFactory {
                 } else {
                     input.setEnabledVarName(enabledVarNameStr);
 
-                    if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                    if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                         input.setEnabledVarValue(Boolean.TRUE);
-                    } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                    } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                         input.setEnabledVarValue(Boolean.FALSE);
                     } else {
                         try {
@@ -4540,9 +4676,9 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String valueStr = elem.getStringAttr(VALUE);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         Formula enabledF = null;
 
@@ -4550,7 +4686,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if ("enabled".equalsIgnoreCase(childTag)) {
+                if (ENABLED.equalsIgnoreCase(childTag)) {
                     if (mode == EParserMode.NORMAL) {
                         elem.logError("Deprecated 'enabled' formula on input");
                     }
@@ -4575,11 +4711,11 @@ public enum DocFactory {
 
             input.setEnabledFormula(enabledF);
 
-            final String selectedStr = elem.getStringAttr("selected");
+            final String selectedStr = elem.getStringAttr(SELECTED);
             if (selectedStr != null) {
-                if ("true".equalsIgnoreCase(selectedStr)) {
+                if (TRUE.equalsIgnoreCase(selectedStr)) {
                     input.selectChoice();
-                } else if (!"false".equalsIgnoreCase(selectedStr)) {
+                } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
                     elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
                     valid = false;
                 }
@@ -4592,9 +4728,9 @@ public enum DocFactory {
                 } else {
                     input.setEnabledVarName(enabledVarNameStr);
 
-                    if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                    if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                         input.setEnabledVarValue(Boolean.TRUE);
-                    } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                    } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                         input.setEnabledVarValue(Boolean.FALSE);
                     } else {
                         try {
@@ -4661,7 +4797,7 @@ public enum DocFactory {
             }
         }
 
-        final String enabledStr = elem.getStringAttr("enabled");
+        final String enabledStr = elem.getStringAttr(ENABLED);
         Formula enabledF = null;
         if (enabledStr != null) {
             enabledF = FormulaFactory.parseFormulaString(evalContext, enabledStr, mode);
@@ -4671,16 +4807,16 @@ public enum DocFactory {
             }
         }
 
-        final String textValue = elem.getStringAttr("textValue");
-        final String value = elem.getStringAttr("value");
-        final String defaultStr = elem.getStringAttr("default");
-        final String treatMinusAsStr = elem.getStringAttr("treat-minus-as");
-        final String styleStr = elem.getStringAttr("style");
-        final String enabledVarNameStr = elem.getStringAttr("enabled-var-name");
-        final String enabledVarValueStr = elem.getStringAttr("enabled-var-value");
+        final String textValue = elem.getStringAttr(TEXT_VALUE);
+        final String value = elem.getStringAttr(VALUE);
+        final String defaultStr = elem.getStringAttr(DEFAULT);
+        final String treatMinusAsStr = elem.getStringAttr(TREAT_MINUS_AS);
+        final String styleStr = elem.getStringAttr(STYLE);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         AbstractDocInput input = null;
-        if ("integer".equals(type)) {
+        if (INTEGER.equals(type)) {
             final DocInputLongField longInput = new DocInputLongField(name);
             input = longInput;
             input.setEnabledFormula(enabledF);
@@ -4708,9 +4844,9 @@ public enum DocFactory {
             }
 
             if (styleStr != null) {
-                if ("box".equalsIgnoreCase(styleStr)) {
+                if (BOX.equalsIgnoreCase(styleStr)) {
                     longInput.style = EFieldStyle.BOX;
-                } else if ("underline".equalsIgnoreCase(styleStr)) {
+                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                     longInput.style = EFieldStyle.UNDERLINE;
                 } else {
                     elem.logError("Invalid 'style' attribute value");
@@ -4722,13 +4858,14 @@ public enum DocFactory {
 
             if (value != null) {
                 try {
-                    longInput.setOnlyLongValue(Long.valueOf(value));
+                    final Long longValue = Long.valueOf(value);
+                    longInput.setOnlyLongValue(longValue);
                 } catch (final NumberFormatException ex) {
                     elem.logError("Invalid 'value' attribute value");
                     valid = false;
                 }
             }
-        } else if ("real".equals(type)) {
+        } else if (REAL.equals(type)) {
             final DocInputDoubleField doubleInput = new DocInputDoubleField(name);
             input = doubleInput;
             input.setEnabledFormula(enabledF);
@@ -4756,9 +4893,9 @@ public enum DocFactory {
             }
 
             if (styleStr != null) {
-                if ("box".equalsIgnoreCase(styleStr)) {
+                if (BOX.equalsIgnoreCase(styleStr)) {
                     doubleInput.style = EFieldStyle.BOX;
-                } else if ("underline".equalsIgnoreCase(styleStr)) {
+                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                     doubleInput.style = EFieldStyle.UNDERLINE;
                 } else {
                     elem.logError("Invalid 'style' attribute value");
@@ -4770,13 +4907,14 @@ public enum DocFactory {
 
             if (value != null) {
                 try {
-                    doubleInput.setOnlyDoubleValue(Double.valueOf(value));
+                    final Double dblValue = Double.valueOf(value);
+                    doubleInput.setOnlyDoubleValue(dblValue);
                 } catch (final NumberFormatException ex) {
                     elem.logError("Invalid 'value' attribute value");
                     valid = false;
                 }
             }
-        } else if ("string".equals(type)) {
+        } else if (STRING.equals(type)) {
             final DocInputStringField stringInput = new DocInputStringField(name);
             input = stringInput;
             input.setEnabledFormula(enabledF);
@@ -4786,9 +4924,9 @@ public enum DocFactory {
             }
 
             if (styleStr != null) {
-                if ("box".equalsIgnoreCase(styleStr)) {
+                if (BOX.equalsIgnoreCase(styleStr)) {
                     stringInput.style = EFieldStyle.BOX;
-                } else if ("underline".equalsIgnoreCase(styleStr)) {
+                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                     stringInput.style = EFieldStyle.UNDERLINE;
                 } else {
                     elem.logError("Invalid 'style' attribute value");
@@ -4801,7 +4939,7 @@ public enum DocFactory {
             if (value != null) {
                 stringInput.setTextValue(value);
             }
-        } else if ("radio-button".equals(type)) {
+        } else if (RADIO_BUTTON.equals(type)) {
 
             try {
                 final int val = Long.valueOf(value).intValue();
@@ -4809,11 +4947,11 @@ public enum DocFactory {
                 input = radioInput;
                 input.setEnabledFormula(enabledF);
 
-                final String selectedStr = elem.getStringAttr("selected");
+                final String selectedStr = elem.getStringAttr(SELECTED);
                 if (selectedStr != null) {
-                    if ("true".equalsIgnoreCase(selectedStr)) {
+                    if (TRUE.equalsIgnoreCase(selectedStr)) {
                         radioInput.selectChoice();
-                    } else if (!"false".equalsIgnoreCase(selectedStr)) {
+                    } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
                         elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
                         valid = false;
                     }
@@ -4823,7 +4961,7 @@ public enum DocFactory {
                 valid = false;
             }
 
-        } else if ("checkbox".equals(type)) {
+        } else if (CHECKBOX.equals(type)) {
 
             try {
                 final int val = Long.valueOf(value).intValue();
@@ -4831,11 +4969,11 @@ public enum DocFactory {
                 input = checkboxInput;
                 input.setEnabledFormula(enabledF);
 
-                final String selectedStr = elem.getStringAttr("selected");
+                final String selectedStr = elem.getStringAttr(SELECTED);
                 if (selectedStr != null) {
-                    if ("true".equalsIgnoreCase(selectedStr)) {
+                    if (TRUE.equalsIgnoreCase(selectedStr)) {
                         checkboxInput.selectChoice();
-                    } else if (!"false".equalsIgnoreCase(selectedStr)) {
+                    } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
                         elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
                         valid = false;
                     }
@@ -4857,13 +4995,14 @@ public enum DocFactory {
             } else if (input != null) {
                 input.setEnabledVarName(enabledVarNameStr);
 
-                if ("TRUE".equalsIgnoreCase(enabledVarValueStr)) {
+                if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.TRUE);
-                } else if ("FALSE".equalsIgnoreCase(enabledVarValueStr)) {
+                } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
                     input.setEnabledVarValue(Boolean.FALSE);
                 } else {
                     try {
-                        input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
+                        final Long varValue = Long.valueOf(enabledVarValueStr);
+                        input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
                         elem.logError("Invalid 'enabled-var-value' attribute value");
                         valid = false;
@@ -4907,7 +5046,7 @@ public enum DocFactory {
             }
         }
 
-        final String fontnameStr = elem.getStringAttr("fontname");
+        final String fontnameStr = elem.getStringAttr(FONT_NAME);
         if (fontnameStr != null) {
             if (BundledFontManager.getInstance().isFontNameValid(fontnameStr)) {
                 obj.setFontName(fontnameStr);
@@ -4917,12 +5056,13 @@ public enum DocFactory {
             }
         }
 
-        final String fontsizeStr = elem.getStringAttr("fontsize");
+        final String fontsizeStr = elem.getStringAttr(FONT_SIZE);
         if (fontsizeStr != null) {
             final int len = fontsizeStr.length();
-            if (fontsizeStr.charAt(len - 1) == '%') {
+            if ((int) fontsizeStr.charAt(len - 1) == '%') {
                 try {
-                    final int scale = Integer.parseInt(fontsizeStr.substring(0, len - 1));
+                    final String substring = fontsizeStr.substring(0, len - 1);
+                    final int scale = Integer.parseInt(substring);
 
                     if (scale < 1) {
                         elem.logError("Font scale factor must be greater than zero.");
@@ -4951,24 +5091,24 @@ public enum DocFactory {
             }
         }
 
-        final String fontstyleStr = elem.getStringAttr("fontstyle");
+        final String fontstyleStr = elem.getStringAttr(FONT_STYLE);
 
         if (fontstyleStr != null) {
             int style = AbstractDocObjectTemplate.PLAIN;
 
-            if (!"plain".equalsIgnoreCase(fontstyleStr)) {
+            if (!PLAIN.equalsIgnoreCase(fontstyleStr)) {
                 final String[] split = fontstyleStr.split(CoreConstants.COMMA);
 
                 for (final String entry : split) {
                     final String trimmed = entry.trim().toLowerCase(Locale.ROOT);
 
                     switch (trimmed) {
-                        case "bold" -> style |= AbstractDocObjectTemplate.BOLD;
-                        case "italic" -> style |= AbstractDocObjectTemplate.ITALIC;
-                        case "underline" -> style |= AbstractDocObjectTemplate.UNDERLINE;
-                        case "overline" -> style |= AbstractDocObjectTemplate.OVERLINE;
-                        case "strikethrough" -> style |= AbstractDocObjectTemplate.STRIKETHROUGH;
-                        case "boxed" -> style |= AbstractDocObjectTemplate.BOXED;
+                        case BOLD -> style |= AbstractDocObjectTemplate.BOLD;
+                        case ITALIC -> style |= AbstractDocObjectTemplate.ITALIC;
+                        case UNDERLINE -> style |= AbstractDocObjectTemplate.UNDERLINE;
+                        case OVERLINE -> style |= AbstractDocObjectTemplate.OVERLINE;
+                        case STRIKETHROUGH -> style |= AbstractDocObjectTemplate.STRIKETHROUGH;
+                        case BOXED -> style |= AbstractDocObjectTemplate.BOXED;
                         default -> {
                             elem.logError("Invalid font style.");
                             valid = false;
@@ -4978,7 +5118,8 @@ public enum DocFactory {
             }
 
             if (valid) {
-                obj.setFontStyle(Integer.valueOf(style));
+                final Integer styleInt = Integer.valueOf(style);
+                obj.setFontStyle(styleInt);
             }
         }
 
@@ -5001,12 +5142,12 @@ public enum DocFactory {
         for (int i = 0; i < len; ++i) {
             final char ch = value.charAt(i);
 
-            if (ch == '&') {
+            if ((int) ch == '&') {
 
                 if (len > i + 3) {
-                    final char ch1 = value.charAt(i + 1);
-                    final char ch2 = value.charAt(i + 2);
-                    final char ch3 = value.charAt(i + 3);
+                    final int ch1 = (int) value.charAt(i + 1);
+                    final int ch2 = (int) value.charAt(i + 2);
+                    final int ch3 = (int) value.charAt(i + 3);
 
                     if (ch1 == 'g' && ch2 == 't' && ch3 == ';') {
                         htm.add('>');
@@ -5015,13 +5156,13 @@ public enum DocFactory {
                         htm.add('<');
                         i += 3;
                     } else if (len > i + 4) {
-                        final int ch4 = value.charAt(i + 4);
+                        final int ch4 = (int) value.charAt(i + 4);
 
                         if (ch1 == 'a' && ch2 == 'm' && ch3 == 'p' && ch4 == ';') {
                             htm.add('&');
                             i += 4;
                         } else if (len > i + 5) {
-                            final int ch5 = value.charAt(i + 5);
+                            final int ch5 = (int) value.charAt(i + 5);
 
                             if (ch1 == 'a' && ch2 == 'p' && ch3 == 'o' && ch4 == 's' && ch5 == ';') {
                                 htm.add('\'');
@@ -5041,7 +5182,7 @@ public enum DocFactory {
                 } else {
                     htm.add('&');
                 }
-            } else if (ch == '\\' && len > i + 1 && value.charAt(i + 1) == 'u') {
+            } else if ((int) ch == '\\' && len > i + 1 && value.charAt(i + 1) == 'u') {
 
                 if (len > i + 5) {
                     final String valueStr = value.substring(i + 2, i + 6);

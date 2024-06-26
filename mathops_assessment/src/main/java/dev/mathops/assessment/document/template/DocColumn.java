@@ -146,10 +146,10 @@ public final class DocColumn extends AbstractDocContainer {
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
-        int height = 0;
-
         // Lay out all children (generates paragraph heights).
         super.doLayout(context, mathMode);
+
+        int height = 0;
 
         for (final AbstractDocObjectTemplate child : getChildren()) {
             child.setX(0);

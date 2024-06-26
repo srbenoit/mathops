@@ -9,7 +9,6 @@ import dev.mathops.assessment.variable.AbstractFormattableVariable;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -158,14 +157,14 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
                 this.laidOutContents.add(new DocText(stringValue));
             } else if (value instanceof final DocSimpleSpan spanValue) {
 
-                // The Variable value is a span - we cannot add that span or its children
-                // directly because other references to the same variable will return the
-                // same span, and layout data will stomp earlier uses. Make a deep copy...
+                // The Variable value is a span - we cannot add that span or its children directly because other
+                // references to the same variable will return the same span, and layout data will stomp earlier uses.
+                // Make a deep copy...
 
                 this.laidOutContents.copySpanFrom(spanValue);
 
-                // If the span has inputs, we need to replace the original inputs in the document
-                // with the new ones (with the same name) in the span
+                // If the span has inputs, we need to replace the original inputs in the document with the new ones
+                // (with the same name) in the span
 
                 AbstractDocContainer parent = getParent();
                 while (parent != null && parent.getParent() != null) {
@@ -198,9 +197,9 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
             }
         }
 
-        // We have assembled a span of laid out contents - allow it to lay itself out...
-        // If a parameter reference child added nested parameter references to the laid out content
-        // list, those references should be expanded by this call, to any recursive depth.
+        // We have assembled a span of laid out contents - allow it to lay itself out... If a parameter reference
+        // child added nested parameter references to the laid out content list, those references should be expanded
+        // by this call, to any recursive depth.
 
         this.laidOutContents.setParent(getParent());
         this.laidOutContents.setScale(getScale());
