@@ -1,5 +1,7 @@
 'use strict';
 
+// June 28, 2024 9:00 AM
+
 const posturl = "https://nibbler.math.colostate.edu/mps-media/upload.html";
 const websocketUrl = "wss://coursedev.math.colostate.edu/ws/mps";
       
@@ -352,6 +354,8 @@ function compatibilityTests() {
     divScreenExistingSession.style.display = 'none';
     
     setTimeout(hasWebSocketConnected, 2000);
+
+    console.log("Checking system compatibility.");
            
     const hasVideoCap = navigator.mediaDevices 
             && navigator.mediaDevices.enumerateDevices
@@ -362,6 +366,8 @@ function compatibilityTests() {
     } else {
         imgCompatibilityVideoCapResult.src='/www/images/proctoring/emblem-important.png';
         showCompatibilityError("This browser does not support the required webcam capture API.");
+
+        console.warn("Browser does not support video capture media devices");
     }
     
     const hasScreenCap = navigator.mediaDevices
@@ -372,6 +378,8 @@ function compatibilityTests() {
     } else {
         imgCompatibilityScreenCapResult.src='/www/images/proctoring/emblem-important.png';
         showCompatibilityError("This browser does not support the required screen capture API.");
+
+        console.warn("Browser does not support screen capture media devices");
     }
     
     const hasRecording = window.MediaRecorder;
@@ -381,6 +389,8 @@ function compatibilityTests() {
     } else {
         imgCompatibilityRecordingResult.src='/www/images/proctoring/emblem-important.png';
         showCompatibilityError("This browser does not support the required media recording API.");
+
+        console.warn("Browser does not support media recording");
     }
     
     navigator.mediaDevices.getUserMedia(videoWebcamConstraints)
@@ -452,6 +462,7 @@ function compatibilityTests() {
                     }
                 } else {
                     showCompatibilityError("Unable to record from webcam.");
+                    console.warn("Media recording stopped.");
                 }
                 webcamVideoRecorder = null;
             }
@@ -462,13 +473,15 @@ function compatibilityTests() {
             
             // console.info("Starting webcam recorder");
             webcamVideoRecorder.start();
-            setTimeout(stopWebcamVideoRecording, 2000);                    
+            setTimeout(stopWebcamVideoRecording, 2000);
         };
     })
     .catch(function(err) {
         imgCompatibilityWebcamResult.src='/www/images/proctoring/emblem-important.png';
         showCompatibilityError("Unable to start webcam - refresh this page and grant "
             + "permission to use your camera and microphone.");
+
+        console.warn("Unable to start webcam: " + err.message);
 
         if ("Failed to allocate videosource" == err.message) {
             showCompatibilityMessage("It appears some other application or browser is controlling the webcam");
@@ -544,6 +557,7 @@ function compatibilityTests() {
                     }
                 } else {
                     showCompatibilityError("Unable to record screen-capture data.");
+                    console.warn("Screen capture stopped");
                 }
                 screenVideoRecorder = null;
             };
@@ -563,6 +577,8 @@ function compatibilityTests() {
             + "permission to share your screen.");
         showCompatibilityMessage("Error message from browser: " + err.message);
         showCompatibilityMessage("<hr/>");
+
+        console.warn("Unable to start screen capture: " + err.message);
     });
 }
 

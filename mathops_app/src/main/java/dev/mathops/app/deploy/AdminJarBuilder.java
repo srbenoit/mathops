@@ -97,7 +97,9 @@ final class AdminJarBuilder {
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.FILE_CREATED, targetFilename), CoreConstants.CRLF);
+
+                final String jarPath = jars.getAbsolutePath();
+                Log.finest(Res.fmt(Res.FILE_CREATED, targetFilename, jarPath), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
@@ -257,6 +259,7 @@ final class AdminJarBuilder {
         new AdminJarBuilder().build("dev.mathops.app.assessment.localtesting.LocalTestingApp", "exam_tester.jar");
         new AdminJarBuilder().build("dev.mathops.app.assessment.qualitycontrol.QualityControlScanner",
                 "quality_control.jar");
+
         Log.finest(Res.get(Res.FINISHED), CoreConstants.CRLF);
     }
 }

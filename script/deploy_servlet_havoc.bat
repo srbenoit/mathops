@@ -14,7 +14,7 @@ REM ---------------------------------------------------------------------------
 CD %JARS%
 DIR ROOT.*
 
-%SCP% /command "open %HOST%" "lcd %JARS%" "cd /imp/online" "put -nopreservetime ROOT.war" "mv ROOT.war /opt/tomcat/webapps/ROOT.war" "exit"
+%SCP% "%HOST%" /command "lcd %JARS%" "cd /imp/online" "put -nopreservetime ROOT.war" "mv ROOT.war /opt/tomcat/webapps/ROOT.war" "exit"
 
 ECHO.
 PAUSE

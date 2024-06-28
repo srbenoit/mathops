@@ -5,6 +5,12 @@ plugins {
 group = "dev.mathops"
 version = "1.0-SNAPSHOT"
 
+sourceSets {
+    main {
+        output.setResourcesDir(file("build/classes/java/main"))
+    }
+}
+
 repositories {
     mavenCentral()
 }

@@ -41,7 +41,7 @@ final class Res extends ResBundle {
             {JAR_WRITE_FAILED, "Failed to write jar file"},
             {READ_FAILED, "Failed to read file: {0}"},
             {FILES_COPIED, "File(s) copied"},
-            {FILE_CREATED, "{0} created"},
+            {FILE_CREATED, "{0} created in {1}"},
             {FINISHED, "Finished"},
 
             {DIR_NOT_FOUND, "Directory {0} not found."},
