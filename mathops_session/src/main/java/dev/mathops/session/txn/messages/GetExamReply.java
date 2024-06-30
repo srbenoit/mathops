@@ -121,7 +121,7 @@ public class GetExamReply extends AbstractReplyBase {
                             final AbstractProblemTemplate selected =
                                     ProblemTemplateFactory.load(content, EParserMode.ALLOW_DEPRECATED);
 
-                            Log.info("Problem " + prob.problemName + ", found selected ", selected.ref);
+                            Log.info("Problem " + prob.problemName + ", found selected ", selected.id);
                             prob.setSelectedProblem(selected);
                         } catch (final ParsingException ex) {
                             Log.warning(ex);

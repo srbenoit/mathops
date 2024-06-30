@@ -5,7 +5,6 @@ import dev.mathops.assessment.Randomizer;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -105,7 +104,7 @@ public final class ExamProblem extends AbstractXmlObject {
         // If this problem was referenced as selected, select it.
         if (this.selectedRef != null) {
 
-            if (this.selectedRef.equals(problem.ref)) {
+            if (this.selectedRef.equals(problem.id)) {
                 this.selectedProblem = problem;
             }
         }
@@ -167,7 +166,7 @@ public final class ExamProblem extends AbstractXmlObject {
 
         for (final AbstractProblemTemplate prob : this.problems) {
 
-            if (theSelectedRef.equals(prob.ref)) {
+            if (theSelectedRef.equals(prob.id)) {
                 this.selectedProblem = prob;
 
                 break;
@@ -195,7 +194,7 @@ public final class ExamProblem extends AbstractXmlObject {
         this.selectedProblem = theSelectedProblem;
 
         if (theSelectedProblem != null) {
-            this.selectedRef = theSelectedProblem.ref;
+            this.selectedRef = theSelectedProblem.id;
         } else {
             this.selectedRef = null;
         }
@@ -231,7 +230,7 @@ public final class ExamProblem extends AbstractXmlObject {
             return false;
         }
 
-        this.selectedRef = this.selectedProblem.ref;
+        this.selectedRef = this.selectedProblem.id;
         this.selectedProblem.evalContext.setPrintTarget(context.isPrintTarget());
 
         return this.selectedProblem.realize(this.selectedProblem.evalContext);
@@ -264,7 +263,7 @@ public final class ExamProblem extends AbstractXmlObject {
         writeAttribute(xml, "points", this.numPoints);
 
         if (this.selectedProblem != null) {
-            String ref = this.selectedProblem.ref;
+            String ref = this.selectedProblem.id;
 
             // Carve off the reference root
             if (ref != null && root != null && ref.startsWith(root)) {
@@ -280,7 +279,7 @@ public final class ExamProblem extends AbstractXmlObject {
         for (final AbstractProblemTemplate prob : this.problems) {
 
             if (prob != null) {
-                String ref = prob.ref;
+                String ref = prob.id;
 
                 // Carve off the reference root
                 if (ref != null && root != null && ref.startsWith(root)) {

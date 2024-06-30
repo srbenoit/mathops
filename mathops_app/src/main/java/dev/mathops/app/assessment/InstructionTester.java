@@ -362,7 +362,7 @@ final class InstructionTester {
 
                 final String postXml = parsedPre.toXmlString(0);
                 if (!postXml.equals(preXml)) {
-                    logDiff(prob.ref, postXml, preXml);
+                    logDiff(prob.id, postXml, preXml);
                     this.gui.logError("Problem not identical after pre-realize transfer "
                             + file.getAbsolutePath());
                     this.gui.logError(Log.errorMessagesAsString());
@@ -407,7 +407,7 @@ final class InstructionTester {
                             final String after = prob2.toXmlString(0);
 
                             if (!after.equals(before)) {
-                                logDiff(prob.ref, after, before);
+                                logDiff(prob.id, after, before);
                                 this.gui.logError("Problem not identical after transfer "
                                         + file.getAbsolutePath());
                                 this.gui.logError(Log.errorMessagesAsString());
@@ -795,9 +795,9 @@ final class InstructionTester {
             path = path.substring(mathIndex);
         }
 
-        if ((!"String".equals(path) && !path.equals(problem.ref))) {
+        if ((!"String".equals(path) && !path.equals(problem.id))) {
             Log.warning("PATH = [", origin,
-                    "] REF = [", problem.ref, "]");
+                    "] REF = [", problem.id, "]");
         }
 
         // Check 2: Are there unused parameters in the problem?

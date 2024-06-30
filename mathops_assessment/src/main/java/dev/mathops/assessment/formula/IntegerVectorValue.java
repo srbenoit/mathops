@@ -53,33 +53,57 @@ public final class IntegerVectorValue {
      *
      * @param toParse the string to parse
      * @return the parsed value
-     * @throws IllegalArgumentException if the string cannot be parsed
+     * @throws NumberFormatException if the string cannot be parsed
      */
-    public static IntegerVectorValue parse(final String toParse) throws IllegalArgumentException {
+    public static IntegerVectorValue parse(final String toParse) throws NumberFormatException {
 
-        if (toParse == null || toParse.isBlank()) {
-            throw new IllegalArgumentException("Vector value string may not be null or blank");
+        if (toParse == null) {
+            throw new NumberFormatException("Integer vector value string may not be null");
         }
 
-        final IntegerVectorValue result;
+        final String inner = extractVectorContent(toParse);
+
+        final String[] split = inner.split(CoreConstants.COMMA);
+        final int count = split.length;
+
+        final long[] elements = new long[split.length];
+        for (int i = 0; i < count; ++i) {
+            final String trimmedEntry = split[i].trim();
+            elements[i] = Long.parseLong(trimmedEntry);
+        }
+
+        return new IntegerVectorValue(elements);
+    }
+
+    /**
+     * Given an integer vector string, which may or may not have surrounding square brackets, extract the interior
+     * comma-separated list of integer values.
+     *
+     * @param toParse the string to parse
+     * @throws NumberFormatException if the string cannot be parsed
+     */
+    private static String extractVectorContent(final String toParse) {
 
         final String trimmed = toParse.trim();
-        if (!trimmed.isEmpty() && trimmed.charAt(0) == '[' && trimmed.charAt(trimmed.length() - 1) == ']') {
-            final String inner = trimmed.substring(1, trimmed.length() - 1);
-            final String[] split = inner.split(",");
-            final int count = split.length;
-
-            final long[] elements = new long[split.length];
-            for (int i = 0; i < count; ++i) {
-                elements[i] = Long.parseLong(split[i].trim());
-            }
-
-            result = new IntegerVectorValue(elements);
-        } else {
-            throw new IllegalArgumentException("Vector value must be enclosed in [] brackets.");
+        if (trimmed.isEmpty()) {
+            throw new NumberFormatException("Integer vector value may not be empty.");
         }
 
-        return result;
+        final int len = trimmed.length();
+
+        final boolean hasLeadingBracket = (int) trimmed.charAt(0) == '[';
+        final boolean hasTrailingBracket = (int) trimmed.charAt(len - 1) == ']';
+
+        final String inner;
+        if (hasLeadingBracket && hasTrailingBracket) {
+            inner = trimmed.substring(1, len - 1);
+        } else if (hasLeadingBracket || hasTrailingBracket) {
+            throw new NumberFormatException("Mismatched brackets in integer vector value.");
+        } else {
+            inner = trimmed;
+        }
+
+        return inner;
     }
 
     /**
@@ -115,7 +139,8 @@ public final class IntegerVectorValue {
         int hash = count;
 
         for (int row = 0; row < count; ++row) {
-            final long bits = Double.doubleToLongBits((double) getElement(row));
+            final long element = getElement(row);
+            final long bits = Double.doubleToLongBits((double) element);
             hash += (int) (bits ^ (bits >>> Integer.SIZE));
         }
 

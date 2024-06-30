@@ -25,7 +25,6 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -227,7 +226,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
                     size = getChoices().size();
                 }
             } else {
-                Log.warning(this.ref, ": Invalid objecch type for number of choices");
+                Log.warning(this.id, ": Invalid objecch type for number of choices");
 
                 if (obj instanceof ErrorValue) {
                     Log.warning(obj);
@@ -251,7 +250,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
 
             // Make sure choice has a correctness formula
             if (choice.correct == null) {
-                Log.warning(this.ref, ": Choice has no correctness formula");
+                Log.warning(this.id, ": Choice has no correctness formula");
 
                 return false;
             }
@@ -266,7 +265,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
 
             // See if choice is correct, and if so count it
             if (!(result instanceof Boolean)) {
-                Log.warning(this.ref, ": Unable to evaluate correctness of choice " + choice.choiceId);
+                Log.warning(this.id, ": Unable to evaluate correctness of choice " + choice.choiceId);
 
                 return false;
             }
@@ -278,7 +277,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
 
         // Ensure the number of correct answers will permit us to generate a problem.
         if (correct == 0) {
-            Log.warning(this.ref, ": No choices evaluate to being correct");
+            Log.warning(this.id, ": No choices evaluate to being correct");
 
             return false;
         } else if (correct > 1) {
@@ -290,7 +289,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
             final int incorrect = getChoices().size() - correct;
 
             if (incorrect < size - 1) {
-                Log.warning(this.ref, ": Too many answers are correct - cannot generate choice list");
+                Log.warning(this.id, ": Too many answers are correct - cannot generate choice list");
 
                 return false;
             }
@@ -309,7 +308,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
             } else if (result instanceof Boolean) {
                 isRandom = ((Boolean) result).booleanValue();
             } else {
-                Log.warning(this.ref, ": Problem's random-order formula does not evaluate to a boolean.");
+                Log.warning(this.id, ": Problem's random-order formula does not evaluate to a boolean.");
 
                 return false;
             }
@@ -453,12 +452,12 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
                 final DocColumnInst questionIteration = this.question.createInstance(this.evalContext);
 
                 if (this.solution == null) {
-                    result = new ProblemMultipleChoiceInst(this.ref, iterationId, this.calculator,
+                    result = new ProblemMultipleChoiceInst(this.id, iterationId, this.calculator,
                             questionIteration, null, choiceIterations);
                 } else {
                     final DocColumnInst solutionIteration = this.solution.createInstance(this.evalContext);
 
-                    result = new ProblemMultipleChoiceInst(this.ref, iterationId, this.calculator,
+                    result = new ProblemMultipleChoiceInst(this.id, iterationId, this.calculator,
                             questionIteration, solutionIteration, choiceIterations);
                 }
             }
@@ -484,8 +483,8 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
             buf.add("<p>Number of choices to show: ", this.numChoices, "</p>");
         }
 
-        if (this.ref != null) {
-            buf.addln("<p><b>Reference base:</b> ", this.ref, "</p>");
+        if (this.id != null) {
+            buf.addln("<p><b>Reference base:</b> ", this.id, "</p>");
         }
 
         if (this.evalContext != null && this.evalContext.numVariables() > 0) {
@@ -623,7 +622,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
                         final boolean showAnswers, final char[] mode, final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         // Write the question, followed by a blank line
         this.question.toLaTeX(dir, fileIndex, overwriteAll, builder, showAnswers, mode, context);

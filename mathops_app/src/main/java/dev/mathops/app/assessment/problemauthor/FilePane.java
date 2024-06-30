@@ -14,7 +14,6 @@ import dev.mathops.assessment.problem.template.ProblemEmbeddedInputTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
@@ -689,7 +688,7 @@ final class FilePane extends JPanel implements ActionListener {
         }
 
         htm.addln("<meta charset='utf-8'>");
-        htm.addln("<title>", problem.ref, "</title>");
+        htm.addln("<title>", problem.id, "</title>");
         htm.addln("</head>");
 
         final float fontSize = AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE;

@@ -25,7 +25,6 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -300,7 +299,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                     size = getChoices().size();
                 }
             } else {
-                Log.warning(this.ref, ": Invalid object type for number of choices");
+                Log.warning(this.id, ": Invalid object type for number of choices");
 
                 if (obj instanceof ErrorValue) {
                     Log.warning(obj);
@@ -330,7 +329,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
 
             // Make sure choice has a correctness formula
             if (choice.correct == null) {
-                Log.warning(this.ref, ": Choice has no correctness formula");
+                Log.warning(this.id, ": Choice has no correctness formula");
 
                 return false;
             }
@@ -345,7 +344,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
 
             // See if choice is correct, and if so count it
             if (!(result instanceof Boolean)) {
-                Log.warning(this.ref, ": Unable to evaluate correctness of choice " + choice.choiceId);
+                Log.warning(this.id, ": Unable to evaluate correctness of choice " + choice.choiceId);
 
                 return false;
             }
@@ -364,7 +363,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             if (obj instanceof Long) {
                 minCor = ((Long) obj).intValue();
             } else {
-                Log.warning(this.ref, ": Invalid object type for minimum correct");
+                Log.warning(this.id, ": Invalid object type for minimum correct");
 
                 if (obj instanceof ErrorValue) {
                     Log.warning(obj);
@@ -380,7 +379,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             if (obj instanceof Long) {
                 maxCor = ((Long) obj).intValue();
             } else {
-                Log.warning(this.ref, ": Invalid object type for maximum correct");
+                Log.warning(this.id, ": Invalid object type for maximum correct");
 
                 if (obj instanceof ErrorValue) {
                     Log.warning(obj);
@@ -392,15 +391,15 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
 
         // Ensure the number of correct answers will permit us to generate a problem.
         if (correct == 0) {
-            Log.warning(this.ref, ": No choices evaluate to being correct");
+            Log.warning(this.id, ": No choices evaluate to being correct");
 
             return false;
         } else if (correct < minCor) {
-            Log.warning(this.ref, ": Not enough choices evaluate to being correct");
+            Log.warning(this.id, ": Not enough choices evaluate to being correct");
 
             return false;
         } else if (incorrect < size - maxCor) {
-            Log.warning(this.ref, ": Too many choices evaluate to being correct");
+            Log.warning(this.id, ": Too many choices evaluate to being correct");
 
             return false;
         }
@@ -416,7 +415,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             } else if (result instanceof Boolean) {
                 isRandom = ((Boolean) result).booleanValue();
             } else {
-                Log.warning(this.ref, ": Problem's random-order formula does not evaluate to a boolean.");
+                Log.warning(this.id, ": Problem's random-order formula does not evaluate to a boolean.");
 
                 return false;
             }
@@ -555,12 +554,12 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                 final DocColumnInst questionIteration = this.question.createInstance(this.evalContext);
 
                 if (this.solution == null) {
-                    result = new ProblemMultipleSelectionInst(this.ref, iterationId, this.calculator,
+                    result = new ProblemMultipleSelectionInst(this.id, iterationId, this.calculator,
                             questionIteration, null, choiceIterations);
                 } else {
                     final DocColumnInst solutionIteration = this.solution.createInstance(this.evalContext);
 
-                    result = new ProblemMultipleSelectionInst(this.ref, iterationId, this.calculator,
+                    result = new ProblemMultipleSelectionInst(this.id, iterationId, this.calculator,
                             questionIteration, solutionIteration, choiceIterations);
                 }
             }
@@ -648,8 +647,8 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             buf.addln("<p>Maximum number of correct choices to show: ", this.maxCorrect, "</p>");
         }
 
-        if (this.ref != null) {
-            buf.sP().add("<b>Reference base:</b> ", this.ref).eP();
+        if (this.id != null) {
+            buf.sP().add("<b>Reference base:</b> ", this.id).eP();
         }
 
         if (this.evalContext != null && this.evalContext.numVariables() > 0) {
@@ -775,7 +774,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                         final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         // Write the question, followed by a blank line
         this.question.toLaTeX(dir, fileIndex, overwriteAll, builder, showAnswers, mode, context);

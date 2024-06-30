@@ -43,8 +43,8 @@ public enum ProblemConverter {
             } else if (problem instanceof ProblemAutoCorrectTemplate) {
                 populateAutoCorrect((ProblemAutoCorrectTemplate) problem, id);
             } else if (problem instanceof final ProblemDummyTemplate dummy) {
-                if (dummy.ref != null) {
-                    Log.warning("Populating Dummy problem ", dummy.ref);
+                if (dummy.id != null) {
+                    Log.warning("Populating Dummy problem ", dummy.id);
                 } else {
                     Log.warning("Populating Dummy problem with null ref");
                 }

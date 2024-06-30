@@ -1041,7 +1041,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                     final StudentExamAnswerRec stanswer = new StudentExamAnswerRec();
                     stanswer.id = id;
                     stanswer.subtest = subtest.subtestName;
-                    stanswer.treeRef = selected.ref;
+                    stanswer.treeRef = selected.id;
 
                     // FIXME: Get actual sub-objective relating to problem
                     stanswer.objective = "0";

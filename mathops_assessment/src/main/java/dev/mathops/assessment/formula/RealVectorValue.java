@@ -1,5 +1,6 @@
 package dev.mathops.assessment.formula;
 
+import dev.mathops.assessment.NumberParser;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -9,10 +10,10 @@ import dev.mathops.commons.builder.HtmlBuilder;
 public final class RealVectorValue {
 
     /** The vector elements. */
-    private final double[] elements;
+    private final Number[] elements;
 
     /**
-     * Constructs a new {@code RealVectorValue} with all elements set to zero.
+     * Constructs a new {@code RealVectorValue}.
      *
      * @param theElements the elements
      * @throws IllegalArgumentException if {@code theElements} is null or zero length
@@ -20,7 +21,32 @@ public final class RealVectorValue {
     public RealVectorValue(final double... theElements) {
 
         if (theElements == null || theElements.length == 0) {
-            throw new IllegalArgumentException("A vector must have at least one element");
+            throw new IllegalArgumentException("A real vector must have at least one element");
+        }
+        final int len = theElements.length;
+
+        this.elements = new Number[len];
+        for (int i = 0; i < len; ++i) {
+            this.elements[i] = Double.valueOf(theElements[i]);
+        }
+    }
+
+    /**
+     * Constructs a new {@code RealVectorValue}.
+     *
+     * @param theElements the elements
+     * @throws IllegalArgumentException if {@code theElements} is null or zero length
+     */
+    public RealVectorValue(final Number... theElements) {
+
+        if (theElements == null || theElements.length == 0) {
+            throw new IllegalArgumentException("A real vector must have at least one element");
+        }
+
+        for (final Number theElement : theElements) {
+            if (theElement == null) {
+                throw new IllegalArgumentException("Vector elements may not be null");
+            }
         }
 
         this.elements = theElements.clone();
@@ -35,29 +61,53 @@ public final class RealVectorValue {
      */
     public static RealVectorValue parse(final String toParse) throws IllegalArgumentException {
 
-        if (toParse == null || toParse.isBlank()) {
-            throw new IllegalArgumentException("Vector value string may not be null or blank");
+        if (toParse == null) {
+            throw new NumberFormatException("Real vector value string may not be null");
         }
 
-        final RealVectorValue result;
+        final String inner = extractVectorContent(toParse);
+
+        final String[] split = inner.split(CoreConstants.COMMA);
+        final int count = split.length;
+
+        final Number[] elements = new Number[split.length];
+        for (int i = 0; i < count; ++i) {
+            final String trimmedElement = split[i].trim();
+            elements[i] = NumberParser.parse(trimmedElement);
+        }
+
+        return new RealVectorValue(elements);
+    }
+
+    /**
+     * Given a real vector string, which may or may not have surrounding square brackets, extract the interior
+     * comma-separated list of real values.
+     *
+     * @param toParse the string to parse
+     * @throws NumberFormatException if the string cannot be parsed
+     */
+    private static String extractVectorContent(final String toParse) {
 
         final String trimmed = toParse.trim();
-        if (!trimmed.isEmpty() && trimmed.charAt(0) == '[' && trimmed.charAt(trimmed.length() - 1) == ']') {
-            final String inner = trimmed.substring(1, trimmed.length() - 1);
-            final String[] split = inner.split(",");
-            final int count = split.length;
-
-            final double[] elements = new double[split.length];
-            for (int i = 0; i < count; ++i) {
-                elements[i] = Double.parseDouble(split[i].trim());
-            }
-
-            result = new RealVectorValue(elements);
-        } else {
-            throw new IllegalArgumentException("Vector value must be enclosed in [] brackets.");
+        if (trimmed.isEmpty()) {
+            throw new NumberFormatException("Real vector value may not be empty.");
         }
 
-        return result;
+        final int len = trimmed.length();
+
+        final boolean hasLeadingBracket = (int) trimmed.charAt(0) == '[';
+        final boolean hasTrailingBracket = (int) trimmed.charAt(len - 1) == ']';
+
+        final String inner;
+        if (hasLeadingBracket && hasTrailingBracket) {
+            inner = trimmed.substring(1, len - 1);
+        } else if (hasLeadingBracket || hasTrailingBracket) {
+            throw new NumberFormatException("Mismatched brackets in real vector value.");
+        } else {
+            inner = trimmed;
+        }
+
+        return inner;
     }
 
     /**
@@ -76,7 +126,7 @@ public final class RealVectorValue {
      * @param index the index of the element to retrieve
      * @return the value
      */
-    double getElement(final int index) {
+    Number getElement(final int index) {
 
         return this.elements[index];
     }
@@ -93,8 +143,7 @@ public final class RealVectorValue {
         int hash = count;
 
         for (int row = 0; row < count; ++row) {
-            final long bits = Double.doubleToLongBits(getElement(row));
-            hash += (int) (bits ^ (bits >>> Integer.SIZE));
+            hash += getElement(row).hashCode();
         }
 
         return hash;
@@ -118,7 +167,8 @@ public final class RealVectorValue {
             final int count = getNumElements();
             equal = count == other.getNumElements();
             for (int row = 0; equal && row < count; ++row) {
-                equal = getElement(row) == other.getElement(row);
+                final Number otherElement = other.getElement(row);
+                equal = getElement(row).equals(otherElement);
             }
         } else {
             equal = false;
@@ -142,7 +192,8 @@ public final class RealVectorValue {
             if (row > 0) {
                 xml.add(CoreConstants.COMMA_CHAR);
             }
-            xml.add(getElement(row));
+            final Number element = getElement(row);
+            xml.add(element);
         }
         xml.add(']');
     }
@@ -155,7 +206,8 @@ public final class RealVectorValue {
     @Override
     public String toString() {
 
-        final HtmlBuilder xml = new HtmlBuilder(30 * getNumElements());
+        final int numElements = getNumElements();
+        final HtmlBuilder xml = new HtmlBuilder(30 * numElements);
 
         appendString(xml);
 

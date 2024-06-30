@@ -138,8 +138,8 @@ final class ProblemPane extends JPanel implements ActionListener {
         // Line 1: Problem ID (<ref-base>) and type
         final JTextField problemId = new JTextField(25);
         problemId.setEditable(false);
-        if (this.workingProblem.ref != null) {
-            problemId.setText(this.workingProblem.ref);
+        if (this.workingProblem.id != null) {
+            problemId.setText(this.workingProblem.id);
         }
 
         final JPanel flow1 = makeFlow(bg);

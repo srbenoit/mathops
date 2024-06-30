@@ -24,7 +24,6 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
@@ -104,8 +103,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
         } else if (response.length > 1) {
             final StringBuilder msg = new StringBuilder("Numeric problems may not have more than one answer object.");
 
-            if (this.ref != null) {
-                msg.append("  Problem ").append(this.ref).append(" had "
+            if (this.id != null) {
+                msg.append("  Problem ").append(this.id).append(" had "
                 ).append(response.length).append(": ");
 
                 for (final Object o : response) {
@@ -123,8 +122,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
             this.stringAnswer = response[0].toString();
         } else {
             final StringBuilder msg = new StringBuilder("First answer object for numeric problems must be String.");
-            if (this.ref != null) {
-                msg.append("  Problem ").append(this.ref).append(" had ").append(response[0].getClass().getName());
+            if (this.id != null) {
+                msg.append("  Problem ").append(this.id).append(" had ").append(response[0].getClass().getName());
             }
 
             throw new IllegalArgumentException(msg.toString());
@@ -334,12 +333,12 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                     final DocColumnInst questionIteration = this.question.createInstance(this.evalContext);
 
                     if (this.solution == null) {
-                        result = new ProblemNumericInst(this.ref, iterationId, this.calculator,
+                        result = new ProblemNumericInst(this.id, iterationId, this.calculator,
                                 questionIteration, null, acceptNumberIter);
                     } else {
                         final DocColumnInst solutionIteration = this.solution.createInstance(this.evalContext);
 
-                        result = new ProblemNumericInst(this.ref, iterationId, this.calculator,
+                        result = new ProblemNumericInst(this.id, iterationId, this.calculator,
                                         questionIteration, solutionIteration, acceptNumberIter);
                     }
                 } else {
@@ -425,8 +424,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
         buf.addln("<html><head></head><body>");
         buf.addln("<h3>Numeric Problem</h3>");
 
-        if (this.ref != null) {
-            buf.sP().add("<b>Reference base:</b> ", this.ref).eP();
+        if (this.id != null) {
+            buf.sP().add("<b>Reference base:</b> ", this.id).eP();
         }
 
         if (this.evalContext != null && this.evalContext.numVariables() > 0) {
@@ -565,7 +564,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                         final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         // Write the question, followed by a blank line
         this.question.toLaTeX(dir, fileIndex, overwriteAll, builder, showAnswers, mode, context);

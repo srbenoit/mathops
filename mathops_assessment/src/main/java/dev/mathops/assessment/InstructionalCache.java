@@ -217,7 +217,7 @@ public final class InstructionalCache implements InstructionalCacheInt {
                         final int count = eprob.getNumProblems();
 
                         for (int k = 0; k < count; k++) {
-                            final String pref = eprob.getProblem(k).ref;
+                            final String pref = eprob.getProblem(k).id;
 
                             if (pref == null) {
                                 Log.warning("Preferred problem (" + k + " of " + count + ") is null");
@@ -280,10 +280,10 @@ public final class InstructionalCache implements InstructionalCacheInt {
                             final XmlContent content = new XmlContent(xml, false, false);
                             problem = ProblemTemplateFactory.load(content, EParserMode.ALLOW_DEPRECATED);
 
-                            if (problem.ref == null) {
+                            if (problem.id == null) {
                                 Log.warning("No ref in retrieved problem ", ref);
                             } else {
-                                Log.info("Caching problem ", problem.ref);
+                                Log.info("Caching problem ", problem.id);
                                 this.problemCache.put(ref, problem);
                                 this.fileTimestamps.put(path, Long.valueOf(file.lastModified()));
                             }
@@ -527,25 +527,25 @@ public final class InstructionalCache implements InstructionalCacheInt {
                 final AbstractProblemTemplate prob =
                         ProblemTemplateFactory.load(content, EParserMode.ALLOW_DEPRECATED);
 
-                if (prob.ref == null) {
+                if (prob.id == null) {
                     Log.warning("Failed to load problem: " + path);
 
                 } else {
                     synchronized (this.fileTimestamps) {
-                        if (this.problemCache.get(prob.ref) != null) {
+                        if (this.problemCache.get(prob.id) != null) {
                             Log.warning("Scanning ", path, " Duplicate problem identifier: ",
-                                    this.problemCache.get(prob.ref).ref);
+                                    this.problemCache.get(prob.id).id);
                         }
 
-                        final String existing = this.problemFiles.get(prob.ref);
+                        final String existing = this.problemFiles.get(prob.id);
                         if (existing == null) {
                             Log.info("Scanned ", path);
-                            this.problemFiles.put(prob.ref, path);
+                            this.problemFiles.put(prob.id, path);
                         } else if (!existing.equals(path)) {
                             Log.warning("Same problem reference path in ", existing, " and ", path);
                         }
 
-                        this.problemCache.put(prob.ref, prob);
+                        this.problemCache.put(prob.id, prob);
                         this.fileTimestamps.put(path, Long.valueOf(f.lastModified()));
                     }
                 }

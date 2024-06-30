@@ -691,7 +691,7 @@ public enum ExamFactory {
             if (child instanceof final CData cdata) {
                 // Store a dummy problem to retain the reference value
                 final ProblemDummyTemplate prob = new ProblemDummyTemplate();
-                prob.ref = cdata.content;
+                prob.id = cdata.content;
                 problem.addProblem(prob);
 
                 valid = true;
