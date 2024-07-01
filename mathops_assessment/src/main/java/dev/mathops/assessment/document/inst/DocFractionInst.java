@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.EFractionFormat;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -15,17 +16,22 @@ public final class DocFractionInst extends AbstractDocObjectInst {
     /** The denominator. */
     private final DocNonwrappingSpanInst denominator;
 
+    /** The fraction format. */
+    private final EFractionFormat fractionFormat;
+
     /**
      * Construct a new {@code DocFractionInst} object.
      *
-     * @param theStyle       the style object ({@code null} to inherit the parent object's style)
-     * @param theBgColorName the background color name ({@code null} if transparent)
-     * @param theNumerator   the object acting as a numerator
-     * @param theDenominator the object acting as a denominator
+     * @param theStyle          the style object ({@code null} to inherit the parent object's style)
+     * @param theBgColorName    the background color name ({@code null} if transparent)
+     * @param theNumerator      the object acting as a numerator
+     * @param theDenominator    the object acting as a denominator
+     * @param theFractionFormat the fraction format
      */
     public DocFractionInst(final DocObjectInstStyle theStyle, final String theBgColorName,
                            final DocNonwrappingSpanInst theNumerator,
-                           final DocNonwrappingSpanInst theDenominator) {
+                           final DocNonwrappingSpanInst theDenominator,
+                           final EFractionFormat theFractionFormat) {
 
         super(theStyle, theBgColorName);
 
@@ -35,9 +41,13 @@ public final class DocFractionInst extends AbstractDocObjectInst {
         if (theDenominator == null) {
             throw new IllegalArgumentException("The denominator may not be null");
         }
+        if (theFractionFormat == null) {
+            throw new IllegalArgumentException("The fraction format may not be null");
+        }
 
         this.numerator = theNumerator;
         this.denominator = theDenominator;
+        this.fractionFormat = theFractionFormat;
     }
 
     /**
@@ -61,6 +71,16 @@ public final class DocFractionInst extends AbstractDocObjectInst {
     }
 
     /**
+     * Gets the fraction format.
+     *
+     * @return the fraction format
+     */
+    public EFractionFormat getFractionFormat() {
+
+        return this.fractionFormat;
+    }
+
+    /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
      * @param xml      the {@code HtmlBuilder} to which to write the XML
@@ -72,10 +92,11 @@ public final class DocFractionInst extends AbstractDocObjectInst {
 
         xml.add("<fraction");
         addDocObjectInstXmlAttributes(xml);
+        xml.addAttribute("format", this.fractionFormat, 0);
         xml.add('>');
 
-        this.numerator.toXml(xml, xmlStyle, indent+1);
-        this.denominator.toXml(xml, xmlStyle, indent+1);
+        this.numerator.toXml(xml, xmlStyle, indent + 1);
+        this.denominator.toXml(xml, xmlStyle, indent + 1);
 
         xml.add("</fraction>");
     }
@@ -92,10 +113,14 @@ public final class DocFractionInst extends AbstractDocObjectInst {
 
         builder.add("DocFractionInst");
         appendStyleString(builder);
+        builder.add("[format=", this.fractionFormat, "]");
         builder.add(':');
 
-        builder.add("numerator=", this.numerator.toString());
-        builder.add(",denominator=", this.denominator.toString());
+        final String numeratorStr = this.numerator.toString();
+        builder.add("numerator=", numeratorStr);
+
+        final String denominatorStr = this.denominator.toString();
+        builder.add(",denominator=", denominatorStr);
 
         return builder.toString();
     }
@@ -125,9 +150,12 @@ public final class DocFractionInst extends AbstractDocObjectInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocFractionInst fraction) {
+            final AbstractDocContainerInst objNumerator = fraction.getNumerator();
+            final AbstractDocContainerInst objDenominator = fraction.getDenominator();
             equal = checkDocObjectInstEquals(fraction)
-                    && this.numerator.equals(fraction.numerator)
-                    && this.denominator.equals(fraction.denominator);
+                    && this.numerator.equals(objNumerator)
+                    && this.denominator.equals(objDenominator)
+                    && this.fractionFormat == fraction.getFractionFormat();
         } else {
             equal = false;
         }

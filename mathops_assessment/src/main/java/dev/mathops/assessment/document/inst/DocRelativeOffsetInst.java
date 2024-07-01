@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;
@@ -161,18 +160,24 @@ public final class DocRelativeOffsetInst extends AbstractDocObjectInst {
         appendStyleString(builder);
         builder.add(':');
 
-        builder.add("base=", this.base.toString());
+        final String baseStr = this.base.toString();
+        builder.add("base=", baseStr);
+
         if (this.superscript != null) {
-            builder.add(",sup=", this.superscript.toString());
+            final String supStr = this.superscript.toString();
+            builder.add(",sup=", supStr);
         }
         if (this.subscript != null) {
-            builder.add(",sub=", this.subscript.toString());
+            final String subStr = this.subscript.toString();
+            builder.add(",sub=", subStr);
         }
         if (this.over != null) {
-            builder.add(",over=", this.over.toString());
+            final String overStr = this.over.toString();
+            builder.add(",over=", overStr);
         }
         if (this.under != null) {
-            builder.add(",under=", this.under.toString());
+            final String underStr = this.under.toString();
+            builder.add(",under=", underStr);
         }
 
         return builder.toString();
@@ -187,8 +192,7 @@ public final class DocRelativeOffsetInst extends AbstractDocObjectInst {
     public int hashCode() {
 
         return docObjectInstHashCode() + this.base.hashCode() + Objects.hashCode(this.superscript)
-                + Objects.hashCode(this.subscript) + Objects.hashCode(this.over)
-                + Objects.hashCode(this.under);
+                + Objects.hashCode(this.subscript) + Objects.hashCode(this.over) + Objects.hashCode(this.under);
     }
 
     /**
@@ -205,12 +209,17 @@ public final class DocRelativeOffsetInst extends AbstractDocObjectInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocRelativeOffsetInst radical) {
+            final AbstractDocObjectInst objBase = radical.getBase();
+            final AbstractDocObjectInst objSuperscript = radical.getSuperscript();
+            final AbstractDocObjectInst objSubscript = radical.getSubscript();
+            final AbstractDocObjectInst objOver = radical.getOver();
+            final AbstractDocObjectInst objUnder = radical.getUnder();
             equal = checkDocObjectInstEquals(radical)
-                    && this.base.equals(radical.base)
-                    && Objects.equals(this.superscript, radical.superscript)
-                    && Objects.equals(this.subscript, radical.subscript)
-                    && Objects.equals(this.over, radical.over)
-                    && Objects.equals(this.under, radical.under);
+                    && this.base.equals(objBase)
+                    && Objects.equals(this.superscript, objSuperscript)
+                    && Objects.equals(this.subscript, objSubscript)
+                    && Objects.equals(this.over, objOver)
+                    && Objects.equals(this.under, objUnder);
         } else {
             equal = false;
         }

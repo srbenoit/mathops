@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * An instance  of a column of paragraphs, which will lay out the paragraphs vertically, one after the other, with the
- * top of each paragraph aligned with the bottom of the prior one. All paragraphs will be the same width.
+ * An instance  of a column of paragraphs and vertical space objects, which will lay out its children vertically, one
+ * after the other, with the top of each child aligned with the bottom of the prior one. All paragraphs will be the
+ * same width.
  */
 public final class DocColumnInst extends AbstractDocContainerInst {
 
@@ -49,9 +50,9 @@ public final class DocColumnInst extends AbstractDocContainerInst {
     /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param xml      the {@code HtmlBuilder} to which to write the XML
      * @param xmlStyle the style to use when emitting XML
-     * @param indent the number of spaces to indent the printout
+     * @param indent   the number of spaces to indent the printout
      */
     @Override
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
@@ -85,7 +86,8 @@ public final class DocColumnInst extends AbstractDocContainerInst {
         builder.add(':');
 
         for (final AbstractDocObjectInst child : getChildren()) {
-            builder.add(child.toString());
+            final String childStr = child.toString();
+            builder.add(childStr);
         }
 
         return builder.toString();
@@ -116,8 +118,8 @@ public final class DocColumnInst extends AbstractDocContainerInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocColumnInst column) {
-            equal = checkDocContainerInstEquals(column)
-                    && Objects.equals(this.tag, column.tag);
+            final String objTag = column.getTag();
+            equal = checkDocContainerInstEquals(column) && Objects.equals(this.tag, objTag);
         } else {
             equal = false;
         }

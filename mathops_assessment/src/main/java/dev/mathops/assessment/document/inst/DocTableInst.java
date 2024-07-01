@@ -5,7 +5,6 @@ import dev.mathops.assessment.document.ETableSizing;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.Padding;
 import dev.mathops.assessment.document.StrokeStyle;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Arrays;
@@ -86,16 +85,16 @@ public final class DocTableInst extends AbstractDocObjectInst {
         }
 
         final int numRows = theCells.length;
-        if (numRows == 0) {
+        if (numRows > 0) {
             final int numCols = theCells[0].length;
             for (int i = 1; i < numRows; ++i) {
                 if (theCells[i].length != numCols) {
                     throw new IllegalArgumentException("Cells array must have same number of items per row");
                 }
             }
-            for (int i = 0; i < numRows; ++i) {
+            for (final DocNonwrappingSpanInst[] theCell : theCells) {
                 for (int j = 0; j < numCols; ++j) {
-                    if (theCells[i][j] == null) {
+                    if (theCell[j] == null) {
                         throw new IllegalArgumentException("Cells array may not contain nulls");
                     }
                 }
@@ -238,9 +237,7 @@ public final class DocTableInst extends AbstractDocObjectInst {
         }
         xml.add(">");
 
-        final int numRows = this.cells.length;
-        for (int r = 0; r < numRows; ++r) {
-            final DocNonwrappingSpanInst[] row = this.cells[r];
+        for (final DocNonwrappingSpanInst[] row : this.cells) {
             if (xmlStyle == EXmlStyle.INDENTED) {
                 xml.addln();
                 xml.add(ind1);
@@ -248,14 +245,14 @@ public final class DocTableInst extends AbstractDocObjectInst {
             xml.add("<tr>");
 
             final int numCells = row.length;
-            for (int c = 0; c < numCells; ++c) {
+            for (int cell = 0; cell < numCells; ++cell) {
                 if (xmlStyle == EXmlStyle.INDENTED) {
                     xml.addln();
                     xml.add(ind2);
                 }
                 xml.add("<tc>");
                 // Spacing matters - go to inline
-                row[c].toXml(xml, EXmlStyle.INLINE, 0);
+                row[cell].toXml(xml, EXmlStyle.INLINE, 0);
                 xml.add("</tc>");
                 if (xmlStyle == EXmlStyle.INDENTED) {
                     xml.addln();
@@ -322,9 +319,8 @@ public final class DocTableInst extends AbstractDocObjectInst {
     public int hashCode() {
 
         return docObjectInstHashCode() + Arrays.deepHashCode(this.cells) + this.columnSizing.hashCode()
-                + this.rowSizing.hashCode() + this.justification.hashCode()
-                + Objects.hashCode(this.cellPadding) + Objects.hashCode(this.border)
-                + Objects.hashCode(this.hLines) + Objects.hashCode(this.vLines);
+                + this.rowSizing.hashCode() + this.justification.hashCode() + Objects.hashCode(this.cellPadding)
+                + Objects.hashCode(this.border) + Objects.hashCode(this.hLines) + Objects.hashCode(this.vLines);
     }
 
     /**
@@ -342,14 +338,14 @@ public final class DocTableInst extends AbstractDocObjectInst {
             equal = true;
         } else if (obj instanceof final DocTableInst table) {
             equal = checkDocObjectInstEquals(table)
-                    && this.columnSizing == table.columnSizing
-                    && this.rowSizing == table.rowSizing
-                    && this.justification == table.justification
+                    && this.columnSizing == table.getColumnSizing()
+                    && this.rowSizing == table.getRowSizing()
+                    && this.justification == table.getJustification()
                     && Arrays.deepEquals(this.cells, table.cells)
-                    && Objects.equals(this.cellPadding, table.cellPadding)
+                    && Objects.equals(this.cellPadding, table.getCellPadding())
                     && Objects.equals(this.border, table.border)
-                    && Objects.equals(this.hLines, table.hLines)
-                    && Objects.equals(this.vLines, table.vLines);
+                    && Objects.equals(this.hLines, table.getHLines())
+                    && Objects.equals(this.vLines, table.getVLines());
         } else {
             equal = false;
         }

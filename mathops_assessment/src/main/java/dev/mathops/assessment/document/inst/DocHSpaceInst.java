@@ -47,7 +47,8 @@ public final class DocHSpaceInst extends AbstractDocObjectInst {
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
         xml.add("<h-space");
-        xml.addAttribute("width", Double.valueOf(this.spaceWidth), 0);
+        final String widthStr = Double.toString(this.spaceWidth);
+        xml.addAttribute("width", widthStr, 0);
         addDocObjectInstXmlAttributes(xml);
         xml.add("/>");
     }
@@ -63,7 +64,8 @@ public final class DocHSpaceInst extends AbstractDocObjectInst {
         final HtmlBuilder builder = new HtmlBuilder(500);
 
         builder.add("DocHSpaceInst");
-        builder.add("[width=", Double.toString(this.spaceWidth), "]");
+        final String widthStr = Double.toString(this.spaceWidth);
+        builder.add("[width=", widthStr, "]");
         appendStyleString(builder);
 
         return builder.toString();
@@ -98,7 +100,7 @@ public final class DocHSpaceInst extends AbstractDocObjectInst {
             equal = true;
         } else if (obj instanceof final DocHSpaceInst spc) {
             equal = checkDocObjectInstEquals(spc)
-                    && this.spaceWidth == spc.spaceWidth;
+                    && this.spaceWidth == spc.getSpaceWidth();
         } else {
             equal = false;
         }

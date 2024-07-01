@@ -2,9 +2,7 @@ package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 import java.io.PrintStream;
 import java.util.Objects;
@@ -12,8 +10,7 @@ import java.util.Objects;
 /**
  * A random real-valued variable.
  */
-public final class VariableRandomReal extends AbstractFormattableVariable
-        implements IRangedVariable {
+public final class VariableRandomReal extends AbstractFormattableVariable implements IRangedVariable {
 
     /** XML type tag. */
     static final String TYPE_TAG = "random-real";

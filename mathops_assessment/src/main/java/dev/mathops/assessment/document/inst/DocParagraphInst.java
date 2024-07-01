@@ -84,7 +84,8 @@ public final class DocParagraphInst extends AbstractDocContainerInst {
         builder.add("{justification=", this.justification, "}:");
 
         for (final AbstractDocObjectInst child : getChildren()) {
-            builder.add(child.toString());
+            final String childStr = child.toString();
+            builder.add(childStr);
         }
 
         return builder.toString();
@@ -116,7 +117,7 @@ public final class DocParagraphInst extends AbstractDocContainerInst {
             equal = true;
         } else if (obj instanceof final DocParagraphInst paragraph) {
             equal = checkDocContainerInstEquals(paragraph)
-                    && this.justification == paragraph.justification;
+                    && this.justification == paragraph.getJustification();
         } else {
             equal = false;
         }

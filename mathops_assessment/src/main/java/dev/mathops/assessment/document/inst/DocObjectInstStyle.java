@@ -39,14 +39,14 @@ public final class DocObjectInstStyle {
     /** The name of the font to use (default is SERIF). */
     public final String fontName;
 
-    /** The point size of font to use. */
+    /** The (absolute) point size of font to use. */
     public final float fontSize;
 
     /** The font style - some bitwise combination of style values from this class. */
     public final int fontStyle;
 
     /**
-     * Construct a new {@code DocObjectIterationStyle}.
+     * Construct a new {@code DocObjectInstStyle}.
      *
      * @param theColorName the foreground color name (may not be {@code null})
      * @param theFontName  the font family name (may not be {@code null})
@@ -160,7 +160,7 @@ public final class DocObjectInstStyle {
 
         final HtmlBuilder builder = new HtmlBuilder(70);
 
-        builder.add("DocObjectIterationStyle:colorName=", this.colorName, ",fontName=", this.fontName, ",fontSize");
+        builder.add("DocObjectInstStyle:colorName=", this.colorName, ",fontName=", this.fontName, ",fontSize");
         builder.add(this.fontSize);
         builder.add(",fontStyle=0x", Integer.toHexString(this.fontStyle));
 
@@ -187,6 +187,9 @@ public final class DocObjectInstStyle {
     @Override
     public boolean equals(final Object obj) {
 
+        // NOTE: We don't do a "Math.abs(x - y) < epsilon" comparison since that could result in two object having
+        // different hash codes, but still being considered equal, which violates the contract for hashCode.
+
         final boolean equal;
 
         if (obj == this) {
@@ -194,7 +197,7 @@ public final class DocObjectInstStyle {
         } else if (obj instanceof final DocObjectInstStyle style) {
             equal = this.colorName.equals(style.colorName)
                     && this.fontName.equals(style.fontName)
-                    && Math.abs(this.fontSize - style.fontSize) < 0.00001f
+                    && this.fontSize == style.fontSize
                     && this.fontStyle == style.fontStyle;
         } else {
             equal = false;
