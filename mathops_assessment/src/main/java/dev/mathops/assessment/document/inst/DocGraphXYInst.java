@@ -5,7 +5,6 @@ import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.GridSpec;
 import dev.mathops.assessment.document.StrokeStyle;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.List;
