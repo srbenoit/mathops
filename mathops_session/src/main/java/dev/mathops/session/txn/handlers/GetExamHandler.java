@@ -6,15 +6,11 @@ import dev.mathops.assessment.document.template.DocNonwrappingSpan;
 import dev.mathops.assessment.document.template.DocParagraph;
 import dev.mathops.assessment.document.template.DocText;
 import dev.mathops.assessment.document.template.DocWrappingSpan;
-import dev.mathops.assessment.exam.ExamGradingRule;
 import dev.mathops.assessment.exam.ExamObj;
-import dev.mathops.assessment.exam.ExamOutcome;
 import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
-import dev.mathops.assessment.exam.ExamSubtest;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemAutoCorrectTemplate;
-import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
@@ -51,8 +47,6 @@ import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetExamRequest;
 
-import javax.print.Doc;
-import java.awt.Color;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -590,11 +584,11 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 for (int i = 0; i < num; ++i) {
                     AbstractProblemTemplate prb = eprob.getProblem(i);
 
-                    if (prb == null || prb.ref == null) {
+                    if (prb == null || prb.id == null) {
                         Log.warning("Exam " + exam.ref + " section " + onSect + " problem " + onProb + " choice "
                                 + i + " getProblem() returned " + prb);
                     } else if (!(prb instanceof ProblemAutoCorrectTemplate)) {
-                        prb = InstructionalCache.getProblem(prb.ref);
+                        prb = InstructionalCache.getProblem(prb.id);
 
                         if (prb != null) {
                             eprob.setProblem(i, prb);
@@ -725,11 +719,11 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         for (int i = 0; i < num; ++i) {
                             AbstractProblemTemplate prb = eprob.getProblem(i);
 
-                            if (prb == null || prb.ref == null) {
+                            if (prb == null || prb.id == null) {
                                 Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice "
                                         + i + " getProblem() returned " + prb);
                             } else {
-                                prb = InstructionalCache.getProblem(prb.ref);
+                                prb = InstructionalCache.getProblem(prb.id);
 
                                 if (prb != null) {
                                     eprob.setProblem(i, prb);

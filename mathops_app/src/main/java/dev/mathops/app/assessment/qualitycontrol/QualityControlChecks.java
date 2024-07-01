@@ -140,9 +140,9 @@ enum QualityControlChecks {
         final int mathIndex = absPath.indexOf("math.");
         final String relPath = mathIndex == -1 ? absPath : absPath.substring(mathIndex);
 
-        if (!relPath.equals(problem.ref)) {
+        if (!relPath.equals(problem.id)) {
             report.sSpan(null, "style='color:orange;'")
-                    .add("WARNING: &lt;ref-base&gt; was ", problem.ref, " but relative path was ", relPath)
+                    .add("WARNING: &lt;ref-base&gt; was ", problem.id, " but relative path was ", relPath)
                     .eSpan().br().addln();
         }
     }

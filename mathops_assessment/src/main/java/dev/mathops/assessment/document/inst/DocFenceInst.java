@@ -102,7 +102,8 @@ public final class DocFenceInst extends AbstractDocContainerInst {
         builder.add(':');
 
         for (final AbstractDocObjectInst child : getChildren()) {
-            builder.add(child.toString());
+            final String childStr = child.toString();
+            builder.add(childStr);
         }
 
         return builder.toString();
@@ -134,8 +135,8 @@ public final class DocFenceInst extends AbstractDocContainerInst {
             equal = true;
         } else if (obj instanceof final DocFenceInst fence) {
             equal = checkDocContainerInstEquals(fence)
-                    && this.type == fence.type
-                    && this.baseline == fence.baseline;
+                    && this.type == fence.getType()
+                    && this.baseline == fence.getBaseline();
         } else {
             equal = false;
         }

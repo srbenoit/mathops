@@ -105,7 +105,7 @@ public enum ProblemTemplateFactory {
                     Log.warning("    ", err);
                 }
             } else {
-                Log.info(problem.ref);
+                Log.info(problem.id);
             }
 
             for (final XmlContentError err : source.getAllErrors()) {
@@ -136,7 +136,7 @@ public enum ProblemTemplateFactory {
         // parameter choices, and we want to catch if it returns Double sometimes
 
         for (int i = 0; i < 10; ++i) {
-            if (problem.evalContext.generate(problem.ref)) {
+            if (problem.evalContext.generate(problem.id)) {
                 for (final AbstractVariable var : problem.evalContext.getVariables()) {
 
                     if (var instanceof VariableDerived) {
@@ -576,7 +576,7 @@ public enum ProblemTemplateFactory {
     private static boolean parseCommonElements(final NonemptyElement elem, final AbstractProblemTemplate problem,
                                                final EParserMode mode) {
 
-        return parseRefBase(elem, problem)
+        return parseProblemId(elem, problem)
                 && VariableFactory.parseVars(problem.evalContext, elem, mode)
                 && parseQuestion(elem, problem, mode)
                 && parseSolution(elem, problem, mode)
@@ -592,11 +592,15 @@ public enum ProblemTemplateFactory {
      * @param problem the {@code Problem} to populate with the parsed data
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean parseRefBase(final NonemptyElement elem, final AbstractProblemTemplate problem) {
+    private static boolean parseProblemId(final NonemptyElement elem, final AbstractProblemTemplate problem) {
 
-        problem.ref = getRefElement("ref-base", elem, true);
+        problem.id = elem.getStringAttr("id");
 
-        return problem.ref != null;
+        if (problem.id == null) {
+            problem.id = getRefElement("ref-base", elem, true);
+        }
+
+        return problem.id != null;
     }
 
     /**
@@ -661,7 +665,8 @@ public enum ProblemTemplateFactory {
         boolean valid = true;
 
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && "solution".equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && "solution".equals(tagName)) {
 
                 final DocColumn solution = DocFactory.parseDocColumn(problem.evalContext, nonempty, mode);
                 if (solution == null) {
@@ -697,7 +702,8 @@ public enum ProblemTemplateFactory {
     private static boolean parseStudentResponse(final NonemptyElement elem, final AbstractProblemTemplate problem) {
 
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && "student-response".equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && "student-response".equals(tagName)) {
 
                 final Collection<Object> values = new ArrayList<>(10);
 
@@ -748,7 +754,8 @@ public enum ProblemTemplateFactory {
     private static boolean parseScore(final NonemptyElement elem, final AbstractProblemTemplate problem) {
 
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && "score".equals(child.getTagName())
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && "score".equals(tagName)
                     && nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
                 final String content = cdata.content;
@@ -798,7 +805,8 @@ public enum ProblemTemplateFactory {
 
         for (final IElement child : elem.getElementChildrenAsList()) {
 
-            if ("accept-number".equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if ("accept-number".equals(tagName)) {
                 ++count;
                 if (count > 1) {
                     elem.logError("Multiple &lt;accept-number&gt; elements.");
@@ -822,7 +830,7 @@ public enum ProblemTemplateFactory {
 
                     final String varianceStr = child.getStringAttr("variance");
                     if (varianceStr == null) {
-                        if (child instanceof final NonemptyElement nonempty && "variance".equals(child.getTagName())) {
+                        if (child instanceof final NonemptyElement nonempty && "variance".equals(tagName)) {
 
                             if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
                                 if (mode.reportDeprecated) {
@@ -853,8 +861,9 @@ public enum ProblemTemplateFactory {
                     final String correctStr = child.getStringAttr("correct-answer");
                     if (correctStr == null && child instanceof final NonemptyElement nonemptychild) {
                         for (final IElement grandchild : nonemptychild.getElementChildrenAsList()) {
+                            final String tagName1 = grandchild.getTagName();
                             if (grandchild instanceof final NonemptyElement inner
-                                    && "correct-answer".equals(grandchild.getTagName())) {
+                                    && "correct-answer".equals(tagName1)) {
 
                                 if (inner.getNumChildren() == 1 && inner.getChild(0) instanceof final CData cdata) {
                                     if (mode.reportDeprecated) {
@@ -924,7 +933,8 @@ public enum ProblemTemplateFactory {
 
         if (numChoicesStr == null) {
             for (final IElement child : elem.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement nonempty && "num-choices".equals(child.getTagName())) {
+                final String tagName = child.getTagName();
+                if (child instanceof final NonemptyElement nonempty && "num-choices".equals(tagName)) {
 
                     if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
@@ -971,7 +981,8 @@ public enum ProblemTemplateFactory {
         if (numChoicesStr == null) {
 
             for (final IElement child : elem.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement nonempty && "random-order".equals(child.getTagName())) {
+                final String tagName = child.getTagName();
+                if (child instanceof final NonemptyElement nonempty && "random-order".equals(tagName)) {
 
                     if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
@@ -1108,7 +1119,8 @@ public enum ProblemTemplateFactory {
         List<ProblemChoiceTemplate> choices = new ArrayList<>(5);
 
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && "choice".equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && "choice".equals(tagName)) {
 
                 // Old format: <p> elements are children
                 // New format: <correct> formula as child, <content> child with <p> elements
@@ -1258,7 +1270,8 @@ public enum ProblemTemplateFactory {
 
         if (minCorrectStr == null) {
             for (final IElement child : elem.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement nonempty && "min-correct".equals(child.getTagName())) {
+                final String tagName = child.getTagName();
+                if (child instanceof final NonemptyElement nonempty && "min-correct".equals(tagName)) {
 
                     if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
@@ -1302,7 +1315,8 @@ public enum ProblemTemplateFactory {
 
         if (maxCorrectStr == null) {
             for (final IElement child : elem.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement nonempty && "max-correct".equals(child.getTagName())) {
+                final String tagName = child.getTagName();
+                if (child instanceof final NonemptyElement nonempty && "max-correct".equals(tagName)) {
 
                     if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
@@ -1346,7 +1360,8 @@ public enum ProblemTemplateFactory {
 
         if (correctStr == null) {
             for (final IElement child : elem.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement nonempty && "correct".equals(child.getTagName())) {
+                final String tagName = child.getTagName();
+                if (child instanceof final NonemptyElement nonempty && "correct".equals(tagName)) {
 
                     if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
                         problem.correctness = FormulaFactory.parseFormulaString(problem.evalContext, cdata.content,
@@ -1388,7 +1403,8 @@ public enum ProblemTemplateFactory {
         boolean valid = true;
 
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && "answer".equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && "answer".equals(tagName)) {
 
                 final DocColumn answer = DocFactory.parseDocColumn(problem.evalContext, nonempty, mode);
                 if (answer == null) {
@@ -1427,7 +1443,8 @@ public enum ProblemTemplateFactory {
         NonemptyElement found = null;
         int count = 0;
         for (final IElement child : elem.getElementChildrenAsList()) {
-            if (child instanceof final NonemptyElement nonempty && name.equals(child.getTagName())) {
+            final String tagName = child.getTagName();
+            if (child instanceof final NonemptyElement nonempty && name.equals(tagName)) {
                 found = nonempty;
                 ++count;
             }
@@ -1457,7 +1474,8 @@ public enum ProblemTemplateFactory {
 
                     final int tagValueLen = tagValue.length();
                     for (int i = 0; i < tagValueLen; ++i) {
-                        if (validCharacters.indexOf(tagValue.charAt(i)) == -1) {
+                        final char ch = tagValue.charAt(i);
+                        if (validCharacters.indexOf((int) ch) == -1) {
                             elem.logError("Invalid character in reference: " + tagValue
                                     + "\n(valid are [a-z] [A-Z] [0-9] [spc] . _ - + = : ~)");
                             tagValue = null;

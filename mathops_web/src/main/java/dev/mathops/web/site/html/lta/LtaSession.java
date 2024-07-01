@@ -1238,7 +1238,7 @@ public final class LtaSession extends HtmlSessionBase {
                 final ExamProblem problem = getExam().getProblem(id);
                 final AbstractProblemTemplate selected = problem == null ? null : problem.getSelectedProblem();
 
-                if (selected != null && selected.ref != null) {
+                if (selected != null && selected.id != null) {
 
                     if (answers[id] != null) {
                         selected.recordAnswer(answers[id]);

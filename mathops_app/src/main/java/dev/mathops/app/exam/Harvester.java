@@ -141,8 +141,8 @@ public enum Harvester {
                     final ExamProblem ep = es.getPresentedProblem(p);
                     if (ep != null) {
                         final AbstractProblemTemplate sel = ep.getSelectedProblem();
-                        if (sel != null && sel.ref != null) {
-                            final String ref = sel.ref;
+                        if (sel != null && sel.id != null) {
+                            final String ref = sel.id;
 
                             htm.addln(serial, CoreConstants.COMMA, studentId, CoreConstants.COMMA,
                                     course, CoreConstants.COMMA, unit, CoreConstants.COMMA, version,

@@ -534,11 +534,11 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     for (int i = 0; i < num; ++i) {
                         AbstractProblemTemplate prb = eprob.getProblem(i);
 
-                        if (prb == null || prb.ref == null) {
+                        if (prb == null || prb.id == null) {
                             Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice " + i
                                     + " getProblem() returned " + prb);
                         } else {
-                            prb = InstructionalCache.getProblem(prb.ref);
+                            prb = InstructionalCache.getProblem(prb.id);
 
                             if (prb != null) {
                                 eprob.setProblem(i, prb);
@@ -1583,11 +1583,11 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 final ExamProblem problem = getExam().getProblem(id);
                 final AbstractProblemTemplate selected = problem == null ? null : problem.getSelectedProblem();
 
-                if (selected != null && selected.ref != null) {
+                if (selected != null && selected.id != null) {
                     final StudentExamAnswerRec stanswer = new StudentExamAnswerRec();
                     stanswer.id = id;
                     stanswer.subtest = subtest.subtestName;
-                    stanswer.treeRef = selected.ref;
+                    stanswer.treeRef = selected.id;
 
                     // FIXME: Get actual sub-objective relating to problem
                     stanswer.objective = "0";

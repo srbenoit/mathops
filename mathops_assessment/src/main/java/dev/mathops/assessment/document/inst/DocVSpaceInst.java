@@ -62,7 +62,8 @@ public final class DocVSpaceInst extends AbstractDocObjectInst {
         final HtmlBuilder builder = new HtmlBuilder(500);
 
         builder.add("DocVSpaceInst");
-        builder.add("[height=", Double.toString(this.spaceHeight), "]");
+        final String heightStr = Double.toString(this.spaceHeight);
+        builder.add("[height=", heightStr, "]");
         appendStyleString(builder);
 
         return builder.toString();
@@ -96,8 +97,8 @@ public final class DocVSpaceInst extends AbstractDocObjectInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocVSpaceInst spc) {
-            equal = checkDocObjectInstEquals(spc)
-                    && this.spaceHeight == spc.spaceHeight;
+            final double objHeight = spc.getSpaceHeight();
+            equal = checkDocObjectInstEquals(spc) && this.spaceHeight == objHeight;
         } else {
             equal = false;
         }

@@ -153,11 +153,11 @@ public final class GetHomeworkReply extends AbstractReplyBase {
      */
     private void addProblemToHomework(final AbstractProblemTemplate current) {
 
-        if (current.ref == null) {
+        if (current.id == null) {
             return;
         }
 
-        final String ref = current.ref;
+        final String ref = current.id;
         final int numSect = this.homework.getNumSections();
 
         for (int i = 0; i < numSect; i++) {
@@ -172,7 +172,7 @@ public final class GetHomeworkReply extends AbstractReplyBase {
                 for (int k = 0; k < count; k++) {
                     final AbstractProblemTemplate exist = prob.getProblem(k);
 
-                    if (exist != null && ref.equals(exist.ref)) {
+                    if (exist != null && ref.equals(exist.id)) {
                         prob.setProblem(k, current);
                     }
                 }

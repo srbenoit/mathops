@@ -58,7 +58,8 @@ public final class DocNonwrappingSpanInst extends AbstractDocContainerInst {
         builder.add(':');
 
         for (final AbstractDocObjectInst child : getChildren()) {
-            builder.add(child.toString());
+            final String childStr = child.toString();
+            builder.add(childStr);
         }
 
         return builder.toString();

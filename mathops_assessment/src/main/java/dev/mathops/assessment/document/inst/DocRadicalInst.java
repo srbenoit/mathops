@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;
@@ -98,9 +97,12 @@ public final class DocRadicalInst extends AbstractDocObjectInst {
         appendStyleString(builder);
         builder.add(':');
 
-        builder.add("base=", this.base.toString());
+        final String baseStr = this.base.toString();
+        builder.add("base=", baseStr);
+
         if (this.root != null) {
-            builder.add(",root=", this.root.toString());
+            final String rootStr = this.root.toString();
+            builder.add(",root=", rootStr);
         }
 
         return builder.toString();
@@ -131,9 +133,11 @@ public final class DocRadicalInst extends AbstractDocObjectInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocRadicalInst radical) {
+            final AbstractDocObjectInst objBase = radical.getBase();
+            final AbstractDocObjectInst objRoot = radical.getRoot();
             equal = checkDocObjectInstEquals(radical)
-                    && this.base.equals(radical.base)
-                    && Objects.equals(this.root, radical.root);
+                    && this.base.equals(objBase)
+                    && Objects.equals(this.root, objRoot);
         } else {
             equal = false;
         }

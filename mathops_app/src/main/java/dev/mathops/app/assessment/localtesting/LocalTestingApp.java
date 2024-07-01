@@ -1,6 +1,5 @@
 package dev.mathops.app.assessment.localtesting;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.DirectoryFilter;
 import dev.mathops.app.PleaseWait;
@@ -347,7 +346,7 @@ public final class LocalTestingApp extends ClientBase implements ExamContainerIn
 
                         for (int inx = 0; inx < num; inx++) {
                             p = eprob.getProblem(inx);
-                            final String path = this.exam.refRoot + "." + p.ref;
+                            final String path = this.exam.refRoot + "." + p.id;
                             p = InstructionalCache.getProblem(this.baseDir, path);
 
                             eprob.setProblem(inx, p);

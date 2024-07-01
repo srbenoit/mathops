@@ -263,7 +263,7 @@ public final class ExamPrinterApp extends ClientBase {
 
                             for (int i = 0; i < num; i++) {
                                 AbstractProblemTemplate prob = eprob.getProblem(i);
-                                String actualRef = prob.ref.startsWith(root) ? prob.ref : (root + "." + prob.ref);
+                                String actualRef = prob.id.startsWith(root) ? prob.id : (root + "." + prob.id);
                                 prob = cache.retrieveProblem(actualRef);
 
                                 if (prob != null) {
@@ -363,7 +363,7 @@ public final class ExamPrinterApp extends ClientBase {
 
                                 for (int i = 0; i < num; i++) {
                                     AbstractProblemTemplate prob = eprob.getProblem(i);
-                                    prob = cache.retrieveProblem(prob.ref);
+                                    prob = cache.retrieveProblem(prob.id);
 
                                     if (prob != null) {
                                         eprob.setProblem(i, prob);
@@ -579,7 +579,7 @@ public final class ExamPrinterApp extends ClientBase {
                 col = selected.question;
 
                 if (col == null) {
-                    Log.warning(selected.ref + CoreConstants.SPC + Res.get(Res.HAD_NO_QUESTION));
+                    Log.warning(selected.id + CoreConstants.SPC + Res.get(Res.HAD_NO_QUESTION));
                     continue;
                 }
 

@@ -36,7 +36,7 @@ public final class DocImageInst extends AbstractDocObjectInst {
      * @param theWidth       the image width
      * @param theHeight      the image height
      * @param theBaseline    the baseline to use to align the image (top of image to hanging baseline, bottom of image
-     *                       to typographic baseline, or centerline of image to centerline or math-axis baseline)
+     *                       to typographic baseline, or center line of image to center line or math-axis baseline)
      * @param theAltText     the alt text
      */
     public DocImageInst(final DocObjectInstStyle theStyle, final String theBgColorName, final String theSource,
@@ -123,13 +123,16 @@ public final class DocImageInst extends AbstractDocObjectInst {
         xml.add("<image");
         addDocObjectInstXmlAttributes(xml);
         xml.addAttribute("src", this.source, 0);
-        xml.addAttribute("width", Double.toString(this.width), 0);
-        xml.addAttribute("height", Double.toString(this.height), 0);
+        final String widthStr = Double.toString(this.width);
+        xml.addAttribute("width", widthStr, 0);
+        final String heightStr = Double.toString(this.height);
+        xml.addAttribute("height", heightStr, 0);
         xml.addAttribute("baseline", this.baseline, 0);
 
         final String alt = getAltText();
         if (alt != null) {
-            xml.add(" alt='", XmlEscaper.escape(alt), "'");
+            final String altStr = XmlEscaper.escape(alt);
+            xml.add(" alt='", altStr, "'");
         }
         xml.add("/>");
     }
@@ -147,8 +150,10 @@ public final class DocImageInst extends AbstractDocObjectInst {
         builder.add("DocImageInst");
         appendStyleString(builder);
         builder.add("{src=", this.source);
-        builder.add(",width=", Double.toString(this.width));
-        builder.add(",height=", Double.toString(this.height));
+        final String widthStr = Double.toString(this.width);
+        builder.add(",width=", widthStr);
+        final String heightStr = Double.toString(this.height);
+        builder.add(",height=", heightStr);
         builder.add(",baseline=", this.baseline);
         builder.add(",alt=", this.altText);
         builder.add('}');
@@ -185,12 +190,14 @@ public final class DocImageInst extends AbstractDocObjectInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocImageInst image) {
+            final String objSource = image.getSource();
+            final String objAlt = image.getAltText();
             equal = checkDocObjectInstEquals(image)
-                    && this.source.equals(image.source)
-                    && this.width == image.width
-                    && this.height == image.height
-                    && this.baseline == image.baseline
-                    && Objects.equals(this.altText, image.altText);
+                    && this.source.equals(objSource)
+                    && this.width == image.getWidth()
+                    && this.height == image.getHeight()
+                    && this.baseline == image.getBaseline()
+                    && Objects.equals(this.altText, objAlt);
         } else {
             equal = false;
         }

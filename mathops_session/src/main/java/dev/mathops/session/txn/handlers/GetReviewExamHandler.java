@@ -339,11 +339,11 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                     for (int i = 0; i < num; ++i) {
                         AbstractProblemTemplate prb = eprob.getProblem(i);
 
-                        if (prb == null || prb.ref == null) {
+                        if (prb == null || prb.id == null) {
                             Log.warning("Problem " + (onProb + 1) + CoreConstants.DOT + (i + 1) + " in section "
                                     + (onSect + 1) + " in exam ", exam.ref, " invalid");
                         } else {
-                            prb = InstructionalCache.getProblem(prb.ref);
+                            prb = InstructionalCache.getProblem(prb.id);
 
                             if (prb != null) {
                                 eprob.setProblem(i, prb);

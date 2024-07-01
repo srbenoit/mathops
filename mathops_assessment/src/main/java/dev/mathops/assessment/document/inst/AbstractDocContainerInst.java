@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public abstract class AbstractDocContainerInst extends AbstractDocObjectInst {
 
-    /** The set of contained children components. */
+    /** The set of contained children. */
     private final List<AbstractDocObjectInst> children;
 
     /**

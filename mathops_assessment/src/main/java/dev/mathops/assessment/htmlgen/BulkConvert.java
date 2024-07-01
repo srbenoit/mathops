@@ -69,7 +69,7 @@ public enum BulkConvert {
             }
 
             final AbstractProblemTemplate problem = InstructionalCache.getProblem(ref);
-            htm.addln("Problem: ", problem.ref).br();
+            htm.addln("Problem: ", problem.id).br();
 
             // Log.info(problem.getIdentifierReference().ref);
 
@@ -108,7 +108,7 @@ public enum BulkConvert {
 
                 htm.add("<hr>");
             } else {
-                Log.warning("Unable to realize ", problem.ref);
+                Log.warning("Unable to realize ", problem.id);
             }
         }
 

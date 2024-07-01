@@ -180,8 +180,8 @@ public final class ProblemDummyTemplate extends AbstractProblemTemplate {
 
         buf.addln("<html><head></head><body>");
         buf.addln("<h3>Dummy Problem</h3>");
-        if (this.ref != null) {
-            buf.addln("<p><b>Reference base:</b> ", this.ref, "</p>");
+        if (this.id != null) {
+            buf.addln("<p><b>Reference base:</b> ", this.id, "</p>");
         }
         buf.addln("</body></html>");
 
@@ -207,7 +207,7 @@ public final class ProblemDummyTemplate extends AbstractProblemTemplate {
                         final char[] mode, final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         builder.addln("Dummy problem placeholder.\\");
     }

@@ -35,10 +35,8 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /** The problem type. */
     private EProblemType type;
 
-    /**
-     * The problem's unique position in the organizational tree, in which all instructional material is maintained.
-     */
-    public String ref;
+    /**The problem's unique ID within the organizational tree in which all instructional material is maintained.*/
+    public String id;
 
     /** An evaluation context for algorithmically generating problems. */
     public EvalContext evalContext;
@@ -49,32 +47,32 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /** The solution. */
     public DocColumn solution;
 
-    /** The time/date when the problem object was most recently completed. */
-    public long completionTime;
-
     /** The calculator allowed on the problem. */
     public ECalculatorType calculator = ECalculatorType.FULL_CALC;
 
+    /** The time/date when the problem object was most recently completed. */
+    @Deprecated public long completionTime;
+
     /** The student's response. */
-    private Object[] studentResponse;
+    @Deprecated private Object[] studentResponse;
 
     /** The HTML representation of the problem. */
-    public String questionHtml;
+    @Deprecated public String questionHtml;
 
     /** The disabled HTML representation of the problem. */
-    public String disabledHtml;
+    @Deprecated public String disabledHtml;
 
     /** The HTML representation of the problem with answer shown. */
-    public String answerHtml;
+    @Deprecated public String answerHtml;
 
     /** The HTML representation of the problem with solution shown. */
-    public String solutionHtml;
+    @Deprecated public String solutionHtml;
 
     /** The score, once the problem bas been graded. */
-    public double score;
+    @Deprecated public double score;
 
     /**
-     * Constructs an empty {@code AbstractProblem} object.
+     * Constructs an empty {@code AbstractProblemTemplate} object.
      */
     AbstractProblemTemplate() {
 
@@ -102,7 +100,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     void innerDeepCopy(final AbstractProblemTemplate copy) {
 
         copy.type = this.type;
-        copy.ref = this.ref;
+        copy.id = this.id;
         copy.evalContext = this.evalContext.deepCopy();
 
         if (this.question != null) {
@@ -220,10 +218,10 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
         clearAnswer();
 
         // Generate a new set of random parameter values
-        final boolean ok = context.generate(this.ref);
+        final boolean ok = context.generate(this.id);
 
         if (!ok) {
-            Log.warning("Problem " + this.ref + " failed to generate");
+            Log.warning("Problem " + this.id + " failed to generate");
         }
 
         // Log.info("GENERATED VARS:");
@@ -266,9 +264,9 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
 
         printSubclassXmlBegin(xml, indent + 1);
 
-        if (this.ref != null) {
+        if (this.id != null) {
             xml.addln();
-            xml.addln(ind1, "<ref-base>", this.ref, "</ref-base>");
+            xml.addln(ind1, "<ref-base>", this.id, "</ref-base>");
         }
 
         if (this.evalContext != null) {
@@ -399,9 +397,9 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
         ps.print(getType().label);
         ps.println("</td></tr>");
 
-        if (this.ref != null) {
+        if (this.id != null) {
             ps.print("<tr><td><b>Position in tree:</b></td><td>");
-            ps.print(this.ref);
+            ps.print(this.id);
             ps.println("</td></tr>");
         }
 
@@ -484,7 +482,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
      */
     final int innerHashCode() {
 
-        return Objects.hashCode(this.ref)
+        return Objects.hashCode(this.id)
                 + Objects.hashCode(this.evalContext)
                 + Objects.hashCode(this.question)
                 + Objects.hashCode(this.solution);
@@ -498,7 +496,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
      */
     final boolean innerEquals(final AbstractProblemTemplate other) {
 
-        return Objects.equals(this.ref, other.ref)
+        return Objects.equals(this.id, other.id)
                 && Objects.equals(this.evalContext, other.evalContext)
                 && Objects.equals(this.question, other.question)
                 && Objects.equals(this.solution, other.solution);

@@ -7,7 +7,6 @@ import dev.mathops.assessment.formula.edit.FEVarRef;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -105,25 +104,29 @@ public class VariableRef extends AbstractFormulaObject implements IEditableFormu
      * Evaluates the object within the tree. Subclasses should override this to produce the correct value.
      *
      * @param context the context under which to evaluate the formula
-     * @return an Long, Double, Boolean, or DocSimpleSpan value of the object, or a String with an error message if
+     * @return a Long, Double, Boolean, or DocSimpleSpan value of the object, or a String with an error message if
      *         unable to compute
      */
     @Override
     public Object evaluate(final EvalContext context) {
 
-        final AbstractVariable var = context.getVariable(this.name);
-        Object result = var == null ? null : var.getValue();
+        final AbstractVariable variable = context.getVariable(this.name);
+        Object result = variable == null ? null : variable.getValue();
 
         if (result == null) {
-            result = new ErrorValue("Parameter {" + this.name
-                    + "} cannot be evaluated.");
-        } else if (result instanceof final RealVectorValue realVec && this.index != null) {
-            result = Double.valueOf(realVec.getElement(this.index.intValue()));
-        } else if (result instanceof final IntegerVectorValue intVec && this.index != null) {
-            result = Long.valueOf(intVec.getElement(this.index.intValue()));
+            result = new ErrorValue("Parameter {" + this.name + "} cannot be evaluated.");
         } else if (this.index != null) {
-            Log.warning("Unexpected result type with indexed parameter: ",
-                    result.getClass().getName());
+            final int indexValue = this.index.intValue();
+
+            if (result instanceof final RealVectorValue realVec) {
+                result = realVec.getElement(indexValue);
+            } else if (result instanceof final IntegerVectorValue intVec) {
+                final long elemValue = intVec.getElement(indexValue);
+                result = Long.valueOf(elemValue);
+            } else {
+                final String className = result.getClass().getName();
+                Log.warning("Unexpected result type with indexed parameter: ", className);
+            }
         }
 
         return result;

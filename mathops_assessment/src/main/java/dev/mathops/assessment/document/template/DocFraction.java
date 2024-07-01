@@ -1,14 +1,12 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.document.EFractionFormat;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.inst.DocFractionInst;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 
 import java.awt.Color;
@@ -34,6 +32,9 @@ public final class DocFraction extends AbstractDocContainer {
 
     /** The object acting as the denominator. */
     private DocNonwrappingSpan denominator;
+
+    /** The fraction format. */
+    private EFractionFormat fractionFormat = EFractionFormat.ABOVE_BELOW;
 
     /** The Y offset of the horizontal line. */
     private int lineY;
@@ -234,7 +235,7 @@ public final class DocFraction extends AbstractDocContainer {
         final DocNonwrappingSpanInst denominatorInst = this.denominator == null ? null
                 : this.denominator.createInstance(evalContext);
 
-        return new DocFractionInst(objStyle, null, numeratorInst, denominatorInst);
+        return new DocFractionInst(objStyle, null, numeratorInst, denominatorInst, this.fractionFormat);
     }
 
     /**

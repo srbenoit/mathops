@@ -37,7 +37,6 @@ import dev.mathops.commons.parser.xml.XmlEscaper;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -287,8 +286,8 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
         buf.addln("<html><head></head><body>");
         buf.addln("<h3>Embedded Input Problem</h3>");
 
-        if (this.ref != null) {
-            buf.addln("<p><b>Reference base:</b> ", this.ref, "</p>");
+        if (this.id != null) {
+            buf.addln("<p><b>Reference base:</b> ", this.id, "</p>");
         }
 
         if (this.evalContext != null && this.evalContext.numVariables() > 0) {
@@ -429,7 +428,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
 
             if (ok) {
-                result = new ProblemEmbeddedInputInst(this.ref, iterationId, this.calculator,
+                result = new ProblemEmbeddedInputInst(this.id, iterationId, this.calculator,
                         questionIteration, solutionIteration, answerIteration, correctnessIteration);
             }
         }
@@ -456,7 +455,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
                         final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         // Write the question, followed by a blank line. The question will
         // include the inputs, so we don't need to print anything else.

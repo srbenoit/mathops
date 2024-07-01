@@ -56,7 +56,7 @@ public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
 
         this.numAlreadyCorrect = theNumAlreadyCorrect;
 
-        this.ref = "autocorrect";
+        this.id = "autocorrect";
 
         this.question = new DocColumn();
         this.question.tag = "question";
@@ -273,8 +273,8 @@ public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
         buf.addln("<html><head></head><body>");
         buf.addln("<h3>Auto-Correct Problem</h3>");
 
-        if (this.ref != null) {
-            buf.addln("<p><b>Reference base:</b> ", this.ref, "</p>");
+        if (this.id != null) {
+            buf.addln("<p><b>Reference base:</b> ", this.id, "</p>");
         }
 
         if (this.evalContext != null && this.evalContext.numVariables() > 0) {
@@ -393,7 +393,7 @@ public final class ProblemAutoCorrectTemplate extends AbstractProblemTemplate {
                         final EvalContext context) {
 
         // Emit the problem reference, for debugging
-        builder.addln("% ", this.ref);
+        builder.addln("% ", this.id);
 
         // Write the question, followed by a blank line
         this.question.toLaTeX(dir, fileIndex, overwriteAll, builder, showAnswers, mode, context);
