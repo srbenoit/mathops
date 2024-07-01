@@ -1,6 +1,13 @@
 package dev.mathops.db.old.logic;
 
+import dev.mathops.commons.log.Log;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
@@ -38,6 +45,9 @@ public final class PrerequisiteLogic {
     /** List of courses for which the student has satisfied the prerequisite. */
     private final List<String> satisfied;
 
+    /** List of courses for which the student has satisfied the prerequisite through transfer credit. */
+    private final List<String> satisfiedByTransfer;
+
     /** List of courses for which the student has earned credit. */
     private final List<String> creditFor;
 
@@ -63,27 +73,18 @@ public final class PrerequisiteLogic {
         this.allTransfer = RawFfrTrnsLogic.queryByStudent(cache, theStudentId);
 
         this.satisfied = new ArrayList<>(5);
+        this.satisfiedByTransfer = new ArrayList<>(5);
 
-        if (checkPrerequisites(cache, RawRecordConstants.M117,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M117))) {
-            this.satisfied.add(RawRecordConstants.M117);
-        }
-        if (checkPrerequisites(cache, RawRecordConstants.M118,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M118))) {
-            this.satisfied.add(RawRecordConstants.M118);
-        }
-        if (checkPrerequisites(cache, RawRecordConstants.M124,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M124))) {
-            this.satisfied.add(RawRecordConstants.M124);
-        }
-        if (checkPrerequisites(cache, RawRecordConstants.M125,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M125))) {
-            this.satisfied.add(RawRecordConstants.M125);
-        }
-        if (checkPrerequisites(cache, RawRecordConstants.M126,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M126))) {
-            this.satisfied.add(RawRecordConstants.M126);
-        }
+        checkPrerequisites(cache, RawRecordConstants.M117,
+                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M117));
+        checkPrerequisites(cache, RawRecordConstants.M118,
+                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M118));
+        checkPrerequisites(cache, RawRecordConstants.M124,
+                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M124));
+        checkPrerequisites(cache, RawRecordConstants.M125,
+                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M125));
+        checkPrerequisites(cache, RawRecordConstants.M126,
+                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M126));
 
         this.creditFor = new ArrayList<>(5);
         if (checkCredit(RawRecordConstants.M117)) {
@@ -115,6 +116,17 @@ public final class PrerequisiteLogic {
     }
 
     /**
+     * Tests whether the student has satisfied the prerequisites for a given course through transfer credit.
+     *
+     * @param theCourseId the course ID
+     * @return true if the student has satisfied the prerequisites for the course with transfer credit
+     */
+    public boolean hasSatisfiedPrereqsByTransferFor(final String theCourseId) {
+
+        return this.satisfiedByTransfer.contains(theCourseId);
+    }
+
+    /**
      * Tests whether the student has credit for a given course (by having taken the course, earned placement credit, or
      * by transfer credit).
      *
@@ -134,11 +146,10 @@ public final class PrerequisiteLogic {
      * @param cache           the data cache
      * @param courseId        the course ID
      * @param prereqCourseIds the list of courses which can satisfy the prerequisites for the course
-     * @return True if the prerequisite is satisfied; False if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkPrerequisites(final Cache cache, final String courseId,
-                                       final Iterable<String> prereqCourseIds) throws SQLException {
+    private void checkPrerequisites(final Cache cache, final String courseId,
+                                    final Iterable<String> prereqCourseIds) throws SQLException {
 
         boolean prereqSatisfied = false;
 
@@ -177,8 +188,10 @@ public final class PrerequisiteLogic {
                 // Search for transfer credit in course or a prerequisite course
                 for (final RawFfrTrns xfer : this.allTransfer) {
                     if (courseId.equals(xfer.course) || preq.equals(xfer.course)) {
-
-                        prereqSatisfied = true;
+                        if (!prereqSatisfied) {
+                            this.satisfiedByTransfer.add(courseId);
+                            prereqSatisfied = true;
+                        }
                         break outer;
                     }
                 }
@@ -207,7 +220,9 @@ public final class PrerequisiteLogic {
             }
         }
 
-        return prereqSatisfied;
+        if (prereqSatisfied) {
+            this.satisfied.add(courseId);
+        }
     }
 
     /**
@@ -248,45 +263,45 @@ public final class PrerequisiteLogic {
         return hasCredit;
     }
 
-    // /**
-    // * Main method to exercise the logic object.
-    // *
-    // * @param args command-line arguments
-    // */
-    // public static void main(final String... args) {
-    //
-    // final ContextMap map = ContextMap.getDefaultInstance();
-    // DbConnection.registerDrivers();
-    //
-    // final DbProfile dbProfile =
-    // map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).dbProfile;
-    // final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-    //
-    // try {
-    // final DbConnection conn = ctx.checkOutConnection();
-    // final Cache cache = new Cache(dbProfile, conn);
-    //
-    // try {
-    // final PrerequisiteLogic prereq = //
-    // new PrerequisiteLogic(cache, "833365051");
-    //
-    // Log.fine("Student: ", prereq.studentId);
-    //
-    // Log.fine(" OK for 117: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117));
-    // // $NON-NLS-1$
-    // Log.fine(" OK for 118: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M118));
-    // // $NON-NLS-1$
-    // Log.fine(" OK for 124: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M124));
-    // // $NON-NLS-1$
-    // Log.fine(" OK for 125: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M125));
-    // // $NON-NLS-1$
-    // Log.fine(" OK for 126: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M126));
-    // // $NON-NLS-1$
-    // } finally {
-    // ctx.checkInConnection(conn);
-    // }
-    // } catch (SQLException ex) {
-    // Log.warning(ex);
-    // }
-    // }
+//    /**
+//     * Main method to exercise the logic object.
+//     *
+//     * @param args command-line arguments
+//     */
+//    public static void main(final String... args) {
+//
+//        final ContextMap map = ContextMap.getDefaultInstance();
+//        DbConnection.registerDrivers();
+//
+//        final DbProfile dbProfile =
+//                map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).dbProfile;
+//        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+//
+//        try {
+//            final DbConnection conn = ctx.checkOutConnection();
+//            final Cache cache = new Cache(dbProfile, conn);
+//
+//            try {
+//                final PrerequisiteLogic prereq = //
+//                        new PrerequisiteLogic(cache, "836965795");
+//
+//                Log.fine("Student: ", prereq.studentId);
+//
+//                Log.fine(" OK for 117: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117) + "; by transfer: " +
+//                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M117));
+//                Log.fine(" OK for 118: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M118) + "; by transfer: " +
+//                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M118));
+//                Log.fine(" OK for 124: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M124) + "; by transfer: " +
+//                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M124));
+//                Log.fine(" OK for 125: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M125) + "; by transfer: " +
+//                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M125));
+//                Log.fine(" OK for 126: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M126) + "; by transfer: " +
+//                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M126));
+//            } finally {
+//                ctx.checkInConnection(conn);
+//            }
+//        } catch (final SQLException ex) {
+//            Log.warning(ex);
+//        }
+//    }
 }

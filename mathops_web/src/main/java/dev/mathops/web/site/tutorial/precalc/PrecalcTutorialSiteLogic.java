@@ -3,6 +3,8 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.logic.PrecalcTutorialLogic;
+import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -101,29 +103,11 @@ final class PrecalcTutorialSiteLogic {
         try {
             localPrereqLogic = new PrerequisiteLogic(theCache, this.studentId);
 
-            final String courseId;
-            if (localPrereqLogic.hasCreditFor(RawRecordConstants.M117)) {
-                if (localPrereqLogic.hasCreditFor(RawRecordConstants.M118)) {
-                    if (localPrereqLogic.hasCreditFor(RawRecordConstants.M124)) {
-                        if (localPrereqLogic.hasCreditFor(RawRecordConstants.M125)) {
-                            if (localPrereqLogic.hasCreditFor(RawRecordConstants.M126)) {
-                                courseId = null;
-                            } else {
-                                courseId = RawRecordConstants.M1260;
-                            }
-                        } else {
-                            courseId = RawRecordConstants.M1250;
-                        }
-                    } else {
-                        courseId = RawRecordConstants.M1240;
-                    }
-                } else {
-                    courseId = RawRecordConstants.M1180;
-                }
-            } else {
-                courseId = RawRecordConstants.M1170;
-            }
+            final PrecalcTutorialLogic tutorialLogic = new PrecalcTutorialLogic(theCache, this.studentId, today,
+                    localPrereqLogic);
+            final PrecalcTutorialStatus status = tutorialLogic.status;
 
+            final String courseId = status.nextPrecalcTutorial == null ? null : status.nextPrecalcTutorial;
             if (courseId != null) {
                 this.eligibleCourse = RawCourseLogic.query(theCache, courseId);
             }

@@ -170,19 +170,19 @@ public class PrecalcTutorialLogic {
         final boolean okFor125 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M125) || pct125;
         final boolean okFor126 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M126) || pct126;
 
-        final boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
+        boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M117);
 
-        final boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
+        boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M118);
 
-        final boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
+        boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M124);
 
-        final boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
+        boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M125);
 
-        final boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
+        boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M126);
 
         final boolean needsPrecalc = !doneWith117 || !doneWith118 || !doneWith124 || !doneWith125 || !doneWith126;
@@ -219,6 +219,26 @@ public class PrecalcTutorialLogic {
                     }
                 }
             }
+        }
+
+        // Allow ourselves to give someone who has transfer credit for a course the ability to access the Precalc
+        // Tutorial by using the PCT### special student types - this can help a student with a transfer C who needs
+        // the B (or placement) to get into Calculus.
+
+        if (pct126 && doneWith126 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M126)) {
+            doneWith126 = false;
+        }
+        if (pct125 && doneWith125 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M125)) {
+            doneWith125 = false;
+        }
+        if (pct124 && doneWith124 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M124)) {
+            doneWith124 = false;
+        }
+        if (pct118 && doneWith118 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M118)) {
+            doneWith118 = false;
+        }
+        if (pct117 && doneWith117 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M117)) {
+            doneWith117 = false;
         }
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
