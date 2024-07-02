@@ -89,7 +89,7 @@ final class Res extends ResBundle {
             {FOOTER_OEO, "Equal Opportunity"},
             {FOOTER_PRIVACY, "Privacy Statement"},
             {FOOTER_DISCLAIMER, "Disclaimer"},
-            {FOOTER_COPYRIGHT, "&copy; 2023 Colorado State University, &nbsp; Fort Collins, Colorado &nbsp; 80523 USA"},
+            {FOOTER_COPYRIGHT, "&copy; 2024 Colorado State University, &nbsp; Fort Collins, Colorado &nbsp; 80523 USA"},
             {SKIP_TO_MAIN, "Skip to main content"},
             {INFO, "Zircon Web Mid Controller 1.0"},
             {CANT_CREATE_DIR, "Unable to create ''{0}'' directory"},

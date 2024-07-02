@@ -525,7 +525,7 @@ public final class CSUSkin implements IServletSkin {
             htm.addln("<li><a href='https://www.colostate.edu/disclaimer'>Disclaimer</a></li>");
             htm.addln("</ul>");
 
-            htm.sDiv("copyright").add("&copy; 2023 Colorado State University, ",
+            htm.sDiv("copyright").add("&copy; 2024 Colorado State University, ",
                     "&nbsp; Fort Collins, Colorado &nbsp; 80523 USA").eDiv();
 
             htm.eDiv(); // two-thirds
