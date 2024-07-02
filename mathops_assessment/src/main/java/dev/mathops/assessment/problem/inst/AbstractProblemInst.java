@@ -1,9 +1,9 @@
 package dev.mathops.assessment.problem.inst;
 
+import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.problem.ECalculatorType;
 import dev.mathops.assessment.problem.EProblemType;
-import dev.mathops.commons.EqualityTests;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ import java.util.Objects;
  * An instance is stored in a binary format for high-efficiency parsing. Utilities exist to generate HTML/SVG or LaTeX
  * from a problem instance, or to present it in a native Java UI.
  */
-public abstract class AbstractProblemInst {
+public abstract class AbstractProblemInst extends AbstractXmlObject {
 
     /** The problem type. */
     private final EProblemType type;

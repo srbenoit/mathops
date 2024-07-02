@@ -3,6 +3,7 @@ package dev.mathops.assessment.problem.inst;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.problem.ECalculatorType;
 import dev.mathops.assessment.problem.EProblemType;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A generated instance of an "Auto-Correct" problem. This type of problem will automatically be counted correct, and
@@ -21,6 +22,16 @@ public final class ProblemAutoCorrectInst extends AbstractProblemInst {
                                   final DocColumnInst theQuestion) {
 
         super(EProblemType.AUTO_CORRECT, "autocorrect", theIterationId, theCalculator, theQuestion, null);
+    }
+
+    /**
+     * Appends the XML representation of the object to a {@code HtmlBuilder}.
+     *
+     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param indent the number of spaces to indent the printout
+     */
+    public void appendXml(final HtmlBuilder xml, final int indent) {
+
     }
 
     /**
