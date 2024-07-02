@@ -4,7 +4,7 @@ import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.problem.ECalculatorType;
 import dev.mathops.assessment.problem.EProblemType;
-import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;
 
@@ -47,6 +47,16 @@ public final class ProblemEmbeddedInputInst extends AbstractProblemInst {
 
         this.correctAnswer = theCorrectAnswer;
         this.correctness = theCorrectness;
+    }
+
+    /**
+     * Appends the XML representation of the object to a {@code HtmlBuilder}.
+     *
+     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param indent the number of spaces to indent the printout
+     */
+    public void appendXml(final HtmlBuilder xml, final int indent) {
+
     }
 
     /**

@@ -27,6 +27,8 @@ import dev.mathops.font.BundledFontManager;
 import java.awt.Color;
 import java.awt.Insets;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -3405,8 +3407,9 @@ public enum DocFactory {
             valid = false;
         } else {
             try {
-                url = new URL(srcStr);
-            } catch (final MalformedURLException e) {
+                final URI uri = new URI(srcStr);
+                url = uri.toURL();
+            } catch (final MalformedURLException | URISyntaxException e) {
                 elem.logError("<image> element has invalid URL in 'src' attribute.");
                 valid = false;
             }
@@ -3472,8 +3475,10 @@ public enum DocFactory {
             valid = false;
         } else {
             try {
-                url = new URL(srcStr);
-            } catch (final MalformedURLException e) {
+                final URI uri = new URI(srcStr);
+                url = uri.toURL();
+
+            } catch (final MalformedURLException | URISyntaxException e) {
                 elem.logError("<image> element has invalid URL in 'src' attribute.");
                 valid = false;
             }

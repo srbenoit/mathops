@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -343,7 +345,9 @@ enum CourseImporter {
         final StringBuilder response = new StringBuilder(1000);
 
         try {
-            final URL courseUrl = new URL(url);
+            final URI courseUri = new URI(url);
+            final URL courseUrl = courseUri.toURL();
+
             final HttpsURLConnection connection = (HttpsURLConnection) courseUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -367,6 +371,8 @@ enum CourseImporter {
             Log.warning("Unable to connect to catalog course page.", ex);
         } catch (final IOException ex) {
             Log.warning("Unable to read from catalog course page.", ex);
+        } catch (final URISyntaxException ex) {
+            Log.warning("Unable to construct catalog course page URL.", ex);
         }
 
         return response.toString();

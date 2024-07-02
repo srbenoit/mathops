@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -290,9 +292,14 @@ final class Launch implements Runnable {
         final String path2 = ROOT + this.app.name + "/launch/";
 
         try {
-            final URL updaterUrl = new URL(path + "launch/updater.xml");
-            final URL launchUrl = new URL(path + "launch/launch.xml");
-            final URL appUrl = new URL(path + "app.xml");
+            final URI updaterUri = new URI(path + "launch/updater.xml");
+            final URL updaterUrl = updaterUri.toURL();
+
+            final URI launchUri = new URI(path + "launch/launch.xml");
+            final URL launchUrl = launchUri.toURL();
+
+            final URI appUri = new URI(path + "app.xml");
+            final URL appUrl = appUri.toURL();
 
             final AppDescriptor newUpdater = downloadAppDescriptor(updaterUrl);
             final AppDescriptor newLaunch = downloadAppDescriptor(launchUrl);
@@ -331,6 +338,8 @@ final class Launch implements Runnable {
                 downloadAllFiles(this.downloadDir, this.updateDir, newApp, path, APP_XML);
                 writeAppDescriptorXml(newApp, APP_XML, this.updateDir);
             }
+        } catch (final URISyntaxException ex) {
+            FileUtils.log(this.logFile, "  Unable to construct descriptors URIs", ex);
         } catch (final IOException ex) {
             FileUtils.log(this.logFile, "  Unable to download descriptors to test for update", ex);
         }
@@ -385,23 +394,25 @@ final class Launch implements Runnable {
 
             boolean allValid = true;
 
-            for (final FileDescriptor file : descriptor.getFiles()) {
+            for (final FileDescriptor fileDescriptor : descriptor.getFiles()) {
 
-                FileUtils.log(this.logFile, "  Attempting to download ", file.name);
+                FileUtils.log(this.logFile, "  Attempting to download ", fileDescriptor.name);
 
                 sha256.reset();
                 try {
-                    final URL url = new URL(path + file.name);
-                    final File f = new File(downloadDst, file.name);
-                    downloadFile(url, f);
+                    final URI uri = new URI(path + fileDescriptor.name);
+                    final URL url = uri.toURL();
 
-                    if (f.length() == file.size) {
+                    final File file = new File(downloadDst, fileDescriptor.name);
+                    downloadFile(url, file);
+
+                    if (file.length() == fileDescriptor.size) {
                         // Verify the downloaded file
-                        final byte[] hash = file.getSHA256();
-                        final byte[] computedDigest = computeSHA256(f, sha256);
+                        final byte[] hash = fileDescriptor.getSHA256();
+                        final byte[] computedDigest = computeSHA256(file, sha256);
 
                         if (Arrays.equals(computedDigest, hash)) {
-                            FileUtils.log(this.logFile, "  Downloaded ", file.name, " to '", downloadDst.getName(),
+                            FileUtils.log(this.logFile, "  Downloaded ", fileDescriptor.name, " to '", downloadDst.getName(),
                                     "' folder and verified.");
                         } else {
                             FileUtils.log(this.logFile, "  Downloaded file has SHA256 "
@@ -411,11 +422,15 @@ final class Launch implements Runnable {
                             break;
                         }
                     } else {
-                        FileUtils.log(this.logFile, "  Downloaded file has size " + f.length()
-                                + ", XML descriptor says " + file.size);
+                        FileUtils.log(this.logFile, "  Downloaded file has size " + file.length()
+                                + ", XML descriptor says " + fileDescriptor.size);
                         allValid = false;
                         break;
                     }
+                } catch (final URISyntaxException ex) {
+                    FileUtils.log(this.logFile, "  Exception constructing URI:", ex);
+                    allValid = false;
+                    break;
                 } catch (final IOException ex) {
                     FileUtils.log(this.logFile, "  Exception downloading file:", ex);
                     allValid = false;

@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -111,7 +113,9 @@ public class RamReadyMock implements Runnable, ActionListener {
         final String httpsURL = host + "/welcome/ramready.svc/CheckMathPlan/" + pidmStr;
 
         try {
-            final URL myUrl = new URL(httpsURL);
+            final URI myUri = new URI(httpsURL);
+            final URL myUrl = myUri.toURL();
+
             final HttpsURLConnection conn = (HttpsURLConnection) myUrl.openConnection();
             conn.setRequestProperty("X-CSUMATH-RamWeb", "93u54ki3bngtowIE");
             final InputStream is = conn.getInputStream();
@@ -127,8 +131,8 @@ public class RamReadyMock implements Runnable, ActionListener {
             br.close();
 
             this.result.setText(reply.toString());
-        } catch (final IOException e) {
-            Log.warning(e);
+        } catch (final IOException | URISyntaxException ex) {
+            Log.warning(ex);
         }
     }
 
@@ -141,7 +145,9 @@ public class RamReadyMock implements Runnable, ActionListener {
         final String httpsURL = host + "/welcome/ramready.svc/CheckMathPlacement/" + pidmStr;
 
         try {
-            final URL myUrl = new URL(httpsURL);
+            final URI myUri = new URI(httpsURL);
+            final URL myUrl = myUri.toURL();
+
             final HttpsURLConnection conn = (HttpsURLConnection) myUrl.openConnection();
             conn.setRequestProperty("X-CSUMATH-RamWeb", "93u54ki3bngtowIE");
             final InputStream is = conn.getInputStream();
@@ -157,8 +163,8 @@ public class RamReadyMock implements Runnable, ActionListener {
             br.close();
 
             this.result.setText(reply.toString());
-        } catch (final IOException e) {
-            Log.warning(e);
+        } catch (final IOException | URISyntaxException ex) {
+            Log.warning(ex);
         }
     }
 

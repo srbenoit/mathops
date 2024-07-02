@@ -23,6 +23,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serial;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
@@ -274,14 +276,16 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
                 ok = this.height != null;
             } else if ("src".equals(name)) {
                 try {
-                    this.source = new URL(theValue);
+                    final URI uri = new URI(theValue);
+                    this.source = uri.toURL();
+
                     loadImage();
                     if (this.image == null) {
                         elem.logError("Unable to load image from URL '" + name + "' on raster primitive");
                     } else {
                         ok = true;
                     }
-                } catch (final MalformedURLException ex) {
+                } catch (final MalformedURLException | URISyntaxException ex) {
                     elem.logError("Invalid source URL '" + name + "' on raster primitive");
                 }
             } else if ("alpha".equals(name)) {

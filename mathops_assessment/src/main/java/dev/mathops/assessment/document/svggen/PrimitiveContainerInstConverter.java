@@ -25,7 +25,8 @@ import dev.mathops.commons.parser.xml.XmlEscaper;
 
 /**
  * Converts a subclasses of {@code AbstractPrimitiveContainerInst} into SVG.  "span" content of such a container is
- * not permitted to include inputs.
+ * not permitted to include inputs.  This is typically used only for math spans that are not simply numbers or variable
+ * names.
  */
 public enum PrimitiveContainerInstConverter {
     ;

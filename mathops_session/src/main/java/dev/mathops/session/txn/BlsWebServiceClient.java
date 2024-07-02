@@ -20,6 +20,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -133,18 +135,24 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
 
             final String sch = this.scheme;
             try {
+                final String hostName = this.serverIp.getHostName();
+
                 if ("http".equals(sch)) {
                     if (this.port == 80) {
-                        this.url = new URL(this.scheme, this.serverIp.getHostName(), "/txn/txn.html");
+                        final URI uri = new URI(this.scheme, hostName, "/txn/txn.html", null);
+                        this.url = uri.toURL();
                     } else {
-                        this.url = new URL(this.scheme, this.serverIp.getHostName(), this.port, "/txn/txn.html");
+                        final URI uri = new URI(this.scheme, null, hostName, this.port, "/txn/txn.html", null, null);
+                        this.url = uri.toURL();
                     }
                 } else if ("https".equals(sch) && (this.port == 443)) {
-                    this.url = new URL(this.scheme, this.serverIp.getHostName(), "/txn/txn.html");
+                    final URI uri = new URI(this.scheme, hostName, "/txn/txn.html", null);
+                    this.url = uri.toURL();
                 } else {
-                    this.url = new URL(this.scheme, this.serverIp.getHostName(), this.port, "/txn/txn.html");
+                    final URI uri = new URI(this.scheme, null, hostName, this.port, "/txn/txn.html", null, null);
+                    this.url = uri.toURL();
                 }
-            } catch (final MalformedURLException ex) {
+            } catch (final MalformedURLException | URISyntaxException ex) {
                 Log.warning(ex);
                 this.url = null;
             }
