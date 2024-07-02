@@ -1976,7 +1976,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         final String host = useDev ? Contexts.TESTINGDEV_HOST : Contexts.TESTING_HOST;
 
         try {
-            final TestStationApp app = new TestStationApp("https", host, 443, SessionCache.TEST_SESSION_ID);
+            final TestStationApp app = new TestStationApp("http", host, 80, SessionCache.TEST_SESSION_ID);
 
             try {
                 app.execute(fullScreen);

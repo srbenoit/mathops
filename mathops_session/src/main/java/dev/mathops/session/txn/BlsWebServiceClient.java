@@ -314,7 +314,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
     public static void main(final String... args) {
 
         try {
-            final IWebServiceClient client = new BlsWebServiceClient("https", Contexts.TESTING_HOST, 443,
+            final IWebServiceClient client = new BlsWebServiceClient("http", Contexts.TESTING_HOST, 80,
                     SessionCache.TEST_SESSION_ID);
 
             if (client.init()) {
