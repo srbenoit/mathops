@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +107,8 @@ public final class CanvasApi {
         ApiResult result;
 
         try {
-            final URL url = new URL(targetUri);
+            final URI uri = new URI(targetUri);
+            final URL url = uri.toURL();
 
             try {
                 final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -181,7 +184,7 @@ public final class CanvasApi {
                 result = new ApiResult("Unable to connect to Canvas server");
                 Log.warning(ex);
             }
-        } catch (final MalformedURLException ex) {
+        } catch (final MalformedURLException | URISyntaxException ex) {
             result = new ApiResult("Invalid login request URL");
             Log.warning(ex);
         }
@@ -207,7 +210,9 @@ public final class CanvasApi {
 
         while (nextLink != null) {
             try {
-                final URL url = new URL(nextLink);
+                final URI uri = new URI(nextLink);
+                final URL url = uri.toURL();
+
                 try {
                     final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod(method);
@@ -269,7 +274,7 @@ public final class CanvasApi {
                     Log.warning(ex);
                     break;
                 }
-            } catch (final MalformedURLException ex) {
+            } catch (final MalformedURLException | URISyntaxException ex) {
                 result = new ApiResult("Invalid login request URL");
                 Log.warning(ex);
                 break;

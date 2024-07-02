@@ -51,25 +51,25 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     public ECalculatorType calculator = ECalculatorType.FULL_CALC;
 
     /** The time/date when the problem object was most recently completed. */
-    @Deprecated public long completionTime;
+    public long completionTime;
 
     /** The student's response. */
-    @Deprecated private Object[] studentResponse;
+    private Object[] studentResponse;
 
     /** The HTML representation of the problem. */
-    @Deprecated public String questionHtml;
+    public String questionHtml;
 
     /** The disabled HTML representation of the problem. */
-    @Deprecated public String disabledHtml;
+    public String disabledHtml;
 
     /** The HTML representation of the problem with answer shown. */
-    @Deprecated public String answerHtml;
+    public String answerHtml;
 
     /** The HTML representation of the problem with solution shown. */
-    @Deprecated public String solutionHtml;
+    public String solutionHtml;
 
     /** The score, once the problem bas been graded. */
-    @Deprecated public double score;
+    public double score;
 
     /**
      * Constructs an empty {@code AbstractProblemTemplate} object.
