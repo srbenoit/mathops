@@ -29,7 +29,7 @@ public enum NumberParser {
      * Attempts to parse a number from a string.
      *
      * @param str the string
-     * @return the number
+     * @return the number (a Long, Double, or Irrational)
      * @throws NumberFormatException if the string is not in a valid format
      */
     public static Number parse(final String str) throws NumberFormatException {
