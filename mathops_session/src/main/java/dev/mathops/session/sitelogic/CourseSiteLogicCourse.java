@@ -369,7 +369,7 @@ public final class CourseSiteLogicCourse {
 
             final String[] toAdd = {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
                     RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
-                    RawRecordConstants.MATH126, M160R, M161R};
+                    RawRecordConstants.MATH126};
 
             for (final String s : toAdd) {
                 if (this.courseLabels.containsKey(s)) {

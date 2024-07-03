@@ -88,7 +88,6 @@ enum PageStdsText {
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                     PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-
             final HtmlBuilder htm = new HtmlBuilder(2000);
             final String siteTitle = site.getTitle();
             Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,

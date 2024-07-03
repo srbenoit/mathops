@@ -382,7 +382,7 @@ public final class SiteDataRegistration {
             }
 
             this.registrations.add(cur);
-//            Log.info("Found registration in ", cur.course);
+            Log.info("Found registration in ", cur.course);
 
             // If we find a course that has an incomplete deadline date, is not completed, and is not counted in pace,
             // flag that since the student will have to work on those courses before starting any paced courses.
@@ -482,8 +482,8 @@ public final class SiteDataRegistration {
             }
         }
 
-        final Collection<String> courseIds = new ArrayList<>(5);
         if (addSpecials) {
+            final Collection<String> courseIds = new ArrayList<>(7);
             courseIds.add(RawRecordConstants.M117);
             courseIds.add(RawRecordConstants.M118);
             courseIds.add(RawRecordConstants.M124);
@@ -498,6 +498,7 @@ public final class SiteDataRegistration {
                 // If there's already a registration for the course, skip
                 for (final RawStcourse registration : this.registrations) {
                     if (courseId.equals(registration.course)) {
+                        Log.warning("Registration already exists for ", courseId);
                         continue outer;
                     }
                 }
@@ -516,24 +517,32 @@ public final class SiteDataRegistration {
                     }
                 }
 
-                if (sect != null) {
+                if (sect == null) {
+                    Log.warning("Unable to find section of ", courseId, " for SpecialStus access");
+                } else {
                     SiteDataCfgCourse cfgCourse = this.owner.courseData.getCourse(courseId, sect.sect);
 
                     if (cfgCourse == null) {
                         cfgCourse = this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
                     }
 
-                    if (cfgCourse != null && cfgCourse.courseSection != null) {
+                    if (cfgCourse == null) {
+                        Log.warning("Unable to find course configuration for ", courseId, " for SpecialStus access");
+                    } else if (cfgCourse.courseSection == null) {
+                        Log.warning("Unable to find course section for ", courseId, " for SpecialStus access");
+                    } else {
                         final String type = cfgCourse.courseSection.instrnType;
 
                         if ("RI".equals(type) || "CE".equals(type)) {
 
                             this.registrations.add(makeSyntheticReg(courseId, sect.sect, paceOrder));
+
                             ++paceOrder;
                             this.registrationTerms.add(this.active);
 
                             this.owner.courseData.addCourse(cache, courseId, sect.sect, this.active.term);
-                            break;
+                        } else {
+                            Log.warning("Course section for ", courseId, " for SpecialStus access is type ", type);
                         }
                     }
                 }
