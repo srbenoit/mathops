@@ -3912,6 +3912,18 @@ public enum DocFactory {
             ch = '\u2194';
         } else if ("\\updownarrow".equals(name)) {
             ch = '\u2195';
+        } else if ("\\Leftarrow".equals(name)) {
+            ch = '\u21D0';
+        } else if ("\\Uparrow".equals(name)) {
+            ch = '\u21D1';
+        } else if ("\\Rightarrow".equals(name)) {
+            ch = '\u21D2';
+        } else if ("\\Downarrow".equals(name)) {
+            ch = '\u21D3';
+        } else if ("\\Leftrightarrow".equals(name)) {
+            ch = '\u21D4';
+        } else if ("\\Updownarrow".equals(name)) {
+            ch = '\u21D5';
         } else if ("\\circ".equals(name)) {
             ch = '\u2218';
         } else if ("\\varpropto".equals(name)) {
@@ -4048,6 +4060,8 @@ public enum DocFactory {
             ch = '\u27F8';
         } else if ("\\Longrightarrow".equals(name)) {
             ch = '\u27F9';
+        } else if ("\\Longleftrightarrow".equals(name)) {
+            ch = '\u27FA';
         } else if ("\\leqslant".equals(name)) {
             ch = '\u2A7D';
         } else if ("\\geqslant".equals(name)) {

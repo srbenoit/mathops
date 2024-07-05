@@ -653,29 +653,26 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                 if (this.labelString.length() == 1) {
                     final char ch = this.labelString.charAt(0);
 
-                    this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6'
-                            || ch == '\u03F0' || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034'
-                            || ch == '\u2057';
+                    this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6' || ch == '\u03F0'
+                            || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034' || ch == '\u2057';
 
-                    this.isStixMath = ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
-                            || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266'
-                            || ch == '\u2267' || ch == '\u2268' || ch == '\u2269' || ch == '\u226A'
-                            || ch == '\u226B' || ch == '\u226C' || ch == '\u226E' || ch == '\u226F'
-                            || ch == '\u2270' || ch == '\u2271' || ch == '\u2272' || ch == '\u2273'
-                            || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
-                            || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F'
-                            || ch == '\u2280' || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7'
-                            || ch == '\u22DA' || ch == '\u22DB' || ch == '\u22DE' || ch == '\u22DF'
-                            || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6' || ch == '\u22E7'
-                            || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
-                            || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3'
-                            || ch == '\u2713' || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8'
-                            || ch == '\u27F9' || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85'
-                            || ch == '\u2A86' || ch == '\u2A87' || ch == '\u2A88' || ch == '\u2A89'
-                            || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C' || ch == '\u2A95'
-                            || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
-                            || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7'
-                            || ch == '\u2AB8' || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
+                    this.isStixMath = ch == '\u21D0' || ch == '\u21D1' || ch == '\u21D2' || ch == '\u21D3' || ch == '\u21D4'
+                            || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
+                            || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266' || ch == '\u2267'
+                            || ch == '\u2268' || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
+                            || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271' || ch == '\u2272'
+                            || ch == '\u2273' || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
+                            || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F' || ch == '\u2280'
+                            || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
+                            || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6'
+                            || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
+                            || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713'
+                            || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
+                            || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86' || ch == '\u2A87'
+                            || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C'
+                            || ch == '\u2A95' || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
+                            || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
+                            || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
                 } else {
                     this.isStixText = false;
                     this.isStixMath = false;
