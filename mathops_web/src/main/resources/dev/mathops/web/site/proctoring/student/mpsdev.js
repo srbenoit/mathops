@@ -47,6 +47,8 @@ var videoScreen;
 var pErrorHeader;
 var pErrorBodyText;
 
+var imgCompatibilityBrowserResult;
+var imgCompatibilityBrowserString;
 var imgCompatibilityWebSocketResult;
 var imgCompatibilityVideoCapResult;
 var imgCompatibilityScreenCapResult;
@@ -356,6 +358,15 @@ function compatibilityTests() {
     setTimeout(hasWebSocketConnected, 2000);
 
     console.log("Checking system compatibility.");
+
+    let userAgentString = navigator.userAgent;
+    if (userAgentString) {
+        imgCompatibilityBrowserString.innerHTML = userAgentString;
+        imgCompatibilityBrowserResult.src='/www/images/proctoring/emblem-default.png';
+    } else {
+        imgCompatibilityBrowserResult.src='/www/images/proctoring/emblem-important.png';
+        showCompatibilityError("Unable to determine browser.");
+    }
            
     const hasVideoCap = navigator.mediaDevices 
             && navigator.mediaDevices.enumerateDevices
@@ -1115,6 +1126,8 @@ function pageLoaded() {
     pErrorHeader = document.getElementById('errorHeader');
     pErrorBodyText = document.getElementById('errorBodyText');
 
+    imgCompatibilityBrowserResult = document.getElementById('compatibilityBrowserResult');
+    imgCompatibilityBrowserString = document.getElementById('compatibilityBrowserString');
     imgCompatibilityWebSocketResult = document.getElementById('compatibilityWebSocketResult');
     imgCompatibilityVideoCapResult = document.getElementById('compatibilityVideoCapResult');
     imgCompatibilityScreenCapResult = document.getElementById('compatibilityScreenCapResult');
