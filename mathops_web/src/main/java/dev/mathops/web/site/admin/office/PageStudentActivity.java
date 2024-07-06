@@ -5,7 +5,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -161,8 +160,7 @@ enum PageStudentActivity {
             htm.eDiv();
             htm.div("vgap0");
 
-            final List<RawSemesterCalendar> weeks =
-                    RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
 
             final List<RawStmpe> mpes = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
             mpes.sort(new RawStmpe.FinishDateTimeComparator());

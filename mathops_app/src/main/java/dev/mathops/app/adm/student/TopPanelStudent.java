@@ -18,6 +18,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.sql.SQLException;
 
 /**
  * The top-most panel within the "Students" tab.

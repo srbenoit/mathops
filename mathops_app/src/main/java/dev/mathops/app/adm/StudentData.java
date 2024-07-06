@@ -142,7 +142,7 @@ public final class StudentData {
         this.student = theStudent;
         final String stuId = this.student.stuId;
 
-        this.activeKey = fixed.activeTerm.term;
+        this.activeKey = cache.getSystemData().getActiveTerm().term;
 
         this.studentTerm = RawSttermLogic.query(cache, this.activeKey, stuId);
 

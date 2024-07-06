@@ -27,6 +27,7 @@ import java.io.Serial;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -267,13 +268,20 @@ import java.util.Objects;
         if (this.permissionLevel < 3) {
             canDelete = true;
         } else if (this.permissionLevel == 3) {
-            for (final RawHoldType test : this.fixed.holdTypes) {
-                if (test.holdId.equals(record.holdId)) {
-                    if ("Y".equals(test.deleteHold)) {
-                        canDelete = true;
+
+            try {
+                final List<RawHoldType> holdTypes = this.cache.getSystemData().getHoldTypes();
+
+                for (final RawHoldType test : holdTypes) {
+                    if (test.holdId.equals(record.holdId)) {
+                        if ("Y".equals(test.deleteHold)) {
+                            canDelete = true;
+                        }
+                        break;
                     }
-                    break;
                 }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query hold types.");
             }
         }
 

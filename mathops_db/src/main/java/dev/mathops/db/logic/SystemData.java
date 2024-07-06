@@ -1,13 +1,22 @@
 package dev.mathops.db.logic;
 
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
+import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
+import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,17 +44,20 @@ public final class SystemData {
     /** The list of all future terms. */
     private List<TermRec> futureTerms = null;
 
+    /** All hold types. */
+    private List<RawHoldType> holdTypes;
+
+    /** All campus calendar records. */
+    private List<RawCampusCalendar> campusCalendars;
+
+    /** All semester calendar records. */
+    private List<RawSemesterCalendar> semesterCalendars;
+
 //    /** The list of all course milestones. */
 //    private List<RawMilestone> milestones = null;
 //
 //    /** The list of all standards-based milestones. */
 //    private List<StandardMilestoneRec> standardMilestones = null;
-//
-//    /** All campus calendar records. */
-//    private List<RawCampusCalendar> campusCalendars;
-//
-//    /** All semester calendar records. */
-//    private List<RawSemesterCalendar> semesterCalendars;
 //
 //    /** All remote placement windows. */
 //    private List<RawRemoteMpe> remotePlacementWindows;
@@ -94,9 +106,6 @@ public final class SystemData {
 //
 //    /** All survey questions for the active term. */
 //    private List<RawSurveyqa> surveyQuestions;
-//
-//    /** All hold types. */
-//    private List<RawHoldType> holdTypes;
 
     /**
      * Constructs a new {@code SystemData}.
@@ -237,7 +246,7 @@ public final class SystemData {
      */
     public boolean insertTerm(final TermRec record) throws SQLException {
 
-        final boolean ok =  TermLogic.get(this.cache).insert(this.cache, record);
+        final boolean ok = TermLogic.get(this.cache).insert(this.cache, record);
 
         if (ok) {
             final Integer index = record.activeIndex;
@@ -271,7 +280,7 @@ public final class SystemData {
      */
     public boolean deleteTerm(final TermRec record) throws SQLException {
 
-        final boolean ok =  TermLogic.get(this.cache).delete(this.cache, record);
+        final boolean ok = TermLogic.get(this.cache).delete(this.cache, record);
 
         if (ok) {
             final Integer index = record.activeIndex;
@@ -294,6 +303,137 @@ public final class SystemData {
         }
 
         return ok;
+    }
+
+    /**
+     * Gets all hold types.
+     *
+     * @return the list of hold types
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawHoldType> getHoldTypes() throws SQLException {
+
+        if (this.holdTypes == null) {
+            this.holdTypes = RawHoldTypeLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.holdTypes;
+    }
+
+    /**
+     * Gets a hold types.
+     *
+     * @param holdId the hold ID
+     * @return the list of hold types
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawHoldType getHoldType(final String holdId) throws SQLException {
+
+        final List<RawHoldType> allHoldTypes = getHoldTypes();
+
+        RawHoldType result = null;
+        for (final RawHoldType test : allHoldTypes) {
+            if (test.holdId.equals(holdId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all campus calendar records.
+     *
+     * @return the list of campus calendar records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCampusCalendar> getCampusCalendars() throws SQLException {
+
+        if (this.campusCalendars == null) {
+            this.campusCalendars = RawCampusCalendarLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.campusCalendars;
+    }
+
+    /**
+     * Gets all campus calendar records of a specified type.
+     *
+     * @param type the type
+     * @return the list of campus calendar records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCampusCalendar> getCampusCalendarsByType(final String type) throws SQLException {
+
+        final List<RawCampusCalendar> all = getCampusCalendars();
+        final List<RawCampusCalendar> result = new ArrayList<>(4);
+
+        for (final RawCampusCalendar test : all) {
+            if (test.dtDesc.equals(type)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for the first day when students may work on classes.
+     *
+     * @return the first day, or {@code null} if no end dates are configured
+     * @throws SQLException if there is an error performing the query
+     */
+    public LocalDate getFirstClassDay() throws SQLException {
+
+        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_START_DATE_1);
+
+        final LocalDate result;
+
+        if (allOfType.isEmpty()) {
+            result = getActiveTerm().startDate;
+        } else {
+            result = allOfType.getFirst().campusDt;
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for the last day when students may work on classes.
+     *
+     * @return the first day, or {@code null} if no end dates are configured
+     * @throws SQLException if there is an error performing the query
+     */
+    public LocalDate getLastClassDay() throws SQLException {
+
+        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_END_DATE_1);
+
+        final LocalDate result;
+
+        if (allOfType.isEmpty()) {
+            result = getActiveTerm().endDate;
+        } else {
+            result = allOfType.getFirst().campusDt;
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all semester calendar records.
+     *
+     * @return the list of semester calendar records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSemesterCalendar> getSemesterCalendars() throws SQLException {
+
+        if (this.semesterCalendars == null) {
+            this.semesterCalendars = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
+            Collections.sort(this.semesterCalendars);
+        }
+
+        return this.semesterCalendars;
     }
 
 //    /**
@@ -727,99 +867,6 @@ public final class SystemData {
 //        }
 //
 //        return result;
-//    }
-//
-//    /**
-//     * Gets all campus calendar records.
-//     *
-//     * @return the list of campus calendar records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCampusCalendar> getCampusCalendars() throws SQLException {
-//
-//        if (this.campusCalendars == null) {
-//            this.campusCalendars = RawCampusCalendarLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.campusCalendars;
-//    }
-//
-//    /**
-//     * Gets all campus calendar records of a specified type.
-//     *
-//     * @param type the type
-//     * @return the list of campus calendar records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCampusCalendar> getCampusCalendarsByType(final String type) throws SQLException {
-//
-//        final List<RawCampusCalendar> all = getCampusCalendars();
-//        final List<RawCampusCalendar> result = new ArrayList<>(4);
-//
-//        for (final RawCampusCalendar test : all) {
-//            if (test.dtDesc.equals(type)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Queries for the first day when students may work on classes.
-//     *
-//     * @return the first day, or {@code null} if no end dates are configured
-//     * @throws SQLException if there is an error performing the query
-//     */
-//    public LocalDate getFirstClassDay() throws SQLException {
-//
-//        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_START_DATE_1);
-//
-//        final LocalDate result;
-//
-//        if (allOfType.isEmpty()) {
-//            result = getActiveTerm().startDate;
-//        } else {
-//            result = allOfType.getFirst().campusDt;
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Queries for the last day when students may work on classes.
-//     *
-//     * @return the first day, or {@code null} if no end dates are configured
-//     * @throws SQLException if there is an error performing the query
-//     */
-//    public LocalDate getLastClassDay() throws SQLException {
-//
-//        final List<RawCampusCalendar> allOfType = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_END_DATE_1);
-//
-//        final LocalDate result;
-//
-//        if (allOfType.isEmpty()) {
-//            result = getActiveTerm().endDate;
-//        } else {
-//            result = allOfType.getFirst().campusDt;
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all semester calendar records.
-//     *
-//     * @return the list of semester calendar records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawSemesterCalendar> getSemesterCalendars() throws SQLException {
-//
-//        if (this.semesterCalendars == null) {
-//            this.semesterCalendars = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.semesterCalendars;
 //    }
 //
 //    /**
@@ -1503,20 +1550,5 @@ public final class SystemData {
 //        }
 //
 //        return result;
-//    }
-//
-//    /**
-//     * Gets all hold types.
-//     *
-//     * @return the list of hold types
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawHoldType> getHoldTypes() throws SQLException {
-//
-//        if (this.holdTypes == null) {
-//            this.holdTypes = RawHoldTypeLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.holdTypes;
 //    }
 }

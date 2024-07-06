@@ -10,7 +10,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -277,8 +276,7 @@ public class EmailsNeeded {
                                 final List<RawSpecialStus> specials =
                                         RawSpecialStusLogic.queryByStudent(cache, stuId);
 
-                                final LocalDate lastClassDay =
-                                        RawCampusCalendarLogic.getLastClassDay(cache);
+                                final LocalDate lastClassDay = cache.getSystemData().getLastClassDay();
 
                                 final PrerequisiteLogic prereq =
                                         new PrerequisiteLogic(cache, stuId);

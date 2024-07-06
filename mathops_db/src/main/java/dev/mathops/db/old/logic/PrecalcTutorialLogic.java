@@ -4,7 +4,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -330,7 +329,7 @@ public class PrecalcTutorialLogic {
 
         if (this.status.eligibleForPrecalcTutorial) {
             // Get date range from campus calendar
-            final List<RawCampusCalendar> calendars = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> calendars = cache.getSystemData().getCampusCalendars();
 
             LocalDate startDate = null;
             LocalDate endDate = null;

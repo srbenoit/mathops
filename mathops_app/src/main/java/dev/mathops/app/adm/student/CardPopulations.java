@@ -62,8 +62,8 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     /**
      * Constructs a new {@code CardPopulations}.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
     CardPopulations(final Cache theCache, final FixedData theFixed) {
 
@@ -91,7 +91,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
         final JPanel byCoursePanel = makeByCoursePanel(theCache, theFixed);
         tabs.addTab("By Course and Section", byCoursePanel);
 
-        final JPanel byCourseStatusPanel = new CardPopulationsCourseStatusPane(theCache, theFixed);
+        final JPanel byCourseStatusPanel = new CardPopulationsCourseStatusPane(theCache);
         tabs.addTab("By Course Status", byCourseStatusPanel);
 
         // By special student type...
@@ -105,8 +105,8 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     /**
      * Creates the panel with controls to select a population by course, section and open status.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      * @return the panel
      */
     private JPanel makeByCoursePanel(final Cache theCache, final FixedData theFixed) {

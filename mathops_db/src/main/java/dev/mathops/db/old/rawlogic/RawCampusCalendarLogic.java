@@ -7,7 +7,6 @@ import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +50,7 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean insert(final Cache cache, final RawCampusCalendar record)
-            throws SQLException {
+    public boolean insert(final Cache cache, final RawCampusCalendar record) throws SQLException {
 
         if (record.campusDt == null || record.dtDesc == null) {
             throw new SQLException("Null value in primary key field.");
@@ -92,8 +90,7 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean delete(final Cache cache, final RawCampusCalendar record)
-            throws SQLException {
+    public boolean delete(final Cache cache, final RawCampusCalendar record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM campus_calendar ",
                 "WHERE campus_dt=", sqlDateValue(record.campusDt),
@@ -132,77 +129,6 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
             while (rs.next()) {
                 result.add(RawCampusCalendar.fromResultSet(rs));
             }
-        }
-
-        return result;
-    }
-
-    /**
-     * Queries every record in the database with a specific date type, in no particular order.
-     *
-     * @param cache     the data cache
-     * @param theDtDesc the type for which to search
-     * @return the complete set of records in the database
-     * @throws SQLException if there is an error performing the query
-     */
-    public static List<RawCampusCalendar> queryByType(final Cache cache, final String theDtDesc)
-            throws SQLException {
-
-        final List<RawCampusCalendar> result = new ArrayList<>(20);
-
-        final String sql = "SELECT * FROM campus_calendar"
-                + " WHERE dt_desc=" + sqlStringValue(theDtDesc);
-
-        try (final Statement stmt = cache.conn.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                result.add(RawCampusCalendar.fromResultSet(rs));
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Queries for the first day when students may work on classes.
-     *
-     * @param cache the data cache
-     * @return the first day, or {@code null} if no end dates are configured
-     * @throws SQLException if there is an error performing the query
-     */
-    public static LocalDate getFirstClassDay(final Cache cache) throws SQLException {
-
-        final LocalDate result;
-
-        final List<RawCampusCalendar> allOfType = queryByType(cache, RawCampusCalendar.DT_DESC_START_DATE_1);
-
-        if (allOfType.isEmpty()) {
-            result = cache.getSystemData().getActiveTerm().startDate;
-        } else {
-            result = allOfType.getFirst().campusDt;
-        }
-
-        return result;
-    }
-
-    /**
-     * Queries for the last day when students may work on classes.
-     *
-     * @param cache the data cache
-     * @return the first day, or {@code null} if no end dates are configured
-     * @throws SQLException if there is an error performing the query
-     */
-    public static LocalDate getLastClassDay(final Cache cache) throws SQLException {
-
-        final LocalDate result;
-
-        final List<RawCampusCalendar> allOfType = queryByType(cache, RawCampusCalendar.DT_DESC_END_DATE_1);
-
-        if (allOfType.isEmpty()) {
-            result = cache.getSystemData().getActiveTerm().endDate;
-        } else {
-            result = allOfType.getFirst().campusDt;
         }
 
         return result;

@@ -13,7 +13,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
@@ -2392,8 +2391,8 @@ public final class StudentCourseStatus extends LogicBase {
         }
 
         // Get the first and last dates in the term where students may work
-        final LocalDate termFirst = RawCampusCalendarLogic.getFirstClassDay(cache);
-        final LocalDate termLast = RawCampusCalendarLogic.getLastClassDay(cache);
+        final LocalDate termFirst = cache.getSystemData().getFirstClassDay();
+        final LocalDate termLast = cache.getSystemData().getLastClassDay();
 
         // Determine availability of unit/proctored exams in each unit
         for (int unit = 0; unit <= this.maxUnit; ++unit) {
@@ -2632,8 +2631,8 @@ public final class StudentCourseStatus extends LogicBase {
         final boolean isUncounted = "N".equals(this.studentCourse.iCounted);
 
         // Get the first and last dates in the term where students may work
-        final LocalDate termFirst = RawCampusCalendarLogic.getFirstClassDay(cache);
-        final LocalDate termLast = RawCampusCalendarLogic.getLastClassDay(cache);
+        final LocalDate termFirst = cache.getSystemData().getFirstClassDay();
+        final LocalDate termLast = cache.getSystemData().getLastClassDay();
         final LocalDate today = now.toLocalDate();
 
         // Determine availability of unit/proctored exams in each unit

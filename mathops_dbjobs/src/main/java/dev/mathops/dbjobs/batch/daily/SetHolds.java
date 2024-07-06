@@ -10,7 +10,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
-import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -120,7 +119,7 @@ public enum SetHolds {
         int count = 0;
 
         // Look up the severity of hold
-        final RawHoldType type = RawHoldTypeLogic.query(cache, LATE_RENTAL_CALC_HOLD);
+        final RawHoldType type = cache.getSystemData().getHoldType(LATE_RENTAL_CALC_HOLD);
         final String sev = type == null ? "N" : type.sevAdminHold;
 
         if (!resources.isEmpty()) {
@@ -194,7 +193,7 @@ public enum SetHolds {
                 if (res.holdId != null) {
                     // TODO: Increment "times" field in stres and replace the "stresource" object.
 
-                    final RawHoldType type = RawHoldTypeLogic.query(cache, res.holdId);
+                    final RawHoldType type = cache.getSystemData().getHoldType(res.holdId);
                     final String sev = type == null ? "N" : type.sevAdminHold;
 
                     if (RawAdminHoldLogic.query(cache, stres.stuId, res.holdId) == null) {

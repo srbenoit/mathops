@@ -8,6 +8,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
@@ -26,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -109,16 +111,20 @@ final class StudentActivityPanel extends AdminPanelBase {
     /**
      * Sets the selected student.
      *
-     * @param fixed the fixed data
+     * @param cache the cache
      * @param data  the selected student data
      */
-    public void setSelectedStudent(final FixedData fixed, final StudentData data) {
+    public void setSelectedStudent(final Cache cache, final StudentData data) {
 
         this.error.setText(CoreConstants.SPC);
         clearDisplay();
 
         if (data != null) {
-            populateDisplay(fixed, data);
+            try {
+                populateDisplay(cache, data);
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+            }
 
             this.activityScroll.setPreferredSize(this.activityTable.getPreferredScrollSize(this.activityScroll, 3));
         }
@@ -135,12 +141,13 @@ final class StudentActivityPanel extends AdminPanelBase {
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param fixed the fixed data
+     * @param cache the cache
      * @param data  the student data
+     * @throws SQLException if there is an error accessing the database
      */
-    private void populateDisplay(final FixedData fixed, final StudentData data) {
+    private void populateDisplay(final Cache cache, final StudentData data) throws SQLException {
 
-        final TermKey active = fixed.activeTerm.term;
+        final TermKey active = cache.getSystemData().getActiveTerm().term;
 
         if (active != null) {
             // Build a list of activities, including course exams, homeworks, placement attempts,
@@ -160,7 +167,7 @@ final class StudentActivityPanel extends AdminPanelBase {
                 this.paceTrackDisplay.setText(stterm.paceTrack);
             }
 
-            final List<RawSemesterCalendar> weeks = fixed.termWeeks;
+            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
 
             final List<ActivityRow> rows = new ArrayList<>(10);
 

@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * A panel that shows student administrative holds.
  */
-/* default */ class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
+class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
 
     /** A button action command. */
     private static final String SHOW_CMD = "SHOW";
@@ -81,7 +81,7 @@ import java.util.Objects;
         this.holdsCard = new HoldsCard(theCache, theFixed, this);
 
         // Card to add a new incident
-        this.addHoldCard = new HoldsAddCard(this, theFixed);
+        this.addHoldCard = new HoldsAddCard(theCache, this);
 
         this.cardPane.add(this.holdsCard, SHOW_CMD);
         this.cardPane.add(this.addHoldCard, ADD_CMD);

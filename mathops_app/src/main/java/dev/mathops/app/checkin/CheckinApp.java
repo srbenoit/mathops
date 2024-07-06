@@ -15,7 +15,6 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
@@ -255,7 +254,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         final List<RawCampusCalendar> calendarRows;
         try {
-            calendarRows = RawCampusCalendarLogic.queryByType(cache, "start_dt1");
+            calendarRows = cache.getSystemData().getCampusCalendarsByType(RawCampusCalendar.DT_DESC_START_DATE_1);
 
             if (calendarRows.isEmpty()) {
                 Log.warning("Unable to query 'start_dt1' calender record");

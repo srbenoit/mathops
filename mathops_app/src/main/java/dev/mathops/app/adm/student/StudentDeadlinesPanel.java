@@ -18,7 +18,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -523,14 +523,23 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                 JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
                         "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
             } else if (this.reliefGiven.isSelected()) {
-                applyAppealReliefGiven();
+                try {
+                    applyAppealReliefGiven();
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                }
             } else {
                 // Just documenting a request or an SDC accommodation
             }
         }
     }
 
-    private void applyAppealReliefGiven() {
+    /**
+     * Applies relief for an appeal.
+     *
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void applyAppealReliefGiven() throws SQLException {
 
         final String interviewer = this.interviewerField.getText();
         final String appealDateStr = this.appealDateField.getText();
@@ -562,28 +571,29 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                     RawPaceAppeals appealRec = null;
                     RawStmilestone stmilestoneRec = null;
 
+                    final TermRec active = this.cache.getSystemData().getActiveTerm();
+
                     if (attemptsStr == null || attemptsStr.isBlank()) {
-                        appealRec = new RawPaceAppeals(this.fixed.activeTerm.term,
+                        appealRec = new RawPaceAppeals(active.term,
                                 this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm.pace,
                                 this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                 this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                 newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                 interviewer);
-                        stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term, this.studentData.student.stuId,
+                        stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
                                 this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                 this.currentRow.milestoneRecord.msType, newDate, null);
                     } else {
                         try {
                             final Integer attempts = Integer.valueOf(attemptsStr);
 
-                            appealRec = new RawPaceAppeals(this.fixed.activeTerm.term,
+                            appealRec = new RawPaceAppeals(active.term,
                                     this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm.pace,
                                     this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                     this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                     newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                     interviewer);
-                            stmilestoneRec = new RawStmilestone(this.fixed.activeTerm.term,
-                                    this.studentData.student.stuId,
+                            stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
                                     this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
                                     this.currentRow.milestoneRecord.msType, newDate, attempts);
                         } catch (NumberFormatException ex) {

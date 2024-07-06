@@ -2,8 +2,6 @@ package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
@@ -151,14 +149,13 @@ public class EffectiveMilestones {
         try {
             final Collection<LocalDate> holidays = new ArrayList<>(10);
 
-            final List<RawCampusCalendar> campusRows =
-                    RawCampusCalendarLogic.queryByType(cache, RawCampusCalendar.DT_DESC_HOLIDAY);
+            final List<RawCampusCalendar> campusRows = cache.getSystemData().getCampusCalendarsByType(
+                    RawCampusCalendar.DT_DESC_HOLIDAY);
             for (final RawCampusCalendar row : campusRows) {
                 holidays.add(row.campusDt);
             }
 
-            final List<RawSemesterCalendar> semesterRows =
-                    RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawSemesterCalendar> semesterRows = cache.getSystemData().getSemesterCalendars();
 
             int maxWeek = 0;
             for (final RawSemesterCalendar test : semesterRows) {

@@ -3,7 +3,6 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
@@ -12,7 +11,6 @@ import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -189,7 +187,7 @@ enum PageToolHome {
 
         if (tutStatus.eligibleForPrecalcTutorial) {
 
-            final List<RawCampusCalendar> cal = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> cal = cache.getSystemData().getCampusCalendars();
             LocalDate start = null;
             LocalDate end = null;
             LocalDate info = null;

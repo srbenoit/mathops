@@ -8,7 +8,6 @@ import dev.mathops.db.old.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -217,8 +216,7 @@ final class PageHome {
                 htm.addln("</ul>");
                 htm.eDiv(); // indent11
 
-                final List<RawCampusCalendar> calendars =
-                        RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawCampusCalendar> calendars = cache.getSystemData().getCampusCalendars();
                 LocalDate start = null;
                 LocalDate end = null;
                 for (final RawCampusCalendar cal : calendars) {

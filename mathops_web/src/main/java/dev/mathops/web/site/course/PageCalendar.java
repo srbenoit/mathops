@@ -4,7 +4,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -173,9 +172,9 @@ enum PageCalendar {
             sortPaceOrder(paceRegs);
 
             final Collection<LocalDate> holidays = new ArrayList<>(7);
-            final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
             for (final RawCampusCalendar row : calendarDays) {
-                if ("holiday".equals(row.dtDesc)) {
+                if (RawCampusCalendar.DT_DESC_HOLIDAY.equals(row.dtDesc)) {
                     holidays.add(row.campusDt);
                 }
             }

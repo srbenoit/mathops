@@ -7,7 +7,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -174,8 +173,7 @@ public enum PageStudentCourseActivity {
         if (active == null) {
             htm.add("(Unable to query the active term)");
         } else {
-            final List<RawSemesterCalendar> weeks =
-                    RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
 
             final List<RawStmpe> mpes = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
             mpes.sort(new RawStmpe.FinishDateTimeComparator());

@@ -12,9 +12,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -381,7 +379,7 @@ final class UrgencyHistoryAnalysis {
     private void processStudent(final String stuId, final Iterable<RawStcourse> stuRegs,
                                 final Collection<? super StudentReportRow> reportRows) throws SQLException {
 
-        final List<RawSemesterCalendar> weeks = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
+        final List<RawSemesterCalendar> weeks = this.cache.getSystemData().getSemesterCalendars();
         Collections.sort(weeks);
 
         final List<RawStexam> stexams = RawStexamLogic.queryByStudent(this.cache, stuId, true);
@@ -392,7 +390,8 @@ final class UrgencyHistoryAnalysis {
         final StudentReportRow studentRow = new StudentReportRow(stuId, maxWeek * 5);
         reportRows.add(studentRow);
 
-        final List<RawCampusCalendar> holidayRows = RawCampusCalendarLogic.queryByType(this.cache, "holiday");
+        final List<RawCampusCalendar> holidayRows = this.cache.getSystemData().getCampusCalendarsByType(
+                RawCampusCalendar.DT_DESC_HOLIDAY);
         final Collection<LocalDate> holidays = new ArrayList<>(holidayRows.size());
         for (final RawCampusCalendar holidayRow : holidayRows) {
             holidays.add(holidayRow.campusDt);

@@ -1,16 +1,10 @@
 package dev.mathops.app.adm;
 
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;
-import dev.mathops.db.old.rawrecord.RawHoldType;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
-import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,17 +13,8 @@ import java.util.List;
  */
 public class FixedData {
 
-    /** The logged in user. */
+    /** The logged-in user. */
     public final String username;
-
-    /** The active term. */
-    public final TermRec activeTerm;
-
-    /** All term weeks in the active term. */
-    public final List<RawSemesterCalendar> termWeeks;
-
-    /** The defined hold types. */
-    public final List<RawHoldType> holdTypes;
 
     /** The permissions for each login user. */
     public final List<RawUserClearance> userPermissions;
@@ -89,22 +74,15 @@ public class FixedData {
      * @param theUsername the username of the user whose permissions to load
      * @throws SQLException if there is an error accessing the database
      */
-    /* default */ FixedData(final Cache cache, final String theUsername) throws SQLException {
+    FixedData(final Cache cache, final String theUsername) throws SQLException {
 
         this.username = theUsername;
-
-        this.activeTerm = cache.getSystemData().getActiveTerm();
-
-        this.termWeeks = RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
-        Collections.sort(this.termWeeks);
-
-        this.holdTypes = RawHoldTypeLogic.INSTANCE.queryAll(cache);
 
         this.userPermissions = RawUserClearanceLogic.queryAllForLogin(cache, theUsername);
     }
 
     /**
-     * Tests whether the logged in user has a specified permission, and if so, returns the clearance level.
+     * Tests whether the logged-in user has a specified permission, and if so, returns the clearance level.
      *
      * @param permission the permission for which to test
      * @return {@code null} if the user does not have the permission, a clearance level from 1 (highest) to 5 (lowest)

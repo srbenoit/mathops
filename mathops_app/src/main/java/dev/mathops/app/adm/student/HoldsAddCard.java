@@ -4,6 +4,7 @@ import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawHoldType;
@@ -21,9 +22,12 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A card within the "Holds" tab of the admin app that allows the user to add a new hold.
@@ -43,8 +47,8 @@ import java.time.Month;
     /** The owning discipline panel. */
     private final StudentHoldsPanel owner;
 
-    /** The fixed data. */
-    private final FixedData fixed;
+    /** The hold types. */
+    private final List<RawHoldType> holdTypes;
 
     /** The current student ID. */
     private String studentId;
@@ -67,16 +71,15 @@ import java.time.Month;
     /**
      * Constructs a new {@code HoldsAddCard}.
      *
-     * @param theOwner         the owning discipline panel
-     * @param theFixed         the fixed data
+     * @param cache    the cache
+     * @param theOwner the owning discipline panel
      */
-    /* default */ HoldsAddCard(final StudentHoldsPanel theOwner, final FixedData theFixed) {
+    HoldsAddCard(final Cache cache, final StudentHoldsPanel theOwner) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);
 
         this.owner = theOwner;
-        this.fixed = theFixed;
 
         final JPanel center = new JPanel(new BorderLayout());
         center.setBackground(Skin.WHITE);
@@ -84,8 +87,8 @@ import java.time.Month;
 
         final JPanel form = new JPanel(new BorderLayout());
         form.setBackground(Skin.LIGHT);
-        form.setBorder(BorderFactory.createCompoundBorder(//
-                BorderFactory.createEtchedBorder(), //
+        form.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         center.add(form, BorderLayout.NORTH);
 
@@ -107,12 +110,20 @@ import java.time.Month;
             lbl.setPreferredSize(dim);
         }
 
+        List<RawHoldType> allHoldTypes;
+        try {
+             allHoldTypes = cache.getSystemData().getHoldTypes();
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            allHoldTypes = new ArrayList<>(0);
+        }
+        this.holdTypes = allHoldTypes;
+
         // Generate the list of hold IDs with descriptions for the dropdown
-        final String[] holdIds = new String[this.fixed.holdTypes.size()];
+        final String[] holdIds = new String[this.holdTypes.size()];
         int i = 0;
-        for (final RawHoldType type : this.fixed.holdTypes) {
-            holdIds[i] = type.holdId + ": "
-                    + RawAdminHoldLogic.getStaffMessage(type.holdId) + " ("
+        for (final RawHoldType type :  this.holdTypes) {
+            holdIds[i] = type.holdId + ": " + RawAdminHoldLogic.getStaffMessage(type.holdId) + " ("
                     + type.sevAdminHold + ")";
             ++i;
         }
@@ -258,7 +269,7 @@ import java.time.Month;
         }
 
         RawHoldType holdType = null;
-        for (final RawHoldType test : this.fixed.holdTypes) {
+        for (final RawHoldType test : this.holdTypes) {
             if (test.holdId.equals(selHoldId)) {
                 holdType = test;
                 break;

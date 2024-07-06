@@ -158,37 +158,6 @@ final class TestRawHoldTypeLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("query results")
-    void test0004() {
-
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                final RawHoldType rec = RawHoldTypeLogic.query(cache, "AA");
-
-                assertNotNull(rec, "No record returned by query");
-
-                final boolean found = "AA".equals(rec.holdId)
-                        && "B".equals(rec.sevAdminHold)
-                        && "C".equals(rec.holdType)
-                        && "D".equals(rec.addHold)
-                        && "E".equals(rec.deleteHold);
-
-                assertTrue(found, "HoldType not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while querying all hold_type rows: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
     @DisplayName("delete results")
     void test0005() {
 

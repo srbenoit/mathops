@@ -3,7 +3,6 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractPageSite;
@@ -38,7 +37,7 @@ public final class WelcomeFooter implements ISecondaryFooter {
     public void emitSecondaryFooter(final Cache cache, final AbstractSite site,
                                     final HtmlBuilder htm) throws SQLException {
 
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 

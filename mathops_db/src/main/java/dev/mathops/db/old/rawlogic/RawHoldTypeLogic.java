@@ -126,31 +126,4 @@ public final class RawHoldTypeLogic extends AbstractRawLogic<RawHoldType> {
 
         return result;
     }
-
-    /**
-     * Queries for a single hold_type.
-     *
-     * @param cache  the data cache
-     * @param holdId the ID of the hold type for which to query
-     * @return the complete set of records in the database
-     * @throws SQLException if there is an error performing the query
-     */
-    public static RawHoldType query(final Cache cache, final String holdId) throws SQLException {
-
-        RawHoldType result = null;
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM hold_type WHERE hold_id=",
-                sqlStringValue(holdId));
-
-        try (final Statement stmt = cache.conn.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                result = RawHoldType.fromResultSet(rs);
-            }
-        }
-
-        return result;
-    }
 }

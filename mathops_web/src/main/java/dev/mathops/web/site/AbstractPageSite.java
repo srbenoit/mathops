@@ -7,7 +7,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
@@ -272,7 +271,7 @@ public abstract class AbstractPageSite extends AbstractSite {
                              final boolean showRoomNumber) throws SQLException {
 
         final TermRec term = cache.getSystemData().getActiveTerm();
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
 
         if (term != null) {
             htm.sDiv("center");
@@ -481,7 +480,7 @@ public abstract class AbstractPageSite extends AbstractSite {
     public static void helpHours(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
         final TermRec term = cache.getSystemData().getActiveTerm();
-        final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
 
         if (term != null) {
             htm.sDiv("indent22");

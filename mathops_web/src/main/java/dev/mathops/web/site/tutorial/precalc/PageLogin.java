@@ -2,7 +2,6 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -58,7 +57,7 @@ enum PageLogin {
         htm.addln("<a href='https://eid.colostate.edu/' target='_blank'>Create your eID</a>");
         htm.eDiv();
 
-        final List<RawCampusCalendar> calendarRows = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final List<RawCampusCalendar> calendarRows = cache.getSystemData().getCampusCalendars();
 
         LocalDate window1Start = null;
         LocalDate window1End = null;

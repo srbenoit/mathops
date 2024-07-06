@@ -2,7 +2,6 @@ package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractSite;
@@ -63,7 +62,7 @@ enum PageLogin {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
-        final List<RawCampusCalendar> calendarRows = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+        final List<RawCampusCalendar> calendarRows = cache.getSystemData().getCampusCalendars();
 
         LocalDate maint1Start = null;
         LocalDate maint1End = null;

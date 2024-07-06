@@ -1,7 +1,6 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -147,7 +146,7 @@ public final class ELMTutorialStatus {
             // Determine dates when the tutorial site and online proctored ELM Exam will be available. This is
             // available except during the scheduled placement maintenance periods.
             final List<DateRange> ranges = new ArrayList<>(5);
-            final List<RawCampusCalendar> calendars = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+            final List<RawCampusCalendar> calendars = cache.getSystemData().getCampusCalendars();
 
             final LocalDate today = now.toLocalDate();
             LocalDate s1 = null;

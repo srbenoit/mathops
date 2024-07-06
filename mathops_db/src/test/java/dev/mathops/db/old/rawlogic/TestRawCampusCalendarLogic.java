@@ -201,8 +201,8 @@ final class TestRawCampusCalendarLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCampusCalendar> tc2 =
-                        RawCampusCalendarLogic.queryByType(cache, RawCampusCalendar.DT_DESC_HOLIDAY);
+                final List<RawCampusCalendar> tc2 = cache.getSystemData().getCampusCalendarsByType(
+                        RawCampusCalendar.DT_DESC_HOLIDAY);
 
                 assertEquals(2, tc2.size(), "Incorrect record count from queryByType");
 

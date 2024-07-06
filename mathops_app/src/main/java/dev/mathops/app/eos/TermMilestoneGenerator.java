@@ -12,8 +12,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
@@ -1685,10 +1683,8 @@ public enum TermMilestoneGenerator {
             try {
                 final TermRec active = cache.getSystemData().getActiveTerm();
 
-                final List<RawSemesterCalendar> weeks =
-                        RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
-                final List<RawCampusCalendar> calendarDays =
-                        RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
+                final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
 
                 final List<RawMilestone> milestones =
                         generateMilestones(active, weeks, calendarDays);

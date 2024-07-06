@@ -64,7 +64,7 @@ final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandLi
         add(this.cardPane, StackedBorderLayout.CENTER);
 
         // Card to show all exams on record, with a button to open details for each exam
-        this.examsCard = new ExamListCard(theFixed, this);
+        this.examsCard = new ExamListCard(theCache, this);
 
         // Card to show details of one exam
         final boolean allowUpdate = theFixed.getClearanceLevel("EXM_CHANS") != null;
