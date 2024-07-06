@@ -155,16 +155,15 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
     /**
      * Constructs a new {@code TestStationApp}.
      *
-     * @param theScheme    the scheme to use to contact the server
      * @param theServer    the server host name
      * @param thePort      the server port
      * @param theSessionId the session ID
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private TestStationApp(final String theScheme, final String theServer, final int thePort,
-                           final String theSessionId) throws UnknownHostException {
+    private TestStationApp(final String theServer, final int thePort, final String theSessionId)
+            throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, theSessionId);
+        super(theServer, thePort, theSessionId);
 
         Log.info("Connected to ", theServer);
 
@@ -1976,7 +1975,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         final String host = useDev ? Contexts.TESTINGDEV_HOST : Contexts.TESTING_HOST;
 
         try {
-            final TestStationApp app = new TestStationApp("http", host, 80, SessionCache.TEST_SESSION_ID);
+            final TestStationApp app = new TestStationApp(host, 80, SessionCache.TEST_SESSION_ID);
 
             try {
                 app.execute(fullScreen);

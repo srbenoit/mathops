@@ -96,7 +96,6 @@ final class UnitExamApp extends ClientBase implements ExamContainerInt, WindowLi
     /**
      * Construct a new {@code UnitExamApp}.
      *
-     * @param theScheme         the scheme to use to contact the server
      * @param theServer      the server host name
      * @param thePort        the server port
      * @param theStudentId   the student ID
@@ -104,11 +103,10 @@ final class UnitExamApp extends ClientBase implements ExamContainerInt, WindowLi
      * @param theExamVersion the exam version to take
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private UnitExamApp(final String theScheme, final String theServer, final int thePort,
-                        final String theStudentId, final String theUsername, final String theExamVersion)
-            throws UnknownHostException {
+    private UnitExamApp(final String theServer, final int thePort, final String theStudentId, final String theUsername,
+                        final String theExamVersion) throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, null);
+        super(theServer, thePort, null);
 
         this.studentId = theStudentId;
         this.username = theUsername;
@@ -849,9 +847,8 @@ final class UnitExamApp extends ClientBase implements ExamContainerInt, WindowLi
 
         if (args.length == 6) {
             try {
-                final int port = Long.valueOf(args[2]).intValue();
-                final UnitExamApp app =
-                        new UnitExamApp(args[0], args[1], port, args[3], args[4], args[5]);
+                final int port = Long.valueOf(args[1]).intValue();
+                final UnitExamApp app = new UnitExamApp(args[0], port, args[2], args[3], args[4]);
                 app.execute();
 
                 try {
@@ -865,10 +862,7 @@ final class UnitExamApp extends ClientBase implements ExamContainerInt, WindowLi
             }
         } else {
             try {
-                new UnitExamApp("https",
-                        "precalc." + Contexts.DOMAIN, 443,
-                        "111223333", "Steve",
-                        "24FIN").execute();
+                new UnitExamApp("precalc." + Contexts.DOMAIN, 443, "111223333", "Steve", "24FIN").execute();
 
                 try {
                     Thread.sleep(500L);

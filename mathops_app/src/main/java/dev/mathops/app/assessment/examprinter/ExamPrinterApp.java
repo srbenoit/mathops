@@ -100,8 +100,7 @@ public final class ExamPrinterApp extends ClientBase {
      */
     private ExamPrinterApp() throws UnknownHostException {
 
-        super("https", ClientBase.DEFAULT_HOST,
-                ClientBase.DEFAULT_PORT, SessionCache.ANONYMOUS_SESSION);
+        super(DEFAULT_HOST, DEFAULT_PORT, SessionCache.ANONYMOUS_SESSION);
     }
 
     /**

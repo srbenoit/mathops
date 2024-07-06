@@ -78,7 +78,6 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
     /**
      * Constructs a new {@code HomeworkApp}.
      *
-     * @param theScheme     the scheme to use to contact the server
      * @param theServer     the server host name
      * @param thePort       the server port
      * @param theStudentId  the student ID
@@ -86,11 +85,11 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
      * @param practice      "true" if the assignment is practice (homework otherwise)
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private HomeworkApp(final String theScheme, final String theServer, final int thePort,
-                        final String theStudentId, final String theAssignment, final String practice)
+    private HomeworkApp(final String theServer, final int thePort, final String theStudentId,
+                        final String theAssignment, final String practice)
             throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, null);
+        super(theServer, thePort, null);
 
         this.studentId = theStudentId;
         this.assignment = theAssignment;
@@ -853,8 +852,8 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
 
         if (args.length == 6) {
             try {
-                final int port = Long.valueOf(args[2]).intValue();
-                final HomeworkApp app = new HomeworkApp(args[0], args[1], port, args[3], args[4], args[5]);
+                final int port = Long.valueOf(args[1]).intValue();
+                final HomeworkApp app = new HomeworkApp(args[0], port, args[2], args[3], args[4]);
                 app.go();
 
                 try {
@@ -871,7 +870,7 @@ final class HomeworkApp extends ClientBase implements ExamContainerInt {
         } else {
             final HomeworkApp app;
             try {
-                app = new HomeworkApp("https", "precalc." + Contexts.DOMAIN, 443, "111223333", "1713H", "false");
+                app = new HomeworkApp("precalc." + Contexts.DOMAIN, 443, "111223333", "1713H", "false");
                 app.go();
 
                 try {

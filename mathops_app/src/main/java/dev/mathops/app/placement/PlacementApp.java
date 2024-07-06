@@ -105,7 +105,6 @@ final class PlacementApp extends ClientBase implements Runnable, ExamContainerIn
     /**
      * Construct a new {@code PlacementApp}.
      *
-     * @param theScheme       the scheme to use to contact the server
      * @param theServer    the server host name
      * @param thePort      the server port
      * @param theStudentId the student ID
@@ -114,11 +113,10 @@ final class PlacementApp extends ClientBase implements Runnable, ExamContainerIn
      * @param isProctored  {@code true} if exam is being taken in a proctored setting; {@code false} if not
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private PlacementApp(final String theScheme, final String theServer, final int thePort,
-                         final String theStudentId, final String theName, final String theExamId,
-                         final boolean isProctored) throws UnknownHostException {
+    private PlacementApp(final String theServer, final int thePort, final String theStudentId, final String theName,
+                         final String theExamId, final boolean isProctored) throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, null);
+        super(theServer, thePort, null);
 
         this.studentId = theStudentId;
         this.name = theName;
@@ -1183,7 +1181,7 @@ final class PlacementApp extends ClientBase implements Runnable, ExamContainerIn
         if (args.length == 0) {
 
             try {
-                final PlacementApp app = new PlacementApp("https", "placement." + Contexts.DOMAIN, 443,
+                final PlacementApp app = new PlacementApp("placement." + Contexts.DOMAIN, 443,
                         "888888888", "Test Student", "MPTUN", true);
 
                 try {
@@ -1211,10 +1209,10 @@ final class PlacementApp extends ClientBase implements Runnable, ExamContainerIn
         } else if (args.length == 7) {
 
             try {
-                final int port = Long.valueOf(args[2]).intValue();
+                final int port = Long.valueOf(args[1]).intValue();
 
-                final PlacementApp app = new PlacementApp(args[0], args[1], port, args[3], args[4], args[5],
-                        "TRUE".equalsIgnoreCase(args[6]));
+                final PlacementApp app = new PlacementApp(args[0], port, args[2], args[3], args[4],
+                        "TRUE".equalsIgnoreCase(args[5]));
 
                 try {
                     app.go();

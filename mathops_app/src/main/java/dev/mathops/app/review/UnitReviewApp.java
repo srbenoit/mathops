@@ -97,7 +97,6 @@ final class UnitReviewApp extends ClientBase implements ExamContainerInt, Window
     /**
      * Constructs a new {@code UnitReviewApp}.
      *
-     * @param theScheme         the scheme to use to contact the server
      * @param theServer      the server host name
      * @param thePort        the server port
      * @param theStudentId   the student Id
@@ -106,11 +105,11 @@ final class UnitReviewApp extends ClientBase implements ExamContainerInt, Window
      * @param practice       "true"if the exam is practice
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private UnitReviewApp(final String theScheme, final String theServer, final int thePort,
-                          final String theStudentId, final String theUsername, final String theExamVersion,
-                          final String practice) throws UnknownHostException {
+    private UnitReviewApp(final String theServer, final int thePort, final String theStudentId,
+                          final String theUsername, final String theExamVersion, final String practice)
+            throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, null);
+        super(theServer, thePort, null);
 
         this.studentId = theStudentId;
         this.username = theUsername;
@@ -877,9 +876,9 @@ final class UnitReviewApp extends ClientBase implements ExamContainerInt, Window
 
         if (args.length == 7) {
             try {
-                final int port = Integer.parseInt(args[2]);
+                final int port = Integer.parseInt(args[1]);
 
-                new UnitReviewApp(args[0], args[1], port, args[3], args[4], args[5], args[6]).go();
+                new UnitReviewApp(args[0], port, args[2], args[3], args[4], args[5]).go();
 
                 try {
                     Thread.sleep(500L);
@@ -893,10 +892,7 @@ final class UnitReviewApp extends ClientBase implements ExamContainerInt, Window
             }
         } else {
             try {
-                new UnitReviewApp("https",
-                        "precalc." + Contexts.DOMAIN, 443,
-                        "111223333", "Steve",
-                        "244RE", "true").go();
+                new UnitReviewApp( "precalc." + Contexts.DOMAIN, 443, "111223333", "Steve", "244RE", "true").go();
 
                 try {
                     Thread.sleep(500L);

@@ -68,17 +68,16 @@ final class ExamViewerApp extends ClientBase implements ExamContainerInt {
     /**
      * Constructs a new {@code ExamViewerApp}.
      *
-     * @param theScheme        the scheme to use to contact the server
      * @param theServer     the server host name
      * @param thePort       the server port
      * @param theXmlFile    the path of the realized exam XML file
      * @param theUpdateFile the path of the updates file for the student's answers
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private ExamViewerApp(final String theScheme, final String theServer, final int thePort,
+    private ExamViewerApp(final String theServer, final int thePort,
                           final String theXmlFile, final String theUpdateFile) throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, null);
+        super(theServer, thePort, null);
 
         this.xmlFile = theXmlFile;
         this.updateFile = theUpdateFile;
@@ -373,8 +372,8 @@ final class ExamViewerApp extends ClientBase implements ExamContainerInt {
 
         if (args.length == 5) {
             try {
-                final int port = Integer.parseInt(args[2]);
-                final ExamViewerApp app = new ExamViewerApp(args[0], args[1], port, args[3], args[4]);
+                final int port = Integer.parseInt(args[1]);
+                final ExamViewerApp app = new ExamViewerApp(args[0], port, args[2], args[3]);
                 app.go();
 
                 try {

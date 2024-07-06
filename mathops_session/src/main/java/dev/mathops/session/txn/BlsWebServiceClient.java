@@ -1,18 +1,12 @@
 package dev.mathops.session.txn;
 
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.session.SessionCache;
 import dev.mathops.session.SessionManager;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,11 +20,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +28,10 @@ import java.util.List;
  * socket connection. By itself, it performs no message exchanges. It simply creates the socket connection, creates the
  * object streams, and provides status and error information.
  */
-public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient {
+public class BlsWebServiceClient implements HostnameVerifier {
 
     /** An empty character array. */
     private static final char[] EMPTY_CHAR_ARRAY = new char[0];
-
-    /** The scheme to use to communicate with the server. */
-    private final String scheme;
 
     /** The IP address of the server to connect to. */
     private final InetAddress serverIp;
@@ -60,34 +46,24 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
     private final List<char[]> inputData;
 
     /** The URL to which to connect. */
-    private URL url;
-
-    /** An SSL socket factory that has the appropriate key store installed. */
-    private SSLSocketFactory sslSocketFactory;
+    private URL url = null;
 
     /**
      * Constructs a new {@code BlsWebServiceClient}.
      *
-     * @param theScheme    the scheme to use to communicate with the server
      * @param theServer    the hostname of the server to connect to
      * @param thePort      the TCP port of the server to connect to
      * @param theSessionId the session ID to use to communicate with the server
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    public BlsWebServiceClient(final String theScheme, final String theServer, final int thePort,
+    public BlsWebServiceClient(final String theServer, final int thePort,
                                final String theSessionId) throws UnknownHostException {
 
-        this.scheme = theScheme;
         this.serverIp = InetAddress.getByName(theServer);
         this.port = thePort;
         this.sessionId = theSessionId;
 
         this.inputData = new ArrayList<>(5);
-        this.url = null;
-
-        System.setProperty("com.sun.security.enableCRLDP", "false");
-        System.setProperty("com.sun.net.ssl.checkRevocation", "false");
-        System.setProperty("ocsp.enable", "false");
     }
 
     /**
@@ -104,8 +80,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
                 || Contexts.PLACEMENT_HOST.equals(s) || Contexts.PLACEMENTDEV_HOST.equals(s)
                 || Contexts.COURSE_HOST.equals(s) || Contexts.COURSEDEV_HOST.equals(s)
                 || Contexts.TESTING_HOST.equals(s) || Contexts.TESTINGDEV_HOST.equals(s)
-                || Contexts.ONLINE_HOST.equals(s) || Contexts.DEV_HOST.equals(s)
-                || "numan.math.colostate.edu".equals(s);
+                || Contexts.ONLINE_HOST.equals(s);
     }
 
     /**
@@ -113,51 +88,19 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
      *
      * @return {@code true} if successful; {@code false} otherwise
      */
-    @Override
     public final boolean init() {
 
-        // Load the trust store
-        try (final InputStream input = FileLoader.openInputStream(getClass(), "client.kdb", true)) {
+        try {
+            final String hostName = this.serverIp.getHostName();
 
-            final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            ks.load(input, "pace.not.imp".toCharArray());
-
-            final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(ks);
-
-            final TrustManager defaultTrustManager = tmf.getTrustManagers()[0];
-            final SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, new TrustManager[]{defaultTrustManager}, null);
-
-            this.sslSocketFactory = context.getSocketFactory();
-
-            HttpsURLConnection.setDefaultHostnameVerifier(this);
-
-            final String sch = this.scheme;
-            try {
-                final String hostName = this.serverIp.getHostName();
-
-                if ("http".equals(sch)) {
-                    if (this.port == 80) {
-                        final URI uri = new URI(this.scheme, hostName, "/txn/txn.html", null);
-                        this.url = uri.toURL();
-                    } else {
-                        final URI uri = new URI(this.scheme, null, hostName, this.port, "/txn/txn.html", null, null);
-                        this.url = uri.toURL();
-                    }
-                } else if ("https".equals(sch) && (this.port == 443)) {
-                    final URI uri = new URI(this.scheme, hostName, "/txn/txn.html", null);
-                    this.url = uri.toURL();
-                } else {
-                    final URI uri = new URI(this.scheme, null, hostName, this.port, "/txn/txn.html", null, null);
-                    this.url = uri.toURL();
-                }
-            } catch (final MalformedURLException | URISyntaxException ex) {
-                Log.warning(ex);
-                this.url = null;
+            if (this.port == 80) {
+                final URI uri = new URI("http", hostName, "/txn/txn.html", null);
+                this.url = uri.toURL();
+            } else {
+                final URI uri = new URI("http", null, hostName, this.port, "/txn/txn.html", null, null);
+                this.url = uri.toURL();
             }
-        } catch (final KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException
-                       | KeyManagementException ex) {
+        } catch (final MalformedURLException | URISyntaxException ex) {
             Log.warning(ex);
         }
 
@@ -170,7 +113,6 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
      *
      * @return {@code true} if the connection is ready to be used; {@code false} if not
      */
-    @Override
     public final boolean isOpen() {
 
         return this.url != null;
@@ -179,7 +121,6 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
     /**
      * Closes the object.
      */
-    @Override
     public final void close() {
 
         this.url = null;
@@ -191,7 +132,6 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
      * @param obj the data block to write
      * @return {@code true} if successful; {@code false} otherwise
      */
-    @Override
     public final boolean writeObject(final String obj) {
 
         final byte[] bytes = obj.getBytes(StandardCharsets.UTF_8);
@@ -200,14 +140,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
         if (this.url != null) {
 
             try {
-                final URLConnection conn;
-
-                if ("https".equals(this.scheme)) {
-                    conn = this.url.openConnection();
-                    ((HttpsURLConnection) conn).setSSLSocketFactory(this.sslSocketFactory);
-                } else {
-                    conn = this.url.openConnection();
-                }
+                final URLConnection conn = this.url.openConnection();
 
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
@@ -294,7 +227,6 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
      *                developer to the problem
      * @return the object read, or {@code null} if an error occurred
      */
-    @Override
     public final char[] readObject(final String objName) {
 
         char[] data = null;
@@ -314,7 +246,7 @@ public class BlsWebServiceClient implements HostnameVerifier, IWebServiceClient 
     public static void main(final String... args) {
 
         try {
-            final IWebServiceClient client = new BlsWebServiceClient("http", Contexts.TESTING_HOST, 80,
+            final BlsWebServiceClient client = new BlsWebServiceClient(Contexts.TESTING_HOST, 80,
                     SessionCache.TEST_SESSION_ID);
 
             if (client.init()) {

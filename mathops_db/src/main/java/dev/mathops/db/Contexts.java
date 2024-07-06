@@ -33,9 +33,6 @@ public enum Contexts {
     public static final String NIBBLER_HOST = "nibbler." + DOMAIN;
 
     /** A server host. */
-    public static final String DEV_HOST = "havoc." + DOMAIN;
-
-    /** A server host. */
     public static final String PRECALCDEV_HOST = "precalcdev." + DOMAIN;
 
     /** A server host. */

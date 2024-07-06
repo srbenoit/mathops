@@ -7,7 +7,6 @@ import dev.mathops.commons.log.LogWriter;
 import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.db.Contexts;
 import dev.mathops.session.txn.BlsWebServiceClient;
-import dev.mathops.session.txn.IWebServiceClient;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
 import dev.mathops.session.txn.messages.AbstractReplyBase;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -43,7 +42,7 @@ public class ClientBase {
     public static final String DEFAULT_HOST = Contexts.TESTING_HOST;
 
     /** The default port to which to attach. */
-    public static final int DEFAULT_PORT = 443;
+    public static final int DEFAULT_PORT = 80;
 
     /** A status code indicating successful completion. */
     public static final int SUCCESS = 0;
@@ -70,7 +69,7 @@ public class ClientBase {
     private String machineId;
 
     /** The client connection to the server. */
-    private final IWebServiceClient serverConnection;
+    private final BlsWebServiceClient serverConnection;
 
     /** The home directory where we can read/write configuration files. */
     private final File homeDir;
@@ -81,21 +80,19 @@ public class ClientBase {
     /**
      * Constructs a new {@code ClientBase}.
      *
-     * @param theScheme    the scheme to use to communicate with the server
      * @param theServer    the server host address
      * @param thePort      the server port number
      * @param theSessionId the session ID to use to communicate with the server
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    public ClientBase(final String theScheme, final String theServer, final int thePort,
+    public ClientBase(final String theServer, final int thePort,
                       final String theSessionId) throws UnknownHostException {
 
-        // this.appName = theAppName;
         this.publicInternet = true;
 
         this.port = thePort;
 
-        this.serverConnection = new BlsWebServiceClient(theScheme, theServer, thePort, theSessionId);
+        this.serverConnection = new BlsWebServiceClient(theServer, thePort, theSessionId);
 
         final String userHome = System.getProperty("user.home");
         this.homeDir = new File(userHome);
@@ -111,7 +108,7 @@ public class ClientBase {
      *
      * @return the port number
      */
-    public int getPort() {
+    public final int getPort() {
 
         return this.port;
     }
@@ -156,7 +153,7 @@ public class ClientBase {
      *
      * @return the server connection
      */
-    protected final IWebServiceClient getServerConnection() {
+    protected final BlsWebServiceClient getServerConnection() {
 
         return this.serverConnection;
     }

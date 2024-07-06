@@ -76,17 +76,16 @@ public final class LocalTestingApp extends ClientBase implements ExamContainerIn
     /**
      * Constructs a new {@code LocalTestingApp}.
      *
-     * @param theScheme       the scheme to use to contact the server
      * @param theServer    the server host name
      * @param thePort      the server port
      * @param theSessionId the session ID
      * @param isDemo       {@code true} if the application was launched ion demo mode
      * @throws UnknownHostException if the hostname could not be resolved into an IP address
      */
-    private LocalTestingApp(final String theScheme, final String theServer, final int thePort,
-                            final String theSessionId, final boolean isDemo) throws UnknownHostException {
+    private LocalTestingApp(final String theServer, final int thePort, final String theSessionId,
+                            final boolean isDemo) throws UnknownHostException {
 
-        super(theScheme, theServer, thePort, theSessionId);
+        super(theServer, thePort, theSessionId);
 
         this.demo = isDemo;
     }
@@ -583,8 +582,8 @@ public final class LocalTestingApp extends ClientBase implements ExamContainerIn
         }
 
         try {
-            final LocalTestingApp app = new LocalTestingApp("https", ClientBase.DEFAULT_HOST, ClientBase.DEFAULT_PORT,
-                            SessionCache.ANONYMOUS_SESSION, demo);
+            final LocalTestingApp app = new LocalTestingApp(DEFAULT_HOST, DEFAULT_PORT, SessionCache.ANONYMOUS_SESSION,
+                    demo);
             app.go();
 
             try {
