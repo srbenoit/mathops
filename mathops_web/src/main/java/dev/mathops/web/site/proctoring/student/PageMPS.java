@@ -182,6 +182,11 @@ enum PageMPS {
         htm.eDiv(); // right-of-float
         htm.div("clear");
 
+        htm.sP(null, "style='padding: 5px 20px'")
+                .add("<img src='/www/images/proctoring/important.png' style='margin-bottom:-5px;' alt=''/> ",
+                "NOTE: Firefox is known to have problems using the webcam.  If you use Firefox (or a derivative ",
+                "like Waterfox), and are 'Camera and Microphone Access' fails, please try a different browser.").eP();
+
         htm.hr();
         htm.div("vgap");
 
@@ -195,6 +200,11 @@ enum PageMPS {
         htm.sDiv(null, "id='compatibility-test-div'", "style='display:none;'");
 
         htm.sH(3).add("Compatibility Test Results:").eH(3);
+
+        htm.sTable("indent");
+        htm.sTr().sTd().add("<img id='compatibilityBrowserResult' style='width:32px;height:32px;margin-right:10px;'",
+                        "src='/www/images/proctoring/throbber.svg'/>")
+                .eTd().sTd().add("<strong id='compatibilityBrowserString'>Detecting Browser</strong>").eH(2).eTd().eTr();
 
         htm.sTable("indent");
         htm.sTr().sTd().add("<img id='compatibilityWebSocketResult' style='width:32px;height:32px;margin-right:10px;'",
