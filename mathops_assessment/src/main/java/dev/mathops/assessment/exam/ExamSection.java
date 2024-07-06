@@ -9,6 +9,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -454,7 +455,7 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
                     && Objects.equals(this.minMasteryScore, sect.minMasteryScore)
                     && Objects.equals(this.resources, sect.resources)
                     && Objects.equals(this.examProblems, sect.examProblems)
-                    && Objects.equals(this.problemOrder, sect.problemOrder);
+                    && Arrays.equals(this.problemOrder, sect.problemOrder);
         } else {
             equal = false;
         }

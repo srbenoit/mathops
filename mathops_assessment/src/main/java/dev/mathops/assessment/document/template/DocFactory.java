@@ -2479,27 +2479,32 @@ public enum DocFactory {
 
                     if (child instanceof final NonemptyElement nonempty) {
 
-                        if (MIN_X.equals(tag)) {
-                            minXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (minXF == null) {
-                                elem.logError("Invalid 'minx' formula");
+                        switch (tag) {
+                            case MIN_X -> {
+                                minXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (minXF == null) {
+                                    elem.logError("Invalid 'minx' formula");
+                                    valid = false;
+                                }
+                            }
+                            case MAX_X -> {
+                                maxXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (maxXF == null) {
+                                    elem.logError("Invalid 'maxx' formula");
+                                    valid = false;
+                                }
+                            }
+                            case EXPR -> {
+                                form = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (form == null) {
+                                    elem.logError("Invalid 'expr' formula");
+                                    valid = false;
+                                }
+                            }
+                            case null, default -> {
+                                elem.logError("Unsupported '" + tag + "' child of graph formula");
                                 valid = false;
                             }
-                        } else if (MAX_X.equals(tag)) {
-                            maxXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (maxXF == null) {
-                                elem.logError("Invalid 'maxx' formula");
-                                valid = false;
-                            }
-                        } else if (EXPR.equals(tag)) {
-                            form = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (form == null) {
-                                elem.logError("Invalid 'expr' formula");
-                                valid = false;
-                            }
-                        } else {
-                            elem.logError("Unsupported '" + tag + "' child of graph formula");
-                            valid = false;
                         }
                     } else {
                         elem.logError("Unsupported empty '" + tag + "' child of graph formula");
@@ -4835,176 +4840,181 @@ public enum DocFactory {
         final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
 
         AbstractDocInput input = null;
-        if (INTEGER.equals(type)) {
-            final DocInputLongField longInput = new DocInputLongField(name);
-            input = longInput;
-            input.setEnabledFormula(enabledF);
-
-            if (defaultStr != null) {
-                try {
-                    longInput.defaultValue = Long.valueOf(defaultStr);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'default' attribute value");
-                    valid = false;
-                }
-            }
-
-            if (treatMinusAsStr != null) {
-                try {
-                    longInput.minusAs = Long.valueOf(treatMinusAsStr);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'treat-minus-as' attribute value");
-                    valid = false;
-                }
-            }
-
-            if (textValue != null) {
-                longInput.setTextValue(textValue);
-            }
-
-            if (styleStr != null) {
-                if (BOX.equalsIgnoreCase(styleStr)) {
-                    longInput.style = EFieldStyle.BOX;
-                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
-                    longInput.style = EFieldStyle.UNDERLINE;
-                } else {
-                    elem.logError("Invalid 'style' attribute value");
-                    valid = false;
-                }
-            }
-
-            longInput.width = width;
-
-            if (value != null) {
-                try {
-                    final Long longValue = Long.valueOf(value);
-                    longInput.setOnlyLongValue(longValue);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'value' attribute value");
-                    valid = false;
-                }
-            }
-        } else if (REAL.equals(type)) {
-            final DocInputDoubleField doubleInput = new DocInputDoubleField(name);
-            input = doubleInput;
-            input.setEnabledFormula(enabledF);
-
-            if (defaultStr != null) {
-                try {
-                    doubleInput.defaultValue = Double.valueOf(defaultStr);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'default' attribute value");
-                    valid = false;
-                }
-            }
-
-            if (treatMinusAsStr != null) {
-                try {
-                    doubleInput.minusAs = Double.valueOf(treatMinusAsStr);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'treat-minus-as' attribute value");
-                    valid = false;
-                }
-            }
-
-            if (textValue != null && !textValue.isEmpty()) {
-                doubleInput.setTextValue(textValue);
-            }
-
-            if (styleStr != null) {
-                if (BOX.equalsIgnoreCase(styleStr)) {
-                    doubleInput.style = EFieldStyle.BOX;
-                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
-                    doubleInput.style = EFieldStyle.UNDERLINE;
-                } else {
-                    elem.logError("Invalid 'style' attribute value");
-                    valid = false;
-                }
-            }
-
-            doubleInput.width = width;
-
-            if (value != null) {
-                try {
-                    final Double dblValue = Double.valueOf(value);
-                    doubleInput.setOnlyDoubleValue(dblValue);
-                } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid 'value' attribute value");
-                    valid = false;
-                }
-            }
-        } else if (STRING.equals(type)) {
-            final DocInputStringField stringInput = new DocInputStringField(name);
-            input = stringInput;
-            input.setEnabledFormula(enabledF);
-
-            if (textValue != null && !textValue.isEmpty()) {
-                stringInput.setTextValue(textValue);
-            }
-
-            if (styleStr != null) {
-                if (BOX.equalsIgnoreCase(styleStr)) {
-                    stringInput.style = EFieldStyle.BOX;
-                } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
-                    stringInput.style = EFieldStyle.UNDERLINE;
-                } else {
-                    elem.logError("Invalid 'style' attribute value");
-                    valid = false;
-                }
-            }
-
-            stringInput.width = width;
-
-            if (value != null) {
-                stringInput.setTextValue(value);
-            }
-        } else if (RADIO_BUTTON.equals(type)) {
-
-            try {
-                final int val = Long.valueOf(value).intValue();
-                final DocInputRadioButton radioInput = new DocInputRadioButton(name, val);
-                input = radioInput;
+        switch (type) {
+            case INTEGER -> {
+                final DocInputLongField longInput = new DocInputLongField(name);
+                input = longInput;
                 input.setEnabledFormula(enabledF);
 
-                final String selectedStr = elem.getStringAttr(SELECTED);
-                if (selectedStr != null) {
-                    if (TRUE.equalsIgnoreCase(selectedStr)) {
-                        radioInput.selectChoice();
-                    } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                        elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
+                if (defaultStr != null) {
+                    try {
+                        longInput.defaultValue = Long.valueOf(defaultStr);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'default' attribute value");
                         valid = false;
                     }
                 }
-            } catch (final NumberFormatException e) {
-                elem.logError("Invalid radio button value.");
-                valid = false;
-            }
 
-        } else if (CHECKBOX.equals(type)) {
-
-            try {
-                final int val = Long.valueOf(value).intValue();
-                final DocInputCheckbox checkboxInput = new DocInputCheckbox(name, (long) val);
-                input = checkboxInput;
-                input.setEnabledFormula(enabledF);
-
-                final String selectedStr = elem.getStringAttr(SELECTED);
-                if (selectedStr != null) {
-                    if (TRUE.equalsIgnoreCase(selectedStr)) {
-                        checkboxInput.selectChoice();
-                    } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                        elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
+                if (treatMinusAsStr != null) {
+                    try {
+                        longInput.minusAs = Long.valueOf(treatMinusAsStr);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'treat-minus-as' attribute value");
                         valid = false;
                     }
                 }
-            } catch (final NumberFormatException e) {
-                elem.logError("Invalid checkbox value.");
+
+                if (textValue != null) {
+                    longInput.setTextValue(textValue);
+                }
+
+                if (styleStr != null) {
+                    if (BOX.equalsIgnoreCase(styleStr)) {
+                        longInput.style = EFieldStyle.BOX;
+                    } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
+                        longInput.style = EFieldStyle.UNDERLINE;
+                    } else {
+                        elem.logError("Invalid 'style' attribute value");
+                        valid = false;
+                    }
+                }
+
+                longInput.width = width;
+
+                if (value != null) {
+                    try {
+                        final Long longValue = Long.valueOf(value);
+                        longInput.setOnlyLongValue(longValue);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'value' attribute value");
+                        valid = false;
+                    }
+                }
+            }
+            case REAL -> {
+                final DocInputDoubleField doubleInput = new DocInputDoubleField(name);
+                input = doubleInput;
+                input.setEnabledFormula(enabledF);
+
+                if (defaultStr != null) {
+                    try {
+                        doubleInput.defaultValue = Double.valueOf(defaultStr);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'default' attribute value");
+                        valid = false;
+                    }
+                }
+
+                if (treatMinusAsStr != null) {
+                    try {
+                        doubleInput.minusAs = Double.valueOf(treatMinusAsStr);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'treat-minus-as' attribute value");
+                        valid = false;
+                    }
+                }
+
+                if (textValue != null && !textValue.isEmpty()) {
+                    doubleInput.setTextValue(textValue);
+                }
+
+                if (styleStr != null) {
+                    if (BOX.equalsIgnoreCase(styleStr)) {
+                        doubleInput.style = EFieldStyle.BOX;
+                    } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
+                        doubleInput.style = EFieldStyle.UNDERLINE;
+                    } else {
+                        elem.logError("Invalid 'style' attribute value");
+                        valid = false;
+                    }
+                }
+
+                doubleInput.width = width;
+
+                if (value != null) {
+                    try {
+                        final Double dblValue = Double.valueOf(value);
+                        doubleInput.setOnlyDoubleValue(dblValue);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'value' attribute value");
+                        valid = false;
+                    }
+                }
+            }
+            case STRING -> {
+                final DocInputStringField stringInput = new DocInputStringField(name);
+                input = stringInput;
+                input.setEnabledFormula(enabledF);
+
+                if (textValue != null && !textValue.isEmpty()) {
+                    stringInput.setTextValue(textValue);
+                }
+
+                if (styleStr != null) {
+                    if (BOX.equalsIgnoreCase(styleStr)) {
+                        stringInput.style = EFieldStyle.BOX;
+                    } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
+                        stringInput.style = EFieldStyle.UNDERLINE;
+                    } else {
+                        elem.logError("Invalid 'style' attribute value");
+                        valid = false;
+                    }
+                }
+
+                stringInput.width = width;
+
+                if (value != null) {
+                    stringInput.setTextValue(value);
+                }
+            }
+            case RADIO_BUTTON -> {
+
+                try {
+                    final int val = Long.valueOf(value).intValue();
+                    final DocInputRadioButton radioInput = new DocInputRadioButton(name, val);
+                    input = radioInput;
+                    input.setEnabledFormula(enabledF);
+
+                    final String selectedStr = elem.getStringAttr(SELECTED);
+                    if (selectedStr != null) {
+                        if (TRUE.equalsIgnoreCase(selectedStr)) {
+                            radioInput.selectChoice();
+                        } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
+                            elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
+                            valid = false;
+                        }
+                    }
+                } catch (final NumberFormatException e) {
+                    elem.logError("Invalid radio button value.");
+                    valid = false;
+                }
+            }
+            case CHECKBOX -> {
+
+                try {
+                    final int val = Long.valueOf(value).intValue();
+                    final DocInputCheckbox checkboxInput = new DocInputCheckbox(name, (long) val);
+                    input = checkboxInput;
+                    input.setEnabledFormula(enabledF);
+
+                    final String selectedStr = elem.getStringAttr(SELECTED);
+                    if (selectedStr != null) {
+                        if (TRUE.equalsIgnoreCase(selectedStr)) {
+                            checkboxInput.selectChoice();
+                        } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
+                            elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
+                            valid = false;
+                        }
+                    }
+                } catch (final NumberFormatException e) {
+                    elem.logError("Invalid checkbox value.");
+                    valid = false;
+                }
+            }
+            case null, default -> {
+                elem.logError("Unrecognized type of input.");
                 valid = false;
             }
-
-        } else {
-            elem.logError("Unrecognized type of input.");
-            valid = false;
         }
 
         if (enabledVarNameStr != null) {

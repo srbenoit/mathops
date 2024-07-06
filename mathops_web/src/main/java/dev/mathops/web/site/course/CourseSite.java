@@ -50,17 +50,6 @@ public class CourseSite extends AbstractPageSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
@@ -220,37 +209,31 @@ public class CourseSite extends AbstractPageSite {
                 final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
                 logic.gatherData();
 
-                if ("rolecontrol.html".equals(subpath)) {
-                    processRoleControls(cache, req, resp, session);
-                } else if ("home.html".equals(subpath)) {
-                    PageHome.doGet(cache, this, req, resp, session, logic);
-                } else if ("media_feedback.html".equals(subpath)) {
-                    PageVideo.doMediaFeedback(cache, this, req, resp, session, logic);
-                } else if ("example_feedback.html".equals(subpath)) {
-                    PageVideoExample.doExampleFeedback(this, req, resp, session);
-                } else if ("process_proctor_login.html".equals(subpath)) {
-                    doProcessProctorLogin(req, resp);
-                } else if ("process_honorlock_login.html".equals(subpath)) {
-                    doProcessHonorlockLogin(req, resp);
-                } else if ("set_course_schedule.html".equals(subpath)) {
-                    PageSchedule.doSetCourseOrder(cache, req, resp, logic);
-                } else if ("update_homework.html".equals(subpath)) {
-                    PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
-                } else if ("update_lta.html".equals(subpath)) {
-                    PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
-                } else if ("update_review_exam.html".equals(subpath)) {
-                    PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
-                } else if ("update_past_exam.html".equals(subpath)) {
-                    PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
-                } else if ("update_past_lta.html".equals(subpath)) {
-                    PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
-                } else if ("update_unit_exam.html".equals(subpath)) {
-                    PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
-                } else {
-                    Log.warning("Unrecognized POST request path: ", subpath);
-                    final String path = this.siteProfile.path;
-                    resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
-                            ? "index.html" : "/index.html"));
+                switch (subpath) {
+                    case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                    case "home.html" -> PageHome.doGet(cache, this, req, resp, session, logic);
+                    case "media_feedback.html" -> PageVideo.doMediaFeedback(cache, this, req, resp, session, logic);
+                    case "example_feedback.html" -> PageVideoExample.doExampleFeedback(this, req, resp, session);
+                    case "process_proctor_login.html" -> doProcessProctorLogin(req, resp);
+                    case "process_honorlock_login.html" -> doProcessHonorlockLogin(req, resp);
+                    case "set_course_schedule.html" -> PageSchedule.doSetCourseOrder(cache, req, resp, logic);
+                    case "update_homework.html" ->
+                            PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
+                    case "update_lta.html" -> PageHtmlLta.updateLta(cache, this, req, resp, session, logic);
+                    case "update_review_exam.html" ->
+                            PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session, logic);
+                    case "update_past_exam.html" ->
+                            PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, logic);
+                    case "update_past_lta.html" ->
+                            PageHtmlPastLta.updatePastLta(cache, this, req, resp, session, logic);
+                    case "update_unit_exam.html" ->
+                            PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
+                    case null, default -> {
+                        Log.warning("Unrecognized POST request path: ", subpath);
+                        final String path = this.siteProfile.path;
+                        resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
+                                ? "index.html" : "/index.html"));
+                    }
                 }
             }
         } else {

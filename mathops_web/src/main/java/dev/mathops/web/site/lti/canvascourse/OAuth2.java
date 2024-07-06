@@ -73,10 +73,10 @@ enum OAuth2 {
 
                     final List<String> version = params.get("oauth_version");
                     if (version == null || version.size() != 1 //
-                            || !"1.0".equals(version.get(0))) {
+                            || !"1.0".equals(version.getFirst())) {
                         result = EOAuthRequestVerifyResult.BAD_OAUTH_VERSION;
                     } else {
-                        result = verifyResult(req, host, path, sigMethod.get(0), signature.get(0),
+                        result = verifyResult(req, host, path, sigMethod.getFirst(), signature.getFirst(),
                                 params);
                     }
                 }

@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
@@ -422,7 +421,7 @@ public final class CourseSiteLogicCourse {
             }
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Load the OT credit courses that occurred this term
         final List<RawStcourse> otCredit = this.data.studentData.getStudentOTCredit();

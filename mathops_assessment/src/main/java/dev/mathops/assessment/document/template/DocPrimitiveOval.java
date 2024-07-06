@@ -27,6 +27,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.io.Serial;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -279,57 +280,66 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "oval primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "oval primitive");
-                ok = this.yCoord != null;
-            } else if ("width".equals(name)) {
-                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "oval primitive");
-                ok = this.width != null;
-            } else if ("height".equals(name)) {
-                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "oval primitive");
-                ok = this.height != null;
-            } else if ("filled".equals(name)) {
-                try {
-                    this.filled = VariableFactory.parseBooleanValue(theValue);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'filled' value (" + theValue + ") on oval primitive");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "oval primitive");
+                    ok = this.xCoord != null;
                 }
-            } else if ("color".equals(name)) {
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.color = ColorNames.getColor(theValue);
-                    this.colorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'color' value (" + theValue + ") on oval primitive");
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "oval primitive");
+                    ok = this.yCoord != null;
                 }
-            } else if ("stroke-width".equals(name)) {
-                this.strokeWidth = parseDouble(theValue, elem, name, "oval primitive");
-                ok = this.strokeWidth != null;
-            } else if ("dash".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int len = split.length;
-                this.dash = new float[len];
-
-                for (int i = 0; i < len; ++i) {
+                case "width" -> {
+                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "oval primitive");
+                    ok = this.width != null;
+                }
+                case "height" -> {
+                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "oval primitive");
+                    ok = this.height != null;
+                }
+                case "filled" -> {
                     try {
-                        this.dash[i] = (float) Double.parseDouble(split[i]);
+                        this.filled = VariableFactory.parseBooleanValue(theValue);
                         ok = true;
-                    } catch (final NumberFormatException e) {
-                        // No action
+                    } catch (final IllegalArgumentException e) {
+                        elem.logError("Invalid 'filled' value (" + theValue + ") on oval primitive");
                     }
                 }
-                if (!ok) {
-                    elem.logError("Invalid 'dash' value (" + theValue + ") on oval primitive");
+                case "color" -> {
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.color = ColorNames.getColor(theValue);
+                        this.colorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'color' value (" + theValue + ") on oval primitive");
+                    }
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "oval primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on oval primitive");
+                case "stroke-width" -> {
+                    this.strokeWidth = parseDouble(theValue, elem, name, "oval primitive");
+                    ok = this.strokeWidth != null;
+                }
+                case "dash" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int len = split.length;
+                    this.dash = new float[len];
+
+                    for (int i = 0; i < len; ++i) {
+                        try {
+                            this.dash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException e) {
+                            // No action
+                        }
+                    }
+                    if (!ok) {
+                        elem.logError("Invalid 'dash' value (" + theValue + ") on oval primitive");
+                    }
+                }
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "oval primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on oval primitive");
             }
         }
 
@@ -670,7 +680,7 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
                     && Objects.equals(this.color, oval.color)
                     && Objects.equals(this.alpha, oval.alpha)
                     && Objects.equals(this.strokeWidth, oval.strokeWidth)
-                    && Objects.equals(this.dash, oval.dash);
+                    && Arrays.equals(this.dash, oval.dash);
         } else {
             equal = false;
         }

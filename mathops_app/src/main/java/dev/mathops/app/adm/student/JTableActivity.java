@@ -116,20 +116,18 @@ final class JTableActivity extends AbstractAdminTable<ActivityRow> {
             row[0] = record.week < 1 ? "Before" : Integer.toString(record.week);
             row[1] = valueToString(record.course);
             row[2] = valueToString(record.unit);
-            if ("LE".equals(record.activity)) {
-                row[3] = "User's Exam";
-            } else if ("R".equals(record.activity)) {
-                if (Integer.valueOf(0).equals(record.unit)) {
-                    row[3] = "Skills Rev.";
-                } else {
-                    row[3] = "Unit Rev.";
+            switch (record.activity) {
+                case "LE" -> row[3] = "User's Exam";
+                case "R" -> {
+                    if (Integer.valueOf(0).equals(record.unit)) {
+                        row[3] = "Skills Rev.";
+                    } else {
+                        row[3] = "Unit Rev.";
+                    }
                 }
-            } else if (RawStexam.UNIT_EXAM.equals(record.activity)) {
-                row[3] = "Unit Exam";
-            } else if (RawStexam.FINAL_EXAM.equals(record.activity)) {
-                row[3] = "Final Exam";
-            } else {
-                row[3] = valueToString(record.activity);
+                case RawStexam.UNIT_EXAM -> row[3] = "Unit Exam";
+                case RawStexam.FINAL_EXAM -> row[3] = "Final Exam";
+                case null, default -> row[3] = valueToString(record.activity);
             }
             row[4] = valueToString(record.id);
             row[5] = record.date == null ? CoreConstants.EMPTY

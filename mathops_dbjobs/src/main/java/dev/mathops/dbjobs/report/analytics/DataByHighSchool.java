@@ -399,11 +399,9 @@ final class DataByHighSchool {
      *
      * @param allStudents     the list of all students
      * @param highSchoolCodes the list of high school codes
-     * @throws SQLException if there is an error accessing the database
      */
     private static Map<String, List<StudentPerformanceData>> categorizeStudents(
-            final Iterable<StudentPerformanceData> allStudents, final Collection<String> highSchoolCodes)
-            throws SQLException {
+            final Iterable<StudentPerformanceData> allStudents, final Collection<String> highSchoolCodes) {
 
         final int numHs = highSchoolCodes.size();
         final Map<String, List<StudentPerformanceData>> result = new HashMap<>(numHs);
@@ -436,11 +434,10 @@ final class DataByHighSchool {
      * @param students  the list of students who attended the high school
      * @param reportLog a {@code HtmlBuilder} to which to write messages to the report log
      * @return the average performance over the high school
-     * @throws SQLException if there is an error accessing the database
      */
     private static AveragePerformance processHighSchool(final String hsCode,
                                                         final Collection<StudentPerformanceData> students,
-                                                        final HtmlBuilder reportLog) throws SQLException {
+                                                        final HtmlBuilder reportLog) {
 
         log(reportLog, "Computing average placement performance for high school ", hsCode);
 
@@ -531,8 +528,6 @@ final class DataByHighSchool {
      */
     record AveragePerformance(int n, float stsA, float sts117, float sts118, float sts124, float sts125, float sts126) {
     }
-
-    ;
 
     /**
      * Main method to execute the batch job.

@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -67,7 +66,7 @@ final class PreFinalGradingSanityCheck {
                 final Cache cache = new Cache(this.dbProfile, conn);
 
                 try {
-                    final TermRec active = TermLogic.get(cache).queryActive(cache);
+                    final TermRec active = cache.getSystemData().getActiveTerm();
 
                     final List<RawStcourse> allRegs = RawStcourseLogic.queryActiveForActiveTerm(cache);
 

@@ -15,5 +15,5 @@ public enum EEntryJustification {
     DECIMAL,
 
     /** Center. */
-    CENTER;
+    CENTER
 }

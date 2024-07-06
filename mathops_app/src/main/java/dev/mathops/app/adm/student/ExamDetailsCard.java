@@ -24,7 +24,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
@@ -356,20 +355,18 @@ import java.util.Locale;
 
         // NOTE: The "stexam" table uses "Q" for user's exams
         final String type;
-        if (RawStexam.QUALIFYING_EXAM.equals(stexam.examType)) {
-            type = "User's Exam";
-        } else if (RawStexam.REVIEW_EXAM.equals(stexam.examType)) {
-            if (Integer.valueOf(0).equals(record.examRecord.unit)) {
-                type = "Skills Rev.";
-            } else {
-                type = "Unit Rev.";
+        switch (stexam.examType) {
+            case RawStexam.QUALIFYING_EXAM -> type = "User's Exam";
+            case RawStexam.REVIEW_EXAM -> {
+                if (Integer.valueOf(0).equals(record.examRecord.unit)) {
+                    type = "Skills Rev.";
+                } else {
+                    type = "Unit Rev.";
+                }
             }
-        } else if (RawStexam.UNIT_EXAM.equals(stexam.examType)) {
-            type = "Unit Exam";
-        } else if (RawStexam.FINAL_EXAM.equals(stexam.examType)) {
-            type = "Final Exam";
-        } else {
-            type = valueToString(stexam.examType);
+            case RawStexam.UNIT_EXAM -> type = "Unit Exam";
+            case RawStexam.FINAL_EXAM -> type = "Final Exam";
+            case null, default -> type = valueToString(stexam.examType);
         }
 
         this.examType.setText(type);
@@ -491,7 +488,7 @@ import java.util.Locale;
                 }
 
                 RawStcourse reg = null;
-                final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+                final TermRec active = this.cache.getSystemData().getActiveTerm();
                 if (active != null) {
                     final List<RawStcourse> regs =
                             RawStcourseLogic.getActiveForStudent(this.cache, stuId, active.term);
@@ -587,7 +584,7 @@ import java.util.Locale;
 
         // Identify the course section whose mastery scores to use
         try {
-            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec active = this.cache.getSystemData().getActiveTerm();
             final List<RawCsection> sections =
                     RawCsectionLogic.queryByTerm(this.cache, active.term);
 
@@ -596,7 +593,7 @@ import java.util.Locale;
             RawCsection matchedSect = null;
             final int numSectRemain = sections.size();
             if (numSectRemain == 1 || reg == null) {
-                matchedSect = sections.get(0);
+                matchedSect = sections.getFirst();
             } else {
                 for (final RawCsection test : sections) {
                     if (test.sect.equals(reg.sect)) {
@@ -605,7 +602,7 @@ import java.util.Locale;
                     }
                 }
                 if (matchedSect == null && numSectRemain > 0) {
-                    matchedSect = sections.get(0);
+                    matchedSect = sections.getFirst();
                 }
             }
 
@@ -652,20 +649,14 @@ import java.util.Locale;
         final int unit = exam.unit.intValue();
 
         // Guess
-        if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
-                || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
-                || RawRecordConstants.M126.equals(course)) {
-            mastery = unit < 5 ? 8 : 16;
-        } else if (RawRecordConstants.M1170.equals(course)
-                || RawRecordConstants.M1180.equals(course) || RawRecordConstants.M1240.equals(course)
-                || RawRecordConstants.M1250.equals(course) || RawRecordConstants.M1260.equals(course)
-                || RawRecordConstants.M100T.equals(course)) {
-            mastery = unit == 1 ? 7 : unit == 2 ? 11 : 14;
-        } else if (RawRecordConstants.M100U.equals(course)) {
-            mastery = 16;
-        } else {
-            mastery = 0;
-        }
+        mastery = switch (course) {
+            case RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124, RawRecordConstants.M125,
+                 RawRecordConstants.M126 -> unit < 5 ? 8 : 16;
+            case RawRecordConstants.M1170, RawRecordConstants.M1180, RawRecordConstants.M1240, RawRecordConstants.M1250,
+                 RawRecordConstants.M1260, RawRecordConstants.M100T -> unit == 1 ? 7 : unit == 2 ? 11 : 14;
+            case RawRecordConstants.M100U -> 16;
+            case null, default -> 0;
+        };
 
         return mastery;
     }

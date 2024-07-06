@@ -92,7 +92,7 @@ class AssessCard extends AdminPanelBase implements ActionListener {
     /**
      * Sets focus.
      */
-    /* default */ void focus() {
+    void focus() {
 
         // No action
     }
@@ -100,7 +100,7 @@ class AssessCard extends AdminPanelBase implements ActionListener {
     /**
      * Resets the card to accept data for a new loan.
      */
-    /* default */ void reset() {
+    void reset() {
 
         // TODO:
     }

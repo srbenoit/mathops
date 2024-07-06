@@ -165,49 +165,37 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
             final String trimmed = item.trim().replace(".", "").toLowerCase(Locale.ROOT);
 
             if (trimmed.startsWith("fall")) {
-                if ("fall".equals(trimmed)) {
-                    set.add(EOfferingTermName.EVERY_FALL);
-                } else if ("fall (even years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.FALL_EVEN_YEARS);
-                } else if ("fall (odd years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.FALL_ODD_YEARS);
-                } else if ("fall (every third year)".equals(trimmed)) {
-                    set.add(EOfferingTermName.FALL_THIRD_YEARS);
-                } else if ("fall (as needed)".equals(trimmed) || "fall offered as needed".equals(trimmed)) {
-                    set.add(EOfferingTermName.FALL_AS_NEEDED);
-                } else if ("fall spring".equals(trimmed)) {
-                    set.add(EOfferingTermName.EVERY_FALL);
-                    set.add(EOfferingTermName.EVERY_SPRING);
-                } else {
-                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                switch (trimmed) {
+                    case "fall" -> set.add(EOfferingTermName.EVERY_FALL);
+                    case "fall (even years)" -> set.add(EOfferingTermName.FALL_EVEN_YEARS);
+                    case "fall (odd years)" -> set.add(EOfferingTermName.FALL_ODD_YEARS);
+                    case "fall (every third year)" -> set.add(EOfferingTermName.FALL_THIRD_YEARS);
+                    case "fall (as needed)", "fall offered as needed" -> set.add(EOfferingTermName.FALL_AS_NEEDED);
+                    case "fall spring" -> {
+                        set.add(EOfferingTermName.EVERY_FALL);
+                        set.add(EOfferingTermName.EVERY_SPRING);
+                    }
+                    default -> throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
                 }
             } else if (trimmed.startsWith("spring")) {
-                if (trimmed.equals("spring")) {
-                    set.add(EOfferingTermName.EVERY_SPRING);
-                } else if ("spring (even years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SPRING_EVEN_YEARS);
-                } else if ("spring (odd years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SPRING_ODD_YEARS);
-                } else if ("spring (every third year)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SPRING_THIRD_YEARS);
-                } else if ("spring (as needed)".equals(trimmed) || "spring offered as needed".equals(trimmed)) {
-                    set.add(EOfferingTermName.SPRING_AS_NEEDED);
-                } else {
-                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                switch (trimmed) {
+                    case "spring" -> set.add(EOfferingTermName.EVERY_SPRING);
+                    case "spring (even years)" -> set.add(EOfferingTermName.SPRING_EVEN_YEARS);
+                    case "spring (odd years)" -> set.add(EOfferingTermName.SPRING_ODD_YEARS);
+                    case "spring (every third year)" -> set.add(EOfferingTermName.SPRING_THIRD_YEARS);
+                    case "spring (as needed)", "spring offered as needed" ->
+                            set.add(EOfferingTermName.SPRING_AS_NEEDED);
+                    default -> throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
                 }
             } else if (trimmed.startsWith("summer")) {
-                if (trimmed.equals("summer")) {
-                    set.add(EOfferingTermName.EVERY_SUMMER);
-                } else if ("summer (even years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SUMMER_EVEN_YEARS);
-                } else if ("summer (odd years)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SUMMER_ODD_YEARS);
-                } else if ("summer (every third year)".equals(trimmed)) {
-                    set.add(EOfferingTermName.SUMMER_THIRD_YEARS);
-                } else if ("summer (as needed)".equals(trimmed) || "summer offered as needed".equals(trimmed)) {
-                    set.add(EOfferingTermName.SUMMER_AS_NEEDED);
-                } else {
-                    throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
+                switch (trimmed) {
+                    case "summer" -> set.add(EOfferingTermName.EVERY_SUMMER);
+                    case "summer (even years)" -> set.add(EOfferingTermName.SUMMER_EVEN_YEARS);
+                    case "summer (odd years)" -> set.add(EOfferingTermName.SUMMER_ODD_YEARS);
+                    case "summer (every third year)" -> set.add(EOfferingTermName.SUMMER_THIRD_YEARS);
+                    case "summer (as needed)", "summer offered as needed" ->
+                            set.add(EOfferingTermName.SUMMER_AS_NEEDED);
+                    default -> throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");
                 }
             } else {
                 throw new IllegalArgumentException("Invalid term name in list: '" + trimmed + "'");

@@ -11,7 +11,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import org.junit.jupiter.api.AfterAll;
@@ -96,7 +95,7 @@ final class TestRawSurveyqaLogic {
                 final TermRec rawTerm = new TermRec(termKey, LocalDate.of(2022, 1, 1), LocalDate.of(2022, 5, 6), "2122",
                         Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
 
-                assertTrue(TermLogic.get(cache).insert(cache, rawTerm), "Failed to insert active term");
+                assertTrue(cache.getSystemData().insertTerm(rawTerm), "Failed to insert active term");
 
                 final RawSurveyqa raw1 = new RawSurveyqa(termKey, "POOOO", Integer.valueOf(1), "Time spent preparing",
                         null, "1", "None at all", null, null, null);

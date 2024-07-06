@@ -11,7 +11,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ public enum MilestoneSanityCheck {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(profile, conn);
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             try {
                 final Collection<String> report = new ArrayList<>(100);

@@ -10,7 +10,6 @@ import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawUsers;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -106,7 +105,7 @@ enum PageUsersExam {
                 htm.sDiv("indent");
                 htm.sP().add("You have not yet passed the User's Exam.").eP();
 
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
                 final RawCusection cusection = RawCusectionLogic.query(cache, //
                         RawRecordConstants.M100U, "1", Integer.valueOf(1), active.term);
                 final boolean avail;

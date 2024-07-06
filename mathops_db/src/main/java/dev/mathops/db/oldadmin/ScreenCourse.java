@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.RecBase;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -175,7 +174,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, true);
 
             // Sort full list by term (descending) then by course
@@ -219,13 +218,9 @@ final class ScreenCourse extends AbstractStudentScreen {
                 }
 
                 builder.append(stc.course);
-                for (int i = stc.course.length(); i < 10; ++i) {
-                    builder.append(' ');
-                }
+                builder.append(" ".repeat(Math.max(0, 10 - stc.course.length())));
                 builder.append(stc.sect);
-                for (int i = stc.sect.length(); i < 10; ++i) {
-                    builder.append(' ');
-                }
+                builder.append(" ".repeat(Math.max(0, 10 - stc.sect.length())));
                 builder.append(dispTerm.name.termName);
                 builder.append("  ");
                 builder.append(dispTerm.year);
@@ -244,9 +239,7 @@ final class ScreenCourse extends AbstractStudentScreen {
                 } else {
                     builder.append("  ");
                     builder.append(stc.courseGrade);
-                    for (int i = stc.courseGrade.length(); i < 7; ++i) {
-                        builder.append(' ');
-                    }
+                    builder.append(" ".repeat(Math.max(0, 7 - stc.courseGrade.length())));
                 }
                 builder.append(pacingName);
 
@@ -279,7 +272,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, active.term, true,
                     false);
 
@@ -325,13 +318,9 @@ final class ScreenCourse extends AbstractStudentScreen {
                 }
 
                 builder.append(stc.course);
-                for (int i = stc.course.length(); i < 10; ++i) {
-                    builder.append(' ');
-                }
+                builder.append(" ".repeat(Math.max(0, 10 - stc.course.length())));
                 builder.append(stc.sect);
-                for (int i = stc.sect.length(); i < 9; ++i) {
-                    builder.append(' ');
-                }
+                builder.append(" ".repeat(Math.max(0, 9 - stc.sect.length())));
                 builder.append(pacingName);
 
                 if (stc.openStatus == null) {
@@ -544,7 +533,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             final List<RawSthomework> sthwFull = RawSthomeworkLogic.queryByStudent(cache, stu.stuId, true);
 
             // Sort full list chronologically
@@ -636,7 +625,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             if (this.history.isEmpty()) {
                 final int intYear = active.term.year.intValue();
@@ -709,7 +698,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             if (this.current.isEmpty()) {
                 drawBox(6, 6, 57, 6);
@@ -980,7 +969,7 @@ final class ScreenCourse extends AbstractStudentScreen {
         this.display = ScreenCourseDisplay.NONE;
         setSelection(0);
         clearErrors();
-        ;
+
         getConsole().setCursor(-1, -1);
     }
 

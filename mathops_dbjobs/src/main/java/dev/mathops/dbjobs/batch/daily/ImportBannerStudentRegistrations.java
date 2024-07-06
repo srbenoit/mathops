@@ -34,7 +34,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.dbjobs.report.SpecialOpenReport;
 
@@ -108,7 +107,7 @@ public final class ImportBannerStudentRegistrations {
             final Cache cache = new Cache(this.dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final Collection<String> report = new ArrayList<>(10);
 
@@ -1186,7 +1185,7 @@ public final class ImportBannerStudentRegistrations {
     private static void updateStudentTermRecords(final Cache cache,
                                                  final Collection<? super String> report) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // NOTE: we ignore "OT" and dropped since they can't contribute to pace/track
         final List<RawStcourse> regs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);

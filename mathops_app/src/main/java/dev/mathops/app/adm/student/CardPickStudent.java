@@ -11,7 +11,6 @@ import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
@@ -211,7 +210,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
 
         TermKey key = null;
         try {
-            final TermRec term = TermLogic.get(this.cache).queryActive(theCache);
+            final TermRec term = this.cache.getSystemData().getActiveTerm();
             if (term == null) {
                 Log.warning("No active term found");
             } else {
@@ -386,7 +385,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                         this.error.setText("Student not found");
                     } else {
                         if (found.size() == 1) {
-                            final RawStudent stuRec = found.get(0);
+                            final RawStudent stuRec = found.getFirst();
                             addToHistory(stuRec);
                             this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
                             this.stuIdField.setText(CoreConstants.EMPTY);
@@ -438,7 +437,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                     this.error.setText("Student not found");
                 } else {
                     if (found.size() == 1) {
-                        final RawStudent stuRec = found.get(0);
+                        final RawStudent stuRec = found.getFirst();
                         addToHistory(stuRec);
                         this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
                         this.stuIdField.setText(CoreConstants.EMPTY);
@@ -542,7 +541,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
                 --count;
             }
             this.historyModel.add(0, stuRec.getScreenName() + " (" + stuRec.stuId + ")");
-            this.historyRecords.add(0, stuRec);
+            this.historyRecords.addFirst(stuRec);
         }
     }
 

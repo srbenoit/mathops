@@ -3,8 +3,8 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -141,6 +141,25 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
      *
      * @param cache      the data cache
+     * @param termKey the term key
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawSurveyqa> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM surveyqa",
+                " WHERE term=", sqlStringValue(termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+
+        return executeQuery(cache, sql);
+    }
+
+    /**
+     * Gets the questions for a profile. WARNING: This method will return one row for every possible answer to a
+     * question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
+     *
+     * @param cache      the data cache
      * @param theVersion the profile ID whose questions to retrieve
      * @return the list of models that matched the criteria, a zero-length array if none matched
      * @throws SQLException if there is an error accessing the database
@@ -148,7 +167,7 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
     public static List<RawSurveyqa> queryByVersion(final Cache cache, final String theVersion)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM surveyqa",
@@ -194,7 +213,7 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
     public static List<RawSurveyqa> queryByVersionAndQuestion(final Cache cache, final String theVersion,
                                                               final Integer theSurveyNbr) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM surveyqa",

@@ -20,10 +20,8 @@ public enum Results {
      * hold. The response list is guaranteed to contain at least 4 strings.
      *
      * @param status the placement status reply from the server
-     * @return one of the return codes defined in the {@code Wizard} class: FINISH_RETURN_CODE if the survey was
-     *         completed; CANCEL_RETURN_CODE if the survey was canceled; ERROR_RETURN_CODE if an error occurred
      */
-    public static int doResults(final PlacementStatusReply status) {
+    public static void doResults(final PlacementStatusReply status) {
 
         final SortedSet<String> credit = new TreeSet<>();
         final SortedSet<String> placed = new TreeSet<>();
@@ -57,7 +55,7 @@ public enum Results {
         wizard.setCurrentPanel(ResultsPanel1Descriptor.IDENTIFIER);
 
         // Present the wizard (modal).
-        return wizard.showModalDialog();
+        wizard.showModalDialog();
     }
 
     /**
@@ -195,31 +193,16 @@ public enum Results {
      */
     static String courseNameLookup(final String course) {
 
-        final String result;
-
-        if ("M 105".equals(course)) {
-            result = "  MATH 105: Patterns of Phenomena I";
-        } else if ("M 101".equals(course)) {
-            result = "  MATH 101: Math in the Social Sciences";
-        } else if (RawRecordConstants.M126.equals(course)
-                || RawRecordConstants.MATH126.equals(course)) {
-            result = "  MATH 126: Analytic Trigonometry";
-        } else if (RawRecordConstants.M125.equals(course)
-                || RawRecordConstants.MATH125.equals(course)) {
-            result = "  MATH 125: Numerical Trigonometry";
-        } else if (RawRecordConstants.M124.equals(course)
-                || RawRecordConstants.MATH124.equals(course)) {
-            result = "  MATH 124: Logarithmic & Exponential Functions";
-        } else if (RawRecordConstants.M118.equals(course)
-                || RawRecordConstants.MATH118.equals(course)) {
-            result = "  MATH 118: College Algebra in Context II";
-        } else if (RawRecordConstants.M117.equals(course)
-                || RawRecordConstants.MATH117.equals(course)) {
-            result = "  MATH 117: College Algebra in Context I";
-        } else {
-            result = course;
-        }
-
-        return result;
+        return switch (course) {
+            case "M 105" -> "  MATH 105: Patterns of Phenomena I";
+            case "M 101" -> "  MATH 101: Math in the Social Sciences";
+            case RawRecordConstants.M126, RawRecordConstants.MATH126 -> "  MATH 126: Analytic Trigonometry";
+            case RawRecordConstants.M125, RawRecordConstants.MATH125 -> "  MATH 125: Numerical Trigonometry";
+            case RawRecordConstants.M124, RawRecordConstants.MATH124 ->
+                    "  MATH 124: Logarithmic & Exponential Functions";
+            case RawRecordConstants.M118, RawRecordConstants.MATH118 -> "  MATH 118: College Algebra in Context II";
+            case RawRecordConstants.M117, RawRecordConstants.MATH117 -> "  MATH 117: College Algebra in Context I";
+            case null, default -> course;
+        };
     }
 }

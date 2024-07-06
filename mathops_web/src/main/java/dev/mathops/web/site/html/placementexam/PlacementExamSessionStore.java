@@ -15,7 +15,6 @@ import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.Attribute;
 import dev.mathops.commons.parser.xml.CData;
 import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.NonemptyElement;
 import dev.mathops.commons.parser.xml.XmlContent;
@@ -98,10 +97,8 @@ public final class PlacementExamSessionStore {
      * Sets the active placement exam session for an exam ID.
      *
      * @param theSession the session
-     * @return {@code true} if the session was installed; {@code false} if installing the session would mean there were
-     *         two active sessions for the same student (or the session being installed has timed out and was ignored)
      */
-    public boolean setPlacementExamSession(final PlacementExamSession theSession) {
+    public void setPlacementExamSession(final PlacementExamSession theSession) {
 
         boolean result = false;
 
@@ -113,7 +110,6 @@ public final class PlacementExamSessionStore {
             }
         }
 
-        return result;
     }
 
     /**
@@ -263,16 +259,16 @@ public final class PlacementExamSessionStore {
         String purge = null;
         ExamObj exam = null;
 
-        if ("placement-exam-session".equals(elem.getTagName())) {
+        final String tagName = elem.getTagName();
+
+        if ("placement-exam-session".equals(tagName)) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof EmptyElement) {
-                    final IElement child = (IElement) node;
+                if (node instanceof final EmptyElement child) {
                     final String tag = child.getTagName();
                     if ("started".equals(tag)) {
                         started = true;
                     }
-                } else if (node instanceof NonemptyElement) {
-                    final NonemptyElement child = (NonemptyElement) node;
+                } else if (node instanceof final NonemptyElement child) {
                     final String tag = child.getTagName();
 
                     if (child.getNumChildren() == 1 && child.getChild(0) instanceof CData) {
@@ -354,7 +350,7 @@ public final class PlacementExamSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes in loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;
@@ -380,7 +376,7 @@ public final class PlacementExamSessionStore {
             }
         } else {
             throw new IllegalArgumentException("Expected 'placement-exam-session', found '"
-                    + elem.getTagName() + "'");
+                    + tagName + "'");
         }
 
         if (host == null) {

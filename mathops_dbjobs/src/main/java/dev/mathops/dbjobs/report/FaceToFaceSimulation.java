@@ -355,7 +355,7 @@ public final class FaceToFaceSimulation {
                 if (numCourses == 1) {
                     // Assume 45% will choose block 1, 30% block 2, and 25% block 3
                     final int block = random < 0.45 ? 1 : random < 0.75 ? 2 : 3;
-                    stu.registrations.add(new Registration(stu, block, courseIds.get(0)));
+                    stu.registrations.add(new Registration(stu, block, courseIds.getFirst()));
                 } else if (numCourses == 2) {
                     // Assume 40% will choose block 1-2, 10% block 1-3, 30% block 2-3,
                     // 10% doubling up in block 1, 5% each doubling up in blocks 2 and 3
@@ -710,7 +710,7 @@ public final class FaceToFaceSimulation {
                     selected = blockTime;
                 } else if (free.size() == 1) {
                     // There is a single block that is free - use that one
-                    selected = free.get(0);
+                    selected = free.getFirst();
                 } else {
                     // Multiple blocks are free - choose one at random
                     selected = free.get(this.rnd.nextInt(free.size()));
@@ -903,7 +903,7 @@ public final class FaceToFaceSimulation {
                                final BlockMeetingTime blockTime) {
 
         if (!blockCourseRegs.isEmpty()) {
-            final String course = blockCourseRegs.get(0).course;
+            final String course = blockCourseRegs.getFirst().course;
 
             int count = blockCourseRegs.size();
 
@@ -921,7 +921,7 @@ public final class FaceToFaceSimulation {
                 final Section sect = new Section(course, sectNum, blockTime, ROOM_CAP, enrollment);
 
                 for (int j = 0; j < enrollment; ++j) {
-                    final Registration reg = blockCourseRegs.remove(0);
+                    final Registration reg = blockCourseRegs.removeFirst();
                     reg.section = sect;
                 }
 

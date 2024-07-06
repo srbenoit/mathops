@@ -5,6 +5,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
@@ -16,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
@@ -121,12 +121,13 @@ enum PageLesson {
                                               final int objective, final String mode, final String skillsReviewCourse,
                                               final HtmlBuilder htm) throws SQLException {
 
-        final CourseLesson less = new CourseLesson(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final CourseLesson less = new CourseLesson(dbProfile);
         final String studentId = session.getEffectiveUserId();
 
         // find the rule set under which the student is working
 
-        final TermKey activeKey = TermLogic.get(cache).queryActive(cache).term;
+        final TermKey activeKey = cache.getSystemData().getActiveTerm().term;
 
         final RawStcourse reg = RawStcourseLogic.getRegistration(cache, studentId, courseId);
         final String ruleSet = reg == null ? null : RawCsectionLogic.getRuleSetId(cache, courseId, reg.sect, activeKey);
@@ -134,7 +135,7 @@ enum PageLesson {
 
         if (less.gatherData(cache, courseId, Integer.valueOf(unit), Integer.valueOf(objective))) {
 
-            final StudentCourseStatus status = new StudentCourseStatus(site.getDbProfile());
+            final StudentCourseStatus status = new StudentCourseStatus(dbProfile);
             if (status.gatherData(cache, session, studentId, courseId, false, !"course".equals(mode))) {
 
                 final int count = less.getNumComponents();
@@ -160,7 +161,7 @@ enum PageLesson {
                         htm.add("Return to the Course Outline");
                         htm.addln("</em></a>");
                     } else {
-                        final StudentCourseStatus reviewStatus = new StudentCourseStatus(site.getDbProfile());
+                        final StudentCourseStatus reviewStatus = new StudentCourseStatus(dbProfile);
                         reviewStatus.gatherData(cache, session, skillsReviewCourse, studentId, true,
                                 !"course".equals(mode));
 

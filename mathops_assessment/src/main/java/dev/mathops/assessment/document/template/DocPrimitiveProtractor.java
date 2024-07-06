@@ -751,7 +751,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
             if ((step % 8) == 0) {
                 final int twelfths = step / 8;
 
-                String num = CoreConstants.EMPTY;
+                final String num;
                 String den = CoreConstants.EMPTY;
 
                 double rad = anchorRad;

@@ -41,23 +41,6 @@ public final class TxnSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being initialized
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // final InstructionalCache cache = InstructionalCache.getInstance();
-
-        // synchronized (cache) {
-        // if (!cache.isAlive()) {
-        // cache.start();
-        // }
-        // }
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip

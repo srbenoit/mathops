@@ -6,7 +6,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.SchemaConfig;
 
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -89,9 +88,8 @@ public final class DbContext {
      * Checks out a database connection, creating a new one if there are none available.
      *
      * @return the connection
-     * @throws SQLException if the connection cannot be created
      */
-    public DbConnection checkOutConnection() throws SQLException {
+    public DbConnection checkOutConnection() {
 
         final DbConnection conn;
         final boolean empty;

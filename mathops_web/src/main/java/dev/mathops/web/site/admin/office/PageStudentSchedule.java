@@ -25,7 +25,6 @@ import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -250,7 +249,7 @@ enum PageStudentSchedule {
     private static void emitStudentScheduleOld(final Cache cache, final SiteData data, final String studentId,
                                                final int max, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final String key = active.term.shortString;
 
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
@@ -522,7 +521,7 @@ enum PageStudentSchedule {
     private static void emitStudentScheduleNew(final Cache cache, final SiteData data, final String studentId,
                                                final int max, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final String key = active.term.shortString;
 
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
@@ -551,7 +550,7 @@ enum PageStudentSchedule {
                     .sTh().add("Status").eTh()
                     .sTh().add("Actions").eTh().eTr();
 
-            StudentStandardMilestoneRec override = null;
+            StudentStandardMilestoneRec override;
             for (final StandardMilestoneRec ms : milestones) {
 
                 final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";
@@ -810,23 +809,15 @@ enum PageStudentSchedule {
                                        final String milestone, final String type, final String origDate,
                                        final HtmlBuilder htm) {
 
-        final String descriptor;
-
-        if (RawMilestone.FINAL_LAST_TRY.equals(type)) {
-            descriptor = "Final Exam Last Try";
-        } else if (RawMilestone.FINAL_EXAM.equals(type)) {
-            descriptor = "Final Exam";
-        } else if (RawMilestone.UNIT_REVIEW_EXAM.equals(type)) {
-            descriptor = "Unit " + milestone.charAt(1) + " Review Exam";
-        } else if (RawMilestone.STANDARD_MASTERY.equals(type)) {
-            descriptor = "Unit " + milestone.charAt(1) + " Standard Mastery";
-        } else if (RawMilestone.EXPLORATION.equals(type)) {
-            descriptor = "Unit " + milestone.charAt(1) + " Exploration";
-        } else if (RawMilestone.EXPLORATION_1_DAY_LATE.equals(type)) {
-            descriptor = "Unit " + milestone.charAt(1) + " Exploration (1 day late)";
-        } else {
-            descriptor = type;
-        }
+        final String descriptor = switch (type) {
+            case RawMilestone.FINAL_LAST_TRY -> "Final Exam Last Try";
+            case RawMilestone.FINAL_EXAM -> "Final Exam";
+            case RawMilestone.UNIT_REVIEW_EXAM -> "Unit " + milestone.charAt(1) + " Review Exam";
+            case RawMilestone.STANDARD_MASTERY -> "Unit " + milestone.charAt(1) + " Standard Mastery";
+            case RawMilestone.EXPLORATION -> "Unit " + milestone.charAt(1) + " Exploration";
+            case RawMilestone.EXPLORATION_1_DAY_LATE -> "Unit " + milestone.charAt(1) + " Exploration (1 day late)";
+            case null, default -> type;
+        };
 
         htm.sH(3).add("Deadline appeal for ", course.replace("M ", "MATH "),
                 " (course ", order, " of ", pace, "), ", descriptor).eH(3);
@@ -910,7 +901,7 @@ enum PageStudentSchedule {
                 || type == null) {
             doGet(cache, site, req, resp, session);
         } else {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             try {
                 final Integer intPace = Integer.valueOf(pace);

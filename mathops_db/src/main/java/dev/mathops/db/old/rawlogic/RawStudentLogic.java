@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.rec.LiveStudent;
 import dev.mathops.db.old.rec.LiveTransferCredit;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.ResultSet;
@@ -351,10 +350,9 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      *
      * @param cache   the data cache
      * @param liveReg a model of type {@code CLiveReg}
-     * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean insertFromLive(final Cache cache, final LiveReg liveReg) throws SQLException {
+    public void insertFromLive(final Cache cache, final LiveReg liveReg) throws SQLException {
 
         final Integer sat = liveReg.satrScore == null ? liveReg.satScore : liveReg.satrScore;
 
@@ -368,7 +366,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 liveReg.campus, liveReg.email, liveReg.adviserEmail, null, liveReg.admitType, "N", null, now, null,
                 null);
 
-        return insert(cache, record);
+        insert(cache, record);
     }
 
     /**
@@ -496,7 +494,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
 
         final List<RawStudent> list = executeListQuery(cache, sql);
 
-        return list.size() == 1 ? list.get(0) : null;
+        return list.size() == 1 ? list.getFirst() : null;
     }
 
     /**
@@ -1286,16 +1284,15 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     }
 
     /**
-     * Updates a student's cavas ID.
+     * Updates a student's canvas ID.
      *
      * @param cache       the data cache
      * @param studentId   the ID of the student whose Canvas ID to update
      * @param newCanvasId the new Canvas ID
-     * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateCanvasId(final Cache cache, final String studentId,
-                                         final String newCanvasId) throws SQLException {
+    public static void updateCanvasId(final Cache cache, final String studentId,
+                                      final String newCanvasId) throws SQLException {
 
         final boolean result;
 
@@ -1317,7 +1314,6 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             }
         }
 
-        return result;
     }
 
     /**
@@ -1453,7 +1449,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         if (list1.isEmpty()) {
             Log.warning("No live student record for ", studentId);
         } else {
-            final LiveStudent liveStudent = list1.get(0);
+            final LiveStudent liveStudent = list1.getFirst();
 
             final List<LiveTransferCredit> liveTransfer = impl2.query(bannerConn, studentId);
             // Count transfer credits
@@ -1563,7 +1559,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 if (liveList.isEmpty()) {
                     Log.warning("No live student record for ", stuId);
                 } else {
-                    final LiveStudent liveStudent = liveList.get(0);
+                    final LiveStudent liveStudent = liveList.getFirst();
 
                     if (liveStudent.admitTerm != null && isDifferent(existing.aplnTerm, liveStudent.admitTerm)) {
                         updateApplicationTerm(cache, stuId, liveStudent.admitTerm);
@@ -1663,11 +1659,10 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param cache   the data cache
      * @param record  the model to be updated
      * @param liveReg a model of type {@code CLiveReg}
-     * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateFromLive(final Cache cache, final RawStudent record,
-                                         final LiveReg liveReg) throws SQLException {
+    public static void updateFromLive(final Cache cache, final RawStudent record,
+                                      final LiveReg liveReg) throws SQLException {
 
         boolean result = true;
 
@@ -1738,7 +1733,6 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = result && updateAdmission(cache, record.stuId, liveReg.admitType, Boolean.FALSE);
         }
 
-        return result;
     }
 
     /**
@@ -1764,7 +1758,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     private static RawStudent getTestStudent(final Cache cache, final String studentId)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         RawStudent result = null;
 
@@ -2006,7 +2000,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
 
         RawStudent result = null;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         TermKey upcomingFall = null;
         TermKey upcomingSpring = null;
 

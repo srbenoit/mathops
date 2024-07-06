@@ -895,7 +895,7 @@ public final class CourseSequence {
                             if (crs != null) {
                                 final CourseInfo info = new CourseInfo(crs, true);
                                 info.requiredGrade = prereq.prereqGrades.isEmpty() ? null
-                                        : prereq.prereqGrades.get(0);
+                                        : prereq.prereqGrades.getFirst();
                                 info.status = isAlreadySatisfied(info, data);
 
                                 if (Boolean.TRUE.equals(prereq.mayBeConcurrent)) {
@@ -1038,13 +1038,13 @@ public final class CourseSequence {
                             for (final RequiredPrereq prereq : prereqList) {
                                 if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, true)) {
                                     // Add the prerequisite course and check its prerequisites
-                                    final String courseToAdd = prereq.prereqCourses.get(0);
+                                    final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
 
                                     if (crs != null) {
                                         final CourseInfo info = new CourseInfo(crs, true);
                                         info.requiredGrade = prereq.prereqGrades.isEmpty() ? null
-                                                : prereq.prereqGrades.get(0);
+                                                : prereq.prereqGrades.getFirst();
                                         info.status = isAlreadySatisfied(info, data);
 
                                         this.additionalCourses.put(courseToAdd, info);

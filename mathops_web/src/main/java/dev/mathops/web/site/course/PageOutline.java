@@ -35,7 +35,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -161,7 +160,7 @@ enum PageOutline {
 
         boolean result;
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
         final RawCourse course = RawCourseLogic.query(cache, courseId);
 
         String defaultSect;
@@ -326,7 +325,7 @@ enum PageOutline {
             htm.addln("  You must pass the User's Exam before you may access course");
             htm.addln("  materials.").br().br();
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             final RawCusection cusection = RawCusectionLogic.query(cache, //
                     RawRecordConstants.M100U, "1", Integer.valueOf(1), active.term);
@@ -536,9 +535,8 @@ enum PageOutline {
             final SiteDataMilestone msData = logic.data.milestoneData;
 
             // Print all pace deadlines, including student override dates
-            final TermRec term = TermLogic.get(cache).queryActive(cache);
-            final TermKey termKey =
-                    reg.iTermKey == null ? (term == null ? null : term.term) : reg.iTermKey;
+            final TermRec term = cache.getSystemData().getActiveTerm();
+            final TermKey termKey = reg.iTermKey == null ? (term == null ? null : term.term) : reg.iTermKey;
 
             // Log.info("Querying milestones for ", termKey);
 
@@ -1251,7 +1249,7 @@ enum PageOutline {
 
         final String studentId = logic.data.studentData.getStudent().stuId;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId,
                 gwSecUnit.unit, false, RawStexamLogic.ALL_EXAM_TYPES);
@@ -1450,7 +1448,7 @@ enum PageOutline {
 
         final String studentId = logic.data.studentData.getStudent().stuId;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit,
                 false, RawStexamLogic.ALL_EXAM_TYPES);
@@ -1558,7 +1556,7 @@ enum PageOutline {
 
                 final String studentId = logic.data.studentData.getStudent().stuId;
 
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
                         RawStexamLogic.ALL_EXAM_TYPES);
@@ -1635,7 +1633,7 @@ enum PageOutline {
 
                 final String studentId = logic.data.studentData.getStudent().stuId;
 
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
                         RawStexamLogic.ALL_EXAM_TYPES);

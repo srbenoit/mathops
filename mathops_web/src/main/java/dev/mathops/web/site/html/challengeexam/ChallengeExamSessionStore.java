@@ -262,14 +262,12 @@ public final class ChallengeExamSessionStore {
 
         if ("challenge-exam-session".equals(elem.getTagName())) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof EmptyElement) {
-                    final IElement child = (IElement) node;
+                if (node instanceof final EmptyElement child) {
                     final String tag = child.getTagName();
                     if ("started".equals(tag)) {
                         started = true;
                     }
-                } else if (node instanceof NonemptyElement) {
-                    final NonemptyElement child = (NonemptyElement) node;
+                } else if (node instanceof final NonemptyElement child) {
                     final String tag = child.getTagName();
 
                     if (child.getNumChildren() == 1 && child.getChild(0) instanceof CData) {
@@ -347,7 +345,7 @@ public final class ChallengeExamSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) {
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;

@@ -20,7 +20,6 @@ import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
@@ -276,7 +275,7 @@ public final class SiteDataRegistration {
      */
     boolean loadData(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
-        this.active = TermLogic.get(cache).queryActive(cache);
+        this.active = cache.getSystemData().getActiveTerm();
 
         final String studentId = this.owner.studentData.getStudent().stuId;
 
@@ -394,7 +393,7 @@ public final class SiteDataRegistration {
                 this.registrationTerms.add(this.active);
             } else {
                 // Load the term in which the incomplete was earned
-                final TermRec incTerm = TermLogic.get(cache).query(cache, cur.iTermKey);
+                final TermRec incTerm = cache.getSystemData().getTerm(cur.iTermKey);
 
                 if (incTerm == null) {
                     Log.warning("Unable to query I term - using current");
@@ -763,12 +762,12 @@ public final class SiteDataRegistration {
 
         if (ruleSets.size() == 1) {
             final List<RawPacingStructure> set = new ArrayList<>(ruleSets.values());
-            this.owner.studentData.setStudentPacingStructure(set.get(0));
+            this.owner.studentData.setStudentPacingStructure(set.getFirst());
 
             final RawStudent student = this.owner.studentData.getStudent();
             if (student.pacingStructure == null) {
                 // Update the rule set ID in the database
-                RawStudentLogic.updatePacingStructure(cache, student.stuId, set.get(0).pacingStructure);
+                RawStudentLogic.updatePacingStructure(cache, student.stuId, set.getFirst().pacingStructure);
             }
         }
 

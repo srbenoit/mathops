@@ -455,7 +455,7 @@ final class TestRawStetextLogic {
 
                 final LocalDateTime now = LocalDateTime.now();
 
-                assertTrue(RawStetextLogic.deactivate(cache, now, all.get(0), "Reason"),
+                assertTrue(RawStetextLogic.deactivate(cache, now, all.getFirst(), "Reason"),
                         "Incorrect record count from delete");
 
                 final List<RawStetext> after = RawStetextLogic.queryByStudent(cache, "222222222");

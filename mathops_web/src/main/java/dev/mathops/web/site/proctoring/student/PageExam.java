@@ -95,41 +95,37 @@ enum PageExam {
 
             final String examId = ps.examId;
 
-            if ("MT4UE".equals(examId)) {
-                emitELMExam(cache, ps, site, session, htm);
-            } else if ("7T4UE".equals(examId)) {
-                emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1170, examId);
-            } else if ("8T4UE".equals(examId)) {
-                emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1180, examId);
-            } else if ("4T4UE".equals(examId)) {
-                emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1240, examId);
-            } else if ("5T4UE".equals(examId)) {
-                emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1250, examId);
-            } else if ("6T4UE".equals(examId)) {
-                emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1260, examId);
-            } else {
-                final String courseNumDigits = examId.substring(0, 2);
-                final boolean isCourse = "17".equals(courseNumDigits) || "18".equals(courseNumDigits)
-                        || "24".equals(courseNumDigits) || "25".equals(courseNumDigits)
-                        || "26".equals(courseNumDigits);
+            switch (examId) {
+                case "MT4UE" -> emitELMExam(cache, ps, site, session, htm);
+                case "7T4UE" -> emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1170, examId);
+                case "8T4UE" -> emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1180, examId);
+                case "4T4UE" -> emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1240, examId);
+                case "5T4UE" -> emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1250, examId);
+                case "6T4UE" -> emitUnitExam(cache, ps, site, session, htm, RawRecordConstants.M1260, examId);
+                case null, default -> {
+                    final String courseNumDigits = examId.substring(0, 2);
+                    final boolean isCourse = "17".equals(courseNumDigits) || "18".equals(courseNumDigits)
+                            || "24".equals(courseNumDigits) || "25".equals(courseNumDigits)
+                            || "26".equals(courseNumDigits);
 
-                if (examId.endsWith("FIN")) {
-                    if (isCourse) {
-                        emitFinalExam(cache, ps, site, session, htm, "M 1" + courseNumDigits, examId);
-                    } else {
-                        htm.sP().addln("Unrecognized final exam ID").eP();
-                    }
-                } else if (examId.endsWith("UE")) {
-                    final String unit = examId.substring(2, 3);
+                    if (examId.endsWith("FIN")) {
+                        if (isCourse) {
+                            emitFinalExam(cache, ps, site, session, htm, "M 1" + courseNumDigits, examId);
+                        } else {
+                            htm.sP().addln("Unrecognized final exam ID").eP();
+                        }
+                    } else if (examId.endsWith("UE")) {
+                        final String unit = examId.substring(2, 3);
 
-                    if (isCourse) {
-                        if ("1".equals(unit) || "2".equals(unit) || "3".equals(unit) || "4".equals(unit)) {
-                            emitUnitExam(cache, ps, site, session, htm, "M 1" + courseNumDigits, examId);
+                        if (isCourse) {
+                            if ("1".equals(unit) || "2".equals(unit) || "3".equals(unit) || "4".equals(unit)) {
+                                emitUnitExam(cache, ps, site, session, htm, "M 1" + courseNumDigits, examId);
+                            } else {
+                                htm.sP().addln("Unrecognized unit exam ID").eP();
+                            }
                         } else {
                             htm.sP().addln("Unrecognized unit exam ID").eP();
                         }
-                    } else {
-                        htm.sP().addln("Unrecognized unit exam ID").eP();
                     }
                 }
             }

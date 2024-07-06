@@ -269,8 +269,7 @@ public final class LtaSessionStore {
         final String tagName = elem.getTagName();
         if ("lta-session".equals(tagName)) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof EmptyElement) {
-                    final IElement child = (IElement) node;
+                if (node instanceof final EmptyElement child) {
                     final String tag = child.getTagName();
                     if ("started".equals(tag)) {
                         started = true;
@@ -351,7 +350,7 @@ public final class LtaSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes in loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;
@@ -401,7 +400,7 @@ public final class LtaSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes within loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;

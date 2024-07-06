@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -149,7 +148,7 @@ enum PageStudentCalendar {
     private static void emitStudentActivity(final Cache cache, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec term = cache.getSystemData().getActiveTerm();
 
         if (term == null) {
             htm.add("(Unable to query the active term)");
@@ -253,14 +252,14 @@ enum PageStudentCalendar {
 
         // Find range of dates that represents all complete months that the term overlaps
 
-        LocalDate start = weeks.get(0).startDt;
+        LocalDate start = weeks.getFirst().startDt;
         final Month startMonth = start.getMonth();
         while (start.getMonth() == startMonth) {
             start = start.minusDays(1L);
         }
         start = start.plusDays(1L);
 
-        LocalDate end = weeks.get(weeks.size() - 1).endDt;
+        LocalDate end = weeks.getLast().endDt;
         final Month endMonth = end.getMonth();
         while (end.getMonth() == endMonth) {
             end = end.plusDays(1L);

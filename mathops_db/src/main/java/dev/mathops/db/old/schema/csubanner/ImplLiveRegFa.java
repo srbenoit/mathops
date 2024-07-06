@@ -13,7 +13,7 @@ import java.util.List;
 public final class ImplLiveRegFa extends AbstractImplLiveReg implements ILiveRegFa {
 
     /** A single instance. */
-    public static ImplLiveRegFa INSTANCE = new ImplLiveRegFa();
+    public static final ImplLiveRegFa INSTANCE = new ImplLiveRegFa();
 
     /** The name of the primary table. */
     private static final String TABLE_NAME = "CSUS_MATH_REGISTRATION_FAL";

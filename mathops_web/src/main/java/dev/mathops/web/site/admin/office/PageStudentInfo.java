@@ -28,7 +28,6 @@ import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -166,7 +165,7 @@ enum PageStudentInfo {
                                         final ImmutableSessionInfo session, final HtmlBuilder htm,
                                         final RawStudent student) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (active == null) {
             htm.addln("ERROR: unable to query active term");
@@ -760,7 +759,7 @@ enum PageStudentInfo {
     private static void emitNewCourseDeadlines(final Cache cache, final HtmlBuilder htm,
                                                final RawStcourse reg) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
 
         if (stterm == null) {
@@ -785,7 +784,7 @@ enum PageStudentInfo {
             final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
             final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
 
-            StudentStandardMilestoneRec override = null;
+            StudentStandardMilestoneRec override;
             for (final StandardMilestoneRec ms : milestones) {
 
                 final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";

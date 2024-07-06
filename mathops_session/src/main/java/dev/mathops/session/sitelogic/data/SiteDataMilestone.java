@@ -9,7 +9,6 @@ import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -190,7 +189,7 @@ public final class SiteDataMilestone {
      */
     private boolean loadActiveTermMilestones(final Cache cache, final String studentId) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final String key = active.term.shortString;
 
         boolean success = loadStudentTerm(cache, studentId, active);
@@ -226,7 +225,7 @@ public final class SiteDataMilestone {
             final RawStcourse reg = regs.get(i);
             if ("Y".equals(reg.iInProgress) && "N".equals(reg.iCounted) && reg.iTermKey != null) {
 
-                final TermRec incTerm = TermLogic.get(cache).query(cache, reg.iTermKey);
+                final TermRec incTerm = cache.getSystemData().getTerm(reg.iTermKey);
 
                 if (loadStudentTerm(cache, studentId, incTerm)) {
                     final String key = incTerm.term.shortString;

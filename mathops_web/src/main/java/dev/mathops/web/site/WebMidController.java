@@ -171,13 +171,6 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
         }
 
-        // Initialize the sites
-        for (final SortedMap<String, AbstractSite> siteSortedMap : this.sites.values()) {
-            for (final AbstractSite abstractSite : siteSortedMap.values()) {
-                abstractSite.init(config);
-            }
-        }
-
         // Load any sessions persisted from a prior shutdown
         final File sess = new File(baseDir, "sessions");
         this.sessions.load(sess);
@@ -348,7 +341,7 @@ public final class WebMidController implements IMidController {
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (final IOException | ServletException | RuntimeException ex) {
+            } catch (final IOException | RuntimeException ex) {
                 Log.warning(ex);
                 throw ex;
             }
@@ -431,7 +424,7 @@ public final class WebMidController implements IMidController {
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (final IOException | ServletException | RuntimeException ex) {
+            } catch (final IOException | RuntimeException ex) {
                 Log.warning(ex);
                 throw ex;
             }

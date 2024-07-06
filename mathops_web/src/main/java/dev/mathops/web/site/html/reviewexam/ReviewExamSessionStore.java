@@ -259,18 +259,18 @@ public final class ReviewExamSessionStore {
         String timeout = null;
         ExamObj exam = null;
 
-        if ("review-exam-session".equals(elem.getTagName())) {
+        final String tagName = elem.getTagName();
+
+        if ("review-exam-session".equals(tagName)) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof EmptyElement) {
-                    final IElement child = (IElement) node;
+                if (node instanceof final EmptyElement child) {
                     final String tag = child.getTagName();
                     if ("practice".equals(tag)) {
                         practice = true;
                     } else if ("started".equals(tag)) {
                         started = true;
                     }
-                } else if (node instanceof NonemptyElement) {
-                    final NonemptyElement child = (NonemptyElement) node;
+                } else if (node instanceof final NonemptyElement child) {
                     final String tag = child.getTagName();
 
                     if (child.getNumChildren() == 1 && child.getChild(0) instanceof CData) {
@@ -349,7 +349,7 @@ public final class ReviewExamSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes within loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;
@@ -374,7 +374,7 @@ public final class ReviewExamSessionStore {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Expected 'review-exam-session', found '" + elem.getTagName() + "'");
+            throw new IllegalArgumentException("Expected 'review-exam-session', found '" + tagName + "'");
         }
 
         if (host == null) {

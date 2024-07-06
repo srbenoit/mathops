@@ -5,7 +5,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
@@ -454,7 +453,7 @@ enum PageToolLoginTestUser {
         htm.sP().addln("<label for='apln_term_select'>",
                 "Select test student's application term: &nbsp; ", //
                 "</label> <select id='apln_term_select' onchange='rebuildId(\"\")'>");
-        TermKey term = TermLogic.get(cache).queryActive(cache).term;
+        TermKey term = cache.getSystemData().getActiveTerm().term;
         for (int i = 0; i < 6; ++i) {
             htm.addln(" <option value='", term.shortString, "'>", term.longString, "</option>");
             term = term.add(1);

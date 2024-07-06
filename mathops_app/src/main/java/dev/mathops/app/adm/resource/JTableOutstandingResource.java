@@ -87,34 +87,19 @@ final class JTableOutstandingResource extends AbstractAdminTable<OutstandingReso
      */
     private static String typeToString(final String type) {
 
-        final String result;
-
-        if (RawResource.TYPE_INHOUSE_CALC.equals(type)) {
-            result = "TI-84 calculator";
-        } else if (RawResource.TYPE_OFFICE_CALC.equals(type)) {
-            result = "Office TI-84 calculator";
-        } else if (RawResource.TYPE_RENTAL_CALC.equals(type)) {
-            result = "Rental TI-84 calculator";
-        } else if (RawResource.TYPE_RENTAL_MANUAL.equals(type)) {
-            result = "TI-84 calculator manual";
-        } else if (RawResource.TYPE_INHOUSE_IPAD.equals(type)) {
-            result = "iPad tablet";
-        } else if (RawResource.TYPE_INHOUSE_NOTEBOOK.equals(type)) {
-            result = "Windows notebook";
-        } else if (RawResource.TYPE_INHOUSE_TEXT.equals(type)) {
-            result = "Textbook";
-        } else if (RawResource.TYPE_OVERNIGHT_TEXT.equals(type)) {
-            result = "Overnight textbook";
-        } else if (RawResource.TYPE_INHOUSE_HEADSET.equals(type)) {
-            result = "Headphones";
-        } else if (RawResource.TYPE_INHOUSE_LOCK.equals(type)) {
-            result = "Padlock";
-        } else if (RawResource.TYPE_TUTOR_TABLET.equals(type)) {
-            result = "Tutor Tablet";
-        } else {
-            result = "*** Unknown resource type";
-        }
-
-        return result;
+        return switch (type) {
+            case RawResource.TYPE_INHOUSE_CALC -> "TI-84 calculator";
+            case RawResource.TYPE_OFFICE_CALC -> "Office TI-84 calculator";
+            case RawResource.TYPE_RENTAL_CALC -> "Rental TI-84 calculator";
+            case RawResource.TYPE_RENTAL_MANUAL -> "TI-84 calculator manual";
+            case RawResource.TYPE_INHOUSE_IPAD -> "iPad tablet";
+            case RawResource.TYPE_INHOUSE_NOTEBOOK -> "Windows notebook";
+            case RawResource.TYPE_INHOUSE_TEXT -> "Textbook";
+            case RawResource.TYPE_OVERNIGHT_TEXT -> "Overnight textbook";
+            case RawResource.TYPE_INHOUSE_HEADSET -> "Headphones";
+            case RawResource.TYPE_INHOUSE_LOCK -> "Padlock";
+            case RawResource.TYPE_TUTOR_TABLET -> "Tutor Tablet";
+            case null, default -> "*** Unknown resource type";
+        };
     }
 }

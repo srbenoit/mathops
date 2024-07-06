@@ -52,7 +52,7 @@ public enum PageCourseConfig {
             for (final Map.Entry<String, List<String>> e1 : params.entrySet()) {
                 if (e1.getValue().size() == 1) {
                     final String name = e1.getKey();
-                    final String value = e1.getValue().get(0);
+                    final String value = e1.getValue().getFirst();
 
                     if ("lis_person_name_full".equals(name)) {
                         username = value;

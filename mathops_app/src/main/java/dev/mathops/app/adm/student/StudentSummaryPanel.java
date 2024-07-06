@@ -755,18 +755,13 @@ final class StudentSummaryPanel extends AdminPanelBase {
         row.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(0, 4, 2, 4)));
 
-        if (RawRecordConstants.M117.equals(reg.course) || RawRecordConstants.MATH117.equals(reg.course)) {
-            row.setBackground(Skin.OFF_WHITE_GREEN);
-        } else if (RawRecordConstants.M118.equals(reg.course) || RawRecordConstants.MATH118.equals(reg.course)) {
-            row.setBackground(Skin.OFF_WHITE_CYAN);
-        } else if (RawRecordConstants.M124.equals(reg.course) || RawRecordConstants.MATH124.equals(reg.course)) {
-            row.setBackground(Skin.OFF_WHITE_MAGENTA);
-        } else if (RawRecordConstants.M125.equals(reg.course) || RawRecordConstants.MATH125.equals(reg.course)) {
-            row.setBackground(Skin.OFF_WHITE_BLUE);
-        } else if (RawRecordConstants.M126.equals(reg.course) || RawRecordConstants.MATH126.equals(reg.course)) {
-            row.setBackground(Skin.OFF_WHITE_RED);
-        } else {
-            row.setBackground(Skin.OFF_WHITE_BROWN);
+        switch (reg.course) {
+            case RawRecordConstants.M117, RawRecordConstants.MATH117 -> row.setBackground(Skin.OFF_WHITE_GREEN);
+            case RawRecordConstants.M118, RawRecordConstants.MATH118 -> row.setBackground(Skin.OFF_WHITE_CYAN);
+            case RawRecordConstants.M124, RawRecordConstants.MATH124 -> row.setBackground(Skin.OFF_WHITE_MAGENTA);
+            case RawRecordConstants.M125, RawRecordConstants.MATH125 -> row.setBackground(Skin.OFF_WHITE_BLUE);
+            case RawRecordConstants.M126, RawRecordConstants.MATH126 -> row.setBackground(Skin.OFF_WHITE_RED);
+            case null, default -> row.setBackground(Skin.OFF_WHITE_BROWN);
         }
 
         final StringBuilder label = new StringBuilder(50);

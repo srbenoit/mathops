@@ -296,88 +296,97 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "span primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "span primitive");
-                ok = this.yCoord != null;
-            } else if ("anchor".equals(name)) {
-
-                final ETextAnchor anch = ETextAnchor.valueOf(theValue);
-                if (anch != null) {
-                    this.anchor = anch;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "span primitive");
+                    ok = this.xCoord != null;
                 }
-            } else if ("filled".equals(name)) {
-
-                try {
-                    this.filled = VariableFactory.parseBooleanValue(theValue);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'filled' value (" + theValue + ") on span primitive");
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "span primitive");
+                    ok = this.yCoord != null;
                 }
-            } else if ("color".equals(name)) {
+                case "anchor" -> {
 
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.color = ColorNames.getColor(theValue);
-                    this.colorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'color' value (" + theValue + ") on span primitive");
+                    final ETextAnchor anch = ETextAnchor.valueOf(theValue);
+                    if (anch != null) {
+                        this.anchor = anch;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
+                    }
                 }
-            } else if ("fontname".equals(name)) {
+                case "filled" -> {
 
-                fonts = BundledFontManager.getInstance();
-
-                if (fonts.isFontNameValid(theValue)) {
-                    this.fontName = theValue;
-                    this.font = null;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'fontname' value (" + theValue + ") on span primitive");
+                    try {
+                        this.filled = VariableFactory.parseBooleanValue(theValue);
+                        ok = true;
+                    } catch (final IllegalArgumentException e) {
+                        elem.logError("Invalid 'filled' value (" + theValue + ") on span primitive");
+                    }
                 }
-            } else if ("fontsize".equals(name)) {
+                case "color" -> {
 
-                try {
-                    this.fontSize = Float.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'fontsize' value (" + theValue + ") on span primitive");
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.color = ColorNames.getColor(theValue);
+                        this.colorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'color' value (" + theValue + ") on span primitive");
+                    }
                 }
-            } else if ("fontstyle".equals(name)) {
-                lower = theValue.toLowerCase(Locale.ROOT);
+                case "fontname" -> {
 
-                if ("plain".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.PLAIN);
-                    ok = true;
-                }
+                    fonts = BundledFontManager.getInstance();
 
-                if ("bold".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.BOLD);
-                    ok = true;
+                    if (fonts.isFontNameValid(theValue)) {
+                        this.fontName = theValue;
+                        this.font = null;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'fontname' value (" + theValue + ") on span primitive");
+                    }
                 }
+                case "fontsize" -> {
 
-                if ("italic".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.ITALIC);
-                    ok = true;
+                    try {
+                        this.fontSize = Float.valueOf(theValue);
+                        ok = true;
+                    } catch (final NumberFormatException e) {
+                        elem.logError("Invalid 'fontsize' value (" + theValue + ") on span primitive");
+                    }
                 }
+                case "fontstyle" -> {
+                    lower = theValue.toLowerCase(Locale.ROOT);
 
-                if (("bold,italic".equals(lower)) || ("italic,bold".equals(lower))) {
-                    this.fontStyle = Integer.valueOf(Font.ITALIC | Font.BOLD);
-                    ok = true;
-                }
+                    if ("plain".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.PLAIN);
+                        ok = true;
+                    }
 
-                if (!ok) {
-                    elem.logError("Invalid 'fontstyle' value (" + theValue + ") on span primitive");
+                    if ("bold".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.BOLD);
+                        ok = true;
+                    }
+
+                    if ("italic".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.ITALIC);
+                        ok = true;
+                    }
+
+                    if (("bold,italic".equals(lower)) || ("italic,bold".equals(lower))) {
+                        this.fontStyle = Integer.valueOf(Font.ITALIC | Font.BOLD);
+                        ok = true;
+                    }
+
+                    if (!ok) {
+                        elem.logError("Invalid 'fontstyle' value (" + theValue + ") on span primitive");
+                    }
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "span primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on span primitive");
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "span primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on span primitive");
             }
         }
 

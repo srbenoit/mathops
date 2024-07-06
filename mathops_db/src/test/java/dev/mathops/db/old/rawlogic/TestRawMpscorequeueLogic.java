@@ -244,7 +244,7 @@ final class TestRawMpscorequeueLogic {
 
                 assertEquals(1, all.size(), "query after insertMpscorequeue returned wrong number of rows");
 
-                final RawMpscorequeue rec = all.get(0);
+                final RawMpscorequeue rec = all.getFirst();
 
                 assertEquals(rec.pidm, toInsert.pidm, "Invalid PIDM after query");
                 assertEquals(rec.testCode, toInsert.testCode, "Invalid test code after query");
@@ -313,7 +313,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, all.size(),
                             "query after postChallengeCredit with Banner down returned wrong number of rows");
 
-                    final RawMpscorequeue rec = all.get(0);
+                    final RawMpscorequeue rec = all.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
@@ -379,7 +379,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, sortest.size(),
                             "query SORTEST after postChallengeCredit with Banner up returned wrong number of rows");
 
-                    final RawMpscorequeue rec = sortest.get(0);
+                    final RawMpscorequeue rec = sortest.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
@@ -645,7 +645,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, all.size(), "query after postPrecalcTutorialResult "
                             + "with Banner down returned wrong number of rows");
 
-                    final RawMpscorequeue rec = all.get(0);
+                    final RawMpscorequeue rec = all.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
@@ -708,7 +708,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, sortest.size(), "query SORTEST after postPrecalcTutorialResult with Banner up "
                             + "returned wrong number of rows");
 
-                    final RawMpscorequeue rec = sortest.get(0);
+                    final RawMpscorequeue rec = sortest.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
@@ -755,7 +755,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, all.size(),
                             "query after postELMTutorialResult with Banner down returned wrong number of rows");
 
-                    final RawMpscorequeue rec = all.get(0);
+                    final RawMpscorequeue rec = all.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
@@ -818,7 +818,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, sortest.size(),
                             "query SORTEST after postELMTutorialResult with Banner up returned wrong number of rows");
 
-                    final RawMpscorequeue rec = sortest.get(0);
+                    final RawMpscorequeue rec = sortest.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
@@ -864,7 +864,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, all.size(),
                             "query after postELMUnit3ReviewPassed with Banner down returned wrong number of rows");
 
-                    final RawMpscorequeue rec = all.get(0);
+                    final RawMpscorequeue rec = all.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
@@ -929,7 +929,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(1, sortest.size(), "query SORTEST after postELMTutorialResult with Banner up "
                             + "returned wrong number of rows");
 
-                    final RawMpscorequeue rec = sortest.get(0);
+                    final RawMpscorequeue rec = sortest.getFirst();
 
                     assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
                     assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");

@@ -170,28 +170,30 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         boolean ok = false;
 
-        if ("MT1RE".equals(version)) {
-            ok = true;
-        } else if ("MT2RE".equals(version)) {
-            if (hasPassedReview(passedReviews, 1)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 1 Review Exam not yet passed.");
+        switch (version) {
+            case "MT1RE" -> ok = true;
+            case "MT2RE" -> {
+                if (hasPassedReview(passedReviews, 1)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 1 Review Exam not yet passed.");
+                }
             }
-        } else if ("MT3RE".equals(version)) {
-            if (hasPassedReview(passedReviews, 2)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 2 Review Exam not yet passed.");
+            case "MT3RE" -> {
+                if (hasPassedReview(passedReviews, 2)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 2 Review Exam not yet passed.");
+                }
             }
-        } else if ("MT4RE".equals(version)) {
-            if (hasPassedReview(passedReviews, 3)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 3 Review Exam not yet passed.");
+            case "MT4RE" -> {
+                if (hasPassedReview(passedReviews, 3)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 3 Review Exam not yet passed.");
+                }
             }
-        } else {
-            reasons.add("You are not eligible for this Tutorial.");
+            case null, default -> reasons.add("You are not eligible for this Tutorial.");
         }
 
         return ok;
@@ -218,44 +220,41 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         boolean ok = false;
 
-        if ("7TGAT".equals(version) || "7TELM".equals(version) || "8TGAT".equals(version) ||
-                "4TGAT".equals(version) || "5TGAT".equals(version) || "6TGAT".equals(version)) {
-            ok = true;
-        } else if ("7T1RE".equals(version) || "8T1RE".equals(version) || "4T1RE".equals(version)
-                || "5T1RE".equals(version) || "6T1RE".equals(version)) {
+        switch (version) {
+            case "7TGAT", "7TELM", "8TGAT", "4TGAT", "5TGAT", "6TGAT" -> ok = true;
+            case "7T1RE", "8T1RE", "4T1RE", "5T1RE", "6T1RE" -> {
 
-            if (hasPassedReview(passedReviews, 0)) {
-                ok = true;
-            } else {
-                reasons.add("Skills Review Exam not yet passed.");
+                if (hasPassedReview(passedReviews, 0)) {
+                    ok = true;
+                } else {
+                    reasons.add("Skills Review Exam not yet passed.");
+                }
             }
-        } else if ("7T2RE".equals(version) || "8T2RE".equals(version) || "4T2RE".equals(version)
-                || "5T2RE".equals(version) || "6T2RE".equals(version)) {
+            case "7T2RE", "8T2RE", "4T2RE", "5T2RE", "6T2RE" -> {
 
-            if (hasPassedReview(passedReviews, 1)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 1 Review Exam not yet passed.");
+                if (hasPassedReview(passedReviews, 1)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 1 Review Exam not yet passed.");
+                }
             }
-        } else if ("7T3RE".equals(version) || "8T3RE".equals(version)
-                || "4T3RE".equals(version) || "5T3RE".equals(version)
-                || "6T3RE".equals(version)) {
+            case "7T3RE", "8T3RE", "4T3RE", "5T3RE", "6T3RE" -> {
 
-            if (hasPassedReview(passedReviews, 2)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 2 Review Exam not yet passed.");
+                if (hasPassedReview(passedReviews, 2)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 2 Review Exam not yet passed.");
+                }
             }
-        } else if ("7T4RE".equals(version) || "8T4RE".equals(version) || "4T4RE".equals(version)
-                || "5T4RE".equals(version) || "6T4RE".equals(version)) {
+            case "7T4RE", "8T4RE", "4T4RE", "5T4RE", "6T4RE" -> {
 
-            if (hasPassedReview(passedReviews, 3)) {
-                ok = true;
-            } else {
-                reasons.add("Unit 3 Review Exam not yet passed.");
+                if (hasPassedReview(passedReviews, 3)) {
+                    ok = true;
+                } else {
+                    reasons.add("Unit 3 Review Exam not yet passed.");
+                }
             }
-        } else {
-            reasons.add("You are not eligible for this Tutorial.");
+            case null, default -> reasons.add("You are not eligible for this Tutorial.");
         }
 
         return ok;
@@ -489,7 +488,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
                 reasons.add("Unable to query homeworks for this unit.");
                 ok = false;
             } else if (!hws.isEmpty()) {
-                final AssignmentRec hw = hws.get(hws.size() - 1);
+                final AssignmentRec hw = hws.getLast();
 
                 // See if there is a record of a passed homework submission
                 sthw = RawSthomeworkLogic.getHomeworks(cache, this.studentId, course, unit, true, "HW");

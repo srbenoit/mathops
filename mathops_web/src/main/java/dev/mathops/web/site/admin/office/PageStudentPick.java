@@ -8,7 +8,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -118,7 +117,7 @@ enum PageStudentPick {
                         PageHome.doGet(cache, site, req, resp, session, "No matching students found.");
                     } else if (students.size() == 1) {
                         // Show the page for the selected student
-                        PageStudentInfo.doStudentInfoPage(cache, site, req, resp, session, students.get(0));
+                        PageStudentInfo.doStudentInfoPage(cache, site, req, resp, session, students.getFirst());
                     } else {
                         // Present a list of the matching students, allow user to choose
                         showListOfStudents(cache, site, req, resp, session, students);
@@ -171,7 +170,7 @@ enum PageStudentPick {
         htm.sTh().eTh();
         htm.eTr();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         for (final RawStudent student : students) {
             final List<RawStcourse> regs = active == null ? new ArrayList<>(0)

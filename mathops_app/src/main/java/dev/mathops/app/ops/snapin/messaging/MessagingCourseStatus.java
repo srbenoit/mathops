@@ -554,8 +554,8 @@ public final class MessagingCourseStatus {
             final int unit = h.unit.intValue();
 
             if (unit == 1) {
-                final Integer count = this.triesOnUnit1HW.get(h.objective);
-                this.triesOnUnit1HW.put(h.objective, Integer.valueOf(count.intValue() + 1));
+                this.triesOnUnit1HW.compute(h.objective, (k, count) -> Integer.valueOf(count.intValue() + 1));
+
                 if ("Y".equals(h.passed)) {
                     this.passedUnit1HW.put(h.objective, Boolean.TRUE);
                 }
@@ -583,8 +583,8 @@ public final class MessagingCourseStatus {
                     }
                 }
             } else if (unit == 2) {
-                final Integer count = this.triesOnUnit2HW.get(h.objective);
-                this.triesOnUnit2HW.put(h.objective, Integer.valueOf(count.intValue() + 1));
+                this.triesOnUnit2HW.compute(h.objective, (k, count) -> Integer.valueOf(count.intValue() + 1));
+
                 if ("Y".equals(h.passed)) {
                     this.passedUnit2HW.put(h.objective, Boolean.TRUE);
                 }
@@ -612,8 +612,8 @@ public final class MessagingCourseStatus {
                     }
                 }
             } else if (unit == 3) {
-                final Integer count = this.triesOnUnit3HW.get(h.objective);
-                this.triesOnUnit3HW.put(h.objective, Integer.valueOf(count.intValue() + 1));
+                this.triesOnUnit3HW.compute(h.objective, (k, count) -> Integer.valueOf(count.intValue() + 1));
+
                 if ("Y".equals(h.passed)) {
                     this.passedUnit3HW.put(h.objective, Boolean.TRUE);
                 }
@@ -641,8 +641,8 @@ public final class MessagingCourseStatus {
                     }
                 }
             } else if (unit == 4) {
-                final Integer count = this.triesOnUnit4HW.get(h.objective);
-                this.triesOnUnit4HW.put(h.objective, Integer.valueOf(count.intValue() + 1));
+                this.triesOnUnit4HW.compute(h.objective, (k, count) -> Integer.valueOf(count.intValue() + 1));
+
                 if ("Y".equals(h.passed)) {
                     this.passedUnit4HW.put(h.objective, Boolean.TRUE);
                 }

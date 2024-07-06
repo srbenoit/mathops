@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawCohort;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -50,7 +49,7 @@ final class InitialCohortAssignment {
      */
     private InitialCohortAssignment(final Cache cache) throws SQLException {
 
-        this.active = TermLogic.get(cache).queryActive(cache);
+        this.active = cache.getSystemData().getActiveTerm();
     }
 
     /**
@@ -124,10 +123,11 @@ final class InitialCohortAssignment {
             final int studentsPerCohort = (students.size() + numCohorts - 1) / numCohorts;
 
             final List<String> studentIds = new ArrayList<>(students.keySet());
-            final List<RawStcourse> typical = students.get(studentIds.get(0));
+            final String key = studentIds.getFirst();
+            final List<RawStcourse> typical = students.get(key);
 
             assignToCohorts(cache, studentIds, studentsPerCohort, prefix, typical.size(), tracks,
-                    typical.get(0).course);
+                    typical.getFirst().course);
         }
     }
 

@@ -46,17 +46,6 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -216,26 +205,23 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
 
                     final PrecalcTutorialSiteLogic logic = new PrecalcTutorialSiteLogic(session, cache);
 
-                    if ("rolecontrol.html".equals(subpath)) {
-                        processRoleControls(cache, req, resp, session);
-                    } else if ("home.html".equals(subpath)) {
-                        PageHome.doGet(cache, this, req, resp, session, logic);
-                    } else if ("media_feedback.html".equals(subpath)) {
-                        doMediaFeedback(cache, req, resp, session, logic);
-                    } else if ("update_homework.html".equals(subpath)) {
-                        PageHtmlHomework.updateHomework(cache, this, req, resp, session);
-                    } else if ("update_review_exam.html".equals(subpath)) {
-                        PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session);
-                    } else if ("update_past_exam.html".equals(subpath)) {
-                        PageHtmlPastExam.updatePastExam(cache, this, req, resp, session);
-                    } else if ("update_unit_exam.html".equals(subpath)) {
-                        PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session);
-                    } else if ("process_proctor_login.html".equals(subpath)) {
-                        doProcessProctorLogin(req, resp);
-                    } else {
-                        Log.warning("Unrecognized POST request path: ", subpath);
-                        final String path = this.siteProfile.path;
-                        resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
+                    switch (subpath) {
+                        case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                        case "home.html" -> PageHome.doGet(cache, this, req, resp, session, logic);
+                        case "media_feedback.html" -> doMediaFeedback(cache, req, resp, session, logic);
+                        case "update_homework.html" -> PageHtmlHomework.updateHomework(cache, this, req, resp, session);
+                        case "update_review_exam.html" ->
+                                PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session);
+                        case "update_past_exam.html" ->
+                                PageHtmlPastExam.updatePastExam(cache, this, req, resp, session);
+                        case "update_unit_exam.html" ->
+                                PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session);
+                        case "process_proctor_login.html" -> doProcessProctorLogin(req, resp);
+                        case null, default -> {
+                            Log.warning("Unrecognized POST request path: ", subpath);
+                            final String path = this.siteProfile.path;
+                            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
+                        }
                     }
 
                     LogBase.setSessionInfo(session.loginSessionId, null);

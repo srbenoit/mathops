@@ -100,7 +100,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -128,7 +128,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -154,7 +154,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -206,7 +206,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -232,7 +232,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -263,7 +263,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus05(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -289,7 +289,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -343,7 +343,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRRus07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -369,7 +369,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRXus00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -404,7 +404,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRXus01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -435,7 +435,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRXus02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -487,7 +487,7 @@ public enum LateMessageUsersExamFactory {
     private static MessageToSend generateUSRXus03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);

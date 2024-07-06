@@ -261,19 +261,17 @@ public final class SubmitHomeworkRequest extends AbstractRequestBase {
                         final int innerLen = this.answers[i].length;
                         for (int j = 0; j < innerLen; ++j) {
 
-                            if (this.answers[i][j] == null) {
-                                continue;
+                            switch (this.answers[i][j]) {
+                                case null -> {
+                                    continue;
+                                }
+                                case final Long l -> builder.addln("<long>", this.answers[i][j], "</long>");
+                                case final Double v -> builder.addln("<double>", this.answers[i][j], "</double>");
+                                case final String s -> builder.addln("<string>", this.answers[i][j], "</string>");
+                                default -> Log.warning(Res.fmt(Res.BAD_ANSWER_OBJ,
+                                        this.answers[i][j].getClass().getName()));
                             }
 
-                            if (this.answers[i][j] instanceof Long) {
-                                builder.addln("<long>", this.answers[i][j], "</long>");
-                            } else if (this.answers[i][j] instanceof Double) {
-                                builder.addln("<double>", this.answers[i][j], "</double>");
-                            } else if (this.answers[i][j] instanceof String) {
-                                builder.addln("<string>", this.answers[i][j], "</string>");
-                            } else {
-                                Log.warning(Res.fmt(Res.BAD_ANSWER_OBJ, this.answers[i][j].getClass().getName()));
-                            }
                         }
                     }
 

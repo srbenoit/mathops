@@ -4196,7 +4196,7 @@ public final class MathPlanLogic {
                 final String status1 = getMathPlanStatus(cache, 11806361);
                 Log.info("Student 833004236  plan status: " + status1);
 
-                final MathPlanPlacementStatus status2 = logic.getMathPlacementStatus(cache, "837045910");
+                final MathPlanPlacementStatus status2 = getMathPlacementStatus(cache, "837045910");
                 Log.info("Student 833004236  placement status: ");
                 Log.info("    Placement needed:   ", status2.isPlacementNeeded);
                 Log.info("    Placement complete: ", status2.isPlacementComplete);

@@ -34,9 +34,6 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
     /** A single instance. */
     public static final RawCourseLogic INSTANCE = new RawCourseLogic();
 
-    /** The base for keys for the results from "query". */
-    private static final String COURSE_QUERY = "course:query:";
-
     /**
      * Private constructor to prevent direct instantiation.
      */
@@ -146,21 +143,15 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
      */
     public static RawCourse query(final Cache cache, final String course) throws SQLException {
 
-        final String key = COURSE_QUERY + course;
+        final String sql = SimpleBuilder.concat("SELECT * FROM course WHERE course='", course, "'");
 
-        RawCourse result = cache.getRecord(key, RawCourse.class);
+        RawCourse result = null;
 
-        if (result == null) {
-            final String sql = SimpleBuilder.concat(
-                    "SELECT * FROM course WHERE course='", course, "'");
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
 
-            try (final Statement stmt = cache.conn.createStatement();
-                 final ResultSet rs = stmt.executeQuery(sql)) {
-
-                if (rs.next()) {
-                    result = RawCourse.fromResultSet(rs);
-                    cache.storeRecord(key, result);
-                }
+            if (rs.next()) {
+                result = RawCourse.fromResultSet(rs);
             }
         }
 

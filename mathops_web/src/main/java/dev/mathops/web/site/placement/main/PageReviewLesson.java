@@ -9,7 +9,7 @@ import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 
@@ -140,8 +140,10 @@ enum PageReviewLesson {
 
         final RawLessonComponent[] result;
 
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+
         final RawCuobjective obj = RawCuobjectiveLogic.query(cache, "M 100R", Integer.valueOf(unit),
-                Integer.valueOf(objective), TermLogic.get(cache).queryActive(cache).term);
+                Integer.valueOf(objective), activeTerm.term);
 
         if (obj == null) {
             result = null;

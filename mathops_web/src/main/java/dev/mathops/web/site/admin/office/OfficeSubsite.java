@@ -45,45 +45,30 @@ public final class OfficeSubsite extends AbstractSubsite {
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
-            if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session, null);
-            } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
-            } else if ("student_schedule.html".equals(subpath)) {
-                PageStudentSchedule.doGet(cache, this.site, req, resp, session);
-            } else if ("student_activity.html".equals(subpath)) {
-                PageStudentActivity.doGet(cache, this.site, req, resp, session);
-            } else if ("student_calendar.html".equals(subpath)) {
-                PageStudentCalendar.doGet(cache, this.site, req, resp, session);
-            } else if ("student_exams.html".equals(subpath)) {
-                PageStudentExams.doGet(cache, this.site, req, resp, session);
-            } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
-            } else if ("resource.html".equals(subpath)) {
-                PageResource.doGet(cache, this.site, req, resp, session);
-            } else if ("resource_loan.html".equals(subpath)) {
-                PageResourceLoan.doGet(cache, this.site, req, resp, session);
-            } else if ("resource_return.html".equals(subpath)) {
-                PageResourceReturn.doGet(cache, this.site, req, resp, session);
-            } else if ("resource_check.html".equals(subpath)) {
-                PageResourceCheck.doGet(cache, this.site, req, resp, session);
-            } else if ("testing.html".equals(subpath)) {
-                PageTesting.doGet(cache, this.site, req, resp, session);
-            } else if ("testing_issue_calc.html".equals(subpath)) {
-                PageTestingIssueCalc.doGet(cache, this.site, req, resp, session);
-            } else if ("testing_collect_calc.html".equals(subpath)) {
-                PageTestingCollectCalc.doGet(cache, this.site, req, resp, session);
-            } else if ("testing_issue_exam.html".equals(subpath)) {
-                PageTestingIssueExam.doGet(cache, this.site, req, resp, session);
-            } else if ("proctoring.html".equals(subpath)) {
-                PageProctoring.doGet(cache, this.site, req, resp, session);
-            } else if ("proctoring_teams.html".equals(subpath)) {
-                PageProctoringTeams.doGet(cache, this.site, req, resp, session);
-            } else if ("proctoring_challenge_teams.html".equals(subpath)) {
-                PageProctoringChallengeTeams.doGet(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("GET: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "home.html" -> PageHome.doGet(cache, this.site, req, resp, session, null);
+                case "student_info.html" -> PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                case "student_schedule.html" -> PageStudentSchedule.doGet(cache, this.site, req, resp, session);
+                case "student_activity.html" -> PageStudentActivity.doGet(cache, this.site, req, resp, session);
+                case "student_calendar.html" -> PageStudentCalendar.doGet(cache, this.site, req, resp, session);
+                case "student_exams.html" -> PageStudentExams.doGet(cache, this.site, req, resp, session);
+                case "student_placement.html" -> PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                case "resource.html" -> PageResource.doGet(cache, this.site, req, resp, session);
+                case "resource_loan.html" -> PageResourceLoan.doGet(cache, this.site, req, resp, session);
+                case "resource_return.html" -> PageResourceReturn.doGet(cache, this.site, req, resp, session);
+                case "resource_check.html" -> PageResourceCheck.doGet(cache, this.site, req, resp, session);
+                case "testing.html" -> PageTesting.doGet(cache, this.site, req, resp, session);
+                case "testing_issue_calc.html" -> PageTestingIssueCalc.doGet(cache, this.site, req, resp, session);
+                case "testing_collect_calc.html" -> PageTestingCollectCalc.doGet(cache, this.site, req, resp, session);
+                case "testing_issue_exam.html" -> PageTestingIssueExam.doGet(cache, this.site, req, resp, session);
+                case "proctoring.html" -> PageProctoring.doGet(cache, this.site, req, resp, session);
+                case "proctoring_teams.html" -> PageProctoringTeams.doGet(cache, this.site, req, resp, session);
+                case "proctoring_challenge_teams.html" ->
+                        PageProctoringChallengeTeams.doGet(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("GET: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("GET: invalid role");
@@ -110,41 +95,29 @@ public final class OfficeSubsite extends AbstractSubsite {
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-            if ("student_pick.html".equals(subpath)) {
-                PageStudentPick.doPost(cache, this.site, req, resp, session);
-            } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
-            } else if ("student_schedule.html".equals(subpath)) {
-                PageStudentSchedule.doPost(cache, this.site, req, resp, session);
-            } else if ("student_activity.html".equals(subpath)) {
-                PageStudentActivity.doGet(cache, this.site, req, resp, session);
-            } else if ("student_exams.html".equals(subpath)) {
-                PageStudentExams.doGet(cache, this.site, req, resp, session);
-            } else if ("student_view_past_exam.html".equals(subpath)) {
-                PageStudentViewPastExam.doPost(cache, this.site, req, resp, session);
-            } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
-            } else if ("resource.html".equals(subpath)) {
-                PageResource.doGet(cache, this.site, req, resp, session);
-            } else if ("resource_loan.html".equals(subpath)) {
-                PageResourceLoan.doPost(cache, this.site, req, resp, session);
-            } else if ("resource_return.html".equals(subpath)) {
-                PageResourceReturn.doPost(cache, this.site, req, resp, session);
-            } else if ("resource_check.html".equals(subpath)) {
-                PageResourceCheck.doPost(cache, this.site, req, resp, session);
-            } else if ("testing_issue_calc.html".equals(subpath)) {
-                PageTestingIssueCalc.doPost(cache, this.site, req, resp, session);
-            } else if ("testing_collect_calc.html".equals(subpath)) {
-                PageTestingCollectCalc.doPost(cache, this.site, req, resp, session);
-            } else if ("testing_issue_exam.html".equals(subpath)) {
-                PageTestingIssueExam.doPost(cache, this.site, req, resp, session);
-            } else if ("proctoring_teams.html".equals(subpath)) {
-                PageProctoringTeams.doPost(cache, this.site, req, resp, session);
-            } else if ("proctoring_challenge_teams.html".equals(subpath)) {
-                PageProctoringChallengeTeams.doPost(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("POST: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "student_pick.html" -> PageStudentPick.doPost(cache, this.site, req, resp, session);
+                case "student_info.html" -> PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                case "student_schedule.html" -> PageStudentSchedule.doPost(cache, this.site, req, resp, session);
+                case "student_activity.html" -> PageStudentActivity.doGet(cache, this.site, req, resp, session);
+                case "student_exams.html" -> PageStudentExams.doGet(cache, this.site, req, resp, session);
+                case "student_view_past_exam.html" ->
+                        PageStudentViewPastExam.doPost(cache, this.site, req, resp, session);
+                case "student_placement.html" -> PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                case "resource.html" -> PageResource.doGet(cache, this.site, req, resp, session);
+                case "resource_loan.html" -> PageResourceLoan.doPost(cache, this.site, req, resp, session);
+                case "resource_return.html" -> PageResourceReturn.doPost(cache, this.site, req, resp, session);
+                case "resource_check.html" -> PageResourceCheck.doPost(cache, this.site, req, resp, session);
+                case "testing_issue_calc.html" -> PageTestingIssueCalc.doPost(cache, this.site, req, resp, session);
+                case "testing_collect_calc.html" -> PageTestingCollectCalc.doPost(cache, this.site, req, resp, session);
+                case "testing_issue_exam.html" -> PageTestingIssueExam.doPost(cache, this.site, req, resp, session);
+                case "proctoring_teams.html" -> PageProctoringTeams.doPost(cache, this.site, req, resp, session);
+                case "proctoring_challenge_teams.html" ->
+                        PageProctoringChallengeTeams.doPost(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("POST: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("POST: invalid role");

@@ -15,7 +15,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawGradeRollLogic;
 import dev.mathops.db.old.rawrecord.RawGradeRoll;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.ResultSet;
@@ -70,14 +69,14 @@ final class ImportFinalGradesFromODS {
         } else if (this.odsCtx == null) {
             report.add("Unable to create ODS database context.");
         } else {
-            TermRec term;
+            TermRec priorTerm;
 
             try {
                 final DbConnection primaryConn = this.primaryCtx.checkOutConnection();
                 final Cache cache = new Cache(this.dbProfile, primaryConn);
 
                 try {
-                    term = TermLogic.get(cache).queryPrior(cache);
+                    priorTerm = cache.getSystemData().getPriorTerm();
                 } finally {
                     this.primaryCtx.checkInConnection(primaryConn);
                 }
@@ -87,14 +86,14 @@ final class ImportFinalGradesFromODS {
                 try {
                     final List<GradeRecord> list;
 
-                    if (term == null) {
+                    if (priorTerm == null) {
                         report.add("Failed to query the prior term.");
                     } else {
-                        report.add("Processing for the " + term.term.longString + " term");
-                        list = queryOds(odsConn, term.term, report);
+                        report.add("Processing for the " + priorTerm.term.longString + " term");
+                        list = queryOds(odsConn, priorTerm.term, report);
 
                         report.add("Found " + list.size() + " rows.");
-                        processList(cache, term.term, list, report);
+                        processList(cache, priorTerm.term, list, report);
                         report.add("Job completed");
                     }
                 } catch (final SQLException ex) {

@@ -116,7 +116,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -149,7 +149,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -205,7 +205,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -242,7 +242,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -304,7 +304,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -345,7 +345,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -423,7 +423,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr09(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -452,7 +452,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr10(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -482,7 +482,7 @@ enum LateMessagePrereqFactory {
     private static MessageToSend generatePREQpr11(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);

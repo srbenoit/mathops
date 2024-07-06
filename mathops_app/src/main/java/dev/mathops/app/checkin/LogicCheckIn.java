@@ -25,7 +25,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.JOptionPane;
@@ -94,7 +93,7 @@ public final class LogicCheckIn {
 
         boolean ok = false;
 
-        this.activeTerm = TermLogic.get(this.cache).queryActive(this.cache);
+        this.activeTerm = this.cache.getSystemData().getActiveTerm();
 
         if (this.activeTerm != null) {
             if (this.activeTerm.startDate == null) {

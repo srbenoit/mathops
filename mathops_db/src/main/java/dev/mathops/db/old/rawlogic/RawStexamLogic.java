@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -754,11 +753,10 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @param cache      the data cache
      * @param rec        the object to update
      * @param newMastery the new mastery score
-     * @return true if successful; false if not
      * @throws SQLException if there is an error updating the record
      */
-    public static boolean updateMasteryScore(final Cache cache, final RawStexam rec,
-                                             final Integer newMastery) throws SQLException {
+    public static void updateMasteryScore(final Cache cache, final RawStexam rec,
+                                          final Integer newMastery) throws SQLException {
 
         final boolean result;
 
@@ -784,7 +782,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             }
         }
 
-        return result;
     }
 
     /**
@@ -837,11 +834,10 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @param cache          the data cache
      * @param rec            the object to update
      * @param newFirstPassed the new "is_first_passed" value
-     * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error updating the record
      */
-    private static boolean updateFirstPassed(final Cache cache, final RawStexam rec,
-                                             final String newFirstPassed) throws SQLException {
+    private static void updateFirstPassed(final Cache cache, final RawStexam rec,
+                                          final String newFirstPassed) throws SQLException {
 
         final boolean result;
 
@@ -867,7 +863,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             }
         }
 
-        return result;
     }
 
     /**

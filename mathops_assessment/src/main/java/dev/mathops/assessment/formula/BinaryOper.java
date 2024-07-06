@@ -808,15 +808,12 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
         if (canEvaluate) {
             final Object value = evaluate(context);
 
-            if (value instanceof final Long longVal) {
-                result = new ConstIntegerValue(longVal.longValue());
-            } else if (value instanceof final Number numVal) {
-                result = new ConstRealValue(numVal);
-            } else if (value instanceof final Boolean booleanVal) {
-                result = new ConstBooleanValue(booleanVal.booleanValue());
-            } else {
-                result = this;
-            }
+            result = switch (value) {
+                case final Long longVal -> new ConstIntegerValue(longVal.longValue());
+                case final Number numVal -> new ConstRealValue(numVal);
+                case final Boolean booleanVal -> new ConstBooleanValue(booleanVal.booleanValue());
+                case null, default -> this;
+            };
         } else {
             result = this;
         }

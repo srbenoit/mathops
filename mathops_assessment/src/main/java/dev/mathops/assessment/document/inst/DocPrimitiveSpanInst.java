@@ -211,13 +211,13 @@ public final class DocPrimitiveSpanInst extends AbstractPrimitiveInst {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocPrimitiveSpanInst span) {
-            equal = this.x == span.x
-                    && this.y == span.y
-                    && Objects.equals(this.anchor, span.anchor)
-                    && Objects.equals(this.bgColorName, span.bgColorName)
-                    && this.span.equals(span.span)
-                    && this.alpha == span.alpha;
+        } else if (obj instanceof final DocPrimitiveSpanInst primitiveSpan) {
+            equal = this.x == primitiveSpan.x
+                    && this.y == primitiveSpan.y
+                    && Objects.equals(this.anchor, primitiveSpan.anchor)
+                    && Objects.equals(this.bgColorName, primitiveSpan.bgColorName)
+                    && this.span.equals(primitiveSpan.span)
+                    && this.alpha == primitiveSpan.alpha;
         } else {
             equal = false;
         }

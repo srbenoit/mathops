@@ -394,7 +394,6 @@ enum PageStdsText {
 
             htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;1:  ").eTh().sTd("status");
             if (srStatus == 2) {
-                if (srStatus == 2) {
                     if (s1Status == 3) {
                         htm.add("Mastered! (after due date, 4 points earned)");
                     } else if (s1Status == 2) {
@@ -408,9 +407,6 @@ enum PageStdsText {
                     } else {
                         htm.add("Available to start");
                     }
-                } else {
-                    htm.add("Will be available after Skills Review completed");
-                }
             } else {
                 htm.add("Opens when Skills Review completed");
             }

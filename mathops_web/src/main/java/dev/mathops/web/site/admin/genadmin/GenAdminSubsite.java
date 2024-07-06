@@ -94,103 +94,67 @@ public final class GenAdminSubsite extends AbstractSubsite {
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
-            if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session);
-            } else if ("student.html".equals(subpath)) {
-                PageStudent.doGet(cache, this.site, req, resp, session, null);
-            } else if ("test_student.html".equals(subpath)) {
-                PageTestStudent.doTestStudentsPage(cache, this.site, req, resp, session);
-            } else if ("utilities.html".equals(subpath)) {
-                PageUtilities.doUtilitiesPage(cache, this.site, req, resp, session);
-            } else if ("server_admin.html".equals(subpath)) {
-                PageServerAdmin.doServerAdminPage(cache, this.site, req, resp, session);
-            } else if ("srvadm_sessions.html".equals(subpath)) {
-                PageServerAdminSessions.doGet(cache, this.site, req, resp, session);
-            } else if ("srvadm_maintenance.html".equals(subpath)) {
-                PageServerAdminMaintenance.doGet(cache, this.site, req, resp, session);
-            } else if ("srvadm_control.html".equals(subpath)) {
-                PageServerAdminControl.doGet(cache, this.site, req, resp, session);
-            } else if ("srvadm_diagnostics.html".equals(subpath)) {
-                PageServerAdminDiagnostics.doGet(cache, this.site, req, resp, session);
-            } else if ("db_admin.html".equals(subpath)) {
-                PageDbAdmin.doDbAdminPage(cache, this.site, req, resp, session);
-            } else if ("dbadm_contexts.html".equals(subpath)) {
-                PageDbAdminContexts.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_batch.html".equals(subpath)) {
-                PageDbAdminBatch.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_batch_run.html".equals(subpath)) {
-                PageDbAdminBatchRun.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_reports.html".equals(subpath)) {
-                PageDbAdminReports.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_report.html".equals(subpath)) {
-                PageDbAdminReport.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_queries.html".equals(subpath)) {
-                PageDbAdminQueries.doGet(cache, this.site, req, resp, session);
-            } else if ("db_admin_server.html".equals(subpath)) {
-                PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session, null);
-            } else if ("db_admin_server_logout.html".equals(subpath)) {
-                PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_metadata.html".equals(subpath)) {
-                PageDbAdminContextsMetadata.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_cache_metadata.html".equals(subpath)) {
-                PageDbAdminContextsTableMetadata.doGet(cache, this.site, req, resp, session);
-            } else if ("dbadm_prod_views.html".equals(subpath)) {
-                PageDbAdminContextsProdViews.doGet(cache, this.site, req, resp, session);
-            } else if ("site_admin.html".equals(subpath)) {
-                PageSiteAdmin.doGet(cache, this.site, req, resp, session);
-            } else if ("automation.html".equals(subpath)) {
-                PageAutomation.doGet(cache, this.site, req, resp, session);
-            } else if ("automation_bot.html".equals(subpath)) {
-                PageAutomationBot.doGet(cache, this.site, req, resp, session);
-            } else if ("monitor.html".equals(subpath)) {
-                PageReports.doGet(cache, this.site, req, resp, session);
-            } else if ("report_mathplan.html".equals(subpath)) {
-                PageMathPlanReport.doGet(cache, this.site, req, resp, session);
-            } else if ("report_placement.html".equals(subpath)) {
-                PagePlacementReport.doGet(cache, this.site, req, resp, session);
-            } else if ("report_elm.html".equals(subpath)) {
-                PageElmReport.doGet(cache, this.site, req, resp, session);
-            } else if ("report_precalc.html".equals(subpath)) {
-                PagePrecalcReport.doGet(cache, this.site, req, resp, session);
-            } else if ("report_course_exams.html".equals(subpath)) {
-                PageCourseExamsReport.doGet(cache, this.site, req, resp, session);
-            } else if ("report_course_homework.html".equals(subpath)) {
-                PageCourseHomeworkReport.doGet(cache, this.site, req, resp, session);
-            } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
-            } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
-            } else if ("student_course_status.html".equals(subpath)) {
-                PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
-            } else if ("student_course_activity.html".equals(subpath)) {
-                PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
-            } else if ("student_math_plan.html".equals(subpath)) {
-                PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
-            } else if ("xmlauthor.jnlp".equals(subpath)) {
-                PageUtilities.doXmlAuthor(this.site, req, resp);
-            } else if ("problemtester.jnlp".equals(subpath)) {
-                PageUtilities.doProblemTester(this.site, req, resp);
-            } else if ("examtester.jnlp".equals(subpath)) {
-                PageUtilities.doExamTester(this.site, req, resp);
-            } else if ("examprinter.jnlp".equals(subpath)) {
-                PageUtilities.doExamPrinter(this.site, req, resp);
-            } else if ("instructiontester.jnlp".equals(subpath)) {
-                PageUtilities.doInstructionTester(this.site, req, resp);
-            } else if ("glyphviewer.jnlp".equals(subpath)) {
-                PageUtilities.doGlyphViewer(this.site, req, resp);
-            } else if ("keyconfig.jnlp".equals(subpath)) {
-                PageUtilities.doKeyConfig(this.site, req, resp);
-            } else if ("pwdhash.jnlp".equals(subpath)) {
-                PageUtilities.doPasswordHash(this.site, req, resp);
-            } else if ("renamedirs.jnlp".equals(subpath)) {
-                PageUtilities.doRenameDirs(this.site, req, resp);
-            } else if ("jwabbit.jnlp".equals(subpath)) {
-                PageUtilities.doJWabbit(this.site, req, resp);
-            } else if ("see_past_exam.jnlp".equals(subpath)) {
-                doSeePastExam(req, resp);
-            } else {
-                Log.warning("GET: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "home.html" -> PageHome.doGet(cache, this.site, req, resp, session);
+                case "student.html" -> PageStudent.doGet(cache, this.site, req, resp, session, null);
+                case "test_student.html" -> PageTestStudent.doTestStudentsPage(cache, this.site, req, resp, session);
+                case "utilities.html" -> PageUtilities.doUtilitiesPage(cache, this.site, req, resp, session);
+                case "server_admin.html" -> PageServerAdmin.doServerAdminPage(cache, this.site, req, resp, session);
+                case "srvadm_sessions.html" -> PageServerAdminSessions.doGet(cache, this.site, req, resp, session);
+                case "srvadm_maintenance.html" ->
+                        PageServerAdminMaintenance.doGet(cache, this.site, req, resp, session);
+                case "srvadm_control.html" -> PageServerAdminControl.doGet(cache, this.site, req, resp, session);
+                case "srvadm_diagnostics.html" ->
+                        PageServerAdminDiagnostics.doGet(cache, this.site, req, resp, session);
+                case "db_admin.html" -> PageDbAdmin.doDbAdminPage(cache, this.site, req, resp, session);
+                case "dbadm_contexts.html" -> PageDbAdminContexts.doGet(cache, this.site, req, resp, session);
+                case "dbadm_batch.html" -> PageDbAdminBatch.doGet(cache, this.site, req, resp, session);
+                case "dbadm_batch_run.html" -> PageDbAdminBatchRun.doGet(cache, this.site, req, resp, session);
+                case "dbadm_reports.html" -> PageDbAdminReports.doGet(cache, this.site, req, resp, session);
+                case "dbadm_report.html" -> PageDbAdminReport.doGet(cache, this.site, req, resp, session);
+                case "dbadm_queries.html" -> PageDbAdminQueries.doGet(cache, this.site, req, resp, session);
+                case "db_admin_server.html" ->
+                        PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session, null);
+                case "db_admin_server_logout.html" ->
+                        PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session);
+                case "dbadm_metadata.html" -> PageDbAdminContextsMetadata.doGet(cache, this.site, req, resp, session);
+                case "dbadm_cache_metadata.html" ->
+                        PageDbAdminContextsTableMetadata.doGet(cache, this.site, req, resp, session);
+                case "dbadm_prod_views.html" ->
+                        PageDbAdminContextsProdViews.doGet(cache, this.site, req, resp, session);
+                case "site_admin.html" -> PageSiteAdmin.doGet(cache, this.site, req, resp, session);
+                case "automation.html" -> PageAutomation.doGet(cache, this.site, req, resp, session);
+                case "automation_bot.html" -> PageAutomationBot.doGet(cache, this.site, req, resp, session);
+                case "monitor.html" -> PageReports.doGet(cache, this.site, req, resp, session);
+                case "report_mathplan.html" -> PageMathPlanReport.doGet(cache, this.site, req, resp, session);
+                case "report_placement.html" -> PagePlacementReport.doGet(cache, this.site, req, resp, session);
+                case "report_elm.html" -> PageElmReport.doGet(cache, this.site, req, resp, session);
+                case "report_precalc.html" -> PagePrecalcReport.doGet(cache, this.site, req, resp, session);
+                case "report_course_exams.html" -> PageCourseExamsReport.doGet(cache, this.site, req, resp, session);
+                case "report_course_homework.html" ->
+                        PageCourseHomeworkReport.doGet(cache, this.site, req, resp, session);
+                case "student_info.html" -> PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                case "student_placement.html" -> PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                case "student_course_status.html" ->
+                        PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
+                case "student_course_activity.html" ->
+                        PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
+                case "student_math_plan.html" -> PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
+                case "xmlauthor.jnlp" -> PageUtilities.doXmlAuthor(this.site, req, resp);
+                case "problemtester.jnlp" -> PageUtilities.doProblemTester(this.site, req, resp);
+                case "examtester.jnlp" -> PageUtilities.doExamTester(this.site, req, resp);
+                case "examprinter.jnlp" -> PageUtilities.doExamPrinter(this.site, req, resp);
+                case "instructiontester.jnlp" -> PageUtilities.doInstructionTester(this.site, req, resp);
+                case "glyphviewer.jnlp" -> PageUtilities.doGlyphViewer(this.site, req, resp);
+                case "keyconfig.jnlp" -> PageUtilities.doKeyConfig(this.site, req, resp);
+                case "pwdhash.jnlp" -> PageUtilities.doPasswordHash(this.site, req, resp);
+                case "renamedirs.jnlp" -> PageUtilities.doRenameDirs(this.site, req, resp);
+                case "jwabbit.jnlp" -> PageUtilities.doJWabbit(this.site, req, resp);
+                case "see_past_exam.jnlp" -> doSeePastExam(req, resp);
+                case null, default -> {
+                    Log.warning("GET: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("GET: invalid role");
@@ -217,53 +181,39 @@ public final class GenAdminSubsite extends AbstractSubsite {
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-            if ("student_pick.html".equals(subpath)) {
-                PageStudentPick.doPost(cache, this.site, req, resp, session);
-            } else if ("population_pick.html".equals(subpath)) {
-                PagePopulationPick.doPost(cache, this.site, req, resp, session);
-            } else if ("student_info.html".equals(subpath)) {
-                PageStudentInfo.doGet(cache, this.site, req, resp, session);
-            } else if ("student_placement.html".equals(subpath)) {
-                PageStudentPlacement.doGet(cache, this.site, req, resp, session);
-            } else if ("student_course_status.html".equals(subpath)) {
-                PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
-            } else if ("student_course_activity.html".equals(subpath)) {
-                PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
-            } else if ("student_math_plan.html".equals(subpath)) {
-                PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
-            } else if ("student_view_past_exam.html".equals(subpath)) {
-                PageStudentPastExam.startPastExam(cache, this.site, req, resp, session);
-            } else if ("student_update_past_exam.html".equals(subpath)) {
-                PageStudentPastExam.updatePastExam(cache, this.site, req, resp, session);
-            } else if ("maint_mode_update.html".equals(subpath)) {
-                PageServerAdminMaintenance.doMaintenanceModeUpdate(req, resp);
-            } else if ("teststu_update_student.html".equals(subpath)) {
-                PageTestStudent.updateStudent(cache, req, resp);
-            } else if ("teststu_update_special.html".equals(subpath)) {
-                PageTestStudent.updateSpecial(cache, req, resp);
-            } else if ("teststu_update_placement.html".equals(subpath)) {
-                PageTestStudent.updatePlacement(cache, this.site, req, resp);
-            } else if ("teststu_update_tutorial.html".equals(subpath)) {
-                PageTestStudent.updateTutorials(cache, req, resp);
-            } else if ("teststu_update_etext.html".equals(subpath)) {
-                PageTestStudent.updateETexts(cache, req, resp);
-            } else if ("teststu_update_reg.html".equals(subpath)) {
-                PageTestStudent.updateRegistrations(cache, req, resp);
-            } else if ("db_admin_server_login.html".equals(subpath)) {
-                PageDbAdminContextsServer.doPost(cache, this.site, req, resp, session);
-            } else if ("dbadm_update_banner.html".equals(subpath)) {
-                PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
-            } else if ("dbadm_batch_run.html".equals(subpath)) {
-                PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
-            } else if ("srvadm_sessions.html".equals(subpath)) {
-                PageServerAdminSessions.doPost(cache, this.site, req, resp, session);
-            } else if ("srvadm_control.html".equals(subpath)) {
-                PageServerAdminControl.doPost(cache, this.site, req, resp, session);
-            } else if ("srvadm_diagnostics.html".equals(subpath)) {
-                PageServerAdminDiagnostics.doPost(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("POST: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "student_pick.html" -> PageStudentPick.doPost(cache, this.site, req, resp, session);
+                case "population_pick.html" -> PagePopulationPick.doPost(cache, this.site, req, resp, session);
+                case "student_info.html" -> PageStudentInfo.doGet(cache, this.site, req, resp, session);
+                case "student_placement.html" -> PageStudentPlacement.doGet(cache, this.site, req, resp, session);
+                case "student_course_status.html" ->
+                        PageStudentCourseStatus.doGet(cache, this.site, req, resp, session);
+                case "student_course_activity.html" ->
+                        PageStudentCourseActivity.doGet(cache, this.site, req, resp, session);
+                case "student_math_plan.html" -> PageStudentMathPlan.doGet(cache, this.site, req, resp, session);
+                case "student_view_past_exam.html" ->
+                        PageStudentPastExam.startPastExam(cache, this.site, req, resp, session);
+                case "student_update_past_exam.html" ->
+                        PageStudentPastExam.updatePastExam(cache, this.site, req, resp, session);
+                case "maint_mode_update.html" -> PageServerAdminMaintenance.doMaintenanceModeUpdate(req, resp);
+                case "teststu_update_student.html" -> PageTestStudent.updateStudent(cache, req, resp);
+                case "teststu_update_special.html" -> PageTestStudent.updateSpecial(cache, req, resp);
+                case "teststu_update_placement.html" -> PageTestStudent.updatePlacement(cache, this.site, req, resp);
+                case "teststu_update_tutorial.html" -> PageTestStudent.updateTutorials(cache, req, resp);
+                case "teststu_update_etext.html" -> PageTestStudent.updateETexts(cache, req, resp);
+                case "teststu_update_reg.html" -> PageTestStudent.updateRegistrations(cache, req, resp);
+                case "db_admin_server_login.html" ->
+                        PageDbAdminContextsServer.doPost(cache, this.site, req, resp, session);
+                case "dbadm_update_banner.html" -> PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
+                case "dbadm_batch_run.html" -> PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
+                case "srvadm_sessions.html" -> PageServerAdminSessions.doPost(cache, this.site, req, resp, session);
+                case "srvadm_control.html" -> PageServerAdminControl.doPost(cache, this.site, req, resp, session);
+                case "srvadm_diagnostics.html" ->
+                        PageServerAdminDiagnostics.doPost(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("POST: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("POST: invalid role");

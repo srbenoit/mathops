@@ -440,22 +440,19 @@ public final class AuditBannerTestScores {
                 final String course = challenge.course;
                 String testCode = null;
 
-                if (RawRecordConstants.M117.equals(course) || RawRecordConstants.MATH117.equals(course)) {
-                    testCode = "MC17";
-                } else if (RawRecordConstants.M118.equals(course) || RawRecordConstants.MATH118.equals(course)) {
-                    testCode = "MC18";
-                } else if (RawRecordConstants.M124.equals(course) || RawRecordConstants.MATH124.equals(course)) {
-                    testCode = "MC24";
-                } else if (RawRecordConstants.M125.equals(course) || RawRecordConstants.MATH125.equals(course)) {
-                    testCode = "MC25";
-                } else if (RawRecordConstants.M126.equals(course) || RawRecordConstants.MATH126.equals(course)) {
-                    testCode = "MC26";
-                } else {
-                    if (spc) {
-                        report.add(CoreConstants.SPC);
-                        spc = false;
+                switch (course) {
+                    case RawRecordConstants.M117, RawRecordConstants.MATH117 -> testCode = "MC17";
+                    case RawRecordConstants.M118, RawRecordConstants.MATH118 -> testCode = "MC18";
+                    case RawRecordConstants.M124, RawRecordConstants.MATH124 -> testCode = "MC24";
+                    case RawRecordConstants.M125, RawRecordConstants.MATH125 -> testCode = "MC25";
+                    case RawRecordConstants.M126, RawRecordConstants.MATH126 -> testCode = "MC26";
+                    case null, default -> {
+                        if (spc) {
+                            report.add(CoreConstants.SPC);
+                            spc = false;
+                        }
+                        report.add("ERROR: Unexpected course '" + course + "' in challenge exam record");
                     }
-                    report.add("ERROR: Unexpected course '" + course + "' in challenge exam record");
                 }
 
                 if (testCode != null) {

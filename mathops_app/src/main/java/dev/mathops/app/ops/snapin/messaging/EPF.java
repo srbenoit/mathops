@@ -21,7 +21,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -109,7 +108,7 @@ public enum EPF {
         // Map from student ID to map from course ID to registration
         final Map<String, List<RawStcourse>> stuRegs = gatherMatchingRegistrations(cache, incCourseSections);
 
-        final TermRec act = TermLogic.get(cache).queryActive(cache);
+        final TermRec act = cache.getSystemData().getActiveTerm();
         if (act == null) {
             Log.warning("Unable to query the active term.");
         } else {
@@ -238,19 +237,19 @@ public enum EPF {
         }
 
         if (sc1 == null && !nulls.isEmpty()) {
-            sc1 = nulls.remove(0);
+            sc1 = nulls.removeFirst();
         }
         if (sc2 == null && !nulls.isEmpty()) {
-            sc2 = nulls.remove(0);
+            sc2 = nulls.removeFirst();
         }
         if (sc3 == null && !nulls.isEmpty()) {
-            sc3 = nulls.remove(0);
+            sc3 = nulls.removeFirst();
         }
         if (sc4 == null && !nulls.isEmpty()) {
-            sc4 = nulls.remove(0);
+            sc4 = nulls.removeFirst();
         }
         if (sc5 == null && !nulls.isEmpty()) {
-            sc5 = nulls.remove(0);
+            sc5 = nulls.removeFirst();
         }
 
         if (sc1 == null) {
@@ -334,7 +333,7 @@ public enum EPF {
         } else if ("Y".equals(stu.licensed)) {
 
             final List<RawStcourse> regsList = new ArrayList<>(regs);
-            final RawStcourse reg1 = regsList.get(0);
+            final RawStcourse reg1 = regsList.getFirst();
             final String course1 = reg1.course;
 
             // Find the earliest milestone date of an activity that has not been completed

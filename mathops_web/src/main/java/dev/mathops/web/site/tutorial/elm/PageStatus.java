@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -90,7 +89,7 @@ enum PageStatus {
         htm.add("ELM Tutorial Status for ", name);
         htm.eH(2).div("vgap");
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (status.elmExamPassed) {
             htm.sDiv("indent22");
@@ -124,11 +123,10 @@ enum PageStatus {
                 final LocalDate today = session.getNow().toLocalDate();
 
                 if (deleteDate.isBefore(today)) {
-                    // Current-term delete date is already in the past - need the subsequent
-                    // term's delete date
-                    final TermRec nextTerm = TermLogic.get(cache).queryNext(cache);
-                    final LocalDate deleteDate2 = RawCsectionLogic.getExamDeleteDate(//
-                            cache, RawRecordConstants.M100T, "1", nextTerm.term);
+                    // Current-term delete date is already in the past - need the subsequent term's delete date
+                    final TermRec nextTerm = cache.getSystemData().getNextTerm();
+                    final LocalDate deleteDate2 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M100T,
+                            "1", nextTerm.term);
                     if (deleteDate2 != null) {
                         deleteDate = deleteDate2;
                     }

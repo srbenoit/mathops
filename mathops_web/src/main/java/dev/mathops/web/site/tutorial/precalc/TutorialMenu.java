@@ -138,18 +138,13 @@ enum TutorialMenu {
     private static void emitCourseMenuItem(final RawCourse eligibleCourse, final HtmlBuilder htm) {
 
         final String eligCourseNumber = eligibleCourse.course;
-        final String label;
-        if (RawRecordConstants.M1170.equals(eligCourseNumber)) {
-            label = "MATH 117";
-        } else if (RawRecordConstants.M1180.equals(eligCourseNumber)) {
-            label = "MATH 118";
-        } else if (RawRecordConstants.M1240.equals(eligCourseNumber)) {
-            label = "MATH 124";
-        } else if (RawRecordConstants.M1250.equals(eligCourseNumber)) {
-            label = "MATH 125";
-        } else {
-            label = "MATH 126";
-        }
+        final String label = switch (eligCourseNumber) {
+            case RawRecordConstants.M1170 -> "MATH 117";
+            case RawRecordConstants.M1180 -> "MATH 118";
+            case RawRecordConstants.M1240 -> "MATH 124";
+            case RawRecordConstants.M1250 -> "MATH 125";
+            case null, default -> "MATH 126";
+        };
 
         htm.addln("&bull; <strong>Place out of ", label, "</strong> ");
         htm.sDiv("indent1");

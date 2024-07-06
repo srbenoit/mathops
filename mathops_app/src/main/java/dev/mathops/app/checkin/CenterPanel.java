@@ -642,104 +642,57 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
             try {
                 final Cache cache = new Cache(this.dbProfile, conn);
 
-                if (USERS.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M100U, 1, "L");
-                } else if (PLACEMENT.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M100P, 0, "Q");
-                } else if (ELM.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M100T, 4, "U");
-                } else if (PRECALC17.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M1170, 4, "U");
-                } else if (PRECALC18.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M1180, 4, "U");
-                } else if (PRECALC24.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M1240, 4, "U");
-                } else if (PRECALC25.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M1250, 4, "U");
-                } else if (PRECALC26.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M1260, 4, "U");
-
-                } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 0, "CH");
-                } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 0, "CH");
-                } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 0, "CH");
-                } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 0, "CH");
-                } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 0, "CH");
-
-                } else if ("117-1".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 1, "U");
-                } else if ("117-2".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 2, "U");
-                } else if ("117-3".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 3, "U");
-                } else if ("117-4".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 4, "U");
-                } else if ("117-5".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M117, 5, "F");
-
-                } else if ("118-1".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 1, "U");
-                } else if ("118-2".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 2, "U");
-                } else if ("118-3".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 3, "U");
-                } else if ("118-4".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 4, "U");
-                } else if ("118-5".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M118, 5, "F");
-
-                } else if ("124-1".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 1, "U");
-                } else if ("124-2".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 2, "U");
-                } else if ("124-3".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 3, "U");
-                } else if ("124-4".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 4, "U");
-                } else if ("124-5".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M124, 5, "F");
-
-                } else if ("125-1".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 1, "U");
-                } else if ("125-2".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 2, "U");
-                } else if ("125-3".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 3, "U");
-                } else if ("125-4".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 4, "U");
-                } else if ("125-5".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M125, 5, "F");
-
-                } else if ("126-1".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 1, "U");
-                } else if ("126-2".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 2, "U");
-                } else if ("126-3".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 3, "U");
-                } else if ("126-4".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 4, "U");
-                } else if ("126-5".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.M126, 5, "F");
-
-                } else if ("117-MA".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.MATH117, 0, "MA");
-                } else if ("118-MA".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.MATH118, 0, "MA");
-                } else if ("124-MA".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.MATH124, 0, "MA");
-                } else if ("125-MA".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.MATH125, 0, "MA");
-                } else if ("126-MA".equals(cmd)) {
-                    this.owner.chooseExam(cache, RawRecordConstants.MATH126, 0, "MA");
-
-                } else if (CANCEL.equals(cmd)) {
-                    this.owner.chooseExam(cache, null, 0, null);
-                } else {
-                    Log.warning("Unknown action command: " + cmd);
+                switch (cmd) {
+                    case USERS -> this.owner.chooseExam(cache, RawRecordConstants.M100U, 1, "L");
+                    case PLACEMENT -> this.owner.chooseExam(cache, RawRecordConstants.M100P, 0, "Q");
+                    case ELM -> this.owner.chooseExam(cache, RawRecordConstants.M100T, 4, "U");
+                    case PRECALC17 -> this.owner.chooseExam(cache, RawRecordConstants.M1170, 4, "U");
+                    case PRECALC18 -> this.owner.chooseExam(cache, RawRecordConstants.M1180, 4, "U");
+                    case PRECALC24 -> this.owner.chooseExam(cache, RawRecordConstants.M1240, 4, "U");
+                    case PRECALC25 -> this.owner.chooseExam(cache, RawRecordConstants.M1250, 4, "U");
+                    case PRECALC26 -> this.owner.chooseExam(cache, RawRecordConstants.M1260, 4, "U");
+                    case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID ->
+                            this.owner.chooseExam(cache, RawRecordConstants.M117, 0, "CH");
+                    case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID ->
+                            this.owner.chooseExam(cache, RawRecordConstants.M118, 0, "CH");
+                    case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID ->
+                            this.owner.chooseExam(cache, RawRecordConstants.M124, 0, "CH");
+                    case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID ->
+                            this.owner.chooseExam(cache, RawRecordConstants.M125, 0, "CH");
+                    case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID ->
+                            this.owner.chooseExam(cache, RawRecordConstants.M126, 0, "CH");
+                    case "117-1" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 1, "U");
+                    case "117-2" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 2, "U");
+                    case "117-3" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 3, "U");
+                    case "117-4" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 4, "U");
+                    case "117-5" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 5, "F");
+                    case "118-1" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 1, "U");
+                    case "118-2" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 2, "U");
+                    case "118-3" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 3, "U");
+                    case "118-4" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 4, "U");
+                    case "118-5" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 5, "F");
+                    case "124-1" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 1, "U");
+                    case "124-2" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 2, "U");
+                    case "124-3" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 3, "U");
+                    case "124-4" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 4, "U");
+                    case "124-5" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 5, "F");
+                    case "125-1" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 1, "U");
+                    case "125-2" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 2, "U");
+                    case "125-3" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 3, "U");
+                    case "125-4" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 4, "U");
+                    case "125-5" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 5, "F");
+                    case "126-1" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 1, "U");
+                    case "126-2" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 2, "U");
+                    case "126-3" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 3, "U");
+                    case "126-4" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 4, "U");
+                    case "126-5" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 5, "F");
+                    case "117-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH117, 0, "MA");
+                    case "118-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH118, 0, "MA");
+                    case "124-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH124, 0, "MA");
+                    case "125-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH125, 0, "MA");
+                    case "126-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH126, 0, "MA");
+                    case CANCEL -> this.owner.chooseExam(cache, null, 0, null);
+                    case null, default -> Log.warning("Unknown action command: " + cmd);
                 }
             } finally {
                 ctx.checkInConnection(conn);

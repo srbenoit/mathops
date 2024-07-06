@@ -51,17 +51,6 @@ public final class PrecalcRootSite extends AbstractPageSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *

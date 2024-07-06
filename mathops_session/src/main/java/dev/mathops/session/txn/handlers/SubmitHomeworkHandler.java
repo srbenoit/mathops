@@ -20,7 +20,6 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SubmitHomeworkReply;
@@ -125,10 +124,9 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @param cache the data cache
      * @param req   the homework submission request
      * @param rep   the homework submission reply
-     * @return true if finalization succeeded; false otherwise
      */
-    private boolean finalizeHomework(final Cache cache, final SubmitHomeworkRequest req,
-                                     final SubmitHomeworkReply rep) {
+    private void finalizeHomework(final Cache cache, final SubmitHomeworkRequest req,
+                                  final SubmitHomeworkReply rep) {
 
         // Client generated the timestamps, and their clock may be off, but we assume the duration
         // is accurate. We then set the finish time to the current server time, and the start time
@@ -148,16 +146,14 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
 
         // TODO: Update finish times on individual problems, if needed
 
-        boolean ok = false;
         try {
-
             // From the homework version, look up the course, unit in the homework table, then use
             // that to fetch the course/unit/section data for the student. This gives us the
             // minimum move-on and mastery scores.
-            final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
             if (activeTerm == null) {
                 rep.error = "Unable to lookup active term to submit homework.";
-                return false;
+                return;
             }
 
             final String ver = req.homework.examVersion;
@@ -165,7 +161,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             final AssignmentRec hw = AssignmentLogic.get(cache).query(cache, ver);
             if (hw == null) {
                 rep.error = "Assignment has been removed from the course!";
-                return false;
+                return;
             }
 
             RawStcourse stcourse =
@@ -234,13 +230,14 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                     stcourse.synthetic = true;
                 } else {
                     rep.error = "You are not registered in this course!";
-                    return false;
+                    return;
                 }
             }
 
             if (!activeTerm.term.equals(stcourse.termKey)) {
-                final TermRec incTerm = TermLogic.get(cache).query(cache, stcourse.termKey);
+                final TermRec incTerm = cache.getSystemData().getTerm(stcourse.termKey);
                 if (incTerm != null) {
+                    // ???
                 }
             }
 
@@ -256,7 +253,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             }
             if (cusect == null) {
                 rep.error = "Course section information not found!";
-                return false;
+                return;
             }
 
             int minMoveOn = 0;
@@ -281,21 +278,18 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             if (req.score >= minMastery) {
 
                 // Record a "passing" homework record
-                ok = recordMasteredHomework(cache, req, rep, hw, stcourse);
+                recordMasteredHomework(cache, req, rep, hw, stcourse);
             } else if (req.score >= minMoveOn) {
 
                 // Record a "not-passing" homework record
-                ok = recordNonMasteredHomework(cache, req, rep, hw, stcourse);
+                recordNonMasteredHomework(cache, req, rep, hw, stcourse);
             } else {
                 // No entry in the database.
                 rep.result = "Your score was not sufficient to move on.";
             }
         } catch (final Exception ex) {
             Log.warning("Exception while submitting assignment for student '", getStudent().stuId, ex);
-            ok = false;
         }
-
-        return ok;
     }
 
     /**
@@ -308,13 +302,11 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @param rep      the homework submission reply
      * @param hw       the homework assignment being submitted
      * @param stcourse the student course registration information
-     * @return true if insertion succeeded; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
-                                           final SubmitHomeworkReply rep, final AssignmentRec hw,
-                                           final RawStcourse stcourse)
-            throws SQLException {
+    private void recordMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
+                                        final SubmitHomeworkReply rep, final AssignmentRec hw,
+                                        final RawStcourse stcourse) throws SQLException {
 
         // We must first find any existing PASSED homework for this course, unit and objective, and
         // determine what to set this new record's PASSED field to.
@@ -377,21 +369,15 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                 null);
 
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
-        final boolean ok = recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
+        recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
 
-        if (ok) {
-            if ("LB".equals(hw.assignmentType)) {
-                rep.result = "Lab has been recorded.";
-            } else if (max == 0) {
-                rep.result = "Assignment has been recorded.";
-            } else {
-                rep.result = "Assignment was previously completed.";
-            }
+        if ("LB".equals(hw.assignmentType)) {
+            rep.result = "Lab has been recorded.";
+        } else if (max == 0) {
+            rep.result = "Assignment has been recorded.";
         } else {
-            rep.error = "Failed to record assignment.";
+            rep.result = "Assignment was previously completed.";
         }
-
-        return ok;
     }
 
     /**
@@ -406,10 +392,9 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @return true if insertion succeeded; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordNonMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
-                                              final SubmitHomeworkReply rep, final AssignmentRec hw,
-                                              final RawStcourse stcourse)
-            throws SQLException {
+    private void recordNonMasteredHomework(final Cache cache, final SubmitHomeworkRequest req,
+                                           final SubmitHomeworkReply rep, final AssignmentRec hw,
+                                           final RawStcourse stcourse) throws SQLException {
 
         final LocalDateTime start = TemporalUtils.toLocalDateTime(req.homework.presentationTime);
         final LocalDateTime end = TemporalUtils.toLocalDateTime(req.homework.completionTime);
@@ -424,15 +409,8 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                 "N", null, null);
 
         RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
-        final boolean ok = recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
-
-        if (ok) {
-            rep.result = "Assignment accepted.";
-        } else {
-            rep.error = "Failed to record assignment.";
-        }
-
-        return ok;
+        recordQuestionAnswers(cache, req, hw, sthw.serialNbr);
+        rep.result = "Assignment accepted.";
     }
 
     /**
@@ -442,11 +420,10 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
      * @param req          the homework submission request (with student answers)
      * @param hw           the homework assignment being submitted
      * @param serialNumber the serial number of the homework submission
-     * @return true if successful; false on any error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean recordQuestionAnswers(final Cache cache, final SubmitHomeworkRequest req,
-                                          final AssignmentRec hw, final Long serialNumber) throws SQLException {
+    private void recordQuestionAnswers(final Cache cache, final SubmitHomeworkRequest req,
+                                       final AssignmentRec hw, final Long serialNumber) throws SQLException {
 
         final int numAns = req.answers.length;
 
@@ -469,7 +446,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             if (req.answers[i] != null) {
                 final int ansLen = req.answers[i].length;
 
-                for (int j = 0; j <ansLen; ++j) {
+                for (int j = 0; j < ansLen; ++j) {
 
                     if (req.answers[i][j] instanceof Long) {
                         final int index = ((Long) req.answers[i][j]).intValue();
@@ -495,7 +472,5 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
                 break;
             }
         }
-
-        return true;
     }
 }

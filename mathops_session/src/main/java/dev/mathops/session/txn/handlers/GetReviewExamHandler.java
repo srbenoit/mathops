@@ -22,7 +22,6 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.sitelogic.servlet.ReviewExamEligibilityTester;
@@ -202,7 +201,7 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
 
                     // Generate a serial number for the exam
                     final long serial = generateSerialNumber(request.isPractice);
-                    final TermRec active = TermLogic.get(cache).queryActive(cache);
+                    final TermRec active = cache.getSystemData().getActiveTerm();
 
                     buildPresentedExam(avail.exam.treeRef, serial, reply, active);
 

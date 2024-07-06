@@ -76,16 +76,13 @@ public final class BookstoreSubsite extends AbstractSubsite {
         // TODO: Honor maintenance mode.
 
         if (session.getEffectiveRole().canActAs(ERole.BOOKSTORE)) {
-            if ("rolecontrol.html".equals(subpath)) {
-                BookstorePage.processRoleControls(cache, this.site, req, resp, session);
-            } else if ("check_etext_key.html".equals(subpath)) {
-                PageCheckKey.checkEtextKey(cache, this.site, req, resp, session);
-            } else if ("deactivate_etext_key.html".equals(subpath)) {
-                PageDeactiveKey.deactivateKey(cache, this.site, req, resp, session);
-            } else if ("deactivate_etext_key_yes.html".equals(subpath)) {
-                PageDeactiveKey.deactivateKeyYes(cache, this.site, req, resp, session);
-            } else {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "rolecontrol.html" -> BookstorePage.processRoleControls(cache, this.site, req, resp, session);
+                case "check_etext_key.html" -> PageCheckKey.checkEtextKey(cache, this.site, req, resp, session);
+                case "deactivate_etext_key.html" -> PageDeactiveKey.deactivateKey(cache, this.site, req, resp, session);
+                case "deactivate_etext_key_yes.html" ->
+                        PageDeactiveKey.deactivateKeyYes(cache, this.site, req, resp, session);
+                case null, default -> resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
             Log.warning("POST: invalid role");

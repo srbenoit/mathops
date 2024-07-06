@@ -1031,7 +1031,7 @@ public enum FormulaFactory {
         }
 
         if (range[1] > 0) {
-            final GroupingOper group = (GroupingOper) tokens.get(tokens.size() - 1);
+            final GroupingOper group = (GroupingOper) tokens.getLast();
 
             final EFunction which = EFunction.forName(sub);
             if (which == null) {
@@ -1049,7 +1049,7 @@ public enum FormulaFactory {
                 for (int i = 0; i < count; ++i) {
                     func.addChild(group.getChild(i));
                 }
-                tokens.remove(tokens.size() - 1);
+                tokens.removeLast();
                 tokens.add(func);
             }
         } else if (searching) {
@@ -1099,7 +1099,7 @@ public enum FormulaFactory {
 
         // See if the first token is an operator, in which case it must be treated as unary if
         // possible.
-        AbstractFormulaObject obj = tokens.get(0);
+        AbstractFormulaObject obj = tokens.getFirst();
 
         if (obj instanceof final BinaryOper oper) {
 
@@ -1288,7 +1288,7 @@ public enum FormulaFactory {
         // Safety check to make sure we have parsed correctly
         if (tokens.size() == 1) {
             // Now, we have the tree, so we can construct the Formula.
-            final AbstractFormulaObject obj = tokens.get(0);
+            final AbstractFormulaObject obj = tokens.getFirst();
             result = new Formula(obj);
         } else {
             for (final AbstractFormulaObject t : tokens) {

@@ -63,11 +63,7 @@ final class ServletTimer {
                 final Map<String, ServletTimerCounters> submap = this.map.computeIfAbsent(dbProfile,
                         s -> new TreeMap<>());
 
-                ServletTimerCounters counters = submap.get(location);
-                if (counters == null) {
-                    counters = new ServletTimerCounters();
-                    submap.put(location, counters);
-                }
+                final ServletTimerCounters counters = submap.computeIfAbsent(location, k -> new ServletTimerCounters());
 
                 counters.add(elapsed);
             }

@@ -60,7 +60,7 @@ public final class DateRangeGroups {
      */
     public DateRange getMostRecentPast() {
 
-        return this.past.isEmpty() ? null : this.past.get(this.past.size() - 1);
+        return this.past.isEmpty() ? null : this.past.getLast();
     }
 
     /**
@@ -103,13 +103,13 @@ public final class DateRangeGroups {
         if (this.future.isEmpty()) {
             if (this.current == null) {
                 if (!this.past.isEmpty()) {
-                    last = this.past.get(this.past.size() - 1).end;
+                    last = this.past.getLast().end;
                 }
             } else {
                 last = this.current.end;
             }
         } else {
-            last = this.future.get(this.future.size() - 1).end;
+            last = this.future.getLast().end;
         }
 
         return last;

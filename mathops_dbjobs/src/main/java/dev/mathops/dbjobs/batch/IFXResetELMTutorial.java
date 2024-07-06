@@ -18,7 +18,6 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -110,7 +109,7 @@ public enum IFXResetELMTutorial {
     private static void buildReport(final Cache cache, final HtmlBuilder report,
                                     final HtmlBuilder errors) throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
         if (activeTerm == null) {
             errors.addln("Unable to query the active term.");
@@ -243,8 +242,8 @@ public enum IFXResetELMTutorial {
             final String stuId = entry.getKey();
             final List<RawStexam> stuExams = entry.getValue();
 
-            LocalDate minDate = stuExams.get(0).examDt;
-            LocalDate maxDate = stuExams.get(0).examDt;
+            LocalDate minDate = stuExams.getFirst().examDt;
+            LocalDate maxDate = minDate;
             for (final RawStexam rec : stuExams) {
                 if (minDate.isAfter(rec.examDt)) {
                     minDate = rec.examDt;

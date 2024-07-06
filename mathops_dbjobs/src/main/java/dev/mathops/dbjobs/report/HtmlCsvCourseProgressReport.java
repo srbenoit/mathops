@@ -25,7 +25,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -178,7 +177,7 @@ public final class HtmlCsvCourseProgressReport {
 
         final Map<String, List<RawStcourse>> registrations = new HashMap<>(500);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);
 
@@ -292,7 +291,7 @@ public final class HtmlCsvCourseProgressReport {
             }
         }
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
         final RawStudent stu = ordered.isEmpty() || activeKey == null ? null

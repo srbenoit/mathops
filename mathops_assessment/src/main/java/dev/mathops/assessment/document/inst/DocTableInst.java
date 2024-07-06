@@ -245,14 +245,14 @@ public final class DocTableInst extends AbstractDocObjectInst {
             xml.add("<tr>");
 
             final int numCells = row.length;
-            for (int cell = 0; cell < numCells; ++cell) {
+            for (final DocNonwrappingSpanInst docNonwrappingSpanInst : row) {
                 if (xmlStyle == EXmlStyle.INDENTED) {
                     xml.addln();
                     xml.add(ind2);
                 }
                 xml.add("<tc>");
                 // Spacing matters - go to inline
-                row[cell].toXml(xml, EXmlStyle.INLINE, 0);
+                docNonwrappingSpanInst.toXml(xml, EXmlStyle.INLINE, 0);
                 xml.add("</tc>");
                 if (xmlStyle == EXmlStyle.INDENTED) {
                     xml.addln();

@@ -10,7 +10,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 
@@ -114,7 +113,7 @@ public class HtmlSessionBase {
 
         this.writer = new ExamWriter();
 
-        this.active = TermLogic.get(cache).queryActive(cache);
+        this.active = cache.getSystemData().getActiveTerm();
 
         loadStudentInfo(cache);
     }

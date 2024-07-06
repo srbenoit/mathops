@@ -9,7 +9,6 @@ import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -272,7 +271,7 @@ public abstract class AbstractPageSite extends AbstractSite {
     public static void hours(final Cache cache, final HtmlBuilder htm, final boolean showWalkin,
                              final boolean showRoomNumber) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec term = cache.getSystemData().getActiveTerm();
         final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
 
         if (term != null) {
@@ -397,7 +396,7 @@ public abstract class AbstractPageSite extends AbstractSite {
             }
 
             if (start1x != null && end1x != null) {
-                final TermRec nextTerm = TermLogic.get(cache).queryNext(cache);
+                final TermRec nextTerm = cache.getSystemData().getNextTerm();
 
                 if (nextTerm != null) {
                     htm.sH(4).add(nextTerm.term.longString).eH(4);
@@ -481,7 +480,7 @@ public abstract class AbstractPageSite extends AbstractSite {
      */
     public static void helpHours(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec term = cache.getSystemData().getActiveTerm();
         final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
 
         if (term != null) {

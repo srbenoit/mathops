@@ -6,7 +6,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.CsuLiveRegChecker;
@@ -73,7 +72,7 @@ enum BookstorePage {
     static HtmlBuilder startBookstorePage(final Cache cache, final AdminSite site, final ImmutableSessionInfo session)
             throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = cache.getSystemData().getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
@@ -114,20 +113,14 @@ enum BookstorePage {
             Log.warning(Res.fmt(Res.ATTACK_PARAM, ADJUST_DATE, adjustDate));
             Log.warning(Res.fmt(Res.ATTACK_PARAM, TARGET, target));
         } else {
-            final int dateAdjust;
-            if (WEEK_SUB.equals(adjustDate)) {
-                dateAdjust = -7;
-            } else if (WEEK_ADD.equals(adjustDate)) {
-                dateAdjust = 7;
-            } else if (DAY_SUB.equals(adjustDate)) {
-                dateAdjust = -1;
-            } else if (DAY_ADD.equals(adjustDate)) {
-                dateAdjust = 1;
-            } else if (RESET.equals(adjustDate)) {
-                dateAdjust = (int) (-session.timeOffset / MILLIS_PER_DAY);
-            } else {
-                dateAdjust = 0;
-            }
+            final int dateAdjust = switch (adjustDate) {
+                case WEEK_SUB -> -7;
+                case WEEK_ADD -> 7;
+                case DAY_SUB -> -1;
+                case DAY_ADD -> 1;
+                case RESET -> (int) (-session.timeOffset / MILLIS_PER_DAY);
+                case null, default -> 0;
+            };
 
             String actAs2 = actAsStu == null ? null
                     : actAsStu.trim().replace(CoreConstants.DASH, CoreConstants.EMPTY);

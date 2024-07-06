@@ -140,8 +140,7 @@ public final class IntegerVectorValue {
 
         for (int row = 0; row < count; ++row) {
             final long element = getElement(row);
-            final long bits = Double.doubleToLongBits((double) element);
-            hash += (int) (bits ^ (bits >>> Integer.SIZE));
+            hash += Double.hashCode((double) element);
         }
 
         return hash;

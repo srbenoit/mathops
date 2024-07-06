@@ -22,7 +22,7 @@ import java.awt.RenderingHints;
 public final class ExpressionViewPanel extends JPanel {
 
     /** The expression this panel will display. */
-    private Expr expr;
+    private final Expr expr;
 
     /** The minimum size for the panel. */
     private final Dimension minSize;

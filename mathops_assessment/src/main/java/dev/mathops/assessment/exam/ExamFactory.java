@@ -302,28 +302,25 @@ public enum ExamFactory {
                     final String tag = child.getTagName();
                     if (child instanceof final NonemptyElement childElem) {
 
-                        if ("ref-base".equals(tag)) {
-                            valid = parseRefBase(childElem, exam);
-                        } else if ("reference-root".equals(tag)) {
-                            valid = parseReferenceRoot(childElem, exam);
-                        } else if ("instructions".equals(tag)) {
-                            if (exam.instructions == null) {
-                                valid = parseInstructions(childElem, exam, mode);
-                            } else {
-                                content.logError(top, "Multiple <instructions> elements in <exam> element.");
+                        switch (tag) {
+                            case "ref-base" -> valid = parseRefBase(childElem, exam);
+                            case "reference-root" -> valid = parseReferenceRoot(childElem, exam);
+                            case "instructions" -> {
+                                if (exam.instructions == null) {
+                                    valid = parseInstructions(childElem, exam, mode);
+                                } else {
+                                    content.logError(top, "Multiple <instructions> elements in <exam> element.");
+                                    valid = false;
+                                }
+                            }
+                            case "exam-section" -> valid = parseSection(childElem, exam);
+                            case "subtest" -> valid = parseSubtest(childElem, exam);
+                            case "grading-rule" -> valid = parseGradingRule(childElem, exam, mode);
+                            case "outcome" -> valid = parseOutcome(exam.getEvalContext(), childElem, exam, mode);
+                            case null, default -> {
+                                content.logError(top, "Unexpected '" + tag + "' element in <exam> element.");
                                 valid = false;
                             }
-                        } else if ("exam-section".equals(tag)) {
-                            valid = parseSection(childElem, exam);
-                        } else if ("subtest".equals(tag)) {
-                            valid = parseSubtest(childElem, exam);
-                        } else if ("grading-rule".equals(tag)) {
-                            valid = parseGradingRule(childElem, exam, mode);
-                        } else if ("outcome".equals(tag)) {
-                            valid = parseOutcome(exam.getEvalContext(), childElem, exam, mode);
-                        } else {
-                            content.logError(top, "Unexpected '" + tag + "' element in <exam> element.");
-                            valid = false;
                         }
 
                         if (!valid) {
@@ -1046,15 +1043,14 @@ public enum ExamFactory {
                 final String tag = child.getTagName();
 
                 if (child instanceof final EmptyElement childElem) {
-                    if ("indicate-placement".equals(tag)) {
-                        valid = parseOutcomeIndicatePlacement(childElem, outcome);
-                    } else if ("indicate-credit".equals(tag)) {
-                        valid = parseOutcomeIndicateCredit(childElem, outcome);
-                    } else if ("indicate-licensed".equals(tag)) {
-                        valid = parseOutcomeIndicateLicensed(childElem, outcome);
-                    } else {
-                        elem.logError("Unexpected empty '" + tag + "' element in <outcome> element.");
-                        valid = false;
+                    switch (tag) {
+                        case "indicate-placement" -> valid = parseOutcomeIndicatePlacement(childElem, outcome);
+                        case "indicate-credit" -> valid = parseOutcomeIndicateCredit(childElem, outcome);
+                        case "indicate-licensed" -> valid = parseOutcomeIndicateLicensed(childElem, outcome);
+                        case null, default -> {
+                            elem.logError("Unexpected empty '" + tag + "' element in <outcome> element.");
+                            valid = false;
+                        }
                     }
 
                     if (!valid) {
@@ -1063,15 +1059,14 @@ public enum ExamFactory {
 
                 } else if (child instanceof final NonemptyElement childElem) {
 
-                    if ("condition".equals(tag)) {
-                        valid = parseOutcomeCondition(evalContext, childElem, outcome, mode);
-                    } else if ("prereq".equals(tag)) {
-                        valid = parseOutcomePrereq(evalContext, childElem, outcome, mode);
-                    } else if ("valid-if".equals(tag)) {
-                        valid = parseOutcomeValidIf(evalContext, childElem, outcome, mode);
-                    } else {
-                        elem.logError("Unexpected nonempty '" + tag + "' element in <outcome> element.");
-                        valid = false;
+                    switch (tag) {
+                        case "condition" -> valid = parseOutcomeCondition(evalContext, childElem, outcome, mode);
+                        case "prereq" -> valid = parseOutcomePrereq(evalContext, childElem, outcome, mode);
+                        case "valid-if" -> valid = parseOutcomeValidIf(evalContext, childElem, outcome, mode);
+                        case null, default -> {
+                            elem.logError("Unexpected nonempty '" + tag + "' element in <outcome> element.");
+                            valid = false;
+                        }
                     }
 
                     if (!valid) {

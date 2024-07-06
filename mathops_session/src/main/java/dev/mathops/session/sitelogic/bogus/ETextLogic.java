@@ -13,7 +13,6 @@ import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStetext;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
@@ -56,7 +55,7 @@ public enum ETextLogic {
             // Policy: Administrative or guest IDs don't need to purchase textbook
             canAccess = true;
         } else {
-            final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
             if (activeTerm != null) {
 
@@ -108,20 +107,14 @@ public enum ETextLogic {
                                        final String courseId, final ZonedDateTime now) throws SQLException {
 
         // Completing a tutorial grants permanent access to that course's e-text
-        final String actualCourseId;
-        if (RawRecordConstants.M1170.equals(courseId)) {
-            actualCourseId = RawRecordConstants.M117;
-        } else if (RawRecordConstants.M1180.equals(courseId)) {
-            actualCourseId = RawRecordConstants.M118;
-        } else if (RawRecordConstants.M1240.equals(courseId)) {
-            actualCourseId = RawRecordConstants.M124;
-        } else if (RawRecordConstants.M1250.equals(courseId)) {
-            actualCourseId = RawRecordConstants.M125;
-        } else if (RawRecordConstants.M1260.equals(courseId)) {
-            actualCourseId = RawRecordConstants.M126;
-        } else {
-            actualCourseId = courseId;
-        }
+        final String actualCourseId = switch (courseId) {
+            case RawRecordConstants.M1170 -> RawRecordConstants.M117;
+            case RawRecordConstants.M1180 -> RawRecordConstants.M118;
+            case RawRecordConstants.M1240 -> RawRecordConstants.M124;
+            case RawRecordConstants.M1250 -> RawRecordConstants.M125;
+            case RawRecordConstants.M1260 -> RawRecordConstants.M126;
+            case null, default -> courseId;
+        };
 
         final List<RawStetext> active = RawStetextLogic.getStudentETexts(cache, now, studentId, actualCourseId);
 
@@ -143,7 +136,7 @@ public enum ETextLogic {
                 final List<RawEtextCourse> courses =
                         RawEtextCourseLogic.queryByEtext(cache, etext.etextId);
 
-                if (courses.size() == 1 && actualCourseId.equals(courses.get(0).course)) {
+                if (courses.size() == 1 && actualCourseId.equals(courses.getFirst().course)) {
                     newEtext = etext;
                     break;
                 }

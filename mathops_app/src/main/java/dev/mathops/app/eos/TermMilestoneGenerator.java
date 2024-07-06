@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -1684,7 +1683,7 @@ public enum TermMilestoneGenerator {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final List<RawSemesterCalendar> weeks =
                         RawSemesterCalendarLogic.INSTANCE.queryAll(cache);

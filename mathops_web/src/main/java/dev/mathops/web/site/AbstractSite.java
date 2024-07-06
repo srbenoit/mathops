@@ -152,14 +152,6 @@ public abstract class AbstractSite {
     public abstract String getTitle();
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being initialized
-     * @throws ServletException if there is an error initializing the site
-     */
-    public abstract void init(ServletConfig config) throws ServletException;
-
-    /**
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
@@ -170,10 +162,9 @@ public abstract class AbstractSite {
      * @param resp    the response
      * @throws IOException      if there is an error writing the response
      * @throws SQLException     if there is an error accessing the database
-     * @throws ServletException if there is an exception processing the request
      */
     public abstract void doGet(final Cache cache, String subpath, ESiteType type, HttpServletRequest req,
-                               HttpServletResponse resp) throws IOException, SQLException, ServletException;
+                               HttpServletResponse resp) throws IOException, SQLException;
 
     /**
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
@@ -186,11 +177,10 @@ public abstract class AbstractSite {
      * @param resp    the response
      * @throws IOException      if there is an error writing the response
      * @throws SQLException     if there is an error accessing the database
-     * @throws ServletException if there is an exception processing the request
      */
     public abstract void doPost(final Cache cache, String subpath, ESiteType type,
                                 HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, SQLException, ServletException;
+            throws IOException, SQLException;
 
     /**
      * Sends a response with a particular content type and content.

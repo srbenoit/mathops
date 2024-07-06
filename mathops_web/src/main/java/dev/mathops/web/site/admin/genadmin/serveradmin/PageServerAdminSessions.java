@@ -960,664 +960,713 @@ public final class PageServerAdminSessions {
 
         final String action = req.getParameter("action");
 
-        if ("abort".equals(action)) {
+        switch (action) {
+            case "abort" -> {
 
-            final String type = req.getParameter("type");
+                final String type = req.getParameter("type");
 
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for placement session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for unit session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
-                        examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for review session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                            ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for learning target session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for past exam session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'abort' request for past exam session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'abort' action: ", type);
-            }
-        } else if ("abortconfirm".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else if (sess
-                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of placement exam for student ", studentId);
-                    sess.forceAbort(cache, session);
-                } else {
-                    Log.warning("'abortconfirm' request for placement session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else if (sess
-                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of unit exam for student ", sess.studentId);
-                    sess.forceAbort(cache, session);
-                } else {
-                    Log.warning("'abortconfirm' request for unit session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess =
-                        ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else if (sess
-                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of review exam for student ", sess.studentId);
-                    sess.forceAbort(cache, session);
-                } else {
-                    Log.warning("'abortconfirm' request for review session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                            ", ", examId);
-                } else if (sess
-                        .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of learning target assignment for student ", sess.studentId);
-                    sess.forceAbort(cache, session);
-                } else {
-                    Log.warning("'abortconfirm' request for learning target assignment session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of past exam exam for student ", sess.studentId);
-                    sess.forceAbort(session);
-                } else {
-                    Log.warning("'abortconfirm' request for past exam session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of past exam exam for student ", sess.studentId);
-                    sess.forceAbort(session);
-                } else {
-                    Log.warning("'abortconfirm' request for past exam session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'abortconfirm' action: ", type);
-            }
-        } else if ("abortcancel".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'abortcancel' request for placement session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'abortcancel' request for unit session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess =
-                        ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'abortcancel' request for review session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                            ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                        // TODO:
-                    } else {
-                        Log.warning(
-                                "'abortcancel' request for learning target assignment session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for past exam session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                        // TODO:
-                    } else {
-                        Log.warning("'abortcancel' request for past exam session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for past LTA session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                        // TODO:
-                    } else {
-                        Log.warning("'abortcancel' request for past LTA session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'abortcancel' action: ", type);
-            }
-
-        } else if ("submit".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
-                } else {
-                    Log.warning("'submit' request for placement session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
-                } else {
-                    Log.warning("'submit' request for unit session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
-                        examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
-                } else {
-                    Log.warning("'submit' request for review session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
-                } else {
-                    Log.warning("'submit' request for learning target assignment session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'submit' action: ", type);
-            }
-        } else if ("submitconfirm".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-                    Log.warning("Forced submit of placement exam for student ", studentId);
-                    sess.forceSubmit(cache, session);
-                } else {
-                    Log.warning("'submitconfirm' request for placement session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-                    Log.warning("Forced submit of unit exam for student ", sess.studentId);
-                    sess.forceSubmit(cache, session);
-                } else {
-                    Log.warning("'submitconfirm' request for unit session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess =
-                        ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-                    Log.warning("Forced submit of review exam for student ", sess.studentId);
-                    sess.forceSubmit(cache, session);
-                } else {
-                    Log.warning("'submitconfirm' request for review session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
-                } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-                    Log.warning("Forced submit of learning target assignment exam for student ", sess.studentId);
-                    sess.forceSubmit(cache, session);
-                } else {
-                    Log.warning("'submitconfirm' request for learning target assignment session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'submitconfirm' action: ", type);
-            }
-        } else if ("submitcancel".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("placement_exam".equals(type)) {
-                final String studentId = req.getParameter("student_id");
-                final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
-                        .getPlacementExamSessionForStudent(studentId);
-                if (sess == null) {
-                    Log.warning("Unrecognized student ID for placement session: ", studentId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'submitcancel' request for placement session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("unit_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'submitcancel' request for unit session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("review_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
-                        examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'submitcancel' request for review session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-
-                        // TODO:
-                    } else {
-                        Log.warning("'submitcancel' request for review learning target assignment in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'submitcancel' action: ", type);
-            }
-
-        } else if ("terminate".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("login".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final ImmutableSessionInfo sess = SessionManager.getInstance().getUserSession(sessionId);
-                if (sess == null) {
-                    Log.warning("Unrecognized login session ID: ", sessionId);
-                } else {
-                    // TODO:
-                    Log.warning("Unimplemented: terminate login session");
-                }
-            } else if ("homework".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
-
-                if (sess == null) {
-                    Log.warning("Unrecognized homework session/exam ID: ", sessionId, ", ", examId);
-                } else {
-                    synchronized (sess) {
-                        if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
                             sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
                         } else {
-                            Log.warning("'terminate' request for homework in termination state: ",
+                            Log.warning("'abort' request for placement session in termination state: ",
                                     sess.getForceTerminate().name());
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
                     }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'abort' request for unit session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
+                                examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'abort' request for review session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                                    ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'abort' request for learning target session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'abort' request for past exam session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'abort' request for past exam session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'abort' action: ", type);
                 }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized past exam session/XML path: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'terminate' request for past exam in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized past LTA session/XML path: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
-                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
-                } else {
-                    Log.warning("'terminate' request for past LTA in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type: ", type);
             }
+            case "abortconfirm" -> {
 
-        } else if ("terminateconfirm".equals(action)) {
+                final String type = req.getParameter("type");
 
-            final String type = req.getParameter("type");
-
-            if ("homework".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for homework session: ",
-                            sessionId, ", ", examId);
-                } else {
-                    synchronized (sess) {
-                        if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                            Log.warning("Forced abort of homework for student ", sess.studentId);
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else if (sess
+                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of placement exam for student ", studentId);
+                            sess.forceAbort(cache, session);
+                        } else {
+                            Log.warning("'abortconfirm' request for placement session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else if (sess
+                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of unit exam for student ", sess.studentId);
+                            sess.forceAbort(cache, session);
+                        } else {
+                            Log.warning("'abortconfirm' request for unit session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess =
+                                ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else if (sess
+                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of review exam for student ", sess.studentId);
+                            sess.forceAbort(cache, session);
+                        } else {
+                            Log.warning("'abortconfirm' request for review session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                                    ", ", examId);
+                        } else if (sess
+                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of learning target assignment for student ", sess.studentId);
+                            sess.forceAbort(cache, session);
+                        } else {
+                            Log.warning("'abortconfirm' request for learning target assignment session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of past exam exam for student ", sess.studentId);
                             sess.forceAbort(session);
                         } else {
-                            Log.warning("'terminateconfirm' request for homework session in termination state: ",
+                            Log.warning("'abortconfirm' request for past exam session in termination state: ",
                                     sess.getForceTerminate().name());
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
                     }
-                }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of past exam for student ", sess.studentId);
-                    sess.forceAbort(session);
-                } else {
-                    Log.warning("'terminateconfirm' request for past exam session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
-                } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                    Log.warning("Forced abort of past LTA for student ", sess.studentId);
-                    sess.forceAbort(session);
-                } else {
-                    Log.warning("'terminateconfirm' request for past LTA session in termination state: ",
-                            sess.getForceTerminate().name());
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'terminateconfirm' action: ", type);
-            }
-        } else if ("terminatecancel".equals(action)) {
-
-            final String type = req.getParameter("type");
-
-            if ("homework".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String examId = req.getParameter("exam_id");
-                final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/exam for homework session: ", sessionId, ", ", examId);
-                } else {
-                    synchronized (sess) {
-                        if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-
-                            // TODO:
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of past exam exam for student ", sess.studentId);
+                            sess.forceAbort(session);
                         } else {
-                            Log.warning("'terminatecancel' request for homework session in termination state: ",
+                            Log.warning("'abortconfirm' request for past exam session in termination state: ",
                                     sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
                         }
-                        sess.setForceTerminate(EForceTerminateState.NONE);
                     }
+                    case null, default -> Log.warning("Unrecognized type for 'abortconfirm' action: ", type);
                 }
-            } else if ("past_exam".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                        // TODO:
-                    } else {
-                        Log.warning("'terminatecancel' request for past exam session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else if ("past_lta".equals(type)) {
-                final String sessionId = req.getParameter("session_id");
-                final String xml = req.getParameter("xml");
-                final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
-                if (sess == null) {
-                    Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
-                } else {
-                    if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
-                        // TODO:
-                    } else {
-                        Log.warning("'terminatecancel' request for past LTA session in termination state: ",
-                                sess.getForceTerminate().name());
-                    }
-                    sess.setForceTerminate(EForceTerminateState.NONE);
-                }
-            } else {
-                Log.warning("Unrecognized type for 'terminatecancel' action: ", type);
             }
+            case "abortcancel" -> {
 
-        } else {
-            Log.warning("Unrecognized action: ", action);
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'abortcancel' request for placement session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'abortcancel' request for unit session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess =
+                                ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'abortcancel' request for review session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
+                                    ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                // TODO:
+                            } else {
+                                Log.warning(
+                                        "'abortcancel' request for learning target assignment session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for past exam session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                // TODO:
+                            } else {
+                                Log.warning("'abortcancel' request for past exam session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for past LTA session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                // TODO:
+                            } else {
+                                Log.warning("'abortcancel' request for past LTA session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'abortcancel' action: ", type);
+                }
+
+            }
+            case "submit" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
+                        } else {
+                            Log.warning("'submit' request for placement session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
+                        } else {
+                            Log.warning("'submit' request for unit session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
+                                examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
+                        } else {
+                            Log.warning("'submit' request for review session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
+                        } else {
+                            Log.warning("'submit' request for learning target assignment session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'submit' action: ", type);
+                }
+            }
+            case "submitconfirm" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                            Log.warning("Forced submit of placement exam for student ", studentId);
+                            sess.forceSubmit(cache, session);
+                        } else {
+                            Log.warning("'submitconfirm' request for placement session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                            Log.warning("Forced submit of unit exam for student ", sess.studentId);
+                            sess.forceSubmit(cache, session);
+                        } else {
+                            Log.warning("'submitconfirm' request for unit session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess =
+                                ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                            Log.warning("Forced submit of review exam for student ", sess.studentId);
+                            sess.forceSubmit(cache, session);
+                        } else {
+                            Log.warning("'submitconfirm' request for review session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+                            Log.warning("Forced submit of learning target assignment exam for student ", sess.studentId);
+                            sess.forceSubmit(cache, session);
+                        } else {
+                            Log.warning("'submitconfirm' request for learning target assignment session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'submitconfirm' action: ", type);
+                }
+            }
+            case "submitcancel" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "placement_exam" -> {
+                        final String studentId = req.getParameter("student_id");
+                        final PlacementExamSession sess = PlacementExamSessionStore.getInstance()
+                                .getPlacementExamSessionForStudent(studentId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized student ID for placement session: ", studentId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'submitcancel' request for placement session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "unit_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'submitcancel' request for unit session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "review_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
+                                examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'submitcancel' request for review session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
+
+                                // TODO:
+                            } else {
+                                Log.warning("'submitcancel' request for review learning target assignment in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'submitcancel' action: ", type);
+                }
+
+            }
+            case "terminate" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "login" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final ImmutableSessionInfo sess = SessionManager.getInstance().getUserSession(sessionId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized login session ID: ", sessionId);
+                        } else {
+                            // TODO:
+                            Log.warning("Unimplemented: terminate login session");
+                        }
+                    }
+                    case "homework" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+
+                        if (sess == null) {
+                            Log.warning("Unrecognized homework session/exam ID: ", sessionId, ", ", examId);
+                        } else {
+                            synchronized (sess) {
+                                if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                                    sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                                } else {
+                                    Log.warning("'terminate' request for homework in termination state: ",
+                                            sess.getForceTerminate().name());
+                                    sess.setForceTerminate(EForceTerminateState.NONE);
+                                }
+                            }
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized past exam session/XML path: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'terminate' request for past exam in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized past LTA session/XML path: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
+                            sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
+                        } else {
+                            Log.warning("'terminate' request for past LTA in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type: ", type);
+                }
+
+            }
+            case "terminateconfirm" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "homework" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for homework session: ",
+                                    sessionId, ", ", examId);
+                        } else {
+                            synchronized (sess) {
+                                if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                    Log.warning("Forced abort of homework for student ", sess.studentId);
+                                    sess.forceAbort(session);
+                                } else {
+                                    Log.warning("'terminateconfirm' request for homework session in termination state: ",
+                                            sess.getForceTerminate().name());
+                                    sess.setForceTerminate(EForceTerminateState.NONE);
+                                }
+                            }
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of past exam for student ", sess.studentId);
+                            sess.forceAbort(session);
+                        } else {
+                            Log.warning("'terminateconfirm' request for past exam session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Forced abort of past LTA for student ", sess.studentId);
+                            sess.forceAbort(session);
+                        } else {
+                            Log.warning("'terminateconfirm' request for past LTA session in termination state: ",
+                                    sess.getForceTerminate().name());
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'terminateconfirm' action: ", type);
+                }
+            }
+            case "terminatecancel" -> {
+
+                final String type = req.getParameter("type");
+
+                switch (type) {
+                    case "homework" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String examId = req.getParameter("exam_id");
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/exam for homework session: ", sessionId, ", ", examId);
+                        } else {
+                            synchronized (sess) {
+                                if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+
+                                    // TODO:
+                                } else {
+                                    Log.warning("'terminatecancel' request for homework session in termination state: ",
+                                            sess.getForceTerminate().name());
+                                }
+                                sess.setForceTerminate(EForceTerminateState.NONE);
+                            }
+                        }
+                    }
+                    case "past_exam" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                // TODO:
+                            } else {
+                                Log.warning("'terminatecancel' request for past exam session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case "past_lta" -> {
+                        final String sessionId = req.getParameter("session_id");
+                        final String xml = req.getParameter("xml");
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, xml);
+                        if (sess == null) {
+                            Log.warning("Unrecognized session ID/XML for past LTA session: ", sessionId, ", ", xml);
+                        } else {
+                            if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                                // TODO:
+                            } else {
+                                Log.warning("'terminatecancel' request for past LTA session in termination state: ",
+                                        sess.getForceTerminate().name());
+                            }
+                            sess.setForceTerminate(EForceTerminateState.NONE);
+                        }
+                    }
+                    case null, default -> Log.warning("Unrecognized type for 'terminatecancel' action: ", type);
+                }
+
+            }
+            case null, default -> Log.warning("Unrecognized action: ", action);
         }
 
         doGet(cache, site, req, resp, session);

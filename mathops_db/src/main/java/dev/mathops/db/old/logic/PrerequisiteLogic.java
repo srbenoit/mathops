@@ -1,13 +1,6 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
@@ -16,7 +9,7 @@ import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -204,8 +197,9 @@ public final class PrerequisiteLogic {
 
         if (!prereqSatisfied && RawRecordConstants.M117.equals(courseId)) {
 
+            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
             final List<RawStcourse> allCurrent = RawStcourseLogic.getActiveForStudent(cache, this.studentId,
-                    TermLogic.get(cache).queryActive(cache).term);
+                    activeTerm.term);
 
             String sect = null;
             for (final RawStcourse test : allCurrent) {

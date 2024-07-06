@@ -24,7 +24,6 @@ import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStresource;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -88,7 +87,7 @@ public enum SetHolds {
         final LocalDate endDate;
         String sev;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawStresource> resources = RawStresourceLogic.INSTANCE.queryAll(cache);
 
@@ -351,14 +350,11 @@ public enum SetHolds {
                 final String sect = reg.sect;
 
                 if ("M 117".equals(course)) {
-                    if ("001".equals(sect)) {
-                        hasF2F117Sect001 = true;
-                    } else if ("002".equals(sect) || "102".equals(sect)) {
-                        hasF2F117Sect002 = true;
-                    } else if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
-                        hasNormalDistance = true;
-                    } else {
-                        Log.warning("Unexpected ", course, " section number: ", sect);
+                    switch (sect) {
+                        case "001" -> hasF2F117Sect001 = true;
+                        case "002", "102" -> hasF2F117Sect002 = true;
+                        case "401", "801", "809" -> hasNormalDistance = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
                     }
                 } else if ("M 118".equals(course)) {
                     if ("002".equals(sect) || "102".equals(sect)) {
@@ -505,18 +501,13 @@ public enum SetHolds {
                         Log.info("Removing hold ", holdId, " for student '", stuId, "'");
                         RawAdminHoldLogic.INSTANCE.delete(cache, test);
 
-                        if ("03".equals(holdId)) {
-                            ++num03Removed;
-                        } else if ("04".equals(holdId)) {
-                            ++num04Removed;
-                        } else if ("16".equals(holdId)) {
-                            ++num16Removed;
-                        } else if ("23".equals(holdId)) {
-                            ++num23Removed;
-                        } else if ("25".equals(holdId)) {
-                            ++num25Removed;
-                        } else if ("27".equals(holdId)) {
-                            ++num27Removed;
+                        switch (holdId) {
+                            case "03" -> ++num03Removed;
+                            case "04" -> ++num04Removed;
+                            case "16" -> ++num16Removed;
+                            case "23" -> ++num23Removed;
+                            case "25" -> ++num25Removed;
+                            case "27" -> ++num27Removed;
                         }
                     }
                 }

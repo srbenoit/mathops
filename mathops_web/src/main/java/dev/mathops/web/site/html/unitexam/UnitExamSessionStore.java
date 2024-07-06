@@ -123,10 +123,9 @@ public final class UnitExamSessionStore {
                 }
 
                 // Generate and store the new exam code
-                examCode = CoreConstants.newId(6);
-                while (this.examCodeToSessionId.containsKey(examCode)) {
+                do {
                     examCode = CoreConstants.newId(6);
-                }
+                } while (this.examCodeToSessionId.containsKey(examCode));
                 Log.info("Storing exam code '", examCode, "' for session ", sessionId);
                 this.examCodeToSessionId.put(examCode, sessionId);
                 this.sessionIdToExamCode.put(sessionId, examCode);
@@ -444,7 +443,7 @@ public final class UnitExamSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes in loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;

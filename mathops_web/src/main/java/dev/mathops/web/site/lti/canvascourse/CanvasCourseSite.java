@@ -131,23 +131,22 @@ public final class CanvasCourseSite extends CourseSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("course_content.html".equals(subpath)) {
-            PageCourseContent.doGet(req, resp);
-        } else if ("course_config.html".equals(subpath)) {
-            PageCourseConfig.doPost(req, resp);
-        } else if ("course_admin.html".equals(subpath)) {
-            PageCourseAdmin.doPost(req, resp);
-        } else {
-            Log.info("POST request to unrecognized URL: ", subpath);
+        switch (subpath) {
+            case "course_content.html" -> PageCourseContent.doGet(req, resp);
+            case "course_config.html" -> PageCourseConfig.doPost(req, resp);
+            case "course_admin.html" -> PageCourseAdmin.doPost(req, resp);
+            case null, default -> {
+                Log.info("POST request to unrecognized URL: ", subpath);
 
-            final Enumeration<String> e1 = req.getParameterNames();
-            while (e1.hasMoreElements()) {
-                final String name = e1.nextElement();
-                Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                final Enumeration<String> e1 = req.getParameterNames();
+                while (e1.hasMoreElements()) {
+                    final String name = e1.nextElement();
+                    Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                }
+
+                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
-
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

@@ -132,21 +132,26 @@ public class UnaryOper extends AbstractFormulaContainer implements IEditableForm
                 }
             } else if (this.op == EUnaryOp.MINUS) { // Change the sign on a Real or Integer
 
-                if (result instanceof final Long l) {
-                    ival = l.longValue();
-                    result = Long.valueOf(-ival);
-                } else if (result instanceof final Irrational i) {
-                    if (i.factor == EIrrationalFactor.SQRT) {
-                        result = new Irrational(i.factor, i.base, -i.numerator, i.denominator);
-                    } else {
-                        result = new Irrational(i.factor, -i.numerator, i.denominator);
+                switch (result) {
+                    case final Long l -> {
+                        ival = l.longValue();
+                        result = Long.valueOf(-ival);
                     }
-                } else if (result instanceof final Number d) {
-                    rval = d.doubleValue();
-                    result = Double.valueOf(-rval);
-                } else {
-                    return new ErrorValue("Unary '-' cannot be applied to "
-                            + result.getClass().getSimpleName());
+                    case final Irrational i -> {
+                        if (i.factor == EIrrationalFactor.SQRT) {
+                            result = new Irrational(i.factor, i.base, -i.numerator, i.denominator);
+                        } else {
+                            result = new Irrational(i.factor, -i.numerator, i.denominator);
+                        }
+                    }
+                    case final Number d -> {
+                        rval = d.doubleValue();
+                        result = Double.valueOf(-rval);
+                    }
+                    case null, default -> {
+                        return new ErrorValue("Unary '-' cannot be applied to "
+                                + result.getClass().getSimpleName());
+                    }
                 }
             }
         }

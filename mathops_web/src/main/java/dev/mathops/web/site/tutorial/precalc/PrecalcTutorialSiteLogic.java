@@ -18,7 +18,6 @@ import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
@@ -71,7 +70,7 @@ final class PrecalcTutorialSiteLogic {
         this.studentId = session.getEffectiveUserId();
 
         try {
-            this.activeTerm = TermLogic.get(theCache).queryActive(theCache);
+            this.activeTerm = theCache.getSystemData().getActiveTerm();
         } catch (final SQLException ex) {
             Log.warning("Failed to query active term", ex);
         }
@@ -269,7 +268,7 @@ final class PrecalcTutorialSiteLogic {
             if (comparison < 0) {
                 // Application term is in the future
                 try {
-                    final TermRec appTerm = TermLogic.get(cache).query(cache, applicationTermKey);
+                    final TermRec appTerm = cache.getSystemData().getTerm(applicationTermKey);
                     if (appTerm == null) {
                         Log.warning(applicationTermKey.shortString, " term record not found");
                         result = null;
@@ -337,19 +336,12 @@ final class PrecalcTutorialSiteLogic {
      */
     static String getAssociatedCourse(final RawCourse tutorialCourse) {
 
-        final String associatedCourse;
-
-        if (RawRecordConstants.M1170.equals(tutorialCourse.course)) {
-            associatedCourse = "MATH 117";
-        } else if (RawRecordConstants.M1180.equals(tutorialCourse.course)) {
-            associatedCourse = "MATH 118";
-        } else if (RawRecordConstants.M1240.equals(tutorialCourse.course)) {
-            associatedCourse = "MATH 124";
-        } else if (RawRecordConstants.M1250.equals(tutorialCourse.course)) {
-            associatedCourse = "MATH 125";
-        } else {
-            associatedCourse = "MATH 126";
-        }
-        return associatedCourse;
+        return switch (tutorialCourse.course) {
+            case RawRecordConstants.M1170 -> "MATH 117";
+            case RawRecordConstants.M1180 -> "MATH 118";
+            case RawRecordConstants.M1240 -> "MATH 124";
+            case RawRecordConstants.M1250 -> "MATH 125";
+            case null, default -> "MATH 126";
+        };
     }
 }

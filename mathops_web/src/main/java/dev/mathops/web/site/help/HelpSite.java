@@ -58,17 +58,6 @@ public final class HelpSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -110,56 +99,55 @@ public final class HelpSite extends AbstractSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
-            serveImage(subpath, req, resp);
-        } else {
-            final ImmutableSessionInfo session = validateSession(req, resp, null);
+        switch (subpath) {
+            case "basestyle.css", "secure/basestyle.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            case "style.css", "secure/style.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            case "favicon.ico", "secure/favicon.ico" -> serveImage(subpath, req, resp);
+            case null, default -> {
+                final ImmutableSessionInfo session = validateSession(req, resp, null);
 
-            if (session == null) {
-                if (CoreConstants.EMPTY.equals(subpath)) {
-                    redirectTo("login.html", resp);
-                } else if ("index.html".equals(subpath) || "login.html".equals(subpath)) {
-                    PageLanding.showPage(cache, this, req, resp);
-                } else if ("secure/shibboleth.html".equals(subpath)) {
-                    doShibbolethLogin(cache, req, resp, null);
-                } else {
-                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                    PageLanding.showPage(cache, this, req, resp);
-                }
-            } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
-
-                if (CoreConstants.EMPTY.equals(subpath)) {
-                    redirectTo("login.html", resp);
-                } else if ("index.html".equals(subpath)
-                        || "login.html".equals(subpath)) {
-                    PageLanding.showPage(cache, this, req, resp);
-                } else if ("secure/shibboleth.html".equals(subpath)) {
-                    doShibbolethLogin(cache, req, resp, session);
-                } else if ("helpbar.html".equals(subpath)) {
-                    HelpAdminBar.processPost(req, session);
-                    redirectTo("home.html", resp);
-                } else {
-                    Log.info("HelpSite GET[", session.getEffectiveRole().name(),
-                            CoreConstants.SLASH, session.role.name(), "] ", subpath);
-
-                    if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
-                        doGetAdministrator(cache, subpath, req, resp, session);
-                    } else if (session.getEffectiveRole().canActAs(ERole.TUTOR)) {
-                        doGetTutor(cache, subpath, req, resp, session);
-                    } else if (session.getEffectiveRole().canActAs(ERole.STUDENT)) {
-                        doGetStudent(cache, subpath, req, resp, session);
-                    } else {
-                        Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                        PageLanding.showPage(cache, this, req, resp);
+                if (session == null) {
+                    switch (subpath) {
+                        case CoreConstants.EMPTY -> redirectTo("login.html", resp);
+                        case "index.html", "login.html" -> PageLanding.showPage(cache, this, req, resp);
+                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null);
+                        case null, default -> {
+                            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                            PageLanding.showPage(cache, this, req, resp);
+                        }
                     }
-                }
+                } else {
+                    LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-                LogBase.setSessionInfo(null, null);
+                    switch (subpath) {
+                        case CoreConstants.EMPTY -> redirectTo("login.html", resp);
+                        case "index.html", "login.html" -> PageLanding.showPage(cache, this, req, resp);
+                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session);
+                        case "helpbar.html" -> {
+                            HelpAdminBar.processPost(req, session);
+                            redirectTo("home.html", resp);
+                        }
+                        case null, default -> {
+                            Log.info("HelpSite GET[", session.getEffectiveRole().name(),
+                                    CoreConstants.SLASH, session.role.name(), "] ", subpath);
+
+                            if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
+                                doGetAdministrator(cache, subpath, req, resp, session);
+                            } else if (session.getEffectiveRole().canActAs(ERole.TUTOR)) {
+                                doGetTutor(cache, subpath, req, resp, session);
+                            } else if (session.getEffectiveRole().canActAs(ERole.STUDENT)) {
+                                doGetStudent(cache, subpath, req, resp, session);
+                            } else {
+                                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                                PageLanding.showPage(cache, this, req, resp);
+                            }
+                        }
+                    }
+
+                    LogBase.setSessionInfo(null, null);
+                }
             }
         }
     }
@@ -204,17 +192,15 @@ public final class HelpSite extends AbstractSite {
                             final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        if ("home.html".equals(subpath)) {
-            PageTutorHome.doGet(this, req, resp, session);
-        } else if ("homemax.html".equals(subpath)) {
-            PageTutorHome.doMaxGet(this, req, resp, session);
-        } else if ("livehelp.html".equals(subpath)) {
-            PageTutorLiveHelp.doGet(this, req, resp, session);
-        } else if ("livehelpmax.html".equals(subpath)) {
-            PageTutorLiveHelp.doMaxGet(this, req, resp, session);
-        } else {
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-            PageLanding.showPage(cache, this, req, resp);
+        switch (subpath) {
+            case "home.html" -> PageTutorHome.doGet(this, req, resp, session);
+            case "homemax.html" -> PageTutorHome.doMaxGet(this, req, resp, session);
+            case "livehelp.html" -> PageTutorLiveHelp.doGet(this, req, resp, session);
+            case "livehelpmax.html" -> PageTutorLiveHelp.doMaxGet(this, req, resp, session);
+            case null, default -> {
+                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                PageLanding.showPage(cache, this, req, resp);
+            }
         }
     }
 
@@ -233,25 +219,19 @@ public final class HelpSite extends AbstractSite {
                               final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        if ("home.html".equals(subpath)) {
-            PageStudentHome.doGet(this, req, resp, session);
-        } else if ("topic.html".equals(subpath)) {
-            PageStudentTopic.doGet(cache, this, req, resp, session);
-        } else if ("lobby.html".equals(subpath)) {
-            PageStudentLobby.doGet(cache, this, req, resp, session);
-        } else if ("help.html".equals(subpath)) {
-            PageStudentHelp.doGet(cache, this, req, resp, session);
-        } else if ("helpmax.html".equals(subpath)) {
-            PageStudentHelp.doGetMax(req, resp, session);
-        } else if ("livehelp.html".equals(subpath)) {
-            PageStudentLiveHelp.doGet(cache, this, req, resp, session);
-        } else if ("forum.html".equals(subpath)) {
-            PageStudentForum.doGet(cache, this, req, resp, session);
-        } else if ("email.html".equals(subpath)) {
-            PageStudentEmail.doGet(cache, this, req, resp, session);
-        } else {
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-            PageLanding.showPage(cache, this, req, resp);
+        switch (subpath) {
+            case "home.html" -> PageStudentHome.doGet(this, req, resp, session);
+            case "topic.html" -> PageStudentTopic.doGet(cache, this, req, resp, session);
+            case "lobby.html" -> PageStudentLobby.doGet(cache, this, req, resp, session);
+            case "help.html" -> PageStudentHelp.doGet(cache, this, req, resp, session);
+            case "helpmax.html" -> PageStudentHelp.doGetMax(req, resp, session);
+            case "livehelp.html" -> PageStudentLiveHelp.doGet(cache, this, req, resp, session);
+            case "forum.html" -> PageStudentForum.doGet(cache, this, req, resp, session);
+            case "email.html" -> PageStudentEmail.doGet(cache, this, req, resp, session);
+            case null, default -> {
+                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                PageLanding.showPage(cache, this, req, resp);
+            }
         }
     }
 

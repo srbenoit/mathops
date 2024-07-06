@@ -113,9 +113,8 @@ public class WizardModel {
      * Sets the current panel to that identified by the {@code String} passed in.
      *
      * @param id object panel identifier
-     * @return boolean indicating success or failure
      */
-    boolean setCurrentPanel(final String id) {
+    final void setCurrentPanel(final String id) {
 
         final WizardPanelDescriptor nextPanel;
         final WizardPanelDescriptor oldPanel;
@@ -134,8 +133,6 @@ public class WizardModel {
         if (oldPanel != this.currentPanel) {
             firePropertyChange(CURRENT_PANEL_DESCRIPTOR_PROPERTY, oldPanel, this.currentPanel);
         }
-
-        return true;
     }
 
     /**

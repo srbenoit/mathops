@@ -25,6 +25,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.io.Serial;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -262,50 +263,58 @@ final class DocPrimitiveLine extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "line primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "x", "line primitive");
-                ok = this.yCoord != null;
-            } else if ("width".equals(name)) {
-                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "line primitive");
-                ok = this.width != null;
-            } else if ("height".equals(name)) {
-                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "line primitive");
-                ok = this.height != null;
-            } else if ("color".equals(name)) {
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.color = ColorNames.getColor(theValue);
-                    this.colorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'color' value (" + theValue + ") on line primitive");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "line primitive");
+                    ok = this.xCoord != null;
                 }
-            } else if ("stroke-width".equals(name)) {
-                this.strokeWidth = parseDouble(theValue, elem, name, "line primitive");
-                ok = this.strokeWidth != null;
-            } else if ("dash".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int len = split.length;
-                this.dash = new float[len];
-
-                for (int i = 0; i < len; ++i) {
-                    try {
-                        this.dash[i] = (float) Double.parseDouble(split[i]);
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "x", "line primitive");
+                    ok = this.yCoord != null;
+                }
+                case "width" -> {
+                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "line primitive");
+                    ok = this.width != null;
+                }
+                case "height" -> {
+                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "line primitive");
+                    ok = this.height != null;
+                }
+                case "color" -> {
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.color = ColorNames.getColor(theValue);
+                        this.colorName = theValue;
                         ok = true;
-                    } catch (final NumberFormatException e) {
-                        // No action
+                    } else {
+                        elem.logError("Invalid 'color' value (" + theValue + ") on line primitive");
                     }
                 }
-                if (!ok) {
-                    elem.logError("Invalid 'dash' value (" + theValue + ") on line primitive");
+                case "stroke-width" -> {
+                    this.strokeWidth = parseDouble(theValue, elem, name, "line primitive");
+                    ok = this.strokeWidth != null;
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "line primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on line primitive");
+                case "dash" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int len = split.length;
+                    this.dash = new float[len];
+
+                    for (int i = 0; i < len; ++i) {
+                        try {
+                            this.dash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException e) {
+                            // No action
+                        }
+                    }
+                    if (!ok) {
+                        elem.logError("Invalid 'dash' value (" + theValue + ") on line primitive");
+                    }
+                }
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "line primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on line primitive");
             }
         }
 
@@ -629,7 +638,7 @@ final class DocPrimitiveLine extends AbstractDocPrimitive {
                     && Objects.equals(this.color, line.color)
                     && Objects.equals(this.alpha, line.alpha)
                     && Objects.equals(this.strokeWidth, line.strokeWidth)
-                    && Objects.equals(this.dash, line.dash);
+                    && Arrays.equals(this.dash, line.dash);
         } else {
             equal = false;
         }

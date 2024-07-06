@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -161,7 +160,7 @@ public enum PageStudentCourseStatus {
                                          final ImmutableSessionInfo session, final HtmlBuilder htm,
                                          final RawStudent student) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (active == null) {
             htm.addln("ERROR: unable to query active term");

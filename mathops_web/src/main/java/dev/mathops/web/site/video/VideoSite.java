@@ -39,17 +39,6 @@ public final class VideoSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -211,20 +200,14 @@ public final class VideoSite extends AbstractSite {
         } else {
             // For the tutorial courses, we don't want to force duplication of the video files in a
             // new directory, so map those course numbers to the corresponding non-tutorial courses
-            final String actualCourse;
-            if (RawRecordConstants.M1170.equals(course)) {
-                actualCourse = RawRecordConstants.M117;
-            } else if (RawRecordConstants.M1180.equals(course)) {
-                actualCourse = RawRecordConstants.M118;
-            } else if (RawRecordConstants.M1240.equals(course)) {
-                actualCourse = RawRecordConstants.M124;
-            } else if (RawRecordConstants.M1250.equals(course)) {
-                actualCourse = RawRecordConstants.M125;
-            } else if (RawRecordConstants.M1260.equals(course)) {
-                actualCourse = RawRecordConstants.M126;
-            } else {
-                actualCourse = course;
-            }
+            final String actualCourse = switch (course) {
+                case RawRecordConstants.M1170 -> RawRecordConstants.M117;
+                case RawRecordConstants.M1180 -> RawRecordConstants.M118;
+                case RawRecordConstants.M1240 -> RawRecordConstants.M124;
+                case RawRecordConstants.M1250 -> RawRecordConstants.M125;
+                case RawRecordConstants.M1260 -> RawRecordConstants.M126;
+                case null, default -> course;
+            };
 
             final String direct = actualCourse == null ? null
                     : actualCourse.replace(CoreConstants.SPC, CoreConstants.EMPTY);

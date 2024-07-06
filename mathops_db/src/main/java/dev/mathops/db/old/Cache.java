@@ -2,21 +2,16 @@ package dev.mathops.db.old;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rec.RecBase;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * A container for cached data associated with a single database connection, which is typically a load of a web page or
@@ -54,14 +49,8 @@ public final class Cache {
     /** The term schema name. */
     public final String termSchemaName;
 
-//    /** The anlyt schema name. */
-//    private final String anlytSchemaName;
-
-    /** Cached single records. */
-    private final Map<String, RecBase> singleRecords;
-
-    /** Cached lists of records. */
-    private final Map<String, List<? extends RecBase>> listsOfRecords;
+    /** The single system data instance shared by all student data instances. */
+    private final SystemData systemData;
 
     /**
      * Constructs a new {@code Cache}.
@@ -80,9 +69,6 @@ public final class Cache {
         this.dbProfile = theDbProfile;
         this.conn = theConn;
 
-        this.singleRecords = new HashMap<>(10);
-        this.listsOfRecords = new HashMap<>(10);
-
         // Attempt to determine the schema name for term-related queries
 
         final DbConfig db = theDbProfile.getDbContext(ESchemaUse.PRIMARY).loginConfig.db;
@@ -91,11 +77,9 @@ public final class Cache {
         if (type == EDbProduct.INFORMIX) {
             this.mainSchemaName = "math";
             this.termSchemaName = "math";
-//            this.anlytSchemaName = "math";
         } else if (type == EDbProduct.POSTGRESQL) {
             if (db.use == EDbUse.PROD) {
                 this.mainSchemaName = "main";
-//                this.anlytSchemaName = "anlyt";
                 final TermRec active = TermLogic.Postgres.INSTANCE.queryActive(this);
                 if (active == null) {
                     throw new IllegalArgumentException("No active TermRec found");
@@ -105,15 +89,15 @@ public final class Cache {
             } else if (db.use == EDbUse.DEV) {
                 this.mainSchemaName = "main_d";
                 this.termSchemaName = "term_d";
-//                this.anlytSchemaName = "anlyt";
             } else {
                 this.mainSchemaName = "main_t";
                 this.termSchemaName = "term_t";
-//                this.anlytSchemaName = "anlyt_t";
             }
         } else {
             throw new IllegalArgumentException("No TERM implementation for " + type + " database");
         }
+
+        this.systemData = new SystemData(this);
     }
 
     /**
@@ -126,112 +110,13 @@ public final class Cache {
         return this.dbProfile;
     }
 
-//    /**
-//     * Gets the database use for this cache.
-//     *
-//     * @return the database use (PROD, DEV, TEST, etc.)
-//     */
-//    public EDbUse getDbUse() {
-//
-//        return this.dbProfile.getDbContext(ESchemaUse.PRIMARY).loginConfig.db.use;
-//    }
-
     /**
-     * Stores a record in the cache.
+     * Gets the system data object.
      *
-     * @param key    the key
-     * @param record the record
+     * @return the system data object
      */
-    public void storeRecord(final String key, final RecBase record) {
+    public SystemData getSystemData() {
 
-        this.singleRecords.put(key, record);
+        return this.systemData;
     }
-
-    /**
-     * Gets a cached single record as a specified record type.
-     *
-     * @param <T> the record type
-     * @param key the key
-     * @param cls the record type's class
-     * @return the record; null if none found (or if the record found was not of the expected class)
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RecBase> T getRecord(final String key, final Class<T> cls) {
-
-        final RecBase value = this.singleRecords.get(key);
-        final T result;
-
-        if (value == null) {
-            result = null;
-        } else if (value.getClass().equals(cls)) {
-            result = (T) value;
-        } else {
-            Log.warning("Attempt to query for record of class ", cls.getSimpleName(),
-                    " but cache had record of class ", value.getClass().getSimpleName());
-            result = null;
-        }
-
-        return result;
-    }
-
-//    /**
-//     * Removes a record from the cache.
-//     *
-//     * @param key the key of the record to remove
-//     */
-//     public void removeRecord(final String key) {
-//
-//     this.singleRecords.remove(key);
-//     }
-
-    /**
-     * Clones a list of records, and then stores the clone in the cache.
-     *
-     * @param key  the key
-     * @param list the list of records (this list can be changed without affecting the cache)
-     */
-    public void cloneAndStoreList(final String key, final List<? extends RecBase> list) {
-
-        this.listsOfRecords.put(key, new ArrayList<>(list));
-    }
-
-    /**
-     * Gets a cached list of records as a list of records of a specified record type.
-     *
-     * @param <T> the record type
-     * @param key the key
-     * @param cls the record type's class
-     * @return a clone of the cached list of records if found; null if none found (or if the list found contained a
-     *         record that was not of the expected class)
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RecBase> List<T> getList(final String key, final Class<T> cls) {
-
-        final List<? extends RecBase> list = this.listsOfRecords.get(key);
-        final List<T> result;
-
-        if (list == null) {
-            result = null;
-        } else if (list.isEmpty()) {
-            result = new ArrayList<>(0);
-        } else if (list.get(0).getClass().equals(cls)) {
-            result = new ArrayList<>((Collection<? extends T>) list);
-        } else {
-            Log.warning("Attempt to query for list of records of class ", cls.getSimpleName(),
-                    " but cache had list with record of class ", list.get(0).getClass().getSimpleName());
-            result = null;
-        }
-
-        return result;
-    }
-
-//    /**
-//     * Removes a list from the cache.
-//     *
-//     * @param key the key of the list to remove
-//     */
-//    void removeList(final String key) {
-//
-//        this.listsOfRecords.remove(key);
-//    }
 }

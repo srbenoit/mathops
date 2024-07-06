@@ -25,7 +25,6 @@ import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -133,7 +132,7 @@ final class UrgencyHistoryAnalysis {
             Log.warning(ex);
         }
 
-        final int numDays = stuReportRows.get(0).pace.length;
+        final int numDays = stuReportRows.getFirst().pace.length;
         final int numStudents = stuReportRows.size();
         final float[] average = new float[numDays];
 
@@ -289,7 +288,7 @@ final class UrgencyHistoryAnalysis {
     private void gatherOneTimeInformation() throws SQLException {
 
         fireProgress("Querying active term", 1);
-        this.active = TermLogic.get(this.cache).queryActive(this.cache);
+        this.active = this.cache.getSystemData().getActiveTerm();
         Log.info("    Active term is ", this.active.term);
 
         fireProgress("Querying registrations term", 2);

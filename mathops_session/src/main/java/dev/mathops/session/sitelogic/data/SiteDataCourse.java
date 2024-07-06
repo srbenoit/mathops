@@ -8,8 +8,6 @@ import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -38,7 +38,7 @@ abstract class AbstractScreen implements IScreen {
     private int selection;
 
     /** The number of possible selections. */
-    private int numSelections;
+    private final int numSelections;
 
     /**
      * Constructs a new {@code AbstractScreen}.
@@ -214,18 +214,14 @@ abstract class AbstractScreen implements IScreen {
         final int numVertical = numRows - 2;
 
         builder.append('\u2554');
-        for (int i = 0; i < numHorizontal; ++i) {
-            builder.append('\u2550');
-        }
+        builder.append("\u2550".repeat(Math.max(0, numHorizontal)));
         builder.append('\u2557');
         final String top = builder.toString();
         this.console.print(top, x, y);
 
         builder.setLength(0);
         builder.append('\u2551');
-        for (int i = 0; i < numHorizontal; ++i) {
-            builder.append(' ');
-        }
+        builder.append(" ".repeat(Math.max(0, numHorizontal)));
         builder.append('\u2551');
         final String middle = builder.toString();
         for (int j = 0; j < numVertical; ++j) {
@@ -234,9 +230,7 @@ abstract class AbstractScreen implements IScreen {
 
         builder.setLength(0);
         builder.append('\u255A');
-        for (int i = 0; i < numHorizontal; ++i) {
-            builder.append('\u2550');
-        }
+        builder.append("\u2550".repeat(Math.max(0, numHorizontal)));
         builder.append('\u255D');
         final String bottom = builder.toString();
         this.console.print(bottom, x, y + numRows - 1);

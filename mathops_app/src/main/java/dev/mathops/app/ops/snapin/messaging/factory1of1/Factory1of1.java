@@ -42,7 +42,7 @@ public enum Factory1of1 {
             Log.info("Current reg is not zero for 1-course student " + context.student.stuId);
         }
 
-        final RawStcourse reg1 = context.sortedRegs.get(0);
+        final RawStcourse reg1 = context.sortedRegs.getFirst();
         final EffectiveMilestones ms1 = new EffectiveMilestones(cache, 1, 1, context);
         final MessagingCourseStatus current =
                 new MessagingCourseStatus(context, reg1, ms1, instrName);

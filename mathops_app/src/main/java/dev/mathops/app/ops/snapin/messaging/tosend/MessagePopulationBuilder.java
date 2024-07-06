@@ -6,7 +6,6 @@ import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -209,7 +208,7 @@ public final class MessagePopulationBuilder {
      */
     public void scan() throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(this.cache).queryActive(this.cache);
+        final TermRec activeTerm = this.cache.getSystemData().getActiveTerm();
 
         if (activeTerm != null) {
             // Get all non-dropped, non-challenge-credit registrations in the active term (this
@@ -284,18 +283,13 @@ public final class MessagePopulationBuilder {
             for (final RawStcourse reg : regs) {
                 final String course = reg.course;
 
-                if (RawRecordConstants.M117.equals(course)) {
-                    m117 = reg;
-                } else if (RawRecordConstants.M118.equals(course)) {
-                    m118 = reg;
-                } else if (RawRecordConstants.M124.equals(course)) {
-                    m124 = reg;
-                } else if (RawRecordConstants.M125.equals(course)) {
-                    m125 = reg;
-                } else if (RawRecordConstants.M126.equals(course)) {
-                    m126 = reg;
-                } else {
-                    Log.warning("Unrecognized course: ", course, " for student ", stuId);
+                switch (course) {
+                    case RawRecordConstants.M117 -> m117 = reg;
+                    case RawRecordConstants.M118 -> m118 = reg;
+                    case RawRecordConstants.M124 -> m124 = reg;
+                    case RawRecordConstants.M125 -> m125 = reg;
+                    case RawRecordConstants.M126 -> m126 = reg;
+                    case null, default -> Log.warning("Unrecognized course: ", course, " for student ", stuId);
                 }
             }
 

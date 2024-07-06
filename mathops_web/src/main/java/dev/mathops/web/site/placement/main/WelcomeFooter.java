@@ -5,7 +5,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;
@@ -41,7 +40,7 @@ public final class WelcomeFooter implements ISecondaryFooter {
 
         final List<RawCampusCalendar> calendarDays = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         htm.sDiv("secfooter");
         htm.sDiv("container");
@@ -205,7 +204,7 @@ public final class WelcomeFooter implements ISecondaryFooter {
             if (start1x != null && end1x != null) {
                 htm.eDiv();
 
-                final TermRec nextTerm = TermLogic.get(cache).queryNext(cache);
+                final TermRec nextTerm = cache.getSystemData().getActiveTerm();
                 htm.sP("tight").add("<em>").add(nextTerm.term.longString).add("</em>").eP();
 
                 final LocalDate start1xDate = start1x.campusDt;

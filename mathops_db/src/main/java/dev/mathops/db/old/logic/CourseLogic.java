@@ -15,7 +15,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -42,7 +41,7 @@ public enum CourseLogic {
         final String course = stcourse.course;
         String error = null;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         if (active == null) {
             error = "Unable to query active term";
         } else {
@@ -258,11 +257,10 @@ public enum CourseLogic {
      * @param paced    the set of registrations that determine pace
      * @param csection the course section object
      * @return the course status object
-     * @throws SQLException if there is an error accessing the database
      */
     private static CourseStatus computeCurrentTermStandardsBasedStatus(final Cache cache, final RawStcourse reg,
                                                                        final List<RawStcourse> paced,
-                                                                       final RawCsection csection) throws SQLException {
+                                                                       final RawCsection csection) {
 
         return null;
     }

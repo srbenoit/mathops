@@ -73,20 +73,18 @@ import java.util.List;
             addCell(stexam.unit, 3, yy);
 
             final String type;
-            if (RawStexam.QUALIFYING_EXAM.equals(stexam.examType)) {
-                type = "User's Exam";
-            } else if (RawStexam.REVIEW_EXAM.equals(stexam.examType)) {
-                if (Integer.valueOf(0).equals(stexam.unit)) {
-                    type = "Skills Rev.";
-                } else {
-                    type = "Unit Rev.";
+            switch (stexam.examType) {
+                case RawStexam.QUALIFYING_EXAM -> type = "User's Exam";
+                case RawStexam.REVIEW_EXAM -> {
+                    if (Integer.valueOf(0).equals(stexam.unit)) {
+                        type = "Skills Rev.";
+                    } else {
+                        type = "Unit Rev.";
+                    }
                 }
-            } else if (RawStexam.UNIT_EXAM.equals(stexam.examType)) {
-                type = "Unit Exam";
-            } else if (RawStexam.FINAL_EXAM.equals(stexam.examType)) {
-                type = "Final Exam";
-            } else {
-                type = stexam.examType;
+                case RawStexam.UNIT_EXAM -> type = "Unit Exam";
+                case RawStexam.FINAL_EXAM -> type = "Final Exam";
+                case null, default -> type = stexam.examType;
             }
             addCell(type, 4, yy);
             addCell(stexam.version, 5, yy);

@@ -60,9 +60,6 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
     /** A single instance. */
     public static final RawCsectionLogic INSTANCE = new RawCsectionLogic();
 
-    /** The base for keys for the results from "queryByTerm". */
-    private static final String CSECTION_QUERY_BY_TERM = "csection:queryByTerm:";
-
     /**
      * Private constructor to prevent direct instantiation.
      */
@@ -200,26 +197,20 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
      */
     public static List<RawCsection> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
-        final String key = CSECTION_QUERY_BY_TERM + termKey;
+        List<RawCsection> result;
 
-        List<RawCsection> result = cache.getList(key, RawCsection.class);
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM csection WHERE term='", termKey.termCode,
+                "' AND term_yr=", termKey.shortYear);
 
-        if (result == null) {
-            final String sql = SimpleBuilder.concat(
-                    "SELECT * FROM csection WHERE term='", termKey.termCode,
-                    "' AND term_yr=", termKey.shortYear);
+        result = new ArrayList<>(100);
 
-            result = new ArrayList<>(100);
+        try (final Statement stmt = cache.conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
 
-            try (final Statement stmt = cache.conn.createStatement();
-                 final ResultSet rs = stmt.executeQuery(sql)) {
-
-                while (rs.next()) {
-                    result.add(RawCsection.fromResultSet(rs));
-                }
+            while (rs.next()) {
+                result.add(RawCsection.fromResultSet(rs));
             }
-
-            cache.cloneAndStoreList(key, result);
         }
 
         return result;

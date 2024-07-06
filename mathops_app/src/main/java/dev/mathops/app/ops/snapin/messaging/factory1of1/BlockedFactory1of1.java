@@ -28,7 +28,7 @@ enum BlockedFactory1of1 {
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.BLOKwd00)) {
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
 
             body.addln("The Final Exam for ", crsName, " was not passed by its due date, so ",

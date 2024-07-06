@@ -304,63 +304,69 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
         if (this.populateAnswers) {
 
             // Fill in the correct answer.
-            if (problem instanceof final ProblemMultipleSelectionTemplate multisel) {
+            switch (problem) {
+                case final ProblemMultipleSelectionTemplate multisel -> {
 
-                // Fill in the correct answers
-                final List<ProblemChoiceTemplate> choices = multisel.getChoices();
-                final int numChoices = choices.size();
-                final List<Long> right = new ArrayList<>(numChoices);
+                    // Fill in the correct answers
+                    final List<ProblemChoiceTemplate> choices = multisel.getChoices();
+                    final int numChoices = choices.size();
+                    final List<Long> right = new ArrayList<>(numChoices);
 
-                for (int i = 0; i < numChoices; i++) {
-                    final ProblemChoiceTemplate choice = choices.get(i);
-                    final Object obj = choice.correct.evaluate(problem.evalContext);
+                    for (int i = 0; i < numChoices; i++) {
+                        final ProblemChoiceTemplate choice = choices.get(i);
+                        final Object obj = choice.correct.evaluate(problem.evalContext);
 
-                    if (Boolean.TRUE.equals(obj)) {
-                        right.add(Long.valueOf((long) i + 1L));
-                    }
-                }
-
-                if (!right.isEmpty()) {
-                    final Serializable[] answers = new Serializable[right.size()];
-
-                    final int rightLen = right.size();
-                    for (int i = 0; i < rightLen; i++) {
-                        answers[i] = right.get(i);
+                        if (Boolean.TRUE.equals(obj)) {
+                            right.add(Long.valueOf((long) i + 1L));
+                        }
                     }
 
-                    problem.recordAnswer(answers);
-                }
-            } else if (problem instanceof final ProblemMultipleChoiceTemplate multChoice) {
+                    if (!right.isEmpty()) {
+                        final Serializable[] answers = new Serializable[right.size()];
 
-                // Fill in the correct answers
-                final Serializable[] answers = new Long[1];
+                        final int rightLen = right.size();
+                        for (int i = 0; i < rightLen; i++) {
+                            answers[i] = right.get(i);
+                        }
 
-                final List<ProblemChoiceTemplate> choices = multChoice.getChoices();
-                final int numChoices = choices.size();
-
-                for (int i = 0; i < numChoices; i++) {
-                    final ProblemChoiceTemplate choice = choices.get(i);
-                    final Object obj = choice.correct.evaluate(problem.evalContext);
-
-                    if (Boolean.TRUE.equals(obj)) {
-                        answers[0] = Long.valueOf((long) i + 1L);
-
-                        break;
+                        problem.recordAnswer(answers);
                     }
                 }
+                case final ProblemMultipleChoiceTemplate multChoice -> {
 
-                if (answers[0] != null) {
-                    problem.recordAnswer(answers);
+                    // Fill in the correct answers
+                    final Serializable[] answers = new Long[1];
+
+                    final List<ProblemChoiceTemplate> choices = multChoice.getChoices();
+                    final int numChoices = choices.size();
+
+                    for (int i = 0; i < numChoices; i++) {
+                        final ProblemChoiceTemplate choice = choices.get(i);
+                        final Object obj = choice.correct.evaluate(problem.evalContext);
+
+                        if (Boolean.TRUE.equals(obj)) {
+                            answers[0] = Long.valueOf((long) i + 1L);
+
+                            break;
+                        }
+                    }
+
+                    if (answers[0] != null) {
+                        problem.recordAnswer(answers);
+                    }
                 }
-            } else if (problem instanceof final ProblemNumericTemplate numeric) {
+                case final ProblemNumericTemplate numeric -> {
 
-                // Fill in the correct answer
-                final Serializable[] answers = new Serializable[1];
-                final ProblemAcceptNumberTemplate accept = numeric.acceptNumber;
-                answers[0] = accept.getCorrectAnswerValue(problem.evalContext);
+                    // Fill in the correct answer
+                    final Serializable[] answers = new Serializable[1];
+                    final ProblemAcceptNumberTemplate accept = numeric.acceptNumber;
+                    answers[0] = accept.getCorrectAnswerValue(problem.evalContext);
 
-                if (answers[0] != null) {
-                    problem.recordAnswer(answers);
+                    if (answers[0] != null) {
+                        problem.recordAnswer(answers);
+                    }
+                }
+                default -> {
                 }
             }
         }

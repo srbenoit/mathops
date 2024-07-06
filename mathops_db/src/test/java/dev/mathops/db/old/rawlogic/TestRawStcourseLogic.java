@@ -1,6 +1,7 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -11,7 +12,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import org.junit.jupiter.api.AfterAll;
@@ -465,8 +465,10 @@ final class TestRawStcourseLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                assertTrue(TermLogic.get(cache).insert(cache, term1), "Failed to insert term 1");
-                assertTrue(TermLogic.get(cache).insert(cache, term2), "Failed to insert term 2");
+                final SystemData systemData = cache.getSystemData();
+
+                assertTrue(systemData.insertTerm(term1), "Failed to insert term 1");
+                assertTrue(systemData.insertTerm(term2), "Failed to insert term 2");
                 assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw1), "Failed to insert stcourse 1");
                 assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw2), "Failed to insert stcourse 2");
                 assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw3), "Failed to insert stcourse 3");

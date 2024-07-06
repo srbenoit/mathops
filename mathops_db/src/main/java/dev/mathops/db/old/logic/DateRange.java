@@ -288,7 +288,7 @@ public final class DateRange implements Comparable<DateRange> {
 
                         // Add the "anyBefore" and "anyAfter" ranges (in order)
                         if (anyBefore != null) {
-                            ranges.add(0, new DateRange(null, anyBefore));
+                            ranges.addFirst(new DateRange(null, anyBefore));
                         }
                     }
                     if (anyAfter != null) {

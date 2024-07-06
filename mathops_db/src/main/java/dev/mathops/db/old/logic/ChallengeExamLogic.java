@@ -8,7 +8,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -85,7 +84,7 @@ public final class ChallengeExamLogic {
             throw new IllegalArgumentException("Student ID may not be null");
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         this.activeRegs = RawStcourseLogic.getActiveForStudent(cache, theStudentId, active.term);
 

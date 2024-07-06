@@ -13,7 +13,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -103,7 +102,7 @@ public enum NotStartedButHasWork {
      */
     private static void generate1(final Cache cache, final Collection<? super String> report) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Exclude OT and dropped for this part
         final List<RawStcourse> activeTermRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);
@@ -139,7 +138,7 @@ public enum NotStartedButHasWork {
      */
     private static void generate2(final Cache cache, final Collection<? super String> report) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final LocalDate cutoff = LocalDate.of(2022, 7, 22);
 
         // Exclude OT but include dropped for this part
@@ -175,7 +174,7 @@ public enum NotStartedButHasWork {
             }
 
             if (dropped != null && live != null) {
-                final RawStcourse sample = list.get(0);
+                final RawStcourse sample = list.getFirst();
                 report.add("Student " + sample.stuId + ", " + sample.course + "/" + sample.sect);
                 ++count;
 
@@ -198,7 +197,7 @@ public enum NotStartedButHasWork {
      */
     private static void generate3(final Cache cache, final Collection<? super String> report) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Exclude OT and dropped for this part
         final List<RawStcourse> activeTermRegs =
@@ -220,14 +219,14 @@ public enum NotStartedButHasWork {
         for (final Map.Entry<String, List<RawStcourse>> entry : byStudent.entrySet()) {
             final List<RawStcourse> list = entry.getValue();
             if (list.size() == 1) {
-                final RawStcourse row = list.get(0);
+                final RawStcourse row = list.getFirst();
 
 //                if (row.paceOrder == null) {
 //                     RawStcourseLogic.updatePaceOrder(cache, row.stuId, row.course, row.sect,
 //                     active.termKey, order1);
 //                }
             } else {
-                final RawStcourse row = list.get(0);
+                final RawStcourse row = list.getFirst();
                 report.add(row.stuId);
                 ++count;
             }
@@ -247,7 +246,7 @@ public enum NotStartedButHasWork {
      */
     private static void generate4(final Cache cache, final Collection<? super String> report) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Exclude OT and dropped for this part
         final List<RawStcourse> activeTermRegs =

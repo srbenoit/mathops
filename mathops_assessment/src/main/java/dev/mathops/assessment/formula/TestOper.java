@@ -168,23 +168,16 @@ public class TestOper extends AbstractFormulaContainer implements IEditableFormu
 
         final Object value = evaluate(context);
 
-        if (value instanceof final Long longValue) {
-            result = new ConstIntegerValue(longValue.longValue());
-        } else if (value instanceof final Number numValue) {
-            result = new ConstRealValue(numValue);
-        } else if (value instanceof final Boolean booleanValue) {
-            result = new ConstBooleanValue(booleanValue.booleanValue());
-        } else if (value instanceof final String stringValue) {
-            result = new ConstStringValue(stringValue);
-        } else if (value instanceof final DocSimpleSpan spanValue) {
-            result = new ConstSpanValue(spanValue);
-        } else if (value instanceof final IntegerVectorValue vecValue) {
-            result = new ConstIntegerVector(vecValue);
-        } else if (value instanceof final RealVectorValue vecValue) {
-            result = new ConstRealVector(vecValue);
-        } else {
-            result = this;
-        }
+        result = switch (value) {
+            case final Long longValue -> new ConstIntegerValue(longValue.longValue());
+            case final Number numValue -> new ConstRealValue(numValue);
+            case final Boolean booleanValue -> new ConstBooleanValue(booleanValue.booleanValue());
+            case final String stringValue -> new ConstStringValue(stringValue);
+            case final DocSimpleSpan spanValue -> new ConstSpanValue(spanValue);
+            case final IntegerVectorValue vecValue -> new ConstIntegerVector(vecValue);
+            case final RealVectorValue vecValue -> new ConstRealVector(vecValue);
+            case null, default -> this;
+        };
 
         return result;
     }

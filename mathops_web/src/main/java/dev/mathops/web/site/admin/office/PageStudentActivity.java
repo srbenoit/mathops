@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -147,7 +146,7 @@ enum PageStudentActivity {
     private static void emitStudentActivity(final Cache cache, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec term = cache.getSystemData().getActiveTerm();
 
         if (term == null) {
             htm.add("(Unable to query the active term)");
@@ -277,7 +276,7 @@ enum PageStudentActivity {
 
                 while (!dates.isEmpty()) { // dates list changes in loop
 
-                    final LocalDateTime when = dates.remove(0);
+                    final LocalDateTime when = dates.removeFirst();
 
                     if (nextMpe != null && fin != null && fin.equals(when)) {
                         emitMpeRow(htm, toWrite, odd, nextMpe);
@@ -347,10 +346,10 @@ enum PageStudentActivity {
 
         final RawStexam nextExam;
 
-        if (exams.isEmpty() || exams.get(0).examDt.isAfter(week.endDt)) {
+        if (exams.isEmpty() || exams.getFirst().examDt.isAfter(week.endDt)) {
             nextExam = null;
         } else {
-            nextExam = exams.remove(0);
+            nextExam = exams.removeFirst();
         }
 
         return nextExam;
@@ -370,10 +369,10 @@ enum PageStudentActivity {
 
         final RawStmpe nextMpe;
 
-        if (mpes.isEmpty() || mpes.get(0).examDt.isAfter(week.endDt)) {
+        if (mpes.isEmpty() || mpes.getFirst().examDt.isAfter(week.endDt)) {
             nextMpe = null;
         } else {
-            nextMpe = mpes.remove(0);
+            nextMpe = mpes.removeFirst();
         }
 
         return nextMpe;
@@ -393,10 +392,10 @@ enum PageStudentActivity {
 
         final RawStchallenge nextChal;
 
-        if (chals.isEmpty() || chals.get(0).examDt.isAfter(week.endDt)) {
+        if (chals.isEmpty() || chals.getFirst().examDt.isAfter(week.endDt)) {
             nextChal = null;
         } else {
-            nextChal = chals.remove(0);
+            nextChal = chals.removeFirst();
         }
 
         return nextChal;
@@ -416,10 +415,10 @@ enum PageStudentActivity {
 
         final RawSthomework nextHw;
 
-        if (homeworks.isEmpty() || homeworks.get(0).hwDt.isAfter(week.endDt)) {
+        if (homeworks.isEmpty() || homeworks.getFirst().hwDt.isAfter(week.endDt)) {
             nextHw = null;
         } else {
-            nextHw = homeworks.remove(0);
+            nextHw = homeworks.removeFirst();
         }
 
         return nextHw;
@@ -455,21 +454,21 @@ enum PageStudentActivity {
             htm.sTd("ctr").add(ex.unit).eTd();
         }
 
-        if ("F".equals(ex.examType)) {
-            final String name = "SY".equals(ex.examSource) ? "Final Exam (synthetic)" : "Final Exam";
-            htm.sTd(null, "style='background-color:#cfc'").add(name).eTd();
-        } else if ("U".equals(ex.examType)) {
-            htm.sTd(null, "style='background-color:#cfc'").add("Unit Exam").eTd();
-        } else if ("R".equals(ex.examType)) {
-            if (Integer.valueOf(0).equals(ex.unit)) {
-                htm.sTd(null, "style='background-color:#cff'").add("Skills Review").eTd();
-            } else {
-                htm.sTd(null, "style='background-color:#ffc'").add("Unit Review").eTd();
+        switch (ex.examType) {
+            case "F" -> {
+                final String name = "SY".equals(ex.examSource) ? "Final Exam (synthetic)" : "Final Exam";
+                htm.sTd(null, "style='background-color:#cfc'").add(name).eTd();
             }
-        } else if ("Q".equals(ex.examType)) {
-            htm.sTd(null, "style='background-color:#fdf'").add("User's Exam").eTd();
-        } else {
-            htm.sTd(null, "style='background-color:#cff'").add(ex.examType).eTd();
+            case "U" -> htm.sTd(null, "style='background-color:#cfc'").add("Unit Exam").eTd();
+            case "R" -> {
+                if (Integer.valueOf(0).equals(ex.unit)) {
+                    htm.sTd(null, "style='background-color:#cff'").add("Skills Review").eTd();
+                } else {
+                    htm.sTd(null, "style='background-color:#ffc'").add("Unit Review").eTd();
+                }
+            }
+            case "Q" -> htm.sTd(null, "style='background-color:#fdf'").add("User's Exam").eTd();
+            case null, default -> htm.sTd(null, "style='background-color:#cff'").add(ex.examType).eTd();
         }
 
         htm.sTd("ctr").add(ex.version).eTd();

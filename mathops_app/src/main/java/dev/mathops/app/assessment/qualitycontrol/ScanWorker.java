@@ -317,7 +317,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
     @Override
     protected void process(final List<ProgressUpdate> chunks) {
 
-        final ProgressUpdate latest = chunks.get(chunks.size() - 1);
+        final ProgressUpdate latest = chunks.getLast();
         this.owner.update(latest);
     }
 

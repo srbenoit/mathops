@@ -41,17 +41,6 @@ public final class WebServiceSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip

@@ -281,21 +281,13 @@ public final class BundledFontManager {
      */
     private static String actualFontName(final String name) {
 
-        final String actual;
-
-        if (Font.SANS_SERIF.equals(name)) {
-            actual = SANS;
-        } else if (Font.SERIF.equals(name)) {
-            actual = SERIF;
-        } else if (SANS_CONSTANT.equals(name)) {
-            actual = SANS;
-        } else if (SERIF_CONSTANT.equals(name)) {
-            actual = SERIF;
-        } else {
-            actual = name;
-        }
-
-        return actual;
+        return switch (name) {
+            case Font.SANS_SERIF -> SANS;
+            case Font.SERIF -> SERIF;
+            case SANS_CONSTANT -> SANS;
+            case SERIF_CONSTANT -> SERIF;
+            case null, default -> name;
+        };
     }
 
     /**

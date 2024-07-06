@@ -9,5 +9,5 @@ public enum EFractionFormat {
     ABOVE_BELOW,
 
     /** A "beveled" format with slanted separator line, numerator above left, denominator below right". */
-    BEVELED;
+    BEVELED
 }

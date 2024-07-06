@@ -304,7 +304,7 @@ public final class DocRelativeOffset extends AbstractDocContainer {
                                     } else {
                                         final List<AbstractDocObjectTemplate> list = spanValue.getChildren();
                                         if (!list.isEmpty()) {
-                                            final AbstractDocObjectTemplate inner = list.get(list.size() - 1);
+                                            final AbstractDocObjectTemplate inner = list.getLast();
                                             if (inner.isItalic()) {
                                                 x += inner.getFontSize() / 6;
                                             }

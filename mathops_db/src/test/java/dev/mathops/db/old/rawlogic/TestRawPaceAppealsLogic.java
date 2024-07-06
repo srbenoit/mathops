@@ -337,7 +337,7 @@ final class TestRawPaceAppealsLogic {
 
                 assertEquals(1, pre.size(), "Incorrect record count from queryByStudent");
 
-                RawPaceAppealsLogic.INSTANCE.delete(cache, pre.get(0));
+                RawPaceAppealsLogic.INSTANCE.delete(cache, pre.getFirst());
 
                 final List<RawPaceAppeals> all = RawPaceAppealsLogic.INSTANCE.queryAll(cache);
 

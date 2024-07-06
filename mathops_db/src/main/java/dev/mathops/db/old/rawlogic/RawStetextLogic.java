@@ -242,7 +242,7 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
         final List<RawStetext> list = queryUnrefundedByKey(cache, key);
 
         if (!list.isEmpty()) {
-            result = list.get(0);
+            result = list.getFirst();
 
             if (list.size() > 1) {
                 Log.warning("Query returned multiple rows");

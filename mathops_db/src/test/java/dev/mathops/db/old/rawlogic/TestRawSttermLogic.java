@@ -11,7 +11,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import org.junit.jupiter.api.AfterAll;
@@ -99,7 +98,7 @@ final class TestRawSttermLogic {
                 final TermRec rawTerm = new TermRec(fa21, LocalDate.of(2021, 8, 11), LocalDate.of(2021, 12, 14), "2122",
                         Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
 
-                assertTrue(TermLogic.get(cache).insert(cache, rawTerm), "Failed to insert active term");
+                assertTrue(cache.getSystemData().insertTerm(rawTerm), "Failed to insert active term");
 
                 final RawStterm raw1 = new RawStterm(fa21, "111111111", Integer.valueOf(1), "A",
                         RawRecordConstants.M118, "COH1", Integer.valueOf(10), "N");
@@ -330,7 +329,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final RawStterm test = RawSttermLogic.query(cache, active.term, "111111111");
 
@@ -381,7 +380,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 assertTrue(RawSttermLogic.updatePaceTrackFirstCourse(cache, "111111111", active.term, 5, "Z",
                         RawRecordConstants.M124), "updatePaceTrackFirstCourse returned false");
@@ -433,7 +432,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 assertTrue(RawSttermLogic.updateCohort(cache, "111111111", active.term, "FOO"),
                         "updateCohort returned false");
@@ -484,7 +483,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 assertTrue(RawSttermLogic.updateUrgency(cache, "111111111", active.term, Integer.valueOf(20)),
                         "updateUrgency returned false");
@@ -536,7 +535,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
                 final RawStterm toDelete = RawSttermLogic.query(cache, active.term, "111111111");
 

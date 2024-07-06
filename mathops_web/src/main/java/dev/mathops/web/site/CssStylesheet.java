@@ -101,7 +101,7 @@ public class CssStylesheet {
             for (int j = 0; j < this.maxIdentifier + 2 - len; ++j) {
                 css.add(' ');
             }
-            css.add("{", list.get(0));
+            css.add("{", list.getFirst());
 
             final int size = list.size();
             for (int i = 1; i < size; i++) {

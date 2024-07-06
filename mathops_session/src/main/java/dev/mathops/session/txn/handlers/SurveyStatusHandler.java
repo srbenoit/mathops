@@ -5,7 +5,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
@@ -106,7 +105,7 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
 
         final boolean ok;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         if (active == null) {
             reply.error = "Unable to query active term";
             ok = false;

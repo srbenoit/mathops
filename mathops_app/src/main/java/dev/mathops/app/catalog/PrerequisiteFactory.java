@@ -562,7 +562,7 @@ enum PrerequisiteFactory {
 
             if (numInner == 1) {
                 if ("~".equals(extractedStr)) {
-                    result = innerNodes.get(0);
+                    result = innerNodes.getFirst();
                 }
             } else if (numInner == 2) {
                 if ("~ or ~".equals(extractedStr)) {

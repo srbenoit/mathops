@@ -300,34 +300,21 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
 
                 buf.add("<tr><td><b>Name:</b></td><td>", abstractVariable.name);
 
-                if (abstractVariable instanceof VariableInteger) {
-                    buf.add(" (Integer)");
-                } else if (abstractVariable instanceof VariableReal) {
-                    buf.add(" (Real)");
-                } else if (abstractVariable instanceof VariableBoolean) {
-                    buf.add(" (Boolean)");
-                } else if (abstractVariable instanceof VariableSpan) {
-                    buf.add(" (Span)");
-                } else if (abstractVariable instanceof VariableRandomInteger) {
-                    buf.add(" (Random Integer)");
-                } else if (abstractVariable instanceof VariableRandomReal) {
-                    buf.add(" (Random Real)");
-                } else if (abstractVariable instanceof VariableRandomPermutation) {
-                    buf.add(" (Random Permutation)");
-                } else if (abstractVariable instanceof VariableRandomBoolean) {
-                    buf.add(" (Random Boolean)");
-                } else if (abstractVariable instanceof VariableRandomChoice) {
-                    buf.add(" (Random Choice)");
-                } else if (abstractVariable instanceof VariableRandomSimpleAngle) {
-                    buf.add(" (Random Simple Angle)");
-                } else if (abstractVariable instanceof VariableDerived) {
-                    buf.add(" (Derived)");
-                } else if (abstractVariable instanceof VariableInputInteger) {
-                    buf.add(" (Input Int)");
-                } else if (abstractVariable instanceof VariableInputReal) {
-                    buf.add(" (Input Real)");
-                } else {
-                    buf.add(" (Unknown)");
+                switch (abstractVariable) {
+                    case VariableInteger variableInteger -> buf.add(" (Integer)");
+                    case VariableReal variableReal -> buf.add(" (Real)");
+                    case VariableBoolean variableBoolean -> buf.add(" (Boolean)");
+                    case VariableSpan variableSpan -> buf.add(" (Span)");
+                    case VariableRandomInteger variableRandomInteger -> buf.add(" (Random Integer)");
+                    case VariableRandomReal variableRandomReal -> buf.add(" (Random Real)");
+                    case VariableRandomPermutation variableRandomPermutation -> buf.add(" (Random Permutation)");
+                    case VariableRandomBoolean variableRandomBoolean -> buf.add(" (Random Boolean)");
+                    case VariableRandomChoice variableRandomChoice -> buf.add(" (Random Choice)");
+                    case VariableRandomSimpleAngle variableRandomSimpleAngle -> buf.add(" (Random Simple Angle)");
+                    case VariableDerived variableDerived -> buf.add(" (Derived)");
+                    case VariableInputInteger variableInputInteger -> buf.add(" (Input Int)");
+                    case VariableInputReal variableInputReal -> buf.add(" (Input Real)");
+                    default -> buf.add(" (Unknown)");
                 }
 
                 buf.addln("</td></tr>");

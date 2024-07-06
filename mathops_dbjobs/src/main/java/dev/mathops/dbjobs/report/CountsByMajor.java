@@ -15,7 +15,6 @@ import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -107,7 +106,7 @@ final class CountsByMajor implements Runnable {
     private void compute(final Cache cache) {
 
         try {
-            final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
             final List<RawStterm> stterms = RawSttermLogic.queryAllByTerm(cache, activeTerm.term);
 
             for (final RawStterm stterm : stterms) {

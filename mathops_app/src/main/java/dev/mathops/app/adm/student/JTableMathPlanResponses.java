@@ -73,22 +73,15 @@ final class JTableMathPlanResponses extends AbstractAdminTable<RawStmathplan> {
             row[2] = FMT_HM.format(datetime.toLocalTime());
             row[3] = record.version;
 
-            if (MathPlanConstants.MAJORS_PROFILE.equals(record.version)) {
-                row[4] = "Majors of interest";
-            } else if (MathPlanConstants.PLAN_PROFILE.equals(record.version)) {
-                row[4] = "Recommendations";
-            } else if (MathPlanConstants.ONLY_RECOM_PROFILE.equals(record.version)) {
-                row[4] = "Affirm 'only a recommendation'";
-            } else if (MathPlanConstants.EXISTING_PROFILE.equals(record.version)) {
-                row[4] = "Existing work";
-            } else if (MathPlanConstants.INTENTIONS_PROFILE.equals(record.version)) {
-                row[4] = "Indicated intentions";
-            } else if (MathPlanConstants.REVIEWED_PROFILE.equals(record.version)) {
-                row[4] = "Plan reviewed";
-            } else if (MathPlanConstants.CHECKED_RESULTS_PROFILE.equals(record.version)) {
-                row[4] = "Placement results checked";
-            } else {
-                row[4] = "(unrecognized)";
+            switch (record.version) {
+                case MathPlanConstants.MAJORS_PROFILE -> row[4] = "Majors of interest";
+                case MathPlanConstants.PLAN_PROFILE -> row[4] = "Recommendations";
+                case MathPlanConstants.ONLY_RECOM_PROFILE -> row[4] = "Affirm 'only a recommendation'";
+                case MathPlanConstants.EXISTING_PROFILE -> row[4] = "Existing work";
+                case MathPlanConstants.INTENTIONS_PROFILE -> row[4] = "Indicated intentions";
+                case MathPlanConstants.REVIEWED_PROFILE -> row[4] = "Plan reviewed";
+                case MathPlanConstants.CHECKED_RESULTS_PROFILE -> row[4] = "Placement results checked";
+                case null, default -> row[4] = "(unrecognized)";
             }
 
             row[5] = record.surveyNbr == null ? CoreConstants.EMPTY : record.surveyNbr.toString();

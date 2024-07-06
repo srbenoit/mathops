@@ -13,7 +13,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.ResultSet;
@@ -69,7 +68,7 @@ public final class ImportOdsTransferCredit {
                 final Cache cache = new Cache(this.dbProfile, primaryConn);
 
                 try {
-                    final TermRec active = TermLogic.get(cache).queryActive(cache);
+                    final TermRec active = cache.getSystemData().getActiveTerm();
 
                     final DbConnection odsConn = this.odsCtx.checkOutConnection();
 

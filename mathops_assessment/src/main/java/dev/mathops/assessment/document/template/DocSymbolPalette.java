@@ -310,7 +310,7 @@ public final class DocSymbolPalette extends AbstractDocContainer {
 
         final int count = this.keys.size();
         if (count > 0) {
-            builder.add(this.keys.get(0).symbol.label);
+            builder.add(this.keys.getFirst().symbol.label);
             for (int i = 1; i < count; ++i) {
                 builder.add(CoreConstants.COMMA_CHAR);
                 builder.add(this.keys.get(i).symbol.label);

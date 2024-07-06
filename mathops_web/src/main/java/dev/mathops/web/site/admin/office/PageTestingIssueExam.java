@@ -22,7 +22,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -229,7 +228,7 @@ enum PageTestingIssueExam {
         String errmsg = null;
         final String studentId = student.stuId;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final Integer unit1 = Integer.valueOf(1);
         final Integer unit2 = Integer.valueOf(2);
@@ -414,183 +413,208 @@ enum PageTestingIssueExam {
             }
         } else if ("Y".equals(student.licensed)) {
 
-            if ("171UE".equals(examId)) {
-                // Student MUST have a passed Unit 1 Review exam in M 117
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M117, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 1 Review in MATH 117.";
+            switch (examId) {
+                case "171UE" -> {
+                    // Student MUST have a passed Unit 1 Review exam in M 117
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M117, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 1 Review in MATH 117.";
+                    }
                 }
-            } else if ("172UE".equals(examId)) {
-                // Student MUST have a passed Unit 2 Review exam in M 117
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M117, unit2, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 2 Review in MATH 117.";
+                case "172UE" -> {
+                    // Student MUST have a passed Unit 2 Review exam in M 117
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M117, unit2, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 2 Review in MATH 117.";
+                    }
                 }
-            } else if ("173UE".equals(examId)) {
-                // Student MUST have a passed Unit 3 Review exam in M 117
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M117, unit3, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 3 Review in MATH 117.";
+                case "173UE" -> {
+                    // Student MUST have a passed Unit 3 Review exam in M 117
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M117, unit3, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 3 Review in MATH 117.";
+                    }
                 }
-            } else if ("174UE".equals(examId)) {
-                // Student MUST have a passed Unit 4 Review exam in M 117
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M117, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Review in MATH 117.";
+                case "174UE" -> {
+                    // Student MUST have a passed Unit 4 Review exam in M 117
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M117, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Review in MATH 117.";
+                    }
                 }
-            } else if ("17FIN".equals(examId)) {
-                // Student MUST have a passed Unit 4 exam in M 117
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M117, unit4, true, "U");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Exam in MATH 117.";
+                case "17FIN" -> {
+                    // Student MUST have a passed Unit 4 exam in M 117
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M117, unit4, true, "U");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Exam in MATH 117.";
+                    }
                 }
-            } else if ("181UE".equals(examId)) {
-                // Student MUST have a passed Unit 1 Review exam in M 118
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M118, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 1 Review in MATH 118.";
+                case "181UE" -> {
+                    // Student MUST have a passed Unit 1 Review exam in M 118
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M118, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 1 Review in MATH 118.";
+                    }
                 }
-            } else if ("182UE".equals(examId)) {
-                // Student MUST have a passed Unit 2 Review exam in M 118
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M118, unit2, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 2 Review in MATH 118.";
+                case "182UE" -> {
+                    // Student MUST have a passed Unit 2 Review exam in M 118
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M118, unit2, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 2 Review in MATH 118.";
+                    }
                 }
-            } else if ("183UE".equals(examId)) {
-                // Student MUST have a passed Unit 3 Review exam in M 118
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M118, unit3, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 3 Review in MATH 118.";
+                case "183UE" -> {
+                    // Student MUST have a passed Unit 3 Review exam in M 118
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M118, unit3, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 3 Review in MATH 118.";
+                    }
                 }
-            } else if ("184UE".equals(examId)) {
-                // Student MUST have a passed Unit 4 Review exam in M 118
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M118, unit4, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Review in MATH 118.";
+                case "184UE" -> {
+                    // Student MUST have a passed Unit 4 Review exam in M 118
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M118, unit4, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Review in MATH 118.";
+                    }
                 }
-            } else if ("18FIN".equals(examId)) {
-                // Student MUST have a passed Unit 4 exam in M 118
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M118, unit4, true, "U");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Exam in MATH 118.";
+                case "18FIN" -> {
+                    // Student MUST have a passed Unit 4 exam in M 118
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M118, unit4, true, "U");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Exam in MATH 118.";
+                    }
                 }
-            } else if ("241UE".equals(examId)) {
-                // Student MUST have a passed Unit 1 Review exam in M 124
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M124, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 1 Review in MATH 124.";
+                case "241UE" -> {
+                    // Student MUST have a passed Unit 1 Review exam in M 124
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M124, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 1 Review in MATH 124.";
+                    }
                 }
-            } else if ("242UE".equals(examId)) {
-                // Student MUST have a passed Unit 2 Review exam in M 124
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M124, unit2, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 2 Review in MATH 124.";
+                case "242UE" -> {
+                    // Student MUST have a passed Unit 2 Review exam in M 124
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M124, unit2, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 2 Review in MATH 124.";
+                    }
                 }
-            } else if ("243UE".equals(examId)) {
-                // Student MUST have a passed Unit 3 Review exam in M 124
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M124, unit3, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 3 Review in MATH 124.";
+                case "243UE" -> {
+                    // Student MUST have a passed Unit 3 Review exam in M 124
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M124, unit3, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 3 Review in MATH 124.";
+                    }
                 }
-            } else if ("244UE".equals(examId)) {
-                // Student MUST have a passed Unit 4 Review exam in M 124
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M124, unit4, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Review in MATH 124.";
+                case "244UE" -> {
+                    // Student MUST have a passed Unit 4 Review exam in M 124
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M124, unit4, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Review in MATH 124.";
+                    }
                 }
-            } else if ("24FIN".equals(examId)) {
-                // Student MUST have a passed Unit 4 exam in M 124
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M124, unit4, true, "U");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Exam in MATH 124.";
+                case "24FIN" -> {
+                    // Student MUST have a passed Unit 4 exam in M 124
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M124, unit4, true, "U");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Exam in MATH 124.";
+                    }
                 }
-            } else if ("251UE".equals(examId)) {
-                // Student MUST have a passed Unit 1 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M125, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 1 Review in MATH 125.";
+                case "251UE" -> {
+                    // Student MUST have a passed Unit 1 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M125, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 1 Review in MATH 125.";
+                    }
                 }
-            } else if ("252UE".equals(examId)) {
-                // Student MUST have a passed Unit 2 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M125, unit2, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 2 Review in MATH 125.";
+                case "252UE" -> {
+                    // Student MUST have a passed Unit 2 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M125, unit2, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 2 Review in MATH 125.";
+                    }
                 }
-            } else if ("253UE".equals(examId)) {
-                // Student MUST have a passed Unit 3 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M125, unit3, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 3 Review in MATH 125.";
+                case "253UE" -> {
+                    // Student MUST have a passed Unit 3 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M125, unit3, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 3 Review in MATH 125.";
+                    }
                 }
-            } else if ("254UE".equals(examId)) {
-                // Student MUST have a passed Unit 4 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M125, unit4, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Review in MATH 125.";
+                case "254UE" -> {
+                    // Student MUST have a passed Unit 4 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M125, unit4, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Review in MATH 125.";
+                    }
                 }
-            } else if ("25FIN".equals(examId)) {
-                // Student MUST have a passed Unit 4 exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M125, unit4, true, "U");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Exam in MATH 125.";
+                case "25FIN" -> {
+                    // Student MUST have a passed Unit 4 exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M125, unit4, true, "U");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Exam in MATH 125.";
+                    }
                 }
-            } else if ("261UE".equals(examId)) {
-                // Student MUST have a passed Unit 1 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M126, unit1, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 1 Review in MATH 126.";
+                case "261UE" -> {
+                    // Student MUST have a passed Unit 1 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M126, unit1, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 1 Review in MATH 126.";
+                    }
                 }
-            } else if ("262UE".equals(examId)) {
-                // Student MUST have a passed Unit 2 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M126, unit2, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 2 Review in MATH 126.";
+                case "262UE" -> {
+                    // Student MUST have a passed Unit 2 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M126, unit2, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 2 Review in MATH 126.";
+                    }
                 }
-            } else if ("263UE".equals(examId)) {
-                // Student MUST have a passed Unit 3 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M126, unit3, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 3 Review in MATH 126.";
+                case "263UE" -> {
+                    // Student MUST have a passed Unit 3 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M126, unit3, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 3 Review in MATH 126.";
+                    }
                 }
-            } else if ("264UE".equals(examId)) {
-                // Student MUST have a passed Unit 4 Review exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M126, unit4, true, "R");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Review in MATH 126.";
+                case "264UE" -> {
+                    // Student MUST have a passed Unit 4 Review exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M126, unit4, true, "R");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Review in MATH 126.";
+                    }
                 }
-            } else if ("26FIN".equals(examId)) {
-                // Student MUST have a passed Unit 4 exam in M 125
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
-                        RawRecordConstants.M126, unit4, true, "U");
-                if (exams.isEmpty()) {
-                    errmsg = "Student has not passed Unit 4 Exam in MATH 126.";
+                case "26FIN" -> {
+                    // Student MUST have a passed Unit 4 exam in M 125
+                    final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId,
+                            RawRecordConstants.M126, unit4, true, "U");
+                    if (exams.isEmpty()) {
+                        errmsg = "Student has not passed Unit 4 Exam in MATH 126.";
+                    }
                 }
-            } else {
-                errmsg = "Exam " + examId + " is not implemented";
+                case null, default -> errmsg = "Exam " + examId + " is not implemented";
             }
         } else {
             errmsg = "Student has not passed the User's Exam.";
@@ -632,114 +656,141 @@ enum PageTestingIssueExam {
             String courseId = null;
             int unit = 0;
 
-            if ("MT4UE".equals(examId)) {
-                courseId = RawRecordConstants.M100T;
-                unit = 4;
-            } else if ("7T4UE".equals(examId)) {
-                courseId = RawRecordConstants.M1170;
-                unit = 4;
-            } else if ("8T4UE".equals(examId)) {
-                courseId = RawRecordConstants.M1180;
-                unit = 4;
-            } else if ("4T4UE".equals(examId)) {
-                courseId = RawRecordConstants.M1240;
-                unit = 4;
-            } else if ("5T4UE".equals(examId)) {
-                courseId = RawRecordConstants.M1250;
-                unit = 4;
-            } else if ("6T4UE".equals(examId)) {
-                courseId = RawRecordConstants.M1260;
-                unit = 4;
-            } else if ("MPTTC".equals(examId)) {
-                courseId = RawRecordConstants.M100P;
-                unit = 1;
-            } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(examId)) {
-                courseId = RawRecordConstants.M117;
-            } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(examId)) {
-                courseId = RawRecordConstants.M118;
-            } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(examId)) {
-                courseId = RawRecordConstants.M124;
-            } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(examId)) {
-                courseId = RawRecordConstants.M125;
-            } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(examId)) {
-                courseId = RawRecordConstants.M126;
-            } else if ("171UE".equals(examId)) {
-                courseId = RawRecordConstants.M117;
-                unit = 1;
-            } else if ("172UE".equals(examId)) {
-                courseId = RawRecordConstants.M117;
-                unit = 2;
-            } else if ("173UE".equals(examId)) {
-                courseId = RawRecordConstants.M117;
-                unit = 3;
-            } else if ("174UE".equals(examId)) {
-                courseId = RawRecordConstants.M117;
-                unit = 4;
-            } else if ("17FIN".equals(examId)) {
-                courseId = RawRecordConstants.M117;
-                unit = 5;
-            } else if ("181UE".equals(examId)) {
-                courseId = RawRecordConstants.M118;
-                unit = 1;
-            } else if ("182UE".equals(examId)) {
-                courseId = RawRecordConstants.M118;
-                unit = 2;
-            } else if ("183UE".equals(examId)) {
-                courseId = RawRecordConstants.M118;
-                unit = 3;
-            } else if ("184UE".equals(examId)) {
-                courseId = RawRecordConstants.M118;
-                unit = 4;
-            } else if ("18FIN".equals(examId)) {
-                courseId = RawRecordConstants.M118;
-                unit = 5;
-            } else if ("241UE".equals(examId)) {
-                courseId = RawRecordConstants.M124;
-                unit = 1;
-            } else if ("242UE".equals(examId)) {
-                courseId = RawRecordConstants.M124;
-                unit = 2;
-            } else if ("243UE".equals(examId)) {
-                courseId = RawRecordConstants.M124;
-                unit = 3;
-            } else if ("244UE".equals(examId)) {
-                courseId = RawRecordConstants.M124;
-                unit = 4;
-            } else if ("24FIN".equals(examId)) {
-                courseId = RawRecordConstants.M124;
-                unit = 5;
-            } else if ("251UE".equals(examId)) {
-                courseId = RawRecordConstants.M125;
-                unit = 1;
-            } else if ("252UE".equals(examId)) {
-                courseId = RawRecordConstants.M125;
-                unit = 2;
-            } else if ("253UE".equals(examId)) {
-                courseId = RawRecordConstants.M125;
-                unit = 3;
-            } else if ("254UE".equals(examId)) {
-                courseId = RawRecordConstants.M125;
-                unit = 4;
-            } else if ("25FIN".equals(examId)) {
-                courseId = RawRecordConstants.M125;
-                unit = 5;
-            } else if ("261UE".equals(examId)) {
-                courseId = RawRecordConstants.M126;
-                unit = 1;
-            } else if ("262UE".equals(examId)) {
-                courseId = RawRecordConstants.M126;
-                unit = 2;
-            } else if ("263UE".equals(examId)) {
-                courseId = RawRecordConstants.M126;
-                unit = 3;
-            } else if ("264UE".equals(examId)) {
-                courseId = RawRecordConstants.M126;
-                unit = 4;
-            } else if ("26FIN".equals(examId)) {
-                courseId = RawRecordConstants.M126;
-                unit = 5;
-            } else {
-                errmsg = "Exam " + examId + " is not implemented";
+            switch (examId) {
+                case "MT4UE" -> {
+                    courseId = RawRecordConstants.M100T;
+                    unit = 4;
+                }
+                case "7T4UE" -> {
+                    courseId = RawRecordConstants.M1170;
+                    unit = 4;
+                }
+                case "8T4UE" -> {
+                    courseId = RawRecordConstants.M1180;
+                    unit = 4;
+                }
+                case "4T4UE" -> {
+                    courseId = RawRecordConstants.M1240;
+                    unit = 4;
+                }
+                case "5T4UE" -> {
+                    courseId = RawRecordConstants.M1250;
+                    unit = 4;
+                }
+                case "6T4UE" -> {
+                    courseId = RawRecordConstants.M1260;
+                    unit = 4;
+                }
+                case "MPTTC" -> {
+                    courseId = RawRecordConstants.M100P;
+                    unit = 1;
+                }
+                case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID -> courseId = RawRecordConstants.M117;
+                case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID -> courseId = RawRecordConstants.M118;
+                case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID -> courseId = RawRecordConstants.M124;
+                case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID -> courseId = RawRecordConstants.M125;
+                case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID -> courseId = RawRecordConstants.M126;
+                case "171UE" -> {
+                    courseId = RawRecordConstants.M117;
+                    unit = 1;
+                }
+                case "172UE" -> {
+                    courseId = RawRecordConstants.M117;
+                    unit = 2;
+                }
+                case "173UE" -> {
+                    courseId = RawRecordConstants.M117;
+                    unit = 3;
+                }
+                case "174UE" -> {
+                    courseId = RawRecordConstants.M117;
+                    unit = 4;
+                }
+                case "17FIN" -> {
+                    courseId = RawRecordConstants.M117;
+                    unit = 5;
+                }
+                case "181UE" -> {
+                    courseId = RawRecordConstants.M118;
+                    unit = 1;
+                }
+                case "182UE" -> {
+                    courseId = RawRecordConstants.M118;
+                    unit = 2;
+                }
+                case "183UE" -> {
+                    courseId = RawRecordConstants.M118;
+                    unit = 3;
+                }
+                case "184UE" -> {
+                    courseId = RawRecordConstants.M118;
+                    unit = 4;
+                }
+                case "18FIN" -> {
+                    courseId = RawRecordConstants.M118;
+                    unit = 5;
+                }
+                case "241UE" -> {
+                    courseId = RawRecordConstants.M124;
+                    unit = 1;
+                }
+                case "242UE" -> {
+                    courseId = RawRecordConstants.M124;
+                    unit = 2;
+                }
+                case "243UE" -> {
+                    courseId = RawRecordConstants.M124;
+                    unit = 3;
+                }
+                case "244UE" -> {
+                    courseId = RawRecordConstants.M124;
+                    unit = 4;
+                }
+                case "24FIN" -> {
+                    courseId = RawRecordConstants.M124;
+                    unit = 5;
+                }
+                case "251UE" -> {
+                    courseId = RawRecordConstants.M125;
+                    unit = 1;
+                }
+                case "252UE" -> {
+                    courseId = RawRecordConstants.M125;
+                    unit = 2;
+                }
+                case "253UE" -> {
+                    courseId = RawRecordConstants.M125;
+                    unit = 3;
+                }
+                case "254UE" -> {
+                    courseId = RawRecordConstants.M125;
+                    unit = 4;
+                }
+                case "25FIN" -> {
+                    courseId = RawRecordConstants.M125;
+                    unit = 5;
+                }
+                case "261UE" -> {
+                    courseId = RawRecordConstants.M126;
+                    unit = 1;
+                }
+                case "262UE" -> {
+                    courseId = RawRecordConstants.M126;
+                    unit = 2;
+                }
+                case "263UE" -> {
+                    courseId = RawRecordConstants.M126;
+                    unit = 3;
+                }
+                case "264UE" -> {
+                    courseId = RawRecordConstants.M126;
+                    unit = 4;
+                }
+                case "26FIN" -> {
+                    courseId = RawRecordConstants.M126;
+                    unit = 5;
+                }
+                case null, default -> errmsg = "Exam " + examId + " is not implemented";
             }
 
             if (!RawClientPcLogic.updateAllCurrent(cache, station.computerId,

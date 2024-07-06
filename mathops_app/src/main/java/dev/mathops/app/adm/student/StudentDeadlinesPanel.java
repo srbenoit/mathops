@@ -349,7 +349,7 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
             if (!toassign.isEmpty()) {
                 Collections.sort(toassign);
                 for (final RawStcourse row : toassign) {
-                    row.paceOrder = orders.remove(0);
+                    row.paceOrder = orders.removeFirst();
                 }
             }
             toassign.clear();

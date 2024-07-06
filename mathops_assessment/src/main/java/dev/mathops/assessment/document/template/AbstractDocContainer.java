@@ -147,8 +147,7 @@ public abstract class AbstractDocContainer extends AbstractDocObjectTemplate {
      */
     final AbstractDocObjectTemplate getLastChild() {
 
-        return this.children == null || this.children.isEmpty() ? null
-                : this.children.get(this.children.size() - 1);
+        return this.children == null || this.children.isEmpty() ? null : this.children.getLast();
     }
 
     /**

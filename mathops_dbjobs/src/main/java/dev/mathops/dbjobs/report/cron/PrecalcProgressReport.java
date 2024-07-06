@@ -26,7 +26,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -179,7 +178,7 @@ public final class PrecalcProgressReport {
                                        final Collection<? super String> rpt) throws SQLException {
 
         TermKey activeKey = null;
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         if (active != null) {
             activeKey = active.term;
         }

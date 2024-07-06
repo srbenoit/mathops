@@ -273,23 +273,16 @@ public final class Formula extends AbstractFormulaContainer {
         if (canEvaluate) {
             final Object value = evaluate(context);
 
-            if (value instanceof final Long longVal) {
-                result = new ConstIntegerValue(longVal.longValue());
-            } else if (value instanceof final Number numVal) {
-                result = new ConstRealValue(numVal);
-            } else if (value instanceof final Boolean booleanVal) {
-                result = new ConstBooleanValue(booleanVal.booleanValue());
-            } else if (value instanceof final String stringVal) {
-                result = new ConstStringValue(stringVal);
-            } else if (value instanceof final DocSimpleSpan spanVal) {
-                result = new ConstSpanValue(spanVal);
-            } else if (value instanceof final IntegerVectorValue intVecVal) {
-                result = new ConstIntegerVector(intVecVal);
-            } else if (value instanceof final RealVectorValue realVecVal) {
-                result = new ConstRealVector(realVecVal);
-            } else {
-                result = this;
-            }
+            result = switch (value) {
+                case final Long longVal -> new ConstIntegerValue(longVal.longValue());
+                case final Number numVal -> new ConstRealValue(numVal);
+                case final Boolean booleanVal -> new ConstBooleanValue(booleanVal.booleanValue());
+                case final String stringVal -> new ConstStringValue(stringVal);
+                case final DocSimpleSpan spanVal -> new ConstSpanValue(spanVal);
+                case final IntegerVectorValue intVecVal -> new ConstIntegerVector(intVecVal);
+                case final RealVectorValue realVecVal -> new ConstRealVector(realVecVal);
+                case null, default -> this;
+            };
         } else {
             result = this;
         }

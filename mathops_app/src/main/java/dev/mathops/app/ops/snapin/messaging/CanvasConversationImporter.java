@@ -10,7 +10,6 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
@@ -101,10 +100,9 @@ final class CanvasConversationImporter extends SwingWorker<String, ScannerStatus
         this.cancel.set(false);
 
         try {
-            publish(new ScannerStatus(0, 100,
-                    "Querying 'stterm' records to get Canvas IDs of students"));
+            publish(new ScannerStatus(0, 100, "Querying 'stterm' records to get Canvas IDs of students"));
 
-            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec active = this.cache.getSystemData().getActiveTerm();
             final List<RawStterm> stterms = RawSttermLogic.queryAllByTerm(this.cache, active.term);
 
             final Map<String, RawStterm> canvasIdToStterm = new HashMap<>(stterms.size());

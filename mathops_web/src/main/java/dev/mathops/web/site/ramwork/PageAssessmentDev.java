@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 
 enum PageAssessmentDev {
     ;
@@ -21,13 +20,14 @@ enum PageAssessmentDev {
      * @param resp    the response
      * @param session the session
      * @throws IOException  if there is an error writing the response
-     * @throws SQLException if there is an error accessing the database
      */
     static void showPage(final ServletRequest req, final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException, SQLException {
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), true);
+
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startEmptyPage(htm, title, true);
 
         htm.sH(1).add("Assessment Development").eH(1);
 

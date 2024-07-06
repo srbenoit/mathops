@@ -187,7 +187,7 @@ enum OnTimeMessageFactory1of1 {
 
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.GRDCok00, EMsg.GRDCok01, EMsg.GRDCok02)) {
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
 
             final String subject = "Re-testing to increase score";
@@ -232,7 +232,7 @@ enum OnTimeMessageFactory1of1 {
 
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.GRDCok00, EMsg.GRDCok01, EMsg.GRDCok02)) {
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject = "Re-testing to increase score";
 
@@ -273,7 +273,7 @@ enum OnTimeMessageFactory1of1 {
 
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.GRDCok00, EMsg.GRDCok01, EMsg.GRDCok02)) {
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject = "Re-testing to increase score";
 
@@ -312,7 +312,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -366,7 +366,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -414,7 +414,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -460,7 +460,7 @@ enum OnTimeMessageFactory1of1 {
 
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.LASTfe00, EMsg.LASTfe01)) {
 
-            final RawStcourse reg = context.sortedRegs.get(0);
+            final RawStcourse reg = context.sortedRegs.getFirst();
             final String courseId = reg.course;
             final String crsName = MsgUtils.courseName(courseId);
 
@@ -506,7 +506,7 @@ enum OnTimeMessageFactory1of1 {
 
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.LASTfe00, EMsg.LASTfe01)) {
 
-            final RawStcourse reg = context.sortedRegs.get(0);
+            final RawStcourse reg = context.sortedRegs.getFirst();
             final String courseId = reg.course;
             final String crsName = MsgUtils.courseName(courseId);
 
@@ -603,7 +603,7 @@ enum OnTimeMessageFactory1of1 {
                 body.addln();
             }
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -670,7 +670,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -813,7 +813,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -949,7 +949,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -1087,7 +1087,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -1145,7 +1145,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 
@@ -1235,7 +1235,7 @@ enum OnTimeMessageFactory1of1 {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
 
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject = crsName + " Unit 1 is open";
 
@@ -1291,7 +1291,7 @@ enum OnTimeMessageFactory1of1 {
         if (MsgUtils.hasNoMsgOfCodes(context.messages, EMsg.RE1Rok01)) {
 
             final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
-            final String courseId = context.sortedRegs.get(0).course;
+            final String courseId = context.sortedRegs.getFirst().course;
             final String crsName = MsgUtils.courseName(courseId);
             final String subject;
 

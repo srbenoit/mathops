@@ -166,10 +166,8 @@ public final class ItemSession {
      * @param cache the data cache
      * @param now   the date/time to consider "now"
      * @param htm   the {@code HtmlBuilder} to which to append
-     * @throws SQLException if there is an error accessing the database
      */
-    public void generateHtml(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm)
-            throws SQLException {
+    public void generateHtml(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm) {
 
         this.timeout = System.currentTimeMillis() + TIMEOUT;
 

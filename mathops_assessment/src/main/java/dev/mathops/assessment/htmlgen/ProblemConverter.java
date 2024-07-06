@@ -32,21 +32,24 @@ public enum ProblemConverter {
     public static void populateProblemHtml(final AbstractProblemTemplate problem, final int[] id) {
 
         synchronized (problem) {
-            if (problem instanceof ProblemMultipleChoiceTemplate) {
-                populateMutipleChoice((ProblemMultipleChoiceTemplate) problem, id);
-            } else if (problem instanceof ProblemMultipleSelectionTemplate) {
-                populateMutipleSelection((ProblemMultipleSelectionTemplate) problem, id);
-            } else if (problem instanceof ProblemNumericTemplate) {
-                populateNumeric((ProblemNumericTemplate) problem, id);
-            } else if (problem instanceof ProblemEmbeddedInputTemplate) {
-                populateEmbeddedInput((ProblemEmbeddedInputTemplate) problem, id);
-            } else if (problem instanceof ProblemAutoCorrectTemplate) {
-                populateAutoCorrect((ProblemAutoCorrectTemplate) problem, id);
-            } else if (problem instanceof final ProblemDummyTemplate dummy) {
-                if (dummy.id != null) {
-                    Log.warning("Populating Dummy problem ", dummy.id);
-                } else {
-                    Log.warning("Populating Dummy problem with null ref");
+            switch (problem) {
+                case ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->
+                        populateMutipleChoice(problemMultipleChoiceTemplate, id);
+                case ProblemMultipleSelectionTemplate problemMultipleSelectionTemplate ->
+                        populateMutipleSelection(problemMultipleSelectionTemplate, id);
+                case ProblemNumericTemplate problemNumericTemplate -> populateNumeric(problemNumericTemplate, id);
+                case ProblemEmbeddedInputTemplate problemEmbeddedInputTemplate ->
+                        populateEmbeddedInput(problemEmbeddedInputTemplate, id);
+                case ProblemAutoCorrectTemplate problemAutoCorrectTemplate ->
+                        populateAutoCorrect(problemAutoCorrectTemplate, id);
+                case final ProblemDummyTemplate dummy -> {
+                    if (dummy.id != null) {
+                        Log.warning("Populating Dummy problem ", dummy.id);
+                    } else {
+                        Log.warning("Populating Dummy problem with null ref");
+                    }
+                }
+                default -> {
                 }
             }
         }

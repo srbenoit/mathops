@@ -1725,7 +1725,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                assertTrue(RawStexamLogic.updatePassed(cache, all.get(0), "N"),
+                assertTrue(RawStexamLogic.updatePassed(cache, all.getFirst(), "N"),
                         "Incorrect result from updatePassed");
 
                 RawStexamLogic.recalculateFirstPassed(cache, "111111111", RawRecordConstants.M100U,
@@ -1735,7 +1735,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                final RawStexam test = all.get(0);
+                final RawStexam test = all.getFirst();
 
                 final boolean found = Long.valueOf(1000L).equals(test.serialNbr)
                         && "UUUUU".equals(test.version)
@@ -1781,7 +1781,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                assertTrue(RawStexamLogic.updateScoreAndPassed(cache, all.get(0), Integer.valueOf(16), "Y"),
+                assertTrue(RawStexamLogic.updateScoreAndPassed(cache, all.getFirst(), Integer.valueOf(16), "Y"),
                         "Incorrect result from updateScoreAndPassed");
 
                 RawStexamLogic.recalculateFirstPassed(cache, "111111111", RawRecordConstants.M100U,
@@ -1791,7 +1791,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                final RawStexam test = all.get(0);
+                final RawStexam test = all.getFirst();
 
                 final boolean found = Long.valueOf(1000L).equals(test.serialNbr)
                         && "UUUUU".equals(test.version)
@@ -1837,7 +1837,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                assertTrue(RawStexamLogic.updateWhenFinished(cache, all.get(0), date2,
+                assertTrue(RawStexamLogic.updateWhenFinished(cache, all.getFirst(), date2,
                         Integer.valueOf(100)), "Incorrect result from updateWhenFinished");
 
                 RawStexamLogic.recalculateFirstPassed(cache, "111111111", RawRecordConstants.M100U,
@@ -1847,7 +1847,7 @@ final class TestRawStexamLogic {
 
                 assertEquals(1, all.size(), "Incorrect record count from queryByStudentCourse");
 
-                final RawStexam test = all.get(0);
+                final RawStexam test = all.getFirst();
 
                 final boolean found = Long.valueOf(1000L).equals(test.serialNbr)
                         && "UUUUU".equals(test.version)

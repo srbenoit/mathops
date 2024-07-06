@@ -37,17 +37,6 @@ public final class LandingSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -89,20 +78,20 @@ public final class LandingSite extends AbstractSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("favicon.ico".equals(subpath)) {
-            serveImage(subpath, req, resp);
-        } else if (CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)) {
-            PageLanding.showPage(cache, this, type, req, resp);
-        } else {
-            resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-            final String path = this.siteProfile.path;
-            resp.setHeader("Location",
-                    path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
-            sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
+        switch (subpath) {
+            case "basestyle.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            case "style.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            case "favicon.ico" -> serveImage(subpath, req, resp);
+            case CoreConstants.EMPTY, "index.html" -> PageLanding.showPage(cache, this, type, req, resp);
+            case null, default -> {
+                resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                final String path = this.siteProfile.path;
+                resp.setHeader("Location",
+                        path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
+                sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
+            }
         }
     }
 

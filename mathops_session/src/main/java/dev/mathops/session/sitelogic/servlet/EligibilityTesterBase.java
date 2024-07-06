@@ -29,7 +29,6 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -307,7 +306,7 @@ class EligibilityTesterBase {
 
         final LocalDate today = now.toLocalDate();
 
-        this.activeTerm = TermLogic.get(cache).queryActive(cache);
+        this.activeTerm = cache.getSystemData().getActiveTerm();
         if (this.activeTerm == null) {
             reasons.add("Unable to query the active term.");
         } else if (canAccessOutsideTerm()) {

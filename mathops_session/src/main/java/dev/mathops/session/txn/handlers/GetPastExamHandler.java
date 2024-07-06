@@ -264,7 +264,7 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
             final Serializable[][] ans = new Serializable[numAns][];
             ans[0] = new Serializable[4];
 
-            String[] split = data.get(0).split(CoreConstants.COMMA);
+            String[] split = data.getFirst().split(CoreConstants.COMMA);
 
             if (split.length == 4) {
                 ans[0][0] = Long.valueOf(0L);
@@ -272,7 +272,7 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
                 ans[0][2] = ans[0][0];
                 ans[0][3] = ans[0][0];
             } else {
-                Log.warning("Updates file has invalid state line: ", data.get(0));
+                Log.warning("Updates file has invalid state line: ", data.getFirst());
                 ok = false;
             }
 

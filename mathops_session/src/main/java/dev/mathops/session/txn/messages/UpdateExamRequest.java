@@ -290,14 +290,12 @@ public final class UpdateExamRequest extends AbstractRequestBase {
                                 continue;
                             }
 
-                            if (this.answers[i][j] instanceof Long) {
-                                builder.add("<long>", this.answers[i][j], "</long>");
-                            } else if (this.answers[i][j] instanceof Double) {
-                                builder.add("<double>", this.answers[i][j], "</double>");
-                            } else if (this.answers[i][j] instanceof String) {
-                                builder.add("<string>", this.answers[i][j], "</string>");
-                            } else {
-                                Log.warning(Res.fmt(Res.BAD_ANSWER, this.answers[i][j].getClass().getName()));
+                            switch (this.answers[i][j]) {
+                                case Long l -> builder.add("<long>", this.answers[i][j], "</long>");
+                                case Double v -> builder.add("<double>", this.answers[i][j], "</double>");
+                                case String s -> builder.add("<string>", this.answers[i][j], "</string>");
+                                case null, default ->
+                                        Log.warning(Res.fmt(Res.BAD_ANSWER, this.answers[i][j].getClass().getName()));
                             }
                         }
                     }

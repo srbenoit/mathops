@@ -927,7 +927,7 @@ public final class DocTable extends AbstractDocContainer {
                 } else {
                     final int dataLen = this.objectData.length;
                     for (int i = 0; i < dataLen; ++i) {
-                        if (!Objects.equals(this.objectData[i], table.objectData[i])) {
+                        if (!Arrays.equals(this.objectData[i], table.objectData[i])) {
                             equal = false;
                             break;
                         }

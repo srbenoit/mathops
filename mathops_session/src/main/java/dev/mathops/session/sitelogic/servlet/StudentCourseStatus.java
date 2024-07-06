@@ -50,7 +50,6 @@ import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ISessionManager;
@@ -1072,10 +1071,11 @@ public final class StudentCourseStatus extends LogicBase {
             this.scores = new StudentCourseScores(this.maxUnit);
 
             if (queryCourseSection(cache) && queryCourseSectionUnits(cache, session.getNow())
-                    && queryCourseUnitObjectives(cache) && queryExams(cache)) {
+                    && queryCourseUnitObjectives(cache) ) {
 
-                this.homeworks = AssignmentLogic.get(cache).queryActiveByCourse(cache,
-                        this.studentCourse.course, "HW");
+                queryExams(cache);
+
+                this.homeworks = AssignmentLogic.get(cache).queryActiveByCourse(cache, this.studentCourse.course, "HW");
 
                 // Allocate homework status variables
                 this.homeworkAvailable = new boolean[this.homeworks.size()];
@@ -1085,52 +1085,44 @@ public final class StudentCourseStatus extends LogicBase {
                 this.unitObjTotalHw = new int[this.maxUnit + 1][];
 
                 loadExamDeadlines(cache);
-                result = loadStudentHistory(cache);
+                loadStudentHistory(cache);
+                buildExamStatus();
+                checkHomeworkAvailability(cache, session.getNow());
+                checkExamAvailability(cache, session.getNow());
+                calculateScore(cache);
 
-                if (result) {
-                    buildExamStatus();
-                    checkHomeworkAvailability(cache, session.getNow());
-                    checkExamAvailability(cache, session.getNow());
-                    calculateScore(cache);
-                }
+                result = true;
 
                 // FIXME: HARDCODES - MOVE INTO DATA (new course-media table?)
 
                 if (RawRecordConstants.M117.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M117/117TOC.pdf");
+                    map.put("Course Outline", STREAM + "M117/117TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M118.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M118/118TOC.pdf");
+                    map.put("Course Outline", STREAM + "M118/118TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M124.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M124/124TOC.pdf");
+                    map.put("Course Outline", STREAM + "M124/124TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M125.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M125/125TOC.pdf");
+                    map.put("Course Outline", STREAM + "M125/125TOC.pdf");
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M126.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", //
-                            STREAM + "M126/126TOC.pdf");
+                    map.put("Course Outline", STREAM + "M126/126TOC.pdf");
                     this.media.put("Course Overview", map);
 
                     final Map<String, String> map2 = new TreeMap<>();
-                    map2.put("Identities", //
-                            STREAM + "M126/126Identities.pdf");
+                    map2.put("Identities", STREAM + "M126/126Identities.pdf");
                     this.media.put("References", map2);
                 } else if (RawRecordConstants.M100T.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
                     map.put("Instructions", "/www/media/ELM_information.pdf");
-                    map.put("Tutorial Outline", //
-                            STREAM + "M100T/100TTOC.pdf");
+                    map.put("Tutorial Outline", STREAM + "M100T/100TTOC.pdf");
                     this.media.put("Tutorial Overview", map);
                 } else if (RawRecordConstants.M1170.equals(theCourseId)
                         || RawRecordConstants.M1180.equals(theCourseId)
@@ -1162,7 +1154,7 @@ public final class StudentCourseStatus extends LogicBase {
      */
     private boolean queryActiveTerm(final Cache cache) throws SQLException {
 
-        this.activeTerm = TermLogic.get(cache).queryActive(cache);
+        this.activeTerm = cache.getSystemData().getActiveTerm();
 
         final boolean result;
         if (this.activeTerm == null) {
@@ -1332,7 +1324,7 @@ public final class StudentCourseStatus extends LogicBase {
                 } else {
                     this.incompleteInProgress = "Y".equals(this.studentCourse.iInProgress);
                     this.incompleteTerm = this.studentCourse.iTermKey == null ? null
-                            : TermLogic.get(cache).query(cache, this.studentCourse.iTermKey);
+                            : cache.getSystemData().getTerm(this.studentCourse.iTermKey);
 
                     if (this.incompleteTerm == null) {
                         setErrorText("Unable to look up the incomplete term.");
@@ -1521,7 +1513,7 @@ public final class StudentCourseStatus extends LogicBase {
 
         if ("Y".equals(this.course.isTutorial)) {
 
-            final List<TermRec> futureTerms = TermLogic.get(cache).getFutureTerms(cache);
+            final List<TermRec> futureTerms = cache.getSystemData().getFutureTerms();
 
             final String courseId = this.course.course;
 
@@ -1594,10 +1586,9 @@ public final class StudentCourseStatus extends LogicBase {
      * Queries all homework and exam records associated with the course.
      *
      * @param cache the data cache
-     * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryExams(final Cache cache) throws SQLException {
+    private void queryExams(final Cache cache) throws SQLException {
 
         final String crs = this.studentCourse.course;
 
@@ -1616,8 +1607,6 @@ public final class StudentCourseStatus extends LogicBase {
                 }
             }
         }
-
-        return true;
     }
 
     /**
@@ -1645,7 +1634,7 @@ public final class StudentCourseStatus extends LogicBase {
         // Determine the term to use for deadlines
         if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
 
-            term = TermLogic.get(cache).query(cache, this.studentCourse.iTermKey);
+            term = cache.getSystemData().getTerm(this.studentCourse.iTermKey);
 
             Log.info("Term to use for milestones: ", term.term);
 
@@ -1817,7 +1806,7 @@ public final class StudentCourseStatus extends LogicBase {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadStudentHistory(final Cache cache) throws SQLException {
+    private void loadStudentHistory(final Cache cache) throws SQLException {
 
         final String studentId = this.student.stuId;
         final String courseId = this.course.course;
@@ -1942,8 +1931,6 @@ public final class StudentCourseStatus extends LogicBase {
                 this.unitObjTotalHw[unit][obj - 1]++;
             }
         }
-
-        return true;
     }
 
     /**
@@ -2992,7 +2979,7 @@ public final class StudentCourseStatus extends LogicBase {
                     if (status.gatherData(cache, session, "888888888",
                             RawRecordConstants.M117, false, false)) {
 
-                        final TermRec active = TermLogic.get(cache).queryActive(cache);
+                        final TermRec active = cache.getSystemData().getActiveTerm();
                         final RawPacingStructure pacing = status.pacingStructure;
 
                         Log.info("Pacing structure: ", pacing.pacingStructure);

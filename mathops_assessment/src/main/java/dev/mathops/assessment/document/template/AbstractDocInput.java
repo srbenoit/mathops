@@ -316,51 +316,57 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
 //        Log.info("storeValue called with '", value, "' for name '", this.name, "'");
 
         if (this.evalContext != null) {
-            AbstractVariable var = this.evalContext.getVariable(this.name);
+            final AbstractVariable variable = this.evalContext.getVariable(this.name);
 
-            if (var == null) {
+            if (variable == null) {
 
-                if (value == null || value instanceof Double) {
-                    var = new VariableInputReal(this.name);
-                } else if (value instanceof Long) {
-                    var = new VariableInputInteger(this.name);
-                } else if (value instanceof String) {
-                    var = new VariableInputString(this.name);
-                } else {
-                    throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
-                }
+                final AbstractVariable newVariable = switch (value) {
+                    case null -> new VariableInputReal(this.name);
+                    case final Double v -> new VariableInputReal(this.name);
+                    case final Long l -> new VariableInputInteger(this.name);
+                    case final String s -> new VariableInputString(this.name);
+                    default -> throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
+                };
 
-                var.setValue(value);
-                this.evalContext.addVariable(var);
+                newVariable.setValue(value);
+                this.evalContext.addVariable(newVariable);
             } else if (value != null) {
 
-                if (value instanceof Long) {
-                    if (!(var instanceof VariableInputInteger)) {
-                        Log.warning("Attempt to store Long in ", var.getClass().getSimpleName());
+                final String className = variable.getClass().getSimpleName();
+
+                switch (value) {
+                    case final Long l -> {
+                        if (!(variable instanceof VariableInputInteger)) {
+                            Log.warning("Attempt to store Long in ", className);
+                            throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
+                        }
+                    }
+                    case final Double v -> {
+                        if (!(variable instanceof VariableInputReal)) {
+                            Log.warning("Attempt to store Double in ", className);
+                            throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
+                        }
+                    }
+                    case final String s -> {
+                        if (!(variable instanceof VariableInputString)) {
+                            Log.warning("Attempt to store String in ", className);
+                            throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
+                        }
+                    }
+                    default -> {
+                        final String valueClassName = value.getClass().getSimpleName();
+                        Log.warning("Attempt to store ", valueClassName, " in ", className);
                         throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                     }
-                } else if (value instanceof Double) {
-                    if (!(var instanceof VariableInputReal)) {
-                        Log.warning("Attempt to store Double in ", var.getClass().getSimpleName());
-                        throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
-                    }
-                } else if (value instanceof String) {
-                    if (!(var instanceof VariableInputString)) {
-                        Log.warning("Attempt to store String in ", var.getClass().getSimpleName());
-                        throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
-                    }
-                } else {
-                    Log.warning("Attempt to store ", value.getClass().getSimpleName(), " in ",
-                            var.getClass().getSimpleName());
-                    throw new IllegalArgumentException(Res.get(Res.BAD_DATA_TYPE));
                 }
 
-                if (!value.equals(var.getValue())) {
+                final Object varValue = variable.getValue();
+                if (!value.equals(varValue)) {
 //                    Log.info("Storing value '", value, "' in EvalContext variable '", var.name, "'");
-                    var.setValue(value);
+                    variable.setValue(value);
                 }
-            } else if (var.getValue() != null) {
-                var.setValue(null);
+            } else if (variable.getValue() != null) {
+                variable.setValue(null);
             }
         }
     }

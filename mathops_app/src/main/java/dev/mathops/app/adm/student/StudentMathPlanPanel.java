@@ -255,7 +255,7 @@ import java.util.List;
                     }
 
                     final MathPlanLogic logic = new MathPlanLogic(cache.dbProfile);
-                    final MathPlanPlacementStatus status = logic.getMathPlacementStatus(cache, studentId);
+                    final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, studentId);
 
                     if (status.isPlacementComplete) {
                         this.checkMathPlacementStatus.setText("COMPLETED");

@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -102,7 +101,7 @@ public enum IFXResetPrecalcTutorial {
     private static void buildReport(final Cache cache, final HtmlBuilder report,
                                     final HtmlBuilder errors) throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
         if (activeTerm == null) {
             errors.addln("Unable to query the active term.");
         } else {

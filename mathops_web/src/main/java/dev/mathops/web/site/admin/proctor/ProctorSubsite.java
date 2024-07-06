@@ -45,15 +45,15 @@ public final class ProctorSubsite extends AbstractSubsite {
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.PROCTOR)) {
-            if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session);
-            } else if ("proctoring_teams.html".equals(subpath)) {
-                PageProctorTeams.doPage(cache, this.site, req, resp, session);
-            } else if ("proctoring_challenge_teams.html".equals(subpath)) {
-                PageProctoringChallengeTeams.doGet(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("GET: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "home.html" -> PageHome.doGet(cache, this.site, req, resp, session);
+                case "proctoring_teams.html" -> PageProctorTeams.doPage(cache, this.site, req, resp, session);
+                case "proctoring_challenge_teams.html" ->
+                        PageProctoringChallengeTeams.doGet(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("GET: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("GET: invalid role");

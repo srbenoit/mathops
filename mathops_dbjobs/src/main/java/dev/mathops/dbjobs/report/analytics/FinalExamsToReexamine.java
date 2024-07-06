@@ -14,7 +14,6 @@ import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStqa;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -50,7 +49,7 @@ final class FinalExamsToReexamine {
 
         // Fetch all registrations with open_status 'Y' and completed 'N'
         try {
-            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec active = this.cache.getSystemData().getActiveTerm();
             final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(this.cache, active.term, false, false);
 
             allRegs.removeIf(row -> (!"Y".equals(row.openStatus) || !"N".equals(row.completed)));

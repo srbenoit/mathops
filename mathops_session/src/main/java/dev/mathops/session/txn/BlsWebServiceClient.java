@@ -182,8 +182,9 @@ public class BlsWebServiceClient implements HostnameVerifier {
                     }
 
                     if (total > 0) {
-                        final String reply = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-                        this.inputData.add(reply.toCharArray());
+                        final String reply = baos.toString(StandardCharsets.UTF_8);
+                        final char[] replyChars = reply.toCharArray();
+                        this.inputData.add(replyChars);
                     } else {
                         Log.warning("Zero bytes were read");
                     }
@@ -205,7 +206,8 @@ public class BlsWebServiceClient implements HostnameVerifier {
                         }
                     }
 
-                    this.inputData.add(new String(inBytes, StandardCharsets.UTF_8).toCharArray());
+                    final char[] inChars = new String(inBytes, StandardCharsets.UTF_8).toCharArray();
+                    this.inputData.add(inChars);
                 } else {
 //                    Log.info("There was no immediate response");
                     this.inputData.add(EMPTY_CHAR_ARRAY);
@@ -232,7 +234,7 @@ public class BlsWebServiceClient implements HostnameVerifier {
         char[] data = null;
 
         if (!this.inputData.isEmpty()) {
-            data = this.inputData.remove(0);
+            data = this.inputData.removeFirst();
         }
 
         return data;

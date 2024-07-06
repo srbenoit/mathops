@@ -315,7 +315,7 @@ enum PageCalendar {
                                          final Collection<LocalDate> holidays,
                                          final CourseSiteLogic logic, final HtmlBuilder htm) {
 
-        final RawStcourse reg1 = paceRegs.get(0);
+        final RawStcourse reg1 = paceRegs.getFirst();
 
         final SiteDataCfgCourse courseData1 =
                 logic.data.courseData.getCourse(reg1.course, reg1.sect);

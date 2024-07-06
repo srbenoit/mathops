@@ -4,7 +4,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -62,7 +61,7 @@ enum PageLogin {
         htm.addln("<a href='https://eid.colostate.edu/' target='_blank'>Create your eID</a>");
         htm.eDiv();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawCampusCalendar> calendarRows = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
 

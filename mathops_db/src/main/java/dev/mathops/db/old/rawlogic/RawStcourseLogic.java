@@ -8,7 +8,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.ResultSet;
@@ -297,7 +296,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {
             if (activeTerm == null) {
-                activeTerm = TermLogic.get(cache).queryActive(cache);
+                activeTerm = cache.getSystemData().getActiveTerm();
             }
         }
 
@@ -471,7 +470,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {
             if (activeTerm == null) {
-                activeTerm = TermLogic.get(cache).queryActive(cache);
+                activeTerm = cache.getSystemData().getActiveTerm();
             }
         }
 
@@ -514,7 +513,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {
             if (activeTerm == null) {
-                activeTerm = TermLogic.get(cache).queryActive(cache);
+                activeTerm = cache.getSystemData().getActiveTerm();
             }
         }
 
@@ -532,7 +531,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
         final List<RawStcourse> list = executeQuery(cache, sql.toString());
 
         if (!list.isEmpty()) {
-            result = list.get(0);
+            result = list.getFirst();
 
             if (list.size() > 1) {
                 Log.warning("Multiple registrations for ", studentId, " in ", courseId);
@@ -1083,7 +1082,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {
             if (activeTerm == null) {
-                activeTerm = TermLogic.get(cache).queryActive(cache);
+                activeTerm = cache.getSystemData().getActiveTerm();
             }
         }
 

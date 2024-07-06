@@ -44,7 +44,7 @@ public abstract class AbstractDocSpanBase extends AbstractDocContainer {
     @Override
     public final int getLeftAlign() {
 
-        return getChildren().isEmpty() ? BASELINE : getChildren().get(0).getLeftAlign();
+        return getChildren().isEmpty() ? BASELINE : getChildren().getFirst().getLeftAlign();
     }
 
     /**

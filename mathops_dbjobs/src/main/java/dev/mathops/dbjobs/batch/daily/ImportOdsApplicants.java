@@ -18,7 +18,6 @@ import dev.mathops.db.old.ifaces.ILiveStudent;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.Date;
@@ -91,7 +90,7 @@ public final class ImportOdsApplicants {
                 final Cache cache = new Cache(this.dbProfile, conn);
 
                 try {
-                    final TermRec active = TermLogic.get(cache).queryActive(cache);
+                    final TermRec active = cache.getSystemData().getActiveTerm();
 
                     if (active == null) {
                         report.add("Failed to query the active term.");
@@ -506,7 +505,7 @@ public final class ImportOdsApplicants {
                 final List<LiveStudent> liveRecords = impl.query(liveConn, app.csuId);
 
                 if (liveRecords.size() == 1) {
-                    final LiveStudent liveStu = liveRecords.get(0);
+                    final LiveStudent liveStu = liveRecords.getFirst();
 
                     if (!Objects.equals(liveStu.internalId, newRec.pidm)) {
                         Log.warning("Banner/ODS mismatch on pidm: ", liveStu.internalId, "/", newRec.pidm);

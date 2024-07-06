@@ -718,9 +718,8 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
      * Perform the message exchange with the server to indicate we could or could not begin the exam.
      *
      * @param result the result of the attempt to start the exam
-     * @return {@code true} if successful; {@code false} otherwise
      */
-    private boolean doExamStartResult(final int result) {
+    private void doExamStartResult(final int result) {
 
         final ExamStartResultRequest req;
 
@@ -738,11 +737,11 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         if (obj == null) {
             showError("Unable to read exam start results from the server.");
             Log.warning("Unable to read exam start results from the server.", null);
-            return false;
+            return;
         } else if (!(obj instanceof ExamStartResultReply)) {
             showError("Exam start result was " + obj.getClass().getName() + CoreConstants.DOT);
             Log.warning("Exam start result was ", obj.getClass().getName(), CoreConstants.DOT);
-            return false;
+            return;
         }
 
         final ExamStartResultReply reply = (ExamStartResultReply) obj;
@@ -750,10 +749,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         if (reply.error != null) {
             showError("Exam start error: " + reply.error + CoreConstants.DOT);
             Log.warning("Exam start error: ", reply.error, CoreConstants.DOT);
-            return false;
         }
-
-        return true;
     }
 
     /**
@@ -1803,77 +1799,79 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
         int numAnswered = 0;
         int numProblems = 0;
 
-        if ("Larger".equals(cmd)) {
-            this.examPanel.larger();
-        } else if ("Smaller".equals(cmd)) {
-            this.examPanel.smaller();
-        } else if ("Yes".equals(cmd)) {
-            this.confirm.setVisible(false);
-            this.examPanelWrapper.getDesktopPane().remove(this.confirm);
-            this.confirm.dispose();
-            this.confirm = null;
+        switch (cmd) {
+            case "Larger" -> this.examPanel.larger();
+            case "Smaller" -> this.examPanel.smaller();
+            case "Yes" -> {
+                this.confirm.setVisible(false);
+                this.examPanelWrapper.getDesktopPane().remove(this.confirm);
+                this.confirm.dispose();
+                this.confirm = null;
 
-            this.grade = "Exam submitted by student.";
-        } else if ("No".equals(cmd)) {
-            this.confirm.setVisible(false);
-            this.examPanelWrapper.getDesktopPane().remove(this.confirm);
-            this.confirm.dispose();
-            this.confirm = null;
+                this.grade = "Exam submitted by student.";
+            }
+            case "No" -> {
+                this.confirm.setVisible(false);
+                this.examPanelWrapper.getDesktopPane().remove(this.confirm);
+                this.confirm.dispose();
+                this.confirm = null;
 
-            this.examPanel.setEnabled(true);
-        } else {
-            final ExamObj exam = this.examSession.getExam();
+                this.examPanel.setEnabled(true);
+            }
+            case null, default -> {
+                final ExamObj exam = this.examSession.getExam();
 
-            if ("color-white".equals(cmd)) {
-                exam.setBackgroundColor("white", ColorNames.getColor("white"));
-                this.examPanel.updateColor();
-            } else if ("color-gold".equals(cmd)) {
-                exam.setBackgroundColor("gold", ColorNames.getColor("gold"));
-                this.examPanel.updateColor();
-            } else if ("color-purple".equals(cmd)) {
-                exam.setBackgroundColor("MediumPurple", ColorNames.getColor("MediumPurple"));
-                this.examPanel.updateColor();
-            } else if ("color-blue".equals(cmd)) {
-                exam.setBackgroundColor("MediumTurquoise", ColorNames.getColor("MediumTurquoise"));
-                this.examPanel.updateColor();
-            } else if ("Grade".equals(cmd)) {
-                this.examPanel.setEnabled(false);
+                if ("color-white".equals(cmd)) {
+                    exam.setBackgroundColor("white", ColorNames.getColor("white"));
+                    this.examPanel.updateColor();
+                } else if ("color-gold".equals(cmd)) {
+                    exam.setBackgroundColor("gold", ColorNames.getColor("gold"));
+                    this.examPanel.updateColor();
+                } else if ("color-purple".equals(cmd)) {
+                    exam.setBackgroundColor("MediumPurple", ColorNames.getColor("MediumPurple"));
+                    this.examPanel.updateColor();
+                } else if ("color-blue".equals(cmd)) {
+                    exam.setBackgroundColor("MediumTurquoise", ColorNames.getColor("MediumTurquoise"));
+                    this.examPanel.updateColor();
+                } else if ("Grade".equals(cmd)) {
+                    this.examPanel.setEnabled(false);
 
-                // Test whether all questions have been answered. If not, warn the student.
-                try {
-                    final int numSections = exam.getNumSections();
-                    for (int i = 0; i < numSections; i++) {
+                    // Test whether all questions have been answered. If not, warn the student.
+                    try {
+                        final int numSections = exam.getNumSections();
+                        for (int i = 0; i < numSections; i++) {
 
-                        final ExamSection section = exam.getSection(i);
+                            final ExamSection section = exam.getSection(i);
 
-                        if (section != null) {
+                            if (section != null) {
 
-                            for (int j = 0; j < section.getNumProblems(); j++) {
-                                numProblems++;
+                                for (int j = 0; j < section.getNumProblems(); j++) {
+                                    numProblems++;
 
-                                final ExamProblem presented = section.getPresentedProblem(j);
+                                    final ExamProblem presented = section.getPresentedProblem(j);
 
-                                if (presented != null) {
+                                    if (presented != null) {
 
-                                    if (presented.getSelectedProblem() != null) {
+                                        if (presented.getSelectedProblem() != null) {
 
-                                        if (presented.getSelectedProblem().isAnswered()) {
-                                            numAnswered++;
+                                            if (presented.getSelectedProblem().isAnswered()) {
+                                                numAnswered++;
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                    } catch (final Exception ex) {
+                        Log.warning("Exception while grading", ex);
                     }
-                } catch (final Exception ex) {
-                    Log.warning("Exception while grading", ex);
-                }
 
-                this.confirm = new AreYouFinished(numProblems, numAnswered, this);
-                this.examPanelWrapper.getDesktopPane().add(this.confirm);
-                this.examPanelWrapper.getDesktopPane().setLayer(this.confirm, JLayeredPane.POPUP_LAYER.intValue());
-                this.confirm.setVisible(true);
-                this.confirm.centerInDesktop();
+                    this.confirm = new AreYouFinished(numProblems, numAnswered, this);
+                    this.examPanelWrapper.getDesktopPane().add(this.confirm);
+                    this.examPanelWrapper.getDesktopPane().setLayer(this.confirm, JLayeredPane.POPUP_LAYER.intValue());
+                    this.confirm.setVisible(true);
+                    this.confirm.centerInDesktop();
+                }
             }
         }
     }

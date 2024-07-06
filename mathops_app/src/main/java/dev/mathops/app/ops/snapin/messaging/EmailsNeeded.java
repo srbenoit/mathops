@@ -1,5 +1,11 @@
 package dev.mathops.app.ops.snapin.messaging;
 
+import dev.mathops.app.ops.snapin.messaging.factory.BlockedMessageFactory;
+import dev.mathops.app.ops.snapin.messaging.factory.LateMessageFactory;
+import dev.mathops.app.ops.snapin.messaging.factory.OnTimeMessageFactory;
+import dev.mathops.app.ops.snapin.messaging.factory.WelcomeMessageFactory;
+import dev.mathops.app.ops.snapin.messaging.factory1of1.Factory1of1;
+import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
@@ -22,12 +28,6 @@ import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.app.ops.snapin.messaging.factory.BlockedMessageFactory;
-import dev.mathops.app.ops.snapin.messaging.factory.LateMessageFactory;
-import dev.mathops.app.ops.snapin.messaging.factory.OnTimeMessageFactory;
-import dev.mathops.app.ops.snapin.messaging.factory.WelcomeMessageFactory;
-import dev.mathops.app.ops.snapin.messaging.factory1of1.Factory1of1;
-import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -211,19 +211,19 @@ public class EmailsNeeded {
         }
 
         if (sc1 == null && !nulls.isEmpty()) {
-            sc1 = nulls.remove(0);
+            sc1 = nulls.removeFirst();
         }
         if (sc2 == null && !nulls.isEmpty()) {
-            sc2 = nulls.remove(0);
+            sc2 = nulls.removeFirst();
         }
         if (sc3 == null && !nulls.isEmpty()) {
-            sc3 = nulls.remove(0);
+            sc3 = nulls.removeFirst();
         }
         if (sc4 == null && !nulls.isEmpty()) {
-            sc4 = nulls.remove(0);
+            sc4 = nulls.removeFirst();
         }
         if (sc5 == null && !nulls.isEmpty()) {
-            sc5 = nulls.remove(0);
+            sc5 = nulls.removeFirst();
         }
 
         if (sc1 == null) {
@@ -380,9 +380,7 @@ public class EmailsNeeded {
             // TODO: Adjust delays for "late" messages near end of term.
 
             if (urgency < 1 && daysAgo > 4) {
-                if (daysAgo > 4) {
-                    msg = OnTimeMessageFactory.generate(context, current);
-                }
+                msg = OnTimeMessageFactory.generate(context, current);
             } else if (urgency <= MAX_URGENCY_EVERY_7_DAYS) {
                 if (daysAgo > 7) {
                     msg = LateMessageFactory.generate(cache, context, current);
@@ -464,9 +462,7 @@ public class EmailsNeeded {
             // TODO: Adjust delays for "late" messages near end of term.
 
             if (urgency < 1 && daysAgo > 4) {
-                if (daysAgo > 4) {
-                    row = OnTimeMessageFactory.generate(context, current);
-                }
+                row = OnTimeMessageFactory.generate(context, current);
             } else if (urgency <= MAX_URGENCY_EVERY_7_DAYS) {
                 if (daysAgo > 7) {
                     row = LateMessageFactory.generate(cache, context, current);
@@ -558,9 +554,7 @@ public class EmailsNeeded {
             // TODO: Adjust delays for "late" messages near end of term.
 
             if (urgency < 1 && daysAgo > 4) {
-                if (daysAgo > 4) {
-                    row = OnTimeMessageFactory.generate(context, current);
-                }
+                row = OnTimeMessageFactory.generate(context, current);
             } else if (urgency <= MAX_URGENCY_EVERY_7_DAYS) {
                 if (daysAgo > 7) {
                     row = LateMessageFactory.generate(cache, context, current);
@@ -713,13 +707,13 @@ public class EmailsNeeded {
                 reg2 = regsList.get(1);
             } else {
                 regsList.remove(reg1);
-                reg2 = regsList.get(0);
+                reg2 = regsList.getFirst();
             }
         } else {
             regsList.remove(reg2);
 
             if (reg1 == null) {
-                reg1 = regsList.get(0);
+                reg1 = regsList.getFirst();
             } else {
                 regsList.remove(reg1);
             }
@@ -774,7 +768,7 @@ public class EmailsNeeded {
                     reg3 = regsList.get(1);
                 } else {
                     regsList.remove(reg1);
-                    reg3 = regsList.get(0);
+                    reg3 = regsList.getFirst();
                 }
             }
         } else {
@@ -786,13 +780,13 @@ public class EmailsNeeded {
                     reg2 = regsList.get(1);
                 } else {
                     regsList.remove(reg1);
-                    reg2 = regsList.get(0);
+                    reg2 = regsList.getFirst();
                 }
             } else {
                 regsList.remove(reg2);
 
                 if (reg1 == null) {
-                    reg1 = regsList.get(0);
+                    reg1 = regsList.getFirst();
                 } else {
                     regsList.remove(reg1);
                 }
@@ -880,7 +874,7 @@ public class EmailsNeeded {
                         reg4 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg4 = regsList.get(0);
+                        reg4 = regsList.getFirst();
                     }
                 }
             }
@@ -906,7 +900,7 @@ public class EmailsNeeded {
                         reg3 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg3 = regsList.get(0);
+                        reg3 = regsList.getFirst();
                     }
                 }
             } else {
@@ -918,13 +912,13 @@ public class EmailsNeeded {
                         reg2 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg2 = regsList.get(0);
+                        reg2 = regsList.getFirst();
                     }
                 } else {
                     regsList.remove(reg2);
 
                     if (reg1 == null) {
-                        reg1 = regsList.get(0);
+                        reg1 = regsList.getFirst();
                     } else {
                         regsList.remove(reg1);
                     }
@@ -1079,7 +1073,7 @@ public class EmailsNeeded {
                             reg5 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg5 = regsList.get(0);
+                            reg5 = regsList.getFirst();
                         }
                     }
                 }
@@ -1136,7 +1130,7 @@ public class EmailsNeeded {
                             reg4 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg4 = regsList.get(0);
+                            reg4 = regsList.getFirst();
                         }
                     }
                 }
@@ -1162,7 +1156,7 @@ public class EmailsNeeded {
                             reg3 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg3 = regsList.get(0);
+                            reg3 = regsList.getFirst();
                         }
                     }
                 } else {
@@ -1174,13 +1168,13 @@ public class EmailsNeeded {
                             reg2 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg2 = regsList.get(0);
+                            reg2 = regsList.getFirst();
                         }
                     } else {
                         regsList.remove(reg2);
 
                         if (reg1 == null) {
-                            reg1 = regsList.get(0);
+                            reg1 = regsList.getFirst();
                         }
                     }
                 }

@@ -10,7 +10,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import org.junit.jupiter.api.AfterAll;
@@ -115,7 +114,7 @@ final class TestRawPacingStructureLogic {
                         Integer.valueOf(4), Integer.valueOf(5), Integer.valueOf(6), Integer.valueOf(7), "Q", "P", "O",
                         "N", "M", "L", "K");
 
-                assertTrue(TermLogic.get(cache).insert(cache, term1), "Failed to insert term 1");
+                assertTrue(cache.getSystemData().insertTerm(term1), "Failed to insert term 1");
 
                 assertTrue(RawPacingStructureLogic.INSTANCE.insert(cache, raw1), "Failed to insert pacing_structure 1");
                 assertTrue(RawPacingStructureLogic.INSTANCE.insert(cache, raw2), "Failed to insert pacing_structure 2");

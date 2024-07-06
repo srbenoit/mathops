@@ -6,7 +6,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.ops.snapin.messaging.EPF;
 import dev.mathops.app.ops.snapin.messaging.EmailsNeeded;
@@ -107,7 +106,7 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
                 progress("Querying instructors", 1, 300);
 
                 final Map<Integer, Map<String, String>> instructors = EmailsNeeded.getInstructors();
-                final TermRec act = TermLogic.get(this.cache).queryActive(this.cache);
+                final TermRec act = this.cache.getSystemData().getActiveTerm();
 
                 if (act == null) {
                     Log.warning("ERROR: Cannot query active term");
@@ -268,7 +267,7 @@ public final class MessageScanWorker extends SwingWorker<String, ScannerStatus> 
     protected void process(final List<ScannerStatus> chunks) {
 
         if (!chunks.isEmpty()) {
-            final ScannerStatus last = chunks.get(chunks.size() - 1);
+            final ScannerStatus last = chunks.getLast();
             final int progressValue = 1000 * last.stepsCompleted / last.totalSteps;
             this.progressBar.setValue(progressValue);
             this.progressBar.setString(last.description);

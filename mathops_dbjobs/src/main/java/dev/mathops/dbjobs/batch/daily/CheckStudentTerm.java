@@ -15,7 +15,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -68,7 +67,7 @@ public final class CheckStudentTerm {
                 final DbConnection conn = ctx.checkOutConnection();
                 final Cache cache = new Cache(this.dbProfile, conn);
 
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
+                final TermRec active = cache.getSystemData().getActiveTerm();
                 report.add("Active term is " + active.term.longString + ".");
 
                 try {

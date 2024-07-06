@@ -52,18 +52,17 @@ public class ExprBox extends AbstractObjectBox {
             final ExprObject obj = this.source.get(i);
             AbstractObjectBox box = null;
 
-            if (obj instanceof final ExprLeafDigit leafDigit) {
-                box = new LeafDigitBox(leafDigit, currentFontSize);
-            } else if (obj instanceof final ExprLeafOperator leafOperator) {
-                box = new LeafOperatorBox(leafOperator, currentFontSize);
-            } else if (obj instanceof final ExprLeafDecimalPoint leafDecimalPoint) {
-                box = new LeafDecimalPointBox(leafDecimalPoint, currentFontSize);
-            } else if (obj instanceof final ExprLeafEngineeringE leafEngineeringE) {
-                box = new LeafEngineeringEBox(leafEngineeringE, currentFontSize);
-            } else if (obj instanceof final ExprLeafSymbolicConstant leafSymbolicConstant) {
-                box = new LeafSymbolicConstantBox(leafSymbolicConstant, currentFontSize);
-            } else {
-                Log.warning("Encountered ", obj.getClass().getSimpleName(), ", but unable to lay out.");
+            switch (obj) {
+                case final ExprLeafDigit leafDigit -> box = new LeafDigitBox(leafDigit, currentFontSize);
+                case final ExprLeafOperator leafOperator -> box = new LeafOperatorBox(leafOperator, currentFontSize);
+                case final ExprLeafDecimalPoint leafDecimalPoint ->
+                        box = new LeafDecimalPointBox(leafDecimalPoint, currentFontSize);
+                case final ExprLeafEngineeringE leafEngineeringE ->
+                        box = new LeafEngineeringEBox(leafEngineeringE, currentFontSize);
+                case final ExprLeafSymbolicConstant leafSymbolicConstant ->
+                        box = new LeafSymbolicConstantBox(leafSymbolicConstant, currentFontSize);
+                case null, default ->
+                        Log.warning("Encountered ", obj.getClass().getSimpleName(), ", but unable to lay out.");
             }
 
             if (box != null) {

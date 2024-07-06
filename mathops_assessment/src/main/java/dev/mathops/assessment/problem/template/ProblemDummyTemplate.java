@@ -67,15 +67,6 @@ public final class ProblemDummyTemplate extends AbstractProblemTemplate {
     }
 
     /**
-     * Clears a student's answer.
-     */
-    @Override
-    public void clearAnswer() {
-
-        super.clearAnswer();
-    }
-
-    /**
      * Determines whether the student has recorded an answer to the problem.
      *
      * @return {@code true} if the student has recorded an answer; {@code false} otherwise

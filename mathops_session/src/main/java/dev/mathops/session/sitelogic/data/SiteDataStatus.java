@@ -26,7 +26,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -413,7 +412,7 @@ public final class SiteDataStatus {
             if ("Y".equals(reg.iInProgress) && !"Y".equals(reg.iCounted)) {
                 key = reg.iTermKey;
             } else {
-                final TermRec term = TermLogic.get(cache).queryActive(cache);
+                final TermRec term = cache.getSystemData().getActiveTerm();
                 key = term.term;
             }
 
@@ -675,7 +674,7 @@ public final class SiteDataStatus {
         stat.eligible = true;
         final LocalDate today = this.owner.now.toLocalDate();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Ineligible outside the current term
         final LocalDate termStart = active.startDate;
@@ -751,9 +750,10 @@ public final class SiteDataStatus {
         boolean reqUeComp = false;
         boolean reqUeMstr = false;
 
-        final List<RawPacingRules> rsRules =
-                RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                        TermLogic.get(cache).queryActive(cache).term, pacingStructure.pacingStructure);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+
+        final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache, activeTerm.term,
+                pacingStructure.pacingStructure);
 
         for (final RawPacingRules rule : rsRules) {
             if (RawPacingRulesLogic.ACTIVITY_HOMEWORK.equals(rule.activityType)) {
@@ -914,7 +914,7 @@ public final class SiteDataStatus {
     private void courseEligByTermDates(final Cache cache, final SiteDataCfgStatusBase stat) throws SQLException {
 
         if (stat.eligible) {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             final LocalDate today = this.owner.now.toLocalDate();
 
@@ -1102,18 +1102,17 @@ public final class SiteDataStatus {
             final String targetActivity;
             final String examType = exam.examType;
 
-            if ("R".equals(examType)) {
-                if (Integer.valueOf(0).equals(exam.unit)) {
-                    targetActivity = RawPacingRulesLogic.ACTIVITY_SR_EXAM;
-                } else {
-                    targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM;
+            switch (examType) {
+                case "R" -> {
+                    if (Integer.valueOf(0).equals(exam.unit)) {
+                        targetActivity = RawPacingRulesLogic.ACTIVITY_SR_EXAM;
+                    } else {
+                        targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM;
+                    }
                 }
-            } else if ("U".equals(examType)) {
-                targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_EXAM;
-            } else if ("F".equals(examType)) {
-                targetActivity = RawPacingRulesLogic.ACTIVITY_FINAL_EXAM;
-            } else {
-                targetActivity = null;
+                case "U" -> targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_EXAM;
+                case "F" -> targetActivity = RawPacingRulesLogic.ACTIVITY_FINAL_EXAM;
+                case null, default -> targetActivity = null;
             }
 
             final RawPacingStructure pacingStructure = courseCfg.pacingStructure;
@@ -1122,9 +1121,10 @@ public final class SiteDataStatus {
                 // Find the set of prerequisites for the target activity
                 final SiteDataCourse courseData = this.owner.courseData;
 
-                final List<RawPacingRules> rsRules =
-                        RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                                TermLogic.get(cache).queryActive(cache).term, pacingStructure.pacingStructure);
+                final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+
+                final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
+                                activeTerm.term, pacingStructure.pacingStructure);
 
                 boolean reqHwComp = false;
                 boolean reqHwMstr = false;

@@ -13,6 +13,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -249,7 +250,7 @@ public final class VariableDerived extends AbstractFormattableVariable
         } else if (obj instanceof final VariableDerived var) {
             equal = innerEqualsVariable(var) && Objects.equals(this.min, var.min)
                     && Objects.equals(this.max, var.max)
-                    && Objects.equals(this.exclude, var.exclude)
+                    && Arrays.equals(this.exclude, var.exclude)
                     && Objects.equals(this.formula, var.formula);
         } else {
             equal = false;

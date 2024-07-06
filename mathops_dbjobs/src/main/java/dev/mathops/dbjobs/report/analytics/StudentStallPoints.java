@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.io.File;
@@ -159,7 +158,7 @@ final class StudentStallPoints {
     private void gatherOneTimeInformation() throws SQLException {
 
         fireProgress("Querying active term", 1, 200);
-        final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+        final TermRec active = this.cache.getSystemData().getActiveTerm();
         Log.info("    Active term is ", active.term);
 
         fireProgress("Querying registrations", 2, 200);

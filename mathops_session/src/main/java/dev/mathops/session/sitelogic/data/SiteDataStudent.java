@@ -357,20 +357,14 @@ public final class SiteDataStudent {
      */
     private static RawStudent makeSyntheticStudent(final String studentId) {
 
-        final RawStudent student;
-
         // Detect special IDs and generate synthetic student records, marking as not-real
-        if ("GUEST".equals(studentId)) {
-            student = RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Guest");
-        } else if ("AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
-            student = RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Tutor");
-        } else if ("BOOKSTORE".equals(studentId)) {
-            student = RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Bookstore Staff");
-        } else {
-            student = null;
-        }
 
-        return student;
+        return switch (studentId) {
+            case "GUEST" -> RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Guest");
+            case "AACTUTOR", "ETEXT" -> RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Tutor");
+            case "BOOKSTORE" -> RawStudentLogic.makeFakeStudent(studentId, CoreConstants.EMPTY, "Bookstore Staff");
+            case null, default -> null;
+        };
     }
 
     /**

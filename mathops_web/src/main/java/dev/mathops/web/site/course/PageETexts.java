@@ -11,7 +11,6 @@ import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawStetext;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseInfo;
@@ -152,14 +151,14 @@ enum PageETexts {
                 }
             }
 
+            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
             if (completed.size() + termOnly.size() > 0) {
-                final TermRec term = TermLogic.get(cache).queryActive(cache);
 
                 htm.div("vgap").hr();
-                if (term == null) {
+                if (activeTerm == null) {
                     htm.sH(3).add("Current Semester e-texts").eH(3);
                 } else {
-                    htm.sH(3).add("e-Texts for the ", term.term.longString, " Semester").eH(3);
+                    htm.sH(3).add("e-Texts for the ", activeTerm.term.longString, " Semester").eH(3);
                 }
 
                 htm.sDiv("indent11");
@@ -271,8 +270,7 @@ enum PageETexts {
 
             htm.sDiv("indent11");
             htm.addln(" To access your e-text materials, click on the course ",
-                    "number under <strong>", TermLogic.get(cache).queryActive(cache).term.longString,
-                    " Courses");
+                    "number under <strong>", activeTerm.term.longString, " Courses");
             htm.addln("</strong> on the left side of the page.");
             htm.eDiv();
 
@@ -462,11 +460,11 @@ enum PageETexts {
                     htm.addln(builder.toString());
                 } else {
                     // Single-course e-text for a course that's currently open
-                    htm.addln("<a href='course.html?course=", etcourses.get(0).course, "&mode=",
+                    htm.addln("<a href='course.html?course=", etcourses.getFirst().course, "&mode=",
                             courses.lockedOut ? "locked" : "course", "'>", builder.toString(), "</a> (In progress)");
                 }
             } else {
-                htm.addln("<a href='course.html?course=", etcourses.get(0).course, "&mode=",
+                htm.addln("<a href='course.html?course=", etcourses.getFirst().course, "&mode=",
                         courses.lockedOut ? "locked" : "practice", "'>", builder.toString(), "</a>");
             }
 

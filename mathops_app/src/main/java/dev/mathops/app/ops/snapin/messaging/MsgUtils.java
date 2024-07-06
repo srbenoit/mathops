@@ -50,7 +50,7 @@ public enum MsgUtils {
      */
     public static String buildWelcomeSubject(final MessagingContext context) {
 
-        final RawStcourse firstReg = context.sortedRegs.get(0);
+        final RawStcourse firstReg = context.sortedRegs.getFirst();
         final HtmlBuilder subject = new HtmlBuilder(100);
         subject.add("Welcome to ");
 
@@ -98,23 +98,14 @@ public enum MsgUtils {
      */
     public static String courseName(final String courseId) {
 
-        final String name;
-
-        if (RawRecordConstants.M117.equals(courseId)) {
-            name = "MATH 117";
-        } else if (RawRecordConstants.M118.equals(courseId)) {
-            name = "MATH 118";
-        } else if (RawRecordConstants.M124.equals(courseId)) {
-            name = "MATH 124";
-        } else if (RawRecordConstants.M125.equals(courseId)) {
-            name = "MATH 125";
-        } else if (RawRecordConstants.M126.equals(courseId)) {
-            name = "MATH 126";
-        } else {
-            name = courseId;
-        }
-
-        return name;
+        return switch (courseId) {
+            case RawRecordConstants.M117 -> "MATH 117";
+            case RawRecordConstants.M118 -> "MATH 118";
+            case RawRecordConstants.M124 -> "MATH 124";
+            case RawRecordConstants.M125 -> "MATH 125";
+            case RawRecordConstants.M126 -> "MATH 126";
+            case null, default -> courseId;
+        };
     }
 
     /**

@@ -123,8 +123,7 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
      * @param totalSteps     the total number of steps
      */
     @Override
-    public void progress(final String description, final int stepsCompleted,
-                         final int totalSteps) {
+    public void progress(final String description, final int stepsCompleted, final int totalSteps) {
 
         publish(new ScannerStatus(stepsCompleted, totalSteps, description));
     }
@@ -138,9 +137,8 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
     protected void process(final List<ScannerStatus> chunks) {
 
         if (!chunks.isEmpty()) {
-            final ScannerStatus last = chunks.get(chunks.size() - 1);
-            final int progressValue =
-                    last.totalSteps == 0 ? 1000 : (1000 * last.stepsCompleted / last.totalSteps);
+            final ScannerStatus last = chunks.getLast();
+            final int progressValue =  last.totalSteps == 0 ? 1000 : (1000 * last.stepsCompleted / last.totalSteps);
             this.progressBar.setValue(progressValue);
             this.progressBar.setString(last.description);
         }

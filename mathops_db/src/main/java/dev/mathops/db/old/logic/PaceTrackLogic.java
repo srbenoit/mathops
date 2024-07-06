@@ -6,7 +6,6 @@ import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -377,7 +376,7 @@ public enum PaceTrackLogic {
     public static void updateStudentTerm(final Cache cache, final String studentId,
                                          final Collection<RawStcourse> registrations) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (active != null) {
             final int pace = determinePace(registrations);

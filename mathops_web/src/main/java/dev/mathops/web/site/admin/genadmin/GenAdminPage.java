@@ -2,7 +2,6 @@ package dev.mathops.web.site.admin.genadmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.Page;
@@ -32,7 +31,7 @@ public enum GenAdminPage {
                                                 final ImmutableSessionInfo session, final boolean showHome)
             throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = cache.getSystemData().getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);

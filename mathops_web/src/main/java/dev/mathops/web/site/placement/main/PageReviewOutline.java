@@ -20,10 +20,8 @@ import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -67,7 +65,7 @@ enum PageReviewOutline {
         htm.sDiv("inset2");
         htm.sDiv("shaded2left");
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final RawCunit[] units = queryUnits(cache, active.term);
         final RawCuobjective[][] objectives = queryObjectives(cache);
@@ -167,7 +165,7 @@ enum PageReviewOutline {
         final RawCuobjective[][] result;
 
         final RawCourse course = RawCourseLogic.query(cache, "M 100R");
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (course == null) {
             Log.warning("Failed to query course ", "M 100R");

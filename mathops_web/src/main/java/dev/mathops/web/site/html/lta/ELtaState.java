@@ -21,5 +21,5 @@ public enum ELtaState {
     COMPLETED,
 
     /** Showing solutions for item [current-item-index]. */
-    SOLUTION_NN;
+    SOLUTION_NN
 }

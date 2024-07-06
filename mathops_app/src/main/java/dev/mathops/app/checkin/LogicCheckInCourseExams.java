@@ -30,7 +30,6 @@ import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -433,7 +432,7 @@ final class LogicCheckInCourseExams {
 
             TermRec effTerm = this.activeTerm;
             if (!effTerm.term.equals(reg.termKey)) {
-                final TermRec incTerm = TermLogic.get(cache).query(cache, reg.termKey);
+                final TermRec incTerm = cache.getSystemData().getTerm(reg.termKey);
                 if (incTerm != null) {
                     effTerm = incTerm;
                 }

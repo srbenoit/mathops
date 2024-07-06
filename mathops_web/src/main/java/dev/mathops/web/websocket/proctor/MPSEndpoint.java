@@ -27,7 +27,6 @@ import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -502,7 +501,7 @@ public final class MPSEndpoint {
 
         final List<ExamCategory> result = new ArrayList<>(3);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Check for course exams
         final List<ExamEntry> courseExams = new ArrayList<>(10);

@@ -3,7 +3,6 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -179,9 +178,9 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
         final List<RawCampusCalendar> allOfType = queryByType(cache, RawCampusCalendar.DT_DESC_START_DATE_1);
 
         if (allOfType.isEmpty()) {
-            result = TermLogic.get(cache).queryActive(cache).startDate;
+            result = cache.getSystemData().getActiveTerm().startDate;
         } else {
-            result = allOfType.get(0).campusDt;
+            result = allOfType.getFirst().campusDt;
         }
 
         return result;
@@ -201,9 +200,9 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
         final List<RawCampusCalendar> allOfType = queryByType(cache, RawCampusCalendar.DT_DESC_END_DATE_1);
 
         if (allOfType.isEmpty()) {
-            result = TermLogic.get(cache).queryActive(cache).endDate;
+            result = cache.getSystemData().getActiveTerm().endDate;
         } else {
-            result = allOfType.get(0).campusDt;
+            result = allOfType.getFirst().campusDt;
         }
 
         return result;

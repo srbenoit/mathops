@@ -32,7 +32,6 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -381,7 +380,7 @@ public final class LtaSession extends HtmlSessionBase {
 
                     // Write the record of the exam...
 
-                    final TermRec term = TermLogic.get(cache).queryActive(cache);
+                    final TermRec term = cache.getSystemData().getActiveTerm();
                     final GetReviewExamReply reply = new GetReviewExamReply();
                     reply.masteryScore = this.minMastery;
                     reply.status = GetExamReply.SUCCESS;

@@ -17,7 +17,7 @@ import java.util.List;
 public final class ImplLiveCsuCredit extends AbstractImpl<LiveCsuCredit> implements ILiveCsuCredit {
 
     /** A single instance. */
-    public static ImplLiveCsuCredit INSTANCE = new ImplLiveCsuCredit();
+    public static final ImplLiveCsuCredit INSTANCE = new ImplLiveCsuCredit();
 
     /** The name of the primary table. */
     private static final String TABLE_NAME = "Artificial";

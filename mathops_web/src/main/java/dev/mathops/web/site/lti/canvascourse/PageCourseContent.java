@@ -39,27 +39,27 @@ public enum PageCourseContent {
 
             final List<String> courseId = params.get("context_label");
             if (courseId != null && courseId.size() == 1) {
-                htm.sP().add("Course ID = ", courseId.get(0)).eP();
+                htm.sP().add("Course ID = ", courseId.getFirst()).eP();
             }
 
             final List<String> givenName = params.get("lis_person_name_given");
             if (givenName != null && givenName.size() == 1) {
-                htm.sP().add("Given Name = ", givenName.get(0)).eP();
+                htm.sP().add("Given Name = ", givenName.getFirst()).eP();
             }
 
             final List<String> familyName = params.get("lis_person_name_family");
             if (familyName != null && familyName.size() == 1) {
-                htm.sP().add("Family Name = ", familyName.get(0)).eP();
+                htm.sP().add("Family Name = ", familyName.getFirst()).eP();
             }
 
             final List<String> canvasUserId = params.get("custom_canvas_user_id");
             if (canvasUserId != null && canvasUserId.size() == 1) {
-                htm.sP().add("Canvas user ID = ", canvasUserId.get(0)).eP();
+                htm.sP().add("Canvas user ID = ", canvasUserId.getFirst()).eP();
             }
 
             final List<String> canvasLoginId = params.get("custom_canvas_user_login_id");
             if (canvasLoginId != null && canvasLoginId.size() == 1) {
-                htm.sP().add("Canvas login ID = ", canvasLoginId.get(0)).eP();
+                htm.sP().add("Canvas login ID = ", canvasLoginId.getFirst()).eP();
             }
 
             // htm.sP().add("Under construction...").eP();

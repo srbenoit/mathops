@@ -47,7 +47,7 @@ public class ExpressionEditor extends KeyAdapter implements Runnable, ActionList
     private final Expr model;
 
     /** The expression view panel. */
-    private ExpressionViewPanel view;
+    private final ExpressionViewPanel view;
 
     /**
      * Constructs a new {@code ExpressionEditor}.

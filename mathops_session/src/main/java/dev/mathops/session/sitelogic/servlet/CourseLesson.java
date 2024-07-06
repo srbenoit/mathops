@@ -10,7 +10,6 @@ import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -62,7 +61,7 @@ public final class CourseLesson extends LogicBase {
         this.lesson = null;
         this.components = null;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final boolean ok;
 

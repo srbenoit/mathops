@@ -2,9 +2,9 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -217,7 +217,9 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
      */
     public static RawPacingStructure query(final Cache cache, final String pacingStructure) throws SQLException {
 
-        return query(cache, TermLogic.get(cache).queryActive(cache).term, pacingStructure);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+
+        return query(cache, activeTerm.term, pacingStructure);
     }
 
     /**

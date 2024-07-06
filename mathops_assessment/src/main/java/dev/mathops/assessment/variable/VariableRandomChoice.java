@@ -11,6 +11,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -213,8 +214,8 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final VariableRandomChoice var) {
-            equal = innerEqualsVariable(var) && Objects.equals(this.exclude, var.exclude)
-                    && Objects.equals(this.chooseFrom, var.chooseFrom);
+            equal = innerEqualsVariable(var) && Arrays.equals(this.exclude, var.exclude)
+                    && Arrays.equals(this.chooseFrom, var.chooseFrom);
         } else {
             equal = false;
         }

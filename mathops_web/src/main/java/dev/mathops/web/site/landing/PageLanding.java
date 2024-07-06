@@ -3,7 +3,6 @@ package dev.mathops.web.site.landing;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -39,7 +38,7 @@ enum PageLanding {
         final HtmlBuilder htm = new HtmlBuilder(2000);
         Page.startOrdinaryPage(htm, "Precalculus Center", null, false, Page.ADMIN_BAR, null, false, true);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (type == ESiteType.DEV) {
             if (active != null && active.term.name == ETermName.SUMMER) {

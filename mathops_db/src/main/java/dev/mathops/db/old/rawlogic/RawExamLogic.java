@@ -257,24 +257,14 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
      */
     public static String getExamTypeName(final String examType) {
 
-        final String name;
-
-        if ("U".equals(examType)) {
-            name = "Unit Exam";
-        } else if ("R".equals(examType)) {
-            name = "Unit Review Exam";
-        } else if ("F".equals(examType)) {
-            name = "Final Exam";
-        } else if ("Q".equals(examType)) {
-            name = "Qualifying Exam";
-        } else if ("L".equals(examType)) {
-            name = "User's Exam";
-        } else if ("CH".equals(examType)) {
-            name = "Challenge Exam";
-        } else {
-            name = "Exam";
-        }
-
-        return name;
+        return switch (examType) {
+            case "U" -> "Unit Exam";
+            case "R" -> "Unit Review Exam";
+            case "F" -> "Final Exam";
+            case "Q" -> "Qualifying Exam";
+            case "L" -> "User's Exam";
+            case "CH" -> "Challenge Exam";
+            case null, default -> "Exam";
+        };
     }
 }

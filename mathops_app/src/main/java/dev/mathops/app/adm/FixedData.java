@@ -7,7 +7,6 @@ import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;
 import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -94,7 +93,7 @@ public class FixedData {
 
         this.username = theUsername;
 
-        this.activeTerm = TermLogic.get(cache).queryActive(cache);
+        this.activeTerm = cache.getSystemData().getActiveTerm();
 
         this.termWeeks = RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
         Collections.sort(this.termWeeks);

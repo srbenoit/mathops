@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -93,7 +92,7 @@ final class StillNeeds54Points {
      */
     private static void exec(final Cache cache) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, true);
 
         final Iterator<RawStcourse> iter = allRegs.iterator();
@@ -117,29 +116,32 @@ final class StillNeeds54Points {
             }
 
             final String course = reg.course;
-            if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
-                    || RawRecordConstants.M124.equals(course)) {
-                final String sect = reg.sect;
+            switch (course) {
+                case RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124 -> {
+                    final String sect = reg.sect;
 
-                // NOTE: For these courses, we only disregard 550
+                    // NOTE: For these courses, we only disregard 550
 
-                if ("550".equals(sect)) {
+                    if ("550".equals(sect)) {
+                        iter.remove();
+                    }
+                }
+                case RawRecordConstants.M125, RawRecordConstants.M126 -> {
+                    final String sect = reg.sect;
+
+                    // NOTE: For these, we disregard, 550, 003, and 004 (face-to-face)
+
+                    if ("550".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
+                        iter.remove();
+                    }
+                }
+                case RawRecordConstants.MATH125, RawRecordConstants.MATH126 ->
+                    // New courses, remove.
+                        iter.remove();
+                case null, default -> {
+                    Log.warning("Unexpected course: ", course);
                     iter.remove();
                 }
-            } else if (RawRecordConstants.M125.equals(course) || RawRecordConstants.M126.equals(course)) {
-                final String sect = reg.sect;
-
-                // NOTE: For these, we disregard, 550, 003, and 004 (face-to-face)
-
-                if ("550".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
-                    iter.remove();
-                }
-            } else if (RawRecordConstants.MATH125.equals(course) || RawRecordConstants.MATH126.equals(course)) {
-                // New courses, remove.
-                iter.remove();
-            } else {
-                Log.warning("Unexpected course: ", course);
-                iter.remove();
             }
         }
 
@@ -326,7 +328,7 @@ final class StillNeeds54Points {
 
         // Determine student's pace
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
 
         // See when student first passed each review exam, accumulate best scores on units/finals
@@ -345,53 +347,54 @@ final class StillNeeds54Points {
         int scoreFIN = 0;
 
         for (final RawStexam test : exams) {
-            if ("R".equals(test.examType)) {
-                final int unit = test.unit == null ? -1 : test.unit.intValue();
-
-                if (unit == 1) {
-                    if (whenPassedRE1 == null || test.examDt.isBefore(whenPassedRE1)) {
-                        whenPassedRE1 = test.examDt;
-                    }
-                } else if (unit == 2) {
-                    if (whenPassedRE2 == null || test.examDt.isBefore(whenPassedRE2)) {
-                        whenPassedRE2 = test.examDt;
-                    }
-                } else if (unit == 3) {
-                    if (whenPassedRE3 == null || test.examDt.isBefore(whenPassedRE3)) {
-                        whenPassedRE3 = test.examDt;
-                    }
-                } else if ((unit == 4)
-                        && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
-                    whenPassedRE4 = test.examDt;
-                }
-
-            } else if ("U".equals(test.examType)) {
-                if (test.examScore != null) {
+            switch (test.examType) {
+                case "R" -> {
                     final int unit = test.unit == null ? -1 : test.unit.intValue();
 
-                    final int score = test.examScore.intValue();
                     if (unit == 1) {
-                        scoreUE1 = Math.max(scoreUE1, score);
+                        if (whenPassedRE1 == null || test.examDt.isBefore(whenPassedRE1)) {
+                            whenPassedRE1 = test.examDt;
+                        }
                     } else if (unit == 2) {
-                        scoreUE2 = Math.max(scoreUE2, score);
+                        if (whenPassedRE2 == null || test.examDt.isBefore(whenPassedRE2)) {
+                            whenPassedRE2 = test.examDt;
+                        }
                     } else if (unit == 3) {
-                        scoreUE3 = Math.max(scoreUE3, score);
-                    } else if (unit == 4) {
-                        scoreUE4 = Math.max(scoreUE4, score);
+                        if (whenPassedRE3 == null || test.examDt.isBefore(whenPassedRE3)) {
+                            whenPassedRE3 = test.examDt;
+                        }
+                    } else if ((unit == 4)
+                            && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
+                        whenPassedRE4 = test.examDt;
                     }
                 }
+                case "U" -> {
+                    if (test.examScore != null) {
+                        final int unit = test.unit == null ? -1 : test.unit.intValue();
 
-            } else if ("F".equals(test.examType)) {
-                if (test.examScore != null) {
-                    final int score = test.examScore.intValue();
-                    scoreFIN = Math.max(scoreFIN, score);
-
-                    if (whenPassedFIN == null || test.examDt.isBefore(whenPassedFIN)) {
-                        whenPassedFIN = test.examDt;
+                        final int score = test.examScore.intValue();
+                        if (unit == 1) {
+                            scoreUE1 = Math.max(scoreUE1, score);
+                        } else if (unit == 2) {
+                            scoreUE2 = Math.max(scoreUE2, score);
+                        } else if (unit == 3) {
+                            scoreUE3 = Math.max(scoreUE3, score);
+                        } else if (unit == 4) {
+                            scoreUE4 = Math.max(scoreUE4, score);
+                        }
                     }
                 }
-            } else {
-                Log.warning("Bad exam type: ", test.examType);
+                case "F" -> {
+                    if (test.examScore != null) {
+                        final int score = test.examScore.intValue();
+                        scoreFIN = Math.max(scoreFIN, score);
+
+                        if (whenPassedFIN == null || test.examDt.isBefore(whenPassedFIN)) {
+                            whenPassedFIN = test.examDt;
+                        }
+                    }
+                }
+                case null, default -> Log.warning("Bad exam type: ", test.examType);
             }
         }
 

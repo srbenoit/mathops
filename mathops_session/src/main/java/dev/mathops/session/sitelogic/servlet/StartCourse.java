@@ -14,7 +14,6 @@ import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -62,7 +61,7 @@ public final class StartCourse extends LogicBase {
         }
 
         // Load the current active term
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
         if (activeTerm == null) {
             setErrorText("Unable to query the current term.");
             return false;

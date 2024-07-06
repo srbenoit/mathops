@@ -698,21 +698,17 @@ final class FormulaSource {
             }
 
             // If we're entering a " quote, go to its end.
-            if (this.xml.charAt(currentPos) == '\"') {
-                ++currentPos;
-
-                while (currentPos <= (searchRange[1] - nameLen) && this.xml.charAt(currentPos) != '\"') {
+            if ((int) this.xml.charAt(currentPos) == '\"') {
+                do {
                     ++currentPos;
-                }
+                } while (currentPos <= (searchRange[1] - nameLen) && (int) this.xml.charAt(currentPos) != '\"');
             }
 
             // If we're entering a ' quote, go to its end.
-            if (this.xml.charAt(currentPos) == '\'') {
-                ++currentPos;
-
-                while (currentPos <= (searchRange[1] - nameLen) && this.xml.charAt(currentPos) != '\'') {
+            if ((int) this.xml.charAt(currentPos) == '\'') {
+                do {
                     ++currentPos;
-                }
+                } while (currentPos <= (searchRange[1] - nameLen) && (int) this.xml.charAt(currentPos) != '\'');
             }
 
             // Check for the name at this position

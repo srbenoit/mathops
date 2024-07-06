@@ -9,5 +9,5 @@ public enum EVectorMatrixBrackets {
     PARENTHESES,
 
     /** Square brackets. */
-    SQUARE;
+    SQUARE
 }

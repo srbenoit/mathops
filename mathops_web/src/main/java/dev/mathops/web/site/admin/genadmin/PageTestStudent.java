@@ -43,7 +43,6 @@ import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -64,7 +63,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -178,7 +176,7 @@ enum PageTestStudent {
     private static void emitStudent(final Cache cache, final HtmlBuilder htm,
                                     final RawStudent student) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final String shortAct = active.term.shortString;
 
         htm.addln("<h3>Student Attributes <span class='dim'>(Student ID: ",
@@ -193,7 +191,7 @@ enum PageTestStudent {
         htm.addln(" value='", shortAct, "'>",
                 active.term.longString, "</option>");
 
-        final List<TermRec> future = TermLogic.get(cache).getFutureTerms(cache);
+        final List<TermRec> future = cache.getSystemData().getFutureTerms();
         for (final TermRec fut : future) {
             final String shortFut = fut.term.shortString;
             htm.add("  <option id='term", shortFut, "'");
@@ -666,7 +664,7 @@ enum PageTestStudent {
      */
     private static void emitRegistrations(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Get existing registrations
         final List<RawStcourse> currentTermRegs = RawStcourseLogic.queryByStudent(cache,
@@ -944,7 +942,7 @@ enum PageTestStudent {
     private static void emitCourseWork(final Cache cache, final HtmlBuilder htm,
                                        final RawStcourse reg, final int numColumns) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final RawCsection csection = RawCsectionLogic.query(cache, reg.course, reg.sect, active.term);
 
         if ("MAS".equals(csection.gradingStd)) {
@@ -1814,7 +1812,7 @@ enum PageTestStudent {
     static void updatePlacement(final Cache cache, final AdminSite site, final ServletRequest req,
                                 final HttpServletResponse resp) throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         final RawStudent testStu = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
 
         final int numPts = PTS.length;
@@ -2231,7 +2229,7 @@ enum PageTestStudent {
     static void updateRegistrations(final Cache cache, final ServletRequest req,
                                     final HttpServletResponse resp) throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final List<RawCsection> sections = RawCsectionLogic.queryByTerm(cache, active.term);
 
@@ -2310,8 +2308,8 @@ enum PageTestStudent {
                                   final boolean isStarted, final boolean hasPrereq, final boolean isInc,
                                   final boolean isCounted, final boolean isInProgress) throws SQLException {
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
-        final TermRec priorTerm = TermLogic.get(cache).queryPrior(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final TermRec priorTerm = cache.getSystemData().getPriorTerm();
         final String instrnType = RawCsectionLogic.getInstructionType(cache, courseId, sect, activeTerm.term);
 
         final TermKey term;
@@ -2721,7 +2719,7 @@ enum PageTestStudent {
                                    final boolean passed,
                                    final boolean firstPassed) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final int days = unit.intValue() * 5 + index;
         LocalDate day = active.startDate;
@@ -2777,7 +2775,7 @@ enum PageTestStudent {
                                  final String sect, final String hwId, final String type, final String passed)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final int days = unit * 5 + objective;
         LocalDate day = active.startDate;
@@ -2809,7 +2807,7 @@ enum PageTestStudent {
     private static void insertMastery(final Cache cache, final int unit, final int objective,
                                       final String examId, final String passed) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final int days = unit * 3 + objective;
         LocalDate day = active.startDate;

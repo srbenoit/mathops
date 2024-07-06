@@ -130,6 +130,23 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
     }
 
     /**
+     * Retrieves all course units in a given term.
+     *
+     * @param cache   the data cache
+     * @param termKey the term key
+     * @return the list of course units; {@code null} on any error
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawCunit> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM cunit WHERE term='", termKey.termCode,
+                "' AND term_yr=", termKey.shortYear);
+
+        return executeListQuery(cache, sql);
+    }
+
+    /**
      * Retrieves all course units in a specified course in a given term.
      *
      * @param cache   the data cache

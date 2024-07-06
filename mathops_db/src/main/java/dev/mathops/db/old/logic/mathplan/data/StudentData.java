@@ -20,7 +20,6 @@ import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -579,7 +578,7 @@ public final class StudentData {
         final CourseSequence recommend = this.recommendations.recommendedSequence;
         final CourseSequence typical = this.recommendations.typicalSequence;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final ETermName activeTermName = active == null ? null : active.term.name;
         final int activeTermYear = active == null ? LocalDate.now().getYear() : active.term.year.intValue();

@@ -217,7 +217,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                 if (!passedunit.isEmpty() || this.courseSectionUnit.atmptsPerReview == null) {
                     ok = true;
                 } else {
-                    RawStexam mostRecentPassedRev = passedrev.get(0);
+                    RawStexam mostRecentPassedRev = passedrev.getFirst();
                     for (final RawStexam test : passedrev) {
                         if (test.getFinishDateTime() != null
                                 && test.getFinishDateTime().isAfter(mostRecentPassedRev.getFinishDateTime())) {

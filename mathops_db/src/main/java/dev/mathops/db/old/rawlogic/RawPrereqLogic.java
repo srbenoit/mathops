@@ -2,9 +2,9 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawPrereq;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -164,7 +164,8 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
      */
     public static List<String> getPrerequisitesByCourse(final Cache cache, final String course) throws SQLException {
 
-        final List<RawPrereq> list = queryByTermAndCourse(cache, TermLogic.get(cache).queryActive(cache).term, course);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final List<RawPrereq> list = queryByTermAndCourse(cache, activeTerm.term, course);
 
         final List<String> result = new ArrayList<>(list.size());
 

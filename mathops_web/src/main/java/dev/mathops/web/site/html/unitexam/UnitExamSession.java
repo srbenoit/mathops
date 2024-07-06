@@ -2200,29 +2200,29 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         String error;
 
-        if (RawRecordConstants.M100T.equals(stexam.course)) {
-            error = insertExam(cache, stexam);
-
-            if (error == null && stexam.unit.intValue() == 4) {
-                error = insertELMTutorialResult(cache, stexam);
-            }
-        } else if (RawRecordConstants.M1170.equals(stexam.course)
-                || RawRecordConstants.M1180.equals(stexam.course)
-                || RawRecordConstants.M1240.equals(stexam.course)
-                || RawRecordConstants.M1250.equals(stexam.course)
-                || RawRecordConstants.M1260.equals(stexam.course)) {
-            error = insertExam(cache, stexam);
-
-            if (error == null && stexam.unit.intValue() >= 4) {
-                error = insertPrecalcTutorialResult(cache, stexam);
-            }
-        } else if (RawRecordConstants.M100U.equals(stexam.course)) {
-            error = insertUsersExam(cache, stexam, usersPassed);
-            if (error == null) {
+        switch (stexam.course) {
+            case RawRecordConstants.M100T -> {
                 error = insertExam(cache, stexam);
+
+                if (error == null && stexam.unit.intValue() == 4) {
+                    insertELMTutorialResult(cache, stexam);
+                }
             }
-        } else {
-            error = insertExam(cache, stexam);
+            case RawRecordConstants.M1170, RawRecordConstants.M1180, RawRecordConstants.M1240, RawRecordConstants.M1250,
+                 RawRecordConstants.M1260 -> {
+                error = insertExam(cache, stexam);
+
+                if (error == null && stexam.unit.intValue() >= 4) {
+                    insertPrecalcTutorialResult(cache, stexam);
+                }
+            }
+            case RawRecordConstants.M100U -> {
+                error = insertUsersExam(cache, stexam, usersPassed);
+                if (error == null) {
+                    error = insertExam(cache, stexam);
+                }
+            }
+            case null, default -> error = insertExam(cache, stexam);
         }
 
         return error;
@@ -2292,10 +2292,9 @@ public final class UnitExamSession extends HtmlSessionBase {
      *
      * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
-     * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertELMTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private void insertELMTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
         if (stexam.earnedPlacement.contains(RawRecordConstants.M100C)) {
 
@@ -2321,8 +2320,6 @@ public final class UnitExamSession extends HtmlSessionBase {
                 }
             }
         }
-
-        return null;
     }
 
     /**
@@ -2333,7 +2330,7 @@ public final class UnitExamSession extends HtmlSessionBase {
      * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private String insertPrecalcTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private void insertPrecalcTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
         String course = null;
         if (RawRecordConstants.M1170.equals(stexam.course)) {
@@ -2372,8 +2369,6 @@ public final class UnitExamSession extends HtmlSessionBase {
                 }
             }
         }
-
-        return null;
     }
 
     /**

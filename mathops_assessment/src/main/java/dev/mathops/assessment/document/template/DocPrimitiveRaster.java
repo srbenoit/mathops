@@ -262,37 +262,43 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "raster primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "raster primitive");
-                ok = this.yCoord != null;
-            } else if ("width".equals(name)) {
-                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "raster primitive");
-                ok = this.width != null;
-            } else if ("height".equals(name)) {
-                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "raster primitive");
-                ok = this.height != null;
-            } else if ("src".equals(name)) {
-                try {
-                    final URI uri = new URI(theValue);
-                    this.source = uri.toURL();
-
-                    loadImage();
-                    if (this.image == null) {
-                        elem.logError("Unable to load image from URL '" + name + "' on raster primitive");
-                    } else {
-                        ok = true;
-                    }
-                } catch (final MalformedURLException | URISyntaxException ex) {
-                    elem.logError("Invalid source URL '" + name + "' on raster primitive");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "raster primitive");
+                    ok = this.xCoord != null;
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "raster primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on raster primitive");
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "raster primitive");
+                    ok = this.yCoord != null;
+                }
+                case "width" -> {
+                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "raster primitive");
+                    ok = this.width != null;
+                }
+                case "height" -> {
+                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "raster primitive");
+                    ok = this.height != null;
+                }
+                case "src" -> {
+                    try {
+                        final URI uri = new URI(theValue);
+                        this.source = uri.toURL();
+
+                        loadImage();
+                        if (this.image == null) {
+                            elem.logError("Unable to load image from URL '" + name + "' on raster primitive");
+                        } else {
+                            ok = true;
+                        }
+                    } catch (final MalformedURLException | URISyntaxException ex) {
+                        elem.logError("Invalid source URL '" + name + "' on raster primitive");
+                    }
+                }
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "raster primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on raster primitive");
             }
         }
 

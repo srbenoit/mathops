@@ -536,66 +536,59 @@ import java.util.prefs.Preferences;
                 final DbProfile ifxProfile = new DbProfile("AdminIfx", ifxContexts);
                 final DbProfile pgProfile = new DbProfile("AdminPg", pgContexts);
 
+                final DbConnection ifxConn = ifxCtx.checkOutConnection();
+
                 try {
-                    final DbConnection ifxConn = ifxCtx.checkOutConnection();
+                    final Cache ifxCache = new Cache(ifxProfile, ifxConn);
 
+                    final DbConnection pgConn = pgCtx.checkOutConnection();
                     try {
-                        final Cache ifxCache = new Cache(ifxProfile, ifxConn);
+                        // final Cache pgCache = new Cache(pgProfile, ifxConn);
 
-                        final DbConnection pgConn = pgCtx.checkOutConnection();
-                        try {
-                            // final Cache pgCache = new Cache(pgProfile, ifxConn);
+                        // The following throws exception if login credentials are invalid
+                        ifxConn.getConnection();
+                        // pgConn.getConnection();
 
-                            // The following throws exception if login credentials are invalid
-                            ifxConn.getConnection();
-                            // pgConn.getConnection();
-
-                            Object renderingHint = null;
-                            int pref = -1;
-                            if (this.radios[0].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
-                                pref = 0;
-                            } else if (this.radios[1].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-                                pref = 1;
-                            } else if (this.radios[2].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
-                                pref = 2;
-                            } else if (this.radios[3].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
-                                pref = 3;
-                            } else if (this.radios[4].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
-                                pref = 4;
-                            } else if (this.radios[5].isSelected()) {
-                                renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
-                                pref = 5;
-                            }
-
-                            final Preferences prefs = Preferences.userNodeForPackage(getClass());
-                            if (prefs != null) {
-                                prefs.putInt("antialias", pref);
-                            }
-
-                            // FIXME:
-                            // new MainWindow(u, ifxCtx, pgCtx, ifxCache, pgCache, liveContext,
-                            // renderingHint).run();
-                            new AdminMainWindow(u, ifxCtx, pgCtx, ifxCache, null, liveContext,
-                                    renderingHint).run();
-                            this.frame.setVisible(false);
-                            this.frame.dispose();
-                        } finally {
-                            pgCtx.checkInConnection(pgConn);
+                        Object renderingHint = null;
+                        int pref = -1;
+                        if (this.radios[0].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
+                            pref = 0;
+                        } else if (this.radios[1].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+                            pref = 1;
+                        } else if (this.radios[2].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+                            pref = 2;
+                        } else if (this.radios[3].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+                            pref = 3;
+                        } else if (this.radios[4].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+                            pref = 4;
+                        } else if (this.radios[5].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+                            pref = 5;
                         }
-                    } catch (final SQLException ex2) {
-                        Log.warning(ex2);
-                        this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
+
+                        final Preferences prefs = Preferences.userNodeForPackage(getClass());
+                        if (prefs != null) {
+                            prefs.putInt("antialias", pref);
+                        }
+
+                        // FIXME:
+                        // new MainWindow(u, ifxCtx, pgCtx, ifxCache, pgCache, liveContext, renderingHint).run();
+                        new AdminMainWindow(u, ifxCtx, pgCtx, ifxCache, null, liveContext, renderingHint).run();
+                        this.frame.setVisible(false);
+                        this.frame.dispose();
                     } finally {
-                        ifxCtx.checkInConnection(ifxConn);
+                        pgCtx.checkInConnection(pgConn);
                     }
-                } catch (final SQLException ex) {
-                    Log.warning(ex.getMessage());
-                    this.error.setText(Res.get(Res.LOGIN_CANT_CREATE_SCHEMA_ERR));
+                } catch (final SQLException ex2) {
+                    Log.warning(ex2);
+                    this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
+                } finally {
+                    ifxCtx.checkInConnection(ifxConn);
                 }
             } else if (err != null) {
                 this.error.setText(err);

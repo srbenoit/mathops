@@ -468,8 +468,7 @@ final class FilePane extends JPanel implements ActionListener {
 
         this.consoleLines.add("<div color='blue' border-top='1px solid blue' border-bottom='1px solid blue'>");
         if (after.length() != before.length()) {
-            this.consoleLines.add("Length from " + Integer.toString(before.length()) + " to " +
-                    Integer.toString(after.length()) + "<br/>");
+            this.consoleLines.add("Length from " + before.length() + " to " + after.length() + "<br/>");
         }
 
         final int len = Math.min(before.length(), after.length());

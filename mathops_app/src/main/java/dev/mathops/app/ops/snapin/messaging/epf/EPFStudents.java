@@ -21,7 +21,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
@@ -109,7 +108,7 @@ final class EPFStudents {
         try {
             fireProgress("Querying instructors", 0, 200);
             final Map<Integer, Map<String, String>> instructors = getInstructors();
-            final TermRec act = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec act = this.cache.getSystemData().getActiveTerm();
 
             if (act == null) {
                 Log.warning("ERROR: Cannot query active term");
@@ -294,19 +293,19 @@ final class EPFStudents {
         }
 
         if (sc1 == null && !nulls.isEmpty()) {
-            sc1 = nulls.remove(0);
+            sc1 = nulls.removeFirst();
         }
         if (sc2 == null && !nulls.isEmpty()) {
-            sc2 = nulls.remove(0);
+            sc2 = nulls.removeFirst();
         }
         if (sc3 == null && !nulls.isEmpty()) {
-            sc3 = nulls.remove(0);
+            sc3 = nulls.removeFirst();
         }
         if (sc4 == null && !nulls.isEmpty()) {
-            sc4 = nulls.remove(0);
+            sc4 = nulls.removeFirst();
         }
         if (sc5 == null && !nulls.isEmpty()) {
-            sc5 = nulls.remove(0);
+            sc5 = nulls.removeFirst();
         }
 
         if (sc1 == null) {
@@ -391,7 +390,7 @@ final class EPFStudents {
     private void processPace1Student(final MessagingContext context, final String instrName,
                                      final Map<? super String, ? super MessageToSend> epfReport) {
 
-        final RawStcourse reg1 = context.sortedRegs.get(0);
+        final RawStcourse reg1 = context.sortedRegs.getFirst();
         final EffectiveMilestones ms1 = new EffectiveMilestones(this.cache, 1, 1, context);
         final MessagingCourseStatus current =
                 new MessagingCourseStatus(context, reg1, ms1, instrName);
@@ -624,13 +623,13 @@ final class EPFStudents {
                 reg2 = regsList.get(1);
             } else {
                 regsList.remove(reg1);
-                reg2 = regsList.get(0);
+                reg2 = regsList.getFirst();
             }
         } else {
             regsList.remove(reg2);
 
             if (reg1 == null) {
-                reg1 = regsList.get(0);
+                reg1 = regsList.getFirst();
             } else {
                 regsList.remove(reg1);
             }
@@ -685,7 +684,7 @@ final class EPFStudents {
                     reg3 = regsList.get(1);
                 } else {
                     regsList.remove(reg1);
-                    reg3 = regsList.get(0);
+                    reg3 = regsList.getFirst();
                 }
             }
         } else {
@@ -697,13 +696,13 @@ final class EPFStudents {
                     reg2 = regsList.get(1);
                 } else {
                     regsList.remove(reg1);
-                    reg2 = regsList.get(0);
+                    reg2 = regsList.getFirst();
                 }
             } else {
                 regsList.remove(reg2);
 
                 if (reg1 == null) {
-                    reg1 = regsList.get(0);
+                    reg1 = regsList.getFirst();
                 } else {
                     regsList.remove(reg1);
                 }
@@ -791,7 +790,7 @@ final class EPFStudents {
                         reg4 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg4 = regsList.get(0);
+                        reg4 = regsList.getFirst();
                     }
                 }
             }
@@ -817,7 +816,7 @@ final class EPFStudents {
                         reg3 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg3 = regsList.get(0);
+                        reg3 = regsList.getFirst();
                     }
                 }
             } else {
@@ -829,13 +828,13 @@ final class EPFStudents {
                         reg2 = regsList.get(1);
                     } else {
                         regsList.remove(reg1);
-                        reg2 = regsList.get(0);
+                        reg2 = regsList.getFirst();
                     }
                 } else {
                     regsList.remove(reg2);
 
                     if (reg1 == null) {
-                        reg1 = regsList.get(0);
+                        reg1 = regsList.getFirst();
                     } else {
                         regsList.remove(reg1);
                     }
@@ -990,7 +989,7 @@ final class EPFStudents {
                             reg5 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg5 = regsList.get(0);
+                            reg5 = regsList.getFirst();
                         }
                     }
                 }
@@ -1047,7 +1046,7 @@ final class EPFStudents {
                             reg4 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg4 = regsList.get(0);
+                            reg4 = regsList.getFirst();
                         }
                     }
                 }
@@ -1073,7 +1072,7 @@ final class EPFStudents {
                             reg3 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg3 = regsList.get(0);
+                            reg3 = regsList.getFirst();
                         }
                     }
                 } else {
@@ -1085,13 +1084,13 @@ final class EPFStudents {
                             reg2 = regsList.get(1);
                         } else {
                             regsList.remove(reg1);
-                            reg2 = regsList.get(0);
+                            reg2 = regsList.getFirst();
                         }
                     } else {
                         regsList.remove(reg2);
 
                         if (reg1 == null) {
-                            reg1 = regsList.get(0);
+                            reg1 = regsList.getFirst();
                         }
                     }
                 }

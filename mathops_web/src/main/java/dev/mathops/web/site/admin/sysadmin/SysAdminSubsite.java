@@ -57,39 +57,25 @@ public final class SysAdminSubsite extends AbstractSubsite {
                            final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.SYSADMIN)) {
-            if ("home.html".equals(subpath)) {
-                PageHome.doGet(cache, this.site, req, resp, session);
-
-            } else if ("db.html".equals(subpath)) {
-                PageDb.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv.html".equals(subpath)) {
-                PageDbSrv.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_add.html".equals(subpath)) {
-                PageDbSrvAdd.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_del.html".equals(subpath)) {
-                PageDbSrvDel.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd.html".equals(subpath)) {
-                PageDbSrvPrd.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_add.html".equals(subpath)) {
-                PageDbSrvPrdAdd.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_del.html".equals(subpath)) {
-                PageDbSrvPrdDel.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_adm.html".equals(subpath)) {
-                PageDbSrvPrdAdm.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_adm_dba.html".equals(subpath)) {
-                PageDbSrvPrdAdmDba.doGet(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_adm_sys.html".equals(subpath)) {
-                PageDbSrvPrdAdmSys.doGet(cache, this.site, req, resp, session);
-
-            } else if ("web_servers.html".equals(subpath)) {
-                PageWebServers.doGet(cache, this.site, req, resp, session);
-            } else if ("media_servers.html".equals(subpath)) {
-                PageMediaServers.doGet(cache, this.site, req, resp, session);
-            } else if ("turn_servers.html".equals(subpath)) {
-                PageTurnServers.doGet(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("GET: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "home.html" -> PageHome.doGet(cache, this.site, req, resp, session);
+                case "db.html" -> PageDb.doGet(cache, this.site, req, resp, session);
+                case "db_srv.html" -> PageDbSrv.doGet(cache, this.site, req, resp, session);
+                case "db_srv_add.html" -> PageDbSrvAdd.doGet(cache, this.site, req, resp, session);
+                case "db_srv_del.html" -> PageDbSrvDel.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd.html" -> PageDbSrvPrd.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd_add.html" -> PageDbSrvPrdAdd.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd_del.html" -> PageDbSrvPrdDel.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd_adm.html" -> PageDbSrvPrdAdm.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd_adm_dba.html" -> PageDbSrvPrdAdmDba.doGet(cache, this.site, req, resp, session);
+                case "db_srv_prd_adm_sys.html" -> PageDbSrvPrdAdmSys.doGet(cache, this.site, req, resp, session);
+                case "web_servers.html" -> PageWebServers.doGet(cache, this.site, req, resp, session);
+                case "media_servers.html" -> PageMediaServers.doGet(cache, this.site, req, resp, session);
+                case "turn_servers.html" -> PageTurnServers.doGet(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("GET: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("GET: invalid role");
@@ -114,17 +100,15 @@ public final class SysAdminSubsite extends AbstractSubsite {
                             final HttpServletResponse resp) throws IOException, SQLException {
 
         if (session.getEffectiveRole().canActAs(ERole.SYSADMIN)) {
-            if ("db_srv_add.html".equals(subpath)) {
-                PageDbSrvAdd.doPost(cache, this.site, req, resp, session);
-            } else if ("db_srv_del.html".equals(subpath)) {
-                PageDbSrvDel.doPost(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_add.html".equals(subpath)) {
-                PageDbSrvPrdAdd.doPost(cache, this.site, req, resp, session);
-            } else if ("db_srv_prd_del.html".equals(subpath)) {
-                PageDbSrvPrdDel.doPost(cache, this.site, req, resp, session);
-            } else {
-                Log.warning("POST: unknown path '", subpath, "'");
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "db_srv_add.html" -> PageDbSrvAdd.doPost(cache, this.site, req, resp, session);
+                case "db_srv_del.html" -> PageDbSrvDel.doPost(cache, this.site, req, resp, session);
+                case "db_srv_prd_add.html" -> PageDbSrvPrdAdd.doPost(cache, this.site, req, resp, session);
+                case "db_srv_prd_del.html" -> PageDbSrvPrdDel.doPost(cache, this.site, req, resp, session);
+                case null, default -> {
+                    Log.warning("POST: unknown path '", subpath, "'");
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } else {
             Log.warning("POST: invalid role");

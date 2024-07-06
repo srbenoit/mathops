@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -81,7 +80,7 @@ public enum SpecialOpenReport {
         int totalG = 0;
         int totalN = 0;
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Exclude OT and Dropped
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);

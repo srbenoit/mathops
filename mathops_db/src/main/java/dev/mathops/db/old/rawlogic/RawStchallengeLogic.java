@@ -154,14 +154,13 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      *
      * @param cache  the data cache
      * @param record the record to insert
-     * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean deleteAttemptAndAnswers(final Cache cache, final RawStchallenge record) throws SQLException {
+    public void deleteAttemptAndAnswers(final Cache cache, final RawStchallenge record) throws SQLException {
 
         RawStchallengeqaLogic.deleteAllForAttempt(cache, record);
 
-        return delete(cache, record);
+        delete(cache, record);
     }
 
     /**

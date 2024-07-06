@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -241,7 +240,7 @@ public class PrecalcTutorialLogic {
             doneWith117 = false;
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         boolean isIncoming = false;
         if (active != null && aplnTerm != null && aplnTerm.name == ETermName.FALL
                 && (active.term.name == ETermName.SUMMER || active.term.name == ETermName.FALL)) {

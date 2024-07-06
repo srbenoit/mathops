@@ -15,7 +15,7 @@ import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -153,56 +153,50 @@ class StartExamDialog extends JDialog implements ActionListener {
 
         final StringBuilder sb = new StringBuilder(50);
 
-        if (RawRecordConstants.M117.equals(course)) {
-            sb.append("MATH 117 Unit ");
-            sb.append(unit);
-            sb.append(" Exam");
-        } else if (RawRecordConstants.M118.equals(course)) {
-            sb.append("MATH 118 Unit ");
-            sb.append(unit);
-            sb.append(" Exam");
-        } else if (RawRecordConstants.M124.equals(course)) {
-            sb.append("MATH 124 Unit ");
-            sb.append(unit);
-            sb.append(" Exam");
-        } else if (RawRecordConstants.M125.equals(course)) {
-            sb.append("MATH 125 Unit ");
-            sb.append(unit);
-            sb.append(" Exam");
-        } else if (RawRecordConstants.M126.equals(course)) {
-            sb.append("MATH 126 Unit ");
-            sb.append(unit);
-            sb.append(" Exam");
-        } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(course)) {
-            sb.append("MATH 117 Challenge Exam");
-        } else if (ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(course)) {
-            sb.append("MATH 118 Challenge Exam");
-        } else if (ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(course)) {
-            sb.append("MATH 124 Challenge Exam");
-        } else if (ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(course)) {
-            sb.append("MATH 125 Challenge Exam");
-        } else if (ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(course)) {
-            sb.append("MATH 126 Challenge Exam");
-        } else if (RawRecordConstants.M100T.equals(course)) {
-            sb.append("ELM Exam");
-        } else if (RawRecordConstants.M1170.equals(course)) {
-            sb.append("Algebra I (117) Tutorial Exam");
-        } else if (RawRecordConstants.M1180.equals(course)) {
-            sb.append("Algebra II (118) Tutorial Exam");
-        } else if (RawRecordConstants.M1240.equals(course)) {
-            sb.append("Functions (124) Tutorial Exam");
-        } else if (RawRecordConstants.M1250.equals(course)) {
-            sb.append("Trig I (125) Tutorial Exam");
-        } else if (RawRecordConstants.M1260.equals(course)) {
-            sb.append("Trig II (126) Tutorial Exam");
-        } else if (RawRecordConstants.M100U.equals(course)) {
-            sb.append("User's Exam");
-        } else if (RawRecordConstants.M100P.equals(course)) {
-            sb.append("Math Placement Tool");
-        } else {
-            sb.append(course);
-            sb.append(" Unit ");
-            sb.append(unit);
+        switch (course) {
+            case RawRecordConstants.M117 -> {
+                sb.append("MATH 117 Unit ");
+                sb.append(unit);
+                sb.append(" Exam");
+            }
+            case RawRecordConstants.M118 -> {
+                sb.append("MATH 118 Unit ");
+                sb.append(unit);
+                sb.append(" Exam");
+            }
+            case RawRecordConstants.M124 -> {
+                sb.append("MATH 124 Unit ");
+                sb.append(unit);
+                sb.append(" Exam");
+            }
+            case RawRecordConstants.M125 -> {
+                sb.append("MATH 125 Unit ");
+                sb.append(unit);
+                sb.append(" Exam");
+            }
+            case RawRecordConstants.M126 -> {
+                sb.append("MATH 126 Unit ");
+                sb.append(unit);
+                sb.append(" Exam");
+            }
+            case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID -> sb.append("MATH 117 Challenge Exam");
+            case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID -> sb.append("MATH 118 Challenge Exam");
+            case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID -> sb.append("MATH 124 Challenge Exam");
+            case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID -> sb.append("MATH 125 Challenge Exam");
+            case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID -> sb.append("MATH 126 Challenge Exam");
+            case RawRecordConstants.M100T -> sb.append("ELM Exam");
+            case RawRecordConstants.M1170 -> sb.append("Algebra I (117) Tutorial Exam");
+            case RawRecordConstants.M1180 -> sb.append("Algebra II (118) Tutorial Exam");
+            case RawRecordConstants.M1240 -> sb.append("Functions (124) Tutorial Exam");
+            case RawRecordConstants.M1250 -> sb.append("Trig I (125) Tutorial Exam");
+            case RawRecordConstants.M1260 -> sb.append("Trig II (126) Tutorial Exam");
+            case RawRecordConstants.M100U -> sb.append("User's Exam");
+            case RawRecordConstants.M100P -> sb.append("Math Placement Tool");
+            case null, default -> {
+                sb.append(course);
+                sb.append(" Unit ");
+                sb.append(unit);
+            }
         }
 
         final JLabel lbl2 = new JLabel(sb.toString());
@@ -281,9 +275,10 @@ class StartExamDialog extends JDialog implements ActionListener {
 
             int timelimit = 0;
             try {
+                final TermRec activeTerm = this.cache.getSystemData().getActiveTerm();
                 final RawCunit cunit =
                         RawCunitLogic.query(this.cache, this.courseId, Integer.valueOf(this.unit),
-                                TermLogic.get(this.cache).queryActive(this.cache).term);
+                                activeTerm.term);
 
                 if (cunit != null && cunit.unitTimelimit != null) {
                     timelimit = cunit.unitTimelimit.intValue();

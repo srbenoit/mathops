@@ -144,19 +144,16 @@ public enum ProblemTemplateFactory {
                             final Object value = var.getValue();
 
                             EType newType = null;
-                            if (value instanceof Boolean) {
-                                newType = EType.BOOLEAN;
-                            } else if (value instanceof Long) {
-                                newType = EType.INTEGER;
-                            } else if (value instanceof Double) {
-                                newType = EType.REAL;
-                            } else if (value instanceof DocSimpleSpan) {
-                                newType = EType.SPAN;
-                            } else if (value instanceof ErrorValue) {
-                                newType = EType.ERROR;
-                                errors.add("Variable {" + var.name + "} generated ErrorValue");
-                            } else {
-                                errors.add("Unexpected value type for {" + var.name + "}: "
+                            switch (value) {
+                                case Boolean b -> newType = EType.BOOLEAN;
+                                case Long l -> newType = EType.INTEGER;
+                                case Double v -> newType = EType.REAL;
+                                case DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
+                                case ErrorValue errorValue -> {
+                                    newType = EType.ERROR;
+                                    errors.add("Variable {" + var.name + "} generated ErrorValue");
+                                }
+                                case null, default -> errors.add("Unexpected value type for {" + var.name + "}: "
                                         + value.getClass().getSimpleName());
                             }
 
@@ -203,19 +200,16 @@ public enum ProblemTemplateFactory {
                             final Object value = var.getValue();
 
                             EType newType = null;
-                            if (value instanceof Boolean) {
-                                newType = EType.BOOLEAN;
-                            } else if (value instanceof Long) {
-                                newType = EType.INTEGER;
-                            } else if (value instanceof Double) {
-                                newType = EType.REAL;
-                            } else if (value instanceof DocSimpleSpan) {
-                                newType = EType.SPAN;
-                            } else if (value instanceof ErrorValue) {
-                                newType = EType.ERROR;
-                                errors.add("Variable {" + var.name + "} generated ErrorValue");
-                            } else {
-                                errors.add("Unexpected value type for {" + var.name + "}: "
+                            switch (value) {
+                                case Boolean b -> newType = EType.BOOLEAN;
+                                case Long l -> newType = EType.INTEGER;
+                                case Double v -> newType = EType.REAL;
+                                case DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
+                                case ErrorValue errorValue -> {
+                                    newType = EType.ERROR;
+                                    errors.add("Variable {" + var.name + "} generated ErrorValue");
+                                }
+                                case null, default -> errors.add("Unexpected value type for {" + var.name + "}: "
                                         + value.getClass().getSimpleName());
                             }
 
@@ -275,20 +269,14 @@ public enum ProblemTemplateFactory {
         if (top instanceof final NonemptyElement nonempty) {
             final String tagName = top.getTagName();
 
-            if ("problem".equals(tagName)) {
-                problem = parseFromProblemElement(nonempty, mode);
-            } else if ("problem-multiple-choice".equals(tagName)) {
-                problem = parseFromProblemMultipleChoiceElement(nonempty, mode);
-            } else if ("problem-multiple-selection".equals(tagName)) {
-                problem = parseFromProblemMultipleSelectionElement(nonempty, mode);
-            } else if ("problem-numeric".equals(tagName)) {
-                problem = parseFromProblemNumericElement(nonempty, mode);
-            } else if ("problem-embedded-input".equals(tagName)) {
-                problem = parseFromProblemEmbeddedInputElement(nonempty, mode);
-            } else if ("problem-auto-correct".equals(tagName)) {
-                problem = parseAutocorrectProblem();
-            } else {
-                content.logError(top, "Unrecognized top-level element: " + tagName);
+            switch (tagName) {
+                case "problem" -> problem = parseFromProblemElement(nonempty, mode);
+                case "problem-multiple-choice" -> problem = parseFromProblemMultipleChoiceElement(nonempty, mode);
+                case "problem-multiple-selection" -> problem = parseFromProblemMultipleSelectionElement(nonempty, mode);
+                case "problem-numeric" -> problem = parseFromProblemNumericElement(nonempty, mode);
+                case "problem-embedded-input" -> problem = parseFromProblemEmbeddedInputElement(nonempty, mode);
+                case "problem-auto-correct" -> problem = parseAutocorrectProblem();
+                case null, default -> content.logError(top, "Unrecognized top-level element: " + tagName);
             }
         } else {
             final ICharSpan source = Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1));
@@ -715,24 +703,25 @@ public enum ProblemTemplateFactory {
                         final String content = cdata.content;
                         final String valueTag = value.getTagName();
 
-                        if ("long".equals(valueTag)) {
-                            try {
-                                values.add(Long.valueOf(content));
-                            } catch (final NumberFormatException ex) {
-                                Log.warning(ex);
-                                elem.logError("Invalid content of &lt;long&gt; element");
+                        switch (valueTag) {
+                            case "long" -> {
+                                try {
+                                    values.add(Long.valueOf(content));
+                                } catch (final NumberFormatException ex) {
+                                    Log.warning(ex);
+                                    elem.logError("Invalid content of &lt;long&gt; element");
+                                }
                             }
-                        } else if ("double".equals(valueTag)) {
-                            try {
-                                values.add(Double.valueOf(content));
-                            } catch (final NumberFormatException ex) {
-                                Log.warning(ex);
-                                elem.logError("Invalid content of &lt;double&gt; element");
+                            case "double" -> {
+                                try {
+                                    values.add(Double.valueOf(content));
+                                } catch (final NumberFormatException ex) {
+                                    Log.warning(ex);
+                                    elem.logError("Invalid content of &lt;double&gt; element");
+                                }
                             }
-                        } else if ("string".equals(valueTag)) {
-                            values.add(content);
-                        } else {
-                            elem.logError("Unrecognized response type: " + value.getTagName());
+                            case "string" -> values.add(content);
+                            case null, default -> elem.logError("Unrecognized response type: " + value.getTagName());
                         }
                     }
                 }
@@ -1460,7 +1449,7 @@ public enum ProblemTemplateFactory {
             elem.logError("element contains multiple '" + name + "' child elements.");
         } else {
             final List<INode> children = found.getChildrenAsList();
-            if (children.size() == 1 && children.get(0) instanceof final CData cdata) {
+            if (children.size() == 1 && children.getFirst() instanceof final CData cdata) {
                 tagValue = cdata.content;
 
                 if (tagValue.isBlank()) {

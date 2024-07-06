@@ -120,7 +120,7 @@ enum PageToolHome {
                     htm.add("<img src='/images/blue2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/> ");
 
                     htm.addln("You will be eligible to complete the Math Placement Tool remotely on ",
-                            TemporalUtils.FMT_MDY.format(future.get(0).start), CoreConstants.DOT);
+                            TemporalUtils.FMT_MDY.format(future.getFirst().start), CoreConstants.DOT);
                     htm.eP();
 
                     also = "also";

@@ -58,7 +58,7 @@ enum LateMessageStartFactory1of1  {
     private static MessageToSend generateSTRTst00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -91,7 +91,7 @@ enum LateMessageStartFactory1of1  {
     private static MessageToSend generateSTRTst01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -118,7 +118,7 @@ enum LateMessageStartFactory1of1  {
     private static MessageToSend generateSTRTst02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);
@@ -172,7 +172,7 @@ enum LateMessageStartFactory1of1  {
     private static MessageToSend generateSTRTst03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
 
-        final String courseId = context.sortedRegs.get(0).course;
+        final String courseId = context.sortedRegs.getFirst().course;
         final String crsName = MsgUtils.courseName(courseId);
 
         final HtmlBuilder body = MsgUtils.simpleOpening(context.student);

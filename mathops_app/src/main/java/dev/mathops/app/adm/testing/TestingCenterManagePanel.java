@@ -1322,14 +1322,11 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
                 g2d.drawString(client.stationNbr, midx - strw / 2, midy + fm.getAscent() / 2 - 1);
 
                 // Draw the power status badge
-                if (RawClientPc.POWER_REPORTING_ON.equals(client.powerStatus)) {
-                    g2d.setColor(this.onColor);
-                } else if (RawClientPc.POWER_OFF.equals(client.powerStatus)) {
-                    g2d.setColor(this.offColor);
-                } else if (RawClientPc.POWER_TURNING_ON.equals(client.powerStatus)) {
-                    g2d.setColor(this.poweringColor);
-                } else {
-                    g2d.setColor(this.poweringColor);
+                switch (client.powerStatus) {
+                    case RawClientPc.POWER_REPORTING_ON -> g2d.setColor(this.onColor);
+                    case RawClientPc.POWER_OFF -> g2d.setColor(this.offColor);
+                    case RawClientPc.POWER_TURNING_ON -> g2d.setColor(this.poweringColor);
+                    case null, default -> g2d.setColor(this.poweringColor);
                 }
 
                 oval.setFrame((double) x + dscl * ((double) client.iconX.intValue() - 4.0),

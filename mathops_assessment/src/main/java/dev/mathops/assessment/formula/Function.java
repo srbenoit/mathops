@@ -225,20 +225,19 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
 
         final Object result;
 
-        if (arg instanceof final Long argLong) {
-            result = Long.valueOf(Math.abs(argLong.longValue()));
-        } else if (arg instanceof final Irrational argIrr) {
-            final EIrrationalFactor fac = argIrr.factor;
-            if (fac == EIrrationalFactor.SQRT) {
-                result = new Irrational(EIrrationalFactor.SQRT, argIrr.base, Math.abs(argIrr.numerator),
-                        argIrr.denominator);
-            } else {
-                result = new Irrational(fac, Math.abs(argIrr.numerator), argIrr.denominator);
+        switch (arg) {
+            case final Long argLong -> result = Long.valueOf(Math.abs(argLong.longValue()));
+            case final Irrational argIrr -> {
+                final EIrrationalFactor fac = argIrr.factor;
+                if (fac == EIrrationalFactor.SQRT) {
+                    result = new Irrational(EIrrationalFactor.SQRT, argIrr.base, Math.abs(argIrr.numerator),
+                            argIrr.denominator);
+                } else {
+                    result = new Irrational(fac, Math.abs(argIrr.numerator), argIrr.denominator);
+                }
             }
-        } else if (arg instanceof final Number argNum) {
-            result = Double.valueOf(Math.abs(argNum.doubleValue()));
-        } else {
-            result = new ErrorValue("Argument to 'abs' was invalid type.");
+            case final Number argNum -> result = Double.valueOf(Math.abs(argNum.doubleValue()));
+            case null, default -> result = new ErrorValue("Argument to 'abs' was invalid type.");
         }
 
         return result;
@@ -918,15 +917,12 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
         if (canEvaluate) {
             final Object value = evaluate(context);
 
-            if (value instanceof final Long longVal) {
-                result = new ConstIntegerValue(longVal.longValue());
-            } else if (value instanceof final Number numVal) {
-                result = new ConstRealValue(numVal);
-            } else if (value instanceof final Boolean booleanVal) {
-                result = new ConstBooleanValue(booleanVal.booleanValue());
-            } else {
-                result = this;
-            }
+            result = switch (value) {
+                case final Long longVal -> new ConstIntegerValue(longVal.longValue());
+                case final Number numVal -> new ConstRealValue(numVal);
+                case final Boolean booleanVal -> new ConstBooleanValue(booleanVal.booleanValue());
+                case null, default -> this;
+            };
         } else {
             result = this;
         }

@@ -290,10 +290,10 @@ final class StudentActivityPanel extends AdminPanelBase {
 
         int result;
 
-        if (date.isBefore(weeks.get(0).startDt)) {
+        if (date.isBefore(weeks.getFirst().startDt)) {
             result = 0;
         } else {
-            final RawSemesterCalendar last = weeks.get(weeks.size() - 1);
+            final RawSemesterCalendar last = weeks.getLast();
             result = last.weekNbr.intValue() + 1;
 
             for (final RawSemesterCalendar test : weeks) {

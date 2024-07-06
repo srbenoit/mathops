@@ -93,11 +93,8 @@ final class UploadTestResultCodes {
      * Locates a stored procedure.
      *
      * @param name the name
-     * @return true if OK
      */
-    private boolean locateStoredProcedure(final String name) {
-
-        boolean ok = false;
+    private void locateStoredProcedure(final String name) {
 
         try {
             final DatabaseMetaData meta = this.mConnection.getMetaData();
@@ -110,7 +107,6 @@ final class UploadTestResultCodes {
                     Log.fine("Schema: " + str);
                     str = rs1.getString("REMARKS");
                     Log.fine("Remarks: " + str);
-                    ok = true;
                 }
             }
 
@@ -156,8 +152,6 @@ final class UploadTestResultCodes {
         } catch (final SQLException e) {
             Log.warning(e);
         }
-
-        return ok;
     }
 
 //    /**

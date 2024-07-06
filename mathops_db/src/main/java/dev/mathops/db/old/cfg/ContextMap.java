@@ -127,8 +127,7 @@ public final class ContextMap {
         for (int i = 0; i < numChildren; ++i) {
             final INode child = elem.getChild(i);
 
-            if (child instanceof EmptyElement) {
-                final EmptyElement innerNode = (EmptyElement) child;
+            if (child instanceof final EmptyElement innerNode) {
 
                 if (SchemaConfig.ELEM_TAG.equals(innerNode.getTagName())) {
                     final SchemaConfig schema = new SchemaConfig(innerNode);
@@ -138,19 +137,19 @@ public final class ContextMap {
                 } else {
                     Log.warning("Unexpected tag: " + innerNode.getTagName());
                 }
-            } else if (child instanceof NonemptyElement) {
-                final NonemptyElement innerNode = (NonemptyElement) child;
+            } else if (child instanceof final NonemptyElement innerNode) {
 
-                if (ServerConfig.ELEM_TAG.equals(innerNode.getTagName())) {
-                    final ServerConfig server = new ServerConfig(this.schemata, this.logins, innerNode);
-                    this.servers.add(server);
-                } else if (DbProfile.ELEM_TAG.equals(innerNode.getTagName())) {
-                    final DbProfile profile = new DbProfile(this.schemata, this.logins, innerNode);
-                    this.profiles.put(profile.id, profile);
-                } else if (WEB_TAG.equals(innerNode.getTagName())) {
-                    processWebNode(innerNode);
-                } else {
-                    Log.warning("Unexpected tag: " + innerNode.getTagName());
+                switch (innerNode.getTagName()) {
+                    case ServerConfig.ELEM_TAG -> {
+                        final ServerConfig server = new ServerConfig(this.schemata, this.logins, innerNode);
+                        this.servers.add(server);
+                    }
+                    case DbProfile.ELEM_TAG -> {
+                        final DbProfile profile = new DbProfile(this.schemata, this.logins, innerNode);
+                        this.profiles.put(profile.id, profile);
+                    }
+                    case WEB_TAG -> processWebNode(innerNode);
+                    case null, default -> Log.warning("Unexpected tag: " + innerNode.getTagName());
                 }
             }
         }
@@ -310,7 +309,7 @@ public final class ContextMap {
         final List<INode> nodes = content.getNodes();
 
         if (nodes != null) {
-            if (nodes.size() == 1 && nodes.get(0) instanceof final NonemptyElement elem) {
+            if (nodes.size() == 1 && nodes.getFirst() instanceof final NonemptyElement elem) {
                 if (XML_TAG.equals(elem.getTagName())) {
                     return new ContextMap(elem);
                 }

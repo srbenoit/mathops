@@ -14,7 +14,6 @@ import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSm;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSp;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -43,7 +42,7 @@ enum LiveRegCache {
         Log.info("Querying live registrations for ", studentId);
         final long before = System.currentTimeMillis();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final DbContext live = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
 

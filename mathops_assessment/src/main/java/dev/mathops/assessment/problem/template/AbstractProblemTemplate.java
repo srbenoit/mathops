@@ -294,14 +294,11 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
             xml.addln();
             xml.addln(ind1, "<student-response>");
             for (final Object o : this.studentResponse) {
-                if (o instanceof Long) {
-                    xml.addln(ind2, "<long>", o, "</long>");
-                } else if (o instanceof Double) {
-                    xml.addln(ind2, "<double>", o, "</double>");
-                } else if (o instanceof String) {
-                    xml.addln(ind2, "<string>", o, "</string>");
-                } else {
-                    xml.addln(ind2, "<unknown>", o, "</unknown>");
+                switch (o) {
+                    case final Long l -> xml.addln(ind2, "<long>", o, "</long>");
+                    case final Double v -> xml.addln(ind2, "<double>", o, "</double>");
+                    case final String s -> xml.addln(ind2, "<string>", o, "</string>");
+                    case null, default -> xml.addln(ind2, "<unknown>", o, "</unknown>");
                 }
             }
             xml.addln(ind1, "</student-response>");

@@ -23,7 +23,6 @@ import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -166,7 +165,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
                 // everything else on the desktop. All windows this application creates will be children of this
                 // window, so they will not be obscured, but the desktop will not be available.
-                if (logic.isInitialized() && createBlockingWindow(fullScreen)) {
+                if (logic.isInitialized()) {
+                    createBlockingWindow(fullScreen);
 
                     final LocalTime closing = determineClosing(cache);
 
@@ -260,7 +260,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             if (calendarRows.isEmpty()) {
                 Log.warning("Unable to query 'start_dt1' calender record");
             } else {
-                final RawCampusCalendar row = calendarRows.get(0);
+                final RawCampusCalendar row = calendarRows.getFirst();
 
                 String end = null;
                 if ("Monday - Thursday".equals(row.weekdays1)
@@ -348,10 +348,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
     /**
      * Attempts to connect to the database server. This will present a dialog box with login information.
-     *
-     * @throws SQLException if the database connection could not be established
      */
-    private void doStartupLogin() throws SQLException {
+    private void doStartupLogin() {
 
         final DbContext dbctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
 
@@ -370,7 +368,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                     final Cache cache = new Cache(this.dbProfile, conn);
 
                     try {
-                        TermLogic.get(cache).queryActive(cache);
+                        cache.getSystemData().getActiveTerm();
                         dlg.close();
                         break;
                     } finally {
@@ -391,9 +389,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      * running.
      *
      * @param fullScreen {@code true} to build screen in full-screen mode
-     * @return {@code true} if the blocking window was created; {@code false} otherwise
      */
-    private boolean createBlockingWindow(final boolean fullScreen) {
+    private void createBlockingWindow(final boolean fullScreen) {
 
         // Construct the window in the AWT dispatcher thread.
         final BlockingWindowBuilder builder = new BlockingWindowBuilder(this, this.dbProfile, this.centerId,
@@ -411,8 +408,6 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         } catch (final InvocationTargetException ex) {
             Log.warning(ex);
         }
-
-        return true;
     }
 
     /**

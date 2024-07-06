@@ -15,7 +15,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.SchemaConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 
 import javax.swing.BorderFactory;
@@ -157,13 +156,11 @@ public final class LoginDialog extends JFrame implements ActionListener {
         final DbConfig mathDb;
         if (isProd) {
             mathDb = new DbConfig(server, "math", EDbUse.PROD);
-            mathDb.addSchema(schema);
-            server.addDatabase(mathDb);
         } else {
             mathDb = new DbConfig(server, "math", EDbUse.DEV);
-            mathDb.addSchema(schema);
-            server.addDatabase(mathDb);
         }
+        mathDb.addSchema(schema);
+        server.addDatabase(mathDb);
 
         // Create a login configuration with the supplied credentials
         final String usernameStr = this.username.getText();
@@ -192,7 +189,7 @@ public final class LoginDialog extends JFrame implements ActionListener {
             final Cache cache = new Cache(profile, conn);
 
             try {
-                final RawWhichDb which = RawWhichDbLogic.query(cache);
+                final RawWhichDb which = cache.getSystemData().getWhichDb();
                 if (which == null) {
                     this.error.setText("Unable to check database type.");
                 } else if (profileName.equals(which.descr)) {

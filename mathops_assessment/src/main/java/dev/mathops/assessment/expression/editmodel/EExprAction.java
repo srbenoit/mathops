@@ -144,10 +144,8 @@ public enum EExprAction {
     /** Inserts an Approximately equal (3-argument) function. */
     INSERT_FXN_APPROX_EQUAL(0x0002001C);
 
-    ;
-
     /** The integer value (must be greater than 0xFFFF). */
-    int value;
+    final int value;
 
     /**
      * Constructs a new {@code EExprAction}.

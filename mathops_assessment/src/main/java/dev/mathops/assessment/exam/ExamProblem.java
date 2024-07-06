@@ -220,7 +220,7 @@ public final class ExamProblem extends AbstractXmlObject {
 
         // Choose one problem at random and save it as the selected problem
         if (this.problems.size() == 1) {
-            this.selectedProblem = this.problems.get(0);
+            this.selectedProblem = this.problems.getFirst();
         } else if (this.problems.size() > 1) {
             final int which = Randomizer.nextInt(this.problems.size());
             this.selectedProblem = this.problems.get(which);

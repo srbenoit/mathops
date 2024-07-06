@@ -487,39 +487,26 @@ public enum XmlFormulaFactory {
 
         final String oper = element.getStringAttr(OP);
 
-        if ("+".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.ADD);
-        } else if ("-".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.SUBTRACT);
-        } else if ("*".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.MULTIPLY);
-        } else if ("/".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.DIVIDE);
-        } else if ("^".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.POWER);
-        } else if ("%".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.REMAINDER);
-        } else if ("<".equals(oper) || "LT".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.LT);
-        } else if (">".equals(oper) || "GT".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.GT);
-        } else if ("\u2264".equals(oper) || "LE".equals(oper) || "LEQ".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.LE);
-        } else if ("\u2265".equals(oper) || "GE".equals(oper) || "GEQ".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.GE);
-        } else if ("=".equals(oper) ) {
-            result = new BinaryOper(EBinaryOp.EQ);
-        } else if ("~".equals(oper) ) {
-            result = new BinaryOper(EBinaryOp.APPROX);
-        } else if ("\u2260".equals(oper) || "NE".equals(oper) || "NEQ".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.NE);
-        } else if ("&".equals(oper) || "AND".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.AND);
-        } else if ("|".equals(oper) || "OR".equals(oper)) {
-            result = new BinaryOper(EBinaryOp.OR);
-        } else {
-            final String msg = Res.fmt(Res.BAD_BINARY_OP, oper);
-            element.logError(msg);
+        switch (oper) {
+            case "+" -> result = new BinaryOper(EBinaryOp.ADD);
+            case "-" -> result = new BinaryOper(EBinaryOp.SUBTRACT);
+            case "*" -> result = new BinaryOper(EBinaryOp.MULTIPLY);
+            case "/" -> result = new BinaryOper(EBinaryOp.DIVIDE);
+            case "^" -> result = new BinaryOper(EBinaryOp.POWER);
+            case "%" -> result = new BinaryOper(EBinaryOp.REMAINDER);
+            case "<", "LT" -> result = new BinaryOper(EBinaryOp.LT);
+            case ">", "GT" -> result = new BinaryOper(EBinaryOp.GT);
+            case "\u2264", "LE", "LEQ" -> result = new BinaryOper(EBinaryOp.LE);
+            case "\u2265", "GE", "GEQ" -> result = new BinaryOper(EBinaryOp.GE);
+            case "=" -> result = new BinaryOper(EBinaryOp.EQ);
+            case "~" -> result = new BinaryOper(EBinaryOp.APPROX);
+            case "\u2260", "NE", "NEQ" -> result = new BinaryOper(EBinaryOp.NE);
+            case "&", "AND" -> result = new BinaryOper(EBinaryOp.AND);
+            case "|", "OR" -> result = new BinaryOper(EBinaryOp.OR);
+            case null, default -> {
+                final String msg = Res.fmt(Res.BAD_BINARY_OP, oper);
+                element.logError(msg);
+            }
         }
 
         if (result != null) {

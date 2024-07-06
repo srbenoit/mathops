@@ -18,7 +18,6 @@ import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveReg;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
@@ -58,7 +57,7 @@ public final class CsuLiveRegChecker {
 
         if (!stuId.isEmpty() && stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             final String activeStr = active == null ? null : active.term.longString;
 
             if (active != null && activeStr != null) {
@@ -82,7 +81,7 @@ public final class CsuLiveRegChecker {
                 Log.info(liveStr.toString());
 
                 if (!liveRegs.isEmpty()) {
-                    checkForStudentUpdate(cache, stuId, liveRegs.get(0));
+                    checkForStudentUpdate(cache, stuId, liveRegs.getFirst());
                 }
 
                 // Update live registration "instruction type" based on course-section
@@ -235,7 +234,7 @@ public final class CsuLiveRegChecker {
     private static void checkForNewReg(final Cache cache, final List<RawStcourse> regs,
                                        final List<LiveReg> liveRegs, final String activeStr) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         // Remove useless rows from the live reg query
         final Iterator<LiveReg> iter = liveRegs.iterator();
@@ -329,7 +328,7 @@ public final class CsuLiveRegChecker {
                         // it is not in the live data - pick the "live" section with the lowest
                         // section number to keep (is this the right choice?)
                         Collections.sort(liveSections);
-                        final String keepSect = liveSections.get(0);
+                        final String keepSect = liveSections.getFirst();
                         liveRegs.removeIf(next -> courseId.equals(next.courseId) && !keepSect.equals(next.sectionNum));
                     } else {
                         // There is a local section, and it appears in the live data, so remove all
@@ -344,7 +343,7 @@ public final class CsuLiveRegChecker {
                     }
 
                     // There was a duplicate - add the fatal hold if it's not already there.
-                    final String studentId = liveRegs.get(0).studentId;
+                    final String studentId = liveRegs.getFirst().studentId;
                     Log.warning("ADDING HOLD 14 (RI and CE registrations for same course) FOR STUDENT ", studentId,
                             " FOR COURSE ", courseId);
                     addFatalHold(cache, studentId, "14", Integer.valueOf(0));
@@ -768,7 +767,7 @@ public final class CsuLiveRegChecker {
     private static boolean hasMixedRuleSets(final Cache cache, final Iterable<RawStcourse> regs,
                                             final String userId) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final Collection<String> pacingStructures = new HashSet<>(4);
 

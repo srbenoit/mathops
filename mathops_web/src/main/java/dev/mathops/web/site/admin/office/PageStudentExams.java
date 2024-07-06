@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -157,7 +156,7 @@ enum PageStudentExams {
             mpes.sort(new RawStmpe.FinishDateTimeComparator());
             chals.sort(new RawStchallenge.FinishDateTimeComparator());
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             emitPlacementExamTable(active, htm, mpes, role);
             emitChallengeExamTable(active, htm, chals, role);
@@ -452,20 +451,14 @@ enum PageStudentExams {
                     htm.sTd().add(TemporalUtils.FMT_MD.format(fin)).eTd();
                     htm.sTd().add(TemporalUtils.FMT_HM_A.format(fin)).eTd();
                     htm.sTd().add(ex.serialNbr).eTd();
-                    if (RawRecordConstants.M100T.equals(ex.course)) {
-                        htm.sTd("ctr").add("ELM").eTd();
-                    } else if (RawRecordConstants.M1170.equals(ex.course)) {
-                        htm.sTd("ctr").add("Algebra I").eTd();
-                    } else if (RawRecordConstants.M1180.equals(ex.course)) {
-                        htm.sTd("ctr").add("Algebra II").eTd();
-                    } else if (RawRecordConstants.M1240.equals(ex.course)) {
-                        htm.sTd("ctr").add("Logs & Exp.").eTd();
-                    } else if (RawRecordConstants.M1250.equals(ex.course)) {
-                        htm.sTd("ctr").add("Trig I").eTd();
-                    } else if (RawRecordConstants.M1260.equals(ex.course)) {
-                        htm.sTd("ctr").add("Trig II").eTd();
-                    } else {
-                        htm.sTd("ctr").add(ex.course).eTd();
+                    switch (ex.course) {
+                        case RawRecordConstants.M100T -> htm.sTd("ctr").add("ELM").eTd();
+                        case RawRecordConstants.M1170 -> htm.sTd("ctr").add("Algebra I").eTd();
+                        case RawRecordConstants.M1180 -> htm.sTd("ctr").add("Algebra II").eTd();
+                        case RawRecordConstants.M1240 -> htm.sTd("ctr").add("Logs & Exp.").eTd();
+                        case RawRecordConstants.M1250 -> htm.sTd("ctr").add("Trig I").eTd();
+                        case RawRecordConstants.M1260 -> htm.sTd("ctr").add("Trig II").eTd();
+                        case null, default -> htm.sTd("ctr").add(ex.course).eTd();
                     }
                     htm.sTd("ctr").add(ex.version).eTd();
                     htm.sTd("ctr").add(OfficePage.durationString(ex.getStartDateTime(), fin)).eTd();
@@ -553,21 +546,21 @@ enum PageStudentExams {
                         htm.sTd("ctr").add(ex.unit).eTd();
                     }
 
-                    if ("F".equals(ex.examType)) {
-                        final String name = "SY".equals(ex.examSource) ? "Final Exam (synthetic)" : "Final Exam";
-                        htm.sTd(null, "style='background-color:#cfc'").add(name).eTd();
-                    } else if ("U".equals(ex.examType)) {
-                        htm.sTd(null, "style='background-color:#cfc'").add("Unit Exam").eTd();
-                    } else if ("R".equals(ex.examType)) {
-                        if (Integer.valueOf(0).equals(ex.unit)) {
-                            htm.sTd(null, "style='background-color:#cff'").add("Skills Review").eTd();
-                        } else {
-                            htm.sTd(null, "style='background-color:#ffc'").add("Unit Review").eTd();
+                    switch (ex.examType) {
+                        case "F" -> {
+                            final String name = "SY".equals(ex.examSource) ? "Final Exam (synthetic)" : "Final Exam";
+                            htm.sTd(null, "style='background-color:#cfc'").add(name).eTd();
                         }
-                    } else if ("Q".equals(ex.examType)) {
-                        htm.sTd(null, "style='background-color:#cff'").add("Users Exam").eTd();
-                    } else {
-                        htm.sTd().add(RawExamLogic.getExamTypeName(ex.examType)).eTd();
+                        case "U" -> htm.sTd(null, "style='background-color:#cfc'").add("Unit Exam").eTd();
+                        case "R" -> {
+                            if (Integer.valueOf(0).equals(ex.unit)) {
+                                htm.sTd(null, "style='background-color:#cff'").add("Skills Review").eTd();
+                            } else {
+                                htm.sTd(null, "style='background-color:#ffc'").add("Unit Review").eTd();
+                            }
+                        }
+                        case "Q" -> htm.sTd(null, "style='background-color:#cff'").add("Users Exam").eTd();
+                        case null, default -> htm.sTd().add(RawExamLogic.getExamTypeName(ex.examType)).eTd();
                     }
 
                     htm.sTd("ctr").add(ex.version).eTd();

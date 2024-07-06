@@ -714,7 +714,7 @@ public final class FEFormula extends AbstractFEObject {
                     this.offscreenG2d.fillRect(this.insets.left - 1, this.insets.top, 2, ascent + descent);
                 } else if (cursor.cursorPosition == 0) {
                     // Draw cursor at start
-                    final RenderedBox box = charboxes.get(0);
+                    final RenderedBox box = charboxes.getFirst();
                     final Rectangle boxBounds = box.getBounds();
                     final Point boxOrigin = box.getOrigin();
                     this.offscreenG2d.fillRect(boxOrigin.x + boxBounds.x - 1, boxOrigin.y + boxBounds.y, 2,

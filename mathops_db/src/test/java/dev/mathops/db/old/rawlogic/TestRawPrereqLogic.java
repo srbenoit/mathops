@@ -11,7 +11,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawPrereq;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import org.junit.jupiter.api.AfterAll;
@@ -100,7 +99,7 @@ final class TestRawPrereqLogic {
                 final TermRec rawTerm = new TermRec(fa21, LocalDate.of(2021, 8, 11), LocalDate.of(2021, 12, 14),
                         "2122", Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
 
-                assertTrue(TermLogic.get(cache).insert(cache, rawTerm), "Failed to insert active term");
+                assertTrue(cache.getSystemData().insertTerm(rawTerm), "Failed to insert active term");
 
                 final RawPrereq raw1 = new RawPrereq(fa21, RawRecordConstants.M126, RawRecordConstants.M125);
                 final RawPrereq raw2 = new RawPrereq(fa21, RawRecordConstants.M126, "M 160");

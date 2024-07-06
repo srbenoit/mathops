@@ -126,6 +126,24 @@ public final class RawCuobjectiveLogic extends AbstractRawLogic<RawCuobjective> 
     }
 
     /**
+     * Retrieves all course unit objectives in a given term.
+     *
+     * @param cache   the data cache
+     * @param termKey the term key
+     * @return the list of course units; {@code null} on any error
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawCuobjective> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM cuobjective",
+                " WHERE term=", sqlStringValue(termKey.termCode),
+                " AND term_yr=", sqlIntegerValue(termKey.shortYear));
+
+        return executeListQuery(cache, sql);
+    }
+
+    /**
      * Retrieves all course unit objectives in a specified course and unit in a given term.
      *
      * @param cache   the data cache

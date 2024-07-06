@@ -457,48 +457,41 @@ public final class VariableEditorPanel extends JPanel
 
             String type = null;
 
-            if (theVar instanceof VariableBoolean) {
-                type = BOOLEAN;
-            } else if (theVar instanceof VariableInteger) {
-                type = INTEGER;
-            } else if (theVar instanceof VariableReal) {
-                type = REAL;
-            } else if (theVar instanceof VariableSpan) {
-                type = SPAN;
-            } else if (theVar instanceof VariableRandomBoolean) {
-                type = RANDOM_BOOLEAN;
-            } else if (theVar instanceof VariableRandomInteger) {
-                type = RANDOM_INTEGER;
-            } else if (theVar instanceof VariableRandomReal) {
-                type = RANDOM_REAL;
-            } else if (theVar instanceof VariableRandomPermutation) {
-                type = RANDOM_PERMUTATION;
-            } else if (theVar instanceof VariableRandomChoice) {
-                if (theVar.type == EType.INTEGER) {
-                    type = RANDOM_CHOICE_INTEGER;
-                } else if (theVar.type == EType.REAL) {
-                    type = RANDOM_CHOICE_REAL;
-                } else if (theVar.type == EType.SPAN) {
-                    type = RANDOM_CHOICE_SPAN;
-                } else {
-                    Log.warning("Unsupported random choice type: ", theVar.type);
+            switch (theVar) {
+                case VariableBoolean variableBoolean -> type = BOOLEAN;
+                case VariableInteger variableInteger -> type = INTEGER;
+                case VariableReal variableReal -> type = REAL;
+                case VariableSpan variableSpan -> type = SPAN;
+                case VariableRandomBoolean variableRandomBoolean -> type = RANDOM_BOOLEAN;
+                case VariableRandomInteger variableRandomInteger -> type = RANDOM_INTEGER;
+                case VariableRandomReal variableRandomReal -> type = RANDOM_REAL;
+                case VariableRandomPermutation variableRandomPermutation -> type = RANDOM_PERMUTATION;
+                case VariableRandomChoice variableRandomChoice -> {
+                    if (theVar.type == EType.INTEGER) {
+                        type = RANDOM_CHOICE_INTEGER;
+                    } else if (theVar.type == EType.REAL) {
+                        type = RANDOM_CHOICE_REAL;
+                    } else if (theVar.type == EType.SPAN) {
+                        type = RANDOM_CHOICE_SPAN;
+                    } else {
+                        Log.warning("Unsupported random choice type: ", theVar.type);
+                    }
                 }
-            } else if (theVar instanceof VariableRandomSimpleAngle) {
-                type = RANDOM_SIMPLE_ANGLE;
-            } else if (theVar instanceof VariableDerived) {
-                if (theVar.type == EType.BOOLEAN) {
-                    type = DERIVED_BOOLEAN;
-                } else if (theVar.type == EType.INTEGER) {
-                    type = DERIVED_INTEGER;
-                } else if (theVar.type == EType.REAL) {
-                    type = DERIVED_REAL;
-                } else if (theVar.type == EType.SPAN) {
-                    type = DERIVED_SPAN;
-                } else {
-                    Log.warning("Unsupported derived type: ", theVar.type);
+                case VariableRandomSimpleAngle variableRandomSimpleAngle -> type = RANDOM_SIMPLE_ANGLE;
+                case VariableDerived variableDerived -> {
+                    if (theVar.type == EType.BOOLEAN) {
+                        type = DERIVED_BOOLEAN;
+                    } else if (theVar.type == EType.INTEGER) {
+                        type = DERIVED_INTEGER;
+                    } else if (theVar.type == EType.REAL) {
+                        type = DERIVED_REAL;
+                    } else if (theVar.type == EType.SPAN) {
+                        type = DERIVED_SPAN;
+                    } else {
+                        Log.warning("Unsupported derived type: ", theVar.type);
+                    }
                 }
-            } else {
-                Log.warning("Unsupported variable type: ", theVar.getClass().getSimpleName());
+                default -> Log.warning("Unsupported variable type: ", theVar.getClass().getSimpleName());
             }
 
             this.typeChoice.setSelectedItem(type);
@@ -1295,328 +1288,337 @@ public final class VariableEditorPanel extends JPanel
 
         // See if value is different
         final Object oldValue = this.var.getValue();
-        if (this.var instanceof VariableBoolean) {
+        switch (this.var) {
+            case VariableBoolean variableBoolean -> {
 
-            final Object newValue = this.booleanValue.getSelectedItem();
-            if (Objects.equals(newValue, oldValue)) {
-                this.booleanValue.setBackground(this.unchangedColor);
-            } else {
-                this.booleanValue.setBackground(this.changedValidColor);
-                changes = true;
-            }
-
-        } else if (this.var instanceof VariableInteger) {
-
-            final String newText = this.integerValue.getText();
-            try {
-                final Long newValue = Long.valueOf(newText);
+                final Object newValue = this.booleanValue.getSelectedItem();
                 if (Objects.equals(newValue, oldValue)) {
-                    this.integerValue.setBackground(this.unchangedColor);
+                    this.booleanValue.setBackground(this.unchangedColor);
                 } else {
-                    this.integerValue.setBackground(this.changedValidColor);
+                    this.booleanValue.setBackground(this.changedValidColor);
                     changes = true;
                 }
-            } catch (final NumberFormatException ex) {
-                this.integerValue.setBackground(this.changedInvalidColor);
-                valid = false;
             }
+            case VariableInteger variableInteger -> {
 
-        } else if (this.var instanceof VariableReal) {
-
-            final String newText = this.realValue.getText();
-            try {
-                final Double newValue = Double.valueOf(newText);
-                if (Objects.equals(newValue, oldValue)) {
-                    this.realValue.setBackground(this.unchangedColor);
-                } else {
-                    this.realValue.setBackground(this.changedValidColor);
-                    changes = true;
-                }
-            } catch (final NumberFormatException ex) {
-                this.realValue.setBackground(this.changedInvalidColor);
-                valid = false;
-            }
-
-        } else if (this.var instanceof VariableSpan) {
-
-            final String spanText = this.spanValue.getText();
-            if (spanText == null || spanText.isBlank()) {
-                // Span should not be empty in a span variable
-                this.spanValue.setBackground(this.changedInvalidColor);
-                changes = true;
-                valid = false;
-            } else {
-                final String newText = "<a>" + spanText + "</a>";
+                final String newText = this.integerValue.getText();
                 try {
-                    final XmlContent spanXmlContent = new XmlContent(newText, false, false);
-                    final IElement top = spanXmlContent.getToplevel();
-                    if (top instanceof final NonemptyElement nonempty) {
-                        final DocSimpleSpan newValue =
-                                DocFactory.parseSpan(this.evalContext, nonempty, EParserMode.NORMAL);
+                    final Long newValue = Long.valueOf(newText);
+                    if (Objects.equals(newValue, oldValue)) {
+                        this.integerValue.setBackground(this.unchangedColor);
+                    } else {
+                        this.integerValue.setBackground(this.changedValidColor);
+                        changes = true;
+                    }
+                } catch (final NumberFormatException ex) {
+                    this.integerValue.setBackground(this.changedInvalidColor);
+                    valid = false;
+                }
 
-                        if (newValue == null) {
-                            this.spanValue.setBackground(this.changedInvalidColor);
-                            changes = true;
-                            valid = false;
-                        } else if (oldValue == null) {
-                            this.spanValue.setBackground(this.changedValidColor);
-                            changes = true;
-                        } else {
-                            final String newValueText = newValue.toString();
-                            final String oldValueText = oldValue.toString();
+            }
+            case VariableReal variableReal -> {
 
-                            if (newValueText.equals(oldValueText)) {
-                                this.spanValue.setBackground(this.unchangedColor);
-                            } else {
+                final String newText = this.realValue.getText();
+                try {
+                    final Double newValue = Double.valueOf(newText);
+                    if (Objects.equals(newValue, oldValue)) {
+                        this.realValue.setBackground(this.unchangedColor);
+                    } else {
+                        this.realValue.setBackground(this.changedValidColor);
+                        changes = true;
+                    }
+                } catch (final NumberFormatException ex) {
+                    this.realValue.setBackground(this.changedInvalidColor);
+                    valid = false;
+                }
+
+            }
+            case VariableSpan variableSpan -> {
+
+                final String spanText = this.spanValue.getText();
+                if (spanText == null || spanText.isBlank()) {
+                    // Span should not be empty in a span variable
+                    this.spanValue.setBackground(this.changedInvalidColor);
+                    changes = true;
+                    valid = false;
+                } else {
+                    final String newText = "<a>" + spanText + "</a>";
+                    try {
+                        final XmlContent spanXmlContent = new XmlContent(newText, false, false);
+                        final IElement top = spanXmlContent.getToplevel();
+                        if (top instanceof final NonemptyElement nonempty) {
+                            final DocSimpleSpan newValue =
+                                    DocFactory.parseSpan(this.evalContext, nonempty, EParserMode.NORMAL);
+
+                            if (newValue == null) {
+                                this.spanValue.setBackground(this.changedInvalidColor);
+                                changes = true;
+                                valid = false;
+                            } else if (oldValue == null) {
                                 this.spanValue.setBackground(this.changedValidColor);
                                 changes = true;
+                            } else {
+                                final String newValueText = newValue.toString();
+                                final String oldValueText = oldValue.toString();
+
+                                if (newValueText.equals(oldValueText)) {
+                                    this.spanValue.setBackground(this.unchangedColor);
+                                } else {
+                                    this.spanValue.setBackground(this.changedValidColor);
+                                    changes = true;
+                                }
                             }
+                        } else {
+                            this.spanValue.setBackground(this.changedInvalidColor);
+                            valid = false;
                         }
-                    } else {
+                    } catch (final ParsingException ex) {
                         this.spanValue.setBackground(this.changedInvalidColor);
                         valid = false;
                     }
-                } catch (final ParsingException ex) {
-                    this.spanValue.setBackground(this.changedInvalidColor);
-                    valid = false;
                 }
             }
-        } else if (this.var instanceof final VariableRandomInteger randInt) {
-            final NumberOrFormula oldMin = randInt.getMin();
-            final FEFormula minRoot = this.minFormula.getRoot();
+            case final VariableRandomInteger randInt -> {
+                final NumberOrFormula oldMin = randInt.getMin();
+                final FEFormula minRoot = this.minFormula.getRoot();
 
-            // TODO: Check that min/max will generate integers
+                // TODO: Check that min/max will generate integers
 
-            if (minRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMin == null) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                if (minRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMin == null) {
+                        this.minFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMin = minRoot.generate();
+
+                        if (newMin == null) {
+                            this.minFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.minFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    changes = true;
                     final Formula newMin = minRoot.generate();
 
                     if (newMin == null) {
                         this.minFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMin, oldMin)) {
+                        this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMin = minRoot.generate();
 
-                if (newMin == null) {
-                    this.minFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMin, oldMin)) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                final NumberOrFormula oldMax = randInt.getMax();
+                final FEFormula maxRoot = this.maxFormula.getRoot();
+
+                if (maxRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMax == null) {
+                        this.maxFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMax = maxRoot.generate();
+
+                        if (newMax == null) {
+                            this.maxFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.maxFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    this.minFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
-            }
-
-            final NumberOrFormula oldMax = randInt.getMax();
-            final FEFormula maxRoot = this.maxFormula.getRoot();
-
-            if (maxRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMax == null) {
-                    this.maxFormula.setBackground(this.unchangedColor);
-                } else {
-                    changes = true;
                     final Formula newMax = maxRoot.generate();
 
                     if (newMax == null) {
                         this.maxFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMax, oldMax)) {
+                        this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMax = maxRoot.generate();
 
-                if (newMax == null) {
-                    this.maxFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMax, oldMax)) {
-                    this.maxFormula.setBackground(this.unchangedColor);
-                } else {
-                    this.maxFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
             }
+            case final VariableRandomReal randReal -> {
 
-        } else if (this.var instanceof final VariableRandomReal randReal) {
+                final NumberOrFormula oldMin = randReal.getMin();
+                final FEFormula minRoot = this.minFormula.getRoot();
 
-            final NumberOrFormula oldMin = randReal.getMin();
-            final FEFormula minRoot = this.minFormula.getRoot();
+                if (minRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMin == null) {
+                        this.minFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMin = minRoot.generate();
 
-            if (minRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMin == null) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                        if (newMin == null) {
+                            this.minFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.minFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    changes = true;
                     final Formula newMin = minRoot.generate();
 
                     if (newMin == null) {
                         this.minFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMin, oldMin)) {
+                        this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMin = minRoot.generate();
 
-                if (newMin == null) {
-                    this.minFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMin, oldMin)) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                final NumberOrFormula oldMax = randReal.getMax();
+                final FEFormula maxRoot = this.maxFormula.getRoot();
+
+                if (maxRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMax == null) {
+                        this.maxFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMax = maxRoot.generate();
+
+                        if (newMax == null) {
+                            this.maxFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.maxFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    this.minFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
-            }
-
-            final NumberOrFormula oldMax = randReal.getMax();
-            final FEFormula maxRoot = this.maxFormula.getRoot();
-
-            if (maxRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMax == null) {
-                    this.maxFormula.setBackground(this.unchangedColor);
-                } else {
-                    changes = true;
                     final Formula newMax = maxRoot.generate();
 
                     if (newMax == null) {
                         this.maxFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMax, oldMax)) {
+                        this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMax = maxRoot.generate();
 
-                if (newMax == null) {
-                    this.maxFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMax, oldMax)) {
-                    this.maxFormula.setBackground(this.unchangedColor);
-                } else {
-                    this.maxFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
             }
+            case final VariableDerived derived -> {
 
-        } else if (this.var instanceof final VariableDerived derived) {
+                final NumberOrFormula oldMin = derived.getMin();
+                final FEFormula minRoot = this.minFormula.getRoot();
 
-            final NumberOrFormula oldMin = derived.getMin();
-            final FEFormula minRoot = this.minFormula.getRoot();
+                if (minRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMin == null) {
+                        this.minFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMin = minRoot.generate();
 
-            if (minRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMin == null) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                        if (newMin == null) {
+                            this.minFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.minFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    changes = true;
                     final Formula newMin = minRoot.generate();
 
                     if (newMin == null) {
                         this.minFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMin, oldMin)) {
+                        this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMin = minRoot.generate();
 
-                if (newMin == null) {
-                    this.minFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMin, oldMin)) {
-                    this.minFormula.setBackground(this.unchangedColor);
+                final NumberOrFormula oldMax = derived.getMax();
+                final FEFormula maxRoot = this.maxFormula.getRoot();
+
+                if (maxRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (oldMax == null) {
+                        this.maxFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMax = maxRoot.generate();
+
+                        if (newMax == null) {
+                            this.maxFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.maxFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    this.minFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
-            }
-
-            final NumberOrFormula oldMax = derived.getMax();
-            final FEFormula maxRoot = this.maxFormula.getRoot();
-
-            if (maxRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (oldMax == null) {
-                    this.maxFormula.setBackground(this.unchangedColor);
-                } else {
-                    changes = true;
                     final Formula newMax = maxRoot.generate();
 
                     if (newMax == null) {
                         this.maxFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMax, oldMax)) {
+                        this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMax = maxRoot.generate();
 
-                if (newMax == null) {
-                    this.maxFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMax, oldMax)) {
-                    this.maxFormula.setBackground(this.unchangedColor);
+                final Formula olFormula = derived.getFormula();
+                final FEFormula formulaRoot = this.derivedFormula.getRoot();
+
+                if (formulaRoot.getTopLevel() == null) {
+                    // Formula entry is blank
+                    if (olFormula == null) {
+                        this.derivedFormula.setBackground(this.unchangedColor);
+                    } else {
+                        changes = true;
+                        final Formula newMax = formulaRoot.generate();
+
+                        if (newMax == null) {
+                            this.derivedFormula.setBackground(this.changedInvalidColor);
+                            valid = false;
+                        } else {
+                            this.derivedFormula.setBackground(this.changedValidColor);
+                        }
+                    }
                 } else {
-                    this.maxFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
-            }
-
-            final Formula olFormula = derived.getFormula();
-            final FEFormula formulaRoot = this.derivedFormula.getRoot();
-
-            if (formulaRoot.getTopLevel() == null) {
-                // Formula entry is blank
-                if (olFormula == null) {
-                    this.derivedFormula.setBackground(this.unchangedColor);
-                } else {
-                    changes = true;
                     final Formula newMax = formulaRoot.generate();
 
                     if (newMax == null) {
                         this.derivedFormula.setBackground(this.changedInvalidColor);
+                        changes = true;
                         valid = false;
+                    } else if (Objects.equals(newMax, olFormula)) {
+                        this.derivedFormula.setBackground(this.unchangedColor);
                     } else {
                         this.derivedFormula.setBackground(this.changedValidColor);
+                        changes = true;
                     }
                 }
-            } else {
-                final Formula newMax = formulaRoot.generate();
-
-                if (newMax == null) {
-                    this.derivedFormula.setBackground(this.changedInvalidColor);
-                    changes = true;
-                    valid = false;
-                } else if (Objects.equals(newMax, olFormula)) {
-                    this.derivedFormula.setBackground(this.unchangedColor);
-                } else {
-                    this.derivedFormula.setBackground(this.changedValidColor);
-                    changes = true;
-                }
+            }
+            default -> {
             }
         }
 

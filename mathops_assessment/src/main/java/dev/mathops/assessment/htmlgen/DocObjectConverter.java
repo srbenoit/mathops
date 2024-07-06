@@ -2438,54 +2438,43 @@ public enum DocObjectConverter {
             htm.add("'>");
         }
 
-        if (child instanceof final DocColumn col) {
-            htm.add(convertDocColumn(col, styles, enabled, id, context));
-        } else if (child instanceof final DocDrawing drawing) {
-            htm.add(convertDocDrawing(drawing, styles, context));
-        } else if (child instanceof final DocFence fence) {
-            htm.add(convertDocFence(column, fence, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocFraction fraction) {
-            htm.add(convertDocFraction(column, fraction, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocGraphXY graph) {
-            htm.add(convertDocGraphXY(graph, styles, context));
-        } else if (child instanceof final DocImage image) {
-            htm.add(convertDocImage(image, styles));
-        } else if (child instanceof final DocParameterReference ref) {
-            htm.add(convertDocParameterRef(column, ref, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocParagraph p) {
-            htm.add(convertDocParagraph(column, p, styles, enabled, id, context));
-        } else if (child instanceof final DocRadical radical) {
-            htm.add(convertDocRadical(column, radical, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocRelativeOffset rel) {
-            htm.add(convertDocRelativeOffset(column, rel, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocTable table) {
-            htm.add(convertDocTable(column, table, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocText text) {
-            htm.add(convertDocText(text, styles, inMath));
-        } else if (child instanceof final DocHSpace hspace) {
-            htm.add(convertDocHSpace(hspace, context));
-        } else if (child instanceof final DocVSpace vspace) {
-            htm.add(convertDocVSpace(vspace, context));
-        } else if (child instanceof final DocWhitespace ws) {
-            htm.add(convertDocWhitespace(ws, styles));
-        } else if (child instanceof final DocInputDoubleField field) {
-            htm.add(convertDocInputDoubleField(field, styles, enabled, context));
-        } else if (child instanceof final DocInputLongField field) {
-            htm.add(convertDocInputLongField(field, styles, enabled, context));
-        } else if (child instanceof final DocInputStringField field) {
-            htm.add(convertDocInputStringField(field, styles, enabled, context));
-        } else if (child instanceof final DocInputRadioButton radio) {
-            htm.add(convertDocInputRadioButton(column, radio, styles, enabled, context));
-        } else if (child instanceof final DocInputCheckbox checkbox) {
-            htm.add(convertDocInputCheckbox(column, checkbox, styles, enabled, context));
-        } else if (child instanceof final DocNonwrappingSpan span) {
-            htm.add(convertDocNonwrappingSpan(column, span, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocSimpleSpan span) {
-            htm.add(convertDocSimpleSpan(column, span, styles, enabled, id, context, inMath));
-        } else if (child instanceof final DocMathSpan span) {
-            htm.add(convertDocMathSpan(column, span, styles, enabled, id, context));
-        } else if (child instanceof final DocSymbolPalette span) {
-            htm.add(convertDocSymbolPalette(span));
+        switch (child) {
+            case final DocColumn col -> htm.add(convertDocColumn(col, styles, enabled, id, context));
+            case final DocDrawing drawing -> htm.add(convertDocDrawing(drawing, styles, context));
+            case final DocFence fence -> htm.add(convertDocFence(column, fence, styles, enabled, id, context, inMath));
+            case final DocFraction fraction ->
+                    htm.add(convertDocFraction(column, fraction, styles, enabled, id, context, inMath));
+            case final DocGraphXY graph -> htm.add(convertDocGraphXY(graph, styles, context));
+            case final DocImage image -> htm.add(convertDocImage(image, styles));
+            case final DocParameterReference ref ->
+                    htm.add(convertDocParameterRef(column, ref, styles, enabled, id, context, inMath));
+            case final DocParagraph p -> htm.add(convertDocParagraph(column, p, styles, enabled, id, context));
+            case final DocRadical radical ->
+                    htm.add(convertDocRadical(column, radical, styles, enabled, id, context, inMath));
+            case final DocRelativeOffset rel ->
+                    htm.add(convertDocRelativeOffset(column, rel, styles, enabled, id, context, inMath));
+            case final DocTable table -> htm.add(convertDocTable(column, table, styles, enabled, id, context, inMath));
+            case final DocText text -> htm.add(convertDocText(text, styles, inMath));
+            case final DocHSpace hspace -> htm.add(convertDocHSpace(hspace, context));
+            case final DocVSpace vspace -> htm.add(convertDocVSpace(vspace, context));
+            case final DocWhitespace ws -> htm.add(convertDocWhitespace(ws, styles));
+            case final DocInputDoubleField field ->
+                    htm.add(convertDocInputDoubleField(field, styles, enabled, context));
+            case final DocInputLongField field -> htm.add(convertDocInputLongField(field, styles, enabled, context));
+            case final DocInputStringField field ->
+                    htm.add(convertDocInputStringField(field, styles, enabled, context));
+            case final DocInputRadioButton radio ->
+                    htm.add(convertDocInputRadioButton(column, radio, styles, enabled, context));
+            case final DocInputCheckbox checkbox ->
+                    htm.add(convertDocInputCheckbox(column, checkbox, styles, enabled, context));
+            case final DocNonwrappingSpan span ->
+                    htm.add(convertDocNonwrappingSpan(column, span, styles, enabled, id, context, inMath));
+            case final DocSimpleSpan span ->
+                    htm.add(convertDocSimpleSpan(column, span, styles, enabled, id, context, inMath));
+            case final DocMathSpan span -> htm.add(convertDocMathSpan(column, span, styles, enabled, id, context));
+            case final DocSymbolPalette span -> htm.add(convertDocSymbolPalette(span));
+            default -> {
+            }
         }
 
         if (updateSize || updateColor) {

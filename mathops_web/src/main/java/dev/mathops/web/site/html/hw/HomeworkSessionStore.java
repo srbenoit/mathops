@@ -266,17 +266,17 @@ public final class HomeworkSessionStore {
         String incorrect = null;
         ExamObj exam = null;
 
-        if ("homework-session".equals(elem.getTagName())) {
+        final String tagName = elem.getTagName();
+
+        if ("homework-session".equals(tagName)) {
             for (final INode node : elem.getChildrenAsList()) {
-                if (node instanceof EmptyElement) {
-                    final IElement child = (IElement) node;
+                if (node instanceof final EmptyElement child) {
                     final String tag = child.getTagName();
                     if ("practice".equals(tag)) {
                         practice = true;
                     }
 
-                } else if (node instanceof NonemptyElement) {
-                    final NonemptyElement child = (NonemptyElement) node;
+                } else if (node instanceof final NonemptyElement child) {
                     final String tag = child.getTagName();
 
                     if (child.getNumChildren() == 1 && child.getChild(0) instanceof CData) {
@@ -308,8 +308,7 @@ public final class HomeworkSessionStore {
                             redirect = XmlEscaper.unescape(content);
                         }
                     } else if ("exam".equals(tag)) {
-                        final String examXml =
-                                xml.substring(child.getStart(), child.getClosingTagSpan().getEnd());
+                        final String examXml = xml.substring(child.getStart(), child.getClosingTagSpan().getEnd());
                         exam = ExamFactory.load(examXml, EParserMode.ALLOW_DEPRECATED);
 
                         // Clean out DummyProblems used to store references in the exam...
@@ -328,28 +327,21 @@ public final class HomeworkSessionStore {
                         final Attribute probAttr = child.getAttribute("prob");
 
                         if (sectAttr == null || probAttr == null) {
-                            throw new IllegalArgumentException(
-                                    "Missing sect/prob attribute on 'problems'");
+                            throw new IllegalArgumentException("Missing sect/prob attribute on 'problems'");
                         }
                         final int sectNum = Integer.parseInt(sectAttr.value);
                         final int probNum = Integer.parseInt(probAttr.value);
 
                         if (sectNum < 0 || sectNum >= exam.getNumSections()) {
-                            throw new IllegalArgumentException(//
-                                    "Invalid section number in problem: "
-                                            + sectAttr.value);
+                            throw new IllegalArgumentException("Invalid section number in problem: " + sectAttr.value);
                         }
                         if (probNum < 0) {
-                            throw new IllegalArgumentException(//
-                                    "Invalid problem number in problem: "
-                                            + probAttr.value);
+                            throw new IllegalArgumentException("Invalid problem number in problem: " + probAttr.value);
                         }
 
                         final ExamSection examSect = exam.getSection(sectNum);
                         if (probNum >= examSect.getNumProblems()) {
-                            throw new IllegalArgumentException(//
-                                    "Invalid problem number in problem: "
-                                            + probAttr.value);
+                            throw new IllegalArgumentException("Invalid problem number in problem: " + probAttr.value);
                         }
 
                         final List<INode> problems = child.getChildrenAsList();
@@ -358,7 +350,7 @@ public final class HomeworkSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes in loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;
@@ -368,8 +360,7 @@ public final class HomeworkSessionStore {
                                 final String problemXml = xml.substring(problemElem.getStart(),
                                         problemElem.getClosingTagSpan().getEnd());
                                 try {
-                                    final XmlContent content =
-                                            new XmlContent(problemXml, false, false);
+                                    final XmlContent content = new XmlContent(problemXml, false, false);
                                     final AbstractProblemTemplate possible =
                                             ProblemTemplateFactory.load(content, EParserMode.ALLOW_DEPRECATED);
 
@@ -409,7 +400,7 @@ public final class HomeworkSessionStore {
                         if (examProb != null) {
                             NonemptyElement problemElem = null;
                             while (!problems.isEmpty()) { // Problems list changes within loop
-                                final INode problemNode = problems.remove(0);
+                                final INode problemNode = problems.removeFirst();
                                 if (problemNode instanceof NonemptyElement) {
                                     problemElem = (NonemptyElement) problemNode;
                                     break;
@@ -434,7 +425,7 @@ public final class HomeworkSessionStore {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Expected 'homework-session', found '" + elem.getTagName() + "'");
+            throw new IllegalArgumentException("Expected 'homework-session', found '" + tagName + "'");
         }
 
         if (host == null) {

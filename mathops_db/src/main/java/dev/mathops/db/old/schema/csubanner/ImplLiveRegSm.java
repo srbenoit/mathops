@@ -13,7 +13,7 @@ import java.util.List;
 public final class ImplLiveRegSm extends AbstractImplLiveReg implements ILiveRegSm {
 
     /** A single instance. */
-    public static ImplLiveRegSm INSTANCE = new ImplLiveRegSm();
+    public static final ImplLiveRegSm INSTANCE = new ImplLiveRegSm();
 
     /** The name of the primary table. */
     private static final String TABLE_NAME = "CSUS_MATH_REGISTRATION_SMR";

@@ -24,7 +24,7 @@ public final class DataExamStatus {
     int numStandardsAvailable = 0;
 
     /** The reason the exam is not available, or a status message to display on an available exam. */
-    public String note = null;
+    public String note;
 
     /** A list of notes about eligibility tests that were overridden. */
     public final List<String> eligibilityOverrides;

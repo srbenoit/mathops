@@ -90,5 +90,5 @@ public enum EFunctionName {
     RAD_DEN,
 
     /** Approximately equal (3-argument). */
-    APPROX_EQUAL;
+    APPROX_EQUAL
 }

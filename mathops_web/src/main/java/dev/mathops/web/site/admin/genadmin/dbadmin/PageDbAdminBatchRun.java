@@ -73,20 +73,17 @@ public enum PageDbAdminBatchRun {
 
         boolean valid = true;
 
-        if ("import_ods_applicants".equals(id)) {
-            htm.sH(2).add("Import ODS Applicants").eH(2);
-        } else if ("import_ods_transfer".equals(id)) {
-            htm.sH(2).add("Import ODS Transfer Credit").eH(2);
-        } else if ("import_ods_past".equals(id)) {
-            htm.sH(2).add("Import ODS Past Courses").eH(2);
-        } else if ("import_banner_registrations".equals(id)) {
-            htm.sH(2).add("Import Banner Registrations").eH(2);
-        } else if ("import_ods_new_students".equals(id)) {
-            htm.sH(2).add("Import ODS New Students").eH(2);
-        } else {
-            htm.sH(2).add("Batch Jobs").eH(2);
-            htm.sP().add("Unrecognized batch ID: ", id).eP();
-            valid = false;
+        switch (id) {
+            case "import_ods_applicants" -> htm.sH(2).add("Import ODS Applicants").eH(2);
+            case "import_ods_transfer" -> htm.sH(2).add("Import ODS Transfer Credit").eH(2);
+            case "import_ods_past" -> htm.sH(2).add("Import ODS Past Courses").eH(2);
+            case "import_banner_registrations" -> htm.sH(2).add("Import Banner Registrations").eH(2);
+            case "import_ods_new_students" -> htm.sH(2).add("Import ODS New Students").eH(2);
+            case null, default -> {
+                htm.sH(2).add("Batch Jobs").eH(2);
+                htm.sP().add("Unrecognized batch ID: ", id).eP();
+                valid = false;
+            }
         }
 
         if (valid) {
@@ -126,24 +123,31 @@ public enum PageDbAdminBatchRun {
             PageDbAdmin.emitNavMenu(htm, EAdmSubtopic.DB_BATCH);
             htm.div("vgap0").hr().div("vgap0");
 
-            if ("import_ods_applicants".equals(id)) {
-                htm.sH(2).add("Import ODS Applicants").eH(2);
-                htm.add(new ImportOdsApplicants().execute());
-            } else if ("import_ods_transfer".equals(id)) {
-                htm.sH(2).add("Import ODS Transfer Credit").eH(2);
-                htm.add(new ImportOdsTransferCredit().execute());
-            } else if ("import_ods_past".equals(id)) {
-                htm.sH(2).add("Import ODS past Courses").eH(2);
-                htm.add(new ImportOdsPastCourses().execute());
-            } else if ("import_banner_registrations".equals(id)) {
-                htm.sH(2).add("Import Banner Registrations").eH(2);
-                htm.add(new ImportBannerStudentRegistrations().execute());
-            } else if ("import_ods_new_students".equals(id)) {
-                htm.sH(2).add("Import ODS New Students").eH(2);
-                htm.add(new ImportOdsNewStus().execute());
-            } else {
-                htm.sH(2).add("Batch Jobs").eH(2);
-                htm.sP().add("Unrecognized batch ID: ", id).eP();
+            switch (id) {
+                case "import_ods_applicants" -> {
+                    htm.sH(2).add("Import ODS Applicants").eH(2);
+                    htm.add(new ImportOdsApplicants().execute());
+                }
+                case "import_ods_transfer" -> {
+                    htm.sH(2).add("Import ODS Transfer Credit").eH(2);
+                    htm.add(new ImportOdsTransferCredit().execute());
+                }
+                case "import_ods_past" -> {
+                    htm.sH(2).add("Import ODS past Courses").eH(2);
+                    htm.add(new ImportOdsPastCourses().execute());
+                }
+                case "import_banner_registrations" -> {
+                    htm.sH(2).add("Import Banner Registrations").eH(2);
+                    htm.add(new ImportBannerStudentRegistrations().execute());
+                }
+                case "import_ods_new_students" -> {
+                    htm.sH(2).add("Import ODS New Students").eH(2);
+                    htm.add(new ImportOdsNewStus().execute());
+                }
+                case null, default -> {
+                    htm.sH(2).add("Batch Jobs").eH(2);
+                    htm.sP().add("Unrecognized batch ID: ", id).eP();
+                }
             }
 
             Page.endOrdinaryPage(cache, site, htm, true);

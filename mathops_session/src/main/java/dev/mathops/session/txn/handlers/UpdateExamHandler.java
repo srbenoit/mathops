@@ -81,7 +81,6 @@ import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ISessionManager;
@@ -173,7 +172,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         final UpdateExamReply reply = new UpdateExamReply();
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (!loadStudentInfo(cache, request.studentId, reply)) {
             return reply.toXml();
@@ -301,18 +300,17 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      * @param presented the exam that the student is working on
      * @param req       the exam update request
      * @param rep       the exam update reply
-     * @return true if finalization succeeded; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean finalizeExam(final Cache cache, final ExamObj presented, final UpdateExamRequest req,
-                                 final UpdateExamReply rep) throws SQLException {
+    private void finalizeExam(final Cache cache, final ExamObj presented, final UpdateExamRequest req,
+                              final UpdateExamReply rep) throws SQLException {
 
         final String courseId = presented.course;
 
         final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, courseId);
         if (isTut == null) {
             Log.warning("No data for course '", presented.course);
-            return false;
+            return;
         }
 
         // Store the presentation and completion times in the exam object
@@ -363,7 +361,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 if (test.serialNbr != null && test.serialNbr.equals(ser) && st != null && st.equals(start)) {
                     Log.warning("Submitted placement exam for student ", student.stuId, ", exam ",
                             presented.examVersion, ": serial=", test.serialNbr, " submitted a second time - ignoring");
-                    return false;
+                    return;
                 }
             }
         } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(presented.examVersion)
@@ -389,7 +387,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                         && testStart.equals(start)) {
                     Log.warning("Submitted challenge exam for student ", student.stuId, ", exam ",
                             presented.examVersion, ": serial=", test.serialNbr, " submitted a second time - ignoring");
-                    return false;
+                    return;
                 }
             }
         } else if ("synthetic".equals(presented.ref)) {
@@ -398,10 +396,10 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                     student.stuId);
 
             for (final MasteryAttemptRec test : existing) {
-                if (test.serialNbr != null && test.serialNbr.equals(ser)) {
+                if (test.serialNbr != null && test.serialNbr.longValue() == ser.longValue()) {
                     Log.warning("Submitted mastery exam for student ", student.stuId, ", exam ", presented.examVersion,
                             ": serial=", test.serialNbr, " submitted a second time - ignoring");
-                    return false;
+                    return;
                 }
             }
         } else {
@@ -413,7 +411,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
                     Log.warning("Submitted exam for student ", student.stuId, ", exam ", presented.examVersion,
                             ": serial=", test.serialNbr, " submitted a second time - ignoring");
-                    return false;
+                    return;
                 }
             }
         }
@@ -438,19 +436,16 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         RawPendingExamLogic.delete(cache, presented.serialNumber, student.stuId);
 
-        boolean ok = false;
-
         if ("synthetic".equals(presented.ref)) {
-            ok = processStandardMasteryExam(cache, presented, student, isTut, req, rep);
+            processStandardMasteryExam(cache, presented, student, isTut, req, rep);
         } else {
-            ok = processOldExam(cache, presented, student, isTut, req, rep);
+            processOldExam(cache, presented, student, isTut, req, rep);
         }
 
         if (getClient() != null) {
             RawClientPcLogic.updateCurrentStatus(cache, getClient().computerId, RawClientPc.STATUS_EXAM_RESULTS);
         }
 
-        return ok;
     }
     /**
      * Processes finalization of an "OLD" exam.
@@ -636,7 +631,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         // Get the student's SAT and ACT scores from the database, and store in parameters for use
         // in scoring formulae.
-        boolean ok = loadSatActSurvey(cache, params);
+        loadSatActSurvey(cache, params);
 
         final RawExam exam = RawExamLogic.query(cache, presented.examVersion);
         if (exam == null) {
@@ -654,44 +649,107 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         StudentExamRec stexam = null;
 
-        if (ok) {
-            // Begin preparing the database object to store exam results
-            stexam = new StudentExamRec();
-            stexam.studentId = student.stuId;
-            stexam.examType = exType;
-            stexam.course = presented.course;
-            try {
-                stexam.unit = Integer.valueOf(presented.courseUnit);
-            } catch (final NumberFormatException ex) {
-                Log.warning("Failed to parse unit", ex);
-            }
-            stexam.examId = presented.examVersion;
-            stexam.proctored = presented.proctored || req.proctored;
-            stexam.start = TemporalUtils.toLocalDateTime(presented.realizationTime);
-            stexam.finish = TemporalUtils.toLocalDateTime(presented.completionTime);
-            if (req.isRecovered()) {
-                stexam.recovered = LocalDateTime.now();
-            }
-            stexam.serialNumber = presented.serialNumber;
+        // Begin preparing the database object to store exam results
+        stexam = new StudentExamRec();
+        stexam.studentId = student.stuId;
+        stexam.examType = exType;
+        stexam.course = presented.course;
+        try {
+            stexam.unit = Integer.valueOf(presented.courseUnit);
+        } catch (final NumberFormatException ex) {
+            Log.warning("Failed to parse unit", ex);
+        }
+        stexam.examId = presented.examVersion;
+        stexam.proctored = presented.proctored || req.proctored;
+        stexam.start = TemporalUtils.toLocalDateTime(presented.realizationTime);
+        stexam.finish = TemporalUtils.toLocalDateTime(presented.completionTime);
+        if (req.isRecovered()) {
+            stexam.recovered = LocalDateTime.now();
+        }
+        stexam.serialNumber = presented.serialNumber;
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
-            if ("CH".equals(exType)) {
-                // No action
-            } else if (!"Q".equals(exType)) {
-                RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, stexam.studentId, stexam.course);
+        boolean ok = true;
 
-                if (stcourse == null) {
-                    if (isTut.booleanValue()) {
+        if ("CH".equals(exType)) {
+            // No action
+        } else if (!"Q".equals(exType)) {
+            RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, stexam.studentId, stexam.course);
+
+            if (stcourse == null) {
+                if (isTut.booleanValue()) {
+                    // Create a fake STCOURSE record
+                    stcourse = new RawStcourse(active.term, // term
+                            stexam.studentId, // stuId
+                            stexam.course, // course
+                            "1", // sect
+                            null, // paceOrder
+                            "Y", // openStatus
+                            null, // gradingOption,
+                            "Y", // completed
+                            null, // score
+                            null, // courseGrade
+                            "Y", // prereqSatis
+                            "N", // initClassRoll
+                            "N", // stuProvided
+                            "N", // finalClassRoll
+                            null, // examPlaced
+                            null, // zeroUnit
+                            null, // timeoutFactor
+                            null, // forfeitI
+                            "N", // iInProgress
+                            null, // iCounted
+                            "N", // ctrlTest
+                            null, // deferredFDt
+                            Integer.valueOf(0), // bypassTimeout
+                            null, // instruction type
+                            null, // registration status
+                            null, // lastClassRollDt
+                            null, // iTermKey
+                            null); // iDeadlineDt
+
+                    stcourse.synthetic = true;
+                } else {
+                    boolean isSpecial = false;
+
+                    // 'TUTOR', 'ADMIN' special student types automatically in section
+                    // "001" for 117, 118, 124, 125, 126.
+                    if (RawRecordConstants.M117.equals(stexam.course)
+                            || RawRecordConstants.M118.equals(stexam.course)
+                            || RawRecordConstants.M124.equals(stexam.course)
+                            || RawRecordConstants.M125.equals(stexam.course)
+                            || RawRecordConstants.M126.equals(stexam.course)
+                            || RawRecordConstants.MATH117.equals(stexam.course)
+                            || RawRecordConstants.MATH118.equals(stexam.course)
+                            || RawRecordConstants.MATH124.equals(stexam.course)
+                            || RawRecordConstants.MATH125.equals(stexam.course)
+                            || RawRecordConstants.MATH126.equals(stexam.course)) {
+
+                        final List<RawSpecialStus> specials = RawSpecialStusLogic
+                                .queryActiveByStudent(cache, student.stuId, now.toLocalDate());
+
+                        for (final RawSpecialStus special : specials) {
+                            final String type = special.stuType;
+
+                            if ("TUTOR".equals(type) || "M384".equals(type) || "ADMIN".equals(type)) {
+                                isSpecial = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isSpecial) {
+
                         // Create a fake STCOURSE record
                         stcourse = new RawStcourse(active.term, // term
                                 stexam.studentId, // stuId
                                 stexam.course, // course
-                                "1", // sect
+                                "001", // sect
                                 null, // paceOrder
                                 "Y", // openStatus
                                 null, // gradingOption,
-                                "Y", // completed
+                                "N", // completed
                                 null, // score
                                 null, // courseGrade
                                 "Y", // prereqSatis
@@ -700,130 +758,63 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                                 "N", // finalClassRoll
                                 null, // examPlaced
                                 null, // zeroUnit
-                                null, // timeoutFactor
+                                null, // timeputFactor
                                 null, // forfeitI
                                 "N", // iInProgress
                                 null, // iCounted
                                 "N", // ctrlTest
                                 null, // deferredFDt
                                 Integer.valueOf(0), // bypassTimeout
-                                null, // instruction type
-                                null, // registration status
+                                null, // instrnType
+                                null, // registrationStatus
                                 null, // lastClassRollDt
                                 null, // iTermKey
                                 null); // iDeadlineDt
 
                         stcourse.synthetic = true;
                     } else {
-                        boolean isSpecial = false;
-
-                        // 'TUTOR', 'ADMIN' special student types automatically in section
-                        // "001" for 117, 118, 124, 125, 126.
-                        if (RawRecordConstants.M117.equals(stexam.course)
-                                || RawRecordConstants.M118.equals(stexam.course)
-                                || RawRecordConstants.M124.equals(stexam.course)
-                                || RawRecordConstants.M125.equals(stexam.course)
-                                || RawRecordConstants.M126.equals(stexam.course)
-                                || RawRecordConstants.MATH117.equals(stexam.course)
-                                || RawRecordConstants.MATH118.equals(stexam.course)
-                                || RawRecordConstants.MATH124.equals(stexam.course)
-                                || RawRecordConstants.MATH125.equals(stexam.course)
-                                || RawRecordConstants.MATH126.equals(stexam.course)) {
-
-                            final List<RawSpecialStus> specials = RawSpecialStusLogic
-                                    .queryActiveByStudent(cache, student.stuId, now.toLocalDate());
-
-                            for (final RawSpecialStus special : specials) {
-                                final String type = special.stuType;
-
-                                if ("TUTOR".equals(type) || "M384".equals(type) || "ADMIN".equals(type)) {
-                                    isSpecial = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (isSpecial) {
-
-                            // Create a fake STCOURSE record
-                            stcourse = new RawStcourse(active.term, // term
-                                    stexam.studentId, // stuId
-                                    stexam.course, // course
-                                    "001", // sect
-                                    null, // paceOrder
-                                    "Y", // openStatus
-                                    null, // gradingOption,
-                                    "N", // completed
-                                    null, // score
-                                    null, // courseGrade
-                                    "Y", // prereqSatis
-                                    "N", // initClassRoll
-                                    "N", // stuProvided
-                                    "N", // finalClassRoll
-                                    null, // examPlaced
-                                    null, // zeroUnit
-                                    null, // timeputFactor
-                                    null, // forfeitI
-                                    "N", // iInProgress
-                                    null, // iCounted
-                                    "N", // ctrlTest
-                                    null, // deferredFDt
-                                    Integer.valueOf(0), // bypassTimeout
-                                    null, // instrnType
-                                    null, // registrationStatus
-                                    null, // lastClassRollDt
-                                    null, // iTermKey
-                                    null); // iDeadlineDt
-
-                            stcourse.synthetic = true;
-                        } else {
-                            Log.severe("Unable to look up STCOURSE record.\n", req.toString());
-                            ok = false;
-                        }
-                    }
-                }
-
-                if (ok) {
-                    final RawCusection cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                            stexam.unit, active.term);
-
-                    if (cusect == null) {
+                        Log.severe("Unable to look up STCOURSE record.\n", req.toString());
                         ok = false;
-                    } else if ("R".equals(exType)) {
-                        stexam.masteryScore = cusect.reMasteryScore;
-                    } else if ("U".equals(exType) || "F".equals(exType)) {
-                        stexam.masteryScore = cusect.ueMasteryScore;
                     }
-
-                    // FIXME: Double the mastery score for longer skills review exams
-                    if (stexam.masteryScore != null && ("17ELM".equals(exam.version) || "7TELM".equals(exam.version))) {
-
-                        // Double scores for the extended exams
-                        stexam.masteryScore = Integer.valueOf(stexam.masteryScore.intValue() << 1);
-                    }
-
                 }
-            } else if (RawRecordConstants.M100U.equals(stexam.course)) {
-                // FIXME: Hardcode
-                final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
-                        active.term);
-                if (result == null) {
+            }
+
+            if (ok) {
+                final RawCusection cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
+                        stexam.unit, active.term);
+
+                if (cusect == null) {
                     ok = false;
-                } else {
-                    stexam.masteryScore = result.ueMasteryScore;
+                } else if ("R".equals(exType)) {
+                    stexam.masteryScore = cusect.reMasteryScore;
+                } else if ("U".equals(exType) || "F".equals(exType)) {
+                    stexam.masteryScore = cusect.ueMasteryScore;
                 }
+
+                // FIXME: Double the mastery score for longer skills review exams
+                if (stexam.masteryScore != null && ("17ELM".equals(exam.version) || "7TELM".equals(exam.version))) {
+
+                    // Double scores for the extended exams
+                    stexam.masteryScore = Integer.valueOf(stexam.masteryScore.intValue() << 1);
+                }
+
+            }
+        } else if (RawRecordConstants.M100U.equals(stexam.course)) {
+            // FIXME: Hardcode
+            final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
+                    active.term);
+            if (result == null) {
+                ok = false;
+            } else {
+                stexam.masteryScore = result.ueMasteryScore;
             }
         }
 
         // TODO: Record any resources lent to student (store with exam)
 
-        // Generate the list of survey answers, store in exam record
+        // Generate the list of survey answers, problem answers, store in exam record
         if (ok) {
-            ok = buildSurveyAnswerList(presented, req.getAnswers(), stexam);
-        }
-
-        // Generate the list of problem answers, store in exam record
-        if (ok) {
+            buildSurveyAnswerList(presented, req.getAnswers(), stexam);
             ok = buildAnswerList(presented, req.getAnswers(), stexam);
         }
 
@@ -862,11 +853,9 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      *
      * @param cache  the data cache
      * @param params the parameter set to which to add the parameters
-     * @return true if successful; false on a database error
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean loadSatActSurvey(final Cache cache, final EvalContext params)
-            throws SQLException {
+    private void loadSatActSurvey(final Cache cache, final EvalContext params) throws SQLException {
 
         final int act = getStudent().actScore == null ? 0 : getStudent().actScore.intValue();
 
@@ -880,7 +869,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         param2.setValue(Long.valueOf((long) sat));
         params.addVariable(param2);
 
-        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, //
+        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache,
                 getStudent().stuId, "POOOO");
 
         int prep = 0;
@@ -948,8 +937,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         final VariableInteger param7 = new VariableInteger("typical-math-grade");
         param7.setValue(Long.valueOf((long) typical));
         params.addVariable(param7);
-
-        return true;
     }
 
     /**
@@ -959,10 +946,9 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      * @param presented the exam the student is submitting
      * @param answers   the list of the student's answers
      * @param stexam    the exam record that will be inserted into the database
-     * @return true if succeeded; false otherwise
      */
-    private static boolean buildSurveyAnswerList(final ExamObj presented, final Object[][] answers,
-                                                 final StudentExamRec stexam) {
+    private static void buildSurveyAnswerList(final ExamObj presented, final Object[][] answers,
+                                              final StudentExamRec stexam) {
 
         final Iterator<ExamSection> sections = presented.sections();
 
@@ -1005,8 +991,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 }
             }
         }
-
-        return true;
     }
 
     /**
@@ -1482,10 +1466,9 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      *
      * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
-     * @return true if object inserted, false if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean insertSurveyAnswers(final Cache cache, final StudentExamRec stexam) throws SQLException {
+    private static void insertSurveyAnswers(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
         final boolean ok = false;
 
@@ -1535,7 +1518,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
         }
 
-        return ok;
     }
 
     /**
@@ -1618,7 +1600,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             stexam.finish = now.toLocalDateTime();
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         boolean placed = false;
         final String result;
@@ -1733,11 +1715,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         // Indicate all earned credit.
-        final Iterator<String> iter2 = stexam.earnedCredit.iterator();
-
-        while (iter2.hasNext()) {
-            final String placeIn = iter2.next();
-
+        for (final String placeIn : stexam.earnedCredit) {
             String source = null;
             if (stexam.proctored) {
                 if (getMachineId() == null) {
@@ -1756,11 +1734,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         // Record all ignored credit results
-        final Iterator<String> iter3 = stexam.deniedCredit.keySet().iterator();
-
-        while (iter3.hasNext()) {
-            final String placeIn = iter3.next();
-
+        for (String placeIn : stexam.deniedCredit.keySet()) {
             String source = null;
             if (stexam.proctored) {
                 if (getMachineId() == null) {
@@ -1949,7 +1923,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             howVal = "P";
         }
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final Integer startTime;
         final Integer finishTime;
@@ -2082,7 +2056,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
     private static boolean insertUsersExam(final Cache cache, final StudentExamRec stexam,
                                            final boolean passed) throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
 
         final RawStudent stu = RawStudentLogic.query(cache, stexam.studentId, false);
         if (stu == null) {

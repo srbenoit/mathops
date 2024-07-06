@@ -29,7 +29,6 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
@@ -975,7 +974,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             Log.info(" Score = " + score + ", min move-on = " + actualMinMoveOn + ", correct = " + correct +
-                    ", min mastery = ", +actualMinMastery + ", mastered = " + sect.mastered);
+                    ", min mastery = " + actualMinMastery + ", mastered = " + sect.mastered);
         }
 
         return correct;
@@ -1032,7 +1031,7 @@ public final class HomeworkSession extends HtmlSessionBase {
         // that to fetch the course/unit/section data for the student. This gives us the
         // minimum move-on and mastery scores.
 
-        final TermRec activeTerm = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
         if (activeTerm == null) {
             return "Unable to lookup active term to submit homework.";
         }

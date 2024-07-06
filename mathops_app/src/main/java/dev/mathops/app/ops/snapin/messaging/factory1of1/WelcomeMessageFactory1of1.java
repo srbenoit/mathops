@@ -120,7 +120,7 @@ enum WelcomeMessageFactory1of1 {
                                                   final MessagingCourseStatus status) {
 
         final RawStudent stu = context.student;
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
@@ -504,7 +504,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam - excellent!  Your next ",
                 "step is to take the ", MsgUtils.courseName(firstReg), " Skills Review exam.  If you pass that ",
@@ -541,7 +541,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam - excellent!  Your next ",
                 "step is to take the ", MsgUtils.courseName(firstReg), " Skills Review exam.  If you pass that ",
@@ -583,7 +583,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam - excellent!  Your next ",
                 "step is to get past the ", MsgUtils.courseName(firstReg), " Skills Review exam.  In addition ",
@@ -618,7 +618,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam - excellent!  Your next ",
                 "step is to get past the ", MsgUtils.courseName(firstReg), " Skills Review exam.  In addition ",
@@ -659,7 +659,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam (excellent!), but the ",
                 MsgUtils.courseName(firstReg), " Skills Review exam is causing some trouble.  In addition ",
@@ -694,7 +694,7 @@ enum WelcomeMessageFactory1of1 {
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
 
-        final String firstReg = context.sortedRegs.get(0).course;
+        final String firstReg = context.sortedRegs.getFirst().course;
 
         body.add(" It looks like you've already passed the User's Exam (excellent!), but the ",
                 MsgUtils.courseName(firstReg), " Skills Review exam is causing some trouble.  In addition ",
@@ -731,7 +731,7 @@ enum WelcomeMessageFactory1of1 {
                                                 final MessagingCourseStatus status) {
 
         final RawStudent stu = context.student;
-        final RawStcourse firstReg = context.sortedRegs.get(0);
+        final RawStcourse firstReg = context.sortedRegs.getFirst();
 
         final HtmlBuilder body = new HtmlBuilder(1000);
         emitOpening(stu, context, body);
@@ -826,7 +826,7 @@ enum WelcomeMessageFactory1of1 {
         }
         body.addln();
 
-        final RawStcourse firstReg = context.sortedRegs.get(0);
+        final RawStcourse firstReg = context.sortedRegs.getFirst();
         body.addln("Welcome to the Precalculus Program!  My name is Anita Pattison - one of the ",
                 "co-directors for the program.  I'll try to help you get settled in, and then I'll be ",
                 "keeping track of your progress, and checking in from time to time to see how you're ",

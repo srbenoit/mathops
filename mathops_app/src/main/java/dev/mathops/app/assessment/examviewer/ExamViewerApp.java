@@ -337,27 +337,26 @@ final class ExamViewerApp extends ClientBase implements ExamContainerInt {
         if (this.examSession != null) {
             final String cmd = e.getActionCommand();
 
-            if ("Grade".equals(cmd)) {
-                this.state = FINISHED;
-            } else if ("Larger".equals(cmd)) {
-                this.examPanel.larger();
-            } else if ("Smaller".equals(cmd)) {
-                this.examPanel.smaller();
-            } else {
-                final ExamObj exam = this.examSession.getExam();
+            switch (cmd) {
+                case "Grade" -> this.state = FINISHED;
+                case "Larger" -> this.examPanel.larger();
+                case "Smaller" -> this.examPanel.smaller();
+                case null, default -> {
+                    final ExamObj exam = this.examSession.getExam();
 
-                if ("color-white".equals(cmd)) {
-                    exam.setBackgroundColor("white", ColorNames.getColor("white"));
-                    this.examPanel.updateColor();
-                } else if ("color-gold".equals(cmd)) {
-                    exam.setBackgroundColor("gold", ColorNames.getColor("gold"));
-                    this.examPanel.updateColor();
-                } else if ("color-purple".equals(cmd)) {
-                    exam.setBackgroundColor("MediumPurple", ColorNames.getColor("MediumPurple"));
-                    this.examPanel.updateColor();
-                } else if ("color-blue".equals(cmd)) {
-                    exam.setBackgroundColor("MediumTurquoise", ColorNames.getColor("MediumTurquoise"));
-                    this.examPanel.updateColor();
+                    if ("color-white".equals(cmd)) {
+                        exam.setBackgroundColor("white", ColorNames.getColor("white"));
+                        this.examPanel.updateColor();
+                    } else if ("color-gold".equals(cmd)) {
+                        exam.setBackgroundColor("gold", ColorNames.getColor("gold"));
+                        this.examPanel.updateColor();
+                    } else if ("color-purple".equals(cmd)) {
+                        exam.setBackgroundColor("MediumPurple", ColorNames.getColor("MediumPurple"));
+                        this.examPanel.updateColor();
+                    } else if ("color-blue".equals(cmd)) {
+                        exam.setBackgroundColor("MediumTurquoise", ColorNames.getColor("MediumTurquoise"));
+                        this.examPanel.updateColor();
+                    }
                 }
             }
         }

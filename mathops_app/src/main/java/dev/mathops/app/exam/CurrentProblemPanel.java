@@ -493,41 +493,49 @@ public final class CurrentProblemPanel extends JPanel implements ComponentListen
             sizeForProblemPanel.width -= insets.left + insets.right + 3;
             sizeForProblemPanel.height -= insets.top + insets.bottom + 3;
 
-            // Set layout management based on problem type (be sure to test for subclasses before
-            // superclasses)
+            // Set layout management based on problem type (be sure to test for subclasses before superclasses)
 
-            if (this.problem instanceof final ProblemMultipleSelectionTemplate multsel) {
-                this.panel = new ProblemMultipleSelectionPanel(multsel, this.calc,
-                        this.isShowAnswers, this.isShowSolutions);
-                ((AbstractProblemPanelBase) this.panel)
-                        .setRelativeSize(this.owningPanel.getSizeAdjustment());
-            } else if (this.problem instanceof final ProblemMultipleChoiceTemplate multchoice) {
-                this.panel = new ProblemMultipleChoicePanel(multchoice, this.calc,
-                        this.isShowAnswers, this.isShowSolutions);
-                ((AbstractProblemPanelBase) this.panel)
-                        .setRelativeSize(this.owningPanel.getSizeAdjustment());
-            } else if (this.problem instanceof final ProblemNumericTemplate numeric) {
-                this.panel = new ProblemNumericPanel(numeric, this.calc, this.isShowAnswers,
-                        this.isShowSolutions);
-                ((AbstractProblemPanelBase) this.panel)
-                        .setRelativeSize(this.owningPanel.getSizeAdjustment());
-            } else if (this.problem instanceof final ProblemEmbeddedInputTemplate embedded) {
-                this.panel = new ProblemEmbeddedInputPanel(embedded, this.calc, this.isShowAnswers,
-                        this.isShowSolutions, this.isAlwaysEnabled);
-                ((AbstractProblemPanelBase) this.panel)
-                        .setRelativeSize(this.owningPanel.getSizeAdjustment());
-            } else if (this.problem instanceof final ProblemAutoCorrectTemplate autoCorrect) {
-                this.panel = new ProblemAutoCorrectPanel(autoCorrect, this.calc, this.isShowAnswers,
-                        this.isShowSolutions);
-                ((AbstractProblemPanelBase) this.panel)
-                        .setRelativeSize(this.owningPanel.getSizeAdjustment());
-            } else {
-                this.panel = new JPanel();
-                this.panel.setLayout(new BorderLayout());
+            final int sizeAdjustment1 = this.owningPanel.getSizeAdjustment();
 
-                final JTextArea area = new JTextArea();
-                area.append("Unable to construct problem.");
-                this.panel.add(area, BorderLayout.CENTER);
+            switch (this.problem) {
+                case final ProblemMultipleSelectionTemplate multsel -> {
+                    this.panel = new ProblemMultipleSelectionPanel(multsel, this.calc,
+                            this.isShowAnswers, this.isShowSolutions);
+                    ((AbstractProblemPanelBase) this.panel)
+                            .setRelativeSize(sizeAdjustment1);
+                }
+                case final ProblemMultipleChoiceTemplate multchoice -> {
+                    this.panel = new ProblemMultipleChoicePanel(multchoice, this.calc,
+                            this.isShowAnswers, this.isShowSolutions);
+                    ((AbstractProblemPanelBase) this.panel)
+                            .setRelativeSize(sizeAdjustment1);
+                }
+                case final ProblemNumericTemplate numeric -> {
+                    this.panel = new ProblemNumericPanel(numeric, this.calc, this.isShowAnswers,
+                            this.isShowSolutions);
+                    ((AbstractProblemPanelBase) this.panel)
+                            .setRelativeSize(sizeAdjustment1);
+                }
+                case final ProblemEmbeddedInputTemplate embedded -> {
+                    this.panel = new ProblemEmbeddedInputPanel(embedded, this.calc, this.isShowAnswers,
+                            this.isShowSolutions, this.isAlwaysEnabled);
+                    ((AbstractProblemPanelBase) this.panel)
+                            .setRelativeSize(sizeAdjustment1);
+                }
+                case final ProblemAutoCorrectTemplate autoCorrect -> {
+                    this.panel = new ProblemAutoCorrectPanel(autoCorrect, this.calc, this.isShowAnswers,
+                            this.isShowSolutions);
+                    ((AbstractProblemPanelBase) this.panel)
+                            .setRelativeSize(sizeAdjustment1);
+                }
+                case null, default -> {
+                    this.panel = new JPanel();
+                    this.panel.setLayout(new BorderLayout());
+
+                    final JTextArea area = new JTextArea();
+                    area.append("Unable to construct problem.");
+                    this.panel.add(area, BorderLayout.CENTER);
+                }
             }
 
             this.panel.setBackground(Objects.requireNonNullElseGet(this.session.getExam().backgroundColor,

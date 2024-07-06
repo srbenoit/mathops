@@ -144,41 +144,30 @@ public final class LtiSite extends CourseSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("gainaccess.html".equals(subpath)) {
-            PageIndex.processAccessCode(cache, this, req, resp);
-        } else if ("beginproctor.html".equals(subpath)) {
-            PageOnlineProctor.processBeginProctor(req, resp);
-        } else if ("beginproctorchallenge.html".equals(subpath)) {
-            PageOnlineProctorChallenge.processBeginProctor(cache, req, resp);
-        } else if ("home.html".equals(subpath)) {
-            PageHome.showPage(cache, this, req, resp);
-        } else if ("challenge.html".equals(subpath)) {
-            PageChallenge.showPage(cache, this, req, resp);
-        } else if ("update_unit_exam.html".equals(subpath)) {
-            PageHome.updateUnitExam(cache, req, resp);
-        } else if ("update_challenge_exam.html".equals(subpath)) {
-            PageChallenge.updateChallengeExam(cache, req, resp);
+        switch (subpath) {
+            case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
+            case "beginproctor.html" -> PageOnlineProctor.processBeginProctor(req, resp);
+            case "beginproctorchallenge.html" -> PageOnlineProctorChallenge.processBeginProctor(cache, req, resp);
+            case "home.html" -> PageHome.showPage(cache, this, req, resp);
+            case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
+            case "update_unit_exam.html" -> PageHome.updateUnitExam(cache, req, resp);
+            case "update_challenge_exam.html" -> PageChallenge.updateChallengeExam(cache, req, resp);
+            case "course_content.html" -> PageCourseContent.doGet(req, resp);
+            case "course_config.html" -> PageCourseConfig.doPost(req, resp);
+            case "course_admin.html" -> PageCourseAdmin.doPost(req, resp);
+            case null, default -> {
 
-        } else if ("course_content.html".equals(subpath)) {
-            PageCourseContent.doGet(req, resp);
+                Log.info("POST request to unrecognized URL: ", subpath);
 
-        } else if ("course_config.html".equals(subpath)) {
-            PageCourseConfig.doPost(req, resp);
+                final Enumeration<String> e1 = req.getParameterNames();
+                while (e1.hasMoreElements()) {
+                    final String name = e1.nextElement();
+                    Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                }
 
-        } else if ("course_admin.html".equals(subpath)) {
-            PageCourseAdmin.doPost(req, resp);
-        } else {
-
-            Log.info("POST request to unrecognized URL: ", subpath);
-
-            final Enumeration<String> e1 = req.getParameterNames();
-            while (e1.hasMoreElements()) {
-                final String name = e1.nextElement();
-                Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
-
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -318,20 +307,14 @@ public final class LtiSite extends CourseSite {
         } else {
             // For the tutorial courses, we don't want to force duplication of the video files in a
             // new directory, so map those course numbers to the corresponding non-tutorial courses
-            final String actualCourse;
-            if (RawRecordConstants.M1170.equals(course)) {
-                actualCourse = RawRecordConstants.M117;
-            } else if (RawRecordConstants.M1180.equals(course)) {
-                actualCourse = RawRecordConstants.M118;
-            } else if (RawRecordConstants.M1240.equals(course)) {
-                actualCourse = RawRecordConstants.M124;
-            } else if (RawRecordConstants.M1250.equals(course)) {
-                actualCourse = RawRecordConstants.M125;
-            } else if (RawRecordConstants.M1260.equals(course)) {
-                actualCourse = RawRecordConstants.M126;
-            } else {
-                actualCourse = course;
-            }
+            final String actualCourse = switch (course) {
+                case RawRecordConstants.M1170 -> RawRecordConstants.M117;
+                case RawRecordConstants.M1180 -> RawRecordConstants.M118;
+                case RawRecordConstants.M1240 -> RawRecordConstants.M124;
+                case RawRecordConstants.M1250 -> RawRecordConstants.M125;
+                case RawRecordConstants.M1260 -> RawRecordConstants.M126;
+                case null, default -> course;
+            };
 
             final String direct = actualCourse == null ? null
                     : actualCourse.replace(CoreConstants.SPC, CoreConstants.EMPTY);

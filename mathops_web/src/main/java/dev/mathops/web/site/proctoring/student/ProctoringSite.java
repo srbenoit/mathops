@@ -44,17 +44,6 @@ public final class ProctoringSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -218,17 +207,15 @@ public final class ProctoringSite extends AbstractSite {
         } else {
             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-            if ("rolecontrol.html".equals(subpath)) {
-                processRoleControls(cache, req, resp, session);
-            } else if ("exam.html".equals(subpath)) {
-                PageExam.doPost(cache, this, req, resp, session);
-            } else if ("placement.html".equals(subpath)) {
-                PagePlacementExam.doPost(cache, req, resp, session);
-            } else if ("update_unit_exam.html".equals(subpath)) {
-                PageExam.updateUnitExam(cache, req, resp, session);
-            } else {
-                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                case "exam.html" -> PageExam.doPost(cache, this, req, resp, session);
+                case "placement.html" -> PagePlacementExam.doPost(cache, req, resp, session);
+                case "update_unit_exam.html" -> PageExam.updateUnitExam(cache, req, resp, session);
+                case null, default -> {
+                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
 
             LogBase.setSessionInfo(null, null);

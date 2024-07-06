@@ -38,7 +38,6 @@ import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.sitelogic.servlet.ExamEligibilityTester;
@@ -179,77 +178,81 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 boolean eligible;
                 StandardsMasteryLogic standardsMasteryLogic = null;
 
-                if ("Q".equals(avail.exam.examType)) {
+                switch (avail.exam.examType) {
+                    case "Q" -> {
 
-                    // NOTE: This includes user's exams
-                    if ("M 100U".equals(avail.exam.course)) {
-                        eligible = true;
+                        // NOTE: This includes user's exams
+                        if ("M 100U".equals(avail.exam.course)) {
+                            eligible = true;
 
-                        if (student.timelimitFactor != null) {
-                            avail.timelimitFactor = student.timelimitFactor;
-                        }
-                    } else {
-                        try {
-                            final PlacementLogic logic = new PlacementLogic(cache, student.stuId,
-                                    student.aplnTerm, now);
-                            final PlacementStatus status = logic.status;
-                            final Set<String> availablePlacement = isProctored ? status.availableLocalProctoredIds
-                                    : status.availableUnproctoredIds;
-
-                            if (availablePlacement.isEmpty()) {
-                                eligible = false;
-                                reasons.add(isProctored ? status.whyProctoredUnavailable
-                                        : status.whyUnproctoredUnavailable);
-                            } else {
-                                eligible = true;
-
-                                if (student.timelimitFactor != null) {
-                                    avail.timelimitFactor = student.timelimitFactor;
-                                }
+                            if (student.timelimitFactor != null) {
+                                avail.timelimitFactor = student.timelimitFactor;
                             }
-                        } catch (final SQLException ex) {
-                            Log.warning(ex);
-                            reasons.add("Error querying placement status.");
+                        } else {
+                            try {
+                                final PlacementLogic logic = new PlacementLogic(cache, student.stuId,
+                                        student.aplnTerm, now);
+                                final PlacementStatus status = logic.status;
+                                final Set<String> availablePlacement = isProctored ? status.availableLocalProctoredIds
+                                        : status.availableUnproctoredIds;
+
+                                if (availablePlacement.isEmpty()) {
+                                    eligible = false;
+                                    reasons.add(isProctored ? status.whyProctoredUnavailable
+                                            : status.whyUnproctoredUnavailable);
+                                } else {
+                                    eligible = true;
+
+                                    if (student.timelimitFactor != null) {
+                                        avail.timelimitFactor = student.timelimitFactor;
+                                    }
+                                }
+                            } catch (final SQLException ex) {
+                                Log.warning(ex);
+                                reasons.add("Error querying placement status.");
+                                eligible = false;
+                            }
+                        }
+                    }
+                    case "CH" -> {
+
+                        final ChallengeExamLogic logic = new ChallengeExamLogic(cache, student.stuId);
+                        final ChallengeExamStatus status = logic.getStatus(avail.exam.course);
+
+                        if (status.availableExamId == null) {
                             eligible = false;
+                            reasons.add(status.reasonUnavailable);
+                        } else {
+                            eligible = true;
+
+                            if (student.timelimitFactor != null) {
+                                avail.timelimitFactor = student.timelimitFactor;
+                            }
                         }
                     }
-                } else if ("CH".equals(avail.exam.examType)) {
+                    case "MA" -> {
 
-                    final ChallengeExamLogic logic = new ChallengeExamLogic(cache, student.stuId);
-                    final ChallengeExamStatus status = logic.getStatus(avail.exam.course);
+                        standardsMasteryLogic = new StandardsMasteryLogic(cache, request.studentId, avail.exam.course);
+                        final int numAvailableToMaster = standardsMasteryLogic.countAvailableStandards();
 
-                    if (status.availableExamId == null) {
-                        eligible = false;
-                        reasons.add(status.reasonUnavailable);
-                    } else {
-                        eligible = true;
-
-                        if (student.timelimitFactor != null) {
-                            avail.timelimitFactor = student.timelimitFactor;
+                        if (numAvailableToMaster == 0) {
+                            eligible = false;
+                            reasons.add("Not eligible to master any learning targets");
+                        } else {
+                            eligible = true;
+                            if (student.timelimitFactor != null) {
+                                avail.timelimitFactor = student.timelimitFactor;
+                            }
                         }
                     }
-                } else if ("MA".equals(avail.exam.examType)) {
+                    case null, default -> {
+                        final ExamEligibilityTester examtest = new ExamEligibilityTester(student.stuId);
 
-                    standardsMasteryLogic = new StandardsMasteryLogic(cache, request.studentId, avail.exam.course);
-                    final int numAvailableToMaster = standardsMasteryLogic.countAvailableStandards();
+                        eligible = examtest.isExamEligible(cache, now, avail, reasons, holds, request.checkEligibility);
 
-                    if (numAvailableToMaster == 0) {
-                        eligible = false;
-                        reasons.add("Not eligible to master any learning targets");
-                    } else {
-                        eligible = true;
-                        if (student.timelimitFactor != null) {
-                            avail.timelimitFactor = student.timelimitFactor;
+                        if (examtest.getCourseSection() != null) {
+                            section = examtest.getCourseSection().sect;
                         }
-                    }
-
-                } else {
-                    final ExamEligibilityTester examtest = new ExamEligibilityTester(student.stuId);
-
-                    eligible = examtest.isExamEligible(cache, now, avail, reasons, holds, request.checkEligibility);
-
-                    if (examtest.getCourseSection() != null) {
-                        section = examtest.getCourseSection().sect;
                     }
                 }
 
@@ -257,7 +260,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                     // Generate a serial number for the exam
                     final long serial = generateSerialNumber(false);
 
-                    final TermRec term = TermLogic.get(cache).queryActive(cache);
+                    final TermRec term = cache.getSystemData().getActiveTerm();
                     if (Objects.nonNull(term)) {
 
                         final String treeRef = avail.exam.treeRef;

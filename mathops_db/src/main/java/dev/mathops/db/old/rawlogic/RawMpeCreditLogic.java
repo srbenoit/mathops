@@ -272,46 +272,47 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             final String course = credit.course;
 
             // Hardcodes to handle M 100 weirdness
-            if (RawRecordConstants.M100T.equals(course)) {
-                applyM100T(cache, credit);
-            } else if (M_100M.equals(course)) {
-                applyM100M(cache, credit);
-            } else if (RawRecordConstants.M100C.equals(course)) {
-                final String student = credit.stuId;
+            switch (course) {
+                case RawRecordConstants.M100T -> applyM100T(cache, credit);
+                case M_100M -> applyM100M(cache, credit);
+                case RawRecordConstants.M100C -> {
+                    final String student = credit.stuId;
 
-                final String sql1 = SimpleBuilder.concat("DELETE FROM mpe_credit",
-                        " WHERE stu_id=", sqlStringValue(student),
-                        " AND course MATCHES 'M 100*'");
+                    final String sql1 = SimpleBuilder.concat("DELETE FROM mpe_credit",
+                            " WHERE stu_id=", sqlStringValue(student),
+                            " AND course MATCHES 'M 100*'");
 
-                try (final Statement stmt = cache.conn.createStatement()) {
-                    stmt.executeUpdate(sql1);
-                    cache.conn.commit();
-                }
-
-                insert(cache, credit);
-            } else {
-                final String student = credit.stuId;
-
-                final String sql2 = SimpleBuilder.concat(
-                        "SELECT exam_placed FROM mpe_credit",
-                        " WHERE stu_id=", sqlStringValue(student),
-                        " AND course=", sqlStringValue(course));
-
-                final boolean found;
-                String orig = null;
-                try (final Statement stmt = cache.conn.createStatement();
-                     final ResultSet rs = stmt.executeQuery(sql2)) {
-
-                    found = rs.next();
-                    if (found) {
-                        orig = rs.getString(1);
+                    try (final Statement stmt = cache.conn.createStatement()) {
+                        stmt.executeUpdate(sql1);
+                        cache.conn.commit();
                     }
-                }
 
-                if (found) {
-                    updateExistingCredit(cache, course, credit, orig, student);
-                } else {
                     insert(cache, credit);
+                }
+                case null, default -> {
+                    final String student = credit.stuId;
+
+                    final String sql2 = SimpleBuilder.concat(
+                            "SELECT exam_placed FROM mpe_credit",
+                            " WHERE stu_id=", sqlStringValue(student),
+                            " AND course=", sqlStringValue(course));
+
+                    final boolean found;
+                    String orig = null;
+                    try (final Statement stmt = cache.conn.createStatement();
+                         final ResultSet rs = stmt.executeQuery(sql2)) {
+
+                        found = rs.next();
+                        if (found) {
+                            orig = rs.getString(1);
+                        }
+                    }
+
+                    if (found) {
+                        updateExistingCredit(cache, course, credit, orig, student);
+                    } else {
+                        insert(cache, credit);
+                    }
                 }
             }
         }
@@ -433,11 +434,10 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @param credit  the credit record being applied
      * @param orig    the original result
      * @param student the student ID
-     * @return the number of rows updated
      * @throws SQLException if there is an error accessing the database
      */
-    private static int updateExistingCredit(final Cache cache, final String course, final RawMpeCredit credit,
-                                            final String orig, final String student) throws SQLException {
+    private static void updateExistingCredit(final Cache cache, final String course, final RawMpeCredit credit,
+                                             final String orig, final String student) throws SQLException {
 
         // Record already exists - if this placement result is stronger, use this one; if the result is the same,
         // simply update the exam date; if the existing record is stronger, leave it.
@@ -498,7 +498,6 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             }
         }
 
-        return result;
     }
 
     /**

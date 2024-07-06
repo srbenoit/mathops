@@ -8,7 +8,6 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -127,7 +126,7 @@ public enum PagePopulationPick {
         if (sorted.isEmpty()) {
             PageStudent.doGet(cache, site, req, resp, session, "No matching students found.");
         } else {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
             if (active == null) {
                 PageStudent.doGet(cache, site, req, resp, session, "Unable to query the active term.");

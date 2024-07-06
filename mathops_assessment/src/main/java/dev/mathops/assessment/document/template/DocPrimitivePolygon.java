@@ -26,6 +26,7 @@ import java.awt.Polygon;
 import java.awt.Stroke;
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -275,131 +276,138 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("filled".equals(name)) {
-                try {
-                    this.filled = VariableFactory.parseBooleanValue(theValue);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'filled' value (" + theValue + ") on polygon primitive");
-                }
-            } else if ("color".equals(name)) {
-
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.color = ColorNames.getColor(theValue);
-                    this.colorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'color' value (" + theValue + ") on polygon primitive");
-                }
-            } else if ("x-list".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int splitLen = split.length;
-
-                boolean allConstant = true;
-                for (final String s : split) {
+            switch (name) {
+                case "filled" -> {
                     try {
-                        Double.parseDouble(s);
-                    } catch (final NumberFormatException ex) {
-                        allConstant = false;
-                        break;
-                    }
-                }
-
-                ok = true;
-                if (allConstant) {
-                    this.xCoordConstants = new ArrayList<>(splitLen);
-                    for (int i = 0; ok && (i < splitLen); ++i) {
-                        try {
-                            this.xCoordConstants.add(Double.valueOf(split[i]));
-                        } catch (final NumberFormatException ex) {
-                            ok = false;
-                        }
-                    }
-                } else {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'x-list' on polygon primitive");
-                    }
-                    this.xCoordFormulas = new ArrayList<>(splitLen);
-                    for (int i = 0; ok && (i < splitLen); ++i) {
-                        final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
-                        if (formula == null) {
-                            ok = false;
-                        } else {
-                            this.xCoordFormulas.add(formula);
-                        }
-                    }
-                }
-
-                if (!ok) {
-                    elem.logError("Invalid 'x-list' value (" + theValue + ") on polygon primitive");
-                }
-            } else if ("y-list".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int splitLen = split.length;
-
-                boolean allConstant = true;
-                for (final String s : split) {
-                    try {
-                        Double.parseDouble(s);
-                    } catch (final NumberFormatException ex) {
-                        allConstant = false;
-                        break;
-                    }
-                }
-
-                ok = true;
-                if (allConstant) {
-                    this.yCoordConstants = new ArrayList<>(splitLen);
-                    for (int i = 0; ok && (i < splitLen); ++i) {
-                        try {
-                            this.yCoordConstants.add(Double.valueOf(split[i]));
-                        } catch (final NumberFormatException ex) {
-                            ok = false;
-                        }
-                    }
-                } else {
-                    if (mode.reportDeprecated) {
-                        elem.logError("Deprecated use of formula in 'y-list' on polygon primitive");
-                    }
-
-                    this.yCoordFormulas = new ArrayList<>(splitLen);
-                    for (int i = 0; ok && (i < splitLen); ++i) {
-                        final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
-                        if (formula == null) {
-                            ok = false;
-                        } else {
-                            this.yCoordFormulas.add(formula);
-                        }
-                    }
-                }
-
-                if (!ok) {
-                    elem.logError("Invalid 'y-list' value (" + theValue + ") on polygon primitive");
-                }
-            } else if ("stroke-width".equals(name)) {
-                this.strokeWidth = parseDouble(theValue, elem, name, "polygon primitive");
-                ok = this.strokeWidth != null;
-            } else if ("dash".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int count = split.length;
-                this.dash = new float[count];
-
-                for (int i = 0; i < count; ++i) {
-                    try {
-                        this.dash[i] = (float) Double.parseDouble(split[i]);
+                        this.filled = VariableFactory.parseBooleanValue(theValue);
                         ok = true;
-                    } catch (final NumberFormatException e) {
-                        // No action
+                    } catch (final IllegalArgumentException e) {
+                        elem.logError("Invalid 'filled' value (" + theValue + ") on polygon primitive");
                     }
                 }
-                if (!ok) {
-                    elem.logError("Invalid 'dash' value (" + theValue + ") on polygon primitive");
+                case "color" -> {
+
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.color = ColorNames.getColor(theValue);
+                        this.colorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'color' value (" + theValue + ") on polygon primitive");
+                    }
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "polygon primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on polygon primitive");
+                case "x-list" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int splitLen = split.length;
+
+                    boolean allConstant = true;
+                    for (final String s : split) {
+                        try {
+                            Double.parseDouble(s);
+                        } catch (final NumberFormatException ex) {
+                            allConstant = false;
+                            break;
+                        }
+                    }
+
+                    ok = true;
+                    if (allConstant) {
+                        this.xCoordConstants = new ArrayList<>(splitLen);
+                        for (int i = 0; ok && (i < splitLen); ++i) {
+                            try {
+                                this.xCoordConstants.add(Double.valueOf(split[i]));
+                            } catch (final NumberFormatException ex) {
+                                ok = false;
+                            }
+                        }
+                    } else {
+                        if (mode.reportDeprecated) {
+                            elem.logError("Deprecated use of formula in 'x-list' on polygon primitive");
+                        }
+                        this.xCoordFormulas = new ArrayList<>(splitLen);
+                        for (int i = 0; ok && (i < splitLen); ++i) {
+                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
+                            if (formula == null) {
+                                ok = false;
+                            } else {
+                                this.xCoordFormulas.add(formula);
+                            }
+                        }
+                    }
+
+                    if (!ok) {
+                        elem.logError("Invalid 'x-list' value (" + theValue + ") on polygon primitive");
+                    }
+                }
+                case "y-list" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int splitLen = split.length;
+
+                    boolean allConstant = true;
+                    for (final String s : split) {
+                        try {
+                            Double.parseDouble(s);
+                        } catch (final NumberFormatException ex) {
+                            allConstant = false;
+                            break;
+                        }
+                    }
+
+                    ok = true;
+                    if (allConstant) {
+                        this.yCoordConstants = new ArrayList<>(splitLen);
+                        for (int i = 0; ok && (i < splitLen); ++i) {
+                            try {
+                                this.yCoordConstants.add(Double.valueOf(split[i]));
+                            } catch (final NumberFormatException ex) {
+                                ok = false;
+                            }
+                        }
+                    } else {
+                        if (mode.reportDeprecated) {
+                            elem.logError("Deprecated use of formula in 'y-list' on polygon primitive");
+                        }
+
+                        this.yCoordFormulas = new ArrayList<>(splitLen);
+                        for (int i = 0; ok && (i < splitLen); ++i) {
+                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
+                            if (formula == null) {
+                                ok = false;
+                            } else {
+                                this.yCoordFormulas.add(formula);
+                            }
+                        }
+                    }
+
+                    if (!ok) {
+                        elem.logError("Invalid 'y-list' value (" + theValue + ") on polygon primitive");
+                    }
+                }
+                case "stroke-width" -> {
+                    this.strokeWidth = parseDouble(theValue, elem, name, "polygon primitive");
+                    ok = this.strokeWidth != null;
+                }
+                case "dash" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int count = split.length;
+                    this.dash = new float[count];
+
+                    for (int i = 0; i < count; ++i) {
+                        try {
+                            this.dash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException e) {
+                            // No action
+                        }
+                    }
+                    if (!ok) {
+                        elem.logError("Invalid 'dash' value (" + theValue + ") on polygon primitive");
+                    }
+                }
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "polygon primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on polygon primitive");
             }
         }
 
@@ -592,7 +600,7 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
         xml.add(ind, "<polygon");
 
         if (this.xCoordConstants != null) {
-            xml.add(" x-list=\"", this.xCoordConstants.get(0));
+            xml.add(" x-list=\"", this.xCoordConstants.getFirst());
             final int count = this.xCoordConstants.size();
             for (int i = 1; i < count; ++i) {
                 xml.add(CoreConstants.COMMA, this.xCoordConstants.get(i));
@@ -601,7 +609,7 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
         }
 
         if (this.yCoordConstants != null) {
-            xml.add(" y-list=\"", this.yCoordConstants.get(0));
+            xml.add(" y-list=\"", this.yCoordConstants.getFirst());
             final int count = this.yCoordConstants.size();
             for (int i = 1; i < count; ++i) {
                 xml.add(CoreConstants.COMMA, this.yCoordConstants.get(i));
@@ -738,7 +746,7 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
                     && Objects.equals(this.color, poly.color)
                     && Objects.equals(this.alpha, poly.alpha)
                     && Objects.equals(this.strokeWidth, poly.strokeWidth)
-                    && Objects.equals(this.dash, poly.dash);
+                    && Arrays.equals(this.dash, poly.dash);
         } else {
             equal = false;
         }

@@ -22,7 +22,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -194,7 +193,7 @@ enum PageSchedule {
             }
 
             if (!allInOrder) {
-                Log.warning("No course with pace order " + which + " found for ", paceReg.get(0).stuId,
+                Log.warning("No course with pace order " + which + " found for ", paceReg.getFirst().stuId,
                         " (pace " + paceReg.size() + ") - resetting pace orders");
             }
 
@@ -304,7 +303,7 @@ enum PageSchedule {
         if (!paceReg.isEmpty()) {
             final boolean allMidterms = presentPaceCourses(cache, logic, htm, paceReg);
 
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             htm.addln("<ul class='boxlist'>");
 
             if (!allMidterms) {
@@ -560,7 +559,7 @@ enum PageSchedule {
                                               final HtmlBuilder htm, final Iterable<RawStcourse> paceReg)
             throws SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = cache.getSystemData().getActiveTerm();
         htm.sH(3).add("Courses Scheduled for the ", active.term.longString, " Semester").eH(3);
 
         htm.sDiv("indent22");
@@ -652,10 +651,10 @@ enum PageSchedule {
         final SiteDataMilestone msData = logic.data.milestoneData;
 
         // Print all pace deadlines, including student override dates
-        final TermRec term = TermLogic.get(cache).queryActive(cache);
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
-        final List<RawMilestone> allMilestones = msData.getMilestones(term.term);
-        final List<RawStmilestone> stMilestones = msData.getStudentMilestones(term.term);
+        final List<RawMilestone> allMilestones = msData.getMilestones(activeTerm.term);
+        final List<RawStmilestone> stMilestones = msData.getStudentMilestones(activeTerm.term);
         final LocalDate today = logic.data.now.toLocalDate();
 
         final int paceOrder = reg.paceOrder == null ? -1 : reg.paceOrder.intValue();
@@ -714,62 +713,66 @@ enum PageSchedule {
                     continue;
                 }
 
-                if ("FE".equals(type)) {
-                    if (!doFinal) {
-                        continue;
-                    }
-                    examType = "F";
-                    ontime = null;
-
-                    finalDeadline = deadline;
-
-                } else if ("F1".equals(type)) {
-
-                    if (!doFinal) {
-                        continue;
-                    }
-
-                    RawStexam firstPassing = null;
-                    // FIXME: Hardcoded unit number 4
-                    final List<RawStexam> stuExams =
-                            actData.getStudentExams(courseId, Integer.valueOf(4));
-                    for (final RawStexam stexam : stuExams) {
-                        if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
-                            firstPassing = stexam;
-                            break;
+                switch (type) {
+                    case "FE" -> {
+                        if (!doFinal) {
+                            continue;
                         }
+                        examType = "F";
+                        ontime = null;
+
+                        finalDeadline = deadline;
                     }
+                    case "F1" -> {
 
-                    if (firstPassing != null && finalDeadline != null) {
+                        if (!doFinal) {
+                            continue;
+                        }
 
-                        final LocalDate finishedOnDay = firstPassing.examDt;
+                        RawStexam firstPassing = null;
+                        // FIXME: Hardcoded unit number 4
+                        final List<RawStexam> stuExams =
+                                actData.getStudentExams(courseId, Integer.valueOf(4));
+                        for (final RawStexam stexam : stuExams) {
+                            if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
+                                firstPassing = stexam;
+                                break;
+                            }
+                        }
 
-                        if (!finishedOnDay.isAfter(finalDeadline)) {
+                        if (firstPassing != null && finalDeadline != null) {
 
-                            // Student is eligible for last-try - see if they have already used it!
-                            lastTry = milestoneDate;
-                            lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
+                            final LocalDate finishedOnDay = firstPassing.examDt;
 
-                            final List<RawStexam> exams =
-                                    actData.getStudentExams(courseId, Integer.valueOf(5));
+                            if (!finishedOnDay.isAfter(finalDeadline)) {
 
-                            // As before, count attempts finished in the first 5 minutes of a day
-                            // as if they happened on the day before
-                            for (final RawStexam exam : exams) {
-                                if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
-                                    ++lastTriesTaken;
+                                // Student is eligible for last-try - see if they have already used it!
+                                lastTry = milestoneDate;
+                                lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
+
+                                final List<RawStexam> exams =
+                                        actData.getStudentExams(courseId, Integer.valueOf(5));
+
+                                // As before, count attempts finished in the first 5 minutes of a day
+                                // as if they happened on the day before
+                                for (final RawStexam exam : exams) {
+                                    if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
+                                        ++lastTriesTaken;
+                                    }
                                 }
                             }
                         }
+                        // Emit no text for this type of milestone
+                        continue;
                     }
-                    // Emit no text for this type of milestone
-                    continue;
-                } else if ("RE".equals(type)) {
-                    examType = "R";
-                    ontime = unitModel.rePointsOntime;
-                } else {
-                    examType = "U";
-                    ontime = null;
+                    case "RE" -> {
+                        examType = "R";
+                        ontime = unitModel.rePointsOntime;
+                    }
+                    case null, default -> {
+                        examType = "U";
+                        ontime = null;
+                    }
                 }
 
                 final boolean hasPointPenalty = ontime != null && ontime.intValue() > 0;
@@ -929,9 +932,8 @@ enum PageSchedule {
                     "deadline date. If a <b>Review Exam</b> is not passed by this time, you receive ",
                     "no points for the <b>Review Exam</b>.");
 
-            final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(
-                    cache, TermLogic.get(cache).queryActive(cache).term,
-                    pacingStructure.pacingStructure);
+            final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
+                    activeTerm.term, pacingStructure.pacingStructure);
 
             boolean unitRequiresReview = false;
             for (final RawPacingRules rule : rsRules) {

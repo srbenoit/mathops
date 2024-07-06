@@ -251,10 +251,8 @@ public final class StudentCourseScores {
 
     /**
      * Calculates the total course score and stores it.
-     *
-     * @return the calculated total score
      */
-    int calculateTotalScore() {
+    void calculateTotalScore() {
 
         int score = 0;
 
@@ -277,8 +275,6 @@ public final class StudentCourseScores {
         }
 
         this.totalScore = score;
-
-        return this.totalScore;
     }
 
 //    /**

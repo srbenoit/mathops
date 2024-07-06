@@ -8,7 +8,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.BorderFactory;
@@ -118,7 +117,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
         panel.setBackground(Skin.WHITE);
 
         try {
-            final TermRec active = TermLogic.get(this.cache).queryActive(theCache);
+            final TermRec active = this.cache.getSystemData().getActiveTerm();
             final List<RawCsection> sects = RawCsectionLogic.queryByTerm(theCache, active.term);
 
             final Iterator<RawCsection> iter = sects.iterator();

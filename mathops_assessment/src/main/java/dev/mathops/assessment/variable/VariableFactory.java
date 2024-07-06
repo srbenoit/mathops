@@ -182,82 +182,87 @@ public enum VariableFactory {
             final String minStr = elem.getStringAttr("min");
             final String maxStr = elem.getStringAttr("max");
 
-            if (var instanceof final VariableRandomInteger vRInt) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
-                        valid = false;
-                    } else {
-                        vRInt.setMin(new NumberOrFormula(minFormula));
+            switch (var) {
+                case final VariableRandomInteger vRInt -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vRInt.setMin(new NumberOrFormula(minFormula));
+                        }
                     }
-                }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vRInt.setMax(new NumberOrFormula(maxFormula));
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vRInt.setMax(new NumberOrFormula(maxFormula));
+                        }
                     }
-                }
 
-                if (vRInt.getMin() == null || vRInt.getMax() == null) {
-                    elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
-                    valid = false;
-                }
-            } else if (var instanceof final VariableRandomReal vRReal) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
+                    if (vRInt.getMin() == null || vRInt.getMax() == null) {
+                        elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
                         valid = false;
-                    } else {
-                        vRReal.setMin(new NumberOrFormula(minFormula));
                     }
                 }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vRReal.setMax(new NumberOrFormula(maxFormula));
+                case final VariableRandomReal vRReal -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vRReal.setMin(new NumberOrFormula(minFormula));
+                        }
                     }
-                }
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vRReal.setMax(new NumberOrFormula(maxFormula));
+                        }
+                    }
 
-                if (vRReal.getMin() == null || vRReal.getMax() == null) {
-                    elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
-                    valid = false;
-                }
-            } else if (var instanceof final VariableDerived vDer) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
+                    if (vRReal.getMin() == null || vRReal.getMax() == null) {
+                        elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
                         valid = false;
-                    } else {
-                        vDer.setMin(new NumberOrFormula(minFormula));
                     }
                 }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vDer.setMax(new NumberOrFormula(maxFormula));
+                case final VariableDerived vDer -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vDer.setMin(new NumberOrFormula(minFormula));
+                        }
+                    }
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vDer.setMax(new NumberOrFormula(maxFormula));
+                        }
                     }
                 }
-            } else {
-                // All other types may not have min or max values
-                if (minStr != null) {
-                    elem.logError("Only random numeric or derived parameters can have minimum.");
-                    valid = false;
-                }
-                if (maxStr != null) {
-                    elem.logError("Only random numeric or derived parameters can have maximum.");
-                    valid = false;
+                default -> {
+                    // All other types may not have min or max values
+                    if (minStr != null) {
+                        elem.logError("Only random numeric or derived parameters can have minimum.");
+                        valid = false;
+                    }
+                    if (maxStr != null) {
+                        elem.logError("Only random numeric or derived parameters can have maximum.");
+                        valid = false;
+                    }
                 }
             }
 
@@ -598,82 +603,87 @@ public enum VariableFactory {
             final String minStr = elem.getStringAttr("min");
             final String maxStr = elem.getStringAttr("max");
 
-            if (var instanceof final VariableRandomInteger vRInt) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
-                        valid = false;
-                    } else {
-                        vRInt.setMin(new NumberOrFormula(minFormula));
+            switch (var) {
+                case final VariableRandomInteger vRInt -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vRInt.setMin(new NumberOrFormula(minFormula));
+                        }
                     }
-                }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vRInt.setMax(new NumberOrFormula(maxFormula));
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vRInt.setMax(new NumberOrFormula(maxFormula));
+                        }
                     }
-                }
 
-                if (vRInt.getMin() == null || vRInt.getMax() == null) {
-                    elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
-                    valid = false;
-                }
-            } else if (var instanceof final VariableRandomReal vRReal) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
+                    if (vRInt.getMin() == null || vRInt.getMax() == null) {
+                        elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
                         valid = false;
-                    } else {
-                        vRReal.setMin(new NumberOrFormula(minFormula));
                     }
                 }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vRReal.setMax(new NumberOrFormula(maxFormula));
+                case final VariableRandomReal vRReal -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vRReal.setMin(new NumberOrFormula(minFormula));
+                        }
                     }
-                }
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vRReal.setMax(new NumberOrFormula(maxFormula));
+                        }
+                    }
 
-                if (vRReal.getMin() == null || vRReal.getMax() == null) {
-                    elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
-                    valid = false;
-                }
-            } else if (var instanceof final VariableDerived vDer) {
-                if (minStr != null) {
-                    final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
-                    if (minFormula == null) {
-                        elem.logError("Unable to parse 'min' formula.");
+                    if (vRReal.getMin() == null || vRReal.getMax() == null) {
+                        elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
                         valid = false;
-                    } else {
-                        vDer.setMin(new NumberOrFormula(minFormula));
                     }
                 }
-                if (maxStr != null) {
-                    final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
-                    if (maxFormula == null) {
-                        elem.logError("Unable to parse 'max' formula.");
-                        valid = false;
-                    } else {
-                        vDer.setMax(new NumberOrFormula(maxFormula));
+                case final VariableDerived vDer -> {
+                    if (minStr != null) {
+                        final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
+                        if (minFormula == null) {
+                            elem.logError("Unable to parse 'min' formula.");
+                            valid = false;
+                        } else {
+                            vDer.setMin(new NumberOrFormula(minFormula));
+                        }
+                    }
+                    if (maxStr != null) {
+                        final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
+                        if (maxFormula == null) {
+                            elem.logError("Unable to parse 'max' formula.");
+                            valid = false;
+                        } else {
+                            vDer.setMax(new NumberOrFormula(maxFormula));
+                        }
                     }
                 }
-            } else {
-                // All other types may not have min or max values
-                if (minStr != null) {
-                    elem.logError("Only random numeric or derived parameters can have minimum.");
-                    valid = false;
-                }
-                if (maxStr != null) {
-                    elem.logError("Only random numeric or derived parameters can have maximum.");
-                    valid = false;
+                default -> {
+                    // All other types may not have min or max values
+                    if (minStr != null) {
+                        elem.logError("Only random numeric or derived parameters can have minimum.");
+                        valid = false;
+                    }
+                    if (maxStr != null) {
+                        elem.logError("Only random numeric or derived parameters can have maximum.");
+                        valid = false;
+                    }
                 }
             }
 
@@ -1572,48 +1582,54 @@ public enum VariableFactory {
         if (valid) {
             final Collection<Formula> excludes = new ArrayList<>(5);
 
+            label:
             for (final IElement child : elem.getElementChildrenAsList()) {
 
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("min".equals(tag)) {
-                        if (min == null) {
-                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                    switch (tag) {
+                        case "min" -> {
+                            if (min == null) {
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (minFormula == null) {
+                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    min = new NumberOrFormula(minFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "max" -> {
+                            if (max == null) {
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (maxFormula == null) {
+                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    max = new NumberOrFormula(maxFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "exclude" -> {
+                            final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (exclude == null) {
+                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
-                                min = new NumberOrFormula(minFormula);
+                                excludes.add(exclude);
                             }
-                        } else {
-                            elem.logError("Multiple 'min' values in {" + varName + "}");
-                            break;
                         }
-                    } else if ("max".equals(tag)) {
-                        if (max == null) {
-                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
-                            } else {
-                                max = new NumberOrFormula(maxFormula);
-                            }
-                        } else {
-                            elem.logError("Multiple 'max' values in {" + varName + "}");
-                            break;
-                        }
-                    } else if ("exclude".equals(tag)) {
-                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                        if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                        case null, default -> {
+                            elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
                             valid = false;
-                        } else {
-                            excludes.add(exclude);
                         }
-                    } else {
-                        elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
-                        valid = false;
                     }
                 }
             }
@@ -2113,56 +2129,62 @@ public enum VariableFactory {
             final Collection<Formula> choices = new ArrayList<>(5);
             DocSimpleSpan span = null;
 
+            label:
             for (final IElement child : elem.getElementChildrenAsList()) {
 
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("exclude".equals(tag)) {
-                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                        if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
-                            valid = false;
-                        } else {
-                            excludes.add(exclude);
+                    switch (tag) {
+                        case "exclude" -> {
+                            final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (exclude == null) {
+                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                                valid = false;
+                            } else {
+                                excludes.add(exclude);
+                            }
                         }
-                    } else if ("choose-from".equals(tag)) {
-                        final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                        if (choice == null) {
-                            elem.logError("Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
-                            valid = false;
-                        } else {
-                            choices.add(choice);
-                            final EType choiceType = choice.getType(evalContext);
-                            if (type == null && choiceType != null) {
-                                type = choiceType;
-                            } else if (choiceType != type) {
-                                if ((type == EType.INTEGER && choiceType == EType.REAL)
-                                        || (type == EType.REAL && choiceType == EType.INTEGER)) {
-                                    type = EType.REAL;
-                                } else {
-                                    elem.logError("Inconsistent types in 'choose-from' formulas in {" + varName + "}");
-                                    valid = false;
+                        case "choose-from" -> {
+                            final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (choice == null) {
+                                elem.logError("Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
+                                valid = false;
+                            } else {
+                                choices.add(choice);
+                                final EType choiceType = choice.getType(evalContext);
+                                if (type == null && choiceType != null) {
+                                    type = choiceType;
+                                } else if (choiceType != type) {
+                                    if ((type == EType.INTEGER && choiceType == EType.REAL)
+                                            || (type == EType.REAL && choiceType == EType.INTEGER)) {
+                                        type = EType.REAL;
+                                    } else {
+                                        elem.logError("Inconsistent types in 'choose-from' formulas in {" + varName + "}");
+                                        valid = false;
+                                    }
                                 }
                             }
                         }
-                    } else if ("span".equals(tag)) {
-                        if (type == EType.ERROR) {
-                            type = EType.SPAN;
-                        }
-                        if (span == null) {
-                            span = DocFactory.parseSpan(evalContext, nonempty, mode);
-                            if (span == null) {
-                                elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
+                        case "span" -> {
+                            if (type == EType.ERROR) {
+                                type = EType.SPAN;
                             }
-                        } else {
-                            elem.logError("Multiple 'span' values not allowed in {" + varName + "}");
-                            break;
+                            if (span == null) {
+                                span = DocFactory.parseSpan(evalContext, nonempty, mode);
+                                if (span == null) {
+                                    elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                }
+                            } else {
+                                elem.logError("Multiple 'span' values not allowed in {" + varName + "}");
+                                break label;
+                            }
                         }
-                    } else {
-                        elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
-                        valid = false;
+                        case null, default -> {
+                            elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
+                            valid = false;
+                        }
                     }
                 }
             }
@@ -2342,62 +2364,69 @@ public enum VariableFactory {
         if (valid) {
             final Collection<Formula> excludes = new ArrayList<>(5);
 
+            label:
             for (final IElement child : elem.getElementChildrenAsList()) {
 
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("min".equals(tag)) {
-                        if (min == null) {
-                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                    switch (tag) {
+                        case "min" -> {
+                            if (min == null) {
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (minFormula == null) {
+                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    min = new NumberOrFormula(minFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "max" -> {
+                            if (max == null) {
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (maxFormula == null) {
+                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    max = new NumberOrFormula(maxFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "max-denom" -> {
+                            if (maxDenom == null) {
+                                final Formula maxDenomFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
+                                if (maxDenomFormula == null) {
+                                    elem.logError("Invalid 'max-denom' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    maxDenom = new NumberOrFormula(maxDenomFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'max-denom' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "exclude" -> {
+                            final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (exclude == null) {
+                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
-                                min = new NumberOrFormula(minFormula);
+                                excludes.add(exclude);
                             }
-                        } else {
-                            elem.logError("Multiple 'min' values in {" + varName + "}");
-                            break;
                         }
-                    } else if ("max".equals(tag)) {
-                        if (max == null) {
-                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
-                            } else {
-                                max = new NumberOrFormula(maxFormula);
-                            }
-                        } else {
-                            elem.logError("Multiple 'max' values in {" + varName + "}");
-                            break;
-                        }
-                    } else if ("max-denom".equals(tag)) {
-                        if (maxDenom == null) {
-                            final Formula maxDenomFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
-                                    mode);
-                            if (maxDenomFormula == null) {
-                                elem.logError("Invalid 'max-denom' formula in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
-                            } else {
-                                maxDenom = new NumberOrFormula(maxDenomFormula);
-                            }
-                        } else {
-                            elem.logError("Multiple 'max-denom' values in {" + varName + "}");
-                            break;
-                        }
-                    } else if ("exclude".equals(tag)) {
-                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                        if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                        case null, default -> {
+                            elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
                             valid = false;
-                        } else {
-                            excludes.add(exclude);
                         }
-                    } else {
-                        elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
-                        valid = false;
                     }
                 }
             }
@@ -2570,73 +2599,81 @@ public enum VariableFactory {
             DocSimpleSpan span = null;
             Formula formula = null;
 
+            label:
             for (final IElement child : elem.getElementChildrenAsList()) {
 
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("min".equals(tag)) {
-                        if (min == null) {
-                            final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                    switch (tag) {
+                        case "min" -> {
+                            if (min == null) {
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (minFormula == null) {
+                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    min = new NumberOrFormula(minFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "max" -> {
+                            if (max == null) {
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (maxFormula == null) {
+                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                } else {
+                                    max = new NumberOrFormula(maxFormula);
+                                }
+                            } else {
+                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case "exclude" -> {
+                            final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (exclude == null) {
+                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
-                                min = new NumberOrFormula(minFormula);
+                                excludes.add(exclude);
                             }
-                        } else {
-                            elem.logError("Multiple 'min' values in {" + varName + "}");
-                            break;
                         }
-                    } else if ("max".equals(tag)) {
-                        if (max == null) {
-                            final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                            if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
-                            } else {
-                                max = new NumberOrFormula(maxFormula);
+                        case "span" -> {
+                            if (type == EType.ERROR) {
+                                type = EType.SPAN;
                             }
-                        } else {
-                            elem.logError("Multiple 'max' values in {" + varName + "}");
-                            break;
-                        }
-                    } else if ("exclude".equals(tag)) {
-                        final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                        if (exclude == null) {
-                            elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
-                            valid = false;
-                        } else {
-                            excludes.add(exclude);
-                        }
-                    } else if ("span".equals(tag)) {
-                        if (type == EType.ERROR) {
-                            type = EType.SPAN;
-                        }
-                        if (span == null) {
-                            span = DocFactory.parseSpan(evalContext, nonempty, mode);
                             if (span == null) {
-                                elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
+                                span = DocFactory.parseSpan(evalContext, nonempty, mode);
+                                if (span == null) {
+                                    elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                }
+                            } else {
+                                elem.logError("Multiple 'span' values in {" + varName + "}");
+                                break label;
                             }
-                        } else {
-                            elem.logError("Multiple 'span' values in {" + varName + "}");
-                            break;
                         }
-                    } else if ("formula".equals(tag)) {
-                        if (formula == null) {
-                            formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                        case "formula" -> {
                             if (formula == null) {
-                                elem.logError("Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
-                                valid = false;
+                                formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (formula == null) {
+                                    elem.logError("Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                }
+                            } else {
+                                elem.logError("Multiple 'formula' values in {" + varName + "}");
+                                break label;
                             }
-                        } else {
-                            elem.logError("Multiple 'formula' values in {" + varName + "}");
-                            break;
                         }
-                    } else {
-                        elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
-                        valid = false;
+                        case null, default -> {
+                            elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
+                            valid = false;
+                        }
                     }
                 }
             }

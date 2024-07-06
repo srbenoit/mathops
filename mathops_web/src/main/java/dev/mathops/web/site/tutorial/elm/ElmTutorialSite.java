@@ -48,17 +48,6 @@ public final class ElmTutorialSite extends AbstractPageSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -218,28 +207,26 @@ public final class ElmTutorialSite extends AbstractPageSite {
                     final ELMTutorialStatus status = ELMTutorialStatus.of(cache, studentId,
                             session.getNow(), HoldsStatus.of(cache, studentId));
 
-                    if ("rolecontrol.html".equals(subpath)) {
-                        processRoleControls(cache, req, resp, session);
-                    } else if ("home.html".equals(subpath)) {
-                        PageHome.doGet(cache, this, req, resp, session, status);
-                    } else if ("media_feedback.html".equals(subpath)) {
-                        doMediaFeedback(cache, req, resp, session, status);
-                    } else if ("update_homework.html".equals(subpath)) {
-                        PageHtmlPractice.updateHomework(cache, this, req, resp, session, status);
-                    } else if ("update_review_exam.html".equals(subpath)) {
-                        PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session,
-                                status);
-                    } else if ("update_past_exam.html".equals(subpath)) {
-                        PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, status);
-                    } else if ("update_unit_exam.html".equals(subpath)) {
-                        PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session);
-                    } else if ("process_proctor_login_elm.html".equals(subpath)) {
-                        doProcessProctorLoginElm(req, resp);
-                    } else {
-                        Log.warning("Unrecognized POST request path: ", subpath);
-                        final String path = this.siteProfile.path;
-                        resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) //
-                                ? "index.html" : "/index.html"));
+                    switch (subpath) {
+                        case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                        case "home.html" -> PageHome.doGet(cache, this, req, resp, session, status);
+                        case "media_feedback.html" -> doMediaFeedback(cache, req, resp, session, status);
+                        case "update_homework.html" ->
+                                PageHtmlPractice.updateHomework(cache, this, req, resp, session, status);
+                        case "update_review_exam.html" ->
+                                PageHtmlReviewExam.updateReviewExam(cache, this, req, resp, session,
+                                        status);
+                        case "update_past_exam.html" ->
+                                PageHtmlPastExam.updatePastExam(cache, this, req, resp, session, status);
+                        case "update_unit_exam.html" ->
+                                PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session);
+                        case "process_proctor_login_elm.html" -> doProcessProctorLoginElm(req, resp);
+                        case null, default -> {
+                            Log.warning("Unrecognized POST request path: ", subpath);
+                            final String path = this.siteProfile.path;
+                            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) //
+                                    ? "index.html" : "/index.html"));
+                        }
                     }
                 }
             }

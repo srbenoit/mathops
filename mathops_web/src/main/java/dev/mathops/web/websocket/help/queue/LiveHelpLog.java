@@ -34,7 +34,7 @@ public final class LiveHelpLog {
             this.entries.add(entry);
 
             if (this.entries.size() > 20) {
-                this.entries.remove(0);
+                this.entries.removeFirst();
             }
         }
     }

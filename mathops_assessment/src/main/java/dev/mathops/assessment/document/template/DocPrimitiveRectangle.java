@@ -27,6 +27,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.io.Serial;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -279,61 +280,70 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "rectangle primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "rectangle primitive");
-                ok = this.yCoord != null;
-            } else if ("width".equals(name)) {
-                this.width = parseNumberOrFormula(theValue, elem, mode, "width", "rectangle primitive");
-                ok = this.width != null;
-            } else if ("height".equals(name)) {
-                this.height = parseNumberOrFormula(theValue, elem, mode, "height", "rectangle primitive");
-                ok = this.height != null;
-            } else if ("filled".equals(name)) {
-
-                try {
-                    this.filled = VariableFactory.parseBooleanValue(theValue);
-                    ok = true;
-                } catch (final IllegalArgumentException e) {
-                    elem.logError("Invalid 'filled' value (" + theValue + ") on rectangle primitive");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "rectangle primitive");
+                    ok = this.xCoord != null;
                 }
-            } else if ("color".equals(name)) {
-
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.color = ColorNames.getColor(theValue);
-                    this.colorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'color' value (" + theValue + ") on rectangle primitive");
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "rectangle primitive");
+                    ok = this.yCoord != null;
                 }
-            } else if ("stroke-width".equals(name)) {
-                this.strokeWidth = parseDouble(theValue, elem, name, "raster primitive");
-                ok = this.strokeWidth != null;
-            } else if ("dash".equals(name)) {
+                case "width" -> {
+                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "rectangle primitive");
+                    ok = this.width != null;
+                }
+                case "height" -> {
+                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "rectangle primitive");
+                    ok = this.height != null;
+                }
+                case "filled" -> {
 
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int count = split.length;
-                this.dash = new float[count];
-
-                for (int i = 0; i < count; ++i) {
                     try {
-                        this.dash[i] = (float) Double.parseDouble(split[i]);
+                        this.filled = VariableFactory.parseBooleanValue(theValue);
                         ok = true;
-                    } catch (final NumberFormatException e) {
-                        // No action
+                    } catch (final IllegalArgumentException e) {
+                        elem.logError("Invalid 'filled' value (" + theValue + ") on rectangle primitive");
                     }
                 }
+                case "color" -> {
 
-                if (ok) {
-                    elem.logError("Invalid 'dash' value (" + theValue + ") on rectangle primitive");
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.color = ColorNames.getColor(theValue);
+                        this.colorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'color' value (" + theValue + ") on rectangle primitive");
+                    }
                 }
-            } else if ("alpha".equals(name)) {
-                this.alpha = parseDouble(theValue, elem, name, "raster primitive");
-                ok = this.alpha != null;
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on rectangle primitive");
+                case "stroke-width" -> {
+                    this.strokeWidth = parseDouble(theValue, elem, name, "raster primitive");
+                    ok = this.strokeWidth != null;
+                }
+                case "dash" -> {
+
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int count = split.length;
+                    this.dash = new float[count];
+
+                    for (int i = 0; i < count; ++i) {
+                        try {
+                            this.dash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException e) {
+                            // No action
+                        }
+                    }
+
+                    if (ok) {
+                        elem.logError("Invalid 'dash' value (" + theValue + ") on rectangle primitive");
+                    }
+                }
+                case "alpha" -> {
+                    this.alpha = parseDouble(theValue, elem, name, "raster primitive");
+                    ok = this.alpha != null;
+                }
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on rectangle primitive");
             }
         }
 
@@ -671,7 +681,7 @@ final class DocPrimitiveRectangle extends AbstractDocPrimitive {
                     && Objects.equals(this.color, rect.color)
                     && Objects.equals(this.alpha, rect.alpha)
                     && Objects.equals(this.strokeWidth, rect.strokeWidth)
-                    && Objects.equals(this.dash, rect.dash);
+                    && Arrays.equals(this.dash, rect.dash);
         } else {
             equal = false;
         }

@@ -5,7 +5,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.front.BuildDateTime;
@@ -43,7 +42,7 @@ public enum SysAdminPage {
     public static HtmlBuilder startSysAdminPage(final Cache cache, final AdminSite site,
                                                 final ImmutableSessionInfo session) throws SQLException {
 
-        final RawWhichDb whichDb = RawWhichDbLogic.query(cache);
+        final RawWhichDb whichDb = cache.getSystemData().getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();

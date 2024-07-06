@@ -34,7 +34,7 @@ public final class DocFraction extends AbstractDocContainer {
     private DocNonwrappingSpan denominator;
 
     /** The fraction format. */
-    private EFractionFormat fractionFormat = EFractionFormat.ABOVE_BELOW;
+    private final EFractionFormat fractionFormat = EFractionFormat.ABOVE_BELOW;
 
     /** The Y offset of the horizontal line. */
     private int lineY;

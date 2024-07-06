@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -181,9 +180,8 @@ public final class ItemSessionStore {
      * all sessions will be discarded.
      *
      * @param dir the directory from which to load the active sessions
-     * @throws SQLException if there is an error accessing the database
      */
-    public void restore(final File dir) throws SQLException {
+    public void restore(final File dir) {
 
         // Called from the web mid-controller when the app server is starting
 

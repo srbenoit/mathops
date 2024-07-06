@@ -167,14 +167,11 @@ public final class ProblemNumericPanel extends AbstractProblemPanelBase
             final Object cor = this.problem.acceptNumber == null ? null
                     : this.problem.acceptNumber.getCorrectAnswerValue(this.problem.evalContext);
 
-            if (cor instanceof Long) {
-                txt = cor.toString();
-            } else if (cor instanceof Double) {
-                txt = df.format(((Double) cor).doubleValue());
-            } else if (cor == null) {
-                Log.warning("Null correct answer");
-            } else {
-                Log.warning("Unsupported correct answer type: " + cor.getClass().getName());
+            switch (cor) {
+                case Long l -> txt = cor.toString();
+                case Double v -> txt = df.format(v.doubleValue());
+                case null -> Log.warning("Null correct answer");
+                default -> Log.warning("Unsupported correct answer type: " + cor.getClass().getName());
             }
 
             // Special case handling

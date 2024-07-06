@@ -37,6 +37,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serial;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -484,262 +485,293 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
         if (theValue == null) {
             ok = true;
         } else {
-            if ("x".equals(name)) {
-                this.xCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.xCoord != null;
-            } else if ("y".equals(name)) {
-                this.yCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.yCoord != null;
-            } else if ("width".equals(name)) {
-                this.width = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.width != null;
-            } else if ("height".equals(name)) {
-                this.height = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.height != null;
-            } else if ("cx".equals(name)) {
-                this.centerX = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.centerX != null;
-            } else if ("cy".equals(name)) {
-                this.centerY = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.centerY != null;
-            } else if ("r".equals(name)) {
-                this.radius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.radius != null;
-            } else if ("rx".equals(name)) {
-                this.xRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.xRadius != null;
-            } else if ("ry".equals(name)) {
-                this.yRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.yRadius != null;
-            } else if ("start-angle".equals(name)) {
-                this.startAngle = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.startAngle != null;
-            } else if ("arc-angle".equals(name)) {
-                this.arcAngle = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                ok = this.arcAngle != null;
-            } else if ("stroke-width".equals(name)) {
-                this.strokeWidth = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.strokeWidth != null;
-            } else if ("stroke-color".equals(name) || "color".equals(name)) {
-                if (mode.reportDeprecated && "color".equals(name)) {
-                    elem.logError("Deprecated use of 'color'' on arc primitive - use stroke-color instead.");
+            switch (name) {
+                case "x" -> {
+                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.xCoord != null;
                 }
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.strokeColor = ColorNames.getColor(theValue);
-                    this.strokeColorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
+                case "y" -> {
+                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.yCoord != null;
                 }
-            } else if ("stroke-dash".equals(name) || "dash".equals(name)) {
-                if (mode.reportDeprecated && "dash".equals(name)) {
-                    elem.logError("Deprecated use of 'dash' on arc primitive - use stroke-dash instead.");
+                case "width" -> {
+                    this.width = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.width != null;
                 }
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int splitLen = split.length;
-
-                this.strokeDash = new float[splitLen];
-                for (int i = 0; i < splitLen; ++i) {
-                    try {
-                        this.strokeDash[i] = (float) Double.parseDouble(split[i]);
+                case "height" -> {
+                    this.height = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.height != null;
+                }
+                case "cx" -> {
+                    this.centerX = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.centerX != null;
+                }
+                case "cy" -> {
+                    this.centerY = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.centerY != null;
+                }
+                case "r" -> {
+                    this.radius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.radius != null;
+                }
+                case "rx" -> {
+                    this.xRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.xRadius != null;
+                }
+                case "ry" -> {
+                    this.yRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.yRadius != null;
+                }
+                case "start-angle" -> {
+                    this.startAngle = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.startAngle != null;
+                }
+                case "arc-angle" -> {
+                    this.arcAngle = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
+                    ok = this.arcAngle != null;
+                }
+                case "stroke-width" -> {
+                    this.strokeWidth = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.strokeWidth != null;
+                }
+                case "stroke-color", "color" -> {
+                    if (mode.reportDeprecated && "color".equals(name)) {
+                        elem.logError("Deprecated use of 'color'' on arc primitive - use stroke-color instead.");
+                    }
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.strokeColor = ColorNames.getColor(theValue);
+                        this.strokeColorName = theValue;
                         ok = true;
-                    } catch (final NumberFormatException ex) {
-                        // No action
+                    } else {
+                        elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
                     }
                 }
-                if (!ok) {
-                    elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("stroke-alpha".equals(name) || "alpha".equals(name)) {
-                if (mode.reportDeprecated && "alpha".equals(name)) {
-                    elem.logError("Deprecated use of 'alpha' on arc primitive - use stroke-alpha instead.");
-                }
-                this.strokeAlpha = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.strokeAlpha != null;
-            } else if ("filled".equals(name)) {
-                if (mode.reportDeprecated) {
-                    elem.logError("Deprecated use of 'filled'' on arc primitive - use fill-style instead.");
-                }
-                try {
-                    final Boolean filledBoolean = VariableFactory.parseBooleanValue(theValue);
-                    this.fillStyle = filledBoolean.booleanValue() ? EArcFillStyle.PIE : EArcFillStyle.NONE;
-                    ok = true;
-                } catch (final IllegalArgumentException ex) {
-                    elem.logError("Invalid 'filled' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("fill-style".equals(name)) {
-                try {
-                    final String uppercase = theValue.toUpperCase(Locale.ROOT);
-                    this.fillStyle = EArcFillStyle.valueOf(uppercase);
-                    ok = true;
-                } catch (final IllegalArgumentException ex) {
-                    elem.logError("Invalid 'fill-style' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("fill-color".equals(name)) {
-
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.fillColor = ColorNames.getColor(theValue);
-                    this.fillColorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'fill-color' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("fill-alpha".equals(name)) {
-                this.fillAlpha = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.fillAlpha != null;
-            } else if ("rays-shown".equals(name)) {
-                try {
-                    final String uppercase = theValue.toUpperCase(Locale.ROOT);
-                    this.raysShown = EArcRaysShown.valueOf(uppercase);
-                    ok = true;
-                } catch (final IllegalArgumentException ex) {
-                    elem.logError("Invalid 'rays-shown' value (" + theValue + ") on arc primitive");
-                }
-
-            } else if ("ray-width".equals(name)) {
-                this.rayWidth = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.rayWidth != null;
-            } else if ("ray-length".equals(name)) {
-                this.rayLength = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.rayLength != null;
-            } else if ("ray-color".equals(name)) {
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.rayColor = ColorNames.getColor(theValue);
-                    this.rayColorName = theValue;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("ray-dash".equals(name)) {
-                final String[] split = theValue.split(CoreConstants.COMMA);
-                final int splitLen = split.length;
-
-                this.rayDash = new float[splitLen];
-                for (int i = 0; i < splitLen; ++i) {
-                    try {
-                        this.rayDash[i] = (float) Double.parseDouble(split[i]);
-                        ok = true;
-                    } catch (final NumberFormatException ex) {
-                        // No action
+                case "stroke-dash", "dash" -> {
+                    if (mode.reportDeprecated && "dash".equals(name)) {
+                        elem.logError("Deprecated use of 'dash' on arc primitive - use stroke-dash instead.");
                     }
-                }
-                if (!ok) {
-                    elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
-                }
-            } else if ("ray-alpha".equals(name)) {
-                this.rayAlpha = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.rayAlpha != null;
-            } else if ("label".equals(name)) {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int splitLen = split.length;
 
-                this.rawLabelString = theValue;
-
-                // Identify and replace {\tag} tags for special characters
-                String processed = unescape(theValue);
-                int index = processed.indexOf("{\\");
-                while (index != -1) {
-                    final int endIndex = processed.indexOf('}', index + 2);
-                    if (endIndex != -1) {
-                        final String cp = DocFactory.parseNamedEntity(processed.substring(index + 1, endIndex));
-
-                        if (!cp.isEmpty()) {
-                            processed = processed.substring(0, index) + cp + processed.substring(endIndex + 1);
+                    this.strokeDash = new float[splitLen];
+                    for (int i = 0; i < splitLen; ++i) {
+                        try {
+                            this.strokeDash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException ex) {
+                            // No action
                         }
                     }
-                    index = processed.indexOf("{\\", index + 1);
+                    if (!ok) {
+                        elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
+                    }
                 }
-
-                this.labelString = processed;
-
-                if (this.labelString.length() == 1) {
-                    final char ch = this.labelString.charAt(0);
-
-                    this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6' || ch == '\u03F0'
-                            || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034' || ch == '\u2057';
-
-                    this.isStixMath = ch == '\u21D0' || ch == '\u21D1' || ch == '\u21D2' || ch == '\u21D3' || ch == '\u21D4'
-                            || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
-                            || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266' || ch == '\u2267'
-                            || ch == '\u2268' || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
-                            || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271' || ch == '\u2272'
-                            || ch == '\u2273' || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
-                            || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F' || ch == '\u2280'
-                            || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
-                            || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6'
-                            || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
-                            || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713'
-                            || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
-                            || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86' || ch == '\u2A87'
-                            || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C'
-                            || ch == '\u2A95' || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
-                            || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
-                            || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
-                } else {
-                    this.isStixText = false;
-                    this.isStixMath = false;
+                case "stroke-alpha", "alpha" -> {
+                    if (mode.reportDeprecated && "alpha".equals(name)) {
+                        elem.logError("Deprecated use of 'alpha' on arc primitive - use stroke-alpha instead.");
+                    }
+                    this.strokeAlpha = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.strokeAlpha != null;
                 }
+                case "filled" -> {
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated use of 'filled'' on arc primitive - use fill-style instead.");
+                    }
+                    try {
+                        final Boolean filledBoolean = VariableFactory.parseBooleanValue(theValue);
+                        this.fillStyle = filledBoolean.booleanValue() ? EArcFillStyle.PIE : EArcFillStyle.NONE;
+                        ok = true;
+                    } catch (final IllegalArgumentException ex) {
+                        elem.logError("Invalid 'filled' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "fill-style" -> {
+                    try {
+                        final String uppercase = theValue.toUpperCase(Locale.ROOT);
+                        this.fillStyle = EArcFillStyle.valueOf(uppercase);
+                        ok = true;
+                    } catch (final IllegalArgumentException ex) {
+                        elem.logError("Invalid 'fill-style' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "fill-color" -> {
 
-                ok = true;
-            } else if ("label-color".equals(name)) {
-                if (ColorNames.isColorNameValid(theValue)) {
-                    this.labelColor = ColorNames.getColor(theValue);
-                    this.labelColorName = theValue;
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.fillColor = ColorNames.getColor(theValue);
+                        this.fillColorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'fill-color' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "fill-alpha" -> {
+                    this.fillAlpha = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.fillAlpha != null;
+                }
+                case "rays-shown" -> {
+                    try {
+                        final String uppercase = theValue.toUpperCase(Locale.ROOT);
+                        this.raysShown = EArcRaysShown.valueOf(uppercase);
+                        ok = true;
+                    } catch (final IllegalArgumentException ex) {
+                        elem.logError("Invalid 'rays-shown' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "ray-width" -> {
+                    this.rayWidth = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.rayWidth != null;
+                }
+                case "ray-length" -> {
+                    this.rayLength = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.rayLength != null;
+                }
+                case "ray-color" -> {
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.rayColor = ColorNames.getColor(theValue);
+                        this.rayColorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "ray-dash" -> {
+                    final String[] split = theValue.split(CoreConstants.COMMA);
+                    final int splitLen = split.length;
+
+                    this.rayDash = new float[splitLen];
+                    for (int i = 0; i < splitLen; ++i) {
+                        try {
+                            this.rayDash[i] = (float) Double.parseDouble(split[i]);
+                            ok = true;
+                        } catch (final NumberFormatException ex) {
+                            // No action
+                        }
+                    }
+                    if (!ok) {
+                        elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
+                    }
+                }
+                case "ray-alpha" -> {
+                    this.rayAlpha = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.rayAlpha != null;
+                }
+                case "label" -> {
+
+                    this.rawLabelString = theValue;
+
+                    // Identify and replace {\tag} tags for special characters
+                    String processed = unescape(theValue);
+                    int index = processed.indexOf("{\\");
+                    while (index != -1) {
+                        final int endIndex = processed.indexOf('}', index + 2);
+                        if (endIndex != -1) {
+                            final String cp = DocFactory.parseNamedEntity(processed.substring(index + 1, endIndex));
+
+                            if (!cp.isEmpty()) {
+                                processed = processed.substring(0, index) + cp + processed.substring(endIndex + 1);
+                            }
+                        }
+                        index = processed.indexOf("{\\", index + 1);
+                    }
+
+                    this.labelString = processed;
+
+                    if (this.labelString.length() == 1) {
+                        final char ch = this.labelString.charAt(0);
+
+                        this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6' || ch == '\u03F0'
+                                || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034' || ch == '\u2057';
+
+                        this.isStixMath = ch == '\u21D0' || ch == '\u21D1' || ch == '\u21D2' || ch == '\u21D3' || ch == '\u21D4'
+                                || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
+                                || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266' || ch == '\u2267'
+                                || ch == '\u2268' || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
+                                || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271' || ch == '\u2272'
+                                || ch == '\u2273' || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
+                                || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F' || ch == '\u2280'
+                                || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
+                                || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6'
+                                || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
+                                || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713'
+                                || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
+                                || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86' || ch == '\u2A87'
+                                || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C'
+                                || ch == '\u2A95' || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
+                                || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
+                                || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
+                    } else {
+                        this.isStixText = false;
+                        this.isStixMath = false;
+                    }
+
                     ok = true;
-                } else {
-                    elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
                 }
-            } else if ("label-alpha".equals(name)) {
-                this.labelAlpha = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.labelAlpha != null;
-            } else if ("label-offset".equals(name)) {
-                this.labelOffset = parseDouble(theValue, elem, name, "arc primitive");
-                ok = this.labelOffset != null;
-            } else if ("fontname".equals(name)) {
-
-                final BundledFontManager fonts = BundledFontManager.getInstance();
-
-                if (fonts.isFontNameValid(theValue)) {
-                    this.fontName = theValue;
-                    this.font = null;
-                    ok = true;
-                } else {
-                    elem.logError("Invalid 'fontname' value (" + theValue + ") on arc primitive");
+                case "label-color" -> {
+                    if (ColorNames.isColorNameValid(theValue)) {
+                        this.labelColor = ColorNames.getColor(theValue);
+                        this.labelColorName = theValue;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid '" + name + "' value (" + theValue + ") on arc primitive");
+                    }
                 }
-            } else if ("fontsize".equals(name)) {
-
-                try {
-                    this.fontSize = Double.valueOf(theValue);
-                    ok = true;
-                } catch (final NumberFormatException e) {
-                    elem.logError("Invalid 'fontsize' value (" + theValue + ") on arc primitive");
+                case "label-alpha" -> {
+                    this.labelAlpha = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.labelAlpha != null;
                 }
-            } else if ("fontstyle".equals(name)) {
-                final String lower = theValue.toLowerCase(Locale.ROOT);
-
-                if ("plain".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.PLAIN);
-                    ok = true;
+                case "label-offset" -> {
+                    this.labelOffset = parseDouble(theValue, elem, name, "arc primitive");
+                    ok = this.labelOffset != null;
                 }
+                case "fontname" -> {
 
-                if ("bold".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.BOLD);
-                    ok = true;
-                }
+                    final BundledFontManager fonts = BundledFontManager.getInstance();
 
-                if ("italic".equals(lower)) {
-                    this.fontStyle = Integer.valueOf(Font.ITALIC);
-                    ok = true;
+                    if (fonts.isFontNameValid(theValue)) {
+                        this.fontName = theValue;
+                        this.font = null;
+                        ok = true;
+                    } else {
+                        elem.logError("Invalid 'fontname' value (" + theValue + ") on arc primitive");
+                    }
                 }
+                case "fontsize" -> {
 
-                if (("bold,italic".equals(lower)) || ("italic,bold".equals(lower))) {
-                    this.fontStyle = Integer.valueOf(Font.ITALIC | Font.BOLD);
-                    ok = true;
+                    try {
+                        this.fontSize = Double.valueOf(theValue);
+                        ok = true;
+                    } catch (final NumberFormatException e) {
+                        elem.logError("Invalid 'fontsize' value (" + theValue + ") on arc primitive");
+                    }
                 }
+                case "fontstyle" -> {
+                    final String lower = theValue.toLowerCase(Locale.ROOT);
 
-                if (!ok) {
-                    elem.logError("Invalid 'fontstyle' value (" + theValue + ") on arc primitive");
+                    if ("plain".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.PLAIN);
+                        ok = true;
+                    }
+
+                    if ("bold".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.BOLD);
+                        ok = true;
+                    }
+
+                    if ("italic".equals(lower)) {
+                        this.fontStyle = Integer.valueOf(Font.ITALIC);
+                        ok = true;
+                    }
+
+                    if (("bold,italic".equals(lower)) || ("italic,bold".equals(lower))) {
+                        this.fontStyle = Integer.valueOf(Font.ITALIC | Font.BOLD);
+                        ok = true;
+                    }
+
+                    if (!ok) {
+                        elem.logError("Invalid 'fontstyle' value (" + theValue + ") on arc primitive");
+                    }
                 }
-            } else {
-                elem.logError("Unsupported attribute '" + name + "' on arc primitive");
+                case null, default -> elem.logError("Unsupported attribute '" + name + "' on arc primitive");
             }
         }
 
@@ -1535,7 +1567,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
      * @param set the set of parameter names
      */
     @Override
-    public void accumulateParameterNames(@SuppressWarnings("BoundedWildcard") final Set<String> set) {
+    public void accumulateParameterNames(final Set<String> set) {
 
         if (this.xCoord != null && this.xCoord.getFormula() != null) {
             set.addAll(this.xCoord.getFormula().params.keySet());
@@ -1655,17 +1687,17 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     && Objects.equals(this.strokeColorName, arc.strokeColorName)
                     && Objects.equals(this.strokeColor, arc.strokeColor)
                     && Objects.equals(this.strokeAlpha, arc.strokeAlpha)
-                    && Objects.equals(this.strokeDash, arc.strokeDash)
-                    && Objects.equals(this.fillStyle, arc.fillStyle)
+                    && Arrays.equals(this.strokeDash, arc.strokeDash)
+                    && this.fillStyle == arc.fillStyle
                     && Objects.equals(this.fillColorName, arc.fillColorName)
                     && Objects.equals(this.fillColor, arc.fillColor)
                     && Objects.equals(this.fillAlpha, arc.fillAlpha)
-                    && Objects.equals(this.raysShown, arc.raysShown)
+                    && this.raysShown == arc.raysShown
                     && Objects.equals(this.rayWidth, arc.rayWidth)
                     && Objects.equals(this.rayLength, arc.rayLength)
                     && Objects.equals(this.rayColorName, arc.rayColorName)
                     && Objects.equals(this.rayColor, arc.rayColor)
-                    && Objects.equals(this.rayDash, arc.rayDash)
+                    && Arrays.equals(this.rayDash, arc.rayDash)
                     && Objects.equals(this.rayAlpha, arc.rayAlpha)
             ;
         } else {

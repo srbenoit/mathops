@@ -10,7 +10,6 @@ import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -598,7 +597,7 @@ enum PageStdsTextModule {
         htm.eDiv();
 
         try {
-            final TermRec active = TermLogic.get(cache).queryActive(cache);
+            final TermRec active = cache.getSystemData().getActiveTerm();
             final List<RawSthomework> attempts = RawSthomeworkLogic.queryByStudentCourseUnitObjective(cache, stuId,
                     course, Integer.valueOf(module), Integer.valueOf(objective), false);
 

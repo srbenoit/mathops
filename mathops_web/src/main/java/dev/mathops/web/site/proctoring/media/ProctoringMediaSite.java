@@ -72,17 +72,6 @@ public final class ProctoringMediaSite extends AbstractSite {
     }
 
     /**
-     * Initializes the site - called when the servlet is initialized.
-     *
-     * @param config the servlet context in which the servlet is being in
-     */
-    @Override
-    public void init(final ServletConfig config) {
-
-        // No action
-    }
-
-    /**
      * Indicates whether this site should do live queries to update student registration data.
      *
      * @return true to do live registration queries; false to skip
@@ -124,69 +113,68 @@ public final class ProctoringMediaSite extends AbstractSite {
 
         // TODO: Honor maintenance mode.
 
-        if ("basestyle.css".equals(subpath)
-                || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)
-                || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
-            serveImage(subpath, req, resp);
-        } else {
-            final ImmutableSessionInfo session = validateSession(req, resp, null);
+        switch (subpath) {
+            case "basestyle.css", "secure/basestyle.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            case "style.css", "secure/style.css" ->
+                    sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+            case "favicon.ico", "secure/favicon.ico" -> serveImage(subpath, req, resp);
+            case null, default -> {
+                final ImmutableSessionInfo session = validateSession(req, resp, null);
 
-            final boolean showLanding = CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)
-                    || "login.html".equals(subpath);
+                final boolean showLanding = CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)
+                        || "login.html".equals(subpath);
 
-            if (session == null) {
-                if (showLanding) {
-                    PageLanding.showPage(cache, this, req, resp);
-                } else if ("secure/shibboleth.html".equals(subpath)) {
-                    doShibbolethLogin(cache, req, resp, null);
-                } else {
-                    resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                    final String path = this.siteProfile.path;
-                    resp.setHeader("Location",
-                            path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
-                    sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
-                }
-            } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
-
-                if (session.getEffectiveRole().canActAs(ERole.PROCTOR)
-                        || session.getEffectiveRole().canActAs(ERole.OFFICE_STAFF)
-                        || session.getEffectiveRole().canActAs(ERole.DIRECTOR)) {
+                if (session == null) {
                     if (showLanding) {
                         PageLanding.showPage(cache, this, req, resp);
-                    } else if (subpath.endsWith(".js")) {
-                        serveJs(subpath, req, resp);
-                    } else if (subpath.endsWith("png")
-                            || subpath.endsWith(".jpg")
-                            || subpath.endsWith(".jpeg")
-                            || subpath.endsWith(".gif")
-                            || subpath.endsWith(".ico")
-                            || subpath.endsWith(".webm")
-                            || subpath.endsWith(".mp4")
-                            || subpath.endsWith(".ogv")
-                            || subpath.endsWith(".pdf")) {
-
-                        serveMedia(subpath, req, resp);
-                    } else if ("home.html".equals(subpath)) {
-                        PageHome.showPage(cache, this, req, resp, session);
-                    } else if ("details.html".equals(subpath)) {
-                        PageDetails.showPage(cache, this, req, resp, session);
                     } else if ("secure/shibboleth.html".equals(subpath)) {
-                        doShibbolethLogin(cache, req, resp, session);
+                        doShibbolethLogin(cache, req, resp, null);
+                    } else {
+                        resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                        final String path = this.siteProfile.path;
+                        resp.setHeader("Location",
+                                path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
+                        sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
+                    }
+                } else {
+                    LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+
+                    if (session.getEffectiveRole().canActAs(ERole.PROCTOR)
+                            || session.getEffectiveRole().canActAs(ERole.OFFICE_STAFF)
+                            || session.getEffectiveRole().canActAs(ERole.DIRECTOR)) {
+                        if (showLanding) {
+                            PageLanding.showPage(cache, this, req, resp);
+                        } else if (subpath.endsWith(".js")) {
+                            serveJs(subpath, req, resp);
+                        } else if (subpath.endsWith("png")
+                                || subpath.endsWith(".jpg")
+                                || subpath.endsWith(".jpeg")
+                                || subpath.endsWith(".gif")
+                                || subpath.endsWith(".ico")
+                                || subpath.endsWith(".webm")
+                                || subpath.endsWith(".mp4")
+                                || subpath.endsWith(".ogv")
+                                || subpath.endsWith(".pdf")) {
+
+                            serveMedia(subpath, req, resp);
+                        } else if ("home.html".equals(subpath)) {
+                            PageHome.showPage(cache, this, req, resp, session);
+                        } else if ("details.html".equals(subpath)) {
+                            PageDetails.showPage(cache, this, req, resp, session);
+                        } else if ("secure/shibboleth.html".equals(subpath)) {
+                            doShibbolethLogin(cache, req, resp, session);
+                        } else {
+                            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        }
                     } else {
                         Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }
-                } else {
-                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-                }
 
-                LogBase.setSessionInfo(null, null);
+                    LogBase.setSessionInfo(null, null);
+                }
             }
         }
 
@@ -245,17 +233,15 @@ public final class ProctoringMediaSite extends AbstractSite {
         } else {
             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-            if ("rolecontrol.html".equals(subpath)) {
-                processRoleControls(cache, req, resp, session);
-            } else if ("upload.html".equals(subpath)) {
-                processUpload(cache, req, resp);
-            } else if ("details.html".equals(subpath)) {
-                PageDetails.processPost(this, req, resp);
-            } else if ("elevated.html".equals(subpath)) {
-                PageDetails.processElevated(this, req, resp);
-            } else {
-                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            switch (subpath) {
+                case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                case "upload.html" -> processUpload(cache, req, resp);
+                case "details.html" -> PageDetails.processPost(this, req, resp);
+                case "elevated.html" -> PageDetails.processElevated(this, req, resp);
+                case null, default -> {
+                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
 
             LogBase.setSessionInfo(null, null);

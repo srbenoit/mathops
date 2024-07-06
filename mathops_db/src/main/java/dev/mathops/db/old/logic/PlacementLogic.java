@@ -11,8 +11,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;

@@ -277,41 +277,52 @@ final class ReturnCard extends AdminPanelBase implements ActionListener {
                         BufferedImage icon = null;
                         final String type;
 
-                        if (RawResource.TYPE_INHOUSE_CALC.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                            type = "TI-84 calculator";
-                        } else if (RawResource.TYPE_OFFICE_CALC.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                            type = "Office TI-84 calculator";
-                        } else if (RawResource.TYPE_RENTAL_CALC.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                            type = "*** RENTAL *** TI-84 calculator (SHOULD NOT LEND)";
-                        } else if (RawResource.TYPE_RENTAL_MANUAL.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
-                            type = "TI-84 calculator manual";
-                        } else if (RawResource.TYPE_INHOUSE_IPAD.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
-                            type = "iPad tablet";
-                        } else if (RawResource.TYPE_INHOUSE_NOTEBOOK.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
-                            type = "Windows notebook";
-                        } else if (RawResource.TYPE_INHOUSE_TEXT.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
-                            type = "In-house textbook";
-                        } else if (RawResource.TYPE_OVERNIGHT_TEXT.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
-                            type = "Overnight textbook";
-                        } else if (RawResource.TYPE_INHOUSE_HEADSET.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
-                            type = "Headphones";
-                        } else if (RawResource.TYPE_INHOUSE_LOCK.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
-                            type = "Padlock";
-                        } else if (RawResource.TYPE_TUTOR_TABLET.equals(foundType)) {
-                            icon = FileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
-                            type = "Tutor Tablet";
-                        } else {
-                            type = "*** Unknown resource type ***";
+                        switch (foundType) {
+                            case RawResource.TYPE_INHOUSE_CALC -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                type = "TI-84 calculator";
+                            }
+                            case RawResource.TYPE_OFFICE_CALC -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                type = "Office TI-84 calculator";
+                            }
+                            case RawResource.TYPE_RENTAL_CALC -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                type = "*** RENTAL *** TI-84 calculator (SHOULD NOT LEND)";
+                            }
+                            case RawResource.TYPE_RENTAL_MANUAL -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
+                                type = "TI-84 calculator manual";
+                            }
+                            case RawResource.TYPE_INHOUSE_IPAD -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
+                                type = "iPad tablet";
+                            }
+                            case RawResource.TYPE_INHOUSE_NOTEBOOK -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
+                                type = "Windows notebook";
+                            }
+                            case RawResource.TYPE_INHOUSE_TEXT -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                                type = "In-house textbook";
+                            }
+                            case RawResource.TYPE_OVERNIGHT_TEXT -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                                type = "Overnight textbook";
+                            }
+                            case RawResource.TYPE_INHOUSE_HEADSET -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
+                                type = "Headphones";
+                            }
+                            case RawResource.TYPE_INHOUSE_LOCK -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
+                                type = "Padlock";
+                            }
+                            case RawResource.TYPE_TUTOR_TABLET -> {
+                                icon = FileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
+                                type = "Tutor Tablet";
+                            }
+                            case null, default -> type = "*** Unknown resource type ***";
                         }
 
                         if (icon == null) {
