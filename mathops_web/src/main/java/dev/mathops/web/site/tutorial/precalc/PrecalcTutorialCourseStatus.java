@@ -1,10 +1,8 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCunit;
@@ -12,6 +10,7 @@ import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -86,24 +85,31 @@ final class PrecalcTutorialCourseStatus {
      * Constructs a new {@code PrecalcTutorialCourseStatus}.
      *
      * @param theCache    the cache
-     * @param logic       the site logic
      * @param theCourseId the course ID
      */
-    PrecalcTutorialCourseStatus(final Cache theCache, final PrecalcTutorialSiteLogic logic, final String theCourseId) {
+    PrecalcTutorialCourseStatus(final Cache theCache, final RawStudent theStudent, final String theCourseId) {
 
-        this.student = logic.getStudent();
+        this.student = theStudent;
+
+        final SystemData systemData = theCache.getSystemData();
 
         try {
-            this.course = theCache.getSystemData().getCourse(theCourseId);
+            this.course = systemData.getCourse(theCourseId);
         } catch (final SQLException ex) {
             Log.warning("Failed to query course ", theCourseId, ex);
         }
 
+        TermRec activeTerm = null;
+        try {
+            activeTerm = systemData.getActiveTerm();
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query active term", ex);
+        }
+
         this.courseUnits = new HashMap<>(5);
         try {
-            if (logic.getActiveTerm() != null) {
-                final List<RawCunit> cunits = RawCunitLogic.queryByCourse(theCache, theCourseId,
-                        logic.getActiveTerm().term);
+            if (activeTerm != null) {
+                final List<RawCunit> cunits = systemData.getCourseUnits(theCourseId, activeTerm.term);
 
                 for (final RawCunit cunit : cunits) {
                     this.courseUnits.put(cunit.unit, cunit);
@@ -115,10 +121,10 @@ final class PrecalcTutorialCourseStatus {
 
         this.unitObjectives = new HashMap<>(5);
         try {
-            if (logic.getActiveTerm() != null) {
+            if (activeTerm != null) {
                 for (final Integer unit : new Integer[]{UNIT0, UNIT1, UNIT2, UNIT3, UNIT4}) {
-                    final List<RawCuobjective> objectives = RawCuobjectiveLogic.queryByCourseUnit(theCache, theCourseId,
-                            unit, logic.getActiveTerm().term);
+                    final List<RawCuobjective> objectives = systemData.getCourseUnitObjectives(theCourseId, unit,
+                            activeTerm.term);
                     final Map<Integer, RawCuobjective> objMap = new TreeMap<>();
                     this.unitObjectives.put(unit, objMap);
                     for (final RawCuobjective obj : objectives) {
@@ -140,7 +146,7 @@ final class PrecalcTutorialCourseStatus {
 
             for (final RawCuobjective obj : inner.values()) {
                 if (obj.lessonId != null) {
-                    final RawLesson lesson = RawLessonLogic.query(theCache, obj.lessonId);
+                    final RawLesson lesson = systemData.getLesson(obj.lessonId);
                     if (lesson != null) {
                         lessonMap.put(obj.objective, lesson);
                     }

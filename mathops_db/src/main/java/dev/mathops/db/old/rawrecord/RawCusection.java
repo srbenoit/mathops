@@ -1,6 +1,6 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.commons.EqualityTests;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
 
@@ -13,6 +13,12 @@ import java.util.Objects;
  * A raw "cusection" record.
  */
 public final class RawCusection extends RawTermRecordBase implements Comparable<RawCusection> {
+
+    /** Prefix for course numbers. */
+    private static final String PREFIX = "M";
+
+    /** Slash character. */
+    private static final String SLASH = CoreConstants.SLASH;
 
     /** A field name. */
     private static final String FLD_COURSE = "course";
@@ -453,5 +459,152 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
         }
 
         return equal;
+    }
+    /**
+     * Generate the topmatter associated with a record (FIXME: this is a hardcode until the possible score fields exist
+     * in the database).
+     *
+     * @param record the record
+     * @return the topmatter (null if none)
+     */
+    public static String getTopmatter(final RawCusection record) {
+
+        String topmatter = null;
+
+        if (RawRecordConstants.M100T.equals(record.course)) {
+            topmatter = getM100tTopmatter(record.unit);
+        } else if (RawRecordConstants.M117.equals(record.course)) {
+            topmatter = getPrecalcTopmatter("117", record.unit);
+        } else if (RawRecordConstants.M118.equals(record.course)) {
+            topmatter = getPrecalcTopmatter("118", record.unit);
+        } else if (RawRecordConstants.M124.equals(record.course)) {
+            topmatter = getPrecalcTopmatter("124", record.unit);
+        } else if (RawRecordConstants.M125.equals(record.course)) {
+            topmatter = getPrecalcTopmatter("125", record.unit);
+        } else if (RawRecordConstants.M126.equals(record.course)) {
+            topmatter = getPrecalcTopmatter("126", record.unit);
+        }
+
+        return topmatter;
+    }
+
+    /**
+     * Generates the topmatter value for the M 100T course (hardcoded here until the database supports the field).
+     *
+     * @param unit the unit number
+     * @return the top matter
+     */
+    private static String getM100tTopmatter(final Integer unit) {
+
+        String topmatter = null;
+
+        final int unitValue = unit == null ? -1 : unit.intValue();
+
+        if (unitValue == 1) {
+            topmatter = setUnitVidProb("M100T/1MTU1.pdf");
+        } else if (unitValue == 2) {
+            topmatter = setUnitVidProb("M100T/1MTU2.pdf");
+        } else if (unitValue == 3) {
+            topmatter = setUnitVidProb("M100T/1MTU3.pdf");
+        } else if (unitValue == 4) {
+            topmatter = setUnitVidProb("M100T/1MTU4.pdf");
+        }
+
+        return topmatter;
+    }
+
+    /**
+     * Generates the topmatter value for a Precalculus course (hardcoded here until the database supports the field).
+     *
+     * @param number the course number (117 through 126)
+     * @param unit   the unit number
+     * @return the top matter
+     */
+    private static String getPrecalcTopmatter(final String number, final Integer unit) {
+
+        String topmatter = null;
+
+        final int unitValue = unit == null ? -1 : unit.intValue();
+
+        if (unitValue == 1) {
+            topmatter = setUnitVidProb(PREFIX + number + SLASH + number + "U1.pdf");
+        } else if (unitValue == 2) {
+            topmatter = setUnitVidProb(PREFIX + number + SLASH + number + "U2.pdf");
+        } else if (unitValue == 3) {
+            topmatter = setUnitVidProb(PREFIX + number + SLASH + number + "U3.pdf");
+        } else if (unitValue == 4) {
+            topmatter = setUnitVidProb(PREFIX + number + SLASH + number + "U4.pdf");
+        } else if (unitValue == 5) {
+            topmatter = toComplete("MATH " + number);
+        }
+
+        return topmatter;
+    }
+
+
+    /**
+     * Generates the topmatter to have a single PDF file link labeled "Unit Video Problems".
+     *
+     * @param file the file (a relative path below the /media directory on the streaming server)
+     * @return the top matter
+     */
+    private static String setUnitVidProb(final String file) {
+
+        final HtmlBuilder top = new HtmlBuilder(300);
+
+        top.addln("<p class='indent33'><img src='/images/pdf.png' alt='' style='padding-right:3px;'/> ",
+                "<a target='_blank' href='https://nibbler.math.colostate.edu/media/", file,
+                "'>Unit Video Problems</a></p>");
+
+        return top.toString();
+    }
+
+    /**
+     * Generates the topmatter to instructions for completing the final exam in a resident course.
+     *
+     * @param course the course label
+     * @return the top matter
+     */
+    private static String toComplete(final String course) {
+
+        final HtmlBuilder top = new HtmlBuilder(300);
+
+        top.div("clear");
+
+        top.sP("indent33");
+        top.addln(" To complete ", course, ", you must pass the <b>Final Exam</b> with a score of 16 or better.");
+        top.eP();
+
+        top.sP("indent33");
+        top.addln(" The best way to review for the <b>Final Exam</b> is to  practice the <b>Review Exams</b>.");
+        top.eP();
+
+        return top.toString();
+    }
+
+    /**
+     * Given a mastery score, attempts to deduce the possible score (FIXME: this is a hardcode until the possible score
+     * fields exist in the database).
+     *
+     * @param mastery the mastery score (could be null)
+     * @return the deduced possible score (null if input is null)
+     */
+    public static Integer masteryToPossible(final Integer mastery) {
+
+        Integer possible = null;
+
+        if (mastery != null) {
+            if (mastery.intValue() == 8 || mastery.intValue() == 7) {
+                possible = Integer.valueOf(10);
+            } else if (mastery.intValue() == 11 || mastery.intValue() == 12) {
+                possible = Integer.valueOf(15);
+            } else if (mastery.intValue() == 16 || mastery.intValue() == 14) {
+                possible = Integer.valueOf(20);
+            } else {
+                possible = Integer.valueOf(mastery.intValue() * 10 / 8);
+            }
+        }
+
+        return possible;
     }
 }

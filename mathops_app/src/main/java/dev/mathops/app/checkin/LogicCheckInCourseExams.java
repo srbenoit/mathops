@@ -6,7 +6,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
@@ -459,8 +458,8 @@ final class LogicCheckInCourseExams {
                     }
                 }
 
-                final List<RawCusection> cusections = RawCusectionLogic.queryByCourseSection(cache, reg.course,
-                        reg.sect, effTerm.term);
+                final List<RawCusection> cusections = systemData.getCourseUnitSections(reg.course, reg.sect,
+                        effTerm.term);
                 final int count = cusections.size();
                 cusectionMap = new HashMap<>(count);
                 for (final RawCusection cusect : cusections) {

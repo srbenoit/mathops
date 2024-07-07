@@ -3,9 +3,6 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
@@ -71,8 +68,7 @@ public final class CourseLesson extends LogicBase {
                     && queryCourseTutorialStatus(cache, courseId) && queryLesson(cache);
 
             if (ok) {
-                this.components =
-                        RawLessonComponentLogic.queryByLesson(cache, this.courseUnitObjective.lessonId);
+                this.components = cache.getSystemData().getLessonComponentsByLesson(this.courseUnitObjective.lessonId);
             }
         }
 
@@ -90,10 +86,10 @@ public final class CourseLesson extends LogicBase {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean queryCourseUnitObjective(final Cache cache, final String courseId,
-                                             final Integer unit, final Integer objective, final TermKey key) throws SQLException {
+    private boolean queryCourseUnitObjective(final Cache cache, final String courseId, final Integer unit,
+                                             final Integer objective, final TermKey key) throws SQLException {
 
-        this.courseUnitObjective = RawCuobjectiveLogic.query(cache, courseId, unit, objective, key);
+        this.courseUnitObjective = cache.getSystemData().getCourseUnitObjective(courseId, unit, objective, key);
 
         if (this.courseUnitObjective == null) {
             setErrorText(
@@ -133,7 +129,7 @@ public final class CourseLesson extends LogicBase {
 
         final boolean ok;
 
-        this.lesson = RawLessonLogic.query(cache, this.courseUnitObjective.lessonId);
+        this.lesson = cache.getSystemData().getLesson(this.courseUnitObjective.lessonId);
 
         if (this.lesson == null) {
             setErrorText("Lesson not found.");

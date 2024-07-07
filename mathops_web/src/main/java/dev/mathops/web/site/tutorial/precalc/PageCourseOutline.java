@@ -11,6 +11,7 @@ import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -85,7 +86,8 @@ enum PageCourseOutline {
     private static void doCourseOutlinePage(final Cache cache, final String courseId, final HtmlBuilder htm,
                                             final PrecalcTutorialSiteLogic logic) throws SQLException {
 
-        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, logic, courseId);
+        final RawStudent student = logic.getStudent();
+        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, student, courseId);
 
         final String associatedCourse = PrecalcTutorialSiteLogic.getAssociatedCourse(tutStatus.getCourse());
         htm.add("<h2 class='title' style='margin-bottom:3px;'>");

@@ -16,7 +16,6 @@ import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
@@ -212,8 +211,8 @@ enum PageLesson {
 
                 // Button to launch the assignment (with status)
                 if (status.hasHomework(unit, objective)) {
-                    final AssignmentRec hw = AssignmentLogic.get(cache).queryActive(cache, courseId,
-                            Integer.valueOf(unit), Integer.valueOf(objective), "HW");
+                    final AssignmentRec hw = systemData.getActiveAssignment(courseId, Integer.valueOf(unit),
+                            Integer.valueOf(objective), "HW");
 
                     if (hw != null) {
                         final Boolean isTut = less.getCourseIsTutorial();

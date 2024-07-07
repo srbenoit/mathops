@@ -14,11 +14,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
@@ -47,7 +43,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ISessionManager;
@@ -1073,7 +1068,8 @@ public final class StudentCourseStatus extends LogicBase {
 
                 queryExams(cache);
 
-                this.homeworks = AssignmentLogic.get(cache).queryActiveByCourse(cache, this.studentCourse.course, "HW");
+                this.homeworks = cache.getSystemData().getActiveAssignmentsByCourseType(this.studentCourse.course,
+                        "HW");
 
                 // Allocate homework status variables
                 this.homeworkAvailable = new boolean[this.homeworks.size()];
@@ -1198,7 +1194,7 @@ public final class StudentCourseStatus extends LogicBase {
      */
     private boolean queryCourseUnits(final Cache cache, final String theCourseId) throws SQLException {
 
-        final List<RawCunit> list = RawCunitLogic.queryByCourse(cache, theCourseId, this.activeTerm.term);
+        final List<RawCunit> list = cache.getSystemData().getCourseUnits(theCourseId, this.activeTerm.term);
 
         // store the course units in an array indexed by unit number
         int max = -1;
@@ -1454,7 +1450,7 @@ public final class StudentCourseStatus extends LogicBase {
         final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
                 : this.studentCourse.termKey;
 
-        final List<RawCusection> list = RawCusectionLogic.queryByCourseSection(cache, crs, sect, term);
+        final List<RawCusection> list = cache.getSystemData().getCourseUnitSections(crs, sect, term);
 
         boolean result = true;
         this.courseSectionUnits = new RawCusection[this.maxUnit + 1];
@@ -1556,10 +1552,11 @@ public final class StudentCourseStatus extends LogicBase {
         this.courseUnitObjectives = new RawCuobjective[this.maxUnit + 1][];
         this.lessons = new RawLesson[this.maxUnit + 1][];
 
+        final SystemData systemData = cache.getSystemData();
         for (int i = 0; i <= this.maxUnit; ++i) {
 
-            final List<RawCuobjective> all = RawCuobjectiveLogic.queryByCourseUnit(cache, crs,
-                    Integer.valueOf(i), this.activeTerm.term);
+            final List<RawCuobjective> all = systemData.getCourseUnitObjectives(crs, Integer.valueOf(i),
+                    this.activeTerm.term);
 
             this.courseUnitObjectives[i] = all.toArray(ZERO_LEN_CUOBJ_ARR);
             final int count = this.courseUnitObjectives[i].length;
@@ -1570,7 +1567,7 @@ public final class StudentCourseStatus extends LogicBase {
                 final RawCuobjective culess = this.courseUnitObjectives[i][j];
                 final String lessonId = culess.lessonId;
 
-                this.lessons[i][j] = RawLessonLogic.query(cache, lessonId);
+                this.lessons[i][j] = systemData.getLesson(lessonId);
                 if (this.lessons[i][j] == null) {
                     setErrorText("Unable to look up lesson " + lessonId);
                     result = false;

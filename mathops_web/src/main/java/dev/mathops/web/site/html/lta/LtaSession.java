@@ -31,7 +31,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -289,7 +288,7 @@ public final class LtaSession extends HtmlSessionBase {
     private void doInitial(final Cache cache, final ZonedDateTime now, final HtmlBuilder htm) throws SQLException {
 
         final LtaEligibilityTester ltaTest = new LtaEligibilityTester(this.studentId);
-        final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, this.version);
+        final AssignmentRec avail = cache.getSystemData().getActiveAssignment(this.version);
 
         final HtmlBuilder reasons = new HtmlBuilder(100);
         final Collection<RawAdminHold> holds = new ArrayList<>(1);
@@ -1160,7 +1159,7 @@ public final class LtaSession extends HtmlSessionBase {
 
         Log.info("Grading learning target assignment ", exam.examVersion, " for student ", this.studentId);
 
-        final AssignmentRec assignmentRec = AssignmentLogic.get(cache).query(cache, this.version);
+        final AssignmentRec assignmentRec = cache.getSystemData().getActiveAssignment(this.version);
         if (assignmentRec == null) {
             return "Learning target assignment " + this.version + " not found!";
         }

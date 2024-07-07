@@ -3,8 +3,8 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -105,9 +105,11 @@ enum PageUsersExam {
                 htm.sDiv("indent");
                 htm.sP().add("You have not yet passed the User's Exam.").eP();
 
-                final TermRec active = cache.getSystemData().getActiveTerm();
-                final RawCusection cusection = RawCusectionLogic.query(cache, //
-                        RawRecordConstants.M100U, "1", Integer.valueOf(1), active.term);
+                final SystemData systemData = cache.getSystemData();
+                final TermRec active = systemData.getActiveTerm();
+                final RawCusection cusection = systemData.getCourseUnitSection(RawRecordConstants.M100U, "1",
+                        Integer.valueOf(1), active.term);
+
                 final boolean avail;
                 if (cusection == null) {
                     htm.eP();

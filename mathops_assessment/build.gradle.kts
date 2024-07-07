@@ -20,7 +20,7 @@ dependencies {
     implementation(project(":mathops_font"))
     implementation(files("lib/mathops_commons.jar"))
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 

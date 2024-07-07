@@ -19,7 +19,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -227,93 +226,6 @@ final class TestRawCuobjectiveLogic {
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all cuobjective rows: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("queryByCourseUnit results")
-    void test0004() {
-
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                final List<RawCuobjective> all = RawCuobjectiveLogic.queryByCourseUnit(cache, RawRecordConstants.M117,
-                        Integer.valueOf(1), fa21);
-
-                assertEquals(2, all.size(), "Incorrect record count from queryByCourseUnit");
-
-                boolean found1 = false;
-                boolean found2 = false;
-
-                for (final RawCuobjective r : all) {
-
-                    if (fa21.equals(r.termKey)
-                            && RawRecordConstants.M117.equals(r.course)
-                            && Integer.valueOf(1).equals(r.unit)
-                            && Integer.valueOf(1).equals(r.objective)
-                            && "Lesson 1.1".equals(r.lessonId)
-                            && "1.1".equals(r.lessonNbr)
-                            && date1.equals(r.startDt)) {
-
-                        found1 = true;
-                    } else if (fa21.equals(r.termKey)
-                            && RawRecordConstants.M117.equals(r.course)
-                            && Integer.valueOf(1).equals(r.unit)
-                            && Integer.valueOf(2).equals(r.objective)
-                            && "Lesson 1.2".equals(r.lessonId)
-                            && "1.2".equals(r.lessonNbr)
-                            && date2.equals(r.startDt)) {
-
-                        found2 = true;
-                    }
-                }
-
-                assertTrue(found1, "cuobjective 1 not found");
-                assertTrue(found2, "cuobjective 2 not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while querying cuobjectives by course unit: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("query results")
-    void test0005() {
-
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                final RawCuobjective r = RawCuobjectiveLogic.query(cache, RawRecordConstants.M117, Integer.valueOf(1),
-                        Integer.valueOf(1), fa21);
-
-                assertNotNull(r, "No record returned by from query");
-
-                final boolean found = fa21.equals(r.termKey)
-                        && RawRecordConstants.M117.equals(r.course)
-                        && Integer.valueOf(1).equals(r.unit)
-                        && Integer.valueOf(1).equals(r.objective)
-                        && "Lesson 1.1".equals(r.lessonId)
-                        && "1.1".equals(r.lessonNbr)
-                        && date1.equals(r.startDt);
-
-                assertTrue(found, "cuobjective  not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while querying cuobjective: " + ex.getMessage());
         }
     }
 

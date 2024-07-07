@@ -1,10 +1,9 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -122,13 +121,13 @@ public final class SiteDataCourse {
      * @return the generated (or cached) {@code SiteDataCfgCourse} object
      * @throws SQLException if an error occurs reading data
      */
-    private boolean loadCourseUnits(final Cache cache, final String courseId,
-                                    final String sectionNum, final TermKey termKey) throws SQLException {
+    private boolean loadCourseUnits(final Cache cache, final String courseId, final String sectionNum,
+                                    final TermKey termKey) throws SQLException {
 
         boolean success = true;
 
-        final List<RawCusection> courseSectionUnits = RawCusectionLogic.queryByCourseSection(cache,
-                courseId, sectionNum, termKey);
+        final SystemData systemData = cache.getSystemData();
+        final List<RawCusection> courseSectionUnits = systemData.getCourseUnitSections(courseId, sectionNum, termKey);
 
         for (final RawCusection cusect : courseSectionUnits) {
 
@@ -167,7 +166,7 @@ public final class SiteDataCourse {
         boolean success = true;
 
         final List<RawCuobjective> courseUnitObjectives =
-                RawCuobjectiveLogic.queryByCourseUnit(cache, courseId, unit, termKey);
+                cache.getSystemData().getCourseUnitObjectives(courseId, unit, termKey);
 
         for (final RawCuobjective cuobj : courseUnitObjectives) {
             final SiteDataCfgObjective data = new SiteDataCfgObjective(cache, cuobj);

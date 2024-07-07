@@ -40,7 +40,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermRec;
@@ -966,8 +965,9 @@ enum PageTestStudent {
     private static void emitCourseWorkNew(final Cache cache, final HtmlBuilder htm, final RawStcourse reg,
                                           final int numColumns) throws SQLException {
 
-        final List<AssignmentRec> allAssignments = AssignmentLogic.get(cache).queryActiveByCourse(cache, reg.course,
-                "ST");
+        final SystemData systemData = cache.getSystemData();
+
+        final List<AssignmentRec> allAssignments = systemData.getActiveAssignmentsByCourseType(reg.course, "ST");
 
         final List<MasteryExamRec> allExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, reg.course);
         allExams.sort(null);
@@ -2254,8 +2254,7 @@ enum PageTestStudent {
         for (final String courseId : courseIds) {
             final String crs = courseId.replace(' ', '_');
 
-            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache, courseId,
-                    null);
+            final List<AssignmentRec> assignments = systemData.getActiveAssignmentsByCourseType(courseId, null);
             final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
 
             final boolean isReg = "on".equals(req.getParameter(crs + "reg"));

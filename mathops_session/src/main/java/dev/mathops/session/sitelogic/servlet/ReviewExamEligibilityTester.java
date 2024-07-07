@@ -17,7 +17,6 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.LiveSessionInfo;
 import dev.mathops.session.txn.messages.AvailableExam;
@@ -481,7 +480,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
             ok = false;
         } else if (!isSpecial()) {
             // Make sure the prerequisite homework assignments have been done.
-            final List<AssignmentRec> hws = AssignmentLogic.get(cache).queryActiveByCourseUnit(cache, course, unit,
+            final List<AssignmentRec> hws = cache.getSystemData().getActiveAssignmentsByCourseUnitType(course, unit,
                     "HW");
 
             if (hws == null) {

@@ -144,54 +144,6 @@ public final class RawCuobjectiveLogic extends AbstractRawLogic<RawCuobjective> 
     }
 
     /**
-     * Retrieves all course unit objectives in a specified course and unit in a given term.
-     *
-     * @param cache   the data cache
-     * @param course  the course
-     * @param unit    the unit
-     * @param termKey the term key
-     * @return the list of course units; {@code null} on any error
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static List<RawCuobjective> queryByCourseUnit(final Cache cache, final String course,
-                                                         final Integer unit, final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cuobjective",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                " AND term_yr=", sqlIntegerValue(termKey.shortYear),
-                " AND course=", sqlStringValue(course),
-                " AND unit=", sqlIntegerValue(unit));
-
-        return executeListQuery(cache, sql);
-    }
-
-    /**
-     * Retrieves a single course unit objective.
-     *
-     * @param cache     the data cache
-     * @param course    the course
-     * @param unit      the unit
-     * @param objective the objective
-     * @param termKey   the term key
-     * @return the list of course units; {@code null} on any error
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static RawCuobjective query(final Cache cache, final String course, final Integer unit,
-                                       final Integer objective, final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cuobjective",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                " AND term_yr=", sqlIntegerValue(termKey.shortYear),
-                " AND course=", sqlStringValue(course),
-                " AND unit=", sqlIntegerValue(unit),
-                " AND objective=", sqlIntegerValue(objective));
-
-        return executeSingleQuery(cache, sql);
-    }
-
-    /**
      * Executes a query that returns a list of records.
      *
      * @param cache the data cache
@@ -208,29 +160,6 @@ public final class RawCuobjectiveLogic extends AbstractRawLogic<RawCuobjective> 
 
             while (rs.next()) {
                 result.add(RawCuobjective.fromResultSet(rs));
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Executes a query that returns a single records.
-     *
-     * @param cache the data cache
-     * @param sql   the query
-     * @return the record found; null if none returned
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static RawCuobjective executeSingleQuery(final Cache cache, final String sql) throws SQLException {
-
-        RawCuobjective result = null;
-
-        try (final Statement stmt = cache.conn.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                result = RawCuobjective.fromResultSet(rs);
             }
         }
 

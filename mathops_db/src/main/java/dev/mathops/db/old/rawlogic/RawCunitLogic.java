@@ -140,72 +140,9 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
     public static List<RawCunit> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cunit WHERE term='", termKey.termCode,
-                "' AND term_yr=", termKey.shortYear);
+                "SELECT * FROM cunit WHERE term='", termKey.termCode, "' AND term_yr=", termKey.shortYear);
 
         return executeListQuery(cache, sql);
-    }
-
-    /**
-     * Retrieves all course units in a specified course in a given term.
-     *
-     * @param cache   the data cache
-     * @param course  the course
-     * @param termKey the term key
-     * @return the list of course units; {@code null} on any error
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static List<RawCunit> queryByCourse(final Cache cache, final String course,
-                                               final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cunit WHERE term='", termKey.termCode,
-                "' AND term_yr=", termKey.shortYear, " AND course='",
-                course, "'");
-
-        return executeListQuery(cache, sql);
-    }
-
-    /**
-     * Retrieves a particular course unit.
-     *
-     * @param cache   the data cache
-     * @param course  the ID of the course to retrieve
-     * @param unit    the unit number
-     * @param termKey the term key
-     * @return the corresponding unit; {@code null} on any error or if no course unit exists with the specified course
-     *         ID and unit number in the specified term
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static RawCunit query(final Cache cache, final String course, final Integer unit,
-                                 final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cunit WHERE course='", course,
-                "' AND unit=", unit, " AND term='", termKey.termCode,
-                "' AND term_yr=", termKey.shortYear);
-
-        return executeSingleQuery(cache, sql);
-    }
-
-    /**
-     * Retrieves the (single) final exam unit in a course in a given term.
-     *
-     * @param cache   the data cache
-     * @param course  the course
-     * @param termKey the term key
-     * @return the final exam unit; null if none found
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static RawCunit getFinalUnit(final Cache cache, final String course,
-                                        final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM cunit WHERE term='", termKey.termCode,
-                "' AND term_yr=", termKey.shortYear, " AND course='",
-                course, "' AND unit_type='FIN'");
-
-        return executeSingleQuery(cache, sql);
     }
 
     /**
@@ -225,29 +162,6 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
 
             while (rs.next()) {
                 result.add(RawCunit.fromResultSet(rs));
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Executes a query that returns a single records.
-     *
-     * @param cache the data cache
-     * @param sql   the query
-     * @return the record found; null if none returned
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static RawCunit executeSingleQuery(final Cache cache, final String sql) throws SQLException {
-
-        RawCunit result = null;
-
-        try (final Statement stmt = cache.conn.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                result = RawCunit.fromResultSet(rs);
             }
         }
 

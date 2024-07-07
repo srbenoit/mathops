@@ -2,13 +2,11 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
@@ -113,13 +111,12 @@ enum PageReviewLesson {
         }
 
         // Button to launch the assignment (with status)
-        final AssignmentRec hw = AssignmentLogic.get(cache).queryActive(cache, "M 100R",
-                Integer.valueOf(unit), Integer.valueOf(objective), "HW");
+        final AssignmentRec hw = cache.getSystemData().getActiveAssignment("M 100R", Integer.valueOf(unit),
+                Integer.valueOf(objective), "HW");
 
         if (hw != null) {
             if (hw.assignmentId == null) {
-                Log.warning("Null version for unit " + unit
-                        + " obj " + objective);
+                Log.warning("Null version for unit " + unit + " obj " + objective);
             } else {
                 doAssignment(hw.assignmentId, htm, unit, objective);
             }
@@ -140,15 +137,16 @@ enum PageReviewLesson {
 
         final RawLessonComponent[] result;
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
-        final RawCuobjective obj = RawCuobjectiveLogic.query(cache, "M 100R", Integer.valueOf(unit),
+        final RawCuobjective obj = systemData.getCourseUnitObjective("M 100R", Integer.valueOf(unit),
                 Integer.valueOf(objective), activeTerm.term);
 
         if (obj == null) {
             result = null;
         } else {
-            final List<RawLessonComponent> list = RawLessonComponentLogic.queryByLesson(cache, obj.lessonId);
+            final List<RawLessonComponent> list = systemData.getLessonComponentsByLesson(obj.lessonId);
 
             int max = 0;
             for (final RawLessonComponent test : list) {

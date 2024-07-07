@@ -3,13 +3,10 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -137,7 +134,7 @@ enum PageReviewOutline {
     private static RawCunit[] queryUnits(final Cache cache, final TermKey activeKey)
             throws SQLException {
 
-        final List<RawCunit> all = RawCunitLogic.queryByCourse(cache, "M 100R", activeKey);
+        final List<RawCunit> all = cache.getSystemData().getCourseUnits("M 100R", activeKey);
 
         int max = 0;
         for (final RawCunit unit : all) {
@@ -163,8 +160,9 @@ enum PageReviewOutline {
 
         final RawCuobjective[][] result;
 
-        final RawCourse course = cache.getSystemData().getCourse("M 100R");
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final RawCourse course = systemData.getCourse("M 100R");
+        final TermRec active = systemData.getActiveTerm();
 
         if (course == null) {
             Log.warning("Failed to query course ", "M 100R");
@@ -177,8 +175,8 @@ enum PageReviewOutline {
             result = new RawCuobjective[numUnits + 1][];
 
             for (int i = 0; i <= numUnits; ++i) {
-                final List<RawCuobjective> all = RawCuobjectiveLogic.queryByCourseUnit(cache,
-                        "M 100R", Integer.valueOf(i), active.term);
+                final List<RawCuobjective> all = systemData.getCourseUnitObjectives("M 100R", Integer.valueOf(i),
+                        active.term);
 
                 result[i] = all.toArray(ZERO_LEN_CUOBJ_ARR);
                 Arrays.sort(result[i]);
@@ -200,6 +198,8 @@ enum PageReviewOutline {
         final int numObj = objectives.length;
         final RawLesson[][] result = new RawLesson[numObj][];
 
+        final SystemData systemData = cache.getSystemData();
+
         for (int i = 0; i < numObj; ++i) {
             if (objectives[i] != null) {
                 final int innerLen = objectives[i].length;
@@ -208,7 +208,7 @@ enum PageReviewOutline {
                 for (int j = 0; j < innerLen; ++j) {
                     final String lessonId = objectives[i][j].lessonId;
 
-                    result[i][j] = RawLessonLogic.query(cache, lessonId);
+                    result[i][j] = systemData.getLesson(lessonId);
                     if (result[i][j] == null) {
                         Log.warning("Unable to look up lesson ", lessonId);
                     }
@@ -231,6 +231,8 @@ enum PageReviewOutline {
         final int numObj = objectives.length;
         final RawLessonComponent[][][] result = new RawLessonComponent[numObj][][];
 
+        final SystemData systemData = cache.getSystemData();
+
         for (int i = 0; i < numObj; ++i) {
             if (objectives[i] != null) {
                 final int innerLen = objectives[i].length;
@@ -239,7 +241,7 @@ enum PageReviewOutline {
                 for (int j = 0; j < innerLen; ++j) {
                     final String lessonId = objectives[i][j].lessonId;
 
-                    final List<RawLessonComponent> list = RawLessonComponentLogic.queryByLesson(cache, lessonId);
+                    final List<RawLessonComponent> list = systemData.getLessonComponentsByLesson(lessonId);
 
                     int max = 0;
                     for (final RawLessonComponent test : list) {

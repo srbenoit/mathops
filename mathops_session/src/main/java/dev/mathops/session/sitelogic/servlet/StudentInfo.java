@@ -2,6 +2,7 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -10,7 +11,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -96,7 +96,9 @@ public final class StudentInfo extends LogicBase {
             if (this.student == null) {
                 setErrorText("Student not found");
             } else {
-                this.cuSection = RawCusectionLogic.query(cache, RawRecordConstants.M100U, "1", Integer.valueOf(1),
+                final SystemData systemData = cache.getSystemData();
+
+                this.cuSection = systemData.getCourseUnitSection(RawRecordConstants.M100U, "1", Integer.valueOf(1),
                         active.term);
                 if (this.cuSection == null) {
                     setErrorText("No data for course M 100U section 1 unit 1");

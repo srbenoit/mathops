@@ -57,7 +57,7 @@ enum PageInstructionsPrecalcPu {
             TutorialMenu.buildMenu(session, logic, htm);
             htm.sDiv("panel");
 
-            buildPage(cache, courseId, session, logic, htm);
+            buildPage(cache, courseId, logic, htm);
 
             htm.eDiv(); // (end "panel" div)
             htm.eDiv(); // (end "menupanel" div)
@@ -77,11 +77,10 @@ enum PageInstructionsPrecalcPu {
      * @param htm      the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void buildPage(final Cache cache, final String courseId, final ImmutableSessionInfo session,
-                                  final PrecalcTutorialSiteLogic logic, final HtmlBuilder htm) throws SQLException {
+    private static void buildPage(final Cache cache, final String courseId, final PrecalcTutorialSiteLogic logic,
+                                  final HtmlBuilder htm) throws SQLException {
 
-        final String studentId = logic.getStudentId();
-        final RawStudent stu = RawStudentLogic.query(cache, studentId, false);
+        final RawStudent student = logic.getStudent();
 
         htm.sH(2).add("Taking Precalculus Tutorial Exams through ProctorU").eH(2);
 
@@ -103,10 +102,10 @@ enum PageInstructionsPrecalcPu {
         htm.eTr();
         htm.sTr();
         htm.sTh().add("Time limit:").eTh();
-        if (stu == null || stu.timelimitFactor == null) {
+        if (student == null || student.timelimitFactor == null) {
             htm.sTd().add("75 minutes").eTd();
         } else {
-            final double factor = stu.timelimitFactor.doubleValue();
+            final double factor = student.timelimitFactor.doubleValue();
 
             if (factor > 1.49 && factor < 1.51) {
                 htm.sTd().add("75 minutes<br/>(Adjusted to 1 hours, 53 minutes by accommodation)").eTd();
@@ -153,7 +152,7 @@ enum PageInstructionsPrecalcPu {
 
         htm.div("vgap");
 
-        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, logic, courseId);
+        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, student, courseId);
 
         final boolean unitAvail = tutStatus.isEligibleForProctored();
         final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(4), "U");

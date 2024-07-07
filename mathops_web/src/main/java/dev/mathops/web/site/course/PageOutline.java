@@ -11,7 +11,6 @@ import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
@@ -324,10 +323,11 @@ enum PageOutline {
             htm.addln("  You must pass the User's Exam before you may access course");
             htm.addln("  materials.").br().br();
 
-            final TermRec active = cache.getSystemData().getActiveTerm();
+            final SystemData systemData = cache.getSystemData();
+            final TermRec active = systemData.getActiveTerm();
 
-            final RawCusection cusection = RawCusectionLogic.query(cache, //
-                    RawRecordConstants.M100U, "1", Integer.valueOf(1), active.term);
+            final RawCusection cusection = systemData.getCourseUnitSection(RawRecordConstants.M100U, "1",
+                    Integer.valueOf(1), active.term);
             final boolean avail;
             if (cusection == null) {
                 htm.eP();
@@ -1688,7 +1688,7 @@ enum PageOutline {
         final RawCusection courseSecUnit = courseStatus.getCourseSectionUnit(unitNum);
 
         if (courseSecUnit != null) {
-            final String top = RawCusectionLogic.getTopmatter(courseSecUnit);
+            final String top = RawCusection.getTopmatter(courseSecUnit);
             if (top != null) {
                 htm.add(top);
             }

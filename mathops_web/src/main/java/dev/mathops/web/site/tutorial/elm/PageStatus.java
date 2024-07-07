@@ -8,8 +8,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawCunit;
@@ -165,12 +163,13 @@ enum PageStatus {
         htm.add("<strong> &bull; Unit ", unit, ":</strong>");
         htm.eDiv();
 
-        final RawCunit cunit = RawCunitLogic.query(cache, RawRecordConstants.M100T, unit, activeKey);
+        final SystemData systemData = cache.getSystemData();
+        final RawCunit cunit = systemData.getCourseUnit(RawRecordConstants.M100T, unit, activeKey);
 
         if (cunit == null) {
             htm.sP("red").add("Unable to look up course/unit data.").eP();
         } else {
-            final RawCusection cusect = RawCusectionLogic.query(cache, RawRecordConstants.M100T, "1", unit, activeKey);
+            final RawCusection cusect = systemData.getCourseUnitSection(RawRecordConstants.M100T, "1", unit, activeKey);
 
             if (cusect == null) {
                 htm.sP("red").add("Unable to look up course/unit/section data.").eP();

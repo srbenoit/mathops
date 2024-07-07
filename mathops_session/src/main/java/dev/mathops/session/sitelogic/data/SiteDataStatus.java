@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
@@ -268,15 +267,15 @@ public final class SiteDataStatus {
                 stat.highestPossibleScore = 2 * cusect.reMasteryScore.intValue();
                 stat.masteryScore = 2 * cusect.reMasteryScore.intValue();
 
-                stat.highestPossibleScore = RawCusectionLogic.masteryToPossible(cusect.reMasteryScore).intValue();
+                stat.highestPossibleScore = RawCusection.masteryToPossible(cusect.reMasteryScore).intValue();
                 stat.masteryScore = cusect.reMasteryScore.intValue();
             }
 
         } else if ("R".equals(examType)) {
-            stat.highestPossibleScore = RawCusectionLogic.masteryToPossible(cusect.reMasteryScore).intValue();
+            stat.highestPossibleScore = RawCusection.masteryToPossible(cusect.reMasteryScore).intValue();
             stat.masteryScore = cusect.reMasteryScore.intValue();
         } else if ("U".equals(examType) || "F".equals(examType)) {
-            stat.highestPossibleScore = RawCusectionLogic.masteryToPossible(cusect.ueMasteryScore).intValue();
+            stat.highestPossibleScore = RawCusection.masteryToPossible(cusect.ueMasteryScore).intValue();
             stat.masteryScore = cusect.ueMasteryScore.intValue();
         }
 

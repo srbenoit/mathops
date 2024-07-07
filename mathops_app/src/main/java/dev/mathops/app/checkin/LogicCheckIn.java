@@ -2,6 +2,7 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
@@ -385,8 +385,10 @@ public final class LogicCheckIn {
                 }
             }
 
+            final SystemData systemData = this.cache.getSystemData();
+
             // Get the unit configuration
-            final RawCusection unitData = RawCusectionLogic.query(this.cache, RawRecordConstants.M100T, "1", FOUR,
+            final RawCusection unitData = systemData.getCourseUnitSection(RawRecordConstants.M100T, "1", FOUR,
                     this.activeTerm.term);
 
             if (unitData == null) {
@@ -432,6 +434,8 @@ public final class LogicCheckIn {
     private void testPrecalcTutorialAvailability(final DataCheckInAttempt info, final boolean enforceEligibility)
             throws SQLException {
 
+        final SystemData systemData = this.cache.getSystemData();
+
         for (final CourseNumbers numbers : CourseNumbers.COURSES) {
 
             final String course = numbers.tutorialId();
@@ -452,7 +456,7 @@ public final class LogicCheckIn {
 
             final DataExamStatus status = DataExamStatus.available(course, 4);
 
-            final RawCusection unitData = RawCusectionLogic.query(this.cache, course, "1", FOUR, this.activeTerm.term);
+            final RawCusection unitData = systemData.getCourseUnitSection(course, "1", FOUR, this.activeTerm.term);
 
             if (unitData == null) {
                 Log.warning("No Course-Unit-Section data for ", course, " section 1, unit 4");

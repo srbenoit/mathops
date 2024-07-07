@@ -4,10 +4,10 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
@@ -273,12 +273,13 @@ class StartExamDialog extends JDialog implements ActionListener {
         // Bottom: Time limit information (ignore for User's exam)
         if (!RawRecordConstants.M100U.equals(this.courseId)) {
 
+            final SystemData systemData = this.cache.getSystemData();
+
             int timelimit = 0;
             try {
-                final TermRec activeTerm = this.cache.getSystemData().getActiveTerm();
-                final RawCunit cunit =
-                        RawCunitLogic.query(this.cache, this.courseId, Integer.valueOf(this.unit),
-                                activeTerm.term);
+                final TermRec activeTerm = systemData.getActiveTerm();
+                final Integer unitObj = Integer.valueOf(this.unit);
+                final RawCunit cunit = systemData.getCourseUnit(this.courseId, unitObj, activeTerm.term);
 
                 if (cunit != null && cunit.unitTimelimit != null) {
                     timelimit = cunit.unitTimelimit.intValue();

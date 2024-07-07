@@ -41,7 +41,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
@@ -1392,7 +1391,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
         if ("Q".equals(exType)) {
             if (RawRecordConstants.M100U.equals(stexam.course)) {
                 // FIXME: Hardcode
-                final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
+                final RawCusection result = systemData.getCourseUnitSection(stexam.course, "1", stexam.unit,
                         this.active.term);
                 if (result == null) {
                     return "Unable to look up course section";
@@ -1517,15 +1516,13 @@ public final class ReviewExamSession extends HtmlSessionBase {
             RawCusection cusect;
 
             if ("Y".equals(stcourse.iInProgress)) {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, stcourse.iTermKey);
+                cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit, stcourse.iTermKey);
                 if (cusect == null) {
-                    cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                            stexam.unit, this.active.term);
+                    cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit,
+                            this.active.term);
                 }
             } else {
-                cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, this.active.term);
+                cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit, this.active.term);
             }
 
             if (cusect == null) {

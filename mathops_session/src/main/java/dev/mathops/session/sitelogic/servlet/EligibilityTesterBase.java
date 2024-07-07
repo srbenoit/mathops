@@ -5,7 +5,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
@@ -376,8 +375,8 @@ class EligibilityTesterBase {
                 reasons.add("Unable to query course section information");
                 ok = false;
             } else {
-                final List<RawCusection> cusections = RawCusectionLogic.queryByCourseSection(cache, course,
-                        this.studentCourse.sect, term);
+                final List<RawCusection> cusections = systemData.getCourseUnitSections(course, this.studentCourse.sect,
+                        term);
                 for (final RawCusection cusect : cusections) {
                     if (cusect.unit.equals(unit)) {
                         this.courseSectionUnit = cusect;

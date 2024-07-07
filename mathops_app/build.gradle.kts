@@ -26,15 +26,15 @@ dependencies {
     implementation(files("lib/mathops_commons.jar"))
     implementation(files("lib/mathops_persistence.jar"))
 
-    implementation("org.openjfx:javafx:21.0.1")
-    implementation("org.openjfx:javafx-controls:21.0.1")
+    implementation("org.openjfx:javafx:23-ea+20")
+    implementation("org.openjfx:javafx-controls:23-ea+22")
 
-    implementation("com.oracle.database.jdbc:ojdbc11:23.3.0.23.09")
-    implementation("com.formdev:flatlaf:3.2.5")
+    implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
+    implementation("com.formdev:flatlaf:3.4")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
+    testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0-M1")
 }
 
 tasks.test {

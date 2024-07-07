@@ -5,9 +5,9 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SubmitHomeworkReply;
@@ -146,11 +145,13 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
 
         // TODO: Update finish times on individual problems, if needed
 
+        final SystemData systemData = cache.getSystemData();
+
         try {
             // From the homework version, look up the course, unit in the homework table, then use
             // that to fetch the course/unit/section data for the student. This gives us the
             // minimum move-on and mastery scores.
-            final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+            final TermRec activeTerm = systemData.getActiveTerm();
             if (activeTerm == null) {
                 rep.error = "Unable to lookup active term to submit homework.";
                 return;
@@ -158,7 +159,7 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
 
             final String ver = req.homework.examVersion;
 
-            final AssignmentRec hw = AssignmentLogic.get(cache).query(cache, ver);
+            final AssignmentRec hw = systemData.getActiveAssignment(ver);
             if (hw == null) {
                 rep.error = "Assignment has been removed from the course!";
                 return;
@@ -235,14 +236,14 @@ public final class SubmitHomeworkHandler extends AbstractHandlerBase {
             }
 
             if (!activeTerm.term.equals(stcourse.termKey)) {
-                final TermRec incTerm = cache.getSystemData().getTerm(stcourse.termKey);
+                final TermRec incTerm = systemData.getTerm(stcourse.termKey);
                 if (incTerm != null) {
                     // ???
                 }
             }
 
-            final List<RawCusection> cusects = RawCusectionLogic.queryByCourseSection(cache,
-                    stcourse.course, stcourse.sect, activeTerm.term);
+            final List<RawCusection> cusects = systemData.getCourseUnitSections(stcourse.course, stcourse.sect,
+                    activeTerm.term);
 
             RawCusection cusect = null;
             for (final RawCusection rawCusection : cusects) {

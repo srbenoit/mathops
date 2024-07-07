@@ -5,16 +5,28 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawCunitLogic;
+import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
+import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
+import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
+import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCunit;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
+import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawrecord.RawLesson;
+import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
@@ -67,14 +79,29 @@ public final class SystemData {
     /** A map from term key to a list of course sections for that term. */
     private Map<TermKey, List<RawCsection>> courseSections;
 
-//    /** A map from term key to a list of course units for that term. */
-//    private Map<TermKey, List<RawCunit>> courseUnits;
+    /** A map from term key to a list of course units for that term. */
+    private Map<TermKey, List<RawCunit>> courseUnits;
+
+    /** A map from term key to a list of course unit sections for that term. */
+    private Map<TermKey, List<RawCusection>> courseUnitSections;
+
+    /** A map from term key to a list of course unit objectives for that term. */
+    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
+
+    /** The list of all lessons. */
+    private List<RawLesson> lessons;
+
+    /** The list of all lesson components. */
+    private List<RawLessonComponent> lessonComponents;
+
+    /** A map from course ID to all assignments for that course. */
+    private Map<String, List<AssignmentRec>> assignments;
+
+//    /** A map from course ID to all exams for that course. */
+//    private Map<String, List<RawExam>> exams;
 //
-//    /** A map from term key to a list of course unit sections for that term. */
-//    private Map<TermKey, List<RawCusection>> courseUnitSections;
-//
-//    /** A map from term key to a list of course unit objectives for that term. */
-//    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
+//    /** A map from course ID to all mastery exams for that course. */
+//    private Map<String, List<MasteryExamRec>> masteryExams;
 
 //    /** The list of all course milestones. */
 //    private List<RawMilestone> milestones = null;
@@ -90,21 +117,6 @@ public final class SystemData {
 //
 //    /** All e-text course mappings. */
 //    private List<RawEtextCourse> etextCourses;
-//
-//    /** A map from course ID to all assignments for that course. */
-//    private Map<String, List<AssignmentRec>> assignments;
-//
-//    /** A map from course ID to all mastery exams for that course. */
-//    private Map<String, List<MasteryExamRec>> masteryExams;
-//
-//    /** A map from course ID to all exams for that course. */
-//    private Map<String, List<RawExam>> exams;
-//
-//    /** The list of all lessons. */
-//    private List<RawLesson> lessons;
-//
-//    /** The list of all lesson components. */
-//    private List<RawLessonComponent> lessonComponents;
 //
 //    /** A map from term key to a list of pacing structures for that term. */
 //    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
@@ -153,8 +165,6 @@ public final class SystemData {
 
         return this.whichDb;
     }
-
-    // FIXME: Here - replacing local calls to Raw*** methods with calls to this cache.
 
     /**
      * Gets the active term.
@@ -217,21 +227,6 @@ public final class SystemData {
     }
 
     /**
-     * Gets the list of all terms.
-     *
-     * @return the list of all terms
-     * @throws SQLException if there is an error accessing the database
-     */
-    public List<TermRec> getAllTerms() throws SQLException {
-
-        if (this.futureTerms == null) {
-            this.futureTerms = TermLogic.get(this.cache).queryAll(this.cache);
-        }
-
-        return this.futureTerms;
-    }
-
-    /**
      * Gets a specified term.
      *
      * @param term the term key
@@ -255,40 +250,6 @@ public final class SystemData {
     public boolean insertTerm(final TermRec record) throws SQLException {
 
         final boolean ok = TermLogic.get(this.cache).insert(this.cache, record);
-
-        if (ok) {
-            final Integer index = record.activeIndex;
-            if (index != null) {
-                final int indexValue = index.intValue();
-
-                if (indexValue == 0) {
-                    this.activeTerm = null;
-                } else if (indexValue > 0) {
-                    this.futureTerms.clear();
-                    if (indexValue == 1) {
-                        this.nextTerm = null;
-                    }
-                } else {
-                    if (indexValue == -1) {
-                        this.priorTerm = null;
-                    }
-                }
-            }
-        }
-
-        return ok;
-    }
-
-    /**
-     * Inserts a new Term record.
-     *
-     * @param record the record to insert
-     * @return {@code true} if successful; {@code false} otherwise
-     * @throws SQLException if there is an error accessing the database
-     */
-    public boolean deleteTerm(final TermRec record) throws SQLException {
-
-        final boolean ok = TermLogic.get(this.cache).delete(this.cache, record);
 
         if (ok) {
             final Integer index = record.activeIndex;
@@ -601,7 +562,7 @@ public final class SystemData {
     /**
      * Attempts to query the course section object for a registration.
      *
-     * @param reg   the registration
+     * @param reg the registration
      * @return the course section record
      * @throws SQLException if there is an error accessing the database or the course section cannot be found
      */
@@ -688,6 +649,481 @@ public final class SystemData {
         final RawCsection rec = getCourseSection(course, sect, termKey);
 
         return rec == null ? null : rec.pacingStructure;
+    }
+
+    /**
+     * Gets all course units for a single term.
+     *
+     * @param term the term key
+     * @return the list of course units
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<RawCunit> getCourseUnits(final TermKey term) throws SQLException {
+
+        List<RawCunit> result = null;
+
+        if (this.courseUnits == null) {
+            this.courseUnits = new HashMap<>(4);
+        } else {
+            result = this.courseUnits.get(term);
+        }
+
+        if (result == null) {
+            result = RawCunitLogic.queryByTerm(this.cache, term);
+            this.courseUnits.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course units in a single course for a single term.
+     *
+     * @param course the course ID
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCunit> getCourseUnits(final String course, final TermKey term) throws SQLException {
+
+        final List<RawCunit> all = getCourseUnits(term);
+        final List<RawCunit> result = new ArrayList<>(8);
+
+        for (final RawCunit test : all) {
+            if (test.course.equals(course)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course units in a specified term.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param term   the term key
+     * @return the course unit
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawCunit getCourseUnit(final String course, final Integer unit, final TermKey term) throws SQLException {
+
+        final List<RawCunit> termSections = getCourseUnits(term);
+        RawCunit result = null;
+
+        for (final RawCunit test : termSections) {
+            if (test.course.equals(course) && test.unit.equals(unit)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course sections for a single term.
+     *
+     * @param term the term key
+     * @return the list of course unit sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<RawCusection> getCourseUnitSections(final TermKey term) throws SQLException {
+
+        List<RawCusection> result = null;
+
+        if (this.courseUnitSections == null) {
+            this.courseUnitSections = new HashMap<>(4);
+        } else {
+            result = this.courseUnitSections.get(term);
+        }
+
+        if (result == null) {
+            result = RawCusectionLogic.queryByTerm(this.cache, term);
+            this.courseUnitSections.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course unit sections for a specified course and section in a specified term.
+     *
+     * @param course the course
+     * @param sect   the section
+     * @param term   the term key
+     * @return the list of course unit sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCusection> getCourseUnitSections(final String course, final String sect, final TermKey term)
+            throws SQLException {
+
+        final List<RawCusection> all = getCourseUnitSections(term);
+        final List<RawCusection> result = new ArrayList<>(10);
+
+        for (final RawCusection test : all) {
+            if (test.course.equals(course) && test.sect.equals(sect)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course unit section in a specified term.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param sect   the section
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawCusection getCourseUnitSection(final String course, final String sect, final Integer unit,
+                                             final TermKey term) throws SQLException {
+
+        final List<RawCusection> termSections = getCourseUnitSections(term);
+        RawCusection result = null;
+
+        for (final RawCusection test : termSections) {
+            if (test.course.equals(course) && test.unit.equals(unit) && test.sect.equals(sect)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course unit objectives for a single term.
+     *
+     * @param term the term key
+     * @return the list of course unit objectives
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<RawCuobjective> getCourseUnitObjectives(final TermKey term) throws SQLException {
+
+        List<RawCuobjective> result = null;
+
+        if (this.courseUnitObjectives == null) {
+            this.courseUnitObjectives = new HashMap<>(4);
+        } else {
+            result = this.courseUnitObjectives.get(term);
+        }
+
+        if (result == null) {
+            result = RawCuobjectiveLogic.queryByTerm(this.cache, term);
+            this.courseUnitObjectives.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the course unit objectives in a specified course and unit in a specified term.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCuobjective> getCourseUnitObjectives(final String course, final Integer unit, final TermKey term)
+            throws SQLException {
+
+        final List<RawCuobjective> termObjectives = getCourseUnitObjectives(term);
+        final List<RawCuobjective> result = new ArrayList<>(10);
+
+        for (final RawCuobjective test : termObjectives) {
+            if (test.course.equals(course) && test.unit.equals(unit)) {
+                result.add(test);
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course unit objective in a specified term.
+     *
+     * @param course    the course
+     * @param unit      the unit
+     * @param objective the objective
+     * @param term      the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawCuobjective getCourseUnitObjective(final String course, final Integer unit, final Integer objective,
+                                                 final TermKey term) throws SQLException {
+
+        final List<RawCuobjective> termObjectives = getCourseUnitObjectives(term);
+        RawCuobjective result = null;
+
+        for (final RawCuobjective test : termObjectives) {
+            if (test.course.equals(course) && test.unit.equals(unit) && test.objective.equals(objective)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all lessons.
+     *
+     * @return the list of lessons
+     */
+    public List<RawLesson> getLessons() {
+
+        if (this.lessons == null) {
+            this.lessons = RawLessonLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.lessons;
+    }
+
+    /**
+     * Gets a single lesson.
+     *
+     * @param lessonId the ID of the lesson to retrieve
+     * @return the lesson; null if not found
+     */
+    public RawLesson getLesson(final String lessonId) {
+
+        final List<RawLesson> all = getLessons();
+        RawLesson result = null;
+
+        for (final RawLesson test : all) {
+            if (test.lessonId.equals(lessonId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all lesson components.
+     *
+     * @return the list of lesson components
+     */
+    public List<RawLessonComponent> getLessonComponents() {
+
+        if (this.lessonComponents == null) {
+            this.lessonComponents = RawLessonComponentLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.lessonComponents;
+    }
+
+    /**
+     * Gets all lesson components for a single lesson.
+     *
+     * @param lessonId the ID of the lesson whose components to retrieve
+     * @return the lesson components
+     */
+    public List<RawLessonComponent> getLessonComponentsByLesson(final String lessonId) {
+
+        final List<RawLessonComponent> all = getLessonComponents();
+        final List<RawLessonComponent> result = new ArrayList<>(20);
+
+        for (final RawLessonComponent test : all) {
+            if (test.lessonId.equals(lessonId)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a list of all assignments for a course.
+     *
+     * @param course the course
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<AssignmentRec> getActiveAssignmentsByCourse(final String course) throws SQLException {
+
+        List<AssignmentRec> result = null;
+
+        if (this.assignments == null) {
+            this.assignments = new HashMap<>(5);
+        } else {
+            result = this.assignments.get(course);
+        }
+
+        if (result == null) {
+            result = AssignmentLogic.get(this.cache).queryActiveByCourse(this.cache, course, null);
+            this.assignments.put(course, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a list of all assignments of a specified type for a course and type.
+     *
+     * @param course the course
+     * @param type   the type of assignment to retrieve
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<AssignmentRec> getActiveAssignmentsByCourseType(final String course, final String type)
+            throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+        final int count = all.size();
+
+        final List<AssignmentRec> match = new ArrayList<>(count);
+
+        for (final AssignmentRec test : all) {
+            if (test.assignmentType.equals(type)) {
+                match.add(test);
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets a list of all assignments of a specified type for a course, unit, and type.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param types  the type(s) of exams to retrieve (null or empty to retrieve all types)
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<AssignmentRec> getActiveAssignmentsByCourseUnitType(final String course, final Integer unit,
+                                                                    final String... types) throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+        final int count = all.size();
+
+        final List<AssignmentRec> match = new ArrayList<>(count);
+
+        for (final AssignmentRec test : all) {
+            if (test.unit.equals(unit)) {
+
+                if (types == null || types.length == 0) {
+                    match.add(test);
+                } else {
+                    for (final String type : types) {
+                        if (test.assignmentType.equals(type)) {
+                            match.add(test);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Queries for all active (having null pull date) assignments in a course unit objective.
+     *
+     * @param course    the course for which to query
+     * @param unit      the unit for which to query
+     * @param objective the objective for which to query
+     * @param types     the type(s) of exams to retrieve (null or empty to retrieve all types)
+     * @return the list of records returned
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<AssignmentRec> getActiveAssignmentsByCourseUnitObjectiveType(final String course, final Integer unit,
+                                                                             final Integer objective,
+                                                                             final String... types)
+            throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+        final int count = all.size();
+
+        final List<AssignmentRec> match = new ArrayList<>(count);
+
+        for (final AssignmentRec test : all) {
+            if (test.unit.equals(unit) && test.objective.equals(objective)) {
+
+                if (types == null || types.length == 0) {
+                    match.add(test);
+                } else {
+                    for (final String type : types) {
+                        if (test.assignmentType.equals(type)) {
+                            match.add(test);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets the unique assignment of a specified type for a course unit objective.
+     *
+     * @param course    the course
+     * @param unit      the unit
+     * @param objective the objective
+     * @param type      the type of assignment to retrieve
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public AssignmentRec getActiveAssignment(final String course, final Integer unit, final Integer objective,
+                                             final String type) throws SQLException {
+
+        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
+
+        AssignmentRec match = null;
+
+        for (final AssignmentRec test : all) {
+            if (test.unit.equals(unit) && test.objective.equals(objective) && test.assignmentType.equals(type)) {
+                match = test;
+                break;
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets the unique assignment with a specified ID.
+     *
+     * @param assignmentId the assignment ID
+     * @return the list of assignments
+     * @throws SQLException if there is an error accessing the database
+     */
+    public AssignmentRec getActiveAssignment(final String assignmentId) throws SQLException {
+
+        AssignmentRec result = null;
+
+        if (this.assignments == null) {
+            result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
+        } else {
+            outer:
+            for (final List<AssignmentRec> list : this.assignments.values()) {
+                for (final AssignmentRec test : list) {
+                    if (test.assignmentId.equals(assignmentId)) {
+                        result = test;
+                        break outer;
+                    }
+                }
+            }
+
+            if (result == null) {
+                result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
+            }
+        }
+
+        return result;
     }
 
 //    /**
@@ -786,228 +1222,6 @@ public final class SystemData {
 //        for (final StandardMilestoneRec test : all) {
 //            if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace)) {
 //                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course units for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of course units
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCunit> getCourseUnits(final TermKey term) throws SQLException {
-//
-//        List<RawCunit> result = null;
-//
-//        if (this.courseUnits == null) {
-//            this.courseUnits = new HashMap<>(4);
-//        } else {
-//            result = this.courseUnits.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawCunitLogic.queryByTerm(this.cache, term);
-//            this.courseUnits.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course units in a single course for a single term.
-//     *
-//     * @param course the course ID
-//     * @param term   the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCunit> getCourseUnits(final String course, final TermKey term) throws SQLException {
-//
-//        final List<RawCunit> all = getCourseUnits(term);
-//        final List<RawCunit> result = new ArrayList<>(8);
-//
-//        for (final RawCunit test : all) {
-//            if (test.course.equals(course)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a particular course units in a specified term.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @param term   the term key
-//     * @return the course unit
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawCunit getCourseUnit(final String course, final Integer unit, final TermKey term) throws SQLException {
-//
-//        final List<RawCunit> termSections = getCourseUnits(term);
-//        RawCunit result = null;
-//
-//        for (final RawCunit test : termSections) {
-//            if (test.course.equals(course) && test.unit.equals(unit)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course sections for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of course unit sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCusection> getCourseUnitSections(final TermKey term) throws SQLException {
-//
-//        List<RawCusection> result = null;
-//
-//        if (this.courseUnitSections == null) {
-//            this.courseUnitSections = new HashMap<>(4);
-//        } else {
-//            result = this.courseUnitSections.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawCusectionLogic.queryByTerm(this.cache, term);
-//            this.courseUnitSections.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a particular course unit sections for a specified course and section in a specified term.
-//     *
-//     * @param course the course
-//     * @param sect   the section
-//     * @param term   the term key
-//     * @return the list of course unit sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCusection> getCourseUnitSections(final String course, final String sect, final TermKey term)
-//            throws SQLException {
-//
-//        final List<RawCusection> all = getCourseUnitSections(term);
-//        final List<RawCusection> result = new ArrayList<>(10);
-//
-//        for (final RawCusection test : all) {
-//            if (test.course.equals(course) && test.sect.equals(sect)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a particular course unit section in a specified term.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @param sect   the section
-//     * @param term   the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawCusection getCourseUnitSection(final String course, final Integer unit, final String sect,
-//                                             final TermKey term) throws SQLException {
-//
-//        final List<RawCusection> termSections = getCourseUnitSections(term);
-//        RawCusection result = null;
-//
-//        for (final RawCusection test : termSections) {
-//            if (test.course.equals(course) && test.unit.equals(unit) && test.sect.equals(sect)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course unit objectives for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of course unit objectives
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCuobjective> getCourseUnitObjectives(final TermKey term) throws SQLException {
-//
-//        List<RawCuobjective> result = null;
-//
-//        if (this.courseUnitObjectives == null) {
-//            this.courseUnitObjectives = new HashMap<>(4);
-//        } else {
-//            result = this.courseUnitObjectives.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawCuobjectiveLogic.queryByTerm(this.cache, term);
-//            this.courseUnitObjectives.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets the course unit objectives in a specified course and unit in a specified term.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @param term   the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCuobjective> getCourseUnitObjectives(final String course, final Integer unit, final TermKey term)
-//            throws SQLException {
-//
-//        final List<RawCuobjective> termObjectives = getCourseUnitObjectives(term);
-//        final List<RawCuobjective> result = new ArrayList<>(10);
-//
-//        for (final RawCuobjective test : termObjectives) {
-//            if (test.course.equals(course) && test.unit.equals(unit)) {
-//                result.add(test);
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a particular course unit objective in a specified term.
-//     *
-//     * @param course    the course
-//     * @param unit      the unit
-//     * @param objective the objective
-//     * @param term      the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawCuobjective getCourseUnitObjective(final String course, final Integer unit, final Integer objective,
-//                                                 final TermKey term) throws SQLException {
-//
-//        final List<RawCuobjective> termObjectives = getCourseUnitObjectives(term);
-//        RawCuobjective result = null;
-//
-//        for (final RawCuobjective test : termObjectives) {
-//            if (test.course.equals(course) && test.unit.equals(unit) && test.objective.equals(objective)) {
-//                result = test;
-//                break;
 //            }
 //        }
 //
@@ -1121,151 +1335,6 @@ public final class SystemData {
 //        }
 //
 //        return match;
-//    }
-//
-//    /**
-//     * Gets a list of all assignments for a course.
-//     *
-//     * @param course the course
-//     * @return the list of assignments
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<AssignmentRec> getActiveAssignmentsByCourse(final String course) throws SQLException {
-//
-//        List<AssignmentRec> result = null;
-//
-//        if (this.assignments == null) {
-//            this.assignments = new HashMap<>(5);
-//        } else {
-//            result = this.assignments.get(course);
-//        }
-//
-//        if (result == null) {
-//            result = AssignmentLogic.get(this.cache).queryActiveByCourse(this.cache, course, null);
-//            this.assignments.put(course, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a list of all assignments of a specified type for a course and type
-//     *
-//     * @param course the course
-//     * @param type   the type of assignment to retrieve
-//     * @return the list of assignments
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<AssignmentRec> getActiveAssignmentsByCourseType(final String course, final String type)
-//            throws SQLException {
-//
-//        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
-//        final int count = all.size();
-//
-//        final List<AssignmentRec> match = new ArrayList<>(count);
-//
-//        for (final AssignmentRec test : all) {
-//            if (test.assignmentType.equals(type)) {
-//                match.add(test);
-//            }
-//        }
-//
-//        return match;
-//    }
-//
-//    /**
-//     * Gets a list of all assignments of a specified type for a course, unit, and type.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @param types  the type(s) of exams to retrieve (null or empty to retrieve all types)
-//     * @return the list of assignments
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<AssignmentRec> getActiveAssignmentsByCourseUnitType(final String course, final Integer unit,
-//                                                                    final String... types) throws SQLException {
-//
-//        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
-//        final int count = all.size();
-//
-//        final List<AssignmentRec> match = new ArrayList<>(count);
-//
-//        for (final AssignmentRec test : all) {
-//            if (test.unit.equals(unit)) {
-//
-//                if (types == null || types.length == 0) {
-//                    match.add(test);
-//                } else {
-//                    for (final String type : types) {
-//                        if (test.assignmentType.equals(type)) {
-//                            match.add(test);
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        return match;
-//    }
-//
-//    /**
-//     * Gets the unique assignment of a specified type for a course unit objective.
-//     *
-//     * @param course    the course
-//     * @param unit      the unit
-//     * @param objective the objective
-//     * @param type      the type of assignment to retrieve
-//     * @return the list of assignments
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public AssignmentRec getActiveAssignment(final String course, final Integer unit, final Integer objective,
-//                                             final String type) throws SQLException {
-//
-//        final List<AssignmentRec> all = getActiveAssignmentsByCourse(course);
-//
-//        AssignmentRec match = null;
-//
-//        for (final AssignmentRec test : all) {
-//            if (test.unit.equals(unit) && test.objective.equals(objective) && test.assignmentType.equals(type)) {
-//                match = test;
-//                break;
-//            }
-//        }
-//
-//        return match;
-//    }
-//
-//    /**
-//     * Gets the unique assignment with a specified ID.
-//     *
-//     * @param assignmentId the assignment ID
-//     * @return the list of assignments
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public AssignmentRec getActiveAssignment(final String assignmentId) throws SQLException {
-//
-//        AssignmentRec result = null;
-//
-//        if (this.assignments == null) {
-//            result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
-//        } else {
-//            outer:
-//            for (final List<AssignmentRec> list : this.assignments.values()) {
-//                for (final AssignmentRec test : list) {
-//                    if (test.assignmentId.equals(assignmentId)) {
-//                        result = test;
-//                        break outer;
-//                    }
-//                }
-//            }
-//
-//            if (result == null) {
-//                result = AssignmentLogic.get(this.cache).query(this.cache, assignmentId);
-//            }
-//        }
-//
-//        return result;
 //    }
 //
 //    /**
@@ -1390,79 +1459,6 @@ public final class SystemData {
 //            if (test.unit.equals(unit) && test.examType.equals(type)) {
 //                result = test;
 //                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all lessons.
-//     *
-//     * @return the list of lessons
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawLesson> getLessons() throws SQLException {
-//
-//        if (this.lessons == null) {
-//            this.lessons = RawLessonLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.lessons;
-//    }
-//
-//    /**
-//     * Gets a single lesson.
-//     *
-//     * @param lessonId the ID of the lesson to retrieve
-//     * @return the lesson; null if not found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawLesson getLesson(final String lessonId) throws SQLException {
-//
-//        final List<RawLesson> all = getLessons();
-//        RawLesson result = null;
-//
-//        for (final RawLesson test : all) {
-//            if (test.lessonId.equals(lessonId)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all lesson components.
-//     *
-//     * @return the list of lesson components
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawLessonComponent> getLessonComponents() throws SQLException {
-//
-//        if (this.lessonComponents == null) {
-//            this.lessonComponents = RawLessonComponentLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.lessonComponents;
-//    }
-//
-//    /**
-//     * Gets all lesson components for a single lesson.
-//     *
-//     * @param lessonId the ID of the lesson whose components to retrieve
-//     * @return the lesson components
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawLessonComponent> getLessonComponentsByLesson(final String lessonId) throws SQLException {
-//
-//        final List<RawLessonComponent> all = getLessonComponents();
-//        final List<RawLessonComponent> result = new ArrayList<>(20);
-//
-//        for (final RawLessonComponent test : all) {
-//            if (test.lessonId.equals(lessonId)) {
-//                result.add(test);
 //            }
 //        }
 //

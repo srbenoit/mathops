@@ -24,6 +24,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -33,7 +34,6 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
@@ -628,8 +628,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 param1.getValue(), ", Remote=" + presented.remote);
 
 
-        // Get the student's SAT and ACT scores from the database, and store in parameters for use
-        // in scoring formulae.
+        // Get the student's SAT and ACT scores from the database, and store in parameters for use in scoring formulas.
         loadSatActSurvey(cache, params);
 
         final RawExam exam = RawExamLogic.query(cache, presented.examVersion);
@@ -667,7 +666,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         }
         stexam.serialNumber = presented.serialNumber;
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         boolean ok = true;
 
@@ -779,8 +779,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
 
             if (ok) {
-                final RawCusection cusect = RawCusectionLogic.query(cache, stexam.course, stcourse.sect,
-                        stexam.unit, active.term);
+                final RawCusection cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit,
+                        active.term);
 
                 if (cusect == null) {
                     ok = false;
@@ -800,8 +800,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
         } else if (RawRecordConstants.M100U.equals(stexam.course)) {
             // FIXME: Hardcode
-            final RawCusection result = RawCusectionLogic.query(cache, stexam.course, "1", stexam.unit,
-                    active.term);
+            final RawCusection result = systemData.getCourseUnitSection(stexam.course, "1", stexam.unit, active.term);
             if (result == null) {
                 ok = false;
             } else {

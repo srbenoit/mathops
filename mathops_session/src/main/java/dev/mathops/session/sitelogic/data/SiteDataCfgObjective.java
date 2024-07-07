@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ final class SiteDataCfgObjective {
      */
     SiteDataCfgObjective(final Cache cache, final RawCuobjective theCourseUnitObj) throws SQLException {
 
-        this.homeworks = AssignmentLogic.get(cache).queryActiveByCourseUnitObjective(cache,
+        this.homeworks = cache.getSystemData().getActiveAssignmentsByCourseUnitObjectiveType(
                 theCourseUnitObj.course, theCourseUnitObj.unit, theCourseUnitObj.objective, "HW");
 
         if (this.homeworks == null) {

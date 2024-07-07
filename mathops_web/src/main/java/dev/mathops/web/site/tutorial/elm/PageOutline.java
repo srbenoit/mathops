@@ -4,7 +4,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
@@ -225,7 +224,7 @@ enum PageOutline {
         htm.addln("</span></h3>").eDiv();
 
         if (courseSecUnit != null) {
-            final String topmatter = RawCusectionLogic.getTopmatter(courseSecUnit);
+            final String topmatter = RawCusection.getTopmatter(courseSecUnit);
             if (topmatter != null) {
                 htm.add(topmatter);
             }

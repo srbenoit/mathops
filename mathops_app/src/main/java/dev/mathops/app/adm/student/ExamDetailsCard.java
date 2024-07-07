@@ -9,7 +9,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.logic.CourseLogic;
-import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -611,8 +610,8 @@ import java.util.Locale;
                 Log.warning("Unable to determine section number to lookup mastery score.");
                 mastery = guessMasteryScore(exam);
             } else {
-                final RawCusection cusect = RawCusectionLogic.query(this.cache, crs,
-                        matchedSect.sect, exam.unit, active.term);
+                final RawCusection cusect = systemData.getCourseUnitSection(crs, matchedSect.sect, exam.unit,
+                        active.term);
 
                 if (cusect == null) {
                     Log.warning("Unable to lookup cusection record.");

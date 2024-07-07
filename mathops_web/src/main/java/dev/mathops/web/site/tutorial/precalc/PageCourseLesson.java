@@ -5,8 +5,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
 import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;
@@ -111,7 +111,8 @@ enum PageCourseLesson {
 
             if (status.gatherData(cache, session, studentId, courseId, false, false)) {
 
-                final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, logic, courseId);
+                final RawStudent student = logic.getStudent();
+                final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, student, courseId);
 
                 final String associatedCourse = PrecalcTutorialSiteLogic.getAssociatedCourse(tutStatus.getCourse());
                 htm.add("<h2 class='title' style='margin-bottom:3px;'>");
@@ -157,8 +158,8 @@ enum PageCourseLesson {
 
                 // Button to launch the assignment (with status)
                 if (status.hasHomework(unit, objective)) {
-                    final AssignmentRec hw = AssignmentLogic.get(cache).queryActive(cache, courseId,
-                            Integer.valueOf(unit), Integer.valueOf(objective), "HW");
+                    final AssignmentRec hw = cache.getSystemData().getActiveAssignment(courseId, Integer.valueOf(unit),
+                            Integer.valueOf(objective), "HW");
                     if (hw != null) {
                         final String assign = hw.assignmentId;
                         if (assign != null) {

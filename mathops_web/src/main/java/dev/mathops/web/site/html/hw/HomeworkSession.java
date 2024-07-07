@@ -28,7 +28,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
@@ -268,7 +267,7 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         final SystemData systemData = cache.getSystemData();
 
-        final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, this.version);
+        final AssignmentRec avail = systemData.getActiveAssignment(this.version);
 
         final HtmlBuilder reasons = new HtmlBuilder(100);
         final Collection<RawAdminHold> holds = new ArrayList<>(1);
@@ -1040,7 +1039,7 @@ public final class HomeworkSession extends HtmlSessionBase {
         }
 
         final String ver = getExam().examVersion;
-        final AssignmentRec hw = AssignmentLogic.get(cache).query(cache, ver);
+        final AssignmentRec hw = systemData.getActiveAssignment(ver);
         if (hw == null) {
             return "Assignment has been removed from the course!";
         }

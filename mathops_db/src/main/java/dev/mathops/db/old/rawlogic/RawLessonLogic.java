@@ -1467,35 +1467,4 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
 
         return result;
     }
-
-//    /**
-//     * Retrieves all "refresher" lessons in the database.
-//     *
-//     * @param cache the data cache
-//     * @return the list of lessons
-//     */
-//    public static List<RawLesson> queryAllRefresher(final Cache cache) {
-//
-//        final List<RawLesson> result = new ArrayList<>(10);
-//
-//        for (final RawLesson row : lessons.values()) {
-//            if ("R".equals(row.lessonType)) {
-//                result.add(row);
-//            }
-//        }
-//
-//        return result;
-//    }
-
-    /**
-     * Gets a lesson object.
-     *
-     * @param cache    the data cache
-     * @param lessonId the ID of the lesson object to retrieve
-     * @return the lesson object; {@code null} if not found or an error occurs
-     */
-    public static RawLesson query(final Cache cache, final String lessonId) {
-
-        return lessons.get(lessonId);
-    }
 }

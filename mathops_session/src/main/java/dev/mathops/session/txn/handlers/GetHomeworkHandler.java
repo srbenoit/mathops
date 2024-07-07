@@ -4,12 +4,12 @@ import dev.mathops.assessment.InstructionalCache;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.GetHomeworkReply;
@@ -94,9 +94,10 @@ public final class GetHomeworkHandler extends AbstractHandlerBase {
 
             // If exam was requested as a homework assignment, look up the version
             final HomeworkEligibilityTester hwtest = new HomeworkEligibilityTester(getStudent().stuId);
+            final SystemData systemData = cache.getSystemData();
 
             // See if the student is eligible to take the homework
-            final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, request.homeworkVersion);
+            final AssignmentRec avail = systemData.getActiveAssignment(request.homeworkVersion);
 
             final HtmlBuilder reasons = new HtmlBuilder(100);
             final List<RawAdminHold> holds = new ArrayList<>(1);

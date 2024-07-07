@@ -8,7 +8,6 @@ import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
 import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;
@@ -106,8 +105,7 @@ enum PageLesson {
             final StudentCourseStatus status = new StudentCourseStatus(site.getDbProfile());
             if (status.gatherData(cache, session, studentId, RawRecordConstants.M100T, false, false)) {
 
-                htm.sH(2, "title").add(" <a name='top'></a>",
-                        status.getCourse().courseName).eH(2);
+                htm.sH(2, "title").add(" <a name='top'></a>", status.getCourse().courseName).eH(2);
 
                 htm.add("<nav><a class='linkbtn' href='tutorial.html'><em>Return to the Tutorial Outline",
                         "</em></a></nav>");
@@ -135,23 +133,19 @@ enum PageLesson {
 
                 // Button to launch practice problems
                 if (status.hasHomework(unit, objective)) {
-                    final AssignmentRec hw = AssignmentLogic.get(cache).queryActive(//
-                            cache, RawRecordConstants.M100T, Integer.valueOf(unit),
-                            Integer.valueOf(objective), "HW");
+                    final AssignmentRec hw = cache.getSystemData().getActiveAssignment(RawRecordConstants.M100T,
+                            Integer.valueOf(unit), Integer.valueOf(objective), "HW");
 
                     if (hw != null && hw.assignmentId != null) {
                         htm.div("vgap");
 
                         htm.addln("<form method='get' action='run_homework.html'>");
                         htm.sDiv("indent11");
-                        htm.addln("  <input type='hidden' name='unit' value='",
-                                Integer.toString(unit), "'/>");
-                        htm.addln("  <input type='hidden' name='lesson' value='",
-                                Integer.toString(objective), "'/>");
+                        htm.addln("  <input type='hidden' name='unit' value='", Integer.toString(unit), "'/>");
+                        htm.addln("  <input type='hidden' name='lesson' value='", Integer.toString(objective), "'/>");
                         htm.addln("  <input type='hidden' name='assign' value='", hw.assignmentId, "'/>");
-                        htm.addln("  <input class='btn' type='submit' value='Objective ",
-                                Integer.toString(unit), CoreConstants.DOT, Integer.toString(objective),
-                                " Practice Problems'/>");
+                        htm.addln("  <input class='btn' type='submit' value='Objective ", Integer.toString(unit),
+                                CoreConstants.DOT, Integer.toString(objective), " Practice Problems'/>");
                         htm.eDiv();
                         htm.addln("</form>");
                     }

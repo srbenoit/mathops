@@ -3,14 +3,13 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
-import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -92,7 +91,8 @@ enum PageElmUnit {
     private static void buildElmUnitPage(final Cache cache, final int unit, final PrecalcTutorialSiteLogic logic,
                                          final HtmlBuilder htm) throws SQLException {
 
-        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, logic,
+        final RawStudent student = logic.getStudent();
+        final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, student,
                 RawRecordConstants.M1170);
 
         final String associatedCourse = PrecalcTutorialSiteLogic.getAssociatedCourse(tutStatus.getCourse());
@@ -110,13 +110,14 @@ enum PageElmUnit {
         htm.hr();
         htm.div("vgap");
 
-        final List<RawCuobjective> objectives = RawCuobjectiveLogic.queryByCourseUnit(cache, RawRecordConstants.M100T,
+        final SystemData systemData = cache.getSystemData();
+
+        final List<RawCuobjective> objectives = systemData.getCourseUnitObjectives(RawRecordConstants.M100T,
                 Integer.valueOf(unit), logic.getActiveTerm().term);
 
         for (final RawCuobjective objective : objectives) {
             if (objective.lessonId != null) {
-                final List<RawLessonComponent> components = RawLessonComponentLogic.queryByLesson(cache,
-                        objective.lessonId);
+                final List<RawLessonComponent> components = systemData.getLessonComponentsByLesson(objective.lessonId);
 
                 // Show any "LH"
                 final Iterator<RawLessonComponent> iter1 = components.iterator();
@@ -144,8 +145,8 @@ enum PageElmUnit {
                 }
 
                 // Button to launch the assignment (with status)
-                final AssignmentRec hw = AssignmentLogic.get(cache).queryActive(cache, RawRecordConstants.M100T,
-                        Integer.valueOf(unit), objective.objective, "HW");
+                final AssignmentRec hw = systemData.getActiveAssignment(RawRecordConstants.M100T, Integer.valueOf(unit),
+                        objective.objective, "HW");
                 if (hw != null) {
                     final String assign = hw.assignmentId;
                     if (assign != null) {

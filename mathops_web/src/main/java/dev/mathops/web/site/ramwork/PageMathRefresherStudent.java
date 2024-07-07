@@ -1,9 +1,9 @@
 package dev.mathops.web.site.ramwork;
 
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawStlessonAssignLogic;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawStlessonAssign;
@@ -58,18 +58,21 @@ enum PageMathRefresherStudent {
             // 'lesson_component' holds the contents of each lesson
             // 'stlesson_assign' holds assignments of lessons to students
             // 'stlesson_component' holds the status associated with each component
-            final List<RawStlessonAssign> allAssigns =
-                    RawStlessonAssignLogic.queryByStudent(cache, stuId);
+
+            final List<RawStlessonAssign> allAssigns = RawStlessonAssignLogic.queryByStudent(cache, stuId);
 
             final LocalDateTime now = session.getNow().toLocalDateTime();
 
-            final Collection<RawStlessonAssign> closed = new ArrayList<>(allAssigns.size());
-            final Collection<RawStlessonAssign> active = new ArrayList<>(allAssigns.size());
-            final Collection<RawStlessonAssign> future = new ArrayList<>(allAssigns.size());
-            final Map<String, RawLesson> lessons = new HashMap<>(allAssigns.size());
+            final int count = allAssigns.size();
+            final Collection<RawStlessonAssign> closed = new ArrayList<>(count);
+            final Collection<RawStlessonAssign> active = new ArrayList<>(count);
+            final Collection<RawStlessonAssign> future = new ArrayList<>(count);
+            final Map<String, RawLesson> lessons = new HashMap<>(count);
+
+            final SystemData systemData = cache.getSystemData();
 
             for (final RawStlessonAssign row : allAssigns) {
-                final RawLesson lesson = RawLessonLogic.query(cache, row.lessonId);
+                final RawLesson lesson = systemData.getLesson(row.lessonId);
 
                 // Make sure row should be shown
                 if ((lesson != null) && (row.whenShown == null || row.whenShown.isBefore(now))) {
