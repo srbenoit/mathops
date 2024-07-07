@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
@@ -115,7 +114,7 @@ public final class CourseLesson extends LogicBase {
     private boolean queryCourseTutorialStatus(final Cache cache, final String courseId)
             throws SQLException {
 
-        this.courseIsTutorial = RawCourseLogic.isCourseTutorial(cache, courseId);
+        this.courseIsTutorial = cache.getSystemData().isCourseTutorial(courseId);
 
         if (this.courseIsTutorial == null) {
             setErrorText("Course not found.");

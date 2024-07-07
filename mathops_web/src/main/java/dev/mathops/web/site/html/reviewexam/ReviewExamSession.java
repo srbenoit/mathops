@@ -32,6 +32,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -40,8 +41,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -1314,7 +1313,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
 
         final String crsId = getExam().course;
 
-        final Boolean courseIsTutorial = RawCourseLogic.isCourseTutorial(cache, crsId);
+        final SystemData systemData = cache.getSystemData();
+
+        final Boolean courseIsTutorial = systemData.isCourseTutorial(crsId);
         if (courseIsTutorial == null) {
             return "No data for course '" + getExam().course + "'";
         }
@@ -1466,7 +1467,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                     }
 
                     if (isSpecial) {
-                        final List<RawCsection> sections = RawCsectionLogic.queryByCourseTerm(cache, stexam.course,
+                        final List<RawCsection> sections = systemData.getCourseSectionsByCourse(stexam.course,
                                 this.active.term);
 
                         if (sections.isEmpty()) {

@@ -1,9 +1,9 @@
 package dev.mathops.web.site.reporting;
 
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.dbjobs.report.HtmlCsvCourseProgressReport;
@@ -79,10 +79,11 @@ enum PagePrecalcStatusBySections {
 
         htm.add("<form action='precalc_by_course.html' method='POST'>");
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
-        final List<RawCsection> courseSections = RawCsectionLogic.queryByTerm(cache, activeKey);
+        final List<RawCsection> courseSections = systemData.getCourseSections(activeKey);
         courseSections.removeIf(row -> row.instrnType == null || "OT".equals(row.instrnType));
         courseSections.sort(null);
 
@@ -156,10 +157,11 @@ enum PagePrecalcStatusBySections {
     private static void emitCsvData(final Cache cache, final ServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
-        final List<RawCsection> courseSections = RawCsectionLogic.queryByTerm(cache, activeKey);
+        final List<RawCsection> courseSections = systemData.getCourseSections(activeKey);
         courseSections.removeIf(row -> row.instrnType == null || "OT".equals(row.instrnType));
         courseSections.sort(null);
 

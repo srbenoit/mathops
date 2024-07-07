@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -12,7 +13,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -109,13 +109,13 @@ public enum IFXResetELMTutorial {
     private static void buildReport(final Cache cache, final HtmlBuilder report,
                                     final HtmlBuilder errors) throws SQLException {
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
         if (activeTerm == null) {
             errors.addln("Unable to query the active term.");
         } else {
-            final LocalDate dueDate = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M100T, "1",
-                    activeTerm.term);
+            final LocalDate dueDate = systemData.getExamDeleteDate(RawRecordConstants.M100T, "1", activeTerm.term);
 
             final LocalDate today = LocalDate.now();
             LocalDate latestStartDate = null;

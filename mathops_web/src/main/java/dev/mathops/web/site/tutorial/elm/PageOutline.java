@@ -4,9 +4,9 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -94,8 +94,7 @@ enum PageOutline {
 
             doCourseMedia(courseStatus, htm);
 
-            final String topmatter =
-                    RawCsectionLogic.getTopmatter(courseStatus.getCourseSection().course);
+            final String topmatter = RawCsection.getTopmatter(courseStatus.getCourseSection().course);
 
             if (topmatter != null) {
                 htm.sP().add(topmatter).eP();
@@ -107,8 +106,7 @@ enum PageOutline {
 
             boolean told = false;
             for (int i = 1; i < 5; ++i) {
-                told = doUnit(cache, site, status, courseStatus, courseStatus.getCourseUnit(i),
-                        told, htm);
+                told = doUnit(cache, site, status, courseStatus, courseStatus.getCourseUnit(i), told, htm);
             }
         } else {
             htm.sP().add("FAILED TO GET COURSE DATA").br();

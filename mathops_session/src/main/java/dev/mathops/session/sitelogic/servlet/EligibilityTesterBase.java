@@ -2,10 +2,9 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
@@ -355,7 +354,9 @@ class EligibilityTesterBase {
 
         boolean ok = true;
 
-        final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, course);
+        final SystemData systemData = cache.getSystemData();
+
+        final Boolean isTut = systemData.isCourseTutorial(course);
         if (isTut == null) {
             reasons.add("Unable to query for this course");
             ok = false;
@@ -369,7 +370,7 @@ class EligibilityTesterBase {
             final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
                     : this.activeTerm.term;
 
-            this.courseSection = RawCsectionLogic.query(cache, course, this.studentCourse.sect, term);
+            this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect, term);
 
             if (this.courseSection == null) {
                 reasons.add("Unable to query course section information");
@@ -508,7 +509,7 @@ class EligibilityTesterBase {
             if (isSpecial) {
                 // Make a fake STCOURSE record
                 String sect = "001";
-                final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.activeTerm.term);
+                final List<RawCsection> csections = cache.getSystemData().getCourseSections(this.activeTerm.term);
                 csections.sort(null);
                 for (final RawCsection test : csections) {
                     if (test.course.equals(course)) {

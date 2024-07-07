@@ -2,11 +2,11 @@ package dev.mathops.session;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -55,9 +55,11 @@ public final class CsuLiveRegChecker {
      */
     public static void checkLiveReg(final Cache cache, final String stuId) throws SQLException {
 
-        if (!stuId.isEmpty() && stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
+        if (!stuId.isEmpty() && (int) stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
 
-            final TermRec active = cache.getSystemData().getActiveTerm();
+            final SystemData systemData = cache.getSystemData();
+
+            final TermRec active = systemData.getActiveTerm();
             final String activeStr = active == null ? null : active.term.longString;
 
             if (active != null && activeStr != null) {
@@ -86,8 +88,8 @@ public final class CsuLiveRegChecker {
 
                 // Update live registration "instruction type" based on course-section
                 for (final LiveReg live : liveRegs) {
-                    final String instrnType = RawCsectionLogic.getInstructionType(cache, live.courseId,
-                            live.sectionNum, active.term);
+                    final String instrnType = systemData.getInstructionType(live.courseId, live.sectionNum,
+                            active.term);
                     if (instrnType != null) {
                         live.setInstructionType(instrnType);
                     }
@@ -234,7 +236,9 @@ public final class CsuLiveRegChecker {
     private static void checkForNewReg(final Cache cache, final List<RawStcourse> regs,
                                        final List<LiveReg> liveRegs, final String activeStr) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         // Remove useless rows from the live reg query
         final Iterator<LiveReg> iter = liveRegs.iterator();
@@ -247,7 +251,7 @@ public final class CsuLiveRegChecker {
             } else if (live.courseId == null || live.sectionNum == null || live.sectionNum.isEmpty()) {
                 Log.info("Ignoring live registration ", live.courseId, "(", live.sectionNum, ") - incomplete data");
                 iter.remove();
-            } else if (RawCsectionLogic.query(cache, live.courseId, live.sectionNum, active.term) == null) {
+            } else if (systemData.getCourseSection(live.courseId, live.sectionNum, active.term) == null) {
                 Log.info("Ignoring live registration ", live.courseId, "(", live.sectionNum,
                         ") - course/section not in system");
                 iter.remove();
@@ -767,7 +771,9 @@ public final class CsuLiveRegChecker {
     private static boolean hasMixedRuleSets(final Cache cache, final Iterable<RawStcourse> regs,
                                             final String userId) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
 
         final Collection<String> pacingStructures = new HashSet<>(4);
 
@@ -778,7 +784,7 @@ public final class CsuLiveRegChecker {
             }
 
             // Find each registration's course section
-            final RawCsection csection = RawCsectionLogic.query(cache, reg.course, reg.sect, active.term);
+            final RawCsection csection = systemData.getCourseSection(reg.course, reg.sect, active.term);
 
             if (csection == null || "OT".equals(csection.instrnType)) {
                 continue;

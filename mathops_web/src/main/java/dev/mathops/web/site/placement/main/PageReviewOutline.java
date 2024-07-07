@@ -6,7 +6,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
@@ -164,7 +163,7 @@ enum PageReviewOutline {
 
         final RawCuobjective[][] result;
 
-        final RawCourse course = RawCourseLogic.query(cache, "M 100R");
+        final RawCourse course = cache.getSystemData().getCourse("M 100R");
         final TermRec active = cache.getSystemData().getActiveTerm();
 
         if (course == null) {

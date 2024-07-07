@@ -1,13 +1,19 @@
 package dev.mathops.db.logic;
 
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawCourseLogic;
+import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
@@ -17,7 +23,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A data container for system data (not related to individual students) used in a single webpage generation or business
@@ -45,13 +53,28 @@ public final class SystemData {
     private List<TermRec> futureTerms = null;
 
     /** All hold types. */
-    private List<RawHoldType> holdTypes;
+    private List<RawHoldType> holdTypes = null;
 
     /** All campus calendar records. */
-    private List<RawCampusCalendar> campusCalendars;
+    private List<RawCampusCalendar> campusCalendars = null;
 
     /** All semester calendar records. */
-    private List<RawSemesterCalendar> semesterCalendars;
+    private List<RawSemesterCalendar> semesterCalendars = null;
+
+    /** All courses. */
+    private List<RawCourse> courses = null;
+
+    /** A map from term key to a list of course sections for that term. */
+    private Map<TermKey, List<RawCsection>> courseSections;
+
+//    /** A map from term key to a list of course units for that term. */
+//    private Map<TermKey, List<RawCunit>> courseUnits;
+//
+//    /** A map from term key to a list of course unit sections for that term. */
+//    private Map<TermKey, List<RawCusection>> courseUnitSections;
+//
+//    /** A map from term key to a list of course unit objectives for that term. */
+//    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
 
 //    /** The list of all course milestones. */
 //    private List<RawMilestone> milestones = null;
@@ -67,21 +90,6 @@ public final class SystemData {
 //
 //    /** All e-text course mappings. */
 //    private List<RawEtextCourse> etextCourses;
-//
-//    /** All courses. */
-//    private List<RawCourse> courses;
-//
-//    /** A map from term key to a list of course sections for that term. */
-//    private Map<TermKey, List<RawCsection>> courseSections;
-//
-//    /** A map from term key to a list of course units for that term. */
-//    private Map<TermKey, List<RawCunit>> courseUnits;
-//
-//    /** A map from term key to a list of course unit sections for that term. */
-//    private Map<TermKey, List<RawCusection>> courseUnitSections;
-//
-//    /** A map from term key to a list of course unit objectives for that term. */
-//    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
 //
 //    /** A map from course ID to all assignments for that course. */
 //    private Map<String, List<AssignmentRec>> assignments;
@@ -436,6 +444,252 @@ public final class SystemData {
         return this.semesterCalendars;
     }
 
+    /**
+     * Gets the list of all courses.
+     *
+     * @return the courses
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCourse> getCourses() throws SQLException {
+
+        if (this.courses == null) {
+            this.courses = RawCourseLogic.INSTANCE.queryAll(this.cache);
+            this.courses.sort(null);
+        }
+
+        return this.courses;
+    }
+
+    /**
+     * Gets the single course.
+     *
+     * @param course the course ID
+     * @return the course; null if not found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawCourse getCourse(final String course) throws SQLException {
+
+        final List<RawCourse> all = getCourses();
+        RawCourse result = null;
+
+        for (final RawCourse test : all) {
+            if (test.course.equals(course)) {
+                result = test;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether a course requires an e-text.
+     *
+     * @param course the ID of the course to retrieve
+     * @return TRUE if the course was found an is marked as being a tutorial; FALSE if the course was found as is not
+     *         marked as a tutorial; null if the course was not found
+     * @throws SQLException if there is an error performing the query
+     */
+    public Boolean isETextRequired(final String course) throws SQLException {
+
+        final RawCourse rec = getCourse(course);
+
+        return rec == null ? null : Boolean.valueOf("Y".equals(rec.requireEtext));
+    }
+
+    /**
+     * Tests whether a course is a tutorial.
+     *
+     * @param course the ID of the course to retrieve
+     * @return TRUE if the course was found an is marked as being a tutorial; FALSE if the course was found and is not
+     *         marked as a tutorial; null if the course was not found
+     * @throws SQLException if there is an error performing the query
+     */
+    public Boolean isCourseTutorial(final String course) throws SQLException {
+
+        final RawCourse rec = getCourse(course);
+
+        return rec == null ? null : Boolean.valueOf("Y".equals(rec.isTutorial));
+    }
+
+    /**
+     * Gets the label for a course.
+     *
+     * @param course the ID of the course to query
+     * @return the label; null if the course was not found or had no label
+     * @throws SQLException if there is an error performing the query
+     */
+    public String getCourseLabel(final String course) throws SQLException {
+
+        final RawCourse rec = getCourse(course);
+
+        return rec == null ? null : rec.courseLabel;
+    }
+
+    /**
+     * Gets all course sections for a single term.
+     *
+     * @param term the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCsection> getCourseSections(final TermKey term) throws SQLException {
+
+        List<RawCsection> result = null;
+
+        if (this.courseSections == null) {
+            this.courseSections = new HashMap<>(4);
+        } else {
+            result = this.courseSections.get(term);
+        }
+
+        if (result == null) {
+            result = RawCsectionLogic.queryByTerm(this.cache, term);
+            this.courseSections.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course sections for a single course in a single term.
+     *
+     * @param course the course ID
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawCsection> getCourseSectionsByCourse(final String course, final TermKey term) throws SQLException {
+
+        final List<RawCsection> all = getCourseSections(term);
+        final List<RawCsection> result = new ArrayList<>(10);
+
+        for (final RawCsection test : all) {
+            if (test.course.equals(course)) {
+                result.add(test);
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a particular course sections in a specified term.
+     *
+     * @param course the course
+     * @param sect   the section
+     * @param term   the term key
+     * @return the list of course sections
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawCsection getCourseSection(final String course, final String sect, final TermKey term)
+            throws SQLException {
+
+        final List<RawCsection> termSections = getCourseSections(term);
+        RawCsection result = null;
+
+        for (final RawCsection test : termSections) {
+            if (test.course.equals(course) && test.sect.equals(sect)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Attempts to query the course section object for a registration.
+     *
+     * @param reg   the registration
+     * @return the course section record
+     * @throws SQLException if there is an error accessing the database or the course section cannot be found
+     */
+    public RawCsection getCourseSection(final RawStcourse reg) throws SQLException {
+
+        RawCsection csection = null;
+
+        if ("Y".equals(reg.iInProgress)) {
+            csection = getCourseSection(reg.course, reg.sect, reg.iTermKey);
+        }
+
+        if (csection == null) {
+            csection = getCourseSection(reg.course, reg.sect, reg.termKey);
+        }
+
+        if (csection == null) {
+            final List<RawCsection> all = getCourseSections(reg.termKey);
+            final boolean isDistance = reg.sect.startsWith("8") || reg.sect.startsWith("4");
+
+            for (final RawCsection test : all) {
+                final boolean testIsDistance = test.sect.startsWith("8") || test.sect.startsWith("4");
+                if (isDistance == testIsDistance && test.course.equals(reg.course)) {
+                    csection = test;
+                    break;
+                }
+            }
+        }
+
+        if (csection == null) {
+            final String msg = SimpleBuilder.concat("Failed to query course section for ", reg.course, " sect ",
+                    reg.sect, " in ", reg.termKey.shortString);
+            throw new SQLException(msg);
+        }
+
+        return csection;
+    }
+
+    /**
+     * Retrieves the exam delete date for a particular course section.
+     *
+     * @param course  the ID of the course to retrieve
+     * @param sect    the number of the section to retrieve
+     * @param termKey the term key
+     * @return the exam delete date; {@code null} if the exam delete date was null or if no course exists with the
+     *         specified ID
+     * @throws SQLException if there is an error accessing the database
+     */
+    public LocalDate getExamDeleteDate(final String course, final String sect, final TermKey termKey)
+            throws SQLException {
+
+        final RawCsection rec = getCourseSection(course, sect, termKey);
+
+        return rec == null ? null : rec.examDeleteDt;
+    }
+
+    /**
+     * Retrieves the instruction type for a particular course section.
+     *
+     * @param course  the ID of the course to retrieve
+     * @param sect    the number of the section to retrieve
+     * @param termKey the term key
+     * @return the instruction type; {@code null} on any error or if no course exists with the specified ID
+     * @throws SQLException if there is an error accessing the database
+     */
+    public String getInstructionType(final String course, final String sect, final TermKey termKey)
+            throws SQLException {
+
+        final RawCsection rec = getCourseSection(course, sect, termKey);
+
+        return rec == null ? null : rec.instrnType;
+    }
+
+    /**
+     * Retrieves the rule set ID for a particular course section.
+     *
+     * @param course  the ID of the course to retrieve
+     * @param sect    the number of the section to retrieve
+     * @param termKey the term key
+     * @return the rule set ID; {@code null} on any error or if no course exists with the specified ID
+     * @throws SQLException if there is an error accessing the database
+     */
+    public String getRuleSetId(final String course, final String sect, final TermKey termKey) throws SQLException {
+
+        final RawCsection rec = getCourseSection(course, sect, termKey);
+
+        return rec == null ? null : rec.pacingStructure;
+    }
+
 //    /**
 //     * Gets the list of all course milestones.
 //     *
@@ -532,115 +786,6 @@ public final class SystemData {
 //        for (final StandardMilestoneRec test : all) {
 //            if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace)) {
 //                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets the list of all courses.
-//     *
-//     * @return the courses
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCourse> getCourses() throws SQLException {
-//
-//        if (this.courses == null) {
-//            this.courses = RawCourseLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.courses;
-//    }
-//
-//    /**
-//     * Gets the single course.
-//     *
-//     * @param course the course ID
-//     * @return the course; null if not found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawCourse getCourse(final String course) throws SQLException {
-//
-//        final List<RawCourse> all = getCourses();
-//        RawCourse result = null;
-//
-//        for (final RawCourse test : all) {
-//            if (test.course.equals(course)) {
-//                result = test;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course sections for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCsection> getCourseSections(final TermKey term) throws SQLException {
-//
-//        List<RawCsection> result = null;
-//
-//        if (this.courseSections == null) {
-//            this.courseSections = new HashMap<>(4);
-//        } else {
-//            result = this.courseSections.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawCsectionLogic.queryByTerm(this.cache, term);
-//            this.courseSections.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all course sections for a single course in a single term.
-//     *
-//     * @param course the course ID
-//     * @param term   the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawCsection> getCourseSectionsByCourse(final String course, final TermKey term) throws SQLException {
-//
-//        final List<RawCsection> all = getCourseSections(term);
-//        final List<RawCsection> result = new ArrayList<>(10);
-//
-//        for (final RawCsection test : all) {
-//            if (test.course.equals(course)) {
-//                result.add(test);
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a particular course sections in a specified term.
-//     *
-//     * @param course the course
-//     * @param sect   the section
-//     * @param term   the term key
-//     * @return the list of course sections
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawCsection getCourseSection(final String course, final String sect, final TermKey term)
-//            throws SQLException {
-//
-//        final List<RawCsection> termSections = getCourseSections(term);
-//        RawCsection result = null;
-//
-//        for (final RawCsection test : termSections) {
-//            if (test.course.equals(course) && test.sect.equals(sect)) {
-//                result = test;
-//                break;
 //            }
 //        }
 //

@@ -3,7 +3,6 @@ package dev.mathops.db.old.logic;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -204,7 +203,7 @@ public enum CourseLogic {
         final CourseStatus status;
 
         if ("Y".equals(reg.iInProgress)) {
-            final RawCsection csection = getCourseSection(cache, reg);
+            final RawCsection csection = cache.getSystemData().getCourseSection(reg);
             status = new CourseStatus(reg, csection, null);
 
             if ("Y".equals(reg.iCounted)) {
@@ -237,7 +236,7 @@ public enum CourseLogic {
                                                          final List<RawStcourse> paced) throws SQLException {
         final CourseStatus status;
 
-        final RawCsection csection = getCourseSection(cache, reg);
+        final RawCsection csection = cache.getSystemData().getCourseSection(reg);
 
         if ("MAS".equals(csection.gradingStd)) {
             // This is a mastery-based course
@@ -482,47 +481,5 @@ public enum CourseLogic {
                 bestFailedU3, bestFailedU4, bestFailedFE, totalScore, numU1, numU2, numU3, numU4, numFE);
 
         return new CourseStatus(reg, csection, legacy);
-    }
-
-    /**
-     * Attempts to query the course section object for a registration.
-     *
-     * @param cache the cache
-     * @param reg   the registration
-     * @return the course section record
-     * @throws SQLException if there is an error accessing the database or the course section cannot be found
-     */
-    public static RawCsection getCourseSection(final Cache cache, final RawStcourse reg) throws SQLException {
-
-        RawCsection csection = null;
-
-        if ("Y".equals(reg.iInProgress)) {
-            csection = RawCsectionLogic.query(cache, reg.course, reg.sect, reg.iTermKey);
-        }
-
-        if (csection == null) {
-            csection = RawCsectionLogic.query(cache, reg.course, reg.sect, reg.termKey);
-        }
-
-        if (csection == null) {
-            final List<RawCsection> all = RawCsectionLogic.queryByTerm(cache, reg.termKey);
-            final boolean isDistance = reg.sect.startsWith("8") || reg.sect.startsWith("4");
-
-            for (final RawCsection test : all) {
-                final boolean testIsDistance = test.sect.startsWith("8") || test.sect.startsWith("4");
-                if (isDistance == testIsDistance && test.course.equals(reg.course)) {
-                    csection = test;
-                    break;
-                }
-            }
-        }
-
-        if (csection == null) {
-            final String msg = SimpleBuilder.concat("Failed to query course section for ", reg.course, " sect ",
-                    reg.sect, " in ", reg.termKey.shortString);
-            throw new SQLException(msg);
-        }
-
-        return csection;
     }
 }

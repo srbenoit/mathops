@@ -4,13 +4,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rec.MasteryAttemptQaRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
@@ -664,14 +664,15 @@ enum PageTestStudent {
      */
     private static void emitRegistrations(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         // Get existing registrations
-        final List<RawStcourse> currentTermRegs = RawStcourseLogic.queryByStudent(cache,
-                RawStudent.TEST_STUDENT_ID, active.term, true, false);
+        final List<RawStcourse> currentTermRegs = RawStcourseLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID,
+                active.term, true, false);
 
         // Get all non-bogus courses
-        final List<RawCsection> sections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final List<RawCsection> sections = systemData.getCourseSections(active.term);
 
         // Extract a sorted set of course IDs that have non-bogus sections
         final Set<String> courseIds = new TreeSet<>();
@@ -942,8 +943,9 @@ enum PageTestStudent {
     private static void emitCourseWork(final Cache cache, final HtmlBuilder htm,
                                        final RawStcourse reg, final int numColumns) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
-        final RawCsection csection = RawCsectionLogic.query(cache, reg.course, reg.sect, active.term);
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
+        final RawCsection csection = systemData.getCourseSection(reg.course, reg.sect, active.term);
 
         if ("MAS".equals(csection.gradingStd)) {
             emitCourseWorkNew(cache, htm, reg, numColumns);
@@ -2229,9 +2231,10 @@ enum PageTestStudent {
     static void updateRegistrations(final Cache cache, final ServletRequest req,
                                     final HttpServletResponse resp) throws IOException, SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
-        final List<RawCsection> sections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final List<RawCsection> sections = systemData.getCourseSections(active.term);
 
         final Collection<String> courseIds = new TreeSet<>();
         for (final RawCsection sect : sections) {
@@ -2308,9 +2311,11 @@ enum PageTestStudent {
                                   final boolean isStarted, final boolean hasPrereq, final boolean isInc,
                                   final boolean isCounted, final boolean isInProgress) throws SQLException {
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
-        final TermRec priorTerm = cache.getSystemData().getPriorTerm();
-        final String instrnType = RawCsectionLogic.getInstructionType(cache, courseId, sect, activeTerm.term);
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec activeTerm = systemData.getActiveTerm();
+        final TermRec priorTerm = systemData.getPriorTerm();
+        final String instrnType = systemData.getInstructionType(courseId, sect, activeTerm.term);
 
         final TermKey term;
         if (!isInc || isInProgress) {

@@ -4,15 +4,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
@@ -160,15 +158,16 @@ enum PageOutline {
 
         boolean result;
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
-        final RawCourse course = RawCourseLogic.query(cache, courseId);
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
+        final RawCourse course = systemData.getCourse(courseId);
 
         String defaultSect;
         if ("Y".equals(course.isTutorial)) {
             defaultSect = "1";
         } else {
             defaultSect = "001";
-            final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, activeTerm.term);
+            final List<RawCsection> csections = systemData.getCourseSections(activeTerm.term);
             csections.sort(null);
 
             for (final RawCsection test : csections) {
@@ -183,9 +182,9 @@ enum PageOutline {
         RawCsection csection;
 
         if (studentCourse != null) {
-            csection = RawCsectionLogic.query(cache, courseId, studentCourse.sect, activeTerm.term);
+            csection = systemData.getCourseSection(courseId, studentCourse.sect, activeTerm.term);
         } else {
-            csection = RawCsectionLogic.query(cache, courseId, defaultSect, activeTerm.term);
+            csection = systemData.getCourseSection(courseId, defaultSect, activeTerm.term);
             if (csection != null) {
                 studentCourse = new RawStcourse();
                 studentCourse.stuId = userId;
@@ -994,7 +993,7 @@ enum PageOutline {
                                           final HtmlBuilder htm) {
 
         final RawCsection csection = courseStatus.getCourseSection();
-        final String topmatter = RawCsectionLogic.getTopmatter(csection.course);
+        final String topmatter = RawCsection.getTopmatter(csection.course);
 
         if ("practice".equals(mode)) {
 
@@ -1407,41 +1406,31 @@ enum PageOutline {
                 told, skillsReviewCourse);
 
         if (skillsReviewCourse == null) {
+            // Sequence for an instructional unit:
+            // - Lessons (must be done in sequence as rule set rules dictate)
+            // - Unit Review Exam (done after homeworks, as rule set rules dictate)
+            // - Unit Exam (proctored, or online if "online unit exams" indicated)
+            // - After two failed units, must re-pass review exam
 
-            final EExamStructure exStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
+            final RawCusection cusect = courseStatus.getCourseSectionUnit(unitNum);
+            if (cusect == null) {
+                Log.warning("No course section unit for unit " + unitNum);
+            } else {
+                doUnitReviewExam(cache, session, courseStatus, unitNum, dimmed, actualMode, htm);
 
-            final boolean doUnitExams = (exStruct == EExamStructure.UNIT_FINAL)
-                    || (exStruct == EExamStructure.UNIT_ONLY);
+                final String range = courseStatus.getProctoredRange(unitNum);
+                if (range != null) {
+                    htm.sDiv("indent2").add(range).eDiv();
+                }
 
-            // Show information and links for exams associated with the unit
-
-            if (doUnitExams) {
-                // Sequence for an instructional unit without midterms:
-                // - Lessons (must be done in sequence as rule set rules dictate)
-                // - Unit Review Exam (done after homeworks, as rule set rules dictate)
-                // - Unit Exam (proctored, or online if "online unit exams" indicated)
-                // - After two failed units, must re-pass review exam
-
-                final RawCusection cusect = courseStatus.getCourseSectionUnit(unitNum);
-                if (cusect == null) {
-                    Log.warning("No course section unit for unit " + unitNum);
-                } else {
-                    doUnitReviewExam(cache, session, courseStatus, unitNum, dimmed, actualMode, htm);
-
-                    final String range = courseStatus.getProctoredRange(unitNum);
-                    if (range != null) {
-                        htm.sDiv("indent2").add(range).eDiv();
-                    }
-
-                    // Show a link to take the exam with proctoring service
-                    if (RawRecordConstants.M117.equals(courseId)
-                            || RawRecordConstants.M118.equals(courseId)
-                            || RawRecordConstants.M124.equals(courseId)
-                            || RawRecordConstants.M125.equals(courseId)
-                            || RawRecordConstants.M126.equals(courseId)) {
-                        doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum,
-                                actualMode, htm);
-                    }
+                // Show a link to take the exam with proctoring service
+                if (RawRecordConstants.M117.equals(courseId)
+                        || RawRecordConstants.M118.equals(courseId)
+                        || RawRecordConstants.M124.equals(courseId)
+                        || RawRecordConstants.M125.equals(courseId)
+                        || RawRecordConstants.M126.equals(courseId)) {
+                    doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum,
+                            actualMode, htm);
                 }
             }
         }
@@ -1512,8 +1501,9 @@ enum PageOutline {
 
         final String courseId = courseStatus.getCourse().course;
 
+        boolean dimmed = false;
+
         if ("course".equals(mode)) {
-            boolean dimmed = false;
 
             // Unit materials dimmed if gateway exam not passed
             if (gwSecUnit != null && !courseStatus.isStudentVisiting()) {
@@ -1525,74 +1515,63 @@ enum PageOutline {
 
             final int unitNum = unit.unit.intValue();
 
-            // See if the section's exam structure indicates final exams included...
-            final EExamStructure examStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
+            doUnitTitle(courseStatus, unitNum, htm);
 
-            if (examStruct == EExamStructure.UNIT_FINAL || examStruct == EExamStructure.FINAL_ONLY) {
-
-                doUnitTitle(courseStatus, unitNum, htm);
-
-                if (courseStatus.isPassing(unitNum)) {
-                    final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
-                    if (deadline != null) {
-                        htm.sDiv("indent");
-                        htm.addln(" <img src='/images/info.png' alt=''/>");
-                        htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
-                        if (deadline.isBefore(session.getNow().toLocalDate())) {
-                            htm.add("was");
-                        } else {
-                            htm.add("is");
-                        }
-                        htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
-                        htm.eDiv();
-                        htm.div("vgap");
+            if (courseStatus.isPassing(unitNum)) {
+                final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
+                if (deadline != null) {
+                    htm.sDiv("indent");
+                    htm.addln(" <img src='/images/info.png' alt=''/>");
+                    htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
+                    if (deadline.isBefore(session.getNow().toLocalDate())) {
+                        htm.add("was");
+                    } else {
+                        htm.add("is");
                     }
+                    htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
+                    htm.eDiv();
+                    htm.div("vgap");
                 }
+            }
 
-                doUnitTopmatter(courseStatus, unitNum, htm);
+            doUnitTopmatter(courseStatus, unitNum, htm);
 
-                doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
-                        session.getNow());
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+                    session.getNow());
 
-                final String studentId = logic.data.studentData.getStudent().stuId;
+            final String studentId = logic.data.studentData.getStudent().stuId;
 
-                final TermRec active = cache.getSystemData().getActiveTerm();
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
-                        RawStexamLogic.ALL_EXAM_TYPES);
+            final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
+                    RawStexamLogic.ALL_EXAM_TYPES);
 
-                htm.sDiv("indent2");
-                if (exams.size() > 5) {
-                    htm.addln("<details>");
-                    htm.addln("<summary>Review your exams and solutions</summary>");
+            htm.sDiv("indent2");
+            if (exams.size() > 5) {
+                htm.addln("<details>");
+                htm.addln("<summary>Review your exams and solutions</summary>");
+            }
+
+            for (final RawStexam exam : exams) {
+                if (!"SY".equals(exam.examSource)) {
+                    final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
+                            exam.serialNbr.longValue());
+                    final String course = courseId.replace(CoreConstants.SPC, "%20");
+
+                    htm.sDiv("indent1");
+                    htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
+                            "&mode=", mode,
+                            "&exam=", exam.version,
+                            "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
+                            "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
+                            "'>Review your ", exam.getExamLabel(), "</a>");
+                    htm.eDiv();
                 }
-
-                for (final RawStexam exam : exams) {
-                    if (!"SY".equals(exam.examSource)) {
-                        final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
-                                exam.serialNbr.longValue());
-                        final String course = courseId.replace(CoreConstants.SPC, "%20");
-
-                        htm.sDiv("indent1");
-                        htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
-                                "&mode=", mode,
-                                "&exam=", exam.version,
-                                "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
-                                "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
-                                "'>Review your ", exam.getExamLabel(), "</a>");
-                        htm.eDiv();
-                    }
-                }
-                if (exams.size() > 5) {
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv();
-
-                htm.hr();
+            }
+            if (exams.size() > 5) {
+                htm.addln("</details>");
             }
         } else {
-            boolean dimmed = false;
 
             // Unit materials dimmed if gateway exam not passed
             if (gwSecUnit != null && !courseStatus.isStudentVisiting()) {
@@ -1604,71 +1583,64 @@ enum PageOutline {
 
             final int unitNum = unit.unit.intValue();
 
-            // See if the section's exam structure indicates final exams included...
-            final EExamStructure examStruct = RawCsectionLogic.getExamStructure(courseStatus.getCourseSection());
+            doUnitTitle(courseStatus, unitNum, htm);
 
-            if (examStruct == EExamStructure.UNIT_FINAL || examStruct == EExamStructure.FINAL_ONLY) {
-
-                doUnitTitle(courseStatus, unitNum, htm);
-
-                if (courseStatus.isPassing(unitNum)) {
-                    final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
-                    if (deadline != null) {
-                        htm.sDiv("indent");
-                        htm.addln(" <img src='/images/info.png' alt=''/>");
-                        htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
-                        if (deadline.isBefore(session.getNow().toLocalDate())) {
-                            htm.add("was");
-                        } else {
-                            htm.add("is");
-                        }
-                        htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
-                        htm.eDiv();
-                        htm.div("vgap");
+            if (courseStatus.isPassing(unitNum)) {
+                final LocalDate deadline = courseStatus.getUnitExamDeadline(unitNum);
+                if (deadline != null) {
+                    htm.sDiv("indent");
+                    htm.addln(" <img src='/images/info.png' alt=''/>");
+                    htm.add(" <strong class='blue' style='position:relative;top:2px;'>The Final Exam ");
+                    if (deadline.isBefore(session.getNow().toLocalDate())) {
+                        htm.add("was");
+                    } else {
+                        htm.add("is");
                     }
+                    htm.addln(" due ", TemporalUtils.FMT_WMDY.format(deadline), ".</strong>");
+                    htm.eDiv();
+                    htm.div("vgap");
                 }
+            }
 
-                doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
-                        session.getNow());
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+                    session.getNow());
 
-                final String studentId = logic.data.studentData.getStudent().stuId;
+            final String studentId = logic.data.studentData.getStudent().stuId;
 
-                final TermRec active = cache.getSystemData().getActiveTerm();
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
-                final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
-                        RawStexamLogic.ALL_EXAM_TYPES);
+            final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, unit.unit, false,
+                    RawStexamLogic.ALL_EXAM_TYPES);
 
-                htm.sDiv("indent2");
-                if (exams.size() > 5) {
-                    htm.addln("<details>");
-                    htm.addln("<summary>Review your exams and solutions</summary>");
+            htm.sDiv("indent2");
+            if (exams.size() > 5) {
+                htm.addln("<details>");
+                htm.addln("<summary>Review your exams and solutions</summary>");
+            }
+
+            for (final RawStexam exam : exams) {
+                if (!"SY".equals(exam.examSource)) {
+                    final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
+                            exam.serialNbr.longValue());
+                    final String course = courseId.replace(CoreConstants.SPC, "%20");
+
+                    htm.sDiv("indent1");
+                    htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
+                            "&mode=", mode,
+                            "&exam=", exam.version,
+                            "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
+                            "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
+                            "'>Review your ", exam.getExamLabel(), "</a>");
+                    htm.eDiv();
                 }
-
-                for (final RawStexam exam : exams) {
-                    if (!"SY".equals(exam.examSource)) {
-                        final String path = ExamWriter.makeWebExamPath(active.term.shortString, studentId,
-                                exam.serialNbr.longValue());
-                        final String course = courseId.replace(CoreConstants.SPC, "%20");
-
-                        htm.sDiv("indent1");
-                        htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course,
-                                "&mode=", mode,
-                                "&exam=", exam.version,
-                                "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
-                                "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
-                                "'>Review your ", exam.getExamLabel(), "</a>");
-                        htm.eDiv();
-                    }
-                }
-                if (exams.size() > 5) {
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv();
-
-                htm.hr();
+            }
+            if (exams.size() > 5) {
+                htm.addln("</details>");
             }
         }
+
+        htm.eDiv();
+        htm.hr();
 
         return told;
     }
@@ -2076,13 +2048,12 @@ enum PageOutline {
                             }
 
                             if (nextExam != null) {
-
                                 // See what proctoring options are available
-                                final List<EProctoringOption> proctoringOptions = RawCsectionLogic
-                                        .getProctoringOptions(courseStatus.getCourseSection());
+                                final RawCsection courseSection = courseStatus.getCourseSection();
+                                final List<EProctoringOption> proctoringOptions =
+                                        RawCsection.getProctoringOptions(courseSection);
 
-                                final int count =
-                                        proctoringOptions == null ? 0 : proctoringOptions.size();
+                                final int count = proctoringOptions == null ? 0 : proctoringOptions.size();
 
                                 if (count > 0) {
                                     htm.div("gap2");

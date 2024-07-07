@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -52,7 +51,7 @@ public final class SiteDataCfgCourse {
 
         this.owner = siteData;
 
-        final RawCourse theCourse = RawCourseLogic.query(cache, courseId);
+        final RawCourse theCourse = cache.getSystemData().getCourse(courseId);
         final RawCsection theSect = loadCourseSection(courseId, sectionNum, termKey);
 
         if (theCourse == null || theSect == null) {

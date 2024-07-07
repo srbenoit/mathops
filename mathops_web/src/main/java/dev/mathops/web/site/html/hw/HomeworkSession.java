@@ -12,10 +12,10 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -266,6 +266,8 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         String error = null;
 
+        final SystemData systemData = cache.getSystemData();
+
         final AssignmentRec avail = AssignmentLogic.get(cache).query(cache, this.version);
 
         final HtmlBuilder reasons = new HtmlBuilder(100);
@@ -327,7 +329,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             if (error == null) {
                 String sect = "001";
 
-                final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.active.term);
+                final List<RawCsection> csections = systemData.getCourseSections(this.active.term);
                 csections.sort(null);
                 for (final RawCsection test : csections) {
                     if (test.course.equals(avail.courseId)) {
@@ -1027,11 +1029,12 @@ public final class HomeworkSession extends HtmlSessionBase {
      */
     private String finalizeHomework(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
 
-        // From the homework version, look up the course, unit in the homework table, then use
-        // that to fetch the course/unit/section data for the student. This gives us the
-        // minimum move-on and mastery scores.
+        // From the homework version, look up the course, unit in the homework table, then use that to fetch the
+        // course/unit/section data for the student. This gives us the minimum move-on and mastery scores.
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec activeTerm = systemData.getActiveTerm();
         if (activeTerm == null) {
             return "Unable to lookup active term to submit homework.";
         }
@@ -1074,8 +1077,7 @@ public final class HomeworkSession extends HtmlSessionBase {
             }
 
             if (isSpecial) {
-                final List<RawCsection> sections = RawCsectionLogic.queryByCourseTerm(cache, hw.courseId,
-                        activeTerm.term);
+                final List<RawCsection> sections = systemData.getCourseSectionsByCourse(hw.courseId, activeTerm.term);
 
                 if (sections.isEmpty()) {
                     return "No sections configured";

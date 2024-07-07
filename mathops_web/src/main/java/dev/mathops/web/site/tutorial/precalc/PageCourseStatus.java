@@ -6,7 +6,6 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -114,7 +113,7 @@ enum PageCourseStatus {
     private static void tutorStatusContent(final Cache cache, final PrecalcTutorialSiteLogic logic,
                                            final String courseId, final HtmlBuilder htm) throws SQLException {
 
-        final RawCourse course = RawCourseLogic.query(cache, courseId);
+        final RawCourse course = cache.getSystemData().getCourse(courseId);
 
         if (course == null) {
             Log.warning("Failed to query for course ", courseId);

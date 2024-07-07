@@ -4,7 +4,6 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawStetextLogic;
@@ -375,7 +374,7 @@ enum PageETexts {
                 builder.add("Precalculus Program");
             } else {
                 for (final RawEtextCourse etcours : etcourses) {
-                    final String crsLabel = RawCourseLogic.getCourseLabel(cache, etcours.course);
+                    final String crsLabel = cache.getSystemData().getCourseLabel(etcours.course);
                     if (crsLabel == null) {
                         builder.add(etcours.course);
                     } else {

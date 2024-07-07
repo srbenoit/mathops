@@ -1,12 +1,11 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
-import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.svc.term.TermRec;
 
@@ -63,9 +62,8 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
      * Constructs a new {@code CardPopulations}.
      *
      * @param theCache the data cache
-     * @param theFixed the fixed data
      */
-    CardPopulations(final Cache theCache, final FixedData theFixed) {
+    CardPopulations(final Cache theCache) {
 
         super();
 
@@ -88,7 +86,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
         tabs.setBackground(Color.WHITE);
         panel.add(tabs, BorderLayout.CENTER);
 
-        final JPanel byCoursePanel = makeByCoursePanel(theCache, theFixed);
+        final JPanel byCoursePanel = makeByCoursePanel(theCache);
         tabs.addTab("By Course and Section", byCoursePanel);
 
         final JPanel byCourseStatusPanel = new CardPopulationsCourseStatusPane(theCache);
@@ -106,19 +104,20 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
      * Creates the panel with controls to select a population by course, section and open status.
      *
      * @param theCache the data cache
-     * @param theFixed the fixed data
      * @return the panel
      */
-    private JPanel makeByCoursePanel(final Cache theCache, final FixedData theFixed) {
+    private JPanel makeByCoursePanel(final Cache theCache) {
 
         final JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         panel.setBackground(Skin.WHITE);
 
+        final SystemData systemData = this.cache.getSystemData();
+
         try {
-            final TermRec active = this.cache.getSystemData().getActiveTerm();
-            final List<RawCsection> sects = RawCsectionLogic.queryByTerm(theCache, active.term);
+            final TermRec active = systemData.getActiveTerm();
+            final List<RawCsection> sects = systemData.getCourseSections(active.term);
 
             final Iterator<RawCsection> iter = sects.iterator();
             final Map<String, List<String>> csections = new TreeMap<>();

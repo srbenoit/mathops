@@ -3,8 +3,6 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.EExamStructure;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
@@ -211,11 +209,7 @@ public final class SiteDataStatus {
             throws SQLException {
 
         final SiteDataCourse courseData = this.owner.courseData;
-        final SiteDataCfgCourse courseCfg = courseData.getCourse(courseId, sectionNum);
         final SiteDataCfgUnit unitCfg = courseData.getCourseUnit(courseId, unit);
-
-        // Get the exam structure
-        final EExamStructure examStruct = RawCsectionLogic.getExamStructure(courseCfg.courseSection);
 
         // Get the exams, then scan for the ones that apply to the student's exam structure
         if (unitCfg != null) {
@@ -226,14 +220,8 @@ public final class SiteDataStatus {
 
                 if ("Q".equals(examType)) {
                     examApplies = true;
-                } else if (examStruct == EExamStructure.UNIT_FINAL) {
-                    examApplies = "R".equals(examType) || "U".equals(examType) || "F".equals(examType);
-                } else if (examStruct == EExamStructure.UNIT_ONLY) {
-                    examApplies = "R".equals(examType) || "U".equals(examType);
-                } else if (examStruct == EExamStructure.FINAL_ONLY) {
-                    examApplies = "R".equals(examType) || "F".equals(examType);
                 } else {
-                    examApplies = false;
+                    examApplies = "R".equals(examType) || "U".equals(examType) || "F".equals(examType);
                 }
 
                 if (examApplies) {

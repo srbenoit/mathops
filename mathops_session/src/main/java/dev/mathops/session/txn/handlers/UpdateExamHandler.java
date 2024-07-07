@@ -33,7 +33,6 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -307,7 +306,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         final String courseId = presented.course;
 
-        final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, courseId);
+        final Boolean isTut = cache.getSystemData().isCourseTutorial(courseId);
         if (isTut == null) {
             Log.warning("No data for course '", presented.course);
             return;

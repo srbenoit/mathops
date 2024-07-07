@@ -3,10 +3,10 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -60,8 +60,10 @@ public final class StartCourse extends LogicBase {
             return false;
         }
 
+        final SystemData systemData = cache.getSystemData();
+
         // Load the current active term
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final TermRec activeTerm = systemData.getActiveTerm();
         if (activeTerm == null) {
             setErrorText("Unable to query the current term.");
             return false;
@@ -75,17 +77,17 @@ public final class StartCourse extends LogicBase {
             return false;
         }
 
-        // From this list, extract all that are open & not completed, then set them to null to
-        // avoid further consideration. Also, set any that are completed or open="N" to null to
-        // avoid consideration of those courses for availability.
+        // From this list, extract all that are open & not completed, then set them to null to avoid further
+        // consideration. Also, set any that are completed or open="N" to null to avoid consideration of those courses
+        // for availability.
         RawStcourse stCourse = null;
         int numOpen = 0;
 
-        // Count the number of open courses that are "counted" toward max open, and while we loop,
-        // try to find the registration for the course the user wants to open
+        // Count the number of open courses that are "counted" toward max open, and while we loop, try to find the
+        // registration for the course the user wants to open
 
         for (final RawStcourse stc : current) {
-            final RawCsection csect = RawCsectionLogic.query(cache, stc.course, stc.sect, key);
+            final RawCsection csect = systemData.getCourseSection(stc.course, stc.sect, key);
 
             if (csect == null) {
                 continue;
@@ -114,7 +116,7 @@ public final class StartCourse extends LogicBase {
         // If the student record has no rule set, use the structure designated for the course.
         if (stu.pacingStructure == null) {
 
-            final RawCsection sect = RawCsectionLogic.query(cache, theCourse, stCourse.sect, key);
+            final RawCsection sect = systemData.getCourseSection(theCourse, stCourse.sect, key);
             if (sect == null) {
                 setErrorText("No data for course section.");
                 return false;

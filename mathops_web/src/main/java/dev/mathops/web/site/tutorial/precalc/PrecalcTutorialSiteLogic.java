@@ -9,7 +9,6 @@ import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -108,7 +107,7 @@ final class PrecalcTutorialSiteLogic {
 
             final String courseId = status.nextPrecalcTutorial == null ? null : status.nextPrecalcTutorial;
             if (courseId != null) {
-                this.eligibleCourse = RawCourseLogic.query(theCache, courseId);
+                this.eligibleCourse = theCache.getSystemData().getCourse(courseId);
             }
         } catch (final SQLException ex) {
             Log.warning("Failed to check student prerequisite status", ex);

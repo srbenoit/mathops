@@ -4,10 +4,10 @@ package dev.mathops.web.site.tutorial.elm;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
@@ -89,7 +89,8 @@ enum PageStatus {
         htm.add("ELM Tutorial Status for ", name);
         htm.eH(2).div("vgap");
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         if (status.elmExamPassed) {
             htm.sDiv("indent22");
@@ -116,8 +117,7 @@ enum PageStatus {
             htm.sH(4).add("Tutorial Deadline:").eH(4);
             htm.sDiv("indent11");
 
-            LocalDate deleteDate = RawCsectionLogic.getExamDeleteDate(cache,
-                    RawRecordConstants.M100T, "1", active.term);
+            LocalDate deleteDate = systemData.getExamDeleteDate(RawRecordConstants.M100T, "1", active.term);
 
             if (deleteDate != null) {
                 final LocalDate today = session.getNow().toLocalDate();
@@ -125,8 +125,8 @@ enum PageStatus {
                 if (deleteDate.isBefore(today)) {
                     // Current-term delete date is already in the past - need the subsequent term's delete date
                     final TermRec nextTerm = cache.getSystemData().getNextTerm();
-                    final LocalDate deleteDate2 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M100T,
-                            "1", nextTerm.term);
+                    final LocalDate deleteDate2 = systemData.getExamDeleteDate(RawRecordConstants.M100T, "1",
+                            nextTerm.term);
                     if (deleteDate2 != null) {
                         deleteDate = deleteDate2;
                     }
@@ -165,8 +165,7 @@ enum PageStatus {
         htm.add("<strong> &bull; Unit ", unit, ":</strong>");
         htm.eDiv();
 
-        final RawCunit cunit =
-                RawCunitLogic.query(cache, RawRecordConstants.M100T, unit, activeKey);
+        final RawCunit cunit = RawCunitLogic.query(cache, RawRecordConstants.M100T, unit, activeKey);
 
         if (cunit == null) {
             htm.sP("red").add("Unable to look up course/unit data.").eP();

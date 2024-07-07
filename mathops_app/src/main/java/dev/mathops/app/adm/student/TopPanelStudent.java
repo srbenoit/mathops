@@ -143,7 +143,7 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
         this.cardStudentDetail = new CardStudentDetail(theCache, liveContext, theFixed, theRenderingHint);
         this.cardPane.add(this.cardStudentDetail, CURSTU_CMD);
 
-        this.cardPopulations = new CardPopulations(theCache, theFixed);
+        this.cardPopulations = new CardPopulations(theCache);
         this.cardPane.add(this.cardPopulations, POPULATION_CMD);
 
         this.cardPopulationDetail = new CardPopulationDetail(theCache, liveContext, theFixed, theRenderingHint);

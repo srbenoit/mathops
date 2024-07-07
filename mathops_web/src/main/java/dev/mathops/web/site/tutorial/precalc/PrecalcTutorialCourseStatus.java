@@ -2,7 +2,6 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
@@ -95,7 +94,7 @@ final class PrecalcTutorialCourseStatus {
         this.student = logic.getStudent();
 
         try {
-            this.course = RawCourseLogic.query(theCache, theCourseId);
+            this.course = theCache.getSystemData().getCourse(theCourseId);
         } catch (final SQLException ex) {
             Log.warning("Failed to query course ", theCourseId, ex);
         }

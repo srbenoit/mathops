@@ -4,11 +4,11 @@ import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.logic.CourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
@@ -582,11 +582,12 @@ import java.util.Locale;
 
         int mastery;
 
+        final SystemData systemData = this.cache.getSystemData();
+
         // Identify the course section whose mastery scores to use
         try {
-            final TermRec active = this.cache.getSystemData().getActiveTerm();
-            final List<RawCsection> sections =
-                    RawCsectionLogic.queryByTerm(this.cache, active.term);
+            final TermRec active = systemData.getActiveTerm();
+            final List<RawCsection> sections = systemData.getCourseSections(active.term);
 
             sections.removeIf(sect -> !sect.course.equals(exam.course));
 

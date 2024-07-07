@@ -6,8 +6,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.EExamStructure;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -33,7 +31,6 @@ import dev.mathops.session.sitelogic.data.SiteDataRegistration;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
-import dev.mathops.web.site.course.data.CourseData;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -592,7 +589,7 @@ enum PageSchedule {
                 htm.addln(" </span>");
                 htm.eP();
             } else {
-                presentPaceCourse(cache, logic, htm, reg, course, sect, csUnits, pacingStructure);
+                presentPaceCourse(cache, logic, htm, reg, course, csUnits, pacingStructure);
             }
         }
         htm.eDiv(); // indent22
@@ -608,26 +605,17 @@ enum PageSchedule {
      * @param htm             the {@code HtmlBuilder} to which to append the HTML
      * @param reg             the registration record
      * @param course          the course record
-     * @param courseSect      the course record
      * @param csUnits         the set of units records
      * @param pacingStructure the pacing structure record
      * @throws SQLException if there is an error accessing the database
      */
     private static void presentPaceCourse(final Cache cache, final CourseSiteLogic logic,
                                           final HtmlBuilder htm, final RawStcourse reg, final RawCourse course,
-                                          final RawCsection courseSect, final RawCusection[] csUnits,
+                                          final RawCusection[] csUnits,
                                           final RawPacingStructure pacingStructure) throws SQLException {
 
         final String courseId = reg.course;
         final String sectionNum = reg.sect;
-
-        boolean doFinal = false;
-
-        final EExamStructure exStruct = RawCsectionLogic.getExamStructure(courseSect);
-
-        if (exStruct == EExamStructure.UNIT_FINAL) {
-            doFinal = true;
-        }
 
         htm.sP();
 
@@ -715,20 +703,12 @@ enum PageSchedule {
 
                 switch (type) {
                     case "FE" -> {
-                        if (!doFinal) {
-                            continue;
-                        }
                         examType = "F";
                         ontime = null;
 
                         finalDeadline = deadline;
                     }
                     case "F1" -> {
-
-                        if (!doFinal) {
-                            continue;
-                        }
-
                         RawStexam firstPassing = null;
                         // FIXME: Hardcoded unit number 4
                         final List<RawStexam> stuExams =
@@ -969,7 +949,7 @@ enum PageSchedule {
             htm.addln("</span></span></li>");
         }
 
-        if (doFinal && passedFinal == null) {
+        if (passedFinal == null) {
             if (fePenalty > 0) {
                 final String penaltyStr = fePenalty == 1 ? "1 point" : fePenalty + " points";
 

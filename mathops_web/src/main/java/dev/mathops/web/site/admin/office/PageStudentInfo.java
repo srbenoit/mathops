@@ -5,9 +5,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.enums.EExamStructure;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -347,7 +345,6 @@ enum PageStudentInfo {
 
         final int maxUnit = stat.getMaxUnit();
         final RawCsection csect = stat.getCourseSection();
-        final EExamStructure examStruct = csect == null ? null : RawCsectionLogic.getExamStructure(csect);
 
         // Show student progress in the class
         htm.sTable("report", "style='margin:0;line-height:1;min-width:678px;'");
@@ -383,18 +380,13 @@ enum PageStudentInfo {
             } else if ("INST".equals(cunit.unitType)) {
                 final RawExam ur = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
                         Integer.valueOf(i), "R");
-                RawExam ue = null;
-
-                if (examStruct == EExamStructure.UNIT_ONLY || examStruct == EExamStructure.UNIT_FINAL) {
-                    ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "U");
-                }
+                final RawExam ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "U");
 
                 final int cols = numHw + (ur == null ? 0 : 1) + (ue == null ? 0 : 1);
 
                 htm.add("<th ", alt, " colspan=" + cols + ">Unit ", cunit.unit).eTh();
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
 
                 final RawExam ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
                         Integer.valueOf(i), "F");
@@ -452,10 +444,7 @@ enum PageStudentInfo {
                     ++count;
                 }
 
-                if ((examStruct == EExamStructure.UNIT_ONLY
-                        || examStruct == EExamStructure.UNIT_FINAL)
-                        && (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "U") != null)) {
+                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "U") != null) {
                     htm.add("<th style='padding:2px 1px;' class='special'>UE").eTh();
                     ++count;
                 }
@@ -464,8 +453,7 @@ enum PageStudentInfo {
                     htm.sTh().eTh();
                 }
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
                 if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i),
@@ -556,10 +544,7 @@ enum PageStudentInfo {
                     htm.eTd();
                 }
 
-                if ((examStruct == EExamStructure.UNIT_ONLY
-                        || examStruct == EExamStructure.UNIT_FINAL)
-                        && (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(i), "U") != null)) {
+                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i), "U") != null) {
 
                     htm.sTd("ctr", "style='padding:2px 1px;'");
                     if (stat.isProctoredPassed(i)) {
@@ -586,8 +571,7 @@ enum PageStudentInfo {
                     htm.sTd().eTd();
                 }
 
-            } else if ("FIN".equals(cunit.unitType)
-                    && (examStruct == EExamStructure.UNIT_FINAL)) {
+            } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
                 if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(i),

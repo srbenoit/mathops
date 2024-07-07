@@ -3,7 +3,6 @@ package dev.mathops.session.sitelogic.bogus;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
@@ -60,8 +59,10 @@ public enum ETextLogic {
             if (activeTerm != null) {
 
                 // Some special student types do not need book purchase
-                final List<RawSpecialStus> specials = RawSpecialStusLogic
-                        .queryActiveByStudent(cache, studentId, session.getNow().toLocalDate());
+                final ZonedDateTime now = session.getNow();
+                final LocalDate today = now.toLocalDate();
+
+                final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByStudent(cache, studentId, today);
 
                 for (final RawSpecialStus spec : specials) {
                     final String type = spec.stuType;
@@ -72,11 +73,11 @@ public enum ETextLogic {
                     }
                 }
 
-                final Boolean reqEtext = RawCourseLogic.isEtextRequired(cache, courseId);
+                final Boolean reqEtext = cache.getSystemData().isETextRequired(courseId);
                 if (reqEtext != null) {
                     if (reqEtext.booleanValue()) {
-                        final List<RawStetext> active = RawStetextLogic.getStudentETexts(cache,
-                                session.getNow(), studentId, courseId);
+                        final List<RawStetext> active = RawStetextLogic.getStudentETexts(cache, now, studentId,
+                                courseId);
                         canAccess = canAccess || !active.isEmpty();
                     } else {
                         canAccess = true;

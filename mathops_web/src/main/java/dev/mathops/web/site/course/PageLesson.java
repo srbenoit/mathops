@@ -4,11 +4,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
@@ -127,10 +127,12 @@ enum PageLesson {
 
         // find the rule set under which the student is working
 
-        final TermKey activeKey = cache.getSystemData().getActiveTerm().term;
+        final SystemData systemData = cache.getSystemData();
+
+        final TermKey activeKey = systemData.getActiveTerm().term;
 
         final RawStcourse reg = RawStcourseLogic.getRegistration(cache, studentId, courseId);
-        final String ruleSet = reg == null ? null : RawCsectionLogic.getRuleSetId(cache, courseId, reg.sect, activeKey);
+        final String ruleSet = reg == null ? null : systemData.getRuleSetId(courseId, reg.sect, activeKey);
         final String ruleSetId = ruleSet == null ? RawPacingStructure.DEF_PACING_STRUCTURE : ruleSet;
 
         if (less.gatherData(cache, courseId, Integer.valueOf(unit), Integer.valueOf(objective))) {

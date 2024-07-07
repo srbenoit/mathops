@@ -3,6 +3,7 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -13,8 +14,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
@@ -1178,7 +1177,7 @@ public final class StudentCourseStatus extends LogicBase {
 
         final boolean result;
 
-        this.course = RawCourseLogic.query(cache, theCourseId);
+        this.course = cache.getSystemData().getCourse(theCourseId);
         if (this.course == null) {
             setErrorText("Unable to look up the " + theCourseId + " course.");
             result = false;
@@ -1287,7 +1286,7 @@ public final class StudentCourseStatus extends LogicBase {
             defaultSect = "1";
         } else {
             defaultSect = "001";
-            final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.activeTerm.term);
+            final List<RawCsection> csections = cache.getSystemData().getCourseSections(this.activeTerm.term);
             csections.sort(null);
 
             for (final RawCsection test : csections) {
@@ -1414,10 +1413,12 @@ public final class StudentCourseStatus extends LogicBase {
 
         final boolean result;
 
+        final SystemData systemData = cache.getSystemData();
+
         if ("Y".equals(this.studentCourse.iInProgress)) {
-            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.studentCourse.iTermKey);
+            this.courseSection = systemData.getCourseSection(crs, sect, this.studentCourse.iTermKey);
         } else {
-            this.courseSection = RawCsectionLogic.query(cache, crs, sect, this.activeTerm.term);
+            this.courseSection = systemData.getCourseSection(crs, sect, this.activeTerm.term);
         }
 
         if (this.courseSection == null) {
@@ -1496,7 +1497,6 @@ public final class StudentCourseStatus extends LogicBase {
         final LocalDate deadline = this.courseSection.examDeleteDt;
 
         if (deadline != null) {
-
             this.examDeleteDateIsPast = now.toLocalDate().isAfter(deadline);
 
             if (!this.examDeleteDateIsPast) {
@@ -1526,7 +1526,7 @@ public final class StudentCourseStatus extends LogicBase {
 
                 this.termStrings.add(fut.term.longString);
 
-                final LocalDate examDeleteDt = RawCsectionLogic.getExamDeleteDate(cache, courseId,
+                final LocalDate examDeleteDt = cache.getSystemData().getExamDeleteDate(courseId,
                         this.studentCourse.sect, fut.term);
 
                 if (examDeleteDt == null) {

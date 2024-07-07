@@ -34,6 +34,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -42,8 +43,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -1557,15 +1556,17 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         final String crsId = getExam().course;
 
-        final Boolean isTut = RawCourseLogic.isCourseTutorial(cache, crsId);
+        final SystemData systemData = cache.getSystemData();
+
+        final Boolean isTut = systemData.isCourseTutorial(crsId);
         if (isTut == null) {
             return "No data for course '" + getExam().course + "'";
         }
 
         // Store the presentation and completion times in the exam object
         if (answers[0].length == 4) {
-            // If exam has both presentation and completion time, compute the duration as seen by
-            // the client, then adjust for the server's clock
+            // If exam has both presentation and completion time, compute the duration as seen by the client, then
+            // adjust for the server's clock
             if (answers[0][2] != null && answers[0][3] != null) {
                 final long duration = ((Long) answers[0][3]).longValue() - ((Long) answers[0][2]).longValue();
 
@@ -1687,7 +1688,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 } else {
                     section = "001";
 
-                    final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, this.active.term);
+                    final List<RawCsection> csections = systemData.getCourseSections(this.active.term);
                     csections.sort(null);
                     for (final RawCsection test : csections) {
                         if (test.course.equals(stexam.course)) {

@@ -2,10 +2,10 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
@@ -410,6 +410,8 @@ final class LogicCheckInCourseExams {
         // NOTE: we attempt to use the rule set from the term when an incomplete was earned rather than the active term,
         // if that data is available.  This is flawed since we can't query the prior term's pacing structure data.
 
+        final SystemData systemData = cache.getSystemData();
+
         final List<RawPacingStructure> allPacing = RawPacingStructureLogic.queryByTerm(cache, this.activeTerm.term);
 
         for (final RawStcourse reg : registrations) {
@@ -432,13 +434,13 @@ final class LogicCheckInCourseExams {
 
             TermRec effTerm = this.activeTerm;
             if (!effTerm.term.equals(reg.termKey)) {
-                final TermRec incTerm = cache.getSystemData().getTerm(reg.termKey);
+                final TermRec incTerm = systemData.getTerm(reg.termKey);
                 if (incTerm != null) {
                     effTerm = incTerm;
                 }
             }
 
-            final RawCsection cSection = RawCsectionLogic.query(cache, reg.course, reg.sect, effTerm.term);
+            final RawCsection cSection = systemData.getCourseSection(reg.course, reg.sect, effTerm.term);
             if (cSection == null) {
                 continue;
             }

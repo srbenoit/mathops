@@ -1,6 +1,7 @@
 package dev.mathops.app.adm;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbUtils;
@@ -9,7 +10,6 @@ import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawChallengeFeeLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -142,7 +142,9 @@ public final class StudentData {
         this.student = theStudent;
         final String stuId = this.student.stuId;
 
-        this.activeKey = cache.getSystemData().getActiveTerm().term;
+        final SystemData systemData = cache.getSystemData();
+
+        this.activeKey = systemData.getActiveTerm().term;
 
         this.studentTerm = RawSttermLogic.query(cache, this.activeKey, stuId);
 
@@ -155,9 +157,8 @@ public final class StudentData {
         this.studentMilestones = this.studentTerm == null ? new ArrayList<>(0) : RawStmilestoneLogic
                 .getStudentMilestones(cache, this.activeKey, this.studentTerm.paceTrack, stuId);
 
-        this.studentCoursesPastAndCurrent =
-                RawStcourseLogic.queryByStudent(cache, stuId, true, true);
-        this.currentTermCourseSections = RawCsectionLogic.queryByTerm(cache, this.activeKey);
+        this.studentCoursesPastAndCurrent = RawStcourseLogic.queryByStudent(cache, stuId, true, true);
+        this.currentTermCourseSections = systemData.getCourseSections(this.activeKey);
 
         this.studentTransferCredit = RawFfrTrnsLogic.queryByStudent(cache, stuId);
 

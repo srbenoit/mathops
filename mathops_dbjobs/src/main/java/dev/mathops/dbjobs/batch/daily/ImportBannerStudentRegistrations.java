@@ -3,19 +3,18 @@ package dev.mathops.dbjobs.batch.daily;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.enums.EDisciplineActionType;
+import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.EDisciplineActionType;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
 import dev.mathops.db.old.rawlogic.RawDupRegistrLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
@@ -206,7 +205,7 @@ public final class ImportBannerStudentRegistrations {
             term = curYear + "90";
         }
 
-        final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final List<RawCsection> csections = cache.getSystemData().getCourseSections(active.term);
 
         try (final Statement stmt = bannerConn.createStatement()) {
 
@@ -785,8 +784,7 @@ public final class ImportBannerStudentRegistrations {
             final RawStcourse test = odsRegs.get(i);
 
             if (test.instrnType == null) {
-                final String instrnType =
-                        RawCsectionLogic.getInstructionType(cache, test.course, test.sect, active.term);
+                final String instrnType = cache.getSystemData().getInstructionType(test.course, test.sect, active.term);
 
                 if (instrnType != null) {
                     report.add("  Updating instruction type to " + instrnType + FOR + test.course + SECTION
@@ -973,7 +971,8 @@ public final class ImportBannerStudentRegistrations {
         }
 
         if (existing != null) {
-            final RawCsection odsCsect = RawCsectionLogic.query(cache, odsReg.course, odsReg.sect, active.term);
+            final RawCsection odsCsect = cache.getSystemData().getCourseSection(odsReg.course, odsReg.sect,
+                    active.term);
 
             if (odsCsect == null) {
                 report.add("  *** ERROR: STCOURSE section " + odsReg.sect + " not in CSECTION for " + odsReg.course
@@ -1066,8 +1065,8 @@ public final class ImportBannerStudentRegistrations {
     private static void addRegistration(final Cache cache, final TermRec active, final RawStcourse bannerReg,
                                         final Collection<? super String> report) throws SQLException {
 
-        final String instrnType = RawCsectionLogic.getInstructionType(cache, bannerReg.course,
-                bannerReg.sect, active.term);
+        final String instrnType = cache.getSystemData().getInstructionType(bannerReg.course, bannerReg.sect,
+                active.term);
 
         String prereq = bannerReg.prereqSatis;
         String placedByExam = null;
@@ -1081,13 +1080,13 @@ public final class ImportBannerStudentRegistrations {
             }
         }
 
-        final RawStcourse toInsert = new RawStcourse(active.term, //
-                bannerReg.stuId, //
-                bannerReg.course, //
-                bannerReg.sect, //
-                bannerReg.paceOrder, //
-                bannerReg.openStatus, //
-                bannerReg.gradingOption, //
+        final RawStcourse toInsert = new RawStcourse(active.term,
+                bannerReg.stuId,
+                bannerReg.course,
+                bannerReg.sect,
+                bannerReg.paceOrder,
+                bannerReg.openStatus,
+                bannerReg.gradingOption,
                 "N", // completed
                 null, // score
                 null, // courseGrade

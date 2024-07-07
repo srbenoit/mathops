@@ -2,11 +2,9 @@ package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ import java.util.Map;
 /**
  * A container for the context-oriented data relating to a {@code SiteData} object.
  */
-public final class  SiteDataContext {
+public final class SiteDataContext {
 
     /** The cache. */
     private final Cache cache;
@@ -52,7 +50,7 @@ public final class  SiteDataContext {
 
         if (result == null) {
             try {
-                result = RawCourseLogic.query(this.cache, courseId);
+                result = this.cache.getSystemData().getCourse(courseId);
                 if (result != null) {
                     this.courses.put(courseId, result);
                 }
@@ -66,9 +64,10 @@ public final class  SiteDataContext {
 
     /**
      * Gets the course section record for a specified course and section in a specified term.
+     *
      * @param courseId the course ID
-     * @param section the section number
-     * @param term the term
+     * @param section  the section number
+     * @param term     the term
      * @return the course section record; null if none found
      */
     public RawCsection getCourseSection(final String courseId, final String section, final TermKey term) {
@@ -86,7 +85,7 @@ public final class  SiteDataContext {
 
         if (result == null) {
             try {
-                result = RawCsectionLogic.query(this.cache, courseId, section, term);
+                result = this.cache.getSystemData().getCourseSection(courseId, section, term);
                 if (result != null) {
                     list.add(result);
                 }
@@ -100,16 +99,17 @@ public final class  SiteDataContext {
 
     /**
      * Gets all course section records for a specified course in a specified term.
+     *
      * @param courseId the course ID
-     * @param term the term
+     * @param term     the term
      * @return the course section record; null if none found
      */
-    public List<RawCsection> getAllCourseSections(final String courseId, final TermKey term) {
+    List<RawCsection> getAllCourseSections(final String courseId, final TermKey term) {
 
         List<RawCsection> result = null;
 
         try {
-            result = RawCsectionLogic.queryByCourseTerm(this.cache, courseId, term);
+            result = this.cache.getSystemData().getCourseSectionsByCourse(courseId, term);
         } catch (final SQLException ex) {
             Log.severe("Failed to query for course sections", ex);
         }

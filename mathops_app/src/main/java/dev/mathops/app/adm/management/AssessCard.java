@@ -4,7 +4,6 @@ import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 
 import javax.swing.BorderFactory;
@@ -57,8 +56,7 @@ class AssessCard extends AdminPanelBase implements ActionListener {
 
         List<RawCourse> courses;
         try {
-            courses = RawCourseLogic.INSTANCE.queryAll(theCache);
-            courses.sort(null);
+            courses = theCache.getSystemData().getCourses();
         } catch (final SQLException ex) {
             Log.warning(ex);
             courses = new ArrayList<>(0);

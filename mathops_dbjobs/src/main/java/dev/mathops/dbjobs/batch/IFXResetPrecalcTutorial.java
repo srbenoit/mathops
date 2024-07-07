@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -12,7 +13,6 @@ import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -101,38 +101,35 @@ public enum IFXResetPrecalcTutorial {
     private static void buildReport(final Cache cache, final HtmlBuilder report,
                                     final HtmlBuilder errors) throws SQLException {
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
+
         if (activeTerm == null) {
             errors.addln("Unable to query the active term.");
         } else {
             final TermKey key = activeTerm.term;
 
-            final LocalDate csect17 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M1170, "1",
-                    key);
+            final LocalDate csect17 = systemData.getExamDeleteDate(RawRecordConstants.M1170, "1", key);
 
             if (csect17 == null) {
                 errors.addln("Unable to query CourseSection for 'M 1170' section '1'");
             } else {
-                final LocalDate csect18 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M1180, "1",
-                        key);
+                final LocalDate csect18 = systemData.getExamDeleteDate(RawRecordConstants.M1180, "1", key);
 
                 if (csect18 == null) {
                     errors.addln("Unable to query CourseSection for 'M 1180' section '1'");
                 } else {
-                    final LocalDate csect24 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M1240,
-                            "1", key);
+                    final LocalDate csect24 = systemData.getExamDeleteDate(RawRecordConstants.M1240, "1", key);
 
                     if (csect24 == null) {
                         errors.addln("Unable to query CourseSection for 'M 1240' section '1'");
                     } else {
-                        final LocalDate csect25 = RawCsectionLogic.getExamDeleteDate(cache, RawRecordConstants.M1250,
-                                "1", key);
+                        final LocalDate csect25 = systemData.getExamDeleteDate(RawRecordConstants.M1250, "1", key);
 
                         if (csect25 == null) {
                             errors.addln("Unable to query CourseSection for 'M 1250' section '1'");
                         } else {
-                            final LocalDate csect26 = RawCsectionLogic.getExamDeleteDate(cache, //
-                                    RawRecordConstants.M1260, "1", key);
+                            final LocalDate csect26 = systemData.getExamDeleteDate(RawRecordConstants.M1260, "1", key);
 
                             if (csect26 == null) {
                                 errors.addln("Unable to query CourseSection for 'M 1260' section '1'.");

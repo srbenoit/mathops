@@ -1,11 +1,14 @@
 package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -587,5 +590,93 @@ public final class RawCsection extends RawTermRecordBase implements Comparable<R
         }
 
         return equal;
+    }
+
+    /**
+     * Gets the top matter associated with a course and section.
+     *
+     * @param courseId the course ID
+     * @return the top matter (null if none)
+     */
+    public static String getTopmatter(final String courseId) {
+
+        String topmatter = null;
+
+        if (RawRecordConstants.M125.equals(courseId) || RawRecordConstants.M126.equals(courseId)
+                || RawRecordConstants.M1250.equals(courseId)
+                || RawRecordConstants.M1260.equals(courseId)) {
+            topmatter = "<strong class='red'>REMEMBER: when working with angles, always check the mode setting on "
+                    + "your calculator.</strong>";
+        }
+
+        return topmatter;
+    }
+
+    /**
+     * Gets the proctoring options available for a particular course section.
+     *
+     * @param csection the course section
+     * @return the list of proctoring options; null if none
+     */
+    public static List<EProctoringOption> getProctoringOptions(final RawCsection csection) {
+
+        final String course = csection.course;
+        final String sect = csection.sect;
+
+        // FIXME: For now, we base some data on first digit of section number!
+        final char sectChar0 = sect == null || sect.isEmpty() ? 0 : sect.charAt(0);
+
+        List<EProctoringOption> proctoringOptions = null;
+
+        final boolean isPrecalcCourse = RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
+                || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
+                || RawRecordConstants.M126.equals(course);
+
+        if (sectChar0 == '8' || sectChar0 == '4') {
+            if (isPrecalcCourse) {
+                proctoringOptions = new ArrayList<>(6);
+                proctoringOptions.add(EProctoringOption.DEPT_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.DIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.UNIV_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.ASSIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.HUMAN);
+                proctoringOptions.add(EProctoringOption.HONORLOCK);
+            }
+        } else if (sectChar0 == '0') {
+            if (isPrecalcCourse) {
+                proctoringOptions = new ArrayList<>(6);
+                proctoringOptions.add(EProctoringOption.DEPT_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.DIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.UNIV_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.ASSIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.HUMAN);
+                proctoringOptions.add(EProctoringOption.RESPONDUS);
+            }
+        } else if (sectChar0 == '1') {
+            if (RawRecordConstants.M100T.equals(course)) {
+                // ELM Tutorial
+                proctoringOptions = new ArrayList<>(5);
+                proctoringOptions.add(EProctoringOption.DEPT_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.UNIV_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.ASSIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.PROCTOR_U_STUDENT);
+                proctoringOptions.add(EProctoringOption.HUMAN);
+            } else if (RawRecordConstants.M100P.equals(course)
+                    || RawRecordConstants.M1170.equals(course)
+                    || RawRecordConstants.M1180.equals(course)
+                    || RawRecordConstants.M1240.equals(course)
+                    || RawRecordConstants.M1250.equals(course)
+                    || RawRecordConstants.M1260.equals(course)) {
+                // Placement Tool or Precalculus Tutorial
+                proctoringOptions = new ArrayList<>(5);
+                proctoringOptions.add(EProctoringOption.DEPT_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.UNIV_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.ASSIST_TEST_CENTER);
+                proctoringOptions.add(EProctoringOption.PROCTOR_U_STUDENT);
+                proctoringOptions.add(EProctoringOption.HUMAN);
+            }
+        }
+
+        return proctoringOptions;
     }
 }

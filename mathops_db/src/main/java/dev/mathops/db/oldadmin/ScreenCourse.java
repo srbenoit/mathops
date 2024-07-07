@@ -3,11 +3,10 @@ package dev.mathops.db.oldadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.logic.CourseStatus;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -173,8 +172,10 @@ final class ScreenCourse extends AbstractStudentScreen {
         final RawStudent stu = getStudent();
 
         final Cache cache = getCache();
+        final SystemData systemData = cache.getSystemData();
+
         try {
-            final TermRec active = cache.getSystemData().getActiveTerm();
+            final TermRec active = systemData.getActiveTerm();
             final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, true, true);
 
             // Sort full list by term (descending) then by course
@@ -184,7 +185,7 @@ final class ScreenCourse extends AbstractStudentScreen {
 
             for (final RawStcourse stc : stcFull) {
                 String pacing = null;
-                final RawCsection csect = RawCsectionLogic.query(cache, stc.course, stc.sect, stc.termKey);
+                final RawCsection csect = systemData.getCourseSection(stc.course, stc.sect, stc.termKey);
                 if (csect != null) {
                     pacing = csect.pacingStructure;
                 }
@@ -271,8 +272,9 @@ final class ScreenCourse extends AbstractStudentScreen {
         final LocalDate today = LocalDate.now();
 
         final Cache cache = getCache();
+        final SystemData systemData = cache.getSystemData();
         try {
-            final TermRec active = cache.getSystemData().getActiveTerm();
+            final TermRec active = systemData.getActiveTerm();
             final List<RawStcourse> stcFull = RawStcourseLogic.queryByStudent(cache, stu.stuId, active.term, true,
                     false);
 
@@ -289,9 +291,9 @@ final class ScreenCourse extends AbstractStudentScreen {
 
                 final RawCsection csect;
                 if ("Y".equals(stc.iInProgress)) {
-                    csect = RawCsectionLogic.query(cache, stc.course, stc.sect, stc.iTermKey);
+                    csect = systemData.getCourseSection(stc.course, stc.sect, stc.iTermKey);
                 } else {
-                    csect = RawCsectionLogic.query(cache, stc.course, stc.sect, stc.termKey);
+                    csect = systemData.getCourseSection(stc.course, stc.sect, stc.termKey);
                 }
 
                 if (csect != null) {
@@ -349,7 +351,7 @@ final class ScreenCourse extends AbstractStudentScreen {
                 builder.append("Course: ");
                 builder.append(stc.course);
 
-                final RawCourse course = RawCourseLogic.query(cache, stc.course);
+                final RawCourse course = cache.getSystemData().getCourse(stc.course);
                 if (course != null) {
                     builder.append("  ");
                     builder.append(course.courseName);
