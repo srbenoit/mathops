@@ -183,9 +183,9 @@ enum PageMPS {
         htm.div("clear");
 
         htm.sP(null, "style='padding: 5px 20px'")
-                .add("<img src='/www/images/proctoring/important.png' style='margin-bottom:-5px;' alt=''/> ",
+                .add("<img src='/www/images/proctoring/important.png' style='margin-bottom:-7px;' alt=''/> ",
                 "NOTE: Firefox is known to have problems using the webcam.  If you use Firefox (or a derivative ",
-                "like Waterfox), and are 'Camera and Microphone Access' fails, please try a different browser.").eP();
+                "like Waterfox), and your 'Camera and Microphone Access' fails, please try a different browser.").eP();
 
         htm.hr();
         htm.div("vgap");
