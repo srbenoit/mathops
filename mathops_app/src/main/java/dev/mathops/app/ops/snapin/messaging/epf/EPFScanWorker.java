@@ -64,16 +64,6 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
     }
 
     /**
-     * Gets the automated messages report.
-     *
-     * @return the report
-     */
-    public Map<String, MessageToSend> getAutomated() {
-
-        return this.epf;
-    }
-
-    /**
      * Execute the task in a background thread.
      */
     @Override
@@ -105,14 +95,6 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
         }
 
         return Integer.valueOf(this.epf.size());
-    }
-
-    /**
-     * Cancels the scan.
-     */
-    public void cancelScan() {
-
-        this.scanner.cancel();
     }
 
     /**

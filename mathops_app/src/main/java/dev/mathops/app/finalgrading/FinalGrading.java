@@ -1,7 +1,6 @@
 package dev.mathops.app.finalgrading;
 
 import dev.mathops.commons.log.Log;
-import oracle.jdbc.OracleDriver;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

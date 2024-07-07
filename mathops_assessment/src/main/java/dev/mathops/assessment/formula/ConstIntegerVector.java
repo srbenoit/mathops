@@ -5,7 +5,6 @@ import dev.mathops.assessment.formula.edit.FEConstantIntegerVector;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 /**
  * A constant integer vector in a formula.

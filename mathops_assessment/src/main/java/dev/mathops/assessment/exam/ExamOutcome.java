@@ -4,7 +4,6 @@ import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;

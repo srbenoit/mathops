@@ -436,7 +436,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         RawPendingExamLogic.delete(cache, presented.serialNumber, student.stuId);
 
         if ("synthetic".equals(presented.ref)) {
-            processStandardMasteryExam(cache, presented, student, isTut, req, rep);
+            processStandardMasteryExam(cache, presented, student, req);
         } else {
             processOldExam(cache, presented, student, isTut, req, rep);
         }
@@ -452,15 +452,12 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      * @param cache     the cache
      * @param presented the presented exam
      * @param student   the student record
-     * @param isTut     TRUE if the exam is a tutorial exam
      * @param req       the request
-     * @param rep       the reply
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
     private boolean processStandardMasteryExam(final Cache cache, final ExamObj presented, final RawStudent student,
-                                   final Boolean isTut, final UpdateExamRequest req, final UpdateExamReply rep)
-            throws SQLException {
+                                               final UpdateExamRequest req) throws SQLException {
 
         boolean ok = true;
 
@@ -645,10 +642,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         final ZonedDateTime now = ZonedDateTime.now();
 
-        StudentExamRec stexam = null;
-
         // Begin preparing the database object to store exam results
-        stexam = new StudentExamRec();
+        final StudentExamRec stexam = new StudentExamRec();
         stexam.studentId = student.stuId;
         stexam.examType = exType;
         stexam.course = presented.course;
@@ -1283,8 +1278,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                                             presented.toXmlString(0));
                                 }
                             } else {
-                                result = new ErrorValue("Outcome prerequisite has no formula");
-
                                 Log.severe("Outcome prerequisite has no formula\n", presented.toXmlString(0));
                             }
                         }
@@ -1451,7 +1444,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
         } else {
             if (RawRecordConstants.M100U.equals(stexam.course)) {
-                rc = insertUsersExam(cache, stexam, usersPassed);
+                insertUsersExam(cache, stexam, usersPassed);
             }
             rc = insertExam(cache, stexam);
         }
@@ -1468,11 +1461,9 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      */
     private static void insertSurveyAnswers(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
-        final boolean ok = false;
-
         // Get the existing set of answers
-        final List<RawStsurveyqa> answers =
-                RawStsurveyqaLogic.queryLatestByStudentProfile(cache, stexam.studentId, stexam.examId);
+        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, stexam.studentId,
+                stexam.examId);
 
         // Loop through new answers, updating any found to have changed, and inserting any that
         // are not already existing.
@@ -1488,9 +1479,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                     if (answer.stuAnswer == null) {
 
                         if (survey.studentAnswer != null) {
-                            final RawStsurveyqa updated = new RawStsurveyqa(answer.stuId,
-                                    answer.version, stexam.finish.toLocalDate(), answer.surveyNbr,
-                                    survey.studentAnswer,
+                            final RawStsurveyqa updated = new RawStsurveyqa(answer.stuId, answer.version,
+                                    stexam.finish.toLocalDate(), answer.surveyNbr, survey.studentAnswer,
                                     Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)));
                             RawStsurveyqaLogic.INSTANCE.insert(cache, updated);
                             answers.set(i, updated);
@@ -1905,7 +1895,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         final String passed;
 
-        boolean placed = false;
         if (stexam.earnedCredit.isEmpty()) {
             passed = "N";
         } else if (deny) {
@@ -1913,7 +1902,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             passed = Integer.toString(attempts + 1);
         } else {
             passed = "Y";
-            placed = true;
         }
 
         String howVal = null;

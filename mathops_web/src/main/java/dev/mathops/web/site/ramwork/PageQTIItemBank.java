@@ -56,7 +56,7 @@ enum PageQTIItemBank {
             htm.sH(2).add("Directory").eH(2);
 
             htm.sDiv("small");
-            appendItemBank(cache, htm, site, req, resp, session);
+            appendItemBank(cache, htm);
             if (error != null) {
                 Log.warning(error);
                 htm.div("vgap");
@@ -78,15 +78,9 @@ enum PageQTIItemBank {
      *
      * @param cache   the data cache
      * @param htm     the {@code HtmlBuilder} to which to append
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
      * @throws SQLException if there is an error accessing the database
      */
-    private static void appendItemBank(final Cache cache, final HtmlBuilder htm, final RamWorkSite site,
-                                       final HttpServletRequest req, final HttpServletResponse resp,
-                                       final ImmutableSessionInfo session) throws SQLException {
+    private static void appendItemBank(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
         final List<RawTreePath> allPaths = RawTreePathLogic.INSTANCE.queryAll(cache);
         Log.info("There were " + allPaths.size() + " paths");

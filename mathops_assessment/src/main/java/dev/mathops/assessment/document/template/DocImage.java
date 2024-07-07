@@ -9,7 +9,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.commons.ui.ColorNames;
 
 import javax.imageio.ImageIO;
@@ -374,7 +373,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocImageInst createInstance(final EvalContext evalContext) {

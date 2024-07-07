@@ -182,7 +182,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Rhw00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -227,7 +227,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Rhw02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -273,7 +273,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Rhw04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -318,7 +318,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Rhw06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -364,7 +364,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Xhw00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -485,7 +485,7 @@ public enum LateMessageHW44Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateH44Rhw99(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

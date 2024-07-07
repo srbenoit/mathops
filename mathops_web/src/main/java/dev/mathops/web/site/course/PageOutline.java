@@ -1490,14 +1490,13 @@ enum PageOutline {
      * @param errorExam    the exam ID with which an error message is associated
      * @param error        the error message
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
-     * @return the new value for {@code told}
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean doFinalUnit(final Cache cache, final ESiteType siteType, final ImmutableSessionInfo session,
-                                       final CourseSiteLogic logic, final StudentCourseStatus courseStatus,
-                                       final RawCunit unit, final String mode, final RawCusection gwSecUnit,
-                                       final boolean told, final String errorExam, final String error,
-                                       final HtmlBuilder htm) throws SQLException {
+    private static void doFinalUnit(final Cache cache, final ESiteType siteType, final ImmutableSessionInfo session,
+                                    final CourseSiteLogic logic, final StudentCourseStatus courseStatus,
+                                    final RawCunit unit, final String mode, final RawCusection gwSecUnit,
+                                    final boolean told, final String errorExam, final String error,
+                                    final HtmlBuilder htm) throws SQLException {
 
         final String courseId = courseStatus.getCourse().course;
 
@@ -1536,7 +1535,7 @@ enum PageOutline {
 
             doUnitTopmatter(courseStatus, unitNum, htm);
 
-            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, htm,
                     session.getNow());
 
             final String studentId = logic.data.studentData.getStudent().stuId;
@@ -1602,7 +1601,7 @@ enum PageOutline {
                 }
             }
 
-            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, errorExam, error, htm,
+            doFinalExam(cache, siteType, session, courseStatus, unitNum, mode, dimmed, htm,
                     session.getNow());
 
             final String studentId = logic.data.studentData.getStudent().stuId;
@@ -1641,8 +1640,6 @@ enum PageOutline {
 
         htm.eDiv();
         htm.hr();
-
-        return told;
     }
 
     /**
@@ -2116,16 +2113,13 @@ enum PageOutline {
      * @param unitNum      the unit
      * @param mode         the mode ("course", "practice", or "locked")
      * @param dimmed       {@code true} if the button should be dimmed regardless of status
-     * @param errorExam    the exam ID with which an error message is associated
-     * @param error        the error message
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      * @param now          the date/time to consider as "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doFinalExam(final Cache cache, final ESiteType siteType,
-                                    final ImmutableSessionInfo session, final StudentCourseStatus courseStatus,
-                                    final int unitNum, final String mode, final boolean dimmed, final String errorExam,
-                                    final String error, final HtmlBuilder htm,
+    private static void doFinalExam(final Cache cache, final ESiteType siteType, final ImmutableSessionInfo session,
+                                    final StudentCourseStatus courseStatus, final int unitNum, final String mode,
+                                    final boolean dimmed, final HtmlBuilder htm,
                                     final ChronoZonedDateTime<LocalDate> now) throws SQLException {
 
         final String courseId = courseStatus.getCourse().course;
@@ -2216,9 +2210,9 @@ enum PageOutline {
                 htm.eP();
 
                 if (lastTry != null && !lastTry.isBefore(now.toLocalDate())) {
-// Student eligible for "last try" and within last try deadline
+                    // Student eligible for "last try" and within last try deadline
 
-// Need to see if student has used all "last try" attempts
+                    // Need to see if student has used all "last try" attempts
                     final List<RawStexam> exams = RawStexamLogic.getExams(cache, courseStatus.getStudent().stuId,
                             courseStatus.getStudentCourse().course, false, "F");
 
@@ -2295,8 +2289,8 @@ enum PageOutline {
                         && "N".equals(courseStatus.getStudentCourse().iCounted);
 
                 if (!nonCountedIncomplete) {
-                    // Don't show "Last try" prompt for a student with a non-counted
-                    // incomplete who has a fixed I Deadline Date.
+                    // Don't show "Last try" prompt for a student with a non-counted incomplete who has a fixed I
+                    // Deadline Date.
 
                     final String lastTryText;
                     final String lastTryText2;
@@ -2327,8 +2321,7 @@ enum PageOutline {
         if (RawRecordConstants.M117.equals(courseId) || RawRecordConstants.M118.equals(courseId)
                 || RawRecordConstants.M124.equals(courseId) || RawRecordConstants.M125.equals(courseId)
                 || RawRecordConstants.M126.equals(courseId)) {
-            doCanvasFinalExam(cache, siteType, session, courseStatus, unitNum, mode, errorExam,
-                    error, htm);
+            doCanvasFinalExam(cache, siteType, session, courseStatus, unitNum, mode, htm);
         }
 
         if ("course".equals(mode)) {
@@ -2409,7 +2402,8 @@ enum PageOutline {
      */
     private static void doCanvasUnitExam(final Cache cache, final ESiteType siteType,
                                          final ImmutableSessionInfo session, final StudentCourseStatus courseStatus,
-                                         final int unitNum, final String mode, final HtmlBuilder htm) throws SQLException {
+                                         final int unitNum, final String mode, final HtmlBuilder htm)
+            throws SQLException {
 
         final String courseId = courseStatus.getCourse().course;
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
@@ -2435,8 +2429,7 @@ enum PageOutline {
             final LocalDate today = session.getNow().toLocalDate();
             final boolean isRamwork = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(), today,
                     "RAMWORK");
-// final boolean isLockDown = RawSpecialStusLogic.isSpecialType(cache,
-// session.getEffectiveUserId(), today, "LOCKDWN");
+
             final boolean isCE = "CE".equals(courseStatus.getCourseSection().instrnType);
 
             htm.div("vgap");
@@ -2473,90 +2466,8 @@ enum PageOutline {
                 htm.addln("<a href='", url, "' class='btn' target='_blank'>Take the ", examName, "</a>");
                 htm.eDiv();
                 htm.hr();
-
-                // htm.add("If this system does not work for you, you may use the ",
-                // "Honorlock Proctoring system:");
-                //
-                // htm.addln("<ul>");
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln("<li> Click on <b>Honorlock</b> on the left-hand side.</li>");
-                // htm.addln("<li> Pick the <b>", examName, "</b>.</li>");
-                // htm.addln(
-                // "<li> Follow the instructions, and when the Honorlock system asks to ",
-                // "enter a password, use the field below:</li>");
-                //
-                // htm.sDiv("indent");
-                // htm.addln("<form id='search' method='post' autocomplete='off'");
-                // htm.addln(" action='process_honorlock_login.html'>");
-                // htm.addln(" <input type='hidden' name='course' id='course' value='",
-                //
-                // courseId, "'/>");
-                // htm.addln(" <input type='hidden' name='exam' id='exam' value='",
-                // version, "'/>");
-                // htm.addln(" <label for='drowssap'>Password:</label>");
-                // htm.addln(" <input type='password' data-lpignore='true' ",
-                // "autocomplete='new-password' id='drowssap' name='drowssap'/>");
-                // htm.addln(" <input type='submit' id='submit_image' value='Start'/>");
-                // htm.addln("</form>");
-                // htm.eDiv(); // indent
-
             } else {
                 // Not CE or authorized to use RamWork
-
-                // htm.addln("<ul>");
-                //
-                // if (isCE) {
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln("<li> Click on <b>Honorlock</b> on the left-hand side.</li>");
-                // htm.addln("<li> Pick the <b>", examName, "</b>.</li>");
-                // htm.addln("<li> You can use scratch paper and a personal calculator or the ",
-                // "Desmos calculator; a link to Desmos should appear above the exam.");
-                // htm.addln("<li> Follow the instructions, and when the Honorlock system asks ",
-                // "to enter a password, use the field below:</li>");
-                //
-                // htm.sDiv("indent");
-                // htm.addln("<form id='search' method='post' autocomplete='off'");
-                // htm.addln(" action='process_honorlock_login.html'>");
-                // htm.addln(" <input type='hidden' name='course' id='course' value='",
-                //
-                // courseId, "'/>");
-                // htm.addln(" <input type='hidden' name='exam' id='exam' value='",
-                // version, "'/>");
-                // htm.addln(" <label for='drowssap'>Password:</label>");
-                // htm.addln(" <input type='password' data-lpignore='true' ",
-                // "autocomplete='new-password' id='drowssap' name='drowssap'/>");
-                // htm.addln(" <input type='submit' id='submit_image' value='Start'/>");
-                // htm.addln("</form>");
-                // htm.eDiv(); // indent
-                //
-                // if (error != null && version.equals(errorExam)) {
-                // htm.sDiv("indent2 red");
-                // htm.add("<b>", error, "</b>");
-                // htm.eDiv(); // indent
-                // }
-                // } else if (isLockDown) {
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                //
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln(
-                // "<li> Click on <b>Quizzes</b> on the left-hand side, and pick the <b>",
-                // examName, "</b>.</li>");
-                // htm.addln("<li> Follow the instructions to install LockDown Browser.</li>");
-                // htm.addln("<li> Navigate back to the quiz in Canvas <strong>from within ",
-                // "LockDown Browser</strong>.</li>");
-                // htm.addln("<li> Enter your <strong>9-digit CSU ID number</strong>.</li>");
-                // htm.addln("<li> The exam should start.</li>");
-                // htm.addln("<li> You can use scratch paper and a personal calculator or the ",
-                // "Desmos calculator; a link to Desmos should appear above the exam.");
-                // } else {
                 htm.addln("<li> Come to the Precalculus Center testing area (Weber 138).</li>");
                 htm.addln("<li> Store any personal items in lockers provided (locks are available to lend), and ",
                         "take only your RamCard and a pencil or pen into the testing area. No other resources are ",
@@ -2564,8 +2475,6 @@ enum PageOutline {
                 htm.addln("<li> Request the <b>", examName, "</b>.</li>");
                 htm.addln("<li> An on-screen TI-84 calculator will be provided on the testing computer.</li>");
                 htm.addln("<li> When the exam is completed, return to this site to check your status.</li>");
-                // }
-                // htm.addln("</ul>");
             }
 
             htm.eDiv();
@@ -2584,15 +2493,13 @@ enum PageOutline {
      * @param courseStatus the student's status in the course
      * @param unitNum      the unit
      * @param mode         the mode
-     * @param errorExam    the exam ID with which an error message is associated
-     * @param error        the error message
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
     private static void doCanvasFinalExam(final Cache cache, final ESiteType siteType,
                                           final ImmutableSessionInfo session, final StudentCourseStatus courseStatus,
-                                          final int unitNum, final String mode, final String errorExam,
-                                          final String error, final HtmlBuilder htm) throws SQLException {
+                                          final int unitNum, final String mode, final HtmlBuilder htm)
+            throws SQLException {
 
         final String courseId = courseStatus.getCourse().course;
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
@@ -2614,13 +2521,6 @@ enum PageOutline {
             final LocalDate today = session.getNow().toLocalDate();
             final boolean isRamwork = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(), today,
                     "RAMWORK");
-            final boolean isLockDown = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(), today,
-                    "LOCKDWN");
-
-            final UnitExamSessionStore uess = UnitExamSessionStore.getInstance();
-            final String examCode = uess.makeExamCode(session);
-            if (examCode.length() == 6) {
-            }
 
             htm.div("vgap");
             htm.addln("<div style='max-width:380pt;margin:0 30pt;padding:4pt 8pt 0 8pt;border:3px double #004f39;",
@@ -2651,93 +2551,7 @@ enum PageOutline {
                 htm.addln("<a href='", url, "' class='btn' target='_blank'>Take the ", examName, "</a>");
                 htm.eDiv();
                 htm.hr();
-
-                // if (isCE) {
-                // htm.add("If this system does not work for you, you may use the ",
-                // "Honorlock Proctoring system:");
-                //
-                // htm.addln("<ul>");
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln("<li> Click on <b>Honorlock</b> on the left-hand side.</li>");
-                // htm.addln("<li> Pick the <b>", examName, "</b>.</li>");
-                // htm.addln(
-                // "<li> Follow the instructions, and when the Honorlock system asks to ",
-                // "enter a password, use the field below:</li>");
-                //
-                // htm.sDiv("indent");
-                // htm.addln("<form id='search' method='post' autocomplete='off'");
-                // htm.addln(" action='process_honorlock_login.html'>");
-                // htm.addln(" <input type='hidden' name='course' id='course' value='",
-                //
-                // courseId, "'/>");
-                // htm.addln(" <input type='hidden' name='exam' id='exam' value='",
-                // version, "'/>");
-                // htm.addln(" <label for='drowssap'>Password:</label>");
-                // htm.addln(" <input type='password' data-lpignore='true' ",
-                // "autocomplete='new-password' id='drowssap' name='drowssap'/>");
-                // htm.addln(" <input type='submit' id='submit_image' value='Start'/>");
-                // htm.addln("</form>");
-                // htm.eDiv(); // indent
-                // } else if (isLockDown) {
-                // htm.add("If this system does not work for you, you may use the ",
-                // "LockDown Browser system:");
-                //
-                // htm.addln("<ul>");
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                //
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln(
-                // "<li> Click on <b>Quizzes</b> on the left-hand side, and pick the <b>",
-                // examName, "</b>.</li>");
-                // htm.addln("<li> Follow the instructions to install LockDown Browser.</li>");
-                // htm.addln("<li> Navigate back to the quiz in Canvas <strong>from within ",
-                // "LockDown Browser</strong>.</li>");
-                // htm.addln("<li> Enter your <strong>9-digit CSU ID number</strong>.</li>");
-                // htm.addln("<li> The exam should start.</li>");
-                // } else {
-                // htm.add("If this system does not work for you, you may still take your exam ",
-                // "in the Precalculus Center:");
-                //
-                // htm.addln("<ul>");
-                // htm.addln("<li> Come to the Precalculus Center testing area (Weber 138).</li>");
-                // htm.addln("<li> Store any personal items in lockers provided (locks are ",
-                // "available to lend), and take only your RamCard and a pencil or ",
-                // "pen into the testing area. No other resources are allowed. Scratch ",
-                // "paper will be provided.</li>");
-                // htm.addln("<li> Request the <b>", examName, "</b>.</li>");
-                // htm.addln("<li> An on-screen TI-84 calculator will be provided on the ",
-                // "testing computer.</li>");
-                // htm.addln("<li> When the exam is completed, return to this site to check your ",
-                // "status.</li>");
-                // }
-
             } else {
-                // Not CE and RamWork not allowed
-
-                // htm.addln("<ul>");
-                //
-                // if (isLockDown) {
-                // htm.addln(
-                // "<li> Log in to <a href='https://canvas.colostate.edu/' class='ulink' ",
-                //
-                // "target='_blank'>Canvas</a> and go into your <b>",
-                // courseStatus.getCourse().courseLabel, "</b> Course.</li>");
-                // htm.addln(
-                // "<li> Click on <b>Quizzes</b> on the left-hand side, and pick the <b>",
-                // examName, "</b>.</li>");
-                // htm.addln("<li> Follow the instructions to install LockDown Browser.</li>");
-                // htm.addln("<li> Navigate back to the quiz in Canvas <strong>from within ",
-                // "LockDown Browser</strong>.</li>");
-                // htm.addln("<li> Enter your <strong>9-digit CSU ID number</strong>.</li>");
-                // htm.addln("<li> The exam should start.</li>");
-                // htm.addln("<li> You can use scratch paper and a personal calculator or the ",
-                // "Desmos calculator; a link to Desmos should appear above the exam.");
-                // } else {
                 htm.addln("<li> Come to the Precalculus Center testing area (Weber 138).</li>");
                 htm.addln("<li> Store any personal items in lockers provided (locks are available to lend), and ",
                         "take only your RamCard and a pencil or pen into the testing area. No other resources are ",
@@ -2745,7 +2559,6 @@ enum PageOutline {
                 htm.addln("<li> Request the <b>", examName, "</b>.</li>");
                 htm.addln("<li> An on-screen TI-84 calculator will be provided on the testing computer.</li>");
                 htm.addln("<li> When the exam is completed, return to this site to check your status.</li>");
-                // }
             }
             htm.addln("</ul>");
 

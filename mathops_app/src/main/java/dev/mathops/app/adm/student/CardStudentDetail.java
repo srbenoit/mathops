@@ -81,7 +81,7 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
      * @param theFixed         the fixed data
      */
     CardStudentDetail(final Cache theCache, final DbContext liveContext,
-                      final FixedData theFixed, final Object theRenderingHint) {
+                      final FixedData theFixed) {
 
         super();
 
@@ -166,7 +166,7 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
         scroll.getVerticalScrollBar().setBlockIncrement(30);
         this.tabs.addTab("Placement", scroll);
 
-        this.mathPlanPanel = new StudentMathPlanPanel(theRenderingHint);
+        this.mathPlanPanel = new StudentMathPlanPanel();
         this.tabs.addTab("Math Plan", this.mathPlanPanel);
     }
 

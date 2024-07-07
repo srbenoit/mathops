@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rec;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.time.LocalDateTime;

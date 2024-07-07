@@ -1,7 +1,6 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
-import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;

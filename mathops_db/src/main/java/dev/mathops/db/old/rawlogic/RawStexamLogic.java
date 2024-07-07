@@ -198,22 +198,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     }
 
     /**
-     * Deletes a student exam and the associated question records.
-     *
-     * @param cache  the data cache
-     * @param record the student exam to delete
-     * @return true if successful; false if not
-     * @throws SQLException if there is an error accessing the database
-     */
-    public boolean deleteAttemptAndAnswers(final Cache cache, final RawStexam record)
-            throws SQLException {
-
-        RawStqaLogic.deleteAllForAttempt(cache, record);
-
-        return delete(cache, record);
-    }
-
-    /**
      * Gets all records.
      *
      * @param cache the data cache
@@ -603,68 +587,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     }
 
     /**
-     * Retrieves the unit number of the highest unit in a course for which there is a passed proctored (Unit or Final)
-     * exam.
-     *
-     * @param cache  the data cache
-     * @param stuId  the student ID
-     * @param course the course
-     * @return the maximum passed unit; null if none has been passed
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static Integer maxPassedUnit(final Cache cache, final String stuId, final String course)
-            throws SQLException {
-
-        Integer result = null;
-
-        // No need to test arguments - the following will test them
-        final List<RawStexam> exams = getExams(cache, stuId, course, true, UNIT_EXAM_TYPES);
-
-        for (final RawStexam test : exams) {
-            if (result == null || test.unit.intValue() > result.intValue()) {
-                result = test.unit;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Retrieves the highest score achieved so far by a student in a course and unit on exams of a certain type.
-     *
-     * @param cache      the data cache
-     * @param stuId      the student ID
-     * @param course     the course
-     * @param unit       the unit
-     * @param passedOnly true to consider only passed exams
-     * @param examTypes  the exam types to consider
-     * @return the maximum score found; null if no score has been recorded yet
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static Integer getHighestScore(final Cache cache, final String stuId, final String course,
-                                          final Integer unit, final boolean passedOnly,
-                                          final String... examTypes) throws SQLException {
-
-        final List<RawStexam> exams = getExams(cache, stuId, course, unit, passedOnly, examTypes);
-
-        Integer result = null;
-
-        if (!exams.isEmpty()) {
-            int highest = 0;
-
-            for (final RawStexam exam : exams) {
-                final Integer score = exam.examScore;
-                if (score != null) {
-                    highest = Math.max(highest, score.intValue());
-                }
-            }
-            result = Integer.valueOf(highest);
-        }
-
-        return result;
-    }
-
-    /**
      * Updates the "passed" field of a record. The fields in the record that constitute its primary key are used to
      * select the record to update. This method does not commit the update.
      *
@@ -758,12 +680,9 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     public static void updateMasteryScore(final Cache cache, final RawStexam rec,
                                           final Integer newMastery) throws SQLException {
 
-        final boolean result;
-
         if (rec.stuId.startsWith("99")) {
             Log.info("Skipping update of StudentExam for test student:");
             Log.info("  Student ID: ", rec.stuId);
-            result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
                     " SET mastery_score=", sqlIntegerValue(newMastery),
@@ -772,9 +691,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
                     " AND stu_id=", sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql) > 0;
-
-                if (result) {
+                if (stmt.executeUpdate(sql) > 0) {
                     cache.conn.commit();
                 } else {
                     cache.conn.rollback();
@@ -839,12 +756,9 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     private static void updateFirstPassed(final Cache cache, final RawStexam rec,
                                           final String newFirstPassed) throws SQLException {
 
-        final boolean result;
-
         if (rec.stuId.startsWith("99")) {
             Log.info("Skipping update of StudentExam for test student:");
             Log.info("  Student ID: ", rec.stuId);
-            result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
                     " SET is_first_passed=", sqlStringValue(newFirstPassed),
@@ -853,16 +767,13 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
                     " AND stu_id=", sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql) > 0;
-
-                if (result) {
+                if (stmt.executeUpdate(sql) > 0) {
                     cache.conn.commit();
                 } else {
                     cache.conn.rollback();
                 }
             }
         }
-
     }
 
     /**

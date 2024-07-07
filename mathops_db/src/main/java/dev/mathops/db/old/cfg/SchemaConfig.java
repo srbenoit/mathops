@@ -25,10 +25,6 @@ public final class SchemaConfig {
 
     /** The id attribute. */
     private static final String ID_ATTR = "id";
-
-    /** The builder attribute. */
-    private static final String BUILDER_ATTR = "builder";
-
     /** The use attribute. */
     private static final String USE_ATTR = "use";
 

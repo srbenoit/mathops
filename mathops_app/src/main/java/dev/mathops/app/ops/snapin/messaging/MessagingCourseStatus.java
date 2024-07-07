@@ -953,9 +953,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw11() {
+    public boolean needsHw11() {
 
-        return Boolean.TRUE.equals(this.passedUnit1HW.get(ONE));
+        return !Boolean.TRUE.equals(this.passedUnit1HW.get(ONE));
     }
 
     /**
@@ -963,9 +963,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw12() {
+    public boolean needsHw12() {
 
-        return Boolean.TRUE.equals(this.passedUnit1HW.get(TWO));
+        return !Boolean.TRUE.equals(this.passedUnit1HW.get(TWO));
     }
 
     /**
@@ -973,9 +973,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw13() {
+    public boolean needsHw13() {
 
-        return Boolean.TRUE.equals(this.passedUnit1HW.get(THREE));
+        return !Boolean.TRUE.equals(this.passedUnit1HW.get(THREE));
     }
 
     /**
@@ -983,9 +983,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw14() {
+    public boolean needsHw14() {
 
-        return Boolean.TRUE.equals(this.passedUnit1HW.get(FOUR));
+        return !Boolean.TRUE.equals(this.passedUnit1HW.get(FOUR));
     }
 
     /**
@@ -993,9 +993,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw15() {
+    public boolean needsHw15() {
 
-        return Boolean.TRUE.equals(this.passedUnit1HW.get(FIVE));
+        return !Boolean.TRUE.equals(this.passedUnit1HW.get(FIVE));
     }
 
     /**
@@ -1003,9 +1003,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw21() {
+    public boolean needsHw21() {
 
-        return Boolean.TRUE.equals(this.passedUnit2HW.get(ONE));
+        return !Boolean.TRUE.equals(this.passedUnit2HW.get(ONE));
     }
 
     /**
@@ -1013,9 +1013,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw22() {
+    public boolean needsHw22() {
 
-        return Boolean.TRUE.equals(this.passedUnit2HW.get(TWO));
+        return !Boolean.TRUE.equals(this.passedUnit2HW.get(TWO));
     }
 
     /**
@@ -1023,9 +1023,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw23() {
+    public boolean needsHw23() {
 
-        return Boolean.TRUE.equals(this.passedUnit2HW.get(THREE));
+        return !Boolean.TRUE.equals(this.passedUnit2HW.get(THREE));
     }
 
     /**
@@ -1033,9 +1033,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw24() {
+    public boolean needsHw24() {
 
-        return Boolean.TRUE.equals(this.passedUnit2HW.get(FOUR));
+        return !Boolean.TRUE.equals(this.passedUnit2HW.get(FOUR));
     }
 
     /**
@@ -1043,9 +1043,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw25() {
+    public boolean needsHw25() {
 
-        return Boolean.TRUE.equals(this.passedUnit2HW.get(FIVE));
+        return !Boolean.TRUE.equals(this.passedUnit2HW.get(FIVE));
     }
 
     /**
@@ -1053,9 +1053,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw31() {
+    public boolean needsHw31() {
 
-        return Boolean.TRUE.equals(this.passedUnit3HW.get(ONE));
+        return !Boolean.TRUE.equals(this.passedUnit3HW.get(ONE));
     }
 
     /**
@@ -1063,9 +1063,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw32() {
+    public boolean needsHw32() {
 
-        return Boolean.TRUE.equals(this.passedUnit3HW.get(TWO));
+        return !Boolean.TRUE.equals(this.passedUnit3HW.get(TWO));
     }
 
     /**
@@ -1073,9 +1073,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw33() {
+    public boolean needsHw33() {
 
-        return Boolean.TRUE.equals(this.passedUnit3HW.get(THREE));
+        return !Boolean.TRUE.equals(this.passedUnit3HW.get(THREE));
     }
 
     /**
@@ -1083,9 +1083,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw34() {
+    public boolean needsHw34() {
 
-        return Boolean.TRUE.equals(this.passedUnit3HW.get(FOUR));
+        return !Boolean.TRUE.equals(this.passedUnit3HW.get(FOUR));
     }
 
     /**
@@ -1093,9 +1093,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw35() {
+    public boolean needsHw35() {
 
-        return Boolean.TRUE.equals(this.passedUnit3HW.get(FIVE));
+        return !Boolean.TRUE.equals(this.passedUnit3HW.get(FIVE));
     }
 
     /**
@@ -1103,9 +1103,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw41() {
+    public boolean needsHw41() {
 
-        return Boolean.TRUE.equals(this.passedUnit4HW.get(ONE));
+        return !Boolean.TRUE.equals(this.passedUnit4HW.get(ONE));
     }
 
     /**
@@ -1113,9 +1113,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw42() {
+    public boolean needsHw42() {
 
-        return Boolean.TRUE.equals(this.passedUnit4HW.get(TWO));
+        return !Boolean.TRUE.equals(this.passedUnit4HW.get(TWO));
     }
 
     /**
@@ -1123,9 +1123,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw43() {
+    public boolean needsHw43() {
 
-        return Boolean.TRUE.equals(this.passedUnit4HW.get(THREE));
+        return !Boolean.TRUE.equals(this.passedUnit4HW.get(THREE));
     }
 
     /**
@@ -1133,9 +1133,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw44() {
+    public boolean needsHw44() {
 
-        return Boolean.TRUE.equals(this.passedUnit4HW.get(FOUR));
+        return !Boolean.TRUE.equals(this.passedUnit4HW.get(FOUR));
     }
 
     /**
@@ -1143,9 +1143,9 @@ public final class MessagingCourseStatus {
      *
      * @return true if that assignment was passed
      */
-    public boolean passedHw45() {
+    public boolean needsHw45() {
 
-        return Boolean.TRUE.equals(this.passedUnit4HW.get(FIVE));
+        return !Boolean.TRUE.equals(this.passedUnit4HW.get(FIVE));
     }
 
     /**

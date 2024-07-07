@@ -62,7 +62,7 @@ final class UserCredentialsManager {
                             final byte[] serverKey = HexEncoder.decode(serverKeyHex);
 
                             if (salt.length == 24 && storedKey.length == 32 && serverKey.length == 32) {
-                                final UserCredentials cred = new UserCredentials(record.userId, record.userType,
+                                final UserCredentials cred = new UserCredentials(record.userType,
                                         record.userName, salt, storedKey, serverKey, ITERATIONS);
 
                                 this.credentials.put(new String(cred.normalizedUsername, StandardCharsets.UTF_8), cred);

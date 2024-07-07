@@ -81,10 +81,6 @@ public enum MessageFactory {
                 msg = new GetExamRequest(xml);
             } else if (tag.equals(GetExamReply.xmlTag())) {
                 msg = new GetExamReply(xml);
-            } else if (tag.equals(GetHomeworkRequest.xmlTag())) {
-                msg = new GetHomeworkRequest(xml);
-            } else if (tag.equals(GetHomeworkReply.xmlTag())) {
-                msg = new GetHomeworkReply(xml);
             } else if (tag.equals(GetReviewExamRequest.xmlTag())) {
                 msg = new GetReviewExamRequest(xml);
             } else if (tag.equals(GetReviewExamReply.xmlTag())) {
@@ -97,10 +93,6 @@ public enum MessageFactory {
                 msg = new PlacementStatusRequest(xml);
             } else if (tag.equals(PlacementStatusReply.xmlTag())) {
                 msg = new PlacementStatusReply(xml);
-            } else if (tag.equals(SubmitHomeworkRequest.xmlTag())) {
-                msg = new SubmitHomeworkRequest(xml);
-            } else if (tag.equals(SubmitHomeworkReply.xmlTag())) {
-                msg = new SubmitHomeworkReply(xml);
             } else if (tag.equals(SurveyStatusRequest.xmlTag())) {
                 msg = new SurveyStatusRequest(xml);
             } else if (tag.equals(SurveyStatusReply.xmlTag())) {

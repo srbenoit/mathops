@@ -4,10 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.installation.Installation;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * A server instance, with a specified base directory and configuration file name.
@@ -66,40 +64,6 @@ public final class ServerInstance {
     private boolean isLoaded() {
 
         return this.installation.isLoaded();
-    }
-
-    /**
-     * Gets the base directory.
-     *
-     * @return the base directory
-     */
-    public File getBaseDir() {
-
-        return this.installation.baseDir;
-    }
-
-//    /**
-//     * Gets the name of the configuration file.
-//     *
-//     * @return the configuration file
-//     */
-//    public String getCfgFile() {
-//
-//        return this.installation.cfgFile;
-//    }
-
-    /**
-     * Gets the loaded properties, which should contain at least the following.
-     *
-     * <ul>
-     * <li>public-dir (a directory path)
-     * </ul>
-     *
-     * @return the properties
-     */
-    public Properties getProperties() {
-
-        return this.installation.properties;
     }
 
     /**

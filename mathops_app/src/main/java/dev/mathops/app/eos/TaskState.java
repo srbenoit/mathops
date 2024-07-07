@@ -14,13 +14,13 @@ final class TaskState {
     final String label;
 
     /** The date/time the task was marked as completed. */
-    LocalDateTime whenCompleted;
+    LocalDateTime whenCompleted = null;
 
     /** The details text. */
-    String details;
+    String details = null;
 
     /** The notes text. */
-    String notes;
+    String notes = null;
 
     /**
      * Constructs a new {@code TaskState}.

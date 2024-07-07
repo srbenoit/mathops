@@ -160,10 +160,8 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final Cache cache, final AdminSite site, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now(),
-                RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
-                RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
-                RawRecordConstants.MATH126);
+        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now()
+        );
 
         final LiveSessionInfo live =
                 new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "none", ERole.STUDENT);
@@ -231,7 +229,7 @@ enum PageStudentSchedule {
         }
 
         if (newCourses) {
-            emitStudentScheduleNew(cache, data, studentId, max, htm);
+            emitStudentScheduleNew(cache, data, studentId, htm);
         } else {
             emitStudentScheduleOld(cache, data, studentId, max, htm);
         }
@@ -519,7 +517,7 @@ enum PageStudentSchedule {
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitStudentScheduleNew(final Cache cache, final SiteData data, final String studentId,
-                                               final int max, final HtmlBuilder htm) throws SQLException {
+                                               final HtmlBuilder htm) throws SQLException {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
         final String key = active.term.shortString;

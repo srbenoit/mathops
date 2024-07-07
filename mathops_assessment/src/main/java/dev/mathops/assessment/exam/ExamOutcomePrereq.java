@@ -2,7 +2,6 @@ package dev.mathops.assessment.exam;
 
 import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.formula.Formula;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;

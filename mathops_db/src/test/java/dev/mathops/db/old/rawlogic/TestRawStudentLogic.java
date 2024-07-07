@@ -1939,7 +1939,7 @@ final class TestRawStudentLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                assertTrue(RawStudentLogic.updateAdmission(cache, "111111111", "2", Boolean.TRUE),
+                assertTrue(RawStudentLogic.updateAdmission(cache, "111111111", "2"),
                         "updateAdmission failed");
 
                 final RawStudent stu = RawStudentLogic.query(cache, "111111111", false);

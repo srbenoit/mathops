@@ -135,7 +135,7 @@ public final class Fonts {
      * @param pointSize the point size
      * @return the font
      */
-    public Font getSizedStix(final int pointSize) {
+    Font getSizedStix(final int pointSize) {
 
         final Integer key = Integer.valueOf(pointSize);
 
@@ -158,40 +158,12 @@ public final class Fonts {
     }
 
     /**
-     * Gets font metrics corresponding to a sized version of the Stix font.
-     *
-     * @param pointSize the point size
-     * @return the font metrics
-     */
-    public FontMetrics getSizedStixMetrics(final int pointSize) {
-
-        final Integer key = Integer.valueOf(pointSize);
-
-        synchronized (this) {
-            FontMetrics result = this.serifSizedMetrics.get(key);
-
-            if (result == null) {
-                final Font onePt = loadOnePointStix();
-                if (onePt != null) {
-                    final Font f = onePt.deriveFont((float) pointSize);
-                    this.g2d.setFont(f);
-                    this.serifSized.put(key, f);
-                    result = this.g2d.getFontMetrics();
-                    this.serifSizedMetrics.put(key, result);
-                }
-            }
-
-            return result;
-        }
-    }
-
-    /**
      * Gets a sized version of the OpenSans font.
      *
      * @param pointSize the point size
      * @return the font
      */
-    public Font getSizedOpenSans(final int pointSize) {
+    Font getSizedOpenSans(final int pointSize) {
 
         final Integer key = Integer.valueOf(pointSize);
 
@@ -210,48 +182,6 @@ public final class Fonts {
             }
 
             return result;
-        }
-    }
-
-    /**
-     * Gets font metrics corresponding to a sized version of the OpenSans font.
-     *
-     * @param pointSize the point size
-     * @return the font metrics
-     */
-    public FontMetrics getSizedOpenSansMetrics(final int pointSize) {
-
-        final Integer key = Integer.valueOf(pointSize);
-
-        synchronized (this) {
-            FontMetrics result = this.sansMetrics.get(key);
-
-            if (result == null) {
-                final Font onePt = loadOnePointStix();
-                if (onePt != null) {
-                    final Font f = onePt.deriveFont((float) pointSize);
-                    this.g2d.setFont(f);
-                    this.sansSized.put(key, f);
-                    result = this.g2d.getFontMetrics();
-                    this.sansMetrics.put(key, result);
-                }
-            }
-
-            return result;
-        }
-    }
-
-    /**
-     * Gets the font metrics.
-     *
-     * @param font the font
-     * @return the metrics
-     */
-    public FontMetrics getMetrics(final Font font) {
-
-        synchronized (this) {
-            this.g2d.setFont(font);
-            return this.g2d.getFontMetrics();
         }
     }
 }

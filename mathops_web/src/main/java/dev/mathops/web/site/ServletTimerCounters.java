@@ -52,36 +52,6 @@ final class ServletTimerCounters {
     }
 
     /**
-     * Gets the access count.
-     *
-     * @return the access count
-     */
-    public int getAccessCount() {
-
-        return this.accessCount;
-    }
-
-    /**
-     * Gets the total elapsed time.
-     *
-     * @return the total elapsed time
-     */
-    public long getTotalElapsed() {
-
-        return this.totalElapsed;
-    }
-
-    /**
-     * Gets the longest elapsed time of a single transaction.
-     *
-     * @return the longest elapsed time
-     */
-    public long getLongest() {
-
-        return this.longest;
-    }
-
-    /**
      * Returns a copy of this object.
      *
      * @return the copy

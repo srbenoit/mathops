@@ -21,7 +21,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.util.ArrayList;
@@ -51,14 +50,8 @@ public class InternalPanelBase extends JInternalFrame {
     /** The object that is creating this panel. */
     private Object resOwner;
 
-    /** The name of the logged in user. */
+    /** The name of the logged-in user. */
     private final String username;
-
-    /** The set of listeners registered to receive action events. */
-    private final List<ActionListener> listeners;
-
-    /** A unique number to assign to each action event sent. */
-    private int eventId = 1;
 
     /**
      * Constructs a new {@code InternalPanelBase}.
@@ -72,7 +65,6 @@ public class InternalPanelBase extends JInternalFrame {
 
         this.resOwner = theResOwner;
         this.username = theUsername;
-        this.listeners = new ArrayList<>(1);
     }
 
     /**
@@ -91,7 +83,8 @@ public class InternalPanelBase extends JInternalFrame {
     public final void centerInDesktop() {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         final Container parent = getParent();
@@ -107,7 +100,8 @@ public class InternalPanelBase extends JInternalFrame {
     public void makeFullscreen() {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         final JDesktopPane desk = getDesktopPane();
@@ -127,54 +121,16 @@ public class InternalPanelBase extends JInternalFrame {
     }
 
     /**
-     * Add an action listener that will be notified whenever the panel fires an action. Each subclass will specify a set
-     * of actions it will fire. These can be used to detect when the user accepts or cancels a dialog, makes a
-     * selection, and so on. Typically, a client program that uses a subclass will create the object and register as a
-     * listener before showing the object, then enter a "wait". In the action performed method the waiting thread is
-     * interrupted, and processing continues.
-     *
-     * @param listener the action listener to register
-     */
-    public final void addActionListener(final ActionListener listener) {
-
-        // Protect modifications to the listeners list from thread interference
-        synchronized (this.listeners) {
-            this.listeners.add(listener);
-        }
-    }
-
-    /**
-     * Sends an action command to all registered action listeners.
-     *
-     * @param command the command to send
-     */
-    protected final void fireAction(final String command) {
-
-        if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
-        }
-
-        final ActionEvent event = new ActionEvent(this, this.eventId, command);
-        ++this.eventId;
-
-        // Protect modifications to listeners list from thread interference
-        synchronized (this.listeners) {
-            for (final ActionListener listener : this.listeners) {
-                listener.actionPerformed(event);
-            }
-        }
-    }
-
-    /**
      * Examines a set of standard properties settings and configure the frame. This includes setting the frame size,
      * building the border, and setting the background color or image.
      *
      * @param res the properties settings governing GUI look
      */
-    public void setupFrame(final Properties res) {
+    protected void setupFrame(final Properties res) {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         // Set the title, if any
@@ -235,28 +191,11 @@ public class InternalPanelBase extends JInternalFrame {
      * @param name the name of the label, used as a prefix to obtain the relevant resource settings
      * @return the created label
      */
-    public final JLabel createSingleLabel(final Properties res, final String name) {
+    protected final JLabel createSingleLabel(final Properties res, final String name) {
 
         final JLabel label = new JLabel();
 
         configureSingleLabel(res, label, name);
-
-        return label;
-    }
-
-    /**
-     * Creates and place a single label on the panel, applying all the style settings from the resource properties.
-     *
-     * @param res          the resource properties that store GUI settings
-     * @param name         the name of the label, used as a prefix to obtain the relevant resource settings
-     * @param overrideText the text for the label, overriding that in the skin
-     * @return the created label
-     */
-    public JLabel createSingleLabel(final Properties res, final String name, final String overrideText) {
-
-        final JLabel label = new JLabel();
-
-        configureSingleLabel(res, label, name, overrideText);
 
         return label;
     }

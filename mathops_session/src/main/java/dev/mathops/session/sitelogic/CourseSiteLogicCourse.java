@@ -46,11 +46,11 @@ import java.util.TreeSet;
  */
 public final class CourseSiteLogicCourse {
 
-    /** A course number. */
-    private static final String M160R = "M 160R";
+//    /** A course number. */
+//    private static final String M160R = "M 160R";
 
-    /** A course number. */
-    private static final String M161R = "M 161R";
+//    /** A course number. */
+//    private static final String M161R = "M 161R";
 
     /** A course number. */
     private static final String GUEST = "GUEST";

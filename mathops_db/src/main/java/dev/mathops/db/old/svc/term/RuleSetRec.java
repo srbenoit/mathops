@@ -1,6 +1,5 @@
 package dev.mathops.db.old.svc.term;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rec.ParsedRecFields;
 import dev.mathops.db.old.rec.RecBase;

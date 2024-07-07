@@ -1,16 +1,9 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -114,26 +107,6 @@ public final class StudentInfo extends LogicBase {
     }
 
     /**
-     * Gets the student's last name.
-     *
-     * @return the student's last name, or {@code null} if no student loaded
-     */
-    private String getLastName() {
-
-        return this.student == null ? null : this.student.lastName;
-    }
-
-    /**
-     * Gets the student's first name.
-     *
-     * @return the student's first name, or {@code null} if no student loaded
-     */
-    private String getFirstName() {
-
-        return this.student == null ? null : this.student.firstName;
-    }
-
-    /**
      * Gets the student's middle initial.
      *
      * @return the student's middle initial, or {@code null} if no student loaded
@@ -142,36 +115,6 @@ public final class StudentInfo extends LogicBase {
 
         return this.student == null ? null : this.student.middleInitial;
     }
-
-    /**
-     * Gets the student's ACT score.
-     *
-     * @return the student's ACT score, or {@code null} if none
-     */
-    public Integer getActScore() {
-
-        return this.student == null ? null : this.student.actScore;
-    }
-
-    /**
-     * Gets the student's SAT score.
-     *
-     * @return the student's SAT score, or {@code null} if none
-     */
-    public Integer getSatScore() {
-
-        return this.student == null ? null : this.student.satScore;
-    }
-
-//    /**
-//     * Gets the student's AP score.
-//     *
-//     * @return the student's AP score, or {@code null} if none
-//     */
-//    public String getApScore() {
-//
-//        return this.student == null ? null : this.student.apScore;
-//    }
 
     /**
      * Tests whether the student has passed the licensing exam.
@@ -193,51 +136,6 @@ public final class StudentInfo extends LogicBase {
         return this.pacingStructure == null || "Y".equals(this.pacingStructure.requireLicensed);
     }
 
-//    /**
-//     * Gets the date when the licensing exam will become available.
-//     *
-//     * @return the string representation of the date
-//     */
-//    public String getLicenseAvailableDate() {
-//
-//        final LocalDate now = LocalDate.now();
-//        String result;
-//
-//        if (this.cuSection == null) {
-//            result = "now";
-//        } else {
-//            LocalDate day = this.cuSection.firstTestDt;
-//
-//            if (now.isBefore(day)) {
-//                result = TemporalUtils.FMT_MDY.format(this.cuSection.firstTestDt);
-//            } else {
-//                day = this.cuSection.lastTestDt;
-//
-//                if (now.isAfter(day)) {
-//                    result = "at the beginning of the next term";
-//                } else {
-//                    result = "now";
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
-
-//    /**
-//     * Gets the pacing structure ID.
-//     *
-//     * @return the pacing structure ID
-//     */
-//    public String getPacingStructureId() {
-//
-//        if (this.student != null) {
-//            return this.student.pacingStructure;
-//        }
-//
-//        return RawPacingStructure.DEF_PACING_STRUCTURE;
-//    }
-
     /**
      * Gets the department the student is registered in.
      *
@@ -258,56 +156,36 @@ public final class StudentInfo extends LogicBase {
         return this.student == null ? null : this.student.college;
     }
 
-    ///**
-    // * Gets the student's major.
-    // *
-    // * @return the student's major
-    // */
-    // public String getMajor() {
-    //
-    // return (this.student == null) ? null : this.student.getMajor();
-    // }
-
-    ///**
-    // * Gets the student's minor.
-    // *
-    // * @return the student's minor
-    // */
-    // public String getMinor() {
-    //
-    // return (this.student == null) ? null : this.student.getMinor();
-    // }
-
-    /**
-     * Main method for testing.
-     *
-     * @param args Command-line arguments.
-     */
-    public static void main(final String... args) {
-
-        final ContextMap map = ContextMap.getDefaultInstance();
-        DbConnection.registerDrivers();
-
-        final WebSiteProfile siteProfile = map.getWebSiteProfile(Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH);
-        if (siteProfile != null) {
-            final StudentInfo bean = new StudentInfo(siteProfile.dbProfile);
-
-            final DbContext ctx = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-            try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(siteProfile.dbProfile, conn);
-
-                try {
-                    bean.gatherData(cache, "guest");
-                    Log.info(bean.getFirstName());
-                    Log.info(bean.getLastName());
-                    Log.info(Boolean.toString(bean.isLicensed()));
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-            }
-        }
-    }
+//    /**
+//     * Main method for testing.
+//     *
+//     * @param args Command-line arguments.
+//     */
+//    public static void main(final String... args) {
+//
+//        final ContextMap map = ContextMap.getDefaultInstance();
+//        DbConnection.registerDrivers();
+//
+//        final WebSiteProfile siteProfile = map.getWebSiteProfile(Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH);
+//        if (siteProfile != null) {
+//            final StudentInfo bean = new StudentInfo(siteProfile.dbProfile);
+//
+//            final DbContext ctx = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+//            try {
+//                final DbConnection conn = ctx.checkOutConnection();
+//                final Cache cache = new Cache(siteProfile.dbProfile, conn);
+//
+//                try {
+//                    bean.gatherData(cache, "guest");
+//                    Log.info(bean.getFirstName());
+//                    Log.info(bean.getLastName());
+//                    Log.info(Boolean.toString(bean.isLicensed()));
+//                } finally {
+//                    ctx.checkInConnection(conn);
+//                }
+//            } catch (final SQLException ex) {
+//                Log.warning(ex);
+//            }
+//        }
+//    }
 }

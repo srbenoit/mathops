@@ -6,7 +6,6 @@ import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;

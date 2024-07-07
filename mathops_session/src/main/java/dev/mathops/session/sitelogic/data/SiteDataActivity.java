@@ -85,32 +85,6 @@ public final class SiteDataActivity {
     }
 
     /**
-     * Gets all student submitted homework assignments for a particular course.
-     *
-     * @param courseId the course ID
-     * @return the list of submitted homework, ordered by date/time
-     */
-    public List<RawSthomework> getStudentHomeworks(final String courseId) {
-
-        final List<RawSthomework> result;
-
-        final Map<Integer, Map<Integer, List<RawSthomework>>> map1 = this.studentHomework.get(courseId);
-
-        if (map1 == null) {
-            result = new ArrayList<>(0);
-        } else {
-            result = new ArrayList<>(100);
-            for (final Map<Integer, List<RawSthomework>> map2 : map1.values()) {
-                for (final List<RawSthomework> rawSthomeworks : map2.values()) {
-                    result.addAll(rawSthomeworks);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Gets all student submitted homework assignments for a particular course, unit, and objective.
      *
      * @param courseId  the course ID

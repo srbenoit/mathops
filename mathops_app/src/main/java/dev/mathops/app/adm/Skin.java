@@ -117,16 +117,10 @@ public enum Skin {
     public static final Color OFF_WHITE_BROWN = new Color(250, 243, 235);
 
     /** A color for backgrounds. */
-    public static final Color OFF_WHITE_SEA = new Color(235, 250, 242);
-
-    /** A color for backgrounds. */
     public static final Color OFF_WHITE_GRAY = new Color(235, 235, 235);
 
     /** A color for backgrounds. */
     /* default */ static final Color TABLE_ROW_HIGHLIGHT = new Color(244, 244, 244);
-
-    /** A color for backgrounds. */
-    /* default */ static final Color TABLE_HEADER_HIGHLIGHT = new Color(250, 250, 210);
 
     /** A color for backgrounds. */
     public static final Color WHITE = new Color(255, 255, 255);
@@ -165,9 +159,6 @@ public enum Skin {
     public static final Color LT_BROWN = new Color(243, 181, 120);
 
     /** A color for backgrounds. */
-    public static final Color LT_SEA = new Color(120, 243, 182);
-
-    /** A color for backgrounds. */
     public static final Color LIGHTER_YELLOW = new Color(0xFF, 0xFF, 0xE0);
 
     /** A color for backgrounds. */
@@ -181,9 +172,6 @@ public enum Skin {
 
     /** A color for backgrounds. */
     public static final Color DARK = new Color(128, 128, 128);
-
-    /** A color for backgrounds. */
-    public static final Color BLACK = Color.BLACK;
 
     /** Background color for fields with no error. */
     public static final Color FIELD_BG = Color.WHITE;

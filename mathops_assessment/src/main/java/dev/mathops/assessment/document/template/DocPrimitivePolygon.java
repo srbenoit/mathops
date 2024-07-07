@@ -11,9 +11,7 @@ import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
 
@@ -535,7 +533,7 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance primitive object; null if unable to create the instance
+     * @return the instance primitive object
      */
     @Override
     public DocPrimitivePolygonInst createInstance(final EvalContext evalContext) {

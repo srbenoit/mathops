@@ -596,21 +596,6 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
     }
 
     /**
-     * Controls whether the answers and solutions are visible.
-     *
-     * @param answersVisible   {@code true} if answers should be made visible; {@code false} otherwise
-     * @param solutionsVisible {@code true} if solutions should be made visible; {@code false} otherwise
-     * @param buttonText       the text to put on the bottom bar button
-     */
-    public final void setAnswersVisible(final boolean answersVisible, final boolean solutionsVisible,
-                                        final String buttonText) {
-
-        this.currentProblem.setShowAnswersAndSolutions(answersVisible, solutionsVisible);
-        this.bottom.setButtonLabel("Grade", buttonText);
-        repaint();
-    }
-
-    /**
      * Make the window render larger, up to some limit.
      */
     public final void larger() {

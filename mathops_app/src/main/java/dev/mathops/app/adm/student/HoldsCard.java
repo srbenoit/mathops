@@ -45,9 +45,6 @@ import java.util.Objects;
     /** The data cache. */
     private final Cache cache;
 
-    /** The fixed data. */
-    private final FixedData fixed;
-
     /** The current student data. */
     private StudentData data;
 
@@ -64,15 +61,13 @@ import java.util.Objects;
      * @param theFixed         the fixed data
      * @param theListener      the listener to notify when the "Add" button is pressed
      */
-    /* default */ HoldsCard(final Cache theCache, final FixedData theFixed,
-                            final ActionListener theListener) {
+    HoldsCard(final Cache theCache, final FixedData theFixed, final ActionListener theListener) {
 
         super(new BorderLayout(10, 10));
 
         setBackground(Skin.WHITE);
 
         this.cache = theCache;
-        this.fixed = theFixed;
 
         int perm = 5;
         for (final RawUserClearance p : theFixed.userPermissions) {
@@ -167,8 +162,8 @@ import java.util.Objects;
         final JPanel panel = new JPanel(new BorderLayout());
 
         panel.setBackground(Skin.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(//
-                BorderFactory.createEtchedBorder(), //
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         final JLabel[] lbls = new JLabel[5];

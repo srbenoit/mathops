@@ -2,7 +2,6 @@ package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.type.TermKey;
 
@@ -20,9 +19,6 @@ public final class SiteDataContext {
     /** The cache. */
     private final Cache cache;
 
-    /** Map from course ID to cached course. */
-    private final Map<String, RawCourse> courses;
-
     /** Map from term key to a list of cached course section records. */
     private final Map<TermKey, List<RawCsection>> courseSections;
 
@@ -34,32 +30,7 @@ public final class SiteDataContext {
     SiteDataContext(final Cache theCache) {
 
         this.cache = theCache;
-        this.courses = new HashMap<>(10);
         this.courseSections = new HashMap<>(3);
-    }
-
-    /**
-     * Gets the course record for a course in the context.
-     *
-     * @param courseId the ID of the course
-     * @return the course record; null if none found
-     */
-    public RawCourse getCourse(final String courseId) {
-
-        RawCourse result = this.courses.get(courseId);
-
-        if (result == null) {
-            try {
-                result = this.cache.getSystemData().getCourse(courseId);
-                if (result != null) {
-                    this.courses.put(courseId, result);
-                }
-            } catch (final SQLException ex) {
-                Log.severe("Failed to query for course", ex);
-            }
-        }
-
-        return result;
     }
 
     /**

@@ -1,7 +1,6 @@
 package dev.mathops.web.site.ramwork;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
@@ -18,11 +17,9 @@ enum PageAssessmentDev {
      *
      * @param req     the request
      * @param resp    the response
-     * @param session the session
      * @throws IOException  if there is an error writing the response
      */
-    static void showPage(final ServletRequest req, final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException {
+    static void showPage(final ServletRequest req, final HttpServletResponse resp) throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
 

@@ -410,10 +410,8 @@ final class AdminHoldForm extends AbstractForm implements ListSelectionListener 
          */
         void addData(final Collection<? extends GenericRecord> data) {
 
-            final int size = data.size();
-
             for (final GenericRecord rec : data) {
-                final String[] row = new String[9];
+                final String[] row = new String[5];
 
                 row[0] = objToString(rec.get(RawAdminHold.FLD_STU_ID));
                 row[1] = objToString(rec.get(RawAdminHold.FLD_HOLD_ID));

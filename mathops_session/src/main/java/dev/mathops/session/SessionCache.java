@@ -339,7 +339,7 @@ public class SessionCache {
      * @return the session change result, with the updated immutable session info that was changed, or an error message
      *         on failure
      */
-    public SessionResult setTimeOffset(final String sessionId, final long timeOffset) {
+    public final SessionResult setTimeOffset(final String sessionId, final long timeOffset) {
 
         final SessionResult result;
 

@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rec.RecBase;
 
@@ -70,13 +69,6 @@ public final class RawCampusCalendar extends RecBase implements Comparable<RawCa
 
     /** When tutorial information becomes available. */
     public static final String DT_DESC_TUT_INFO = "tut_info";
-
-    /** The first date winter precalculus tutorial site will be open. */
-    public static final String DT_DESC_WINTER_PCT_START = "winter_pct_start";
-
-    /** The last date winter precalculus tutorial site will be open. */
-    public static final String DT_DESC_WINTER_PCT_END = "winter_pct_end";
-
     /** Walk-in placement exam session. */
     public static final String DT_DESC_WALKIN_PLACEMENT = "walk_in";
 
@@ -97,9 +89,6 @@ public final class RawCampusCalendar extends RecBase implements Comparable<RawCa
 
     /** Last date of the third upcoming placement website maintenance window. */
     public static final String DT_DESC_PLACEMENT_MAINT_END3 = "plc_maint_end3";
-
-    /** Last date students can add Summer courses (only present in SM terms). */
-    public static final String DT_DESC_SM_LAST_ADD = "sm_last_add";
 
     /** The 'campus_dt' field value. */
     public LocalDate campusDt;

@@ -733,60 +733,6 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     }
 
     /**
-     * For paper exams, we permit the optional issuance of a calculator. This method is called only if the course
-     * selected is "PAPER".
-     *
-     * @return {@code true} if a calculator was issued or opted out of, {@code false} if the issuance was canceled
-     */
-    private boolean scanCalculator() {
-
-        final HtmlBuilder htm = new HtmlBuilder(100);
-
-        htm.add("Assigning ", this.info.selections.course);
-
-        if (this.info.selections.unit != 0) {
-            final String unitStr = Integer.toString(this.info.selections.unit);
-            htm.add(" unit ", unitStr);
-        }
-
-        htm.add(" at station ", this.info.selections.reservedSeat);
-
-        final String htmStr = htm.toString();
-        final String cmd = PopupPanel.showPopupMessage(this, this.center, htmStr, null,
-                "Scan calculator if one is required:", PopupPanel.STYLE_OK_CANCEL);
-
-        if ("Cancel".equalsIgnoreCase(cmd)) {
-            return false;
-        }
-
-        if ("Ok".equalsIgnoreCase(cmd)) {
-            return true;
-        }
-
-        // See if the calculator number is valid.
-        final int id;
-
-        try {
-            id = Integer.parseInt(cmd);
-        } catch (final NumberFormatException e) {
-            PopupPanel.showPopupMessage(this, this.center, "Invalid calculator number", null, "Try again...",
-                    PopupPanel.STYLE_OK);
-
-            return false;
-        }
-
-        // FIXME: Hardcodes - make table-driven
-        if (id < 1101 || id > 1300) {
-            PopupPanel.showPopupMessage(this, this.center, "Invalid calculator number", null, "Try again...",
-                    PopupPanel.STYLE_OK);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * For non-paper exams, where we do not issue a calculator, we must confirm issuance. to ensure the checkin staff
      * did not click the wrong exam button. On confirmation, set the selected testing station to begin the exam. This
      * method is called only if the selected course is not "PAPER".

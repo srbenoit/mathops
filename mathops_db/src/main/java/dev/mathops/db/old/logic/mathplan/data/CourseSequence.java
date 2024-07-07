@@ -602,7 +602,7 @@ public final class CourseSequence {
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
-                if (!isPrereqMet(prereq, this.preArrivalCourses, this.preArrivalCourses, null, null, false)) {
+                if (isPrereqNeeded(prereq, this.preArrivalCourses, this.preArrivalCourses, null, null, false)) {
                     final String courseToAdd = prereq.prereqCourses.getFirst();
 
                     final RawCourse crs = courseData.get(courseToAdd);
@@ -635,7 +635,7 @@ public final class CourseSequence {
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
-                if (!isPrereqMet(prereq, this.semester1Courses, this.preArrivalCourses, this.semester1CourseGroups,
+                if (isPrereqNeeded(prereq, this.semester1Courses, this.preArrivalCourses, this.semester1CourseGroups,
                         null, false)) {
                     final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
@@ -677,7 +677,7 @@ public final class CourseSequence {
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
-                if (!isPrereqMet(prereq, this.semester2Courses, prior, this.semester2CourseGroups,
+                if (isPrereqNeeded(prereq, this.semester2Courses, prior, this.semester2CourseGroups,
                         this.semester1CourseGroups, false)) {
                     final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
@@ -724,7 +724,7 @@ public final class CourseSequence {
         final List<RequiredPrereq> prereqList = prereqData.get(course);
         if (prereqList != null) {
             for (final RequiredPrereq prereq : prereqList) {
-                if (!isPrereqMet(prereq, this.additionalCourses, prior, this.additionalCourseGroups, priorGroups,
+                if (isPrereqNeeded(prereq, this.additionalCourses, prior, this.additionalCourseGroups, priorGroups,
                         true)) {
                     final String courseToAdd = prereq.prereqCourses.getFirst();
                     final RawCourse crs = courseData.get(courseToAdd);
@@ -769,15 +769,14 @@ public final class CourseSequence {
             final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
-                final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups
-                        , null,
-                        false);
+                final boolean unsatisfied = isPickOneGroupPrereqNeeded(group, prereqData, current, prior, currentGroups,
+                        null, false);
 
                 if (unsatisfied) {
                     // Add the prerequisites for the first course
                     for (final RequiredPrereq prereq : prereqData.get(courseNumbers.getFirst())) {
 
-                        if (!isPrereqMet(prereq, current, prior, this.semester1CourseGroups, null, false)) {
+                        if (isPrereqNeeded(prereq, current, prior, this.semester1CourseGroups, null, false)) {
                             // Add the prerequisite course and check its prerequisites
                             final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
@@ -819,7 +818,7 @@ public final class CourseSequence {
                         final List<RequiredPrereq> prereqList = prereqData.get(course);
                         if (prereqList != null) {
                             for (final RequiredPrereq prereq : prereqList) {
-                                if (!isPrereqMet(prereq, current, prior, currentGroups, null, false)) {
+                                if (isPrereqNeeded(prereq, current, prior, currentGroups, null, false)) {
                                     // Add the prerequisite course and check its prerequisites
                                     final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
@@ -880,14 +879,14 @@ public final class CourseSequence {
             final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
-                final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups,
+                final boolean unsatisfied = isPickOneGroupPrereqNeeded(group, prereqData, current, prior, currentGroups,
                         priorGroups, false);
 
                 if (unsatisfied) {
                     // Add the prerequisites for the first course
                     for (final RequiredPrereq prereq : prereqData.get(courseNumbers.getFirst())) {
 
-                        if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, false)) {
+                        if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, false)) {
                             // Add the prerequisite course and check its prerequisites
                             final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
@@ -929,7 +928,7 @@ public final class CourseSequence {
                         final List<RequiredPrereq> prereqList = prereqData.get(course);
                         if (prereqList != null) {
                             for (final RequiredPrereq prereq : prereqList) {
-                                if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, false)) {
+                                if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, false)) {
                                     // Add the prerequisite course and check its prerequisites
                                     final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
@@ -991,7 +990,7 @@ public final class CourseSequence {
             final List<String> courseNumbers = group.getCourseNumbers();
             if (group.getNumCredits() == null) {
                 // "Pick one course from this list" - see if any course has prereqs satisfied
-                final boolean unsatisfied = !isPickOneGroupPrereqMet(group, prereqData, current, prior, currentGroups,
+                final boolean unsatisfied = isPickOneGroupPrereqNeeded(group, prereqData, current, prior, currentGroups,
                         priorGroups, true);
 
                 if (unsatisfied) {
@@ -999,7 +998,7 @@ public final class CourseSequence {
                     final String first = courseNumbers.getFirst();
                     for (final RequiredPrereq prereq : prereqData.get(first)) {
 
-                        if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, true)) {
+                        if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, true)) {
                             // Add the prerequisite course and check its prerequisites
                             final String courseToAdd = prereq.prereqCourses.getFirst();
                             final RawCourse crs = courseData.get(courseToAdd);
@@ -1036,7 +1035,7 @@ public final class CourseSequence {
                         final List<RequiredPrereq> prereqList = prereqData.get(course);
                         if (prereqList != null) {
                             for (final RequiredPrereq prereq : prereqList) {
-                                if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, true)) {
+                                if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, true)) {
                                     // Add the prerequisite course and check its prerequisites
                                     final String courseToAdd = prereq.prereqCourses.getFirst();
                                     final RawCourse crs = courseData.get(courseToAdd);
@@ -1062,7 +1061,7 @@ public final class CourseSequence {
     }
 
     /**
-     * Tests whether the courses in the current term and all prior terms satisfy a prerequisite.
+     * Tests whether the prerequisite for a course is not yet satisfied.
      *
      * @param req           the required prerequisite
      * @param current       courses in the current term
@@ -1071,15 +1070,15 @@ public final class CourseSequence {
      * @param priorGroups   course groups in the prior term
      * @param isAdditional  true if we're working in the "additional" block, where all courses may be considered as "not
      *                      concurrent"
-     * @return {@code true} if the prerequisite is met
+     * @return {@code true} if the prerequisite is not yet satisfied
      */
-    private static boolean isPrereqMet(final RequiredPrereq req, final Map<String, CourseInfo> current,
-                                       final Map<String, CourseInfo> prior,
-                                       final Iterable<CourseInfoGroup> currentGroups,
-                                       final Iterable<CourseInfoGroup> priorGroups,
-                                       final boolean isAdditional) {
+    private static boolean isPrereqNeeded(final RequiredPrereq req, final Map<String, CourseInfo> current,
+                                          final Map<String, CourseInfo> prior,
+                                          final Iterable<CourseInfoGroup> currentGroups,
+                                          final Iterable<CourseInfoGroup> priorGroups,
+                                          final boolean isAdditional) {
 
-        boolean met = false;
+        boolean prereqNeeded = true;
 
         // Prerequisite is met if ANY courses in the prerequisite list are present (they can be
         // in the current term only if they can be taken concurrently)
@@ -1088,16 +1087,16 @@ public final class CourseSequence {
         for (final String reqCourse : reqCourses) {
             if (Boolean.TRUE.equals(req.mayBeConcurrent) || isAdditional) {
                 if (current.containsKey(reqCourse) || prior.containsKey(reqCourse)) {
-                    met = true;
+                    prereqNeeded = false;
                     break;
                 }
             } else if (prior.containsKey(reqCourse)) {
-                met = true;
+                prereqNeeded = false;
                 break;
             }
         }
 
-        if (!met && Boolean.TRUE.equals(req.mayBeConcurrent) && currentGroups != null) {
+        if (prereqNeeded && Boolean.TRUE.equals(req.mayBeConcurrent) && currentGroups != null) {
             for (final CourseInfoGroup group : currentGroups) {
                 if (group.getNumCredits() == null) {
                     final List<String> courseNumbers = group.getCourseNumbers();
@@ -1110,14 +1109,14 @@ public final class CourseSequence {
                     }
 
                     if (satisfied) {
-                        met = true;
+                        prereqNeeded = false;
                         break;
                     }
                 }
             }
         }
 
-        if (!met && priorGroups != null) {
+        if (prereqNeeded && priorGroups != null) {
             for (final CourseInfoGroup group : priorGroups) {
                 if (group.getNumCredits() == null) {
                     final List<String> courseNumbers = group.getCourseNumbers();
@@ -1130,18 +1129,18 @@ public final class CourseSequence {
                     }
 
                     if (satisfied) {
-                        met = true;
+                        prereqNeeded = false;
                         break;
                     }
                 }
             }
         }
 
-        return met;
+        return prereqNeeded;
     }
 
     /**
-     * Tests whether the prerequisites for a course group have been met.
+     * Tests whether the prerequisites for a course group have not yet been met.
      *
      * @param group         the course group to test
      * @param prereqData    a map from course ID to list of course prerequisites
@@ -1151,35 +1150,35 @@ public final class CourseSequence {
      * @param priorGroups   course groups in the prior term
      * @param isAdditional  true if we're working in the "additional" block, where all courses may be considered as "not
      *                      concurrent"
-     * @return {@code true} if the prerequisite is met
+     * @return {@code true} if the prerequisite is nt yet met
      */
-    private static boolean isPickOneGroupPrereqMet(final CourseInfoGroup group,
-                                                   final Map<String, ? extends List<RequiredPrereq>> prereqData,
-                                                   final Map<String, CourseInfo> current,
-                                                   final Map<String, CourseInfo> prior,
-                                                   final Iterable<CourseInfoGroup> currentGroups,
-                                                   final Iterable<CourseInfoGroup> priorGroups,
-                                                   final boolean isAdditional) {
+    private static boolean isPickOneGroupPrereqNeeded(final CourseInfoGroup group,
+                                                      final Map<String, ? extends List<RequiredPrereq>> prereqData,
+                                                      final Map<String, CourseInfo> current,
+                                                      final Map<String, CourseInfo> prior,
+                                                      final Iterable<CourseInfoGroup> currentGroups,
+                                                      final Iterable<CourseInfoGroup> priorGroups,
+                                                      final boolean isAdditional) {
 
-        boolean met = false;
+        boolean needed = true;
 
         for (final String course : group.getCourseNumbers()) {
-            met = true;
+            needed = false;
             final List<RequiredPrereq> prereqList = prereqData.get(course);
             if (prereqList != null) {
                 for (final RequiredPrereq prereq : prereqList) {
-                    if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, isAdditional)) {
-                        met = false;
+                    if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, isAdditional)) {
+                        needed = true;
                         break;
                     }
                 }
             }
-            if (met) {
+            if (!needed) {
                 break;
             }
         }
 
-        return met;
+        return needed;
     }
 
     /**
@@ -1284,7 +1283,7 @@ public final class CourseSequence {
                 final List<RequiredPrereq> prereqList = prereqData.get(course);
                 if (prereqList != null) {
                     for (final RequiredPrereq prereq : prereqList) {
-                        if (!isPrereqMet(prereq, current, prior, currentGroups, priorGroups, isAdditional)) {
+                        if (isPrereqNeeded(prereq, current, prior, currentGroups, priorGroups, isAdditional)) {
                             allprereqsmet = false;
                             break;
                         }

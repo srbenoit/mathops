@@ -176,7 +176,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -222,7 +222,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -246,7 +246,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -298,7 +298,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -324,7 +324,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -370,7 +370,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr05(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -394,7 +394,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -441,7 +441,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -467,7 +467,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLXsr00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -510,7 +510,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLXsr01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -550,7 +550,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLXsr02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -586,7 +586,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLXsr03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -613,7 +613,7 @@ public enum LateMessageSkillsReviewFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateSKLRsr99(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

@@ -92,9 +92,6 @@ final class LogicCheckInCourseExams {
     /** A commonly used string. */
     private static final String OPENS = "Opens ";
 
-    /** A commonly used string. */
-    private static final String CLOSED = "Closed ";
-
     /** The current day number. */
     private final LocalDate today;
 
@@ -212,7 +209,6 @@ final class LogicCheckInCourseExams {
 
         final String stuId = this.checkInData.studentData.stuId;
 
-        final List<RawStcourse> priorRegs = RawStcourseLogic.getAllPrior(cache, stuId, this.activeTerm.term);
         final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(cache, stuId);
 
         for (final CourseNumbers numbers : CourseNumbers.COURSES) {
@@ -289,7 +285,6 @@ final class LogicCheckInCourseExams {
                     }
 
                     if (numbers != null) {
-                        final boolean isNew = numbers.isNew(reg.course);
                         final DataCourseExams data = this.checkInData.getCourseExams(numbers);
 
                         boolean eligible = true;

@@ -1,6 +1,5 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.TemporalUtils;
 
 import java.time.LocalDate;

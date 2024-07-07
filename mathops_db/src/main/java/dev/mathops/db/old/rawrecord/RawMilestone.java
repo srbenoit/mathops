@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
 
@@ -244,16 +243,6 @@ public final class RawMilestone extends RawTermRecordBase implements Comparable<
         result.nbrAtmptsAllow = getIntegerField(rs, FLD_NBR_ATMPTS_ALLOW);
 
         return result;
-    }
-
-    /**
-     * Gets the pace from the milestone number (the first digit is pace).
-     *
-     * @return the pace (1 to 5)
-     */
-    public int getPace() {
-
-        return this.msNbr.intValue() / 100;
     }
 
     /**

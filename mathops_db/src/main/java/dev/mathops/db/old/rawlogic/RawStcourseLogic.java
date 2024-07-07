@@ -76,9 +76,6 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     /** The active term. */
     private static TermRec activeTerm;
 
-    /** The past term. */
-    private static TermKey pastTermKey;
-
     /**
      * Private constructor to prevent direct instantiation.
      */
@@ -1087,7 +1084,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
         }
 
         final boolean doCurrent = term == null || term.equals(activeTerm.term);
-        final boolean doPast = term == null || term.equals(pastTermKey);
+        final boolean doPast = term == null;
 
         List<RawStcourse> result = new ArrayList<>(1);
 

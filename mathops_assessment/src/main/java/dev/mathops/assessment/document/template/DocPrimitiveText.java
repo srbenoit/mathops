@@ -9,7 +9,6 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.commons.ui.ColorNames;

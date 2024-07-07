@@ -9,7 +9,6 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputInteger;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -334,7 +333,7 @@ public final class DocInputLongField extends AbstractDocInputField {
             x += 2;
         }
 
-        if (!isHidden()) {
+        if (isVisible()) {
             final int[] charPositions = getCharPositions();
 
             if (charPositions != null && this.selectStart != -1 && this.selectEnd != -1) {
@@ -418,7 +417,7 @@ public final class DocInputLongField extends AbstractDocInputField {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocInputLongFieldInst createInstance(final EvalContext evalContext) {

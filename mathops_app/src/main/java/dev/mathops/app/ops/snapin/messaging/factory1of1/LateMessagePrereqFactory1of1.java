@@ -111,7 +111,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -144,7 +144,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -172,7 +172,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -200,7 +200,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -238,7 +238,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -271,7 +271,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr05(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -303,7 +303,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -345,7 +345,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -399,7 +399,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr08(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -431,7 +431,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr09(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -460,7 +460,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr10(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -490,7 +490,7 @@ enum LateMessagePrereqFactory1of1 {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generatePREQpr11(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

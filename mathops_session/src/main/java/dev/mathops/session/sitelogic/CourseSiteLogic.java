@@ -77,16 +77,6 @@ public final class CourseSiteLogic {
     }
 
     /**
-     * Gets the database profile under which the logic gathered data.
-     *
-     * @return the database profile
-     */
-    public DbProfile getDbProfile() {
-
-        return this.siteProfile.dbProfile;
-    }
-
-    /**
      * Sets the error message in the event of a failure.
      *
      * @param theError the error message
@@ -127,7 +117,7 @@ public final class CourseSiteLogic {
         final DbProfile profile = getSiteProfile().dbProfile;
 
         final ZonedDateTime now = this.sessionInfo.getNow();
-        final SiteData theData = new SiteData(profile, now, this.courses);
+        final SiteData theData = new SiteData(profile, now);
 
         // First, do all database queries we'll need, so we get as close to a consistent image of the data as we can.
         final boolean success = theData.load(this.sessionInfo);

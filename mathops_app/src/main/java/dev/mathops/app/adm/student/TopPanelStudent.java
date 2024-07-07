@@ -18,7 +18,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
-import java.sql.SQLException;
 
 /**
  * The top-most panel within the "Students" tab.
@@ -140,13 +139,13 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
         this.cardPickStudent = new CardPickStudent(this, theCache, theFixed);
         this.cardPane.add(this.cardPickStudent, PICK_CMD);
 
-        this.cardStudentDetail = new CardStudentDetail(theCache, liveContext, theFixed, theRenderingHint);
+        this.cardStudentDetail = new CardStudentDetail(theCache, liveContext, theFixed);
         this.cardPane.add(this.cardStudentDetail, CURSTU_CMD);
 
         this.cardPopulations = new CardPopulations(theCache);
         this.cardPane.add(this.cardPopulations, POPULATION_CMD);
 
-        this.cardPopulationDetail = new CardPopulationDetail(theCache, liveContext, theFixed, theRenderingHint);
+        this.cardPopulationDetail = new CardPopulationDetail(theCache, liveContext, theFixed);
         this.cardPane.add(this.cardPopulationDetail, CURPOP_CMD);
 
         this.cards.show(this.cardPane, PICK_CMD);

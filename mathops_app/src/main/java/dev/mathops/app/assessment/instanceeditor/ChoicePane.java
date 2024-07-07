@@ -71,7 +71,7 @@ public final class ChoicePane extends JPanel implements ActionListener {
 
         topFlow.add(new JLabel("   Correctness Formula:"));
         final FormulaEditorPanel correctnessFormula = new FormulaEditorPanel(fontSize, formulaInsets, theChoice.correct,
-                theProblem.evalContext, EType.BOOLEAN);
+                EType.BOOLEAN);
         topFlow.add(correctnessFormula);
 
         topFlow.add(new JLabel("    "));

@@ -100,16 +100,12 @@ public final class PlacementExamSessionStore {
      */
     public void setPlacementExamSession(final PlacementExamSession theSession) {
 
-        boolean result = false;
-
         synchronized (this.studentPlacementExams) {
             if (!theSession.isTimedOut()
                     && !this.studentPlacementExams.containsKey(theSession.studentId)) {
                 this.studentPlacementExams.put(theSession.studentId, theSession);
-                result = true;
             }
         }
-
     }
 
     /**

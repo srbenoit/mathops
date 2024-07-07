@@ -184,7 +184,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -268,7 +268,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -284,7 +284,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -316,7 +316,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -403,7 +403,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -419,7 +419,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -451,7 +451,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Xre00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -591,7 +591,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Xre03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -622,7 +622,7 @@ public enum LateMessageRE2Factory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateRE2Rre99(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

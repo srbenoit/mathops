@@ -3,7 +3,6 @@ package dev.mathops.assessment.formula.edit;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.formula.Formula;
-import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -140,11 +139,10 @@ public final class FormulaEditorPanel extends JPanel
      * @param theFontSize  the font size for the generated object
      * @param theInsets    the insets for the contained formula UI object
      * @param initialValue the initial formula to display
-     * @param evalContext  an evaluation context with variable names from which to select
      * @param theTypes     the types of formula this panel will edit; null to allow all types
      */
     public FormulaEditorPanel(final int theFontSize, final Insets theInsets,
-                              final Formula initialValue, final EvalContext evalContext, final EType... theTypes) {
+                              final Formula initialValue, final EType... theTypes) {
 
         this(theFontSize, theInsets, theTypes);
 

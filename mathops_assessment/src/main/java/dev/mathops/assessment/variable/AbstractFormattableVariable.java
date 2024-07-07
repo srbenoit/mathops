@@ -1,9 +1,7 @@
 package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.EType;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 import java.text.DecimalFormat;
 import java.util.Locale;

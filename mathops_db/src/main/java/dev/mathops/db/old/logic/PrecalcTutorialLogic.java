@@ -90,43 +90,6 @@ public class PrecalcTutorialLogic {
     }
 
     /**
-     * Constructs a new {@code PrecalcTutorialLogic} when the student record is present.
-     *
-     * @param cache       the data cache
-     * @param theStudent  the student record
-     * @param today       the date/time to consider "now"
-     * @param prereqLogic prerequisite logic
-     * @throws SQLException if there is an error accessing the database
-     */
-    public PrecalcTutorialLogic(final Cache cache, final RawStudent theStudent,
-                                final LocalDate today, final PrerequisiteLogic prereqLogic) throws SQLException {
-
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache may not be null");
-        }
-        if (theStudent == null) {
-            throw new IllegalArgumentException("Student record may not be null");
-        }
-        if (today == null) {
-            throw new IllegalArgumentException("Current date may not be null");
-        }
-
-        this.student = theStudent;
-        this.studentId = theStudent.stuId;
-        this.status = new PrecalcTutorialStatus();
-
-        // We need placement attempts and credit to determine tutorial eligibility
-        this.allPlacementAttempts = RawStmpeLogic.queryLegalByStudent(cache, this.studentId);
-
-        this.allCreditEarned = RawMpeCreditLogic.queryByStudent(cache, this.studentId);
-
-        // Special student status can allow a non-incoming student to access Precalc Tutorials
-        this.allSpecials = RawSpecialStusLogic.queryActiveByStudent(cache, this.studentId, today);
-
-        computeStatus(cache, prereqLogic, today);
-    }
-
-    /**
      * Computes the status over all tutorials.
      *
      * <p>

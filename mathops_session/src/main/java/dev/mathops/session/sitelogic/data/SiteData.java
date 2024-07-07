@@ -18,14 +18,8 @@ import java.time.ZonedDateTime;
  */
 public final class SiteData {
 
-    /** A zero-length array used in construction of other arrays. */
-    private static final String[] ZERO_LEN_STRING_ARR = new String[0];
-
     /** The database profile. */
     private final DbProfile dbProfile;
-
-    /** The courses to include. */
-    private final String[] courses;
 
     /** The date/time to consider "now". */
     public final ZonedDateTime now;
@@ -59,12 +53,10 @@ public final class SiteData {
      *
      * @param theDbProfile the database profile (host, path, and DbProfile)
      * @param theNow       the date/time to consider now
-     * @param theCourses   the courses to include
      */
-    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow, final String... theCourses) {
+    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow) {
 
         this.now = theNow;
-        this.courses = theCourses == null ? ZERO_LEN_STRING_ARR : theCourses.clone();
         this.dbProfile = theDbProfile;
 
         this.studentData = new SiteDataStudent(this);
@@ -73,16 +65,6 @@ public final class SiteData {
         this.courseData = new SiteDataCourse(this);
         this.activityData = new SiteDataActivity(this);
         this.statusData = new SiteDataStatus(this);
-    }
-
-    /**
-     * Gets the list of courses to include.
-     *
-     * @return the array of courses
-     */
-    public String[] getCourses() {
-
-        return this.courses.clone();
     }
 
     /**

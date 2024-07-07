@@ -17,8 +17,6 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.session.login.ShibbolethLoginProcessor;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

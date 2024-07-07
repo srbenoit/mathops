@@ -160,7 +160,7 @@ public final class HtmlCsvCourseProgressReport {
             final List<RawStcourse> regs = entry.getValue();
             // Remove "forfeit" courses and Incomplete courses not counted in pace
             regs.removeIf(r -> "G".equals(r.openStatus) || ("Y".equals(r.iInProgress) && "N".equals(r.iCounted)));
-            processStudent(stuId, regs, cache, html, csv);
+            processStudent(stuId, regs, cache, html);
         }
 
         html.add("</table>");
@@ -242,12 +242,10 @@ public final class HtmlCsvCourseProgressReport {
      * @param regs  the list of student registrations
      * @param cache the data cache
      * @param html  a collection to which to add HTML report lines
-     * @param csv   a collection to which to add CSV report records
      * @throws SQLException if there is an error accessing the database
      */
     private static void processStudent(final String stuId, final List<RawStcourse> regs, final Cache cache,
-                                       final Collection<? super String> html,
-                                       final Collection<? super String> csv) throws SQLException {
+                                       final Collection<? super String> html) throws SQLException {
 
         // Order them by "pace order" if present, by course number if not
         final List<RawStcourse> ordered = new ArrayList<>(regs.size());

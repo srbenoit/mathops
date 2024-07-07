@@ -155,16 +155,6 @@ public final class DbConfig implements Comparable<DbConfig> {
     }
 
     /**
-     * Adds a login.
-     *
-     * @param login the login
-     */
-    public void addLogin(final LoginConfig login) {
-
-        this.logins.add(login);
-    }
-
-    /**
      * Gets the list of schemata supported by the database.
      *
      * @return an unmodifiable view of the list of schemata

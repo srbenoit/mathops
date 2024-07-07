@@ -19,7 +19,6 @@ import dev.mathops.web.site.admin.proctor.ProctorSubsite;
 import dev.mathops.web.site.admin.sysadmin.SysAdminSubsite;
 import dev.mathops.web.site.admin.testing.TestingSubsite;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

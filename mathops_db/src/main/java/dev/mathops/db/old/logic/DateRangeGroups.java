@@ -1,6 +1,5 @@
 package dev.mathops.db.old.logic;
 
-import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,29 +88,5 @@ public final class DateRangeGroups {
     public boolean hasCurrentOrFuture() {
 
         return this.current != null || !this.future.isEmpty();
-    }
-
-    /**
-     * Gets the last date of any range in this container.
-     *
-     * @return the last date
-     */
-    public LocalDate getLastDate() {
-
-        LocalDate last = null;
-
-        if (this.future.isEmpty()) {
-            if (this.current == null) {
-                if (!this.past.isEmpty()) {
-                    last = this.past.getLast().end;
-                }
-            } else {
-                last = this.current.end;
-            }
-        } else {
-            last = this.future.getLast().end;
-        }
-
-        return last;
     }
 }

@@ -630,7 +630,7 @@ public final class DocFence extends AbstractDocSpanBase {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocFenceInst createInstance(final EvalContext evalContext) {

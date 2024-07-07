@@ -567,7 +567,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
         // this.treeModel.nodeChanged(node);
         // }
 
-        if (!scanner.five.isEmpty()) {
+        if (scanner.five.hasSections()) {
             final int count = scanner.five.countStudents();
             total += count;
             final int msg = scanner.five.countMessages();
@@ -579,7 +579,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.fiveWithForfeit.isEmpty()) {
+        if (scanner.fiveWithForfeit.hasSections()) {
             final int count = scanner.fiveWithForfeit.countStudents();
             total += count;
             final int msg = scanner.fiveWithForfeit.countMessages();
@@ -591,7 +591,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.four.isEmpty()) {
+        if (scanner.four.hasSections()) {
             final int count = scanner.four.countStudents();
             total += count;
             final int msg = scanner.four.countMessages();
@@ -603,7 +603,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.fourWithForfeit.isEmpty()) {
+        if (scanner.fourWithForfeit.hasSections()) {
             final int count = scanner.fourWithForfeit.countStudents();
             total += count;
             final int msg = scanner.fourWithForfeit.countMessages();
@@ -615,7 +615,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.three.isEmpty()) {
+        if (scanner.three.hasSections()) {
             final int count = scanner.three.countStudents();
             total += count;
             final int msg = scanner.three.countMessages();
@@ -627,7 +627,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.threeWithForfeit.isEmpty()) {
+        if (scanner.threeWithForfeit.hasSections()) {
             final int count = scanner.threeWithForfeit.countStudents();
             total += count;
             final int msg = scanner.threeWithForfeit.countMessages();
@@ -639,7 +639,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoA.isEmpty()) {
+        if (scanner.twoA.hasSections()) {
             final int count = scanner.twoA.countStudents();
             total += count;
             final int msg = scanner.twoA.countMessages();
@@ -651,7 +651,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoAWithForfeit.isEmpty()) {
+        if (scanner.twoAWithForfeit.hasSections()) {
             final int count = scanner.twoAWithForfeit.countStudents();
             total += count;
             final int msg = scanner.twoAWithForfeit.countMessages();
@@ -663,7 +663,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoB.isEmpty()) {
+        if (scanner.twoB.hasSections()) {
             final int count = scanner.twoB.countStudents();
             total += count;
             final int msg = scanner.twoB.countMessages();
@@ -675,7 +675,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoBWithForfeit.isEmpty()) {
+        if (scanner.twoBWithForfeit.hasSections()) {
             final int count = scanner.twoBWithForfeit.countStudents();
             total += count;
             final int msg = scanner.twoBWithForfeit.countMessages();
@@ -687,7 +687,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoC.isEmpty()) {
+        if (scanner.twoC.hasSections()) {
             final int count = scanner.twoC.countStudents();
             total += count;
             final int msg = scanner.twoC.countMessages();
@@ -699,7 +699,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.twoCWithForfeit.isEmpty()) {
+        if (scanner.twoCWithForfeit.hasSections()) {
             final int count = scanner.twoCWithForfeit.countStudents();
             total += count;
             final int msg = scanner.twoCWithForfeit.countMessages();
@@ -711,7 +711,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.oneA.isEmpty()) {
+        if (scanner.oneA.hasSections()) {
             final int count = scanner.oneA.countStudents();
             total += count;
             final int msg = scanner.oneA.countMessages();
@@ -723,7 +723,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.oneB.isEmpty()) {
+        if (scanner.oneB.hasSections()) {
             final int count = scanner.oneB.countStudents();
             total += count;
             final int msg = scanner.oneB.countMessages();
@@ -735,7 +735,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.treeModel.nodeChanged(node);
         }
 
-        if (!scanner.oneC.isEmpty()) {
+        if (scanner.oneC.hasSections()) {
             final int count = scanner.oneC.countStudents();
             total += count;
             final int msg = scanner.oneC.countMessages();
@@ -751,8 +751,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
             this.tree.expandRow(i);
         }
 
-        this.treeRoot
-                .setUserObject("All Categories (" + total + " stus, " + numMessages + " msgs)");
+        this.treeRoot.setUserObject("All Categories (" + total + " stus, " + numMessages + " msgs)");
         this.treeModel.nodeChanged(this.treeRoot);
 
         // Log.info("Tree Root: " + this.treeRoot.getUserObject());
@@ -769,8 +768,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
      * @param population   the map whose entries to add
      * @return the number of rows added to the tree
      */
-    private int addMessagePopulations(final DefaultMutableTreeNode categoryNode,
-                                      final Population population) {
+    private int addMessagePopulations(final DefaultMutableTreeNode categoryNode, final Population population) {
 
         int count = 1;
 

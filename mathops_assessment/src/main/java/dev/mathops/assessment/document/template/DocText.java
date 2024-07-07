@@ -286,7 +286,7 @@ public final class DocText extends AbstractDocObjectTemplate {
             x += 2;
         }
 
-        if (!isHidden()) {
+        if (isVisible()) {
             if (txt.length() == 1) {
                 final char ch = txt.charAt(0);
 
@@ -361,7 +361,7 @@ public final class DocText extends AbstractDocObjectTemplate {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocTextInst createInstance(final EvalContext evalContext) {

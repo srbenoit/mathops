@@ -144,16 +144,6 @@ public final class InstructionalCache implements InstructionalCacheInt {
     }
 
     /**
-     * Gets the list of installed exam references.
-     *
-     * @return the exam references
-     */
-    public List<String> getExamRefs() {
-
-        return new ArrayList<>(this.examCache.keySet());
-    }
-
-    /**
      * Retrieves the exam based on a {@code Reference}.
      *
      * @param ref the reference of the exam to load
@@ -307,17 +297,6 @@ public final class InstructionalCache implements InstructionalCacheInt {
 
         return new ArrayList<>(this.problemFiles.keySet());
     }
-
-    /**
-     * Gets the list of installed problem references.
-     *
-     * @return the problem references
-     */
-    public List<String> getProblemRefs() {
-
-        return new ArrayList<>(this.problemCache.keySet());
-    }
-
     /**
      * Retrieves a problem based on a {@code Reference}.
      *

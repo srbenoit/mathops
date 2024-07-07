@@ -216,16 +216,6 @@ public final class UnitExamSession extends HtmlSessionBase {
     }
 
     /**
-     * Gets the course ID.
-     *
-     * @return the course ID
-     */
-    public String getCourseId() {
-
-        return this.courseId;
-    }
-
-    /**
      * Gets the current item.
      *
      * @return the current item
@@ -1633,7 +1623,6 @@ public final class UnitExamSession extends HtmlSessionBase {
         stexam.serialNumber = getExam().serialNumber;
 
         RawStcourse stcourse = null;
-        String section;
 
         if ("Q".equals(exType)) {
 
@@ -1648,6 +1637,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             }
         } else {
             stcourse = RawStcourseLogic.getRegistration(cache, stexam.studentId, stexam.course);
+            String section;
 
             if (stcourse == null) {
                 if (isTut.booleanValue()) {
@@ -1762,8 +1752,6 @@ public final class UnitExamSession extends HtmlSessionBase {
                         return "Unable to look up course registration.";
                     }
                 }
-            } else {
-                section = stcourse.sect;
             }
 
             RawCusection cusect;
@@ -2325,7 +2313,6 @@ public final class UnitExamSession extends HtmlSessionBase {
      *
      * @param cache  the data cache
      * @param stexam the StudentExam object with exam data to be inserted
-     * @return {cod null} if object inserted, an error message if an error occurred
      * @throws SQLException if there is an error accessing the database
      */
     private void insertPrecalcTutorialResult(final Cache cache, final StudentExamRec stexam) throws SQLException {

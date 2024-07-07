@@ -40,16 +40,6 @@ public final class TestTopBarPanel implements IGuiBuilder {
     }
 
     /**
-     * Gets the application frame.
-     *
-     * @return the frame
-     */
-    private JFrame getTopFrame() {
-
-        return this.topFrame;
-    }
-
-    /**
      * Builds the exam used to drive the test display.
      */
     private void makeExam() {

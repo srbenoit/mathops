@@ -17,19 +17,19 @@ public final class Population {
     /**
      * Constructs a new {@code Population}.
      */
-    public Population() {
+    Population() {
 
         this.sections = new HashMap<>(5);
     }
 
     /**
-     * Tests whether the population is empty.
+     * Tests whether the population is not empty (has sections).
      *
-     * @return true if empty
+     * @return true if the population is not empty
      */
-    public boolean isEmpty() {
+    public boolean hasSections() {
 
-        return this.sections.isEmpty();
+        return !this.sections.isEmpty();
     }
 
     /**

@@ -75,16 +75,6 @@ public class EmailsNeeded {
     }
 
     /**
-     * Tests whether the scan was canceled.
-     *
-     * @return true if canceled
-     */
-    public boolean wasCanceled() {
-
-        return this.canceled.get();
-    }
-
-    /**
      * Generates a map from pace to a map from track to instructor name.
      *
      * @return the map
@@ -120,46 +110,6 @@ public class EmailsNeeded {
         pace5.put("A", "Anita Pattison");
 
         return instructors;
-    }
-
-    /**
-     * Organizes the report data.
-     *
-     * @param records the collection of report records, one per student
-     * @return a map from Instructor to a map from Course to a map from Section number to a map from message code to the
-     *         list of students who should receive that message
-     */
-    public static Map<String, Map<String, Map<String, Map<EMsg, List<MessageToSend>>>>>
-    organizeReport(final Iterable<MessageToSend> records) {
-
-        final Map<String, Map<String, Map<String, //
-                Map<EMsg, List<MessageToSend>>>>> organized = new TreeMap<>();
-
-        for (final MessageToSend row : records) {
-
-            final String instrName = row.status.instructorName;
-            final Map<String, Map<String, Map<EMsg, List<MessageToSend>>>> byInstr =
-                    organized.computeIfAbsent(instrName, s -> new TreeMap<>());
-
-            final String course = row.status.reg.course;
-            final Map<String, Map<EMsg, List<MessageToSend>>> byCourse = byInstr.computeIfAbsent(course,
-                    s -> new TreeMap<>());
-
-            String sect = row.status.reg.sect;
-
-            // Merge 401, 801, and 809, which are cross-listed
-            if ("801".equals(sect) || "809".equals(sect)) {
-                sect = "401";
-            }
-
-            final Map<EMsg, List<MessageToSend>> bySect = byCourse.computeIfAbsent(sect, s -> new TreeMap<>());
-
-            final EMsg msg = row.msgCode;
-            final List<MessageToSend> list = bySect.computeIfAbsent(msg, s -> new ArrayList<>(10));
-            list.add(row);
-        }
-
-        return organized;
     }
 
     /**

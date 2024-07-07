@@ -5,7 +5,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
@@ -93,11 +92,8 @@ public final class StudentData {
     /** Placement status. */
     public final PlacementStatus placementStatus;
 
-    /** ELM Tutorial Status. */
-    public final ELMTutorialStatus elmTutorialStatus;
-
     /** Precalculus Tutorial Status. */
-    public final PrecalcTutorialStatus precalcTutorialStatus;
+    private final PrecalcTutorialStatus precalcTutorialStatus;
 
     /** List of course IDs that the student can register for. */
     private final Set<String> canRegisterFor;
@@ -180,8 +176,6 @@ public final class StudentData {
         this.placementStatus = new PlacementLogic(cache, studentId, this.student.aplnTerm, now).status;
 
         final HoldsStatus holds = HoldsStatus.of(cache, studentId);
-
-        this.elmTutorialStatus = ELMTutorialStatus.of(cache, studentId, now, holds);
 
         this.precalcTutorialStatus = new PrecalcTutorialLogic(cache, studentId, now.toLocalDate(),
                 this.prereqLogic).status;
@@ -1575,7 +1569,7 @@ public final class StudentData {
      *
      * @return the number of completed credits
      */
-    public double getCreditsOfCoreCompleted() {
+    double getCreditsOfCoreCompleted() {
 
         return this.creditsOfCoreCompleted;
     }

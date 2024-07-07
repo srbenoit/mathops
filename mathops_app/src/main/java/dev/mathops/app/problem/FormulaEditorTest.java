@@ -89,7 +89,7 @@ public final class FormulaEditorTest implements Runnable, IFormulaEditorListener
 
         final Insets insets = new Insets(6, 8, 6, 8);
         final FormulaEditorPanel editor =
-                new FormulaEditorPanel(16, insets, testFormula, evalContext);
+                new FormulaEditorPanel(16, insets, testFormula);
         editor.setBorder(BorderFactory.createEtchedBorder());
         content.add(editor, BorderLayout.CENTER);
 

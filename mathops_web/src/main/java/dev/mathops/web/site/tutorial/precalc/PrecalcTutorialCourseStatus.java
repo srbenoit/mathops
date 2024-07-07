@@ -78,9 +78,6 @@ final class PrecalcTutorialCourseStatus {
     /** Flag indicating student must retake unit 4 review exam to become eligible for more tries on proctored exam. */
     private boolean mustRetakeRE4;
 
-    /** Flag indicating student has attempted the proctored exam. */
-    private boolean attemptedProctored;
-
     /**
      * Constructs a new {@code PrecalcTutorialCourseStatus}.
      *
@@ -248,7 +245,6 @@ final class PrecalcTutorialCourseStatus {
                 int failCount = 0;
                 for (final RawStexam exam : allExams) {
                     if ("U".equals(exam.examType)) {
-                        this.attemptedProctored = true;
 
                         if ("N".equals(exam.passed)) {
                             final int unit = exam.unit.intValue();
@@ -292,16 +288,6 @@ final class PrecalcTutorialCourseStatus {
         }
 
         return result;
-    }
-
-    /**
-     * Gets the student record.
-     *
-     * @return the student record
-     */
-    public RawStudent getStudent() {
-
-        return this.student;
     }
 
     /**
@@ -408,15 +394,5 @@ final class PrecalcTutorialCourseStatus {
     boolean isRE4RetakeNeeded() {
 
         return this.mustRetakeRE4;
-    }
-
-    /**
-     * Tests whether the student has attempted the proctored exam.
-     *
-     * @return {@code true} if student has attempted the proctored exam
-     */
-    boolean hasAttemptedProctored() {
-
-        return this.attemptedProctored;
     }
 }

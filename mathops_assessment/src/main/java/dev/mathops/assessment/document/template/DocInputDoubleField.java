@@ -433,7 +433,7 @@ public final class DocInputDoubleField extends AbstractDocInputField {
             x += 2;
         }
 
-        if (!isHidden()) {
+        if (isVisible()) {
 
             final int[] charPositions = getCharPositions();
 
@@ -519,7 +519,7 @@ public final class DocInputDoubleField extends AbstractDocInputField {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocInputDoubleFieldInst createInstance(final EvalContext evalContext) {

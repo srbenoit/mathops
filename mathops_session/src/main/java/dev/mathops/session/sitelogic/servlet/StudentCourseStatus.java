@@ -1799,7 +1799,6 @@ public final class StudentCourseStatus extends LogicBase {
      * scores in the score object, as well as the points for completion of unit and review exams on time or late.
      *
      * @param cache the data cache
-     * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
     private void loadStudentHistory(final Cache cache) throws SQLException {

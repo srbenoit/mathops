@@ -31,9 +31,6 @@ public enum Page {
     /** The MIME type text/xml. */
     public static final String MIME_TEXT_XML = "text/xml";
 
-    /** The MIME type text/plain. */
-    public static final String MIME_TEXT_PLAIN = "text/plain";
-
     /** The MIME type text/csv. */
     public static final String MIME_TEXT_CSV = "text/csv";
 

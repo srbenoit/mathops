@@ -5,7 +5,6 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocWrappingSpanInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 import java.io.PrintStream;
 import java.io.Serial;
@@ -58,7 +57,7 @@ public final class DocWrappingSpan extends DocSimpleSpan {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocWrappingSpanInst createInstance(final EvalContext evalContext) {

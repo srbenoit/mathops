@@ -8,7 +8,6 @@ import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.IntegerVectorValue;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 

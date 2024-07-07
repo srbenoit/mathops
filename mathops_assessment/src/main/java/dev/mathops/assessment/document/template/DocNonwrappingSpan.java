@@ -7,7 +7,6 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -210,7 +209,7 @@ public final class DocNonwrappingSpan extends AbstractDocSpanBase {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocNonwrappingSpanInst createInstance(final EvalContext evalContext) {

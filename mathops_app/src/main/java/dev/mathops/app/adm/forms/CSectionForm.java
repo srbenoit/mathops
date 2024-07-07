@@ -991,8 +991,6 @@ final class CSectionForm extends AbstractForm implements ListSelectionListener {
          */
         void addData(final Collection<? extends GenericRecord> data) {
 
-            final int size = data.size();
-
             for (final GenericRecord rec : data) {
                 final String[] row = new String[28];
 

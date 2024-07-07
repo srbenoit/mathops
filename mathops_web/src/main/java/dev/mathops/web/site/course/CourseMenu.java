@@ -78,7 +78,7 @@ enum CourseMenu {
             emitPlacementInfoAndStatus(htm);
 
             // Display information on incompletes, if any exist
-            emitIncompleteCourses(site, logic, isLocked, htm);
+            emitIncompleteCourses(logic, isLocked, htm);
         }
 
         htm.div("vgap");
@@ -157,7 +157,7 @@ enum CourseMenu {
             if (!isTutor && !isAdmin) {
                 if (!courses.availableCourses.isEmpty()) {
                     htm.addln("<h2 class='menu'>Available To Start:</h2>");
-                    emitStartCourses(site, courses.availableCourses, htm);
+                    emitStartCourses(courses.availableCourses, htm);
                     htm.div("vgap0");
                 }
 
@@ -235,12 +235,11 @@ enum CourseMenu {
     /**
      * Emits the section of the menu covering incomplete courses.
      *
-     * @param site   the owning site
      * @param logic  the course site logic
      * @param htm    the {@code HtmlBuilder} to which to append the HTML
      * @param locked {@code true} if student is locked out, {@code false} otherwise
      */
-    private static void emitIncompleteCourses(final CourseSite site, final CourseSiteLogic logic,
+    private static void emitIncompleteCourses(final CourseSiteLogic logic,
                                               final boolean locked, final HtmlBuilder htm) {
 
         final CourseSiteLogicCourse courses = logic.course;
@@ -277,7 +276,7 @@ enum CourseMenu {
 
             if (count2 > 0) {
                 htm.addln("<h2 class='menu'>Available To Start:</h2>");
-                emitStartCourses(site, courses.availableIncCourses, htm);
+                emitStartCourses(courses.availableIncCourses, htm);
                 htm.div("vgap0");
             }
 
@@ -323,12 +322,10 @@ enum CourseMenu {
     /**
      * Emits a menu item allowing the user to start a course.
      *
-     * @param site the owning site
      * @param list the list of courses
      * @param htm  the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void emitStartCourses(final CourseSite site, final Iterable<CourseInfo> list,
-                                         final HtmlBuilder htm) {
+    private static void emitStartCourses(final Iterable<CourseInfo> list, final HtmlBuilder htm) {
 
         for (final CourseInfo courseInfo : list) {
             htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='start_course.html?course=",

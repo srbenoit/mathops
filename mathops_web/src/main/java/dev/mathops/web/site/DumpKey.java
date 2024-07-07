@@ -14,7 +14,7 @@ import java.security.KeyStore;
  * Generate a key pair with keytool, and use it to create a certificate request, then use this tool to dump the private
  * key to a binary file for use in OpenSSL.
  * <p>
- * Based on the DumpKey utility, Copyright 2007 by Dr. Herong Yang, http://www.herongyang.com/
+ * Based on the DumpKey utility, Copyright 2007 by <a href="http://www.herongyang.com/">Dr. Herong Yang</a>.
  */
 final class DumpKey {
 

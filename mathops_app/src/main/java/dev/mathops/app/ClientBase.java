@@ -74,9 +74,6 @@ public class ClientBase {
     /** The home directory where we can read/write configuration files. */
     private final File homeDir;
 
-    /** The TCP port of the secure web service. */
-    private final int port;
-
     /**
      * Constructs a new {@code ClientBase}.
      *
@@ -90,8 +87,6 @@ public class ClientBase {
 
         this.publicInternet = true;
 
-        this.port = thePort;
-
         this.serverConnection = new BlsWebServiceClient(theServer, thePort, theSessionId);
 
         final String userHome = System.getProperty("user.home");
@@ -100,17 +95,6 @@ public class ClientBase {
         LoggingSubsystem.getSettings().setLogToFiles(false);
         LoggingSubsystem.getSettings().setLogToConsole(true);
         Log.getWriter().startList(1000);
-
-    }
-
-    /**
-     * Gets the server port number.
-     *
-     * @return the port number
-     */
-    public final int getPort() {
-
-        return this.port;
     }
 
     /**

@@ -41,19 +41,19 @@ public enum LateMessageFactory {
 
             //
 
-        } else if (!status.passedHw11()) {
+        } else if (status.needsHw11()) {
             // Student has not passed Homework 1.1 in current course
             result = LateMessageHW11Factory.generate(context, status);
-        } else if (!status.passedHw12()) {
+        } else if (status.needsHw12()) {
             // Student has not passed Homework 1.2 in current course
             result = LateMessageHW12Factory.generate(context, status);
-        } else if (!status.passedHw13()) {
+        } else if (status.needsHw13()) {
             // Student has not passed Homework 1.3 in current course
             result = LateMessageHW13Factory.generate(context, status);
-        } else if (!status.passedHw14()) {
+        } else if (status.needsHw14()) {
             // Student has not passed Homework 1.4 in current course
             result = LateMessageHW14Factory.generate(context, status);
-        } else if (!status.passedHw15()) {
+        } else if (status.needsHw15()) {
             // Student has not passed Homework 1.5 in current course
             result = LateMessageHW15Factory.generate(context, status);
         } else if (!status.passedRE1) {
@@ -62,19 +62,19 @@ public enum LateMessageFactory {
         } else if (!status.passedUE1) {
             // Student has not passed Unit Exam 1 in current course
             result = LateMessageUE1Factory.generate(context, status);
-        } else if (!status.passedHw21()) {
+        } else if (status.needsHw21()) {
             // Student has not passed Homework 2.1 in current course
             result = LateMessageHW21Factory.generate(context, status);
-        } else if (!status.passedHw22()) {
+        } else if (status.needsHw22()) {
             // Student has not passed Homework 2.2 in current course
             result = LateMessageHW22Factory.generate(context, status);
-        } else if (!status.passedHw23()) {
+        } else if (status.needsHw23()) {
             // Student has not passed Homework 2.3 in current course
             result = LateMessageHW23Factory.generate(context, status);
-        } else if (!status.passedHw24()) {
+        } else if (status.needsHw24()) {
             // Student has not passed Homework 2.4 in current course
             result = LateMessageHW24Factory.generate(context, status);
-        } else if (!status.passedHw25()) {
+        } else if (status.needsHw25()) {
             // Student has not passed Homework 2.5 in current course
             result = LateMessageHW25Factory.generate(context, status);
         } else if (!status.passedRE2) {
@@ -83,19 +83,19 @@ public enum LateMessageFactory {
         } else if (!status.passedUE2) {
             // Student has not passed Unit Exam 2 in current course
             result = LateMessageUE2Factory.generate(context, status);
-        } else if (!status.passedHw31()) {
+        } else if (status.needsHw31()) {
             // Student has not passed Homework 3.1 in current course
             result = LateMessageHW31Factory.generate(context, status);
-        } else if (!status.passedHw32()) {
+        } else if (status.needsHw32()) {
             // Student has not passed Homework 3.2 in current course
             result = LateMessageHW32Factory.generate(context, status);
-        } else if (!status.passedHw33()) {
+        } else if (status.needsHw33()) {
             // Student has not passed Homework 3.3 in current course
             result = LateMessageHW33Factory.generate(context, status);
-        } else if (!status.passedHw34()) {
+        } else if (status.needsHw34()) {
             // Student has not passed Homework 3.4 in current course
             result = LateMessageHW34Factory.generate(context, status);
-        } else if (!status.passedHw35()) {
+        } else if (status.needsHw35()) {
             // Student has not passed Homework 3.5 in current course
             result = LateMessageHW35Factory.generate(context, status);
         } else if (!status.passedRE3) {
@@ -104,19 +104,19 @@ public enum LateMessageFactory {
         } else if (!status.passedUE3) {
             // Student has not passed Unit Exam 3 in current course
             result = LateMessageUE3Factory.generate(context, status);
-        } else if (!status.passedHw41()) {
+        } else if (status.needsHw41()) {
             // Student has not passed Homework 4.1 in current course
             result = LateMessageHW41Factory.generate(context, status);
-        } else if (!status.passedHw42()) {
+        } else if (status.needsHw42()) {
             // Student has not passed Homework 4.2 in current course
             result = LateMessageHW42Factory.generate(context, status);
-        } else if (!status.passedHw43()) {
+        } else if (status.needsHw43()) {
             // Student has not passed Homework 4.3 in current course
             result = LateMessageHW43Factory.generate(context, status);
-        } else if (!status.passedHw44()) {
+        } else if (status.needsHw44()) {
             // Student has not passed Homework 4.4 in current course
             result = LateMessageHW44Factory.generate(context, status);
-        } else if (!status.passedHw45()) {
+        } else if (status.needsHw45()) {
             // Student has not passed Homework 4.5 in current course
             result = LateMessageHW45Factory.generate(context, status);
         } else if (!status.passedRE4) {

@@ -165,25 +165,6 @@ public enum IFXResetPrecalcTutorial {
     }
 
     /**
-     * Returns the latest in a list of dates.
-     *
-     * @param dates the list of dates
-     * @return the latest of the dates; {@code null} if all input dates were {@code null} or there were no input dates
-     */
-    private static LocalDate maxDate(final LocalDate... dates) {
-
-        LocalDate result = null;
-
-        for (final LocalDate test : dates) {
-            if (result == null || test != null && result.isBefore(test)) {
-                result = test;
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Resets Precalculus Tutorial records. This marks all "passed = Y" ELM exam records to "passed = P" for any student
      * who started the tutorial too long ago and did not finish by the exam delete date for the current term.
      *

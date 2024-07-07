@@ -332,38 +332,6 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
     }
 
     /**
-     * Updates the do-not-disturb setting in a record.
-     *
-     * @param cache        the data cache
-     * @param stuId        the student ID (may not be null)
-     * @param termKey      the term (may not be null)
-     * @param doNotDisturb the new do-not-disturb setting
-     * @return true if successful; false if not
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static boolean updateDoNotDisturb(final Cache cache, final String stuId,
-                                             final TermKey termKey, final String doNotDisturb) throws SQLException {
-
-        final String sql = SimpleBuilder.concat("UPDATE stterm ",
-                " SET do_not_disturb=", sqlStringValue(doNotDisturb),
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
-
-        try (final Statement stmt = cache.conn.createStatement()) {
-            final boolean result = stmt.executeUpdate(sql) == 1;
-
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
-            }
-
-            return result;
-        }
-    }
-
-    /**
      * Executes a query that returns a list of records.
      *
      * @param conn the database connection, checked out to this thread

@@ -28,12 +28,6 @@ public final class StudentCourseMasteryRec extends RecBase
     /** A field name for serialization of records. */
     private static final String FLD_NBR_ELIGIBLE = "nbr_eligible";
 
-    /** A field name for serialization of records. */
-    private static final String FLD_EXPLOR_1_STATUS = "explor_1_status";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_EXPLOR_2_STATUS = "explor_2_status";
-
     /** The 'stu_id' field value. */
     public String stuId;
 

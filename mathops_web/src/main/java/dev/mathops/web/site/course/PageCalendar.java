@@ -199,10 +199,8 @@ enum PageCalendar {
      * before unopened courses, with incompletes sorted before current term courses.
      *
      * @param paceRegs those registrations which contribute to pace
-     * @return {@code true} if registrations all have pace order and are sorted without gaps or duplicates;
-     *         {@code false} otherwise
      */
-    private static boolean sortPaceOrder(final List<RawStcourse> paceRegs) {
+    private static void sortPaceOrder(final List<RawStcourse> paceRegs) {
 
         boolean allInOrder = true;
 
@@ -296,8 +294,6 @@ enum PageCalendar {
                 }
             }
         }
-
-        return allInOrder;
     }
 
     /**

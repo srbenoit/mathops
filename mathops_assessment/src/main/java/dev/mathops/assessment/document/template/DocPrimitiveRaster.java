@@ -2,14 +2,10 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
-import dev.mathops.assessment.formula.Formula;
-import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.INode;

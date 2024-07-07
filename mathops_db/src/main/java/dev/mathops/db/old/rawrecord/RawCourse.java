@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rec.RecBase;
 
@@ -184,21 +183,6 @@ public final class RawCourse extends RecBase implements Comparable<RawCourse> {
         }
 
         return url;
-    }
-
-    /**
-     * Tests whether the course requires placement to access the course.
-     *
-     * @return if this is a course (tutorial) which can only be accessed after placement
-     */
-    public boolean isPlacementRequired() {
-
-        return RawRecordConstants.M100T.equals(this.course)
-                || RawRecordConstants.M1170.equals(this.course)
-                || RawRecordConstants.M1180.equals(this.course)
-                || RawRecordConstants.M1240.equals(this.course)
-                || RawRecordConstants.M1250.equals(this.course)
-                || RawRecordConstants.M1260.equals(this.course);
     }
 
     /**

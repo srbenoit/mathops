@@ -142,16 +142,6 @@ public final class SystemData {
     }
 
     /**
-     * Gets the cache.
-     *
-     * @return the cache
-     */
-    public Cache getCache() {
-
-        return this.cache;
-    }
-
-    /**
      * Gets the database descriptor for the database to which this object's cache is connected.
      *
      * @return the active term

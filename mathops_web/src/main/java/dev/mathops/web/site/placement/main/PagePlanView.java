@@ -505,12 +505,11 @@ enum PagePlanView {
      * @param typicalCourses   the set of courses for a typical student
      * @param typicalGroups    the set of course groups for a typical student
      * @param courseData       a map from course ID to course data
-     * @return {@code true} if any courses were considered critical
      */
-    private static boolean emitCourseList(final HtmlBuilder htm, final boolean hasMultipleCalc1,
-                                          final boolean hasMultipleCalc2, final Map<String, CourseInfo> typicalCourses,
-                                          final Iterable<CourseInfoGroup> typicalGroups,
-                                          final Map<String, RawCourse> courseData) {
+    private static void emitCourseList(final HtmlBuilder htm, final boolean hasMultipleCalc1,
+                                       final boolean hasMultipleCalc2, final Map<String, CourseInfo> typicalCourses,
+                                       final Iterable<CourseInfoGroup> typicalGroups,
+                                       final Map<String, RawCourse> courseData) {
 
         htm.addln("<ul>");
         for (final Map.Entry<String, CourseInfo> entry : typicalCourses.entrySet()) {
@@ -564,8 +563,6 @@ enum PagePlanView {
             }
         }
         htm.addln("</ul>");
-
-        return false;
     }
 
     /**

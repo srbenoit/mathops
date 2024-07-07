@@ -187,17 +187,6 @@ public final class SiteDataRegistration {
     }
 
     /**
-     * Gets the term records corresponding to the student registration records for the current term (including advance
-     * placement and forfeit courses, but excluding drop and withdrawal courses).
-     *
-     * @return the registration records (CStudentCourse)
-     */
-    public List<TermRec> getRegistrationTerms() {
-
-        return new ArrayList<>(this.registrationTerms);
-    }
-
-    /**
      * Gets the student registration records for the current term that are included in the student's pace.
      *
      * @return the registration records (CStudentCourse)

@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document;
 
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;

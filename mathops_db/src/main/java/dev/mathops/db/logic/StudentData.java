@@ -1,13 +1,6 @@
 package dev.mathops.db.logic;
 
-import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
 import dev.mathops.db.old.rawlogic.RawExceptStuLogic;
@@ -70,7 +63,6 @@ import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentUnitMasteryLogic;
 
 import java.sql.SQLException;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -661,46 +653,44 @@ public final class StudentData {
         return this.deadlineAppeals;
     }
 
-    /**
-     * Main method to exercise this class.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(final String... args) {
-
-        final ContextMap map = ContextMap.getDefaultInstance();
-        DbConnection.registerDrivers();
-
-        final DbProfile dbProfile =map.getCodeProfile(Contexts.BATCH_PATH);
-        if (dbProfile == null) {
-            Log.warning("Code profile not found");
-        } else {
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-
-            final ZonedDateTime now = ZonedDateTime.now();
-
-            try {
-                final DbConnection conn = ctx.checkOutConnection();
-
-                try {
-                    final Cache cache = new Cache(dbProfile, conn);
-                    final StudentData data = new StudentData(cache, "823251213", ELiveRefreshes.NONE);
-                    runTests(data);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-            }
-        }
-    }
-
-    /**
-     * Runs tests to exercise the class.
-     *
-     * @param data the student data object
-     */
-    private static void runTests(final StudentData data) {
-
-    }
+//    /**
+//     * Main method to exercise this class.
+//     *
+//     * @param args command-line arguments
+//     */
+//    public static void main(final String... args) {
+//
+//        final ContextMap map = ContextMap.getDefaultInstance();
+//        DbConnection.registerDrivers();
+//
+//        final DbProfile dbProfile =map.getCodeProfile(Contexts.BATCH_PATH);
+//        if (dbProfile == null) {
+//            Log.warning("Code profile not found");
+//        } else {
+//            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+//
+//            try {
+//                final DbConnection conn = ctx.checkOutConnection();
+//
+//                try {
+//                    final Cache cache = new Cache(dbProfile, conn);
+//                    final StudentData data = new StudentData(cache, "823251213", ELiveRefreshes.NONE);
+//                    runTests(data);
+//                } finally {
+//                    ctx.checkInConnection(conn);
+//                }
+//            } catch (final SQLException ex) {
+//                Log.warning(ex);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Runs tests to exercise the class.
+//     *
+//     * @param data the student data object
+//     */
+//    private static void runTests(final StudentData data) {
+//
+//    }
 }

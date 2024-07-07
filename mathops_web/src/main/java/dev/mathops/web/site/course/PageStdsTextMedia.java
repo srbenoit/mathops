@@ -24,14 +24,8 @@ enum PageStdsTextMedia {
     /** A server directory. */
     private static final String M125 = "M125";
 
-//    /** A server directory. */
+    /** A server directory. */
     private static final String M126 = "M126";
-
-    /** A reason string. */
-    private static final String NOT_DONE = "NOT YET DONE";
-
-    /** A reason string. */
-    private static final String DEFERRED = "DEFERRED";
 
     /**
      * Starts the page that shows the course outline with student progress.
@@ -723,20 +717,5 @@ enum PageStdsTextMedia {
 
         htm.eDiv();
         htm.addln("</details>");
-    }
-
-    /**
-     * Emits a placeholder for an example that is not yet done for some reason.
-     *
-     * @param htm    the {@code HtmlBuilder} to which to append
-     * @param reason a reason, like "DEFERRED", "NOT YET DONE", etc.
-     * @param title  the title
-     */
-    private static void emitDeferredExample(final HtmlBuilder htm, final String reason,
-                                            final String title) {
-
-        htm.sDiv(null, "style='margin-left:18px; color:gray;'");
-        htm.addln(title, " (", reason, ")");
-        htm.eDiv();
     }
 }

@@ -214,24 +214,6 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
     }
 
     /**
-     * Gets the order in which the problems should be presented.
-     *
-     * @return the problem order, if the section has been realized; null otherwise
-     */
-    public int[] getProblemOrder() {
-
-        int[] order = null;
-
-        if (this.problemOrder != null) {
-            order = new int[this.problemOrder.length];
-
-            System.arraycopy(this.problemOrder, 0, order, 0, order.length);
-        }
-
-        return order;
-    }
-
-    /**
      * Sets the order in which the problems should be presented.
      *
      * @param theProblemOrder the problem order

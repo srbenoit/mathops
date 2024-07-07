@@ -11,9 +11,9 @@ import java.io.FileFilter;
 public final class TempFileCleaner extends Thread {
 
     /**
-     * Constructs a new {@code TempFileCleaner}.
+     * Private constructor to prevent direct instantiation.
      */
-    public TempFileCleaner() {
+    private TempFileCleaner() {
 
         super("TempFileCleaner");
     }

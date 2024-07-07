@@ -69,28 +69,4 @@ final class ServletTimer {
             }
         }
     }
-
-    /**
-     * Returns a copy of the data.
-     *
-     * @return the data
-     */
-    public Map<DbProfile, Map<String, ServletTimerCounters>> getData() {
-
-        final Map<DbProfile, Map<String, ServletTimerCounters>> result = new TreeMap<>();
-
-        synchronized (this.synch) {
-
-            for (final Map.Entry<DbProfile, Map<String, ServletTimerCounters>> entry : this.map.entrySet()) {
-                final Map<String, ServletTimerCounters> submap = new TreeMap<>();
-                result.put(entry.getKey(), submap);
-
-                for (final Map.Entry<String, ServletTimerCounters> inner : entry.getValue().entrySet()) {
-                    submap.put(inner.getKey(), inner.getValue().copy());
-                }
-            }
-        }
-
-        return result;
-    }
 }

@@ -221,7 +221,7 @@ public final class DocFraction extends AbstractDocContainer {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocFractionInst createInstance(final EvalContext evalContext) {

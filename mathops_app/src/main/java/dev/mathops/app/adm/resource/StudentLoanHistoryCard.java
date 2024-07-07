@@ -73,9 +73,9 @@ import java.util.Map;
     /**
      * Constructs a new {@code StudentLoanCard}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
-    /* default */ StudentLoanHistoryCard(final Cache theCache, final Object theRenderingHint) {
+    StudentLoanHistoryCard(final Cache theCache) {
 
         super();
 
@@ -224,7 +224,6 @@ import java.util.Map;
     public void focusGained(final FocusEvent e) {
 
         // TODO Auto-generated method stub
-
     }
 
     /**

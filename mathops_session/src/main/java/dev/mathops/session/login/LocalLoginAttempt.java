@@ -19,7 +19,7 @@ final class LocalLoginAttempt {
     final String password;
 
     /** The student object. */
-    RawStudent student;
+    RawStudent student = null;
 
     /**
      * Constructs a new {@code LocalLoginAttempt}.

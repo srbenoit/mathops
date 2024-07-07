@@ -167,7 +167,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateBlocked(final MessagingContext context,
                                                  final MessagingCourseStatus status) {
@@ -340,7 +340,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINRfe00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -402,7 +402,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINRfe02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -429,7 +429,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINRfe04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -492,7 +492,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINRfe06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -519,7 +519,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINXfe00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -581,7 +581,7 @@ public enum LateMessageFINFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateFINXfe02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

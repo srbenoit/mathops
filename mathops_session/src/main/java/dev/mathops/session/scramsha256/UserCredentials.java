@@ -4,10 +4,7 @@ package dev.mathops.session.scramsha256;
  * Credentials associated with a username. These credentials are loaded from the "logins" table and carry the
  * information needed to perform SCRAM-SHA-256 authentication.
  */
-public class UserCredentials {
-
-    /** The user ID. */
-    private final String userId;
+public final class UserCredentials {
 
     /** The user's role. */
     public final String role;
@@ -30,7 +27,6 @@ public class UserCredentials {
     /**
      * Constructs a new {@code UserCredentials}.
      *
-     * @param theUserId    the user ID
      * @param theRole      the user's role
      * @param username     the username
      * @param theSalt      the salt (24 bytes)
@@ -40,13 +36,10 @@ public class UserCredentials {
      * @throws IllegalArgumentException if any argument is null, the username or password is empty, or the number of
      *                                  iterations is less than 4096 or greater than 9999
      */
-    UserCredentials(final String theUserId, final String theRole, final CharSequence username,
+    UserCredentials(final String theRole, final CharSequence username,
                     final byte[] theSalt, final byte[] theStoredKey, final byte[] theServerKey,
                     final int iterations) throws IllegalArgumentException {
 
-        if (theUserId == null || theUserId.isEmpty()) {
-            throw new IllegalArgumentException("User ID may not be null or empty");
-        }
         if (theRole == null || theRole.isEmpty()) {
             throw new IllegalArgumentException("Role may not be null or empty");
         }
@@ -66,7 +59,6 @@ public class UserCredentials {
             throw new IllegalArgumentException("Iterations must be in [4096, 9999]");
         }
 
-        this.userId = theUserId;
         this.role = theRole;
         this.normalizedUsername = ScramUtils.normalize(username);
         this.salt = theSalt.clone();

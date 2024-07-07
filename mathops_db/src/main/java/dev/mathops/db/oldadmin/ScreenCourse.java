@@ -535,7 +535,6 @@ final class ScreenCourse extends AbstractStudentScreen {
 
         final Cache cache = getCache();
         try {
-            final TermRec active = cache.getSystemData().getActiveTerm();
             final List<RawSthomework> sthwFull = RawSthomeworkLogic.queryByStudent(cache, stu.stuId, true);
 
             // Sort full list chronologically
@@ -695,10 +694,8 @@ final class ScreenCourse extends AbstractStudentScreen {
     private void drawCurrent() {
 
         final Console console = getConsole();
-
-        final RawStudent stu = getStudent();
-
         final Cache cache = getCache();
+
         try {
             final TermRec active = cache.getSystemData().getActiveTerm();
 

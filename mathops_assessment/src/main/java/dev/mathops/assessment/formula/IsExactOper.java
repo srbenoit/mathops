@@ -6,7 +6,6 @@ import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 
 /**
  * An operation to test whether a real value is "exact" when printed to a specified number of decimal places. For

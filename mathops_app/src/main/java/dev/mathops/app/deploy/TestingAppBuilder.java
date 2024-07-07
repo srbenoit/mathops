@@ -420,48 +420,6 @@ final class TestingAppBuilder {
     }
 
     /**
-     * Copies a single file to a JAR stream.
-     *
-     * @param rootDir the root directory; used for building the relative path in the Jar file
-     * @param file    the file to copy
-     * @param jar     the JAR stream to which to copy
-     * @return 1 if the file was copied, 0 if not
-     * @throws IOException if an exception occurs while writing
-     */
-    private int copyFile(final File rootDir, final File file, final JarOutputStream jar) throws IOException {
-
-        final int count;
-
-        String name = file.getName();
-        if ("package-info.class".equals(name) || name.endsWith(".xlsx")) {
-            count = 0;
-        } else {
-            // Prepend relative path to the name
-            File parent = file.getParentFile();
-            final HtmlBuilder builder = new HtmlBuilder(100);
-            while (!parent.equals(rootDir)) {
-                final String parentName = parent.getName();
-                builder.add(parentName, CoreConstants.SLASH, name);
-                name = builder.toString();
-                builder.reset();
-                parent = parent.getParentFile();
-            }
-
-            jar.putNextEntry(new ZipEntry(name));
-            final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
-            if (bytes == null) {
-                throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
-            }
-            jar.write(bytes);
-            jar.closeEntry();
-
-            count = 1;
-        }
-
-        return count;
-    }
-
-    /**
      * Given a list of {@code File} objects, tests that each exists and is a directory.
      *
      * @param dirs the list of {@code File} objects

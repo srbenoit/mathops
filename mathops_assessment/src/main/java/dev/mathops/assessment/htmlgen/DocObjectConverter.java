@@ -36,7 +36,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.commons.ui.HtmlImage;
 
 import java.awt.Insets;
@@ -429,7 +428,7 @@ public enum DocObjectConverter {
 
         // If there is a "root" we need to pre-pend it as a superscript
         AbstractDocObjectTemplate root = obj.getRoot();
-        if (root != null && !root.isHidden()) {
+        if (root != null && root.isVisible()) {
             if (root instanceof final DocParameterReference p) {
                 final AbstractVariable var = context.getVariable(p.getVariableName());
                 if (var != null) {
@@ -445,7 +444,7 @@ public enum DocObjectConverter {
                 }
             }
 
-            if (root != null && !root.isHidden()) {
+            if (root != null && root.isVisible()) {
                 htm.add("<span class='sr-only'> root </span>");
                 htm.add("<sup style='position:relative; left:.7em; top:-.8ex; line-height:1.2em; margin-left:-.4em;'>");
                 appendChildHtml(column, root, htm, styleStack, enabled, id, context, inMath);
@@ -465,7 +464,7 @@ public enum DocObjectConverter {
 
         // Both 'base' and 'root' are children - just append the base...
         final AbstractDocObjectTemplate base = obj.getBase();
-        if (base != null && !base.isHidden()) {
+        if (base != null && base.isVisible()) {
             appendChildHtml(column, base, htm, styleStack, enabled, id, context, inMath);
         }
 
@@ -2390,7 +2389,7 @@ public enum DocObjectConverter {
         }
 
         for (final AbstractDocObjectTemplate child : parent.getChildren()) {
-            if (!child.isHidden()) {
+            if (child.isVisible()) {
                 appendChildHtml(column, child, htm, styleStack, enabled, id, context, inMath);
             }
         }

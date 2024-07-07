@@ -48,7 +48,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     /** The Informix data cache. */
     private final Cache ifxCache;
 
-    /** The PostgreSQL data cache. */
+//    /** The PostgreSQL data cache. */
 //    private final Cache pgCache;
 
     /** The server site URL to use when constructing a ScramClientStub. */
@@ -163,7 +163,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         }
 
         if (this.fixed.getClearanceLevel("RES_MENU") != null) {
-            this.resourcePane = new ResourceTabPane(this.ifxCache, this.renderingHint, this.fixed);
+            this.resourcePane = new ResourceTabPane(this.ifxCache, this.fixed);
             this.tabs.addTab(Res.get(Res.RESOURCES_TAB), this.resourcePane);
         }
 
@@ -178,7 +178,7 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         }
 
         if (this.fixed.getClearanceLevel("FRM_MENU") != null) {
-            this.formsPane = new FormsTabPane(this.ifxCache, this.renderingHint);
+            this.formsPane = new FormsTabPane(this.ifxCache);
             this.tabs.addTab(Res.get(Res.FORMS_TAB), this.formsPane);
         }
 

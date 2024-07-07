@@ -2,7 +2,6 @@ package dev.mathops.assessment.exam;
 
 import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
@@ -81,16 +80,6 @@ public final class ExamSubtest extends AbstractXmlObject {
     public Iterator<ExamSubtestProblem> getSubtestProblems() {
 
         return this.examSubtestProblems.iterator();
-    }
-
-    /**
-     * Gets the number of subtest problems in the subtest.
-     *
-     * @return the number of subtest problems
-     */
-    public int getNumSubtestProblems() {
-
-        return this.examSubtestProblems.size();
     }
 
     /**

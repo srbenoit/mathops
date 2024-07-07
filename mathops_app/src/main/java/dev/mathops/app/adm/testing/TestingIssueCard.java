@@ -757,7 +757,6 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
     public void focus() {
 
         this.studentIdField.requestFocus();
-
     }
 
     /**

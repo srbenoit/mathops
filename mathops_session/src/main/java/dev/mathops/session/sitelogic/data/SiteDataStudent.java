@@ -226,26 +226,6 @@ public final class SiteDataStudent {
     }
 
     /**
-     * Gets the student placement attempt records.
-     *
-     * @return the student placement attempt records
-     */
-    public List<RawStmpe> getStudentPlacementAttempts() {
-
-        return new ArrayList<>(this.studentPlacement);
-    }
-
-    /**
-     * Gets the student ELM exam attempt records.
-     *
-     * @return the student placement attempt records
-     */
-    public List<RawStexam> getStudentElmAttempts() {
-
-        return new ArrayList<>(this.studentElm);
-    }
-
-    /**
      * Gets the student placement credit records.
      *
      * @return the student placement credit records

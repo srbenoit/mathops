@@ -47,17 +47,4 @@ final class Res extends ResBundle {
 
         return instance.getMsg(key);
     }
-
-    /**
-     * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with
-     * a collection of arguments.
-     *
-     * @param key       the message key
-     * @param arguments the arguments, as for {@code MessageFormat}
-     * @return the formatted string (never {@code null})
-     */
-    static String fmt(final String key, final Object... arguments) {
-
-        return instance.formatMsg(key, arguments);
-    }
 }

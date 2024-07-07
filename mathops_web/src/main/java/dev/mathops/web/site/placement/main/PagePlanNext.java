@@ -247,9 +247,8 @@ enum PagePlanNext {
      *
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
-     * @return true if the student needs to complete placement, false if not
      */
-    static boolean showNextStepsBrief(final HtmlBuilder htm, final StudentData data) {
+    static void showNextStepsBrief(final HtmlBuilder htm, final StudentData data) {
 
         boolean needsPlacement = true;
 
@@ -283,8 +282,6 @@ enum PagePlanNext {
             }
         }
         htm.eDiv();
-
-        return needsPlacement;
     }
 
     /**

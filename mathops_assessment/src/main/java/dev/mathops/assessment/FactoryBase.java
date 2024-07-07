@@ -1,6 +1,5 @@
 package dev.mathops.assessment;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.parser.CharSpan;
 import dev.mathops.commons.parser.ParsingException;
@@ -30,45 +29,6 @@ public enum FactoryBase {
         }
 
         return new XmlContent(xml, false, false);
-    }
-
-    /**
-     * Convert any escape sequences found in a string into their corresponding special characters.
-     *
-     * @param value The string to convert.
-     * @return The converted string, or null on any error.
-     */
-    public static String unescape(final String value) {
-
-        // Convert any &...; values into their equivalents
-        String converted = value.replace("&gt;", ">")
-                .replace("&lt;", "<")
-                .replace("&quot;", CoreConstants.QUOTE)
-                .replace("&apos;", "'")
-                .replace("&amp;", "&");
-
-        // Convert any \\u#### codes to Unicode Characters
-        int escape = converted.indexOf("\\u");
-
-        while (escape != -1) {
-
-            if (escape >= converted.length() - 5) {
-                return null;
-            }
-
-            final char ch;
-            try {
-                ch = (char) Integer.parseInt(converted.substring(escape + 2, escape + 6), 16);
-            } catch (final NumberFormatException e) {
-                return null;
-            }
-
-            converted = converted.substring(0, escape) + Character.valueOf(ch) + converted.substring(escape + 6);
-
-            escape = converted.indexOf("\\u");
-        }
-
-        return converted;
     }
 
     /**

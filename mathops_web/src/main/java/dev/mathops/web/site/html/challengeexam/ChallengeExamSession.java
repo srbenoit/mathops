@@ -1576,15 +1576,14 @@ public final class ChallengeExamSession extends HtmlSessionBase {
      *
      * @param stexam the student exam record being populated
      * @param params the parameter set to which to add the subtest score parameters
-     * @return {@code true} if there is a "passed" rule that evaluates to true
      */
-    private boolean evaluateGradingRules(final StudentExamRec stexam, final EvalContext params) {
+    private void evaluateGradingRules(final StudentExamRec stexam, final EvalContext params) {
 
         this.score = stexam.subtestScores.get("score");
 
-        // If we have a "score" subtest, and we have a mastery score in the record, then
-        // automatically create a "passed" grading rule. Then, as we go through, if there is
-        // another explicit "passed" grading rule, it will override this one.
+        // If we have a "score" subtest, and we have a mastery score in the record, then automatically create a
+        // "passed" grading rule. Then, as we go through, if there is another explicit "passed" grading rule, it will
+        // override this one.
         if (stexam.masteryScore != null && this.score != null) {
             final VariableBoolean param = new VariableBoolean("passed");
 
@@ -1649,17 +1648,6 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                 params.addVariable(param);
             }
         }
-
-        final AbstractVariable result = params.getVariable("passed");
-
-        final boolean passed;
-        if (result != null && result.getValue() instanceof Boolean) {
-            passed = ((Boolean) result.getValue()).booleanValue();
-        } else {
-            passed = false;
-        }
-
-        return passed;
     }
 
     /**

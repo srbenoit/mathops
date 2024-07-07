@@ -58,7 +58,7 @@ enum RamReadyService {
                 if (subpath.startsWith(CHECK_MATH_PLAN)) {
                     doCheckMathPlan(cache, subpath, req, resp);
                 } else if (subpath.startsWith(CHECK_MATH_PLACEMENT)) {
-                    doCheckMathPlacement(cache, site, subpath, req, resp);
+                    doCheckMathPlacement(cache, subpath, req, resp);
                 } else {
                     Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                     sendErrorMessage(req, resp, "Unknown web service called.");
@@ -359,16 +359,14 @@ enum RamReadyService {
      * response.
      *
      * @param cache   the data cache
-     * @param site    the owning site
      * @param subpath The subpath, known to begin with "ramready.svc"
      * @param req     the request
      * @param resp    the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doCheckMathPlacement(final Cache cache, final MathPlacementSite site, final String subpath,
-                                             final ServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    private static void doCheckMathPlacement(final Cache cache, final String subpath, final ServletRequest req,
+                                             final HttpServletResponse resp) throws IOException, SQLException {
 
         final String pidmStr = subpath.substring(CHECK_MATH_PLACEMENT.length());
 

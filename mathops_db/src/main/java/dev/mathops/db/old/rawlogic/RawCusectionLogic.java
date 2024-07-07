@@ -1,7 +1,5 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;

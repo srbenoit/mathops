@@ -68,8 +68,6 @@ final class ODSCurrentEnrollmentsAllMath {
 
     /**
      * Executes the job.
-     *
-     * @return a report
      */
     private void execute() {
 

@@ -86,7 +86,7 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
         tabs.setBackground(Color.WHITE);
         panel.add(tabs, BorderLayout.CENTER);
 
-        final JPanel byCoursePanel = makeByCoursePanel(theCache);
+        final JPanel byCoursePanel = makeByCoursePanel();
         tabs.addTab("By Course and Section", byCoursePanel);
 
         final JPanel byCourseStatusPanel = new CardPopulationsCourseStatusPane(theCache);
@@ -103,10 +103,9 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     /**
      * Creates the panel with controls to select a population by course, section and open status.
      *
-     * @param theCache the data cache
      * @return the panel
      */
-    private JPanel makeByCoursePanel(final Cache theCache) {
+    private JPanel makeByCoursePanel() {
 
         final JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),

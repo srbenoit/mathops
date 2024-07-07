@@ -141,25 +141,6 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
      *
      * @param cache      the data cache
-     * @param termKey the term key
-     * @return the list of models that matched the criteria, a zero-length array if none matched
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static List<RawSurveyqa> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
-
-        final String sql = SimpleBuilder.concat(
-                "SELECT * FROM surveyqa",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
-
-        return executeQuery(cache, sql);
-    }
-
-    /**
-     * Gets the questions for a profile. WARNING: This method will return one row for every possible answer to a
-     * question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
-     *
-     * @param cache      the data cache
      * @param theVersion the profile ID whose questions to retrieve
      * @return the list of models that matched the criteria, a zero-length array if none matched
      * @throws SQLException if there is an error accessing the database

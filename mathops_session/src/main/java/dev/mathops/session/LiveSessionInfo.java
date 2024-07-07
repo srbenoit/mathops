@@ -284,16 +284,6 @@ public final class LiveSessionInfo {
     }
 
     /**
-     * Gets the date/time when the session was established.
-     *
-     * @return the establishment date/time
-     */
-    public Instant getEstablished() {
-
-        return this.established;
-    }
-
-    /**
      * Gets the date/time when the session had its last activity.
      *
      * @return the last activity date/time

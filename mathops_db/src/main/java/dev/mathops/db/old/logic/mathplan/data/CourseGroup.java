@@ -308,41 +308,6 @@ public final class CourseGroup implements Serializable, Comparable<CourseGroup> 
     }
 
     /**
-     * Generates a string representation of the group without links (for use in "title" attributes).
-     *
-     * @param courses the map from course ID to course data
-     * @return the string representation
-     */
-    public String toStringNoLnks(final Map<String, RawCourse> courses) {
-
-        final HtmlBuilder htm = new HtmlBuilder(50);
-
-        if (this.nbrCredits == null) {
-            final String msg = Res.get(Res.SELECT_ONE_COURSE_FROM);
-            htm.add(msg);
-        } else {
-            final String msg = Res.fmt(Res.SELECT_CREDITS_FROM, this.nbrCredits);
-            htm.add(msg);
-        }
-        htm.add(" (");
-
-        boolean comma = false;
-        for (final String nbr : this.courseNumbers) {
-            final RawCourse crs = courses.get(nbr);
-            if (crs != null) {
-                if (comma) {
-                    htm.add(", ");
-                }
-                htm.add(crs.courseLabel);
-                comma = true;
-            }
-        }
-        htm.add(')');
-
-        return htm.toString();
-    }
-
-    /**
      * Compares two records for order.
      *
      * @param o the object to be compared

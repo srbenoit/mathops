@@ -71,7 +71,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
     public UpdateExamRequest(final char[] xml) throws IllegalArgumentException {
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
         this.studentId = extractField(message, "student");
@@ -83,7 +84,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 realizeTime = Long.valueOf(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_REALIZED));
+                final String msg = Res.get(Res.BAD_REALIZED);
+                Log.warning(msg);
             }
         }
         this.realizationTime = realizeTime;
@@ -94,7 +96,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 curSect = Long.valueOf(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_CUR_SECTION));
+                final String msg = Res.get(Res.BAD_CUR_SECTION);
+                Log.warning(msg);
             }
         }
 
@@ -104,7 +107,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 curProb = Long.valueOf(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_CUR_PROBLEM));
+                final String msg = Res.get(Res.BAD_CUR_PROBLEM);
+                Log.warning(msg);
             }
         }
 
@@ -114,7 +118,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 presentTime = Long.valueOf(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_PRESENTED));
+                final String msg = Res.get(Res.BAD_PRESENTED);
+                Log.warning(msg);
             }
         }
         this.presentationTime = presentTime;
@@ -125,7 +130,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 this.updateTime = Long.valueOf(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_UPDATED));
+                final String msg = Res.get(Res.BAD_UPDATED);
+                Log.warning(msg);
             }
         }
 
@@ -136,7 +142,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             try {
                 count = Integer.parseInt(value);
             } catch (final NumberFormatException e) {
-                Log.warning(Res.get(Res.BAD_NUM_ANSWERS));
+                final String msg = Res.get(Res.BAD_NUM_ANSWERS);
+                Log.warning(msg);
             }
         }
 
@@ -269,7 +276,8 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             }
 
             if (numAns > 1) {
-                builder.addln(" <num-answers>", Integer.toString(numAns - 1), "</num-answers>");
+                final String numStr = Integer.toString(numAns - 1);
+                builder.addln(" <num-answers>", numStr, "</num-answers>");
 
                 builder.addln(" <answers>");
 
@@ -291,11 +299,14 @@ public final class UpdateExamRequest extends AbstractRequestBase {
                             }
 
                             switch (this.answers[i][j]) {
-                                case Long l -> builder.add("<long>", this.answers[i][j], "</long>");
-                                case Double v -> builder.add("<double>", this.answers[i][j], "</double>");
-                                case String s -> builder.add("<string>", this.answers[i][j], "</string>");
-                                case null, default ->
-                                        Log.warning(Res.fmt(Res.BAD_ANSWER, this.answers[i][j].getClass().getName()));
+                                case final Long l -> builder.add("<long>", l, "</long>");
+                                case final Double v -> builder.add("<double>", v, "</double>");
+                                case final String s -> builder.add("<string>", s, "</string>");
+                                default -> {
+                                    final String clsName = this.answers[i][j].getClass().getName();
+                                    final String msg = Res.fmt(Res.BAD_ANSWER, clsName);
+                                    Log.warning(msg);
+                                }
                             }
                         }
                     }

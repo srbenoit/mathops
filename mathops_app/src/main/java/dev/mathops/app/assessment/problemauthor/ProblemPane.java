@@ -188,7 +188,7 @@ final class ProblemPane extends JPanel implements ActionListener {
         final JPanel flow4 = makeFlow(bg);
         flow4.add(new JLabel("Min correct choices to display:"));
         final FormulaEditorPanel minCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, minCorrectFormula,
-                this.workingProblem.evalContext, EType.INTEGER);
+                EType.INTEGER);
         minCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
         flow4.add(minCorrect);
         minMaxCorrectInner.add(flow4, StackedBorderLayout.NORTH);
@@ -196,7 +196,7 @@ final class ProblemPane extends JPanel implements ActionListener {
         final JPanel flow5 = makeFlow(bg);
         flow5.add(new JLabel("Max correct choices to display:"));
         final FormulaEditorPanel maxCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, maxCorrectFormula,
-                this.workingProblem.evalContext, EType.INTEGER);
+                EType.INTEGER);
         maxCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
         flow5.add(maxCorrect);
         minMaxCorrectInner.add(flow5, StackedBorderLayout.NORTH);
@@ -213,7 +213,7 @@ final class ProblemPane extends JPanel implements ActionListener {
         final JPanel flow6 = makeFlow(bg);
         flow6.add(new JLabel("Correctness formula:"));
         final FormulaEditorPanel correctness = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, correctnessFormula,
-                this.workingProblem.evalContext, EType.BOOLEAN);
+                EType.BOOLEAN);
         correctness.setEnabled(this.workingProblem instanceof ProblemEmbeddedInputTemplate);
         flow6.add(correctness);
         this.correctnessBox.add(flow6, StackedBorderLayout.NORTH);
@@ -255,14 +255,14 @@ final class ProblemPane extends JPanel implements ActionListener {
                 : new Formula(new ConstRealValue(varianceConstant.doubleValue()));
 
         this.variance = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, initialVar,
-                this.workingProblem.evalContext, EType.INTEGER, EType.REAL);
+                EType.INTEGER, EType.REAL);
         flow8.add(this.variance);
         acceptNumberInner.add(flow8, StackedBorderLayout.NORTH);
 
         final JPanel flow9 = makeFlow(bg);
         flow9.add(new JLabel("Correct answer:"));
         final FormulaEditorPanel correctAnswer = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
-                correctAnswerFormula, this.workingProblem.evalContext, EType.INTEGER, EType.REAL);
+                correctAnswerFormula, EType.INTEGER, EType.REAL);
         flow9.add(correctAnswer);
         acceptNumberInner.add(flow9, StackedBorderLayout.NORTH);
 

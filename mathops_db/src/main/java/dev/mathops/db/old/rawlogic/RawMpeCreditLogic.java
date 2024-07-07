@@ -441,7 +441,6 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
 
         // Record already exists - if this placement result is stronger, use this one; if the result is the same,
         // simply update the exam date; if the existing record is stronger, leave it.
-        final int result;
 
         if (credit.examPlaced.equals(orig)) {
             // Result is unchanged, so update existing record
@@ -455,7 +454,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                     " AND course=", sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql);
+                stmt.executeUpdate(sql);
                 cache.conn.commit();
             }
 
@@ -472,14 +471,12 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                     " AND course=", sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql);
+                stmt.executeUpdate(sql);
                 cache.conn.commit();
             }
 
         } else if ("C".equals(orig) && "P".equals(credit.examPlaced)) {
-
             // Result has worsened, so take no action
-            result = 0;
         } else {
             // New P or C status, so update row
 
@@ -493,11 +490,10 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                     " AND course=", sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql);
+                stmt.executeUpdate(sql);
                 cache.conn.commit();
             }
         }
-
     }
 
     /**

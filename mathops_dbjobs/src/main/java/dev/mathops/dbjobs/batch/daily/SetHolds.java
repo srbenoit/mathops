@@ -84,7 +84,6 @@ public enum SetHolds {
 
         final LocalDate sysDate = LocalDate.now();
         final LocalDate endDate;
-        String sev;
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
@@ -329,13 +328,10 @@ public enum SetHolds {
             }
 
             // Check for students in a mix of courses incompatible pacing structures
-            boolean hasNormalOnline = false;
             boolean hasNormalDistance = false;
-//            boolean hasLateStartOnline = false;
             boolean hasF2F117Sect001 = false;
             boolean hasF2F117Sect002 = false;
             boolean hasF2F118Sect002 = false;
-            boolean hasStandardsBased = false;
 
             for (final RawStcourse reg : regs) {
                 if ("OT".equals(reg.instrnType)) {
@@ -364,37 +360,16 @@ public enum SetHolds {
                         Log.warning("Unexpected ", course, " section number: ", sect);
                     }
                 } else if ("M 124".equals(course) || "M 125".equals(course) || "M 126".equals(course)) {
-//                    if ("001".equals(sect)) {
-//                        hasNormalOnline = true;
-//                    } else if ("002".equals(sect)) {
-//                        hasLateStartOnline = true;
-//                    } else
                     if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
                         hasNormalDistance = true;
                     } else {
                         Log.warning("Unexpected ", course, " section number: ", sect);
                     }
                 } else if ("MATH 125".equals(course) || "MATH 126".equals(course)) {
-                    hasStandardsBased = true;
                 }
             }
 
             boolean applyHold23 = false;
-//            if (hasNormalOnline) {
-//                if (hasNormalDistance) {
-//                    Log.warning("Student '", stuId,
-//                            "' is registered for both on-campus and distance sections - adding hold 23");
-//                    applyHold23 = true;
-//                } else if (hasLateStartOnline) {
-//                    Log.warning("Student '", stuId,
-//                            "' is registered for both normal and late-start sections - adding hold 23");
-//                    applyHold23 = true;
-//                } else if (hasF2FSect003 || hasF2FSect004 || hasF2FSect005 || hasF2FSect006 || hasF2FSect007
-//                        || hasStandardsBased) {
-//                    Log.warning("Student '", stuId,
-//                            "' is registered for both online and face-to-face sections - adding hold 23");
-//                }
-//            }
 
             if (hasNormalDistance) {
                 if (hasF2F117Sect001 || hasF2F117Sect002 || hasF2F118Sect002) {
@@ -403,20 +378,6 @@ public enum SetHolds {
                     applyHold23 = true;
                 }
             }
-
-//            if (hasLateStartOnline
-//                && (hasF2FSect003 || hasF2FSect004 || hasF2FSect005 || hasF2FSect006 || hasF2FSect007
-//                        || hasStandardsBased)) {
-//                Log.warning("Student '", stuId,
-//                        "' is registered for both late-start and face-to-face sections - adding hold 23");
-//                applyHold23 = true;
-//            }
-
-//            if (hasStandardsBased && (hasF2F117Sect001 || hasF2F117Sect002 || hasF2F118Sect002)) {
-//                Log.warning("Student '", stuId,
-//                        "' is registered for both face-to-face Algebra and standards-based Trig - adding hold 23");
-//                applyHold23 = true;
-//            }
 
             if (applyHold23) {
                 final RawAdminHold hold23 = new RawAdminHold(stuId, "23", "F", ZERO, today);

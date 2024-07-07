@@ -77,41 +77,30 @@ enum PagePower {
                         if (pc.testingCenterId.equals(center.testingCenterId)) {
 
                             if (RawClientPc.POWER_TURNING_ON.equals(pc.powerStatus)) {
-                                htm.addln(
-                                        "<form class='indent' method='POST' action='power.html'>");
-                                htm.add("Station ", pc.stationNbr,
-                                        " (currently powering up) &nbsp; ");
+                                htm.addln("<form class='indent' method='POST' action='power.html'>");
+                                htm.add("Station ", pc.stationNbr, " (currently powering up) &nbsp; ");
                                 htm.addln("<input type='hidden' name='action' value='ON'/>");
-                                htm.addln("<input type='hidden' name='pc' value='",
-                                        pc.computerId, "'/>");
-                                htm.addln("<input style='display:inline;' type='submit' ",
-                                        "value='Turn on station'/>");
+                                htm.addln("<input type='hidden' name='pc' value='", pc.computerId, "'/>");
+                                htm.addln("<input style='display:inline;' type='submit' value='Turn on station'/>");
                             } else if (RawClientPc.POWER_REPORTING_ON.equals(pc.powerStatus)) {
 
                                 if (pc.currentStuId == null) {
-                                    htm.addln(
-                                            "<form class='indent' method='POST' action='power.html'>");
-                                    htm.add("Station ", pc.stationNbr,
-                                            " (currently ON and not in use) &nbsp; ");
+                                    htm.addln("<form class='indent' method='POST' action='power.html'>");
+                                    htm.add("Station ", pc.stationNbr, " (currently ON and not in use) &nbsp; ");
                                     htm.addln("<input type='hidden' name='action' value='OFF'/>");
-                                    htm.addln("<input type='hidden' name='pc' value='",
-                                            pc.computerId, "'/>");
+                                    htm.addln("<input type='hidden' name='pc' value='", pc.computerId, "'/>");
                                     htm.addln("<input style='display:inline;' type='submit' ",
                                             "value='Turn off station'/>");
                                 } else {
                                     htm.addln("<form class='indent'>");
-                                    htm.add("Station ", pc.stationNbr,
-                                            " (currently ON and IN USE)");
+                                    htm.add("Station ", pc.stationNbr, " (currently ON and IN USE)");
                                 }
                             } else {
-                                htm.addln(
-                                        "<form class='indent' method='POST' action='power.html'>");
+                                htm.addln("<form class='indent' method='POST' action='power.html'>");
                                 htm.add("Station ", pc.stationNbr, " (currently OFF) &nbsp; ");
                                 htm.addln("<input type='hidden' name='action' value='ON'/>");
-                                htm.addln("<input type='hidden' name='pc' value='",
-                                        pc.computerId, "'/>");
-                                htm.addln("<input style='display:inline;' type='submit' ",
-                                        "value='Turn on station'/>");
+                                htm.addln("<input type='hidden' name='pc' value='", pc.computerId, "'/>");
+                                htm.addln("<input style='display:inline;' type='submit' value='Turn on station'/>");
                             }
                             htm.addln("</form>");
                         }
@@ -220,36 +209,10 @@ enum PagePower {
         final String[] cmd = {"/opt/zircon/cfg/shutdown_station.sh", address};
 
         try {
-            final Process p = Runtime.getRuntime().exec(cmd);
-
+            Runtime.getRuntime().exec(cmd);
             RawClientPcLogic.updatePowerStatus(cache, station.computerId, RawClientPc.POWER_OFF);
         } catch (final IOException ex) {
             Log.warning("Failed to execute shell script", ex);
         }
     }
-
-//    /**
-//     * Starts a small navigation button.
-//     *
-//     * @param htm      the {@code HtmlBuilder} to which to append
-//     * @param selected true if button is currently selected
-//     * @param label    the button label
-//     * @param url      the URL to which to link
-//     * @param query    optional query string (not including leading '?')
-//     */
-//    static void navButtonSmall(final HtmlBuilder htm, final boolean selected, final String label,
-//                               final String url, final String query) {
-//
-//        htm.add("<button");
-//        if (selected) {
-//            htm.add(" class='nav8 selected'");
-//        } else {
-//            htm.add(" class='nav8'");
-//        }
-//        htm.add(" onclick='pick(\"", url);
-//        if (query != null) {
-//            htm.add('?').add(query);
-//        }
-//        htm.add("\");'>", label, "</button>");
-//    }
 }

@@ -21,7 +21,6 @@ import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.UserInfoBar;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -166,7 +165,7 @@ public final class RamWorkSite extends AbstractSite {
                     } else if ("mathrefresherstudent.html".equals(subpath)) {
                         PageMathRefresherStudent.showPage(cache, req, resp, session);
                     } else if ("assessmentdev.html".equals(subpath)) {
-                        PageAssessmentDev.showPage(req, resp, session);
+                        PageAssessmentDev.showPage(req, resp);
 
                     } else if ("secure/shibboleth.html".equals(subpath)) {
                         doShibbolethLogin(cache, req, resp, session);

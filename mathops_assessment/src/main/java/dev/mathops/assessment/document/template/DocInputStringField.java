@@ -233,7 +233,7 @@ public final class DocInputStringField extends AbstractDocInputField {
             x += 2;
         }
 
-        if (!isHidden()) {
+        if (isVisible()) {
             final int[] charPositions = getCharPositions();
 
             if (charPositions != null && this.selectStart != -1 && this.selectEnd != -1) {
@@ -317,7 +317,7 @@ public final class DocInputStringField extends AbstractDocInputField {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocInputStringFieldInst createInstance(final EvalContext evalContext) {

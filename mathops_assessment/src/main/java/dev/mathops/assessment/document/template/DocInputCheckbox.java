@@ -372,7 +372,7 @@ public final class DocInputCheckbox extends AbstractDocInput {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocInputCheckboxInst createInstance(final EvalContext evalContext) {

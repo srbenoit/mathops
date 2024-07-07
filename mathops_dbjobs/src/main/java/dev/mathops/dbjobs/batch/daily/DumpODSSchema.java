@@ -177,91 +177,91 @@ final class DumpODSSchema {
         }
     }
 
-    /**
-     * Dumps metadata.
-     *
-     * @param conn the ODS connection
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static void dumpMetadata(final DbConnection conn) throws SQLException {
-
-        final Connection jdbc = conn.getConnection();
-
-        final DatabaseMetaData meta = jdbc.getMetaData();
-
-        // TABLES
-
-        final List<String> tables = new ArrayList<>(40);
-        final List<String> schemas = new ArrayList<>(10);
-
-        // try (ResultSet tablesRS = meta.getTables(CoreConstants.EMPTY, "CSUBAN", null,
-        try (final ResultSet tablesRS = meta.getTables(CoreConstants.EMPTY, null, null, null)) {
-            while (tablesRS.next()) {
-                final String schema = tablesRS.getString("TABLE_SCHEM");
-
-                if ("CSUBAN".equals(schema) || "ODSMGR".equals(schema)) {
-                    final String tableName = tablesRS.getString("TABLE_NAME");
-
-                    tables.add(tableName);
-                    schemas.add(schema);
-                }
-            }
-        }
-
-        final int numTables = tables.size();
-
-        Log.fine(CoreConstants.EMPTY);
-        Log.fine("FOUND " + numTables + " TABLES:");
-        Log.fine(CoreConstants.EMPTY);
-
-        final List<String> fieldNames = new ArrayList<>(40);
-        final List<String> fieldTypes = new ArrayList<>(40);
-
-        for (int i = 0; i < numTables; ++i) {
-            final String tableName = tables.get(i);
-            final String schema = schemas.get(i);
-
-            fieldNames.clear();
-            fieldTypes.clear();
-            int maxlen = 0;
-
-            Log.fine("Table: ", tableName, " in schema ", schema);
-
-            try (final ResultSet columnsRS = meta.getColumns(CoreConstants.EMPTY, schema, tableName, null)) {
-
-                while (columnsRS.next()) {
-                    final String colName = columnsRS.getString("COLUMN_NAME");
-                    maxlen = Math.max(maxlen, colName.length());
-                    final String type = columnsRS.getString("TYPE_NAME");
-                    final int size = columnsRS.getInt("COLUMN_SIZE");
-
-                    fieldNames.add(colName);
-                    if (type.toLowerCase(Locale.ROOT).contains("char")) {
-                        fieldTypes.add(type + "(" + size + ")");
-                    } else {
-                        fieldTypes.add(type);
-                    }
-                }
-
-            }
-
-            final int count = fieldNames.size();
-            final HtmlBuilder builder = new HtmlBuilder(50);
-            for (int j = 0; j < count; ++j) {
-                builder.add(fieldNames.get(j));
-                int len = builder.length();
-                while (len < maxlen) {
-                    builder.add(CoreConstants.SPC_CHAR);
-                    ++len;
-                }
-
-                Log.fine(" ", builder.toString(), " : ", fieldTypes.get(j));
-                builder.reset();
-            }
-
-            Log.fine(CoreConstants.EMPTY);
-        }
-    }
+//    /**
+//     * Dumps metadata.
+//     *
+//     * @param conn the ODS connection
+//     * @throws SQLException if there is an error accessing the database
+//     */
+//    private static void dumpMetadata(final DbConnection conn) throws SQLException {
+//
+//        final Connection jdbc = conn.getConnection();
+//
+//        final DatabaseMetaData meta = jdbc.getMetaData();
+//
+//        // TABLES
+//
+//        final List<String> tables = new ArrayList<>(40);
+//        final List<String> schemas = new ArrayList<>(10);
+//
+//        // try (ResultSet tablesRS = meta.getTables(CoreConstants.EMPTY, "CSUBAN", null,
+//        try (final ResultSet tablesRS = meta.getTables(CoreConstants.EMPTY, null, null, null)) {
+//            while (tablesRS.next()) {
+//                final String schema = tablesRS.getString("TABLE_SCHEM");
+//
+//                if ("CSUBAN".equals(schema) || "ODSMGR".equals(schema)) {
+//                    final String tableName = tablesRS.getString("TABLE_NAME");
+//
+//                    tables.add(tableName);
+//                    schemas.add(schema);
+//                }
+//            }
+//        }
+//
+//        final int numTables = tables.size();
+//
+//        Log.fine(CoreConstants.EMPTY);
+//        Log.fine("FOUND " + numTables + " TABLES:");
+//        Log.fine(CoreConstants.EMPTY);
+//
+//        final List<String> fieldNames = new ArrayList<>(40);
+//        final List<String> fieldTypes = new ArrayList<>(40);
+//
+//        for (int i = 0; i < numTables; ++i) {
+//            final String tableName = tables.get(i);
+//            final String schema = schemas.get(i);
+//
+//            fieldNames.clear();
+//            fieldTypes.clear();
+//            int maxlen = 0;
+//
+//            Log.fine("Table: ", tableName, " in schema ", schema);
+//
+//            try (final ResultSet columnsRS = meta.getColumns(CoreConstants.EMPTY, schema, tableName, null)) {
+//
+//                while (columnsRS.next()) {
+//                    final String colName = columnsRS.getString("COLUMN_NAME");
+//                    maxlen = Math.max(maxlen, colName.length());
+//                    final String type = columnsRS.getString("TYPE_NAME");
+//                    final int size = columnsRS.getInt("COLUMN_SIZE");
+//
+//                    fieldNames.add(colName);
+//                    if (type.toLowerCase(Locale.ROOT).contains("char")) {
+//                        fieldTypes.add(type + "(" + size + ")");
+//                    } else {
+//                        fieldTypes.add(type);
+//                    }
+//                }
+//
+//            }
+//
+//            final int count = fieldNames.size();
+//            final HtmlBuilder builder = new HtmlBuilder(50);
+//            for (int j = 0; j < count; ++j) {
+//                builder.add(fieldNames.get(j));
+//                int len = builder.length();
+//                while (len < maxlen) {
+//                    builder.add(CoreConstants.SPC_CHAR);
+//                    ++len;
+//                }
+//
+//                Log.fine(" ", builder.toString(), " : ", fieldTypes.get(j));
+//                builder.reset();
+//            }
+//
+//            Log.fine(CoreConstants.EMPTY);
+//        }
+//    }
 
     /**
      * Main method to execute the batch job.

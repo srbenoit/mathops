@@ -70,23 +70,6 @@ public final class PlacementReport {
     }
 
     /**
-     * Constructs a new {@code PlacementReport}.
-     *
-     * @param theFilename the name of files to generate ('.txt' and '.csv' extensions will be added)
-     * @param theStudentIds the list of student IDs on which to report
-     */
-    public PlacementReport(final String theFilename, final Collection<String> theStudentIds) {
-
-        this.filename = theFilename;
-        this.category = null;
-        this.studentIds = theStudentIds;
-
-        final ContextMap map = ContextMap.getDefaultInstance();
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-    }
-
-    /**
      * Executes the job.
      */
     public void execute() {

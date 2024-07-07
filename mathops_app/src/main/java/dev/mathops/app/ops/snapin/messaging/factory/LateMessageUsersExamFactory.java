@@ -95,7 +95,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -123,7 +123,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -149,7 +149,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -201,7 +201,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -227,7 +227,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus04(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -258,7 +258,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus05(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -284,7 +284,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus06(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -338,7 +338,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRRus07(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -364,7 +364,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRXus00(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -399,7 +399,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRXus01(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -430,7 +430,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRXus02(final MessagingContext context,
                                                   final MessagingCourseStatus status) {
@@ -482,7 +482,7 @@ public enum LateMessageUsersExamFactory {
      *
      * @param context the messaging context
      * @param status  the student's status in their current course
-     * @return a report row if a message is to be sent to the student; null if not
+     * @return a report row with the message to be sent to the student
      */
     private static MessageToSend generateUSRXus03(final MessagingContext context,
                                                   final MessagingCourseStatus status) {

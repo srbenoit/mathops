@@ -7,7 +7,6 @@ import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
@@ -458,13 +457,13 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     }
 
     /**
-     * Test whether the font is hidden.
+     * Test whether the object is hidden.
      *
      * @return {@code true} if hidden, {@code false} otherwise
      */
-    public final boolean isHidden() {
+    public final boolean isVisible() {
 
-        return (getFontStyle() & HIDDEN) == HIDDEN;
+        return (getFontStyle() & HIDDEN) != HIDDEN;
     }
 
     /**

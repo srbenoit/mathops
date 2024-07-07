@@ -47,12 +47,6 @@ enum PageStdsText {
     /** A commonly used string. */
     private static final String OPEN = "Open";
 
-    /** A commonly used string. */
-    private static final String EPLOR_1 = "Explorations 1";
-
-    /** A commonly used string. */
-    private static final String EPLOR_2 = "Explorations 2";
-
     /** A commonly used div class. */
     private static final String CLEAR = "clear";
 

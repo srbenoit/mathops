@@ -338,7 +338,7 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             w = integerWhere(sql, w, "score", queryCriteria.score);
             w = integerWhere(sql, w, "nbr_mastered_h1", queryCriteria.nbrMasteredH1);
             w = integerWhere(sql, w, "nbr_mastered_h2", queryCriteria.nbrMasteredH2);
-            w = integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
+            integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
 
             return doListQuery(cache, sql.toString());
         }
@@ -562,7 +562,7 @@ public abstract class StudentCourseMasteryLogic implements IRecLogic<StudentCour
             w = integerWhere(sql, w, "score", queryCriteria.score);
             w = integerWhere(sql, w, "nbr_mastered_h1", queryCriteria.nbrMasteredH1);
             w = integerWhere(sql, w, "nbr_mastered_h2", queryCriteria.nbrMasteredH2);
-            w = integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
+            integerWhere(sql, w, "nbr_eligible", queryCriteria.nbrEligible);
 
             return doListQuery(cache, sql.toString());
         }

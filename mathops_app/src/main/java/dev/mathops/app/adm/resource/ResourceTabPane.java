@@ -78,7 +78,7 @@ public class ResourceTabPane extends JPanel implements ActionListener {
      * @param theCache         the data cache
      * @param fixed            the fixed data
      */
-    public ResourceTabPane(final Cache theCache, final Object theRenderingHint,
+    public ResourceTabPane(final Cache theCache,
                            final FixedData fixed) {
 
         // Functions:
@@ -161,7 +161,7 @@ public class ResourceTabPane extends JPanel implements ActionListener {
         // Card 3: Check Student Loans
 
         if (fixed.getClearanceLevel("RES_STU") != null) {
-            this.stuLoanCard = new StudentLoanHistoryCard(theCache, theRenderingHint);
+            this.stuLoanCard = new StudentLoanHistoryCard(theCache);
             this.cardPane.add(this.stuLoanCard, HISTORY_CMD);
         } else {
             this.stuLoanCard = null;

@@ -71,16 +71,6 @@ public class WizardPanelDescriptor {
     }
 
     /**
-     * Returns the unique {@code Object} identifier for this panel descriptor.
-     *
-     * @return the {@code Object} identifier
-     */
-    public final Object getPanelDescriptorIdentifier() {
-
-        return this.panelIdentifier;
-    }
-
-    /**
      * Sets the {@code String} identifier for this panel. The identifier must be unique from all the other identifiers
      * in the panel.
      *
@@ -109,16 +99,6 @@ public class WizardPanelDescriptor {
     protected final Wizard getWizard() {
 
         return this.wizard;
-    }
-
-    /**
-     * Returns a reference to the current {@code WizardModel} for this {@code Wizard} component.
-     *
-     * @return the current {@code WizardModel} for this {@code Wizard} component
-     */
-    public WizardModel getWizardModel() {
-
-        return this.wizard.getModel();
     }
 
     /**

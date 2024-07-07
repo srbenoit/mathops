@@ -94,9 +94,9 @@ public class FormsTabPane extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code FormsTabPane}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
-    public FormsTabPane(final Cache theCache, final Object theRenderingHint) {
+    public FormsTabPane(final Cache theCache) {
 
         super(null);
 
@@ -215,7 +215,7 @@ public class FormsTabPane extends JPanel implements ActionListener {
     /**
      * Creates a pane for a table.
      *
-     * @param tableName        the table name
+     * @param tableName the table name
      * @return the pane
      */
     private JPanel makeTablePanel(final String tableName) {

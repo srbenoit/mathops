@@ -3,14 +3,11 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
-import dev.mathops.db.old.schema.csubanner.ImplLiveTransferCredit;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
@@ -19,7 +16,10 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.rec.LiveStudent;
 import dev.mathops.db.old.rec.LiveTransferCredit;
+import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
+import dev.mathops.db.old.schema.csubanner.ImplLiveTransferCredit;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -1181,12 +1181,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param cache        the data cache
      * @param studentId    the ID of the student whose admission information to update
      * @param newAdmitType the new admit type
-     * @param newAdmitted  the new admitted flag
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateAdmission(final Cache cache, final String studentId, final String newAdmitType,
-                                          final Boolean newAdmitted) throws SQLException {
+    public static boolean updateAdmission(final Cache cache, final String studentId, final String newAdmitType)
+            throws SQLException {
 
         final boolean result;
 
@@ -1195,8 +1194,6 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            // NOTE: There is no "admitted" field yet...
-
             final String sql = SimpleBuilder.concat("UPDATE student ",
                     "SET admit_type=", sqlStringValue(newAdmitType),
                     " WHERE stu_id=", sqlStringValue(studentId));
@@ -1294,20 +1291,15 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     public static void updateCanvasId(final Cache cache, final String studentId,
                                       final String newCanvasId) throws SQLException {
 
-        final boolean result;
-
         if (studentId.startsWith("99")) {
             Log.info(SKIPPING_UPDATE);
             Log.info(STU_ID, studentId);
-            result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
                     "SET canvas_id=", sqlStringValue(newCanvasId),
                     " WHERE stu_id=", sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
-
-            if (result) {
+            if (executeSimpleUpdate(cache, sql) == 1) {
                 cache.conn.commit();
             } else {
                 cache.conn.rollback();
@@ -1729,10 +1721,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         }
 
         if (mismatch(liveReg.admitType, record.admitType)) {
-            // TODO: Get a real "admitted" value here, and add to RawStudent
-            result = result && updateAdmission(cache, record.stuId, liveReg.admitType, Boolean.FALSE);
+            if (result) {
+                // TODO: Get a real "admitted" value here, and add to RawStudent
+                updateAdmission(cache, record.stuId, liveReg.admitType);
+            }
         }
-
     }
 
     /**

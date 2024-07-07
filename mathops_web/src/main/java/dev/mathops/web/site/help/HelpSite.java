@@ -26,7 +26,6 @@ import dev.mathops.web.site.help.tutor.PageTutorLiveHelp;
 import dev.mathops.web.skin.IServletSkin;
 import dev.mathops.web.skin.colostate.CSUSkin;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,5 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;

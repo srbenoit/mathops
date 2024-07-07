@@ -165,21 +165,6 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
     }
 
     /**
-     * Deletes a record, and also deletes associated RawSthwqa records.
-     *
-     * @param cache  the data cache
-     * @param record the record to delete
-     * @return {@code true} if successful; {@code false} if not
-     * @throws SQLException if there is an error accessing the database
-     */
-    public boolean deleteAttemptAndAnswers(final Cache cache, final RawSthomework record) throws SQLException {
-
-        RawSthwqaLogic.deleteAllForAttempt(cache, record);
-
-        return delete(cache, record);
-    }
-
-    /**
      * Gets all records.
      *
      * @param cache the data cache

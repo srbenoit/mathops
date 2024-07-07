@@ -52,7 +52,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
      * @param theFixed         the fixed data
      */
     CardPopulationDetail(final Cache theCache, final DbContext liveContext,
-                         final FixedData theFixed, final Object theRenderingHint) {
+                         final FixedData theFixed) {
 
         super(new BorderLayout(5, 5));
         setPreferredSize(AdminMainWindow.PREF_SIZE);
@@ -168,7 +168,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         scroll.getVerticalScrollBar().setBlockIncrement(30);
         tabs.addTab("Placement", scroll);
 
-        final StudentMathPlanPanel mathPlanPanel = new StudentMathPlanPanel(theRenderingHint);
+        final StudentMathPlanPanel mathPlanPanel = new StudentMathPlanPanel();
         tabs.addTab("Math Plan", mathPlanPanel);
 
         cards.show(cardPane, PICK_CMD);

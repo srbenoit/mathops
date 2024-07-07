@@ -2,21 +2,16 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveRectangleInst;
-import dev.mathops.assessment.formula.Formula;
-import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
 

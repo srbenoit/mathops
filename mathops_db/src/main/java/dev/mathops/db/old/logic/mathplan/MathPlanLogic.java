@@ -3921,32 +3921,6 @@ public final class MathPlanLogic {
     }
 
     /**
-     * Tests whether the student has taken a placement exam.
-     *
-     * @param cache     the data cache
-     * @param studentId the student ID
-     * @return the date/time the student first completed the placement tool; null if they have not yet done so
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static LocalDateTime hasTakenPlacement(final Cache cache, final String studentId) throws SQLException {
-
-        LocalDateTime result = null;
-
-        final List<RawStmpe> legal = RawStmpeLogic.queryLegalByStudent(cache, studentId);
-        for (final RawStmpe row : legal) {
-            if (row.examDt != null && row.finishTime != null) {
-                final LocalDateTime timestamp = TemporalUtils.toLocalDateTime(row.examDt, row.finishTime);
-
-                if (result == null || result.isAfter(timestamp)) {
-                    result = timestamp;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Tests whether the student identified by a PIDM has completed their math plan.
      *
      * @param cache the data cache
@@ -3981,7 +3955,7 @@ public final class MathPlanLogic {
     public static MathPlanPlacementStatus getMathPlacementStatus(final Cache cache, final String studentId)
             throws SQLException {
 
-        boolean planSaysPlacementNeeded = false;
+        boolean planSaysPlacementNeeded;
         boolean satisfiedByPlacement = false;
         boolean satisfiedByTransfer = false;
         boolean satisfiedByCourse = false;
@@ -3999,10 +3973,8 @@ public final class MathPlanLogic {
             planSaysPlacementNeeded = false;
         } else if (rec.stuAnswer.startsWith("2 cr. of Core")) {
             planSaysPlacementNeeded = false;
-        } else if (rec.stuAnswer.startsWith("1 cr. of Core")) {
-            planSaysPlacementNeeded = false;
         } else {
-            planSaysPlacementNeeded = true;
+            planSaysPlacementNeeded = !rec.stuAnswer.startsWith("1 cr. of Core");
         }
 
         final List<RawStmpe> attempts = RawStmpeLogic.queryLegalByStudent(cache, studentId);
@@ -4191,7 +4163,6 @@ public final class MathPlanLogic {
                 final Cache cache = new Cache(dbProfile, conn);
 
                 // Student 823251213 PIDM 10567708
-                final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
                 final String status1 = getMathPlanStatus(cache, 11806361);
                 Log.info("Student 833004236  plan status: " + status1);

@@ -221,7 +221,7 @@ public abstract class AbstractDocContainer extends AbstractDocObjectTemplate {
 
         if (this.children != null) {
             for (final AbstractDocObjectTemplate child : this.children) {
-                if (!child.isHidden()) {
+                if (child.isVisible()) {
                     builder.add(child.toString());
                 }
             }

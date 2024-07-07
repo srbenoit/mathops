@@ -31,10 +31,10 @@ public final class SiteDataCfgCourse {
     boolean mustTakeUsersExam;
 
     /** Flag indicating the student should access the course in practice mode. */
-    boolean practiceMode;
+    boolean practiceMode = false;
 
     /** Flag indicating the student has open access to the entire course, as for tutors. */
-    boolean openAccess;
+    boolean openAccess = false;
 
     /**
      * Constructs a new {@code SiteDataCfgCourse}.

@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A panel that shows student Math Plan and RamReady status.
  */
-/* default */ class StudentMathPlanPanel extends AdminPanelBase {
+class StudentMathPlanPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -62,9 +62,8 @@ import java.util.List;
     /**
      * Constructs a new {@code StudentMathPlanPanel}.
      *
-     * @param theRenderingHint the rendering hint to use for antialiased controls
      */
-    StudentMathPlanPanel(final Object theRenderingHint) {
+    StudentMathPlanPanel() {
 
         super();
         setBackground(Skin.WHITE);
@@ -188,8 +187,8 @@ import java.util.List;
             populateDisplay(cache, studentId);
         }
 
-        this.mathPlanScroll.setPreferredSize(
-                this.mathPlanResponsesTable.getPreferredScrollSize(this.mathPlanScroll, 3));
+        final Dimension prefScrollSize = this.mathPlanResponsesTable.getPreferredScrollSize(this.mathPlanScroll, 3);
+        this.mathPlanScroll.setPreferredSize(prefScrollSize);
     }
 
     /**
@@ -254,7 +253,6 @@ import java.util.List;
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat("Review my Mathematics Plan."));
                     }
 
-                    final MathPlanLogic logic = new MathPlanLogic(cache.dbProfile);
                     final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, studentId);
 
                     if (status.isPlacementComplete) {

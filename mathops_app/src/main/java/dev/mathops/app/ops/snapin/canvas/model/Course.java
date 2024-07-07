@@ -39,6 +39,8 @@ public final class Course {
      * @param theCode the course code
      * @param theName the course name
      * @param theState the course state (unpublished, available, completed, or deleted)
+     * @param theStartDate the start date
+     * @param theEndDate the end date
      */
     public Course(final long theId, final String theCode, final String theName, final String theState,
                   final ZonedDateTime theStartDate, final ZonedDateTime theEndDate) {

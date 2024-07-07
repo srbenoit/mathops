@@ -154,7 +154,7 @@ final class ExamXmlFileHarvester {
                     continue;
                 }
 
-                processExamFolder(examFolder, stuTargetDir);
+                processExamFolder(examFolder);
             }
         }
     }
@@ -163,9 +163,8 @@ final class ExamXmlFileHarvester {
      * Processes a single exam folder.
      *
      * @param examFolder   the exam folder
-     * @param stuTargetDir the target directory in which to write summary files
      */
-    private static void processExamFolder(final File examFolder, final File stuTargetDir) {
+    private static void processExamFolder(final File examFolder) {
 
         final File examXml = new File(examFolder, "exam.xml.Z");
         final File answers = new File(examFolder, "answers.txt.Z");

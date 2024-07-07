@@ -28,20 +28,6 @@ public final class CourseInfo implements Comparable<CourseInfo> {
     }
 
     /**
-     * Constructs a {@code CourseInfo}.
-     *
-     * @param theCourse   the course number
-     * @param theLabel    the course label, to appear in the menu
-     * @param isAvailable {@code true} if tutorial is available
-     */
-    CourseInfo(final String theCourse, final String theLabel, final boolean isAvailable) {
-
-        this.course = theCourse;
-        this.label = theLabel;
-        this.available = isAvailable;
-    }
-
-    /**
      * Compares this object with the specified object for order. Comparison is based on a direct string comparison of
      * course number.
      *

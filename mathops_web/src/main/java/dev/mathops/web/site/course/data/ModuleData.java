@@ -41,7 +41,7 @@ public final class ModuleData {
         this.course = theCourse;
         this.moduleNumber = theModuleNumber;
         this.moduleTitle = theModuleTitle;
-        this.skillsReview = new SkillsReviewData(theCourse, theModuleNumber, theSRAssignmentId);
+        this.skillsReview = new SkillsReviewData(theCourse, theSRAssignmentId);
         this.thumbnailImage = theThumbnailImage;
 
         this.learningTargets = new ArrayList<>(3);

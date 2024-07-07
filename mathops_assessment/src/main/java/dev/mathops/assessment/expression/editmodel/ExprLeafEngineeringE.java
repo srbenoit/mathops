@@ -1,7 +1,5 @@
 package dev.mathops.assessment.expression.editmodel;
 
-import dev.mathops.commons.builder.HtmlBuilder;
-
 /**
  * An expression object that represents the "E" that precedes a power of 10 in engineering notation.
  */

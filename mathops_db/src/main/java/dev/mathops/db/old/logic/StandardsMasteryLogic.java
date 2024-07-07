@@ -147,19 +147,19 @@ public final class StandardsMasteryLogic {
      * @param examId the mastery exam ID
      * @return true if the student has mastered the standard
      */
-    public boolean hasMasteredStandard(final String examId) {
+    private boolean isStandardMasteryNeeded(final String examId) {
 
-        boolean isMastered = false;
+        boolean masteryNeeded = true;
 
         final List<MasteryAttemptRec> attempts = this.masteryAttempts.get(examId);
         for (final MasteryAttemptRec attempt : attempts) {
             if ("Y".equals(attempt.passed)) {
-                isMastered = true;
+                masteryNeeded = false;
                 break;
             }
         }
 
-        return isMastered;
+        return !masteryNeeded;
     }
 
     /**
@@ -207,7 +207,7 @@ public final class StandardsMasteryLogic {
      * @param objective the objective (typically 1 through 3)
      * @return true if the student has passed a homework of type "ST" for the indicated unit and objective
      */
-    public boolean hasPassedStandardAssignment(final int unit, final int objective) {
+    private boolean hasPassedStandardAssignment(final int unit, final int objective) {
 
         boolean passed = false;
 
@@ -233,7 +233,7 @@ public final class StandardsMasteryLogic {
         for (final MasteryExamRec exam : this.masteryExams) {
             final int unit = exam.unit.intValue();
             final int obj = exam.objective.intValue();
-            if (hasPassedStandardAssignment(unit, obj) && !hasMasteredStandard(exam.examId)) {
+            if (hasPassedStandardAssignment(unit, obj) && !isStandardMasteryNeeded(exam.examId)) {
                 ++available;
             }
         }
@@ -254,7 +254,7 @@ public final class StandardsMasteryLogic {
         for (final MasteryExamRec exam : this.masteryExams) {
             final int unit = exam.unit.intValue();
             final int obj = exam.objective.intValue();
-            if (hasPassedStandardAssignment(unit, obj) && !hasMasteredStandard(exam.examId)) {
+            if (hasPassedStandardAssignment(unit, obj) && !isStandardMasteryNeeded(exam.examId)) {
                 available.add(exam);
             }
         }

@@ -201,7 +201,7 @@ public final class DocColumn extends AbstractDocContainer {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the iteration document object; null if unable to create the iteration
+     * @return the iteration document object
      */
     @Override
     public DocColumnInst createInstance(final EvalContext evalContext) {

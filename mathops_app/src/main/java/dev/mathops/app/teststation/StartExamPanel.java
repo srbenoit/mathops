@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,7 +25,7 @@ import java.io.Serial;
 /**
  * A dialog that waits for a student to arrive at their seat to start an exam.
  */
-public class StartExamPanel extends JInternalFrame implements ActionListener {
+public final class StartExamPanel extends JInternalFrame implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -34,16 +35,16 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
     private final String studentId;
 
     /** True if validation was successful. */
-    private boolean succeeded;
+    private boolean succeeded = false;
 
     /** Counter for the number of attempts made. */
-    private int attempt;
+    private int attempt = 0;
 
     /** The field used to enter the student ID. */
-    private JPasswordField idField;
+    private JPasswordField idField = null;
 
     /** A bar to display a login timeout. */
-    private JProgressBar timeout;
+    private JProgressBar timeout = null;
 
     /**
      * Constructs a new {@code StartExamPanel} panel.
@@ -52,8 +53,8 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
      * @param theStudentId the correct student ID, to be validated
      * @param baseColor    the color of the background screen this panel lives on
      */
-    public StartExamPanel(final JDesktopPane desk, final String theStudentId,
-                          final Color baseColor) {
+    StartExamPanel(final JDesktopPane desk, final String theStudentId,
+                   final Color baseColor) {
 
         super("Student ID Verification", false, false, false, false);
 
@@ -108,10 +109,12 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
     public void actionPerformed(final ActionEvent e) {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
-        final String id = String.valueOf(this.idField.getPassword());
+        final char[] pwd = this.idField.getPassword();
+        final String id = String.valueOf(pwd);
 
         // Allow extra characters entered at the end, since student ID cards have extra
         if (id.startsWith(this.studentId)) {
@@ -136,22 +139,22 @@ public class StartExamPanel extends JInternalFrame implements ActionListener {
 /**
  * A runnable that is to be called in the AWT event dispatcher thread to construct the dialog's GUI.
  */
-class StartExamPanelGuiBuilder implements Runnable {
+final class StartExamPanelGuiBuilder implements Runnable {
 
     /** The pane in which to center the dialog. */
-    private JDesktopPane deskPane;
+    private final JDesktopPane deskPane;
 
     /** The panel whose GUI is to be built. */
     private StartExamPanel panel;
 
     /** The background color of the underlying window. */
-    private Color baseColor;
+    private final Color baseColor;
 
     /** The user ID field. */
-    private JPasswordField userIdField;
+    private JPasswordField userIdField = null;
 
     /** The timeout progress bar. */
-    private JProgressBar progress;
+    private JProgressBar progress = null;
 
     /**
      * Constructs a new {@code StartExamPanelGuiBuilder}.
@@ -160,71 +163,10 @@ class StartExamPanelGuiBuilder implements Runnable {
      * @param thePanel     the panel whose GUI is to be built
      * @param theBaseColor the background color of the window on which the panel is to sit
      */
-    StartExamPanelGuiBuilder(final JDesktopPane desk, final StartExamPanel thePanel,
-                             final Color theBaseColor) {
+    StartExamPanelGuiBuilder(final JDesktopPane desk, final StartExamPanel thePanel, final Color theBaseColor) {
 
         this.deskPane = desk;
         this.panel = thePanel;
-        this.baseColor = theBaseColor;
-    }
-
-    /**
-     * Gets the desktop pane.
-     *
-     * @return the desktop pane
-     */
-    public JDesktopPane getDeskPane() {
-
-        return this.deskPane;
-    }
-
-    /**
-     * Sets the desktop pane.
-     *
-     * @param theDeskPane the new desktop pane
-     */
-    public void setDeskPane(final JDesktopPane theDeskPane) {
-
-        this.deskPane = theDeskPane;
-    }
-
-    /**
-     * Gets the start exam panel.
-     *
-     * @return the start exam panel
-     */
-    public StartExamPanel getPanel() {
-
-        return this.panel;
-    }
-
-    /**
-     * Sets the start exam panel.
-     *
-     * @param thePanel the new start exam panel
-     */
-    public void setPanel(final StartExamPanel thePanel) {
-
-        this.panel = thePanel;
-    }
-
-    /**
-     * Gets the base color.
-     *
-     * @return the base color
-     */
-    public Color getBaseColor() {
-
-        return this.baseColor;
-    }
-
-    /**
-     * Sets the base color.
-     *
-     * @param theBaseColor the new base color
-     */
-    public void setBaseColor(final Color theBaseColor) {
-
         this.baseColor = theBaseColor;
     }
 
@@ -233,19 +175,9 @@ class StartExamPanelGuiBuilder implements Runnable {
      *
      * @return the user ID field
      */
-    public JPasswordField getUserIdField() {
+    JPasswordField getUserIdField() {
 
         return this.userIdField;
-    }
-
-    /**
-     * Sets the user ID field.
-     *
-     * @param theGuiIdField the new user ID field
-     */
-    public void setGuiIdField(final JPasswordField theGuiIdField) {
-
-        this.userIdField = theGuiIdField;
     }
 
     /**
@@ -259,30 +191,22 @@ class StartExamPanelGuiBuilder implements Runnable {
     }
 
     /**
-     * Sets the progress bar.
-     *
-     * @param theProgress the new progress bar
-     */
-    public void setProgress(final JProgressBar theProgress) {
-
-        this.progress = theProgress;
-    }
-
-    /**
      * Constructs the user interface.
      */
     @Override
     public void run() {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         final JPanel content = new JPanel(new BorderLayout());
         this.panel.setContentPane(content);
 
         final JPanel center = new JPanel();
-        center.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        final Border padding = BorderFactory.createEmptyBorder(15, 15, 15, 15);
+        center.setBorder(padding);
         center.setLayout(new BorderLayout(10, 10));
         content.add(center, BorderLayout.CENTER);
 
@@ -290,7 +214,7 @@ class StartExamPanelGuiBuilder implements Runnable {
         this.progress = new JProgressBar(0, 720);
         this.progress.setString("Login Timeout");
         this.progress.setStringPainted(true);
-        content.add(this.progress, BorderLayout.SOUTH);
+        content.add(this.progress, BorderLayout.PAGE_END);
 
         // Make this panel a light version of the background color
         int r = this.baseColor.getRed();
@@ -307,7 +231,7 @@ class StartExamPanelGuiBuilder implements Runnable {
         // Create the title
         final JLabel lbl = new JLabel("Enter your student ID to begin:");
         lbl.setBackground(bg);
-        center.add(lbl, BorderLayout.NORTH);
+        center.add(lbl, BorderLayout.PAGE_START);
 
         // Create the entry box
         final JPanel inner = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -326,7 +250,7 @@ class StartExamPanelGuiBuilder implements Runnable {
         btn.addActionListener(this.panel);
         inner2.add(btn);
         inner2.add(new JLabel(CoreConstants.SPC));
-        center.add(inner2, BorderLayout.SOUTH);
+        center.add(inner2, BorderLayout.PAGE_END);
 
         this.panel.getRootPane().setDefaultButton(btn);
         this.panel.pack();

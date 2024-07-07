@@ -5,10 +5,7 @@ import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocRadicalInst;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 
 import java.awt.Color;
@@ -251,7 +248,7 @@ public final class DocRadical extends AbstractDocContainer {
      * variables, but no references to non-input variables should remain.
      *
      * @param evalContext the evaluation context
-     * @return the instance document object; null if unable to create the instance
+     * @return the instance document object
      */
     @Override
     public DocRadicalInst createInstance(final EvalContext evalContext) {

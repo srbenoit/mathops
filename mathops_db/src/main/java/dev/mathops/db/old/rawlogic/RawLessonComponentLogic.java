@@ -824,27 +824,6 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
     }
 
     /**
-     * Queries all components for a particular lesson. Results are ordered by sequence number.
-     *
-     * @param cache       the data cache
-     * @param theLessonId the ID of the lesson to query
-     * @return the list of records that matched the criteria, a zero-length array if none matched
-     */
-    public static List<RawLessonComponent> queryByLesson(final Cache cache, final String theLessonId) {
-
-        final List<RawLessonComponent> result;
-        final Map<Integer, RawLessonComponent> inner = lessonComponents.get(theLessonId);
-
-        if (inner == null) {
-            result = new ArrayList<>(0);
-        } else {
-            result = new ArrayList<>(inner.values());
-        }
-
-        return result;
-    }
-
-    /**
      * Builds lesson components for MATH 117.
      *
      * @param lst the list to which to add components
