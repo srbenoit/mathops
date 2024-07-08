@@ -16,7 +16,7 @@ import java.io.Serial;
 /**
  * A panel that shows student exams.
  */
-final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandListener<ExamListRow> {
+final class StuExamsPanel extends AdminPanelBase implements IZTableCommandListener<ExamListRow> {
 
     /** An action command. */
     private static final String LIST_CMD = "LIST";
@@ -47,7 +47,7 @@ final class StudentExamsPanel extends AdminPanelBase implements IZTableCommandLi
      * @param liveContext      the database context used to access live data
      * @param theFixed         the fixed data
      */
-    StudentExamsPanel(final Cache theCache, final DbContext liveContext, final FixedData theFixed) {
+    StuExamsPanel(final Cache theCache, final DbContext liveContext, final FixedData theFixed) {
 
         super();
         setBackground(Skin.WHITE);

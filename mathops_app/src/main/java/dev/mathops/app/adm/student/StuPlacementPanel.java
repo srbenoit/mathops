@@ -18,7 +18,7 @@ import java.io.Serial;
 /**
  * A panel that shows student placement status.
  */
-class StudentPlacementPanel extends AdminPanelBase {
+class StuPlacementPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -67,7 +67,7 @@ class StudentPlacementPanel extends AdminPanelBase {
      * Constructs a new {@code StudentPlacementPanel}.
      *
      */
-    StudentPlacementPanel() {
+    StuPlacementPanel() {
 
         super();
         setBackground(Skin.WHITE);

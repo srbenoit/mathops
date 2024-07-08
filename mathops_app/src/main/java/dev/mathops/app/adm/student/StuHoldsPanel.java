@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * A panel that shows student administrative holds.
  */
-class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
+class StuHoldsPanel extends AdminPanelBase implements ActionListener {
 
     /** A button action command. */
     private static final String SHOW_CMD = "SHOW";
@@ -59,7 +59,7 @@ class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
      * @param theCache         the data cache
      * @param theFixed         the fixed data
      */
-    StudentHoldsPanel(final Cache theCache, final FixedData theFixed) {
+    StuHoldsPanel(final Cache theCache, final FixedData theFixed) {
 
         super();
         setBackground(Skin.WHITE);

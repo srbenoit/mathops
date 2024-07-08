@@ -44,7 +44,7 @@ class HoldsAddCard extends JPanel implements ActionListener {
     private static final String CANCEL_CMD = "CANCEL";
 
     /** The owning discipline panel. */
-    private final StudentHoldsPanel owner;
+    private final StuHoldsPanel owner;
 
     /** The hold types. */
     private final List<RawHoldType> holdTypes;
@@ -73,7 +73,7 @@ class HoldsAddCard extends JPanel implements ActionListener {
      * @param cache    the cache
      * @param theOwner the owning discipline panel
      */
-    HoldsAddCard(final Cache cache, final StudentHoldsPanel theOwner) {
+    HoldsAddCard(final Cache cache, final StuHoldsPanel theOwner) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);

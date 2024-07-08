@@ -18,7 +18,7 @@ import java.sql.SQLException;
 /**
  * A panel that shows a students disciplinary history.
  */
-class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
+class StuDisciplinePanel extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
     static final String ADD_CMD = "ADD";
@@ -53,7 +53,7 @@ class StudentDisciplinePanel extends AdminPanelBase implements ActionListener {
      *
      * @param theCache         the database connection
      */
-    StudentDisciplinePanel(final Cache theCache) {
+    StuDisciplinePanel(final Cache theCache) {
 
         super();
         setBackground(Skin.WHITE);

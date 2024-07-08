@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * The "Summary" panel of the admin system.
  */
-final class StudentSummaryPanel extends AdminPanelBase {
+final class StuSummaryPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -82,7 +82,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
      *
      * @param theCache         the data cache
      */
-    StudentSummaryPanel(final Cache theCache) {
+    StuSummaryPanel(final Cache theCache) {
 
         super();
 

@@ -141,34 +141,34 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         tabs.setBackground(Color.WHITE);
         cardPane.add(tabs, TABS_CMD);
 
-        final StudentInfoPanel infoPanel = new StudentInfoPanel(theFixed);
+        final StuInfoPanel infoPanel = new StuInfoPanel(theFixed);
         tabs.addTab("Info", infoPanel);
 
-        final StudentCoursesPanel coursePanel = new StudentCoursesPanel(theCache.conn);
+        final StuCoursesPanel coursePanel = new StuCoursesPanel(theCache.conn);
         tabs.addTab("Courses", coursePanel);
 
-        final StudentDeadlinesPanel deadlinesPanel = new StudentDeadlinesPanel(theCache, theFixed);
+        final StuDeadlinesPanel deadlinesPanel = new StuDeadlinesPanel(theCache, theFixed);
         tabs.addTab("Deadlines", deadlinesPanel);
 
-        final StudentActivityPanel activityPanel = new StudentActivityPanel();
+        final StuActivityPanel activityPanel = new StuActivityPanel();
         tabs.addTab("Activity", activityPanel);
 
-        final StudentDisciplinePanel disciplinePanel = new StudentDisciplinePanel(theCache);
+        final StuDisciplinePanel disciplinePanel = new StuDisciplinePanel(theCache);
         tabs.addTab("Discipline", disciplinePanel);
 
-        final StudentHoldsPanel holdsPanel = new StudentHoldsPanel(theCache, theFixed);
+        final StuHoldsPanel holdsPanel = new StuHoldsPanel(theCache, theFixed);
         tabs.addTab("Holds", holdsPanel);
 
-        final StudentExamsPanel examsPanel = new StudentExamsPanel(theCache, liveContext, theFixed);
+        final StuExamsPanel examsPanel = new StuExamsPanel(theCache, liveContext, theFixed);
         tabs.addTab("Exams", examsPanel);
 
-        final StudentPlacementPanel mptPanel = new StudentPlacementPanel();
+        final StuPlacementPanel mptPanel = new StuPlacementPanel();
         final JScrollPane scroll = new JScrollPane(mptPanel);
         scroll.getVerticalScrollBar().setUnitIncrement(10);
         scroll.getVerticalScrollBar().setBlockIncrement(30);
         tabs.addTab("Placement", scroll);
 
-        final StudentMathPlanPanel mathPlanPanel = new StudentMathPlanPanel();
+        final StuMathPlanPanel mathPlanPanel = new StuMathPlanPanel();
         tabs.addTab("Math Plan", mathPlanPanel);
 
         cards.show(cardPane, PICK_CMD);

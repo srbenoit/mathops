@@ -44,34 +44,34 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
     private final JTabbedPane tabs;
 
     /** The "Summary" panel. */
-    private final StudentSummaryPanel summaryPanel;
+    private final StuSummaryPanel summaryPanel;
 
     /** The "Info" panel. */
-    private final StudentInfoPanel infoPanel;
+    private final StuInfoPanel infoPanel;
 
     /** The "Course" panel. */
-    private final StudentCoursesPanel coursePanel;
+    private final StuCoursesPanel coursePanel;
 
     /** The "Deadlines" panel. */
-    private final StudentDeadlinesPanel deadlinesPanel;
+    private final StuDeadlinesPanel deadlinesPanel;
 
     /** The "Activity" panel. */
-    private final StudentActivityPanel activityPanel;
+    private final StuActivityPanel activityPanel;
 
     /** The "Discipline" panel. */
-    private final StudentDisciplinePanel disciplinePanel;
+    private final StuDisciplinePanel disciplinePanel;
 
     /** The "Holds" panel. */
-    private final StudentHoldsPanel holdsPanel;
+    private final StuHoldsPanel holdsPanel;
 
     /** The "Exams" panel. */
-    private final StudentExamsPanel examsPanel;
+    private final StuExamsPanel examsPanel;
 
     /** The "MPT" panel. */
-    private final StudentPlacementPanel mptPanel;
+    private final StuPlacementPanel mptPanel;
 
     /** The "Math Plan" panel. */
-    private final StudentMathPlanPanel mathPlanPanel;
+    private final StuMathPlanPanel mathPlanPanel;
 
     /**
      * Constructs a new {@code CardStudentDetail}.
@@ -131,42 +131,42 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
         this.tabs.setBackground(Skin.OFF_WHITE_RED);
         panel.add(this.tabs, BorderLayout.CENTER);
 
-        this.summaryPanel = new StudentSummaryPanel(theCache);
+        this.summaryPanel = new StuSummaryPanel(theCache);
         this.tabs.addTab("Summary", this.summaryPanel);
 
-        this.infoPanel = new StudentInfoPanel(this.fixed);
+        this.infoPanel = new StuInfoPanel(this.fixed);
         this.tabs.addTab("Info", this.infoPanel);
 
-        this.coursePanel = new StudentCoursesPanel(theCache.conn);
+        this.coursePanel = new StuCoursesPanel(theCache.conn);
         this.tabs.addTab("Courses", this.coursePanel);
 
-        this.deadlinesPanel = new StudentDeadlinesPanel(theCache, this.fixed);
+        this.deadlinesPanel = new StuDeadlinesPanel(theCache, this.fixed);
         this.tabs.addTab("Deadlines", this.deadlinesPanel);
 
-        this.activityPanel = new StudentActivityPanel();
+        this.activityPanel = new StuActivityPanel();
         this.tabs.addTab("Activity", this.activityPanel);
 
         if (this.fixed.getClearanceLevel("DISCIP") != null) {
-            this.disciplinePanel = new StudentDisciplinePanel(theCache);
+            this.disciplinePanel = new StuDisciplinePanel(theCache);
             this.tabs.addTab("Discipline", this.disciplinePanel);
         } else {
             this.disciplinePanel = null;
         }
 
-        this.holdsPanel = new StudentHoldsPanel(theCache, this.fixed);
+        this.holdsPanel = new StuHoldsPanel(theCache, this.fixed);
         this.tabs.addTab("Holds", this.holdsPanel);
 
         this.examsPanel =
-                new StudentExamsPanel(theCache, liveContext, this.fixed);
+                new StuExamsPanel(theCache, liveContext, this.fixed);
         this.tabs.addTab("Exams", this.examsPanel);
 
-        this.mptPanel = new StudentPlacementPanel();
+        this.mptPanel = new StuPlacementPanel();
         final JScrollPane scroll = new JScrollPane(this.mptPanel);
         scroll.getVerticalScrollBar().setUnitIncrement(10);
         scroll.getVerticalScrollBar().setBlockIncrement(30);
         this.tabs.addTab("Placement", scroll);
 
-        this.mathPlanPanel = new StudentMathPlanPanel();
+        this.mathPlanPanel = new StuMathPlanPanel();
         this.tabs.addTab("Math Plan", this.mathPlanPanel);
     }
 

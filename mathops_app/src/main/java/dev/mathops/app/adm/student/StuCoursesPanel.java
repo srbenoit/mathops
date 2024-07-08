@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * A panel that shows the courses in which a student is enrolled.
  */
-class StudentCoursesPanel extends AdminPanelBase {
+class StuCoursesPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -68,7 +68,7 @@ class StudentCoursesPanel extends AdminPanelBase {
      *
      * @param theConn          the database connection
      */
-    StudentCoursesPanel(final DbConnection theConn) {
+    StuCoursesPanel(final DbConnection theConn) {
 
         super();
         setBackground(Skin.LIGHTEST);

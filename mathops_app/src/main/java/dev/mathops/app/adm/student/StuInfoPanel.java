@@ -21,7 +21,7 @@ import java.time.Period;
 /**
  * The "Info" panel of the admin system.
  */
-final class StudentInfoPanel extends AdminPanelBase {
+final class StuInfoPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -107,7 +107,7 @@ final class StudentInfoPanel extends AdminPanelBase {
      *
      * @param theFixed         fixed data
      */
-    StudentInfoPanel(final FixedData theFixed) {
+    StuInfoPanel(final FixedData theFixed) {
 
         super();
         setBackground(Skin.LIGHTEST);

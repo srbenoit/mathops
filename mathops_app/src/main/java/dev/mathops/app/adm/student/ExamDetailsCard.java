@@ -67,7 +67,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
     private static final String CLOSE_CMD = "CLOSE";
 
     /** The owning exams panel. */
-    private final StudentExamsPanel owner;
+    private final StuExamsPanel owner;
 
     /** The data cache. */
     private final Cache cache;
@@ -122,7 +122,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
      * @param theLiveContext    the database context used to access live data
      * @param allowChangeAnswer true to allow the user to change exam answers
      */
-    ExamDetailsCard(final StudentExamsPanel theOwner, final Cache theCache, final DbContext theLiveContext,
+    ExamDetailsCard(final StuExamsPanel theOwner, final Cache theCache, final DbContext theLiveContext,
                     final boolean allowChangeAnswer) {
 
         super(new BorderLayout(10, 10));

@@ -53,7 +53,7 @@ class DisciplineAddIncidentCard extends JPanel implements ActionListener {
             "2", "3", "4", "5"};
 
     /** The owning discipline panel. */
-    private final StudentDisciplinePanel owner;
+    private final StuDisciplinePanel owner;
 
     /** The current student ID. */
     private String studentId;
@@ -99,7 +99,7 @@ class DisciplineAddIncidentCard extends JPanel implements ActionListener {
      *
      * @param theOwner         the owning discipline panel
      */
-    DisciplineAddIncidentCard(final StudentDisciplinePanel theOwner) {
+    DisciplineAddIncidentCard(final StuDisciplinePanel theOwner) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);

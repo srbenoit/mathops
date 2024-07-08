@@ -147,7 +147,7 @@ public enum Skin {
     public static final Color LT_MAGENTA = new Color(243, 160, 243);
 
     /** A color for backgrounds. */
-    public static final Color LIGHTER_MAGENTA = new Color(0xDD, 0xFF, 0xDD);
+    public static final Color LIGHTER_MAGENTA = new Color(0xFF, 0xDD, 0xFF);
 
     /** A color for backgrounds. */
     public static final Color LT_YELLOW = new Color(243, 243, 120);

@@ -88,7 +88,7 @@ class HoldsCard extends JPanel implements ActionListener {
             final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
             buttons.setBackground(Skin.WHITE);
             final JButton addButton = new JButton("Add Hold");
-            addButton.setActionCommand(StudentDisciplinePanel.ADD_CMD);
+            addButton.setActionCommand(StuDisciplinePanel.ADD_CMD);
             addButton.addActionListener(theListener);
             buttons.add(addButton);
             add(buttons, BorderLayout.SOUTH);
