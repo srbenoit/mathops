@@ -6,9 +6,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.ifaces.ILiveRegFa;
-import dev.mathops.db.old.ifaces.ILiveRegSm;
-import dev.mathops.db.old.ifaces.ILiveRegSp;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
@@ -51,25 +48,14 @@ enum LiveRegCache {
 
             try {
                 if (active.term.name == ETermName.SPRING) {
-                    final ILiveRegSp iface = ImplLiveRegSp.INSTANCE;
-
-                    if (iface != null) {
-                        result = iface.query(liveConn, studentId);
-                    }
+                    result = ImplLiveRegSp.INSTANCE.query(liveConn, studentId);
                 } else if (active.term.name == ETermName.SUMMER) {
-                    final ILiveRegSm iface = ImplLiveRegSm.INSTANCE;
-
-                    if (iface != null) {
-                        result = iface.query(liveConn, studentId);
-                    }
+                    result = ImplLiveRegSm.INSTANCE.query(liveConn, studentId);
                 } else if (active.term.name == ETermName.FALL) {
-                    final ILiveRegFa iface = ImplLiveRegFa.INSTANCE;
-
-                    if (iface != null) {
-                        result = iface.query(liveConn, studentId);
-                    }
+                    result = ImplLiveRegFa.INSTANCE.query(liveConn, studentId);
                 } else {
-                    Log.warning(Res.fmt(Res.BAD_TERM_NAME, active.term.name));
+                    final String msg = Res.fmt(Res.BAD_TERM_NAME, active.term.name);
+                    Log.warning(msg);
                 }
             } finally {
                 live.checkInConnection(liveConn);
@@ -80,7 +66,9 @@ enum LiveRegCache {
         }
 
         final long after = System.currentTimeMillis();
-        Log.info(Res.fmt(Res.LIVE_REG_QUERY_TIMING, Long.toString(after - before)));
+        final String timerStr = Long.toString(after - before);
+        final String msg = Res.fmt(Res.LIVE_REG_QUERY_TIMING, timerStr);
+        Log.info(msg);
 
         return result;
     }

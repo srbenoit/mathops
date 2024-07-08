@@ -670,7 +670,6 @@ public final class SiteDataRegistration {
 
         final int count = this.registrations.size();
         final List<RawStcourse> paceReg = new ArrayList<>(count);
-        final boolean success = true;
 
         for (int i = 0; i < count; ++i) {
             final RawStcourse stcourse = this.registrations.get(i);
@@ -707,11 +706,9 @@ public final class SiteDataRegistration {
             }
         }
 
-        if (success) {
-            this.paceRegistrations = paceReg;
-        }
+        this.paceRegistrations = paceReg;
 
-        return success;
+        return true;
     }
 
     /**

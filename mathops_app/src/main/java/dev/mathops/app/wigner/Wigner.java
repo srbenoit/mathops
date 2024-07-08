@@ -52,9 +52,7 @@ public final class Wigner implements Runnable {
                 TimeUnit.MILLISECONDS.sleep(delay);
                 pollBoundary(rnd);
             }
-        } catch (final NoSuchAlgorithmException ex) {
-            Log.warning(ex);
-        } catch (final InterruptedException ex) {
+        } catch (final NoSuchAlgorithmException | InterruptedException ex) {
             Log.warning(ex);
         }
     }

@@ -838,7 +838,7 @@ public final class VariableEditorPanel extends JPanel
                     this.minFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMin.equals(oldMin)) {
+                } else if (!newMin.equals(oldMin.getFormula())) {
                     this.minFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -870,7 +870,7 @@ public final class VariableEditorPanel extends JPanel
                     this.maxFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMax.equals(oldMax)) {
+                } else if (!newMax.equals(oldMax.getFormula())) {
                     this.maxFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -949,7 +949,7 @@ public final class VariableEditorPanel extends JPanel
                     this.minFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMin.equals(oldMin)) {
+                } else if (!newMin.equals(oldMin.getFormula())) {
                     this.minFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -981,7 +981,7 @@ public final class VariableEditorPanel extends JPanel
                     this.maxFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMax.equals(oldMax)) {
+                } else if (!newMax.equals(oldMax.getFormula())) {
                     this.maxFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -1053,7 +1053,7 @@ public final class VariableEditorPanel extends JPanel
                     this.minFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMin.equals(oldMin)) {
+                } else if (!newMin.equals(oldMin.getFormula())) {
                     this.minFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -1085,7 +1085,7 @@ public final class VariableEditorPanel extends JPanel
                     this.maxFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMax.equals(oldMax)) {
+                } else if (!newMax.equals(oldMax.getFormula())) {
                     this.maxFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -1165,7 +1165,7 @@ public final class VariableEditorPanel extends JPanel
                     this.minFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMin.equals(oldMin)) {
+                } else if (!newMin.equals(oldMin.getFormula())) {
                     this.minFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -1197,7 +1197,7 @@ public final class VariableEditorPanel extends JPanel
                     this.maxFormula.setBackground(this.changedInvalidColor);
                     changes = true;
                     valid = false;
-                } else if (!newMax.equals(oldMax)) {
+                } else if (!newMax.equals(oldMax.getFormula())) {
                     this.maxFormula.setBackground(this.changedValidColor);
                     changes = true;
                 } else {
@@ -1406,7 +1406,7 @@ public final class VariableEditorPanel extends JPanel
                         this.minFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMin, oldMin)) {
+                    } else if (newMin.equals(oldMin.getFormula())) {
                         this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
@@ -1439,7 +1439,7 @@ public final class VariableEditorPanel extends JPanel
                         this.maxFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMax, oldMax)) {
+                    } else if (newMax.equals(oldMax.getFormula())) {
                         this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);
@@ -1475,7 +1475,7 @@ public final class VariableEditorPanel extends JPanel
                         this.minFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMin, oldMin)) {
+                    } else if (newMin.equals(oldMin.getFormula())) {
                         this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
@@ -1508,7 +1508,7 @@ public final class VariableEditorPanel extends JPanel
                         this.maxFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMax, oldMax)) {
+                    } else if (newMax.equals(oldMax.getFormula())) {
                         this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);
@@ -1544,7 +1544,7 @@ public final class VariableEditorPanel extends JPanel
                         this.minFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMin, oldMin)) {
+                    } else if (newMin.equals(oldMin.getFormula())) {
                         this.minFormula.setBackground(this.unchangedColor);
                     } else {
                         this.minFormula.setBackground(this.changedValidColor);
@@ -1577,7 +1577,7 @@ public final class VariableEditorPanel extends JPanel
                         this.maxFormula.setBackground(this.changedInvalidColor);
                         changes = true;
                         valid = false;
-                    } else if (Objects.equals(newMax, oldMax)) {
+                    } else if (newMax.equals(oldMax.getFormula())) {
                         this.maxFormula.setBackground(this.unchangedColor);
                     } else {
                         this.maxFormula.setBackground(this.changedValidColor);

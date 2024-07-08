@@ -64,69 +64,72 @@ public final class RandomSource implements HttpHandler {
 
             String response;
 
-            if ("randomize".equals(subpath)) {
-                final boolean result = ramdomize();
-                response = result ? "1" : "0";
-            } else if ("get".equals(subpath)) {
-                if (query == null) {
-                    response = "Invalid 'get' without query";
-                } else if (query.startsWith("i=")) {
-                    final String substring = query.substring(2);
-                    try {
-                        final int index = Integer.parseInt(substring);
-                        if (index < 0 || index >= ARRAY_LEN) {
-                            response = "'get' index out of range: " + query;
-                        } else {
-                            final int value = this.data[index];
-                            response = Integer.toString(value);
-                        }
-                    } catch (final NumberFormatException ex) {
-                        response = "Invalid 'get' index: " + query;
-                    }
-                } else {
-                    response = "Invalid 'get' query: " + query;
+            switch (subpath) {
+                case "randomize" -> {
+                    final boolean result = ramdomize();
+                    response = result ? "1" : "0";
                 }
-            } else if ("test".equals(subpath)) {
-                if (query == null) {
-                    response = "Invalid 'test' without query";
-                } else {
-                    final String[] parts = query.split("&");
-                    if (parts.length == 2) {
-                        if (parts[0].startsWith("i=")) {
-                            final String substring0 = parts[0].substring(2);
-                            try {
-                                final int index = Integer.parseInt(substring0);
-                                if (index < 0 || index >= ARRAY_LEN) {
-                                    response = "'test' index out of range: " + query;
-                                } else if (parts[1].startsWith("v=")) {
-                                    final String substring1 = parts[1].substring(2);
-                                    try {
-                                        final int value = Integer.parseInt(substring1);
-                                        if (value < MIN_VALUE || value > MAX_VALUE) {
-                                            response = "'test' value out of range: " + query;
-                                        } else {
-                                            final int actual = this.data[index];
-                                            final boolean equal = actual == value;
-                                            response = equal ? "1" : "0";
-                                        }
-                                    } catch (final NumberFormatException ex) {
-                                        response = "Invalid 'test' value: " + query;
-                                    }
-                                } else {
-                                    response = "Invalid 'test' query: " + query;
-                                }
-                            } catch (final NumberFormatException ex) {
-                                response = "Invalid 'test' index: " + query;
+                case "get" -> {
+                    if (query == null) {
+                        response = "Invalid 'get' without query";
+                    } else if (query.startsWith("i=")) {
+                        final String substring = query.substring(2);
+                        try {
+                            final int index = Integer.parseInt(substring);
+                            if (index < 0 || index >= ARRAY_LEN) {
+                                response = "'get' index out of range: " + query;
+                            } else {
+                                final int value = this.data[index];
+                                response = Integer.toString(value);
                             }
-                        } else {
-                            response = "Invalid 'test' query: " + query;
+                        } catch (final NumberFormatException ex) {
+                            response = "Invalid 'get' index: " + query;
                         }
                     } else {
-                        response = "Invalid 'test', expecting 2 parameters, found " + parts.length;
+                        response = "Invalid 'get' query: " + query;
                     }
                 }
-            } else {
-                response = "Unrecognized request: " + subpath;
+                case "test" -> {
+                    if (query == null) {
+                        response = "Invalid 'test' without query";
+                    } else {
+                        final String[] parts = query.split("&");
+                        if (parts.length == 2) {
+                            if (parts[0].startsWith("i=")) {
+                                final String substring0 = parts[0].substring(2);
+                                try {
+                                    final int index = Integer.parseInt(substring0);
+                                    if (index < 0 || index >= ARRAY_LEN) {
+                                        response = "'test' index out of range: " + query;
+                                    } else if (parts[1].startsWith("v=")) {
+                                        final String substring1 = parts[1].substring(2);
+                                        try {
+                                            final int value = Integer.parseInt(substring1);
+                                            if (value < MIN_VALUE || value > MAX_VALUE) {
+                                                response = "'test' value out of range: " + query;
+                                            } else {
+                                                final int actual = this.data[index];
+                                                final boolean equal = actual == value;
+                                                response = equal ? "1" : "0";
+                                            }
+                                        } catch (final NumberFormatException ex) {
+                                            response = "Invalid 'test' value: " + query;
+                                        }
+                                    } else {
+                                        response = "Invalid 'test' query: " + query;
+                                    }
+                                } catch (final NumberFormatException ex) {
+                                    response = "Invalid 'test' index: " + query;
+                                }
+                            } else {
+                                response = "Invalid 'test' query: " + query;
+                            }
+                        } else {
+                            response = "Invalid 'test', expecting 2 parameters, found " + parts.length;
+                        }
+                    }
+                }
+                default -> response = "Unrecognized request: " + subpath;
             }
 
             final int responseLen = response.length();

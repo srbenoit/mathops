@@ -819,18 +819,32 @@ public enum ProblemTemplateFactory {
 
                     final String varianceStr = child.getStringAttr("variance");
                     if (varianceStr == null) {
-                        if (child instanceof final NonemptyElement nonempty && "variance".equals(tagName)) {
+                        if (child instanceof final NonemptyElement nonempty) {
 
-                            if (nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
-                                if (mode.reportDeprecated) {
-                                    elem.logError("Deprecated 'variance' text formula on accept-number");
+                            if (nonempty.getNumChildren() == 1) {
+                                final INode innerChild = nonempty.getChild(0);
+
+                                if (innerChild instanceof final CData cdata) {
+                                    if (mode.reportDeprecated) {
+                                        elem.logError("Deprecated 'variance' text formula on accept-number");
+                                    }
+
+                                    varianceFormula = FormulaFactory.parseFormulaString(problem.evalContext,
+                                            cdata.content,
+                                            mode);
+                                } else if (innerChild instanceof final NonemptyElement varInner) {
+                                    final String innerTag = varInner.getTagName();
+                                    if ("variance".equals(innerTag)) {
+                                        varianceFormula = XmlFormulaFactory.extractFormula(problem.evalContext,
+                                                varInner, mode);
+                                    } else {
+                                        elem.logError("Unsupported '" + innerTag + "' tag in accept-number.");
+                                    }
+                                } else {
+                                    elem.logError("Unsupported child in accept-number.");
                                 }
-
-                                varianceFormula = FormulaFactory.parseFormulaString(problem.evalContext, cdata.content,
-                                        mode);
-                            } else {
-                                varianceFormula = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty, mode);
                             }
+
                             if (varianceFormula == null) {
                                 elem.logError("Invalid &lt;variance&gt; child element on problem.");
                                 valid = false;

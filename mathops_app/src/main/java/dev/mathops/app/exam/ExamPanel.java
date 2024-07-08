@@ -382,11 +382,9 @@ public class ExamPanel extends JPanel implements ExamPanelInt, AnswerListener {
             }
         }
 
-        // FIXME: For now, allow calc on all problems
-        calc = true;
-
         if (this.calculator != null) {
-            this.calculator.showCalculator(calc);
+            // FIXME: For now, allow calc on all problems
+            this.calculator.showCalculator(true);
             if (this.calculator.getCalcUI() != null) {
                 final int slot = this.calculator.getCalcUI().getSlot();
                 if (slot >= 0) {

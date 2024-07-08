@@ -22,34 +22,34 @@ enum PrerequisiteFactory {
     /** A pre-compiled regular expression for string splitting. */
     private static final Pattern AND_PATTERN = Pattern.compile(" and ");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AB230 = new CatalogCourseNumber("AB", "230");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AB270 = new CatalogCourseNumber("AB", "270");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
     private static final CatalogCourseNumber AEBA8155 = new CatalogCourseNumber("AEBA", "8155");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
     private static final CatalogCourseNumber AEIN8255 = new CatalogCourseNumber("AEIN", "8255");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AEIN8210 = new CatalogCourseNumber("AEIN", "8210");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AEIN8212 = new CatalogCourseNumber("AEIN", "8212");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AEIN8213 = new CatalogCourseNumber("AEIN", "8213");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber ACT210 = new CatalogCourseNumber("ACT", "210");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber ACT211 = new CatalogCourseNumber("ACT", "211");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber ACT220 = new CatalogCourseNumber("ACT", "220");
 
     /** A course used in prerequisites. */
@@ -67,28 +67,28 @@ enum PrerequisiteFactory {
     /** A course used in prerequisites. */
     private static final CatalogCourseNumber ACT350 = new CatalogCourseNumber("ACT", "350");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AGED220 = new CatalogCourseNumber("AGED", "220");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AGED330 = new CatalogCourseNumber("AGED", "330");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AGED430 = new CatalogCourseNumber("AGED", "430");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AREC202 = new CatalogCourseNumber("AREC", "202");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber AREC230 = new CatalogCourseNumber("AREC", "230");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber BSPM302 = new CatalogCourseNumber("BSPM", "302");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber BSPM361 = new CatalogCourseNumber("BSPM", "361");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber BUS150 = new CatalogCourseNumber("BUS", "150");
 
     /** A course used in prerequisites. */
@@ -112,10 +112,10 @@ enum PrerequisiteFactory {
     /** A course used in prerequisites. */
     private static final CatalogCourseNumber BZ192 = new CatalogCourseNumber("BZ", "192");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber BZ346 = new CatalogCourseNumber("BZ", "346");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber BZ350 = new CatalogCourseNumber("BZ", "350");
 
     /** A course used in prerequisites. */
@@ -148,16 +148,16 @@ enum PrerequisiteFactory {
     /** A course used in prerequisites. */
     private static final CatalogCourseNumber CHEM192 = new CatalogCourseNumber("CHEM", "192");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber CIS120 = new CatalogCourseNumber("CIS", "120");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber CS110 = new CatalogCourseNumber("CS", "110");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber ECON202 = new CatalogCourseNumber("ECON", "202");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber ECON204 = new CatalogCourseNumber("ECON", "204");
 
     /** A course used in prerequisites. */
@@ -169,43 +169,43 @@ enum PrerequisiteFactory {
     /** A course used in prerequisites. */
     private static final CatalogCourseNumber LIFE162 = new CatalogCourseNumber("LIFE", "162");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MATH141 = new CatalogCourseNumber("MATH", "141");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MATH155 = new CatalogCourseNumber("MATH", "155");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MATH160 = new CatalogCourseNumber("MATH", "160");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MIP250 = new CatalogCourseNumber("MIP", "250");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MIP300 = new CatalogCourseNumber("MIP", "300");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber MIP303 = new CatalogCourseNumber("MIP", "303");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber SOCR330 = new CatalogCourseNumber("SOCR", "330");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT201 = new CatalogCourseNumber("STAT", "201");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT204 = new CatalogCourseNumber("STAT", "204");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT301 = new CatalogCourseNumber("STAT", "301");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT307 = new CatalogCourseNumber("STAT", "307");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT311 = new CatalogCourseNumber("STAT", "311");
 
-    /** A course used in prerequisites. */
+//    /** A course used in prerequisites. */
 //    private static final CatalogCourseNumber STAT315 = new CatalogCourseNumber("STAT", "315");
 
     /**

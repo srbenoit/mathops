@@ -483,10 +483,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
             final List<AssignmentRec> hws = cache.getSystemData().getActiveAssignmentsByCourseUnitType(course, unit,
                     "HW");
 
-            if (hws == null) {
-                reasons.add("Unable to query homeworks for this unit.");
-                ok = false;
-            } else if (!hws.isEmpty()) {
+            if (!hws.isEmpty()) {
                 final AssignmentRec hw = hws.getLast();
 
                 // See if there is a record of a passed homework submission

@@ -272,7 +272,7 @@ public enum SetHolds {
                         if ("Y".equals(reg2.iInProgress)) {
                             continue;
                         }
-                        if (!"OT".equals(reg.instrnType) && reg.course.equals(reg2.course)) {
+                        if (!"OT".equals(reg2.instrnType) && reg.course.equals(reg2.course)) {
                             Log.warning("Student '", stuId, "' is registered for both an OT and a non-OT section of ",
                                     reg.course, " - adding hold 03");
                             final RawAdminHold hold03 = new RawAdminHold(stuId, "03", "F", ZERO, today);

@@ -652,225 +652,219 @@ enum PageSchedule {
         int lastTriesTaken = 0;
         int lastTriesAllowed = 0;
 
-        if (allMilestones != null && stMilestones != null) {
-            for (final RawMilestone milestoneRec : allMilestones) {
-                final String type = milestoneRec.msType;
+        for (final RawMilestone milestoneRec : allMilestones) {
+            final String type = milestoneRec.msType;
 
-                if ("US".equals(type) || "SR".equals(type)
-                        || "H1".equals(type) || "H2".equals(type)
-                        || "H3".equals(type) || "H4".equals(type)
-                        || "H5".equals(type) || "UE".equals(type)) {
-                    continue;
+            if ("US".equals(type) || "SR".equals(type)
+                    || "H1".equals(type) || "H2".equals(type)
+                    || "H3".equals(type) || "H4".equals(type)
+                    || "H5".equals(type) || "UE".equals(type)) {
+                continue;
+            }
+
+            final int msNumber = milestoneRec.msNbr.intValue();
+
+            // Skip any pace records for other courses
+            if (msNumber / 10 % 10 != paceOrder) {
+                continue;
+            }
+
+            // Get the milestone date, overriding as needed for student pace record
+            LocalDate milestoneDate = milestoneRec.msDate;
+            Integer milestoneAttempts = milestoneRec.nbrAtmptsAllow;
+            for (final RawStmilestone stpaceRec : stMilestones) {
+                if (stpaceRec.msNbr.equals(milestoneRec.msNbr) && stpaceRec.msType.equals(milestoneRec.msType)) {
+
+                    milestoneDate = stpaceRec.msDate;
+                    milestoneAttempts = stpaceRec.nbrAtmptsAllow;
                 }
+            }
 
-                final int msNumber = milestoneRec.msNbr.intValue();
+            final Integer unit = Integer.valueOf(msNumber % 10);
 
-                // Skip any pace records for other courses
-                if (msNumber / 10 % 10 != paceOrder) {
-                    continue;
+            // Get the deadline and see if it has been overridden for the student
+            final LocalDate deadline = milestoneDate;
+
+            final String examType;
+            final Integer ontime;
+
+            RawCusection unitModel = null;
+            for (final RawCusection csUnit : csUnits) {
+                if (csUnit != null && csUnit.unit.intValue() == unit.intValue()) {
+                    unitModel = csUnit;
+                    break;
                 }
+            }
 
-                // Get the milestone date, overriding as needed for student pace record
-                LocalDate milestoneDate = milestoneRec.msDate;
-                Integer milestoneAttempts = milestoneRec.nbrAtmptsAllow;
-                for (final RawStmilestone stpaceRec : stMilestones) {
-                    if (stpaceRec.msNbr.equals(milestoneRec.msNbr) && stpaceRec.msType.equals(milestoneRec.msType)) {
+            if (unitModel == null) {
+                continue;
+            }
 
-                        milestoneDate = stpaceRec.msDate;
-                        milestoneAttempts = stpaceRec.nbrAtmptsAllow;
-                    }
+            switch (type) {
+                case "FE" -> {
+                    examType = "F";
+                    ontime = null;
+
+                    finalDeadline = deadline;
                 }
-
-                final Integer unit = Integer.valueOf(msNumber % 10);
-
-                // Get the deadline and see if it has been overridden for the student
-                final LocalDate deadline = milestoneDate;
-
-                final String examType;
-                final Integer ontime;
-
-                RawCusection unitModel = null;
-                for (final RawCusection csUnit : csUnits) {
-                    if (csUnit != null && csUnit.unit.intValue() == unit.intValue()) {
-                        unitModel = csUnit;
-                        break;
-                    }
-                }
-
-                if (unitModel == null) {
-                    continue;
-                }
-
-                switch (type) {
-                    case "FE" -> {
-                        examType = "F";
-                        ontime = null;
-
-                        finalDeadline = deadline;
-                    }
-                    case "F1" -> {
-                        RawStexam firstPassing = null;
-                        // FIXME: Hardcoded unit number 4
-                        final List<RawStexam> stuExams =
-                                actData.getStudentExams(courseId, Integer.valueOf(4));
-                        for (final RawStexam stexam : stuExams) {
-                            if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
-                                firstPassing = stexam;
-                                break;
-                            }
+                case "F1" -> {
+                    RawStexam firstPassing = null;
+                    // FIXME: Hardcoded unit number 4
+                    final List<RawStexam> stuExams =
+                            actData.getStudentExams(courseId, Integer.valueOf(4));
+                    for (final RawStexam stexam : stuExams) {
+                        if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
+                            firstPassing = stexam;
+                            break;
                         }
+                    }
 
-                        if (firstPassing != null && finalDeadline != null) {
+                    if (firstPassing != null && finalDeadline != null) {
 
-                            final LocalDate finishedOnDay = firstPassing.examDt;
+                        final LocalDate finishedOnDay = firstPassing.examDt;
 
-                            if (!finishedOnDay.isAfter(finalDeadline)) {
+                        if (!finishedOnDay.isAfter(finalDeadline)) {
 
-                                // Student is eligible for last-try - see if they have already used it!
-                                lastTry = milestoneDate;
-                                lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
+                            // Student is eligible for last-try - see if they have already used it!
+                            lastTry = milestoneDate;
+                            lastTriesAllowed = milestoneAttempts == null ? 1 : milestoneAttempts.intValue();
 
-                                final List<RawStexam> exams =
-                                        actData.getStudentExams(courseId, Integer.valueOf(5));
+                            final List<RawStexam> exams =
+                                    actData.getStudentExams(courseId, Integer.valueOf(5));
 
-                                // As before, count attempts finished in the first 5 minutes of a day
-                                // as if they happened on the day before
-                                for (final RawStexam exam : exams) {
-                                    if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
-                                        ++lastTriesTaken;
-                                    }
+                            // As before, count attempts finished in the first 5 minutes of a day
+                            // as if they happened on the day before
+                            for (final RawStexam exam : exams) {
+                                if ("F".equals(exam.examType) && exam.examDt.isAfter(finalDeadline)) {
+                                    ++lastTriesTaken;
                                 }
                             }
                         }
-                        // Emit no text for this type of milestone
-                        continue;
                     }
-                    case "RE" -> {
-                        examType = "R";
-                        ontime = unitModel.rePointsOntime;
-                    }
-                    case null, default -> {
-                        examType = "U";
-                        ontime = null;
+                    // Emit no text for this type of milestone
+                    continue;
+                }
+                case "RE" -> {
+                    examType = "R";
+                    ontime = unitModel.rePointsOntime;
+                }
+                case null, default -> {
+                    examType = "U";
+                    ontime = null;
+                }
+            }
+
+            final boolean hasPointPenalty = ontime != null && ontime.intValue() > 0;
+
+            final List<RawExam> unitExams = courseData.getCourseUnit(courseId, unit).getExams();
+            RawExam theExam = null;
+            for (final RawExam exam : unitExams) {
+                if (exam.examType.equals(examType)) {
+                    theExam = exam;
+                    break;
+                }
+            }
+
+            if (theExam != null) {
+                final String examTitle = theExam.buttonLabel;
+
+                final List<RawStexam> unitStExams = actData.getStudentExams(courseId, unit);
+                RawStexam firstPassing = null;
+                int highestPassing = -1;
+                int highestRaw = -1;
+                for (final RawStexam test : unitStExams) {
+                    if (examType.equals(test.examType)) {
+                        if ("Y".equals(test.isFirstPassed)) {
+                            firstPassing = test;
+                        }
+                        final int score = test.examScore.intValue();
+                        if ("Y".equals(test.passed)) {
+                            highestPassing = Math.max(highestPassing, score);
+                        }
+                        highestRaw = Math.max(highestRaw, score);
                     }
                 }
 
-                final boolean hasPointPenalty = ontime != null && ontime.intValue() > 0;
-
-                final List<RawExam> unitExams = courseData.getCourseUnit(courseId, unit).getExams();
-                RawExam theExam = null;
-                for (final RawExam exam : unitExams) {
-                    if (exam.examType.equals(examType)) {
-                        theExam = exam;
-                        break;
-                    }
-                }
-
-                if (theExam != null) {
-                    final String examTitle = theExam.buttonLabel;
-
-                    final List<RawStexam> unitStExams = actData.getStudentExams(courseId, unit);
-                    RawStexam firstPassing = null;
-                    int highestPassing = -1;
-                    int highestRaw = -1;
-                    for (final RawStexam test : unitStExams) {
-                        if (examType.equals(test.examType)) {
-                            if ("Y".equals(test.isFirstPassed)) {
-                                firstPassing = test;
-                            }
-                            final int score = test.examScore.intValue();
-                            if ("Y".equals(test.passed)) {
-                                highestPassing = Math.max(highestPassing, score);
-                            }
-                            highestRaw = Math.max(highestRaw, score);
-                        }
-                    }
-
-                    final HtmlBuilder xml = new HtmlBuilder(50);
-                    if (highestPassing > -1) {
-                        if (firstPassing == null || !hasPointPenalty) {
-                            xml.add("<span class='green'>Passed</span>");
-                        } else {
-                            final LocalDate finishedOnDay = firstPassing.examDt;
-
-                            if (finishedOnDay.isAfter(deadline)) {
-                                xml.add("<span class='green'>Passed</span> <span class='orange'>(on ",
-                                        TemporalUtils.FMT_MD.format(finishedOnDay), ", LATE)</span>");
-                            } else {
-                                xml.add("<span class='green'>Passed (on ", TemporalUtils.FMT_MD.format(finishedOnDay),
-                                        ", ON TIME)</span>");
-                            }
-                        }
+                final HtmlBuilder xml = new HtmlBuilder(50);
+                if (highestPassing > -1) {
+                    if (firstPassing == null || !hasPointPenalty) {
+                        xml.add("<span class='green'>Passed</span>");
                     } else {
-                        xml.add("<span class='orange'>");
-                        if (highestRaw > -1) {
-                            xml.add("Not yet passed");
+                        final LocalDate finishedOnDay = firstPassing.examDt;
+
+                        if (finishedOnDay.isAfter(deadline)) {
+                            xml.add("<span class='green'>Passed</span> <span class='orange'>(on ",
+                                    TemporalUtils.FMT_MD.format(finishedOnDay), ", LATE)</span>");
                         } else {
-                            xml.add("Not yet attempted");
-                        }
-
-                        if (deadline.isEqual(today)) {
-                            xml.add(" (<strong>DEADLINE IS TODAY</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(1L))) {
-                            xml.add(" (<strong>DEADLINE IS TOMORROW</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(2L))) {
-                            xml.add(" (<strong>DEADLINE IS 2 DAYS FROM TODAY</strong>)");
-                        } else if (deadline.isEqual(today.plusDays(3L))) {
-                            xml.add(" (<strong>DEADLINE IS 3 DAYS FROM TODAY</strong>)");
-                        }
-
-                        xml.add("</span>");
-                    }
-
-                    if (!started) {
-                        htm.addln(" <div class='indent3'>");
-                        htm.addln(" <table class='pacetable'>");
-                        htm.addln("  <tr>");
-                        htm.addln("   <th class='paceh'>Exam:</th>");
-                        htm.addln("   <th class='paceh'>Deadline:</th>");
-                        htm.addln("   <th class='paceh'>Status:</th>");
-                        htm.addln("  </tr>");
-                        started = true;
-                    }
-
-                    // TODO: Do we want messaging to the student when they have earned the extended
-                    // final exam deadline? If so, test "if (extendedFinal != null)" and include
-                    // the messaging in the table.
-
-                    htm.addln("  <tr>");
-                    htm.addln("   <td class='paced'>", examTitle, "</td>");
-                    htm.add("   <td class='paced'>");
-                    if (!"UE".equals(type)) {
-                        if ((highestPassing > -1) || deadline.isAfter(today.plusDays(7L))) {
-                            // Already passed, so no need to bold and color the deadline date
-                            htm.add(TemporalUtils.FMT_WMDY.format(deadline));
-                        } else if (deadline.isAfter(today)) {
-                            htm.add("<span class='orange'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
-                                    "<strong></span>");
-                        } else {
-                            htm.add("<span class='redred'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
-                                    "<strong></span>");
+                            xml.add("<span class='green'>Passed (on ", TemporalUtils.FMT_MD.format(finishedOnDay),
+                                    ", ON TIME)</span>");
                         }
                     }
-                    htm.addln("</td>");
-                    htm.addln("   <td class='paced'>", xml.toString(), "</td>");
-                    htm.addln("  </tr>");
+                } else {
+                    xml.add("<span class='orange'>");
+                    if (highestRaw > -1) {
+                        xml.add("Not yet passed");
+                    } else {
+                        xml.add("Not yet attempted");
+                    }
+
+                    if (deadline.isEqual(today)) {
+                        xml.add(" (<strong>DEADLINE IS TODAY</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(1L))) {
+                        xml.add(" (<strong>DEADLINE IS TOMORROW</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(2L))) {
+                        xml.add(" (<strong>DEADLINE IS 2 DAYS FROM TODAY</strong>)");
+                    } else if (deadline.isEqual(today.plusDays(3L))) {
+                        xml.add(" (<strong>DEADLINE IS 3 DAYS FROM TODAY</strong>)");
+                    }
+
+                    xml.add("</span>");
                 }
-            }
 
-            if (started) {
-                htm.addln(" </table>");
-                htm.addln(" </div>");
+                if (!started) {
+                    htm.addln(" <div class='indent3'>");
+                    htm.addln(" <table class='pacetable'>");
+                    htm.addln("  <tr>");
+                    htm.addln("   <th class='paceh'>Exam:</th>");
+                    htm.addln("   <th class='paceh'>Deadline:</th>");
+                    htm.addln("   <th class='paceh'>Status:</th>");
+                    htm.addln("  </tr>");
+                    started = true;
+                }
+
+                // TODO: Do we want messaging to the student when they have earned the extended final exam deadline?
+                //  If so, test "if (extendedFinal != null)" and include the messaging in the table.
+
+                htm.addln("  <tr>");
+                htm.addln("   <td class='paced'>", examTitle, "</td>");
+                htm.add("   <td class='paced'>");
+                if (!"UE".equals(type)) {
+                    if ((highestPassing > -1) || deadline.isAfter(today.plusDays(7L))) {
+                        // Already passed, so no need to bold and color the deadline date
+                        htm.add(TemporalUtils.FMT_WMDY.format(deadline));
+                    } else if (deadline.isAfter(today)) {
+                        htm.add("<span class='orange'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
+                                "<strong></span>");
+                    } else {
+                        htm.add("<span class='redred'><strong>", TemporalUtils.FMT_WMDY.format(deadline),
+                                "<strong></span>");
+                    }
+                }
+                htm.addln("</td>");
+                htm.addln("   <td class='paced'>", xml.toString(), "</td>");
+                htm.addln("  </tr>");
             }
+        }
+
+        if (started) {
+            htm.addln(" </table>");
+            htm.addln(" </div>");
         }
         htm.eP();
 
         // After the table of deadlines, show the scoring penalties and business logic...
 
-        int gwPenalty = 0;
         int rePenalty = 0;
-        int uePenalty = 0;
-        int fePenalty = 0;
 
         // Find the maximum point penalties for missing deadlines
         for (final RawCusection unit : csUnits) {
@@ -887,12 +881,7 @@ enum PageSchedule {
                 continue;
             }
 
-            if ("SR".equals(cunit.unitType)) {
-                gwPenalty = Math.max(gwPenalty, 0);
-            } else if ("FIN".equals(cunit.unitType)) {
-                fePenalty = Math.max(fePenalty, 0);
-            } else {
-                uePenalty = Math.max(uePenalty, 0);
+            if (!("SR".equals(cunit.unitType) || "FIN".equals(cunit.unitType))) {
                 rePenalty = Math.max(rePenalty, irOntime);
             }
         }
@@ -950,16 +939,6 @@ enum PageSchedule {
         }
 
         if (passedFinal == null) {
-            if (fePenalty > 0) {
-                final String penaltyStr = fePenalty == 1 ? "1 point" : fePenalty + " points";
-
-                htm.addln("<li class='boxlist'>");
-                htm.addln(" If the <b>Final Exam</b> is not passed by its deadline date, a ",
-                        "late penalty of ", penaltyStr, "will be applied to your score on that ",
-                        "exam, but the exam must still be passed to complete the course.");
-                htm.addln("</li>");
-            }
-
             if (lastTry == null) {
                 final boolean earnedBonus =
                         paceOrder == 1 && RawSpecialStusLogic.isSpecialType(cache,
@@ -1106,7 +1085,7 @@ enum PageSchedule {
 
         int next = order;
         int numToOrder = tempMap.size();
-        if (count == 1 && last != null) {
+        if (count == 1) {
             // Only one has prerequisite satisfied, so make it next
 
             final int index = paceReg.indexOf(last);

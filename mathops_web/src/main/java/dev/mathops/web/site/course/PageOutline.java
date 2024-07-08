@@ -1784,8 +1784,7 @@ enum PageOutline {
                 boolean col2 = false;
 
                 if (avail) {
-                    htm.add("<td class='open' ",
-                            "style='text-align:right;font-family: factoria-medium,sans-serif;'>");
+                    htm.add("<td class='open' style='text-align:right;font-family: factoria-medium,sans-serif;'>");
                     if (lessNum != null) {
                         htm.add(lessNum, ":&nbsp;");
                     }
@@ -1815,11 +1814,9 @@ enum PageOutline {
                 }
 
                 if ("May Move On".equals(status) || "Completed".equals(status)) {
-                    if (!col2) {
-                        htm.add("<td class='why_done'><img src='/images/check.png' alt=''/>", CoreConstants.SPC,
-                                status, "</td>");
-                    }
-                } else if (!newTold && status != null && !col2) {
+                    htm.add("<td class='why_done'><img src='/images/check.png' alt=''/>", CoreConstants.SPC,
+                            status, "</td>");
+                } else if (!newTold && status != null) {
                     htm.add("<td class='why_unavail'>", status, "</td>");
                     newTold = true;
                 }

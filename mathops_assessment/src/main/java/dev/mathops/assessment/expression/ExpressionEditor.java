@@ -215,9 +215,11 @@ public class ExpressionEditor extends KeyAdapter implements Runnable, ActionList
         if (code == KeyEvent.VK_LEFT) {
             // Left arrow
             Log.info("Left arrow");
+            repaint = true;
         } else if (code == KeyEvent.VK_RIGHT) {
             // Right arrow
             Log.info("Right arrow");
+            repaint = true;
         }
 
         if (repaint) {

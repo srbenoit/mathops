@@ -31,11 +31,7 @@ final class SiteDataCfgObjective {
         this.homeworks = cache.getSystemData().getActiveAssignmentsByCourseUnitObjectiveType(
                 theCourseUnitObj.course, theCourseUnitObj.unit, theCourseUnitObj.objective, "HW");
 
-        if (this.homeworks == null) {
-            this.courseUnitObjective = null;
-        } else {
-            this.courseUnitObjective = theCourseUnitObj;
-        }
+        this.courseUnitObjective = theCourseUnitObj;
     }
 
     /**

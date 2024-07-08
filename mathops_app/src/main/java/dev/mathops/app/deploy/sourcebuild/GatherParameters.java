@@ -60,7 +60,6 @@ enum GatherParameters {
                 domain = "math.colostate.edu";
                 state.setDomain(domain);
                 Log.fine("Using default domain...");
-                ok = true;
                 break;
             }
 
@@ -72,7 +71,7 @@ enum GatherParameters {
             }
         }
 
-        return ok;
+        return true;
     }
 
     /**
@@ -185,6 +184,6 @@ enum GatherParameters {
             }
         }
 
-        return ok;
+        return true;
     }
 }

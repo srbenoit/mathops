@@ -392,8 +392,6 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
 
             final DocColumnInst questionIteration = this.question.createInstance(this.evalContext);
 
-            boolean ok = true;
-
             final DocColumnInst solutionIteration;
             if (this.solution == null) {
                 solutionIteration = null;
@@ -409,15 +407,9 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
             }
 
             final Formula correctnessIteration = this.correctness.createIteration(this.evalContext);
-            if (correctnessIteration == null) {
-                Log.warning("Unable to generate correctness formula iteration");
-                ok = false;
-            }
 
-            if (ok) {
-                result = new ProblemEmbeddedInputInst(this.id, iterationId, this.calculator,
-                        questionIteration, solutionIteration, answerIteration, correctnessIteration);
-            }
+            result = new ProblemEmbeddedInputInst(this.id, iterationId, this.calculator,
+                    questionIteration, solutionIteration, answerIteration, correctnessIteration);
         }
 
         return result;

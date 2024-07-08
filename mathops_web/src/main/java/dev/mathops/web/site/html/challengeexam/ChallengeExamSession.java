@@ -39,7 +39,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
@@ -49,7 +48,6 @@ import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawMpeLog;
@@ -73,7 +71,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -346,9 +343,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     final GetExamReply reply = new GetExamReply();
                     LogBase.setSessionInfo("TXN", this.studentId);
 
-                    // We need to verify the exam and fill in the remaining fields in
-                    // AvailableExam
-                    final List<RawAdminHold> holds = new ArrayList<>(1);
+                    // We need to verify the exam and fill in the remaining fields in AvailableExam
                     reply.status = GetExamReply.SUCCESS;
 
                     final ChallengeExamStatus challengeStatStat =
@@ -399,14 +394,6 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                                     secs = (long) ((double) secs * stu.timelimitFactor.doubleValue());
 
                                     reply.presentedExam.allowedSeconds = Long.valueOf(secs);
-                                }
-                            }
-
-                            if (!holds.isEmpty()) {
-                                final int numHolds = holds.size();
-                                reply.holds = new String[numHolds];
-                                for (int i = 0; i < numHolds; ++i) {
-                                    reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
                                 }
                             }
 
@@ -1604,6 +1591,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         while (rules.hasNext()) {
             final ExamGradingRule rule = rules.next();
             final Iterator<ExamGradingCondition> conditions = rule.getGradingConditions();
+            final String gradingRuleType = rule.getGradingRuleType();
 
             boolean pass = false;
 
@@ -1619,16 +1607,17 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
                     break;
                 } else // Insert TRUE boolean parameter if result is PASS
-                    if (ExamGradingRule.PASS_FAIL.equals(rule.getGradingRuleType()) && result instanceof Boolean) {
-                        pass = ((Boolean) result).booleanValue();
+                    if (ExamGradingRule.PASS_FAIL.equals(gradingRuleType)
+                            && result instanceof final Boolean boolResult) {
+
+                        pass = boolResult.booleanValue();
 
                         if (pass) {
-                            rule.result = result;
-
-                            stexam.examGrades.put(rule.gradingRuleName, result);
+                            rule.result = Boolean.TRUE;
+                            stexam.examGrades.put(rule.gradingRuleName, Boolean.TRUE);
 
                             final VariableBoolean param = new VariableBoolean(rule.gradingRuleName);
-                            param.setValue(result);
+                            param.setValue(Boolean.TRUE);
                             params.addVariable(param);
 
                             break;
@@ -1639,7 +1628,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
             appendExamLog("  Grading rule '" + rule.gradingRuleName + "': " + (pass ? "PASS" : "FAIL"));
 
             // If no passing indication, record a fail
-            if (ExamGradingRule.PASS_FAIL.equals(rule.getGradingRuleType()) && !pass) {
+            if (ExamGradingRule.PASS_FAIL.equals(gradingRuleType) && !pass) {
                 rule.result = Boolean.FALSE;
 
                 stexam.examGrades.put(rule.gradingRuleName, Boolean.FALSE);

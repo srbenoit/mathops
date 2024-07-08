@@ -265,14 +265,12 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                     }
 
                     // Compute the formula value
-                    if (this.formula != null) {
-                        obj = this.formula.evaluate(context);
-                    }
+                    final Object newObj = this.formula.evaluate(context);
 
                     // Log.info("(x,y) = (" + dx + "," + obj + ")");
 
                     double dy;
-                    if (obj instanceof final Number numObj) {
+                    if (newObj instanceof final Number numObj) {
                         dy = numObj.doubleValue();
 
                         // Compute Y position of point and draw a line to it.
@@ -282,7 +280,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                         if (!started) {
                             grx.drawLine(x, y, x, y);
                             started = true;
-                        } else // Detect wild swings like tangent, avoid drawing
+                        } else // Detect wild swings like asymptotes, avoid drawing
                             if (Math.abs(y - prior) < 500) {
                                 grx.drawLine(x - 1, prior, x, y);
                             }

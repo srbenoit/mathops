@@ -146,8 +146,7 @@ public final class PrerequisiteLogic {
 
         boolean prereqSatisfied = false;
 
-        // Scan for STCOURSE records marked as "prereq_satisfied = 'Y'", even records that have
-        // been dropped.
+        // Scan for STCOURSE records marked as "prereq_satisfied = 'Y'", even records that have been dropped.
 
         for (final RawStcourse test : this.allHistory) {
             if (test.course.equals(courseId) && ("Y".equals(test.prereqSatis) || "P".equals(test.prereqSatis))) {
@@ -181,10 +180,8 @@ public final class PrerequisiteLogic {
                 // Search for transfer credit in course or a prerequisite course
                 for (final RawFfrTrns xfer : this.allTransfer) {
                     if (courseId.equals(xfer.course) || preq.equals(xfer.course)) {
-                        if (!prereqSatisfied) {
-                            this.satisfiedByTransfer.add(courseId);
-                            prereqSatisfied = true;
-                        }
+                        this.satisfiedByTransfer.add(courseId);
+                        prereqSatisfied = true;
                         break outer;
                     }
                 }

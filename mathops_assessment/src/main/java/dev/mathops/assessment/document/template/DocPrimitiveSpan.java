@@ -301,17 +301,14 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
                     ok = this.yCoord != null;
                 }
                 case "anchor" -> {
-
-                    final ETextAnchor anch = ETextAnchor.valueOf(theValue);
-                    if (anch != null) {
-                        this.anchor = anch;
+                    try {
+                        this.anchor = ETextAnchor.valueOf(theValue);
                         ok = true;
-                    } else {
+                    } catch (final IllegalArgumentException ex) {
                         elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
                     }
                 }
                 case "filled" -> {
-
                     try {
                         this.filled = VariableFactory.parseBooleanValue(theValue);
                         ok = true;

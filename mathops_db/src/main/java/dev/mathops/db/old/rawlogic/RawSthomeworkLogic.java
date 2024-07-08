@@ -98,7 +98,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
 //                ser = Long.valueOf(ser.longValue() + 1L);
 //            }
 
-            final String obj = record.objective == null ? null : record.objective.toString();
+            final String obj = record.objective.toString();
 
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO sthomework (serial_nbr,version,stu_id,hw_dt,hw_score,start_time,finish_time,time_ok,",

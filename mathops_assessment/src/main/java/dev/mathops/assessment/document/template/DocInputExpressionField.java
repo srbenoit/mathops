@@ -133,8 +133,6 @@ public final class DocInputExpressionField extends AbstractDocInputField {
         // If no change, do nothing.
 
         if (!ok) {
-            ok = true;
-
             setCharPositions(null);
             this.selectStart = -1;
             this.selectEnd = -1;
@@ -153,7 +151,7 @@ public final class DocInputExpressionField extends AbstractDocInputField {
             notifyChangeListeners();
         }
 
-        return ok;
+        return true;
     }
 
     /**

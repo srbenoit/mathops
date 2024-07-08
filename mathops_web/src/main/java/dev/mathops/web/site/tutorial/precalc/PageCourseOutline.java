@@ -135,10 +135,9 @@ enum PageCourseOutline {
                                 final PrecalcTutorialCourseStatus tutStatus, final HtmlBuilder htm)
             throws SQLException {
 
-        boolean told = false;
-
         doGatewayUnit(cache, logic, tutStatus, htm);
-        told = doInstructionUnit(cache, logic, tutStatus, Integer.valueOf(1), told, htm);
+
+        boolean told = doInstructionUnit(cache, logic, tutStatus, Integer.valueOf(1), false, htm);
         told = doInstructionUnit(cache, logic, tutStatus, Integer.valueOf(2), told, htm);
         told = doInstructionUnit(cache, logic, tutStatus, Integer.valueOf(3), told, htm);
         doInstructionUnit(cache, logic, tutStatus, Integer.valueOf(4), told, htm);

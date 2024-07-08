@@ -34,9 +34,7 @@ class ResultsPanel1 extends JPanel {
 
         final JLabel iconLabel = new JLabel();
         final ImageIcon icon = getImageIcon();
-        if (icon != null) {
-            iconLabel.setIcon(icon);
-        }
+        iconLabel.setIcon(icon);
 
         add(iconLabel, BorderLayout.WEST);
 

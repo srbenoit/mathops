@@ -299,22 +299,18 @@ import java.util.TreeMap;
                 selType = selType.substring(0, spc);
             }
 
-            if (selType != null) {
-                try {
-                    final List<RawSpecialStus> list =
-                            RawSpecialStusLogic.queryByType(this.cache, selType);
+            try {
+                final List<RawSpecialStus> list = RawSpecialStusLogic.queryByType(this.cache, selType);
 
-                    for (final String entry : makeSortedList(list)) {
-                        this.studentsModel.addElement(entry);
-                    }
-
-                    final FontMetrics metr =
-                            this.studentsList.getFontMetrics(this.studentsList.getFont());
-                    final int h = 1 + this.studentsModel.getSize() * (metr.getHeight() + 4);
-                    this.studentsList.setPreferredSize(new Dimension(398 - this.scrollWidth, h));
-                } catch (final SQLException ex) {
-                    Log.warning("Failed to query special student records.");
+                for (final String entry : makeSortedList(list)) {
+                    this.studentsModel.addElement(entry);
                 }
+
+                final FontMetrics metr = this.studentsList.getFontMetrics(this.studentsList.getFont());
+                final int h = 1 + this.studentsModel.getSize() * (metr.getHeight() + 4);
+                this.studentsList.setPreferredSize(new Dimension(398 - this.scrollWidth, h));
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query special student records.");
             }
         }
     }

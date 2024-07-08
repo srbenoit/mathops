@@ -424,7 +424,7 @@ public final class FETest extends AbstractFEObject {
                     setCondition(newChild, true);
                     result = true;
                 } else {
-                    Log.warning("Attempt to add ", newType, " type child as test condition; Boolean is required");
+                    Log.warning("Attempt to add 'null' type child as test condition; Boolean is required");
                 }
             } else if (newType == EType.BOOLEAN) {
                 currentChild.setParent(null);

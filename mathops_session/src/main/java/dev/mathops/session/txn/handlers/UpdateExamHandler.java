@@ -1160,24 +1160,20 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
                 if (result instanceof ErrorValue) {
                     rule.result = result;
-                    Log.severe("Error evaluating grading rule ",
-                            rule.gradingRuleName, " [", formula.toString(),
-                            "]: ", result.toString(), "\n",
-                            presented.toXmlString(0));
-
+                    Log.severe("Error evaluating grading rule ", rule.gradingRuleName, " [", formula.toString(),
+                            "]: ", result.toString(), "\n", presented.toXmlString(0));
                     break;
                 } else // Insert TRUE boolean parameter if result is PASS
                     if (ExamGradingRule.PASS_FAIL.equals(rule.getGradingRuleType())
-                            && (result instanceof Boolean && !pass)) {
-                        pass = ((Boolean) result).booleanValue();
+                            && result instanceof final Boolean boolResult) {
+                        pass = boolResult.booleanValue();
 
                         if (pass) {
-                            rule.result = result;
-
-                            stexam.examGrades.put(rule.gradingRuleName, result);
+                            rule.result = Boolean.TRUE;
+                            stexam.examGrades.put(rule.gradingRuleName, Boolean.TRUE);
 
                             final VariableBoolean param = new VariableBoolean(rule.gradingRuleName);
-                            param.setValue(result);
+                            param.setValue(Boolean.TRUE);
                             params.addVariable(param);
 
                             break;
@@ -1671,16 +1667,13 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
      */
     private boolean insertPlacementResults(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
-        final boolean ok = true;
-
         // Indicate all required placements.
         final Iterator<String> iter1 = stexam.earnedPlacement.iterator();
 
-        while (ok && iter1.hasNext()) {
+        while (iter1.hasNext()) {
             final String placeIn = iter1.next();
 
             if (stexam.earnedCredit.contains(placeIn)) {
-
                 // If credit is awarded, we don't award placement too
                 continue;
             }
@@ -1744,7 +1737,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         // Record all ignored placement results
         final Iterator<String> iter4 = stexam.deniedPlacement.keySet().iterator();
 
-        while (ok && iter4.hasNext()) {
+        while (iter4.hasNext()) {
             final String placeIn = iter4.next();
 
             String source = null;
@@ -1812,7 +1805,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
             }
         }
 
-        return ok;
+        return true;
     }
 
     /**

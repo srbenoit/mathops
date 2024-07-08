@@ -2,6 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -227,7 +228,8 @@ enum PagePlanStart {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
         final ZonedDateTime now = session.getNow();
 
         // Only perform updates if this is not an adviser using "Act As"
@@ -235,14 +237,14 @@ enum PagePlanStart {
             final String studentId = session.getEffectiveUserId();
 
             final StudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
-                    session.actAsUserId == null);
+                    true);
 
             if (req.getParameter(INPUT_NAME) != null) {
 
                 final Integer key = Integer.valueOf(1);
 
-                final Map<Integer, RawStmathplan> existing = MathPlanLogic
-                        .getMathPlanResponses(cache, studentId, MathPlanConstants.ONLY_RECOM_PROFILE);
+                final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId,
+                        MathPlanConstants.ONLY_RECOM_PROFILE);
 
                 if (!existing.containsKey(key)) {
 
@@ -254,7 +256,7 @@ enum PagePlanStart {
                     logic.storeMathPlanResponses(cache, data.student,
                             MathPlanConstants.ONLY_RECOM_PROFILE, questions, answers, now, session.loginSessionTag);
 
-                    data.recordPlan(cache, logic, now, session.getEffectiveUserId(), session.loginSessionTag);
+                    data.recordPlan(cache, logic, now, studentId, session.loginSessionTag);
                 }
             }
         }

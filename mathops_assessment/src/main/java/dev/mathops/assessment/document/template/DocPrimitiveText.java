@@ -295,12 +295,10 @@ final class DocPrimitiveText extends AbstractDocPrimitive {
             this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "text primitive");
             ok = this.yCoord != null;
         } else if ("anchor".equals(name)) {
-
-            final ETextAnchor anch = ETextAnchor.valueOf(theValue);
-            if (anch != null) {
-                this.anchor = anch;
+            try {
+                this.anchor = ETextAnchor.valueOf(theValue);
                 ok = true;
-            } else {
+            } catch (final IllegalArgumentException ex) {
                 elem.logError("Invalid 'anchor' value (" + theValue + ") on text primitive");
             }
         } else if ("color".equals(name)) {

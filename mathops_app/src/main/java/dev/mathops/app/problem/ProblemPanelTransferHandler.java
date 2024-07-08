@@ -119,8 +119,7 @@ final class PictureTransferable implements Transferable {
      * @throws UnsupportedFlavorException if the requested flavor is not supported
      */
     @Override
-    public Object getTransferData(final DataFlavor flavor)
-            throws UnsupportedFlavorException {
+    public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException {
 
         if (!isDataFlavorSupported(flavor)) {
             throw new UnsupportedFlavorException(flavor);

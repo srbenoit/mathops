@@ -240,9 +240,8 @@ final class AdminHoldForm extends AbstractForm implements ListSelectionListener 
 
             if (hasWhere) {
                 builder.append(" WHERE");
-                boolean and = false;
 
-                and = appendWhere(this.stuIdField, and, builder);
+                boolean and = appendWhere(this.stuIdField, false, builder);
                 and = appendWhere(this.holdIdField, and, builder);
                 and = appendWhere(this.sevAdminHoldField, and, builder);
                 and = appendWhere(this.timesDisplayField, and, builder);

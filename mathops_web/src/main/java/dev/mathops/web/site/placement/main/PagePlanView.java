@@ -3,6 +3,7 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -23,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -580,7 +582,8 @@ enum PagePlanView {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
         final String cmd = req.getParameter("cmd");
 
@@ -589,8 +592,8 @@ enum PagePlanView {
                 || MathPlanConstants.ONLY_RECOM_PROFILE.equals(cmd))) {
 
             final String studentId = session.getEffectiveUserId();
-            final StudentData data = logic.getStudentData(cache, studentId, session.getNow(), session.loginSessionTag,
-                    session.actAsUserId == null);
+            final ZonedDateTime sessNow = session.getNow();
+            final StudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag, true);
             final Integer key = Integer.valueOf(1);
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId, cmd);
@@ -602,10 +605,10 @@ enum PagePlanView {
 
                 questions.add(key);
                 answers.add("Y");
-                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, session.getNow(),
+                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, sessNow,
                         session.loginSessionTag);
 
-                data.recordPlan(cache, logic, session.getNow(), session.getEffectiveUserId(), session.loginSessionTag);
+                data.recordPlan(cache, logic, sessNow, studentId, session.loginSessionTag);
             }
         }
 

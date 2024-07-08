@@ -787,7 +787,7 @@ enum PageStudentInfo {
                         : TemporalUtils.FMT_MDY.format(override.msDate);
 
                 String statusStr = "Unknown";
-                if (reg != null && "MA".equals(ms.msType)) {
+                if ("MA".equals(ms.msType)) {
                     MasteryExamRec masteryExam = null;
                     for (final MasteryExamRec rec : allMastery) {
                         if (rec.courseId.equals(reg.course) && rec.unit.equals(ms.unit)

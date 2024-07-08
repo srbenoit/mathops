@@ -148,7 +148,6 @@ public final class DocInputLongField extends AbstractDocInputField {
         }
 
         if (!ok) {
-            ok = true;
             this.value = null;
             setCharPositions(null);
             this.selectStart = -1;
@@ -182,7 +181,7 @@ public final class DocInputLongField extends AbstractDocInputField {
             notifyChangeListeners();
         }
 
-        return ok;
+        return true;
     }
 
     /**

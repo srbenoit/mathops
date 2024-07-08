@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -996,10 +997,10 @@ enum PagePlanNext {
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
             final String effectiveId = session.getEffectiveUserId();
-            final StudentData data = logic.getStudentData(cache, effectiveId, session.getNow(), session.loginSessionTag,
-                    session.actAsUserId == null);
+            final ZonedDateTime sessNow = session.getNow();
+            final StudentData data = logic.getStudentData(cache, effectiveId, sessNow, session.loginSessionTag, true);
 
-            logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, session.getNow(),
+            logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, sessNow,
                     session.loginSessionTag);
 
             final List<Integer> questions = new ArrayList<>(2);
@@ -1012,7 +1013,7 @@ enum PagePlanNext {
             answers.add(aff2 ? "Y" : "N");
 
             logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions, answers,
-                    session.getNow(), session.loginSessionTag);
+                    sessNow, session.loginSessionTag);
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
             // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that

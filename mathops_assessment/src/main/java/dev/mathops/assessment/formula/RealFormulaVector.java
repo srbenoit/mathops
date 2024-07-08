@@ -177,11 +177,7 @@ public final class RealFormulaVector extends AbstractFormulaContainer implements
         final AbstractFormulaObject result;
 
         if (error == null) {
-            if (allConstant) {
-                result = new ConstRealVector(new RealVectorValue(elements));
-            } else {
-                result = this;
-            }
+            result = new ConstRealVector(new RealVectorValue(elements));
         } else {
             result = error;
         }
