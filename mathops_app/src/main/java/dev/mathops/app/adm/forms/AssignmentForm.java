@@ -94,7 +94,7 @@ final class AssignmentForm extends AbstractForm implements ListSelectionListener
      *
      * @param theCache the data cache
      */
-    /* default */ AssignmentForm(final Cache theCache) {
+    AssignmentForm(final Cache theCache) {
 
         super();
 

@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * A card with resource-related data.
  */
-/* default */ class ResourceCard extends AdminPanelBase implements ActionListener {
+class ResourceCard extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";
@@ -63,7 +63,7 @@ import java.io.Serial;
     /**
      * Sets focus.
      */
-    /* default */ void focus() {
+    void focus() {
 
         // No action
     }
@@ -71,7 +71,7 @@ import java.io.Serial;
     /**
      * Resets the card to accept data for a new loan.
      */
-    /* default */ void reset() {
+    void reset() {
 
         // TODO:
     }

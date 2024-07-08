@@ -37,15 +37,19 @@ final class TestRawStmilestone {
     /** A field name. */
     private static final Integer TEST_NBR_ATMPTS_ALLOW = Integer.valueOf(1);
 
+    /** A field name. */
+    private static final String TEST_EXT_TYPE = "ACC";
+
     /** The expected String serialization of a test record. */
-    private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER, //
+    private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
             "term=Fall, 2022",
             "stu_id=888888888",
             "pace_track=A",
             "ms_nbr=111",
             "ms_type=RE",
             "ms_date=2023-01-02",
-            "nbr_atmpts_allow=1");
+            "nbr_atmpts_allow=1",
+            "ext_type=ACC");
 
     /**
      * Constructs a new {@code IvtRawStmilestone}.
@@ -61,7 +65,7 @@ final class TestRawStmilestone {
     void test0001() {
 
         final RawStmilestone obj = new RawStmilestone(TEST_TERM, TEST_STU_ID, TEST_PACE_TRACK,
-                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW);
+                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW, TEST_EXT_TYPE);
 
         assertEquals(TEST_TERM, obj.termKey, "Invalid term value after constructor");
         assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after constructor");
@@ -70,6 +74,7 @@ final class TestRawStmilestone {
         assertEquals(TEST_MS_TYPE, obj.msType, "Invalid ms_type value after constructor");
         assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after constructor");
         assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow, "Invalid nbr_atmpts_allow value after constructor");
+        assertEquals(TEST_EXT_TYPE, obj.extType, "Invalid ext_type value after constructor");
     }
 
     /** Test case. */
@@ -78,7 +83,7 @@ final class TestRawStmilestone {
     void test0098() {
 
         final RawStmilestone obj = new RawStmilestone(TEST_TERM, TEST_STU_ID, TEST_PACE_TRACK,
-                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW);
+                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW, TEST_EXT_TYPE);
 
         final String ser = obj.serializedString();
 
@@ -99,5 +104,6 @@ final class TestRawStmilestone {
         assertEquals(TEST_MS_TYPE, obj.msType, "Invalid ms_type value after deserialization");
         assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after deserialization");
         assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow, "Invalid nbr_atmpts_allow value after deserialization");
+        assertEquals(TEST_EXT_TYPE, obj.extType, "Invalid ext_type value after deserialization");
     }
 }

@@ -42,7 +42,7 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
     public String shortName;
 
     /** True if the section presents problems to the student in random order; false otherwise. */
-    /* default */ boolean randomOrder;
+    boolean randomOrder;
 
     /**
      * True if the student may return to the section after moving on to another section of the exam; false otherwise.

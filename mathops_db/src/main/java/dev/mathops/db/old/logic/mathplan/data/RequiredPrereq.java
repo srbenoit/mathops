@@ -30,13 +30,13 @@ public final class RequiredPrereq implements Serializable, Comparable<RequiredPr
     private final String courseId;
 
     /** The prerequisite courses. */
-    /* default */ final List<String> prereqCourses;
+    final List<String> prereqCourses;
 
     /** The prerequisite grades (null for courses with no grade requirement). */
-    /* default */ final List<Float> prereqGrades;
+    final List<Float> prereqGrades;
 
     /** True if courses may be taken concurrently. */
-    /* default */ final Boolean mayBeConcurrent;
+    final Boolean mayBeConcurrent;
 
     /**
      * Constructs a new {@code RequiredPrereq}.

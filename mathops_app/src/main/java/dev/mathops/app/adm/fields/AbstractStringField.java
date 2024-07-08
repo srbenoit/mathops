@@ -5,7 +5,7 @@ import java.io.Serial;
 /**
  * The base class for fields that represent a string value.
  */
-/* default */ abstract class AbstractStringField extends AbstractField {
+abstract class AbstractStringField extends AbstractField {
 
     /** Version number for serialization. */
     @Serial

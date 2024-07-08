@@ -20,10 +20,10 @@ import java.util.Arrays;
  * CLIENT_FINAL    = CNONCE + SNONCE + "," + CLIENT_PROOF
  * </pre>
  */
- class ClientFinalMessage {
+class ClientFinalMessage {
 
     /** The authentication message. */
-    /* default */ final byte[] authMessage;
+    final byte[] authMessage;
 
     /** The client signature. */
     private final byte[] clientSig;
@@ -35,7 +35,7 @@ import java.util.Arrays;
     private final byte[] clientFinal;
 
     /** The hex encoding of the assembled 'client-final' message. */
-    /* default */ final String hex;
+    final String hex;
 
     /**
      * Constructs a new {@code ClientFinalMessage}.
@@ -44,8 +44,8 @@ import java.util.Arrays;
      * @param clientFirst the client-first message
      * @param serverFirst the server-first message
      */
-    /* default */ ClientFinalMessage(final CharSequence password, final ClientFirstMessage clientFirst,
-                                     final ServerFirstMessage serverFirst) {
+    ClientFinalMessage(final CharSequence password, final ClientFirstMessage clientFirst,
+                       final ServerFirstMessage serverFirst) {
 
         final byte[] normPassword = ScramUtils.normalize(password);
 

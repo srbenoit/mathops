@@ -53,7 +53,6 @@ public enum EDbUse {
      * @param theName the name
      * @return the corresponding {@code EDbUse}; {@code null} if none corresponds to the name
      */
-    /* default */
     static EDbUse forName(final String theName) {
 
         final EDbUse[] values = values();

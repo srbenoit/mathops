@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * A card panel to display all outstanding resources.
  */
-/* default */ class OutstandingResourceCard extends AdminPanelBase implements ActionListener {
+class OutstandingResourceCard extends AdminPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";
@@ -60,7 +60,7 @@ import java.util.Map;
      *
      * @param theConn          the database connection
      */
-    /* default */ OutstandingResourceCard(final DbConnection theConn) {
+    OutstandingResourceCard(final DbConnection theConn) {
 
         super();
 
@@ -158,7 +158,7 @@ import java.util.Map;
     /**
      * Sets focus.
      */
-    /* default */ void focus() {
+    void focus() {
 
         // No action
     }
@@ -166,7 +166,7 @@ import java.util.Map;
     /**
      * Resets the card to accept data for a new loan.
      */
-    /* default */ void reset() {
+    void reset() {
 
         this.table.clear();
 

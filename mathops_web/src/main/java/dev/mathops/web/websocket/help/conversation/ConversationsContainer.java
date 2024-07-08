@@ -33,7 +33,7 @@ public final class ConversationsContainer {
      *
      * @param listener the listener to add
      */
-    /* default */ void addListener(final IConversationsContainerListener listener) {
+    void addListener(final IConversationsContainerListener listener) {
 
         synchronized (this) {
             this.listeners.add(listener);
@@ -45,7 +45,7 @@ public final class ConversationsContainer {
      *
      * @param listener the listener to remove
      */
-    /* default */ void removeListener(final IConversationsContainerListener listener) {
+    void removeListener(final IConversationsContainerListener listener) {
 
         synchronized (this) {
             this.listeners.remove(listener);
@@ -70,7 +70,7 @@ public final class ConversationsContainer {
      * @param studentId the student ID
      * @return the student key, if found; {@code null} if not
      */
-    /* default */ StudentKey getStudentKey(final String studentId) {
+    StudentKey getStudentKey(final String studentId) {
 
         StudentKey result = null;
 
@@ -92,7 +92,7 @@ public final class ConversationsContainer {
      * @param key the student key
      * @return the list; {@code null} if none found
      */
-    /* default */ StudentConversationList getStudentConversationList(final StudentKey key) {
+    StudentConversationList getStudentConversationList(final StudentKey key) {
 
         synchronized (this) {
             return this.conversations.get(key);
@@ -121,7 +121,7 @@ public final class ConversationsContainer {
      *
      * @param theList the student conversation list to add
      */
-    /* default */ void addStudentConversationList(final StudentConversationList theList) {
+    void addStudentConversationList(final StudentConversationList theList) {
 
         synchronized (this) {
             this.conversations.put(theList.studentKey, theList);

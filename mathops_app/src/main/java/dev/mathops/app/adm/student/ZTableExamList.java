@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present a student's exam record.
  */
-/* default */ class ZTableExamList extends AbstractZTable<ExamListRow> {
+class ZTableExamList extends AbstractZTable<ExamListRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -24,7 +24,7 @@ import java.util.List;
      *
      * @param theListener      the listener that will be notified when a button is pressed in a row
      */
-    /* default */ ZTableExamList(final IZTableCommandListener<ExamListRow> theListener) {
+    ZTableExamList(final IZTableCommandListener<? super ExamListRow> theListener) {
 
         super(theListener);
     }
@@ -104,8 +104,7 @@ import java.util.List;
                 if ((sec % 60L) == 0L) {
                     durstr = (sec / 60L) + " min";
                 } else {
-                    durstr = String.format("%d:%02d", Long.valueOf(sec / 60L),
-                            Long.valueOf(sec % 60L));
+                    durstr = String.format("%d:%02d", Long.valueOf(sec / 60L), Long.valueOf(sec % 60L));
                 }
             }
 

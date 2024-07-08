@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * The data for one row in the activity table.
  */
-/* default */ class ExamListRow implements Comparable<ExamListRow> {
+class ExamListRow implements Comparable<ExamListRow> {
 
     /** The week. */
     public final int week;
@@ -28,7 +28,7 @@ import java.util.List;
      * @param theExamRecord the exam record
      * @param theAnswers    the answers
      */
-    /* default */ ExamListRow(final int theWeek, final RawStexam theExamRecord,
+    ExamListRow(final int theWeek, final RawStexam theExamRecord,
                               final List<RawStqa> theAnswers) {
 
         this.week = theWeek;

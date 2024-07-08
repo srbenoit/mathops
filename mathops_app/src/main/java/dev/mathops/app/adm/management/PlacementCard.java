@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * A card with placement-related data.
  */
-/* default */ class PlacementCard extends AdminPanelBase {
+class PlacementCard extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial

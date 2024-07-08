@@ -29,7 +29,7 @@ import java.time.LocalDate;
 /**
  * A panel that supports management of special student populations.
  */
-/* default */ class PlacementBillingPanel extends AdminPanelBase implements ActionListener {
+class PlacementBillingPanel extends AdminPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

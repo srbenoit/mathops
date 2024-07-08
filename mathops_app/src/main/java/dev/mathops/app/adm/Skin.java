@@ -72,7 +72,7 @@ public enum Skin {
     public static final Font SYMBOL_16_ONT;
 
     /** A font for tabs. */
-    /* default */ static final Font TAB_15_FONT;
+    static final Font TAB_15_FONT;
 
     /** A color for labels. */
     public static final Color LABEL_COLOR = new Color(30, 30, 160);
@@ -120,7 +120,7 @@ public enum Skin {
     public static final Color OFF_WHITE_GRAY = new Color(235, 235, 235);
 
     /** A color for backgrounds. */
-    /* default */ static final Color TABLE_ROW_HIGHLIGHT = new Color(244, 244, 244);
+    static final Color TABLE_ROW_HIGHLIGHT = new Color(244, 244, 244);
 
     /** A color for backgrounds. */
     public static final Color WHITE = new Color(255, 255, 255);

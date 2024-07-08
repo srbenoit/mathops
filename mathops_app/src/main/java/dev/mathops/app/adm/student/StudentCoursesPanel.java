@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * A panel that shows the courses in which a student is enrolled.
  */
-/* default */ class StudentCoursesPanel extends AdminPanelBase {
+class StudentCoursesPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial

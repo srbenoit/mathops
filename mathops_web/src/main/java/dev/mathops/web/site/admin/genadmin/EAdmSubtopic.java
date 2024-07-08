@@ -48,7 +48,7 @@ public enum EAdmSubtopic {
     public final String label;
 
     /** The page URL. */
-    /* default */ final String url;
+    final String url;
 
     /**
      * Constructs a new {@code EAdmSubtopic}.

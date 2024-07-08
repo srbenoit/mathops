@@ -34,10 +34,10 @@ public enum EAdminTopic {
     PROCTORING("Proctoring", "../proctor/home.html");
 
     /** The button label. */
-    /* default */ final String label;
+    final String label;
 
     /** The page URL. */
-    /* default */ final String url;
+    final String url;
 
     /**
      * Constructs a new {@code EAdminTopic}.

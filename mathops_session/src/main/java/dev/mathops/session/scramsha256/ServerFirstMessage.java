@@ -44,8 +44,8 @@ class ServerFirstMessage {
      * @throws IllegalArgumentException if either argument is null or the credentials do not match the username in the
      *                                  client-first message
      */
-    /* default */ ServerFirstMessage(final ClientFirstMessage theClientFirst, final UserCredentials theCredentials,
-                                     final RandomGenerator rnd) throws IllegalArgumentException {
+    ServerFirstMessage(final ClientFirstMessage theClientFirst, final UserCredentials theCredentials,
+                       final RandomGenerator rnd) throws IllegalArgumentException {
 
         if (theClientFirst == null) {
             throw new IllegalArgumentException("ClientFirst message may not be null");
@@ -103,8 +103,7 @@ class ServerFirstMessage {
      * @param clientFirst the {@code ClientFirstMessage} message
      * @throws IllegalArgumentException if there is an error in the message
      */
-    /* default */ ServerFirstMessage(final String theHex, final ClientFirstMessage clientFirst)
-            throws IllegalArgumentException {
+    ServerFirstMessage(final String theHex, final ClientFirstMessage clientFirst) throws IllegalArgumentException {
 
         if (theHex.charAt(0) == '!') {
             throw new IllegalArgumentException(theHex.substring(1));

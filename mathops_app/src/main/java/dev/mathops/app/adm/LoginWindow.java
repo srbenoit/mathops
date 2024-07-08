@@ -58,7 +58,7 @@ import java.util.prefs.Preferences;
  * preferences API), and then enters a username and password to connect to the server. Once a connection is created, the
  * databases in that cluster become available, and the main application window opens.
  */
-/* default */ class LoginWindow implements Runnable, ActionListener {
+final class LoginWindow implements Runnable, ActionListener {
 
     /** An action command. */
     private static final String LOGIN_CMD = "LOGIN";
@@ -515,9 +515,9 @@ import java.util.prefs.Preferences;
             if (good == 3) {
                 final String pwd = new String(p);
                 final LoginConfig ifxLogin = new LoginConfig("ADM_I", ifxDb, u, pwd);
-                final LoginConfig pgLogin = new LoginConfig("ADM_P", pgDb, u, pwd);
+//                final LoginConfig pgLogin = new LoginConfig("ADM_P", pgDb, u, pwd);
                 final DbContext ifxCtx = new DbContext(ifxSchema, ifxLogin);
-                final DbContext pgCtx = new DbContext(pgSchema, pgLogin);
+//                final DbContext pgCtx = new DbContext(pgSchema, pgLogin);
 
                 final DbProfile batchProfile = this.map.getCodeProfile(Contexts.BATCH_PATH);
                 final DbContext odsContext = batchProfile.getDbContext(ESchemaUse.ODS);
@@ -528,26 +528,25 @@ import java.util.prefs.Preferences;
                 ifxContexts.put(ESchemaUse.ODS, odsContext);
                 ifxContexts.put(ESchemaUse.LIVE, liveContext);
 
-                final Map<ESchemaUse, DbContext> pgContexts = new HashMap<>(10);
-                pgContexts.put(ESchemaUse.PRIMARY, pgCtx);
-                pgContexts.put(ESchemaUse.ODS, odsContext);
-                pgContexts.put(ESchemaUse.LIVE, liveContext);
+//                final Map<ESchemaUse, DbContext> pgContexts = new HashMap<>(10);
+//                pgContexts.put(ESchemaUse.PRIMARY, pgCtx);
+//                pgContexts.put(ESchemaUse.ODS, odsContext);
+//                pgContexts.put(ESchemaUse.LIVE, liveContext);
 
                 final DbProfile ifxProfile = new DbProfile("AdminIfx", ifxContexts);
-                final DbProfile pgProfile = new DbProfile("AdminPg", pgContexts);
+//                final DbProfile pgProfile = new DbProfile("AdminPg", pgContexts);
 
                 final DbConnection ifxConn = ifxCtx.checkOutConnection();
 
                 try {
                     final Cache ifxCache = new Cache(ifxProfile, ifxConn);
 
-                    final DbConnection pgConn = pgCtx.checkOutConnection();
-                    try {
+//                    final DbConnection pgConn = pgCtx.checkOutConnection();
+//                    try {
                         // final Cache pgCache = new Cache(pgProfile, ifxConn);
 
                         // The following throws exception if login credentials are invalid
                         ifxConn.getConnection();
-                        // pgConn.getConnection();
 
                         Object renderingHint = null;
                         int pref = -1;
@@ -571,22 +570,22 @@ import java.util.prefs.Preferences;
                             pref = 5;
                         }
 
-                        final Preferences prefs = Preferences.userNodeForPackage(getClass());
+                        final Class<? extends LoginWindow> cls = getClass();
+                        final Preferences prefs = Preferences.userNodeForPackage(cls);
                         if (prefs != null) {
                             prefs.putInt("antialias", pref);
                         }
 
-                        // FIXME:
-                        // new MainWindow(u, ifxCtx, pgCtx, ifxCache, pgCache, liveContext, renderingHint).run();
-                        new AdminMainWindow(u, ifxCtx, pgCtx, ifxCache, null, liveContext, renderingHint).run();
+                        new AdminMainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).run();
                         this.frame.setVisible(false);
                         this.frame.dispose();
-                    } finally {
-                        pgCtx.checkInConnection(pgConn);
-                    }
+//                    } finally {
+//                        pgCtx.checkInConnection(pgConn);
+//                    }
                 } catch (final SQLException ex2) {
                     Log.warning(ex2);
-                    this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
+                    final String msg = Res.get(Res.LOGIN_BAD_LOGIN_ERR);
+                    this.error.setText(msg);
                 } finally {
                     ifxCtx.checkInConnection(ifxConn);
                 }
@@ -598,7 +597,7 @@ import java.util.prefs.Preferences;
             this.frame.dispose();
         } else if (SETTINGS_CMD.equals(cmd)) {
             this.settingsBtn.setEnabled(false);
-            this.content.add(this.pickAntialias, BorderLayout.EAST);
+            this.content.add(this.pickAntialias, BorderLayout.LINE_END);
             this.frame.pack();
         }
     }

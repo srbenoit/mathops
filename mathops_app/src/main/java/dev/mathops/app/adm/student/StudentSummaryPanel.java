@@ -545,6 +545,9 @@ final class StudentSummaryPanel extends AdminPanelBase {
         final Collection<RawStcourse> current = new ArrayList<>(regs.size());
 
         for (final RawStcourse reg : regs) {
+            if ("D".equals(reg.openStatus)) {
+                continue;
+            }
             if (reg.termKey.equals(data.activeKey)) {
                 current.add(reg);
                 if (!"Y".equals(reg.iInProgress)) {
@@ -589,6 +592,7 @@ final class StudentSummaryPanel extends AdminPanelBase {
                 this.currentCoursePane.add(Box.createRigidArea(new Dimension(4, 4)));
                 this.currentCoursePane.add(makeCourseRow(reg, data));
             }
+            this.currentCoursePane.add(Box.createRigidArea(new Dimension(4, 4)));
         }
     }
 

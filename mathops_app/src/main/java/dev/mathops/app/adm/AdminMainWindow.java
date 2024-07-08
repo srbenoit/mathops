@@ -39,17 +39,11 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     /** The Informix database context. */
     private final DbContext ifxContext;
 
-    /** The PostgreSQL database context. */
-    private final DbContext pgContext;
-
     /** The live database context. */
     private final DbContext liveContext;
 
     /** The Informix data cache. */
     private final Cache ifxCache;
-
-//    /** The PostgreSQL data cache. */
-//    private final Cache pgCache;
 
     /** The server site URL to use when constructing a ScramClientStub. */
     private final String serverSiteUrl;
@@ -86,22 +80,18 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
      *
      * @param theUsername      the username
      * @param theIfxContext    the Informix database context
-     * @param thePgContext     the PostgreSQL database context
      * @param theIfxCache      the Informix data cache
-     * @param thePgCache       the PostgreSQL data cache
      * @param theLiveContext   the live data database context
      * @throws SQLException if there is an error accessing the database
      */
-    AdminMainWindow(final String theUsername, final DbContext theIfxContext, final DbContext thePgContext,
-                    final Cache theIfxCache, final Cache thePgCache, final DbContext theLiveContext,
+    AdminMainWindow(final String theUsername, final DbContext theIfxContext,
+                    final Cache theIfxCache,  final DbContext theLiveContext,
                     final Object theRenderingHint) throws SQLException {
 
         super();
 
         this.ifxContext = theIfxContext;
-        this.pgContext = thePgContext;
         this.ifxCache = theIfxCache;
-//        this.pgCache = thePgCache;
         this.liveContext = theLiveContext;
 
         this.fixed = new FixedData(this.ifxCache, theUsername);
@@ -139,14 +129,11 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
 
         final String ifxDbName = this.ifxContext.loginConfig.db.id;
         final String ifxServer = this.ifxContext.loginConfig.db.server.name;
-        final String pgDbName = this.pgContext.loginConfig.db.id;
-        final String pgServer = this.pgContext.loginConfig.db.server.name;
         final String username = this.fixed.username;
 
         final HtmlBuilder windowTitle = new HtmlBuilder(100);
         windowTitle.add("Connected to Informix [", ifxDbName, "] on [", ifxServer,
-                "] and PostgreSQL [", pgDbName, "] on [", pgServer, "]  (",
-                this.ifxContext.loginConfig.db.use, ")  as  [", username, "]");
+                "] (", this.ifxContext.loginConfig.db.use, ")  as  [", username, "]");
 
         this.frame.setTitle(windowTitle.toString());
 

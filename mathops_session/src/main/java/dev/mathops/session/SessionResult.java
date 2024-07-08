@@ -28,7 +28,7 @@ public final class SessionResult {
      *
      * @param theError the error message
      */
-    /* default */ SessionResult(final String theError) {
+    SessionResult(final String theError) {
 
         this.session = null;
         this.error = theError;

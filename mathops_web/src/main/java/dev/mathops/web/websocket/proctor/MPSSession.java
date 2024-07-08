@@ -23,7 +23,7 @@ public final class MPSSession {
     public String examId;
 
     /** The state of the proctoring session. */
-    /* default */ EProctoringSessionState state;
+    EProctoringSessionState state;
 
     /**
      * Flag to indicate student just started the assessment (as opposed to clicking on a problem number during the
@@ -38,9 +38,9 @@ public final class MPSSession {
      * Constructs a new {@code MPSSession}.
      *
      * @param theProcSessionId the proctoring session ID
-     * @param theStudent             the student
+     * @param theStudent       the student
      */
-    /* default */ MPSSession(final String theProcSessionId, final RawStudent theStudent) {
+    MPSSession(final String theProcSessionId, final RawStudent theStudent) {
 
         this.proctoringSessionId = theProcSessionId;
         this.student = theStudent;

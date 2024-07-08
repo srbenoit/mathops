@@ -28,7 +28,7 @@ import java.time.Month;
 /**
  * A card within the "Discipline" tab of the admin app that allows the user to add a new incident.
  */
-/* default */ class DisciplineAddIncidentCard extends JPanel implements ActionListener {
+class DisciplineAddIncidentCard extends JPanel implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

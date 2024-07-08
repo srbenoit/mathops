@@ -37,9 +37,9 @@ class DisciplineIncidentsCard extends JPanel {
     /**
      * Constructs a new {@code DisciplineIncidentsCard}.
      *
-     * @param theListener      the listener to notify when the "Add" button is pressed.
+     * @param theListener the listener to notify when the "Add" button is pressed.
      */
-    /* default */ DisciplineIncidentsCard(final ActionListener theListener) {
+    DisciplineIncidentsCard(final ActionListener theListener) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);

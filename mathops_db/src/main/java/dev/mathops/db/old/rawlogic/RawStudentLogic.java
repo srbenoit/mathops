@@ -2046,7 +2046,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param studentId the student ID
      * @return the student name (a two-String array with first and last name)
      */
-    static /* default */ String[] genStudentName(final String studentId) {
+    static String[] genStudentName(final String studentId) {
 
         // Fixed seed for repeatable sequence of names
         final RandomGenerator rnd = new Random(studentId.hashCode());

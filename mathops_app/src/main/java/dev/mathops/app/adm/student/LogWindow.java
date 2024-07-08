@@ -16,7 +16,7 @@ import java.io.Serial;
  * preferences API), and then enters a username and password to connect to the server. Once a connection is created, the
  * databases in that cluster become available, and the main application window opens.
  */
-/* default */ class LogWindow extends JFrame {
+class LogWindow extends JFrame {
 
     /** Version for serialization. */
     @Serial
@@ -27,7 +27,7 @@ import java.io.Serial;
      *
      * @param logText the text to display
      */
-    /* default */ LogWindow(final String logText) {
+    LogWindow(final String logText) {
 
         super("Log");
 

@@ -27,7 +27,7 @@ public final class LiveHelpQueueEntry {
     private static long lastId;
 
     /** The entry ID - system timestamp at creation time, adjusted to ensure uniqueness. */
-    /* default */ final Long id;
+    final Long id;
 
     /** Student key. */
     public final StudentKey student;
@@ -51,7 +51,7 @@ public final class LiveHelpQueueEntry {
     private final String mediaId;
 
     /** Timestamp when request was queued. */
-    /* default */ final long whenQueued;
+    final long whenQueued;
 
     /** Last time this entry was "touched" to indicate it is still an active request. */
     private long lastTouch;
@@ -129,7 +129,6 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the student ID, screen name, queue date/time, or course ID is null
      */
-    /* default */
     static LiveHelpQueueEntry forCourse(final StudentKey theStudent,
                                         final String theCourseId, final int theUnit, final int theObjective,
                                         final long theWhenQueued, final HelpQueueWebSocket theStudentWebSocket)
@@ -153,7 +152,6 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the student ID, screen name, queue date/time, or homework session ID is null
      */
-    /* default */
     static LiveHelpQueueEntry forHomework(final StudentKey theStudent,
                                           final String theHomeworkSessionId, final long theWhenQueued,
                                           final HelpQueueWebSocket theStudentWebSocket) throws IllegalArgumentException {
@@ -176,7 +174,6 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the screen name, queue date/time, or past exam session ID is null
      */
-    /* default */
     static LiveHelpQueueEntry forPastExam(final StudentKey theStudent,
                                           final String thePastExamSessionId, final long theWhenQueued,
                                           final HelpQueueWebSocket theStudentWebSocket) throws IllegalArgumentException {
@@ -199,7 +196,6 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the screen name, queue date/time, or media ID is null
      */
-    /* default */
     static LiveHelpQueueEntry forMedia(final StudentKey theStudent,
                                        final String theMediaId, final long theWhenQueued,
                                        final HelpQueueWebSocket theStudentWebSocket) throws IllegalArgumentException {
@@ -215,7 +211,7 @@ public final class LiveHelpQueueEntry {
     /**
      * "Touches" the entry to indicate it is still an active requests and should not be closed due to inactivity.
      */
-    /* default */ void touch() {
+    void touch() {
 
         this.lastTouch = System.currentTimeMillis();
     }
@@ -243,7 +239,7 @@ public final class LiveHelpQueueEntry {
      *
      * @param htm the {@code HtmlBuilder} to which to write
      */
-    /* default */ void toJSON(final HtmlBuilder htm) {
+    void toJSON(final HtmlBuilder htm) {
 
         final int sec = (int) (Math.max(0L, System.currentTimeMillis() - this.whenQueued) / 1000L);
         final int mm = sec / 60;
@@ -282,7 +278,7 @@ public final class LiveHelpQueueEntry {
      *
      * @param htm the {@code HtmlBuilder} to which to write
      */
-    /* default */ void toXML(final HtmlBuilder htm) {
+    void toXML(final HtmlBuilder htm) {
 
         htm.openElement(0, "entry");
 
@@ -314,7 +310,6 @@ public final class LiveHelpQueueEntry {
      * @return the reconstructed {@code LiveHelpQueueEntry}
      * @throws ParsingException if the XML could not be parsed
      */
-    /* default */
     static LiveHelpQueueEntry parseXML(final EmptyElement elem)
             throws ParsingException {
 

@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * A card panel to manage inventory.
  */
-/* default */ class InventoryCard extends AdminPanelBase implements ActionListener {
+class InventoryCard extends AdminPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -22,7 +22,7 @@ import java.io.Serial;
     /**
      * Constructs a new {@code InventoryCard}.
      */
-    /* default */ InventoryCard() {
+    InventoryCard() {
 
         super();
 
@@ -56,7 +56,7 @@ import java.io.Serial;
     /**
      * Sets focus.
      */
-    /* default */ void focus() {
+    void focus() {
 
         // No action
     }
@@ -64,7 +64,7 @@ import java.io.Serial;
     /**
      * Resets the card to accept data for a new loan.
      */
-    /* default */ void reset() {
+    void reset() {
 
         // No action
     }

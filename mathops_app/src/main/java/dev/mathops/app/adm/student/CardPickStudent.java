@@ -225,8 +225,7 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
     /**
      * Called when the panel is shown to set focus in the student ID field.
      */
-    /* default */ void focus() {
-
+    void focus() {
         this.stuIdField.requestFocus();
         this.history.getSelectionModel().clearSelection();
     }

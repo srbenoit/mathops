@@ -51,7 +51,7 @@ public final class LiveHelpQueue {
     private static final long CANCELED_TIMEOUT_MS = (long) (5 * 60 * 1000);
 
     /** Hours the live help system is operational. */
-    /* default */ final LiveHelpHours hours;
+    final LiveHelpHours hours;
 
     /** The active list of queued requests. */
     private final SortedMap<Long, LiveHelpQueueEntry> active;
@@ -144,7 +144,7 @@ public final class LiveHelpQueue {
      *
      * @param entry the entry to add
      */
-    /* default */ void enqueue(final LiveHelpQueueEntry entry) {
+    void enqueue(final LiveHelpQueueEntry entry) {
 
         // If the policy of moving new student requests to the end causes student complaints, it
         // could be adjusted so that the new entry replaces the old entry, taking its place in the
@@ -205,7 +205,7 @@ public final class LiveHelpQueue {
      *
      * @param theTutor the tutor
      */
-    /* default */ void addTutor(final LiveHelpOnlineTutor theTutor) {
+    void addTutor(final LiveHelpOnlineTutor theTutor) {
 
         synchronized (this) {
             this.tutors.remove(theTutor);
@@ -225,7 +225,7 @@ public final class LiveHelpQueue {
      *
      * @param studentId the student ID
      */
-    /* default */ void removeTutor(final String studentId) {
+    void removeTutor(final String studentId) {
 
         synchronized (this) {
             final Iterator<LiveHelpOnlineTutor> iter = this.tutors.iterator();

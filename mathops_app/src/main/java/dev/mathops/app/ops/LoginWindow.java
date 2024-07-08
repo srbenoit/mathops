@@ -94,7 +94,7 @@ final class LoginWindow implements Runnable, ActionListener {
      * @param theInitialUsername the username to pre-populate (from command-line)
      * @param theInitialPassword the password to pre-populate (from command-line)
      */
-    /* default */ LoginWindow(final String theInitialUsername, final String theInitialPassword) {
+    LoginWindow(final String theInitialUsername, final String theInitialPassword) {
 
         this.initialUsername = theInitialUsername;
         this.initialPassword = theInitialPassword;

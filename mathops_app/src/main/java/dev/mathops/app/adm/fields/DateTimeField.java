@@ -210,7 +210,7 @@ public final class DateTimeField extends AbstractField {
          * @param theField the text field
          * @param theLabel the label that shows the parsed date when valid
          */
-        /* default */ DateTimeDoc(final JTextField theField, final JLabel theLabel) {
+        DateTimeDoc(final JTextField theField, final JLabel theLabel) {
 
             super();
 

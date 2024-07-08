@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Utilities needed for the SCRAM-SHA256 authentication protocol.
  */
-/* default */  enum ScramUtils {
+enum ScramUtils {
     ;
 
     /** The Unicode character set. */
@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
      * @param toNormalize the string to normalize
      * @return the normalized string, in UTF-8
      */
-    /* default */
     static byte[] normalize(final CharSequence toNormalize) {
 
         final int[] codePoints = toNormalize.codePoints().toArray();
@@ -87,7 +86,6 @@ import java.security.NoSuchAlgorithmException;
      * @param stringBytes the string (of any nonzero size)
      * @return the hash (32 bytes in length)
      */
-    /* default */
     static byte[] sha_256(final byte[] stringBytes) {
 
         try {
@@ -106,7 +104,6 @@ import java.security.NoSuchAlgorithmException;
      * @param stringBytes the string (of any nonzero size)
      * @return the keyed hash (32 bytes in length)
      */
-    /* default */
     static byte[] hmac_sha_256(final byte[] key, final byte[] stringBytes) {
 
         try {
@@ -152,7 +149,6 @@ import java.security.NoSuchAlgorithmException;
      * @param iterCount the iteration count
      * @return the iterated hash
      */
-    /* default */
     static byte[] hi(final byte[] stringBytes, final byte[] salt, final int iterCount) {
 
         final byte[] u1str = new byte[salt.length + 4];

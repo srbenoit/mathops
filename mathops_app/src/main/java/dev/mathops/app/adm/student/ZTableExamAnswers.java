@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * A table to present all answers associated with a student exam.
  */
-/* default */ class ZTableExamAnswers extends AbstractZTable<RawStqa> {
+class ZTableExamAnswers extends AbstractZTable<RawStqa> {
 
     /** Version number for serialization. */
     @Serial
@@ -37,8 +37,7 @@ import java.util.Objects;
      * @param theListener       the listener that will be notified when a button is pressed in a row
      * @param allowChangeAnswer true to include the update button to change an answer
      */
-    /* default */ ZTableExamAnswers(final IZTableCommandListener<RawStqa> theListener,
-                                    final boolean allowChangeAnswer) {
+    ZTableExamAnswers(final IZTableCommandListener<RawStqa> theListener, final boolean allowChangeAnswer) {
 
         super(theListener);
 

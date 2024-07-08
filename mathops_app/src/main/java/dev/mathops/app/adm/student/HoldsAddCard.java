@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * A card within the "Holds" tab of the admin app that allows the user to add a new hold.
  */
-/* default */ class HoldsAddCard extends JPanel implements ActionListener {
+class HoldsAddCard extends JPanel implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -178,7 +178,7 @@ import java.util.List;
     /**
      * Resets the form.
      */
-    /* default */ void reset() {
+    void reset() {
 
         final LocalDate today = LocalDate.now();
 

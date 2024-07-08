@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * A card within the "Holds" tab of the admin app that displays the list of all holds on a student's record.
  */
-/* default */ class HoldsCard extends JPanel implements ActionListener {
+class HoldsCard extends JPanel implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -98,7 +98,7 @@ import java.util.Objects;
     /**
      * Clears the display.
      */
-    /* default */ void clear() {
+    void clear() {
 
         this.holdList.removeAll();
     }
@@ -108,7 +108,7 @@ import java.util.Objects;
      *
      * @param theData the student data
      */
-    /* default */ void populateDisplay(final StudentData theData) {
+    void populateDisplay(final StudentData theData) {
 
         this.data = theData;
 

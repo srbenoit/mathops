@@ -5,22 +5,22 @@ import java.time.LocalDateTime;
 /**
  * The data for one row in the resource activity table.
  */
-/* default */ class ResourceActivityRow implements Comparable<ResourceActivityRow> {
+class ResourceActivityRow implements Comparable<ResourceActivityRow> {
 
     /** The activity type. */
-    /* default */ final String activityType;
+    final String activityType;
 
     /** The student ID. */
-    /* default */ final String studentId;
+    final String studentId;
 
     /** The resource ID. */
-    /* default */ final String resourceId;
+    final String resourceId;
 
     /** The resource type. */
-    /* default */ final String resourceType;
+    final String resourceType;
 
     /** The date/time of the activity. */
-    /* default */ final LocalDateTime activityDateTime;
+    final LocalDateTime activityDateTime;
 
     /**
      * Constructs a new {@code ResourceActivityRow}.
@@ -31,12 +31,11 @@ import java.time.LocalDateTime;
      * @param theActivityDateTime the date/time the resource was lent
      * @param theResourceType     the resource type
      */
-    /* default */ ResourceActivityRow(final String theActivityType, final String theStudentId,
-                                      final String theResourceId, final LocalDateTime theActivityDateTime,
-                                      final String theResourceType) {
+    ResourceActivityRow(final String theActivityType, final String theStudentId, final String theResourceId,
+                        final LocalDateTime theActivityDateTime, final String theResourceType) {
 
         if (theActivityDateTime == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Activity date type may not be null");
         }
 
         this.activityType = theActivityType;

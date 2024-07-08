@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * A card within the list of all exams on the student's record (all "STEXAM" rows, not "STMPE" rows).
  */
-/* default */ class ExamListCard extends JPanel {
+class ExamListCard extends JPanel {
 
     /** Version number for serialization. */
     @Serial

@@ -49,8 +49,7 @@ import java.util.TreeMap;
 /**
  * A panel that supports management of special student populations.
  */
-/* default */ class SpecialStudentsPanel extends AdminPanelBase
-        implements ActionListener, ListSelectionListener {
+class SpecialStudentsPanel extends AdminPanelBase implements ActionListener, ListSelectionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -66,7 +65,7 @@ import java.util.TreeMap;
     private static final String CHANGE_SORT = "CHANGE_SORT";
 
     /** All known special categories. */
-    private static final String[] CATEGORIES = {//
+    private static final String[] CATEGORIES = {
             "--- choose ---", "ADMIN", "ATHLETE",
             "BOOKSTO", "DCE", "DCEN",
             "ENGRPLC", "ENGRSTU", "LOCKDWN", "MPT3",
@@ -119,7 +118,7 @@ import java.util.TreeMap;
     /**
      * Constructs a new {@code SpecialStudentsPanel}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     SpecialStudentsPanel(final Cache theCache) {
 

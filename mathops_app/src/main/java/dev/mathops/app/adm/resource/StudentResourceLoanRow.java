@@ -6,22 +6,22 @@ import java.time.LocalDateTime;
 /**
  * The data for one row in the student resource loan history table.
  */
-/* default */ class StudentResourceLoanRow {
+class StudentResourceLoanRow {
 
     /** The resource ID. */
-    /* default */ final String resourceId;
+    final String resourceId;
 
     /** The date/time of the loan. */
-    /* default */ final LocalDateTime loanDateTime;
+    final LocalDateTime loanDateTime;
 
     /** The due date. */
-    /* default */ final LocalDate dueDate;
+    final LocalDate dueDate;
 
     /** The date/time the resource was returned. */
-    /* default */ final LocalDateTime returnDateTime;
+    final LocalDateTime returnDateTime;
 
     /** The resource type. */
-    /* default */ final String resourceType;
+    final String resourceType;
 
     /**
      * Constructs a new {@code StudentResourceLoanRow}.
@@ -32,9 +32,8 @@ import java.time.LocalDateTime;
      * @param theReturnDateTime the date/time the resource was returned
      * @param theResourceType   the resource type
      */
-    /* default */ StudentResourceLoanRow(final String theResourceId,
-                                         final LocalDateTime theLoanDateTime, final LocalDate theDueDate,
-                                         final LocalDateTime theReturnDateTime, final String theResourceType) {
+    StudentResourceLoanRow(final String theResourceId, final LocalDateTime theLoanDateTime, final LocalDate theDueDate,
+                           final LocalDateTime theReturnDateTime, final String theResourceType) {
 
         this.resourceId = theResourceId;
         this.loanDateTime = theLoanDateTime;

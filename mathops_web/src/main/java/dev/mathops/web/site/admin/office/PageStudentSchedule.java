@@ -949,12 +949,13 @@ enum PageStudentSchedule {
                         allowed = Integer.valueOf(aa);
                     }
 
+                    // FIXME: Use actual extension type
                     if (sms == null) {
                         RawStmilestoneLogic.INSTANCE.insert(cache, new RawStmilestone(active.term, studentId, track,
-                                intMs, type, newDate, allowed));
+                                intMs, type, newDate, allowed, "ACC"));
                     } else if (newDate.isAfter(sms.msDate)) {
                         RawStmilestoneLogic.update(cache, new RawStmilestone(active.term, studentId, track, intMs, type,
-                                newDate, allowed));
+                                newDate, allowed, "ACC"));
                     } else {
                         Log.warning("New appeal for exam that has already been appealed, but with same or earlier ",
                                 "deadline - not update StudentMilestone");

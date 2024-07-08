@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
  * SERVER_SIG[32] + "," + TOKEN[30]
  * </pre>
  */
-/* default */ class ServerFinalMessage {
+class ServerFinalMessage {
 
     /** The computed server signature. */
     private final byte[] serverSig;
@@ -21,10 +21,10 @@ import java.nio.charset.StandardCharsets;
     private final byte[] serverFinal;
 
     /** The security token. */
-    /* default */ final String token;
+    final String token;
 
     /** The hex representation. */
-    /* default */ final String hex;
+    final String hex;
 
     /**
      * Constructs a {@code ServerFinalMessage}.
@@ -35,8 +35,8 @@ import java.nio.charset.StandardCharsets;
      * @param theToken    the security token (30 URL-safe characters)
      * @throws IllegalArgumentException if there is an error in the message
      */
-    /* default */ ServerFinalMessage(final ClientFinalMessage clientFinal,
-                                     final UserCredentials credentials, final String theToken) throws IllegalArgumentException {
+    ServerFinalMessage(final ClientFinalMessage clientFinal, final UserCredentials credentials, final String theToken)
+            throws IllegalArgumentException {
 
         if (clientFinal == null) {
             throw new IllegalArgumentException("ClientFinal may not be null");
@@ -67,7 +67,7 @@ import java.nio.charset.StandardCharsets;
      * @param theHex the hex to parse
      * @throws IllegalArgumentException if there is an error in the message
      */
-    /* default */ ServerFinalMessage(final String theHex) throws IllegalArgumentException {
+    ServerFinalMessage(final String theHex) throws IllegalArgumentException {
 
         if (theHex.charAt(0) == '!') {
             throw new IllegalArgumentException(theHex.substring(1));

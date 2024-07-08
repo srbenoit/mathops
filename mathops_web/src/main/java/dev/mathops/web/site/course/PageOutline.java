@@ -1930,21 +1930,23 @@ enum PageOutline {
                 htm.eDiv();
                 htm.addln("</form>");
 
-                final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
-                        dueDate);
-                if (extendedDueDate != null) {
-                    // If passed late, but within extended deadline window, allow student to request extended deadline.
-                    final LocalDate earliestPassing = courseStatus.getEarliestPassingReview(unitNum);
+                if (dueDate != null) {
+                    final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
+                            dueDate);
+                    if (extendedDueDate != null) {
+                        // If passed late, but within extended deadline window, allow student to request extension
+                        final LocalDate earliestPassing = courseStatus.getEarliestPassingReview(unitNum);
 
-                    if ("Passed".equals(status) && !courseStatus.isReviewPassedOnTime(unitNum)
-                        && !earliestPassing.isAfter(extendedDueDate)) {
+                        if ("Passed".equals(status) && !courseStatus.isReviewPassedOnTime(unitNum)
+                                && !earliestPassing.isAfter(extendedDueDate)) {
 
-                        // FIXME: How to detect, in the calculation of the "due date" whether the automatic extension
-                        //  has already been used?
+                            // FIXME: How to detect, in the calculation of the "due date" whether the automatic extension
+                            //  has already been used?
 
-                        // TODO: Make this a button in a form that actually requests the extension
-                        htm.sP().add("You may request an extension of this due date until ",
-                                TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
+                            // TODO: Make this a button in a form that actually requests the extension
+                            htm.sP().add("You may request an extension of this due date until ",
+                                    TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
+                        }
                     }
                 }
 

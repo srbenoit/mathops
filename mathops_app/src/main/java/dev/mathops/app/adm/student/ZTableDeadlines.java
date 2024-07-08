@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A table to present the student's exam deadlines for the term.
  */
-/* default */ class ZTableDeadlines extends AbstractZTable<DeadlineListRow> {
+class ZTableDeadlines extends AbstractZTable<DeadlineListRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -30,11 +30,10 @@ import java.util.List;
     /**
      * Constructs a new {@code ZTableDeadlines}.
      *
-     * @param theListener      the listener that will be notified when a button is pressed in a row
-     * @param isEditAllowed    true if editing is allowed
+     * @param theListener   the listener that will be notified when a button is pressed in a row
+     * @param isEditAllowed true if editing is allowed
      */
-    /* default */ ZTableDeadlines(final IZTableCommandListener<DeadlineListRow> theListener,
-                                  final boolean isEditAllowed) {
+    ZTableDeadlines(final IZTableCommandListener<DeadlineListRow> theListener, final boolean isEditAllowed) {
 
         super(theListener);
 
@@ -47,19 +46,15 @@ import java.util.List;
     @Override
     protected void addColumnHeadings() {
 
-        final int numColumns = this.allowEdit ? 9 : 8;
-
-        addHeaderCell("Order", 0, 0, numColumns);
-        addHeaderCell("Course", 1, 0, numColumns);
-        addHeaderCell("Unit", 2, 0, numColumns);
-        addHeaderCell("Type", 3, 0, numColumns);
-        addHeaderCell("Deadline", 4, 0, numColumns);
-        addHeaderCell("Override", 5, 0, numColumns);
-        addHeaderCell("Completed", 6, 0, numColumns);
-        addHeaderCell("On Time?", 7, 0, numColumns);
-        if (this.allowEdit) {
-            addHeaderCell(CoreConstants.SPC, 8, 0, numColumns);
-        }
+        addHeaderCell("Order", 0, 0, 9);
+        addHeaderCell("Course", 1, 0, 9);
+        addHeaderCell("Unit", 2, 0, 9);
+        addHeaderCell("Type", 3, 0, 9);
+        addHeaderCell("Deadline", 4, 0, 9);
+        addHeaderCell("Override", 5, 0, 9);
+        addHeaderCell("Type", 6, 0, 9);
+        addHeaderCell("Completed", 7, 0, 9);
+        addHeaderCell("On Time?", 8, 0, 9);
     }
 
     /**
@@ -78,7 +73,7 @@ import java.util.List;
 
         for (final DeadlineListRow row : data) {
             final RawMilestone ms = row.milestoneRecord;
-            final RawStmilestone stms = row.stmilestoneRecord;
+            final List<RawStmilestone> stmsList = row.stmilestoneRecords;
 
             addCell(Integer.toString(ms.getIndex()), 0, yy);
             addCell(row.course, 1, yy);
@@ -86,28 +81,49 @@ import java.util.List;
             addCell(ms.msType, 3, yy);
             addCell(FMT_WMD.format(ms.msDate), 4, yy);
 
-            String overrideDate = CoreConstants.SPC;
-            if (stms != null) {
-                overrideDate = FMT_WMD.format(stms.msDate);
+            int numStms = stmsList.size();
+            if (numStms == 0) {
+                addCell(CoreConstants.SPC, 5, yy);
+                addCell(CoreConstants.SPC, 6, yy);
+            } else if (numStms == 1) {
+                final RawStmilestone stms = stmsList.getFirst();
+                final String overrideDate = FMT_WMD.format(stms.msDate);
+                addCell(overrideDate, 5, yy);
+                addCell(stms.extType, 6, yy);
+            } else {
+                final StringBuilder dates = new StringBuilder(100);
+                final StringBuilder types = new StringBuilder(100);
+
+                boolean comma = false;
+                for (final RawStmilestone stms : stmsList) {
+                    if (comma) {
+                        dates.append(CoreConstants.CRLF);
+                        types.append(CoreConstants.CRLF);
+                    }
+                    final String overrideDate = FMT_WMD.format(stms.msDate);
+                    dates.append(overrideDate);
+                    types.append(stms.extType);
+                    comma = true;
+                }
             }
-            addCell(overrideDate, 5, yy);
 
             String completedStr = CoreConstants.SPC;
             if (row.whenCompleted != null) {
                 completedStr = FMT_WMD.format(row.whenCompleted);
             }
-            addCell(completedStr, 6, yy);
+            addCell(completedStr, 7, yy);
 
-            final String onTimeStr = CoreConstants.SPC;
+            String onTimeStr = CoreConstants.SPC;
             if (row.onTime != null) {
+                onTimeStr = "Yes";
             }
-            addCell(onTimeStr, 7, yy);
+            addCell(onTimeStr, 8, yy);
 
             if (this.allowEdit) {
-                if (stms == null) {
-                    addButtonCell("Appeal", 8, yy, CMD_APPEAL);
+                if (stmsList.isEmpty()) {
+                    addButtonCell("Appeal", 9, yy, CMD_APPEAL);
                 } else {
-                    addButtonCell("Edit", 8, yy, CMD_EDIT);
+                    addButtonCell("Edit", 9, yy, CMD_EDIT);
                 }
             }
 

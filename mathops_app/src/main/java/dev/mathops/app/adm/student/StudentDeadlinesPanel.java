@@ -49,7 +49,8 @@ import java.util.List;
 /**
  * A panel that shows student deadlines.
  */
-final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListener, IZTableCommandListener<DeadlineListRow> {
+final class StudentDeadlinesPanel extends AdminPanelBase
+        implements ActionListener, IZTableCommandListener<DeadlineListRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -156,7 +157,6 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
         left.add(makeHeader("Deadlines", false), StackedBorderLayout.NORTH);
 
         this.deadlinesTable = new ZTableDeadlines(this, allowEdit);
-        // this.deadlinesTable.setFillsViewportHeight(true);
 
         final JScrollPane deadlinesScroll = new JScrollPane(this.deadlinesTable);
         deadlinesScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -363,20 +363,24 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
             final List<DeadlineListRow> rows = new ArrayList<>(10);
 
             for (final RawMilestone ms : milestones) {
-                RawStmilestone stms = null;
+
+                final List<RawStmilestone> stms = new ArrayList<>(3);
                 for (final RawStmilestone test : stmilestones) {
                     if (test.paceTrack.equals(ms.paceTrack) && test.msNbr.equals(ms.msNbr)
                             && test.msType.equals(ms.msType)) {
-                        stms = test;
-                        break;
+                        stms.add(test);
                     }
                 }
 
                 // Milestone number is [pace][order][unit]
                 final int order = ms.msNbr.intValue() / 10 % 10;
                 final int unit = ms.msNbr.intValue() % 10;
-                final LocalDate newDate = stms == null ? null : stms.msDate;
-                final LocalDate effDate = newDate == null ? ms.msDate : newDate;
+                LocalDate effDate = ms.msDate;
+                for (final RawStmilestone test : stms)  {
+                    if (test.msDate.isAfter(effDate)) {
+                        effDate = test.msDate;
+                    }
+                }
 
                 String course = null;
                 for (final RawStcourse reg : currentTermRegs) {
@@ -441,6 +445,8 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
     @Override
     public void commandOnRow(final int rowIndex, final DeadlineListRow rowData, final String cmd) {
 
+        Log.info("Command on row = ", cmd);
+
         if (ZTableDeadlines.CMD_APPEAL.equals(cmd)) {
 
             this.currentRow = rowData;
@@ -464,10 +470,10 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                 final LocalDate today = LocalDate.now();
                 this.appealDateField.setText(TemporalUtils.FMT_MDY_COMPACT.format(today));
                 final String deadlineStr;
-                if (rowData.stmilestoneRecord == null) {
+                if (!rowData.stmilestoneRecords.isEmpty()) {
                     deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.milestoneRecord.msDate);
                 } else {
-                    deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.stmilestoneRecord.msDate);
+                    deadlineStr = TemporalUtils.FMT_MDY_COMPACT.format(rowData.stmilestoneRecords.getLast().msDate);
                 }
                 this.newDeadlineField.setText(deadlineStr);
             }
@@ -580,9 +586,10 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                                 this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                 newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                 interviewer);
+                        // FIXME: Use correct extension type
                         stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
                                 this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-                                this.currentRow.milestoneRecord.msType, newDate, null);
+                                this.currentRow.milestoneRecord.msType, newDate, null, "ACC");
                     } else {
                         try {
                             final Integer attempts = Integer.valueOf(attemptsStr);
@@ -593,9 +600,10 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                                     this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
                                     newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
                                     interviewer);
+                            // FIXME: Use correct extension type
                             stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
                                     this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-                                    this.currentRow.milestoneRecord.msType, newDate, attempts);
+                                    this.currentRow.milestoneRecord.msType, newDate, attempts, "ACC");
                         } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts",
                                     "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
@@ -605,10 +613,6 @@ final class StudentDeadlinesPanel extends AdminPanelBase implements ActionListen
                     if (appealRec != null && stmilestoneRec != null) {
                         try {
                             RawPaceAppealsLogic.INSTANCE.insert(this.cache, appealRec);
-                            if (this.currentRow != null && this.currentRow.stmilestoneRecord != null) {
-                                this.studentData.studentMilestones.remove(this.currentRow.stmilestoneRecord);
-                                RawStmilestoneLogic.INSTANCE.delete(this.cache, this.currentRow.stmilestoneRecord);
-                            }
                             RawStmilestoneLogic.INSTANCE.insert(this.cache, stmilestoneRec);
 
                             this.appealHeading.setText(CoreConstants.EMPTY);

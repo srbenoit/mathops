@@ -51,20 +51,17 @@ import java.util.Locale;
  * A card within the "Exams" tab of the admin app that shows details of a single exam, and supports changing the
  * "correct" status of items (automatically updating the score, passed field, etc. as needed).
  */
-/* default */ class ExamDetailsCard extends JPanel
-        implements ActionListener, IZTableCommandListener<RawStqa> {
+class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandListener<RawStqa> {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -2074279291337741592L;
 
     /** Date formatter. */
-    private static final DateTimeFormatter FMT_WMD = //
-            DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
+    private static final DateTimeFormatter FMT_WMD = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
 
     /** Time formatter. */
-    private static final DateTimeFormatter FMT_HM = //
-            DateTimeFormatter.ofPattern("hh':'mm a", Locale.US);
+    private static final DateTimeFormatter FMT_HM = DateTimeFormatter.ofPattern("hh':'mm a", Locale.US);
 
     /** An action command. */
     private static final String CLOSE_CMD = "CLOSE";
@@ -125,8 +122,8 @@ import java.util.Locale;
      * @param theLiveContext    the database context used to access live data
      * @param allowChangeAnswer true to allow the user to change exam answers
      */
-    /* default */ ExamDetailsCard(final StudentExamsPanel theOwner, final Cache theCache,
-                                  final DbContext theLiveContext, final boolean allowChangeAnswer) {
+    ExamDetailsCard(final StudentExamsPanel theOwner, final Cache theCache, final DbContext theLiveContext,
+                    final boolean allowChangeAnswer) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);
@@ -142,8 +139,8 @@ import java.util.Locale;
 
         final JPanel form = new JPanel(new BorderLayout());
         form.setBackground(Skin.LIGHT);
-        form.setBorder(BorderFactory.createCompoundBorder(//
-                BorderFactory.createEtchedBorder(), //
+        form.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         west.add(form, BorderLayout.NORTH);
 
@@ -322,7 +319,7 @@ import java.util.Locale;
     /**
      * Resets the form.
      */
-    /* default */ void reset() {
+    void reset() {
 
         this.examDate.setText(CoreConstants.EMPTY);
         this.course.setText(CoreConstants.EMPTY);

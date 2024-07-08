@@ -152,7 +152,7 @@ class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
      * @param rec the hold record
      * @return an error message on failure; null on success
      */
-    /* default */ String createRecord(final RawAdminHold rec) {
+    String createRecord(final RawAdminHold rec) {
 
         String error = null;
 
@@ -243,7 +243,7 @@ class StudentHoldsPanel extends AdminPanelBase implements ActionListener {
     /**
      * Cancels the "add" action, returning to the incidents list card.
      */
-    /* default */ void cancelAdd() {
+    void cancelAdd() {
 
         this.cards.show(this.cardPane, SHOW_CMD);
     }

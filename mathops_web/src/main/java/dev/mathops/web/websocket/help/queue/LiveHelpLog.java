@@ -53,7 +53,7 @@ public final class LiveHelpLog {
      *
      * @return the JSON serialized representation
      */
-    /* default */ String toJSON() {
+    String toJSON() {
 
         synchronized (this) {
             final int len = this.entries.size();

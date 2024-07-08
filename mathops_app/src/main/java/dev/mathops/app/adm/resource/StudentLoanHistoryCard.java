@@ -36,8 +36,7 @@ import java.util.Map;
 /**
  * A card panel to check a student's loan (historical and current).
  */
-/* default */ class StudentLoanHistoryCard extends AdminPanelBase
-        implements ActionListener, FocusListener {
+class StudentLoanHistoryCard extends AdminPanelBase implements ActionListener, FocusListener {
 
     /** An action command. */
     private static final String STU = "STU";
@@ -240,7 +239,7 @@ import java.util.Map;
     /**
      * Sets focus.
      */
-    /* default */ void focus() {
+    void focus() {
 
         this.studentIdField.requestFocus();
     }
@@ -248,7 +247,7 @@ import java.util.Map;
     /**
      * Resets the card to accept data for a new loan.
      */
-    /* default */ void reset() {
+    void reset() {
 
         this.studentIdField.setText(CoreConstants.EMPTY);
         this.studentIdField.setBackground(Skin.FIELD_BG);

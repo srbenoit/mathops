@@ -886,54 +886,6 @@ enum PageCalendar {
         }
     }
 
-//    /**
-//     * A task that represents a Skills Review exam in a course.
-//     */
-//    private static class SkillsReviewTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code SkillsReviewTaskStart}.
-//         *
-//         * @param courseId the course ID
-//         * @param open     true if the course is currently open (links on buttons)
-//         */
-//        /* default */ SkillsReviewTaskStart(final String courseId, final boolean open) {
-//
-//            super("caltaskstart",
-//                    open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
-//                            "&mode=course'>", SKILLS_REVIEW, "</a>") : SKILLS_REVIEW,
-//                    "background-color:#ffc");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a Skills Review exam in a course.
-//     */
-//    private static class SkillsReviewTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code SkillsReviewTaskMid}.
-//         */
-//        /* default */ SkillsReviewTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#ffc");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a Skills Review exam in a course.
-//     */
-//    private static class SkillsReviewTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code SkillsReviewTaskEnd}.
-//         */
-//        /* default */ SkillsReviewTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#ffc");
-//        }
-//    }
-
     /**
      * A task that represents an objective and its associated assignment.
      */
@@ -946,8 +898,7 @@ enum PageCalendar {
          * @param objective the objective, like "1.1"
          * @param open      true if the course is currently open (links on buttons)
          */
-        /* default */ ObjectiveTask(final String courseId, final String objective,
-                                    final boolean open) {
+        ObjectiveTask(final String courseId, final String objective, final boolean open) {
 
             super("caltask",
                     open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
@@ -955,56 +906,6 @@ enum PageCalendar {
                             : SimpleBuilder.concat(OBJECTIVE, objective), "background-color:#ffc");
         }
     }
-
-//    /**
-//     * A task that represents an objective and its associated assignment.
-//     */
-//    private static class ObjectiveTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code ObjectiveTaskStart}.
-//         *
-//         * @param courseId  the course ID
-//         * @param objective the objective, like "1.1"
-//         * @param open      true if the course is currently open (links on buttons)
-//         */
-//        /* default */ ObjectiveTaskStart(final String courseId, final String objective,
-//                                         final boolean open) {
-//
-//            super("caltaskstart",
-//                    open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
-//                            "&mode=course'>", OBJECTIVE, objective, "</a>")
-//                            : SimpleBuilder.concat(OBJECTIVE, objective), "background-color:#ffc");
-//        }
-//    }
-
-//    /**
-//     * A task that represents an objective and its associated assignment.
-//     */
-//    private static class ObjectiveTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code ObjectiveTaskMid}.
-//         */
-//        /* default */ ObjectiveTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#ffc");
-//        }
-//    }
-
-//    /**
-//     * A task that represents an objective and its associated assignment.
-//     */
-//    private static class ObjectiveTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code ObjectiveTaskEnd}.
-//         */
-//        /* default */ ObjectiveTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#ffc");
-//        }
-//    }
 
     /**
      * A task that represents a unit review exam.
@@ -1018,7 +919,7 @@ enum PageCalendar {
          * @param unit     the unit, like "1"
          * @param open     true if the course is currently open (links on buttons)
          */
-        /* default */ UnitReviewTask(final String courseId, final String unit, final boolean open) {
+        UnitReviewTask(final String courseId, final String unit, final boolean open) {
 
             super("caltask",
                     open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
@@ -1026,58 +927,6 @@ enum PageCalendar {
                             : SimpleBuilder.concat(UNIT, unit, REVIEW), "background-color:#ffe5b2");
         }
     }
-
-//    /**
-//     * A task that represents a unit review exam.
-//     */
-//    private static class UnitReviewTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitReviewTaskStart}.
-//         *
-//         * @param courseId the course ID
-//         * @param unit     the unit, like "1"
-//         * @param open     true if the course is currently open (links on buttons)
-//         */
-//        /* default */ UnitReviewTaskStart(final String courseId, final String unit,
-//                                          final boolean open) {
-//
-//            super("caltaskstart",
-//                    open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
-//                            "&mode=course'>", UNIT, unit, REVIEW, "</a>")
-//                            : SimpleBuilder.concat(UNIT, unit, REVIEW), "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a unit review exam.
-//     */
-//    private static class UnitReviewTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitReviewTaskMid}.
-//         */
-//        /* default */ UnitReviewTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#ffe5b2");
-//
-//        }
-//    }
-
-//    /**
-//     * A task that represents a unit review exam.
-//     */
-//    private static class UnitReviewTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitReviewTaskEnd}.
-//         */
-//        /* default */ UnitReviewTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#ffe5b2");
-//
-//        }
-//    }
 
     /**
      * A task that represents a unit exam.
@@ -1091,7 +940,7 @@ enum PageCalendar {
          * @param unit     the unit, like "1"
          * @param open     true if the course is currently open (links on buttons)
          */
-        /* default */ UnitExamTask(final String courseId, final String unit, final boolean open) {
+        UnitExamTask(final String courseId, final String unit, final boolean open) {
 
             super("caltask",
                     open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
@@ -1099,56 +948,6 @@ enum PageCalendar {
                             : SimpleBuilder.concat(UNIT, unit, EXAM), "background-color:#ffe5b2");
         }
     }
-
-//    /**
-//     * A task that represents a unit exam.
-//     */
-//    private static class UnitExamTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitExamTaskStart}.
-//         *
-//         * @param courseId the course ID
-//         * @param unit     the unit, like "1"
-//         * @param open     true if the course is currently open (links on buttons)
-//         */
-//        /* default */ UnitExamTaskStart(final String courseId, final String unit,
-//                                        final boolean open) {
-//
-//            super("caltaskstart",
-//                    open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
-//                            "&mode=course'>", UNIT, unit, EXAM, "</a>")
-//                            : SimpleBuilder.concat(UNIT, unit, EXAM), "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a unit exam.
-//     */
-//    private static class UnitExamTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitExamTaskMid}.
-//         */
-//        /* default */ UnitExamTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a unit exam.
-//     */
-//    private static class UnitExamTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code UnitExamTaskEnd}.
-//         */
-//        /* default */ UnitExamTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#ffe5b2");
-//        }
-//    }
 
     /**
      * A task that represents a final exam.
@@ -1161,114 +960,11 @@ enum PageCalendar {
          * @param courseId the course ID
          * @param open     true if the course is currently open (links on buttons)
          */
-        /* default */ FinalExamTask(final String courseId, final boolean open) {
+        FinalExamTask(final String courseId, final boolean open) {
 
             super("caltask",
                     open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
                             "&mode=course'>", FINAL_EXAM, "</a>") : FINAL_EXAM, "background-color:#ffe5b2");
         }
     }
-
-//    /**
-//     * A task that represents a final exam.
-//     */
-//    private static class FinalExamTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code FinalExamTaskStart}.
-//         *
-//         * @param courseId the course ID
-//         * @param open     true if the course is currently open (links on buttons)
-//         */
-//        /* default */ FinalExamTaskStart(final String courseId, final boolean open) {
-//
-//            super("caltaskstart",
-//                    open ? SimpleBuilder.concat("<a href='course.html?course=", courseId.replace(" ", "%20"),
-//                            "&mode=course'>", FINAL_EXAM, "</a>") : FINAL_EXAM, "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a final exam.
-//     */
-//    private static class FinalExamTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code FinalExamTaskMid}.
-//         */
-//        /* default */ FinalExamTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents a final exam.
-//     */
-//    private static class FinalExamTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code FinalExamTaskEnd}.
-//         */
-//        /* default */ FinalExamTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#ffe5b2");
-//        }
-//    }
-
-//    /**
-//     * A task that represents re-testing on exams to improve score.
-//     */
-//    private static class RetestTask extends Task {
-//
-//        /**
-//         * Constructs a new {@code RetestTask}.
-//         */
-//        public RetestTask() {
-//
-//            super("caltask", "Retest", "background-color:#eee");
-//        }
-//    }
-
-//    /**
-//     * A task that represents re-testing on exams to improve score.
-//     */
-//    private static class RetestTaskStart extends Task {
-//
-//        /**
-//         * Constructs a new {@code RetestTaskStart}.
-//         */
-//        public RetestTaskStart() {
-//
-//            super("caltaskstart", "Retest", "background-color:#eee");
-//        }
-//    }
-
-//    /**
-//     * A task that represents re-testing on exams to improve score.
-//     */
-//    private static class RetestTaskMid extends Task {
-//
-//        /**
-//         * Constructs a new {@code RetestTaskMid}.
-//         */
-//        public RetestTaskMid() {
-//
-//            super("caltaskmid", "&nbsp;", "background-color:#eee");
-//        }
-//    }
-
-//    /**
-//     * A task that represents re-testing on exams to improve score.
-//     */
-//    private static class RetestTaskEnd extends Task {
-//
-//        /**
-//         * Constructs a new {@code RetestTaskEnd}.
-//         */
-//        RetestTaskEnd() {
-//
-//            super("caltaskend", "&nbsp;", "background-color:#eee");
-//        }
-//    }
 }

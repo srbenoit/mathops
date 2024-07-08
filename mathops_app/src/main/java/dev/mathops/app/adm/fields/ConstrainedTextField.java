@@ -150,7 +150,7 @@ public final class ConstrainedTextField extends AbstractStringField {
          * @param theLimit   the maximum length
          * @param theCharset the set of allowed characters
          */
-        /* default */ StringDoc(final int theLimit, final String theCharset) {
+        StringDoc(final int theLimit, final String theCharset) {
 
             super();
             this.limit = theLimit;

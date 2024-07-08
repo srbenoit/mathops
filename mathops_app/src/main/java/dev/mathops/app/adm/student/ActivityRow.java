@@ -8,40 +8,40 @@ import java.time.LocalTime;
 /**
  * The data for one row in the activity table.
  */
-/* default */class ActivityRow implements Comparable<ActivityRow> {
+class ActivityRow implements Comparable<ActivityRow> {
 
     /** The week. */
-    /* default */final int week;
+    final int week;
 
     /** The course. */
-    /* default */final String course;
+    final String course;
 
     /** The unit. */
-    /* default */final Integer unit;
+    final Integer unit;
 
     /** The activity. */
-    /* default */final String activity;
+    final String activity;
 
     /** The activity ID. */
-    /* default */final String id;
+    final String id;
 
     /** The activity date. */
-    /* default */final LocalDate date;
+    final LocalDate date;
 
     /** The start time. */
-    /* default */final LocalTime start;
+    final LocalTime start;
 
     /** The finish time. */
-    /* default */final LocalTime finish;
+    final LocalTime finish;
 
     /** The score. */
-    /* default */final String score;
+    final String score;
 
     /** "Y" if passed, "N" if not, null if irrelevant. */
-    /* default */final String passed;
+    final String passed;
 
     /** true if first passing exam (set only for course exams). */
-    /* default */final boolean first;
+    final boolean first;
 
     /**
      * Constructs a new {@code ActivityRow}.
@@ -58,10 +58,9 @@ import java.time.LocalTime;
      * @param thePassed   "Y" if passed, "N" if not, null if irrelevant
      * @param theFirst    true if first passing exam (set only for course exams)
      */
-    /* default */ ActivityRow(final int theWeek, final String theCourse, final Integer theUnit,
-                              final String theActivity, final String theId, final LocalDate theDate,
-                              final LocalTime theStart, final LocalTime theFinish, final String theScore,
-                              final String thePassed, final boolean theFirst) {
+    ActivityRow(final int theWeek, final String theCourse, final Integer theUnit, final String theActivity,
+                final String theId, final LocalDate theDate, final LocalTime theStart, final LocalTime theFinish,
+                final String theScore, final String thePassed, final boolean theFirst) {
 
         this.week = theWeek;
         this.course = theCourse;

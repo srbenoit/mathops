@@ -18,7 +18,7 @@ import java.io.Serial;
 /**
  * A panel that shows student placement status.
  */
-/* default */ class StudentPlacementPanel extends AdminPanelBase {
+class StudentPlacementPanel extends AdminPanelBase {
 
     /** Version number for serialization. */
     @Serial

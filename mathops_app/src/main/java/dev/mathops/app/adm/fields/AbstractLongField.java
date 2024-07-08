@@ -5,7 +5,7 @@ import java.io.Serial;
 /**
  * The base class for fields that represent an integer ({@code Long}) value.
  */
-/* default */ abstract class AbstractLongField extends AbstractField {
+abstract class AbstractLongField extends AbstractField {
 
     /** Version number for serialization. */
     @Serial

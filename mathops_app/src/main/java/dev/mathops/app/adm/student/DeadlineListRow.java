@@ -5,11 +5,12 @@ import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * The data for one row in the deadline table.
  */
-class DeadlineListRow implements Comparable<DeadlineListRow> {
+final class DeadlineListRow implements Comparable<DeadlineListRow> {
 
     /** The course. */
     public final String course;
@@ -18,7 +19,7 @@ class DeadlineListRow implements Comparable<DeadlineListRow> {
     public final RawMilestone milestoneRecord;
 
     /** The student milestone record (optional). */
-    public final RawStmilestone stmilestoneRecord;
+    public final List<RawStmilestone> stmilestoneRecords;
 
     /** The pace appeals record. */
     public final RawPaceAppeals paceAppealRecord;
@@ -32,20 +33,20 @@ class DeadlineListRow implements Comparable<DeadlineListRow> {
     /**
      * Constructs a new {@code DeadlineListRow}.
      *
-     * @param theCourse            the course for which the deadline applies
-     * @param theMilestoneRecord   the milestone record
-     * @param theStmilestoneRecord the student milestone record (optional)
-     * @param thePaceAppealRecord  the pace appeal record (optional)
-     * @param theWhenCompleted     the date the student completed the milestone assignment;null if not completed
-     * @param theOnTime            TRUE if student completed assignment on time; FALSE if late, null if not completed
+     * @param theCourse             the course for which the deadline applies
+     * @param theMilestoneRecord    the milestone record
+     * @param theStmilestoneRecords the student milestone records (optional)
+     * @param thePaceAppealRecord   the pace appeal record (optional)
+     * @param theWhenCompleted      the date the student completed the milestone assignment;null if not completed
+     * @param theOnTime             TRUE if student completed assignment on time; FALSE if late, null if not completed
      */
     DeadlineListRow(final String theCourse, final RawMilestone theMilestoneRecord,
-                    final RawStmilestone theStmilestoneRecord, final RawPaceAppeals thePaceAppealRecord,
+                    final List<RawStmilestone> theStmilestoneRecords, final RawPaceAppeals thePaceAppealRecord,
                     final LocalDate theWhenCompleted, final Boolean theOnTime) {
 
         this.course = theCourse;
         this.milestoneRecord = theMilestoneRecord;
-        this.stmilestoneRecord = theStmilestoneRecord;
+        this.stmilestoneRecords = theStmilestoneRecords;
         this.paceAppealRecord = thePaceAppealRecord;
         this.whenCompleted = theWhenCompleted;
         this.onTime = theOnTime;

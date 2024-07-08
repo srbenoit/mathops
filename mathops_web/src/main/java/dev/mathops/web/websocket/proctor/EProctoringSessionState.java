@@ -3,7 +3,7 @@ package dev.mathops.web.websocket.proctor;
 /**
  * A proctoring session state.
  */
-/* default */ enum EProctoringSessionState {
+enum EProctoringSessionState {
 
     /** Awaiting the student photo. */
     AWAITING_STUDENT_PHOTO,
