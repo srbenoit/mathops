@@ -159,6 +159,9 @@ public final class StudentCourseStatus extends LogicBase {
     /** The number of review exams passed, indexed by unit. */
     private int[] unitPassedReviews;
 
+    /** The earliest passing date for the review exam, indexed by unit. */
+    private LocalDate[] earliestPassingReviews;
+
     /** The number of review exams passed, indexed by unit. */
     private boolean[] unitPassedReviewOnTime;
 
@@ -267,6 +270,7 @@ public final class StudentCourseStatus extends LogicBase {
         this.openAccess = false;
         this.unitTotalReviews = null;
         this.unitPassedReviews = null;
+        this.earliestPassingReviews = null;
         this.unitPassedReviewOnTime = null;
         this.unitTotalExams = null;
         this.unitPassedExams = null;
@@ -627,8 +631,8 @@ public final class StudentCourseStatus extends LogicBase {
     }
 
     /**
-     * Determines whether a homework is available. This test also can be used to indicate whether instructional
-     * material is to be made available for a particular objective.
+     * Determines whether a homework is available. This test also can be used to indicate whether instructional material
+     * is to be made available for a particular objective.
      *
      * @param unit      the unit to test
      * @param objective the objective to test
@@ -735,6 +739,17 @@ public final class StudentCourseStatus extends LogicBase {
     public boolean isReviewPassed(final int unit) {
 
         return this.unitPassedReviews[unit] > 0;
+    }
+
+    /**
+     * Gets the date on which the review exam was first passed.
+     *
+     * @param unit the unit
+     * @return the first passing review exam date; null if the review exam has not yet been passed
+     */
+    public LocalDate getEarliestPassingReview(final int unit) {
+
+        return this.earliestPassingReviews[unit];
     }
 
     /**
@@ -1029,15 +1044,18 @@ public final class StudentCourseStatus extends LogicBase {
 
         reset();
 
+        final ZonedDateTime now = session.getNow();
+        final ERole role = session.getEffectiveRole();
+
         if (queryActiveTerm(cache) && queryCourse(cache, theCourseId)
                 && queryCourseUnits(cache, theCourseId) && queryStudent(cache, theStudentId)
-                && queryStudentCourse(cache, session.getNow(), session.getEffectiveRole(), theStudentId,
-                theCourseId, isSkillsReview, isPractice)) {
+                && queryStudentCourse(cache, now, role, theStudentId, theCourseId, isSkillsReview, isPractice)) {
 
             // Allocate overall unit status variables
             this.unitExams = new RawExam[this.maxUnit + 1];
             this.unitTotalReviews = new int[this.maxUnit + 1];
             this.unitPassedReviews = new int[this.maxUnit + 1];
+            this.earliestPassingReviews = new LocalDate[this.maxUnit + 1];
             this.unitPassedReviewOnTime = new boolean[this.maxUnit + 1];
             this.unitTotalExams = new int[this.maxUnit + 1];
             this.unitPassedExams = new int[this.maxUnit + 1];
@@ -1063,8 +1081,8 @@ public final class StudentCourseStatus extends LogicBase {
 
             this.scores = new StudentCourseScores(this.maxUnit);
 
-            if (queryCourseSection(cache) && queryCourseSectionUnits(cache, session.getNow())
-                    && queryCourseUnitObjectives(cache) ) {
+            if (queryCourseSection(cache) && queryCourseSectionUnits(cache, now)
+                    && queryCourseUnitObjectives(cache)) {
 
                 queryExams(cache);
 
@@ -1081,8 +1099,8 @@ public final class StudentCourseStatus extends LogicBase {
                 loadExamDeadlines(cache);
                 loadStudentHistory(cache);
                 buildExamStatus();
-                checkHomeworkAvailability(cache, session.getNow());
-                checkExamAvailability(cache, session.getNow());
+                checkHomeworkAvailability(cache, now);
+                checkExamAvailability(cache, now);
                 calculateScore(cache);
 
                 result = true;
@@ -1839,6 +1857,11 @@ public final class StudentCourseStatus extends LogicBase {
 
             if ("Y".equals(stuReview.passed)) {
                 ++this.unitPassedReviews[unit];
+
+                if (this.earliestPassingReviews[unit] == null
+                        || this.earliestPassingReviews[unit].isAfter(stuReview.examDt)) {
+                    this.earliestPassingReviews[unit] = stuReview.examDt;
+                }
 
                 if (!this.unitPassedReviewOnTime[unit] && ((this.unitReviewDeadlines[unit] == null)
                         || !stuReview.examDt.isAfter(this.unitReviewDeadlines[unit]))) {
@@ -2646,16 +2669,16 @@ public final class StudentCourseStatus extends LogicBase {
 
             // Date-based constraints
             if (isIncomplete) {
-                 if (isUncounted) {
-                     // A non-counted Incomplete - only date constraint is incomplete deadline
-                     final LocalDate deadline = this.studentCourse.iDeadlineDt;
-                     if (deadline != null && deadline.isBefore(today)) {
-                         this.proctoredAvailable[unit] = false;
-                         this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
-                     } else {
-                         this.proctoredAvailable[unit] = true;
-                     }
-                 }
+                if (isUncounted) {
+                    // A non-counted Incomplete - only date constraint is incomplete deadline
+                    final LocalDate deadline = this.studentCourse.iDeadlineDt;
+                    if (deadline != null && deadline.isBefore(today)) {
+                        this.proctoredAvailable[unit] = false;
+                        this.proctoredReasons[unit] = "Deadline to finish Incomplete has passed";
+                    } else {
+                        this.proctoredAvailable[unit] = true;
+                    }
+                }
             } else {
                 // Only for non-Incompletes, since test dates would be from earlier term
                 final LocalDate firstTest = sectionUnit.firstTestDt;
@@ -3032,7 +3055,8 @@ public final class StudentCourseStatus extends LogicBase {
                             }
 
                             if (status.isReviewExamAvailable(i)) {
-                                Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") On-time: "
+                                Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") " +
+                                        "On-time: "
                                         + status.isReviewPassedOnTime(i));
                             } else {
                                 Log.info(" Review Exam " + i + " unavailable (" + status.getReviewReason(i) + ")");
@@ -3058,7 +3082,8 @@ public final class StudentCourseStatus extends LogicBase {
                                 Log.info(" Proctored Exam " + i + " deadline: " + status.getUnitExamDeadline(i)
                                         + " last try: " + status.getUnitExamLastTry(i));
                             } else {
-                                Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) + ")");
+                                Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) +
+                                        ")");
                             }
                         }
                     } else {

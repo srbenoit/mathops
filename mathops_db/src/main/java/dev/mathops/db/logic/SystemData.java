@@ -88,12 +88,6 @@ public final class SystemData {
     /** A map from term key to a list of course unit objectives for that term. */
     private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
 
-    /** The list of all lessons. */
-    private List<RawLesson> lessons;
-
-    /** The list of all lesson components. */
-    private List<RawLessonComponent> lessonComponents;
-
     /** A map from course ID to all assignments for that course. */
     private Map<String, List<AssignmentRec>> assignments;
 
@@ -335,6 +329,30 @@ public final class SystemData {
         }
 
         return result;
+    }
+
+
+    /**
+     * Tests whether a date is a holiday.
+     *
+     * @param date the date to test
+     * @return true if the given date is a holiday
+     * @throws SQLException if there is an error accessing the database
+     */
+    public boolean isHoliday(final LocalDate date) throws SQLException {
+
+        final List<RawCampusCalendar> holidays = getCampusCalendarsByType(RawCampusCalendar.DT_DESC_HOLIDAY);
+
+        boolean holiday = false;
+
+        for (final RawCampusCalendar test : holidays) {
+            if (test.campusDt.equals(date)) {
+                holiday = true;
+                break;
+            }
+        }
+
+        return holiday;
     }
 
     /**
@@ -830,7 +848,6 @@ public final class SystemData {
         for (final RawCuobjective test : termObjectives) {
             if (test.course.equals(course) && test.unit.equals(unit)) {
                 result.add(test);
-                break;
             }
         }
 
@@ -864,20 +881,6 @@ public final class SystemData {
     }
 
     /**
-     * Gets all lessons.
-     *
-     * @return the list of lessons
-     */
-    public List<RawLesson> getLessons() {
-
-        if (this.lessons == null) {
-            this.lessons = RawLessonLogic.INSTANCE.queryAll(this.cache);
-        }
-
-        return this.lessons;
-    }
-
-    /**
      * Gets a single lesson.
      *
      * @param lessonId the ID of the lesson to retrieve
@@ -885,31 +888,7 @@ public final class SystemData {
      */
     public RawLesson getLesson(final String lessonId) {
 
-        final List<RawLesson> all = getLessons();
-        RawLesson result = null;
-
-        for (final RawLesson test : all) {
-            if (test.lessonId.equals(lessonId)) {
-                result = test;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Gets all lesson components.
-     *
-     * @return the list of lesson components
-     */
-    public List<RawLessonComponent> getLessonComponents() {
-
-        if (this.lessonComponents == null) {
-            this.lessonComponents = RawLessonComponentLogic.INSTANCE.queryAll(this.cache);
-        }
-
-        return this.lessonComponents;
+        return RawLessonLogic.query(lessonId);
     }
 
     /**
@@ -920,16 +899,7 @@ public final class SystemData {
      */
     public List<RawLessonComponent> getLessonComponentsByLesson(final String lessonId) {
 
-        final List<RawLessonComponent> all = getLessonComponents();
-        final List<RawLessonComponent> result = new ArrayList<>(20);
-
-        for (final RawLessonComponent test : all) {
-            if (test.lessonId.equals(lessonId)) {
-                result.add(test);
-            }
-        }
-
-        return result;
+        return RawLessonComponentLogic.queryByLesson(lessonId);
     }
 
     /**

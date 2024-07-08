@@ -951,128 +951,6 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
                     "Solve equations I."));
             tempList.add(mkCourseModel("M1260.410",
                     "Solve equations II."));
-            //
-            // // MATH 101
-            // tempList.add(mkModel("M101.11",
-            // "Voting preference schedules"));
-            // tempList.add(mkModel("M101.12",
-            // "Majority"));
-            // tempList.add(mkModel("M101.13",
-            // "Plurality"));
-            // tempList.add(mkModel("M101.14",
-            // "Condorcet criterion"));
-            // tempList.add(mkModel("M101.15",
-            // "Borda Count"));
-            // tempList.add(mkModel("M101.16",
-            // "Borda Count and Fairness"));
-            //
-            // tempList.add(mkModel("M101.21",
-            // "Find the greatest common divisor"));
-            // tempList.add(mkModel("M101.22",
-            // "Method of pairwise comparisons"));
-            // tempList.add(mkModel("M101.23",
-            // "Plurality with elimination"));
-            // tempList.add(mkModel("M101.24",
-            // "Ranking"));
-            // tempList.add(mkModel("M101.25",
-            // "Criteria"));
-            //
-            // tempList.add(mkModel("M101.31",
-            // "Find the least common denominator"));
-            // tempList.add(mkModel("M101.32",
-            // "Order rational numbers"));
-            // tempList.add(mkModel("M101.33",
-            // "Weighted voting"));
-            // tempList.add(mkModel("M101.34",
-            // "Banzhaf power distribution"));
-            // tempList.add(mkModel("M101.35",
-            // "Shapley-Shubik power distribution"));
-            //
-            // // lessons.add(mkModel("M101.41",
-            // // "Sealed bids"));
-            // // lessons.add(mkModel("M101.42",
-            // // "Method of markers"));
-            //
-            // tempList.add(mkModel("M101.51",
-            // "Understanding positive and negative number operations"));
-            // tempList.add(mkModel("M101.52",
-            // "Apportionment"));
-            // tempList.add(mkModel("M101.53",
-            // "Method of Hamilton and Lowndes"));
-            // tempList.add(mkModel("M101.54",
-            // "Jefferson's method"));
-            // tempList.add(mkModel("M101.55",
-            // "Apportionment theory"));
-            //
-            // tempList.add(mkModel("M101.61",
-            // "Graph theory"));
-            // tempList.add(mkModel("M101.62",
-            // "Euler circuits"));
-            // tempList.add(mkModel("M101.63",
-            // "Euler paths"));
-            // tempList.add(mkModel("M101.64",
-            // "Finding Euler circuits and paths"));
-            // tempList.add(mkModel("M101.65",
-            // "Eulerizing"));
-            //
-            // tempList.add(mkModel("M101.71",
-            // "Complete graphs"));
-            // tempList.add(mkModel("M101.72",
-            // "Hamilton circuits"));
-            // tempList.add(mkModel("M101.73",
-            // "Brute force algorithm"));
-            // tempList.add(mkModel("M101.74",
-            // "Nearest neighbor algorithm"));
-            // tempList.add(mkModel("M101.75",
-            // "Repetitive nearest neighbor algorithm"));
-            //
-            // tempList.add(mkModel("M101.81",
-            // "Cheapest link"));
-            //
-            // tempList.add(mkModel("M101.91",
-            // "Trees"));
-            // tempList.add(mkModel("M101.92",
-            // "Kruskal's algorithm"));
-            // tempList.add(mkModel("M101.93",
-            // "Digraph and priority lists"));
-            //
-            // tempList.add(mkModel("M101.101",
-            // "Scheduling"));
-            // tempList.add(mkModel("M101.102",
-            // "Decreasing time algorithm"));
-            // tempList.add(mkModel("M101.103",
-            // "Critical time algorithm"));
-            //
-            // tempList.add(mkModel("M101.111",
-            // "Solve percentage increase or decrease problems"));
-            // tempList.add(mkModel("M101.112",
-            // "Percentages, interest, and geometric growth"));
-            // tempList.add(mkModel("M101.113",
-            // "Mean, median, and percentiles"));
-            // // lessons.add(mkModel("M101.114",
-            // // "Use exponential rules to evaluate expressions"));
-            // // lessons.add(mkModel("M101.115",
-            // // "Simplify radical expressions"));
-            //
-            // tempList.add(mkModel("M101.131",
-            // "Apply the counting principle"));
-            // tempList.add(mkModel("M101.132",
-            // "Options"));
-            // tempList.add(mkModel("M101.133",
-            // "Probability"));
-            // tempList.add(mkModel("M101.134",
-            // "More probability"));
-            // tempList.add(mkModel("M101.135",
-            // "Probability and odds"));
-            //
-            // tempList.add(mkModel("M101.141",
-            // "Weighted averages and expected value"));
-            // tempList.add(mkModel("M101.142",
-            // "Normal distributions"));
-            // tempList.add(mkModel("M101.143",
-            // "Sealed Bids"));
-            // tempList.add(mkModel("M101.144",
-            // "Method of Markers"));
 
             // MATH 100L (Calculus Review)
             tempList.add(mkCourseModel("M160R.11",
@@ -1379,7 +1257,6 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
         lessons.put("C60S3", new RawLesson("C60S3", "C", CoreConstants.EMPTY));
         lessons.put("C55EX", new RawLesson("C55EX", "C", CoreConstants.EMPTY));
         lessons.put("C60EX", new RawLesson("C60EX", "C", CoreConstants.EMPTY));
-
     }
 
     /**
@@ -1453,6 +1330,17 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
     }
 
     /**
+     * Queries for a single lesson.
+     *
+     * @param lessonId the lesson ID
+     * @return the lesson; null if none found
+     */
+    public static RawLesson query(final String lessonId) {
+
+        return lessons.get(lessonId);
+    }
+
+    /**
      * Gets all records.
      *
      * @param cache the data cache
@@ -1461,10 +1349,8 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
     @Override
     public List<RawLesson> queryAll(final Cache cache) {
 
-        final List<RawLesson> result = new ArrayList<>(10);
+        final Collection<RawLesson> values = lessons.values();
 
-        Log.warning("Unable to query all lesson records: no underlying table.");
-
-        return result;
+        return new ArrayList<>(values);
     }
 }

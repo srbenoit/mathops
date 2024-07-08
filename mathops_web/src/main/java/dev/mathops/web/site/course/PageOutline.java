@@ -6,11 +6,10 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawExamLogic;
@@ -53,9 +52,11 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
@@ -1355,8 +1356,7 @@ enum PageOutline {
         }
 
         // Unit materials dimmed if gateway exam not passed
-        if ("course".equals(actualMode) && gwSecUnit != null
-                && !courseStatus.isStudentVisiting()) {
+        if ("course".equals(actualMode) && gwSecUnit != null && !courseStatus.isStudentVisiting()) {
 
             final RawCusection gw = courseStatus.getGatewaySectionUnit();
             final RawExam gwExam = gw == null ? null
@@ -1416,7 +1416,7 @@ enum PageOutline {
             if (cusect == null) {
                 Log.warning("No course section unit for unit " + unitNum);
             } else {
-                doUnitReviewExam(cache, session, courseStatus, unitNum, dimmed, actualMode, htm);
+                doUnitReviewExam(cache, courseStatus, session, unitNum, dimmed, actualMode, htm);
 
                 final String range = courseStatus.getProctoredRange(unitNum);
                 if (range != null) {
@@ -1429,8 +1429,7 @@ enum PageOutline {
                         || RawRecordConstants.M124.equals(courseId)
                         || RawRecordConstants.M125.equals(courseId)
                         || RawRecordConstants.M126.equals(courseId)) {
-                    doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum,
-                            actualMode, htm);
+                    doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum, actualMode, htm);
                 }
             }
         }
@@ -1716,7 +1715,8 @@ enum PageOutline {
                                          final String skillsReviewCourse) throws SQLException {
 
         final int count = courseStatus.getNumLessons(unit);
-        final CourseLesson less = new CourseLesson(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final CourseLesson less = new CourseLesson(dbProfile);
         final String courseId = courseStatus.getCourse().course;
         boolean newTold = told;
 
@@ -1724,10 +1724,13 @@ enum PageOutline {
         htm.addln("<table>");
 
         for (int i = 0; i < count; ++i) {
-            final RawCuobjective culesson = courseStatus.getCourseUnitObjective(unit, i);
+
+            final RawCuobjective cuobj = courseStatus.getCourseUnitObjective(unit, i);
+
             final RawLesson lesson = courseStatus.getLesson(unit, i);
-            final Integer seqNum = culesson.objective;
-            final String lessNum = culesson.lessonNbr;
+            final Integer seqNum = cuobj.objective;
+            final String lessNum = cuobj.lessonNbr;
+
             final boolean avail;
             avail = (!courseStatus.hasHomework(unit, seqNum.intValue())
                     || courseStatus.isHomeworkAvailable(unit, seqNum.intValue()))
@@ -1736,7 +1739,7 @@ enum PageOutline {
             final String status = courseStatus.getHomeworkStatus(unit, seqNum.intValue());
 
             // Show any "PREMED" media components for the lesson in the outline page
-            if (less.gatherData(cache, courseId, Integer.valueOf(unit), culesson.objective)) {
+            if (less.gatherData(cache, courseId, Integer.valueOf(unit), cuobj.objective)) {
                 final int numComp = less.getNumComponents();
 
                 boolean hasPre = false;
@@ -1781,8 +1784,6 @@ enum PageOutline {
                 }
             } else if ("course".equals(mode)) {
 
-                boolean col2 = false;
-
                 if (avail) {
                     htm.add("<td class='open' style='text-align:right;font-family: factoria-medium,sans-serif;'>");
                     if (lessNum != null) {
@@ -1809,7 +1810,6 @@ enum PageOutline {
                     if (!newTold && reason != null && !"May Move On".equals(status) && !"Completed".equals(status)) {
                         htm.add("<td><span class='why_unavail'>", reason, "</span></td>");
                         newTold = true;
-                        col2 = true;
                     }
                 }
 
@@ -1849,26 +1849,30 @@ enum PageOutline {
      * Present the button for the unit review exam along with status.
      *
      * @param cache        the data cache
-     * @param session      the login session
      * @param courseStatus the student's status in the course
+     * @param session      the user's login session information
      * @param unitNum      the unit
      * @param dimmed       {@code true} if the button should be dimmed regardless of status
      * @param mode         the mode
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doUnitReviewExam(final Cache cache, final ImmutableSessionInfo session,
-                                         final StudentCourseStatus courseStatus, final int unitNum,
-                                         final boolean dimmed, final String mode,
-                                         final HtmlBuilder htm) throws SQLException {
+    private static void doUnitReviewExam(final Cache cache, final StudentCourseStatus courseStatus,
+                                         final ImmutableSessionInfo session, final int unitNum,
+                                         final boolean dimmed, final String mode, final HtmlBuilder htm)
+            throws SQLException {
 
-        final String courseId = courseStatus.getCourse().course;
+        final ZonedDateTime sessionNow = session.getNow();
+
+        final RawCourse course = courseStatus.getCourse();
+        final String courseId = course.course;
         final boolean reviewAvail = courseStatus.isReviewExamAvailable(unitNum);
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
-        final RawExam reviewExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                Integer.valueOf(unitNum), "R");
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                Integer.valueOf(unitNum), "U");
+
+        final Integer unitNumObj = Integer.valueOf(unitNum);
+        final RawExam revExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unitNumObj, "R");
+        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unitNumObj, "U");
+
         String unitLabel = "Unit Exam";
         if (unitExam != null) {
             unitLabel = unitExam.buttonLabel;
@@ -1876,19 +1880,18 @@ enum PageOutline {
 
         final String label;
         final String version;
-        final LocalDate deadline = courseStatus.getReviewExamDeadline(unitNum);
+        final LocalDate dueDate = courseStatus.getReviewExamDeadline(unitNum);
 
-        if (reviewExam == null) {
+        if (revExam == null) {
             label = null;
             version = null;
         } else {
-            if (deadline == null) {
-                label = reviewExam.buttonLabel;
+            if (dueDate == null) {
+                label = revExam.buttonLabel;
             } else {
-                label = reviewExam.buttonLabel + "<br/><small>(due "
-                        + TemporalUtils.FMT_MDY.format(deadline) + ")</small>";
+                label = revExam.buttonLabel + "<br/><small>(due " + TemporalUtils.FMT_MDY.format(dueDate) + ")</small>";
             }
-            version = reviewExam.version;
+            version = revExam.version;
         }
 
         if ("course".equals(mode) && version != null) {
@@ -1902,62 +1905,52 @@ enum PageOutline {
                 htm.addln("</form>");
                 htm.eDiv();
             } else if (reviewAvail) {
+
                 htm.addln(" <input type='hidden' name='mode' value='course'/>");
-                htm.addln(" <input type='hidden' name='course' value='", courseStatus.getCourse().course, "'/>");
+                htm.addln(" <input type='hidden' name='course' value='", course.course, "'/>");
                 htm.addln(" <input type='hidden' name='exam' value='", version, "'/>");
                 htm.addln(" <button class='btn' type='submit'>", label, "</button> &nbsp;");
 
                 final String status = courseStatus.getReviewStatus(unitNum);
 
                 if ("Passed".equals(status)) {
+                    htm.add(" <span class='why_done'>",
+                            "<img src='/images/check.png' style='position:relative;top:-2px;' alt=''/> Passed ");
+
                     if (courseStatus.isReviewPassedOnTime(unitNum)) {
-                        htm.addln(" <span class='why_done'><img src='/images/check.png' ",
-                                "style='position:relative;top:-2px;' alt=''/> Passed (On-Time)</span>").br();
+                        htm.add("(On-Time)");
                     } else {
-                        htm.addln(" <span class='why_done'><img src='/images/check.png' ",
-                                "style='position:relative;top:-2px;' alt=''/> Passed (Late)</span>").br();
+                        htm.add("(Late)");
                     }
+                    htm.addln("</span>").br();
                 } else {
                     htm.addln(" <span class='why_unavail'>", status, "</span>").br();
                 }
 
                 htm.eDiv();
                 htm.addln("</form>");
-                htm.eDiv(); // indent2
 
-                // If the student can take their unit exam through ProctorU, and that exam is
-                // available, offer them the option to take it.
-                // FIXME: Hardcoded unit numbers - drive into data
-                if (courseStatus.isProctoredExamAvailable(unitNum)
-                        && (unitNum == 4 && RawRecordConstants.M100T.equals(courseId))) {
+                final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
+                        dueDate);
+                if (extendedDueDate != null) {
+                    // If passed late, but within extended deadline window, allow student to request extended deadline.
+                    final LocalDate earliestPassing = courseStatus.getEarliestPassingReview(unitNum);
 
-                    final String studentId = courseStatus.getStudent().stuId;
+                    if ("Passed".equals(status) && !courseStatus.isReviewPassedOnTime(unitNum)
+                        && !earliestPassing.isAfter(extendedDueDate)) {
 
-                    final ELMTutorialStatus elmStat = ELMTutorialStatus.of(cache, courseStatus.getStudent(),
-                            session.getNow(), HoldsStatus.of(cache, studentId));
+                        // FIXME: How to detect, in the calculation of the "due date" whether the automatic extension
+                        //  has already been used?
 
-                    if (elmStat.eligibleForElmExam) {
-                        htm.div("gap2");
-                        htm.sDiv("indent");
-                        htm.addln("You are eligible to take the ");
-                        htm.addln("ELM Exam in the Precalculus Center.<br/>");
-                        htm.addln("&nbsp; &nbsp;");
-                        htm.addln("<a href='instructions_elm_tc.html?course=",
-                                courseId.replace(CoreConstants.SPC, "%20"), "&mode=", mode, "'>Tell me more...</a>");
-                        htm.eDiv();
-
-                        htm.div("gap2");
-                        htm.sDiv("indent");
-                        htm.addln("You are also eligible to take the ELM Exam through the");
-                        htm.addln("ProctorU proctoring service.<br/>");
-                        htm.addln("&nbsp; &nbsp; <a href='instructions_elm_pu.html?course=",
-                                courseId.replace(CoreConstants.SPC, "%20"), "&mode=", mode, "'>Tell me more...</a>");
-                        htm.eDiv();
+                        // TODO: Make this a button in a form that actually requests the extension
+                        htm.sP().add("You may request an extension of this due date until ",
+                                TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
                     }
                 }
+
+                htm.eDiv(); // indent2
             } else {
-                htm.add(" <button class='btn' type='submit' disabled='disabled'>",
-                        label, "</button> &nbsp; ");
+                htm.add(" <button class='btn' type='submit' disabled='disabled'>", label, "</button> &nbsp; ");
 
                 final String reason = courseStatus.getReviewReason(unitNum);
 
@@ -1968,6 +1961,15 @@ enum PageOutline {
 
                 htm.eDiv();
                 htm.addln("</form>");
+
+                final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
+                        dueDate);
+                if (extendedDueDate != null) {
+                    // TODO: Make this a button in a form that actually requests the extension
+                    htm.sP().add("You may request an extension of this due date until ",
+                            TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
+                }
+
                 htm.eDiv(); // indent
             }
 
@@ -2003,7 +2005,7 @@ enum PageOutline {
 
                         final int availProc = courseStatus.getProctoredAttemptsAvailable(unitNum);
                         final String reviewLabel;
-                        reviewLabel = reviewExam.buttonLabel;
+                        reviewLabel = revExam.buttonLabel;
 
                         if (unitLabel != null && reviewLabel != null) {
                             if (availProc == 0) {
@@ -2069,7 +2071,7 @@ enum PageOutline {
             htm.addln("<form method='get' action='run_review.html'>");
 
             htm.sDiv("reviewbtn");
-            htm.addln(" <input type='hidden' name='course' value='", courseStatus.getCourse().course, "'/>");
+            htm.addln(" <input type='hidden' name='course' value='", course.course, "'/>");
             htm.addln(" <input type='hidden' name='exam' value='", version, "'/>");
             htm.addln(" <input type='hidden' name='mode' value='practice'/>");
             if (label != null && label.contains("Practice")) {
@@ -2085,7 +2087,7 @@ enum PageOutline {
             htm.addln("<form method='get' action='run_review.html'>");
 
             htm.sDiv("reviewbtn");
-            htm.addln(" <input type='hidden' name='course' value='", courseStatus.getCourse().course, "'/>");
+            htm.addln(" <input type='hidden' name='course' value='", course.course, "'/>");
             htm.addln(" <input type='hidden' name='exam' value='", version, "'/>");
             htm.addln(" <input type='hidden' name='mode' value='practice'/>");
             if (label != null && label.contains("Practice")) {
@@ -2098,6 +2100,65 @@ enum PageOutline {
             htm.addln("</form>");
             htm.eDiv(); // indent
         }
+    }
+
+    /**
+     * Computes the "extended due date" for the automatically-granted extension allowed to every student.
+     *
+     * @param cache        the data cache
+     * @param courseStatus the student's status in the course
+     * @param sessionNow   the time to consider "now"
+     * @param unitNum      the unit
+     * @param dueDate      the original due date
+     * @return the extended due date, if applicable; null if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static LocalDate computeExtendedDueDate(final Cache cache, final StudentCourseStatus courseStatus,
+                                                    final ZonedDateTime sessionNow, final int unitNum,
+                                                    final LocalDate dueDate) throws SQLException {
+
+        // FIXME: We are temporarily using "coupon_cost" to store the number of days of extension we allow for a
+        //  review exam on request.
+
+        // TODO: See if the student has already used the automatic extension for this unit...
+
+
+
+        int lateDaysAllowed = 0;
+        final RawCusection cusection = courseStatus.getCourseSectionUnit(unitNum);
+        if (cusection != null && cusection.couponCost != null) {
+            lateDaysAllowed = cusection.couponCost.intValue();
+        }
+
+        LocalDate extendedDueDate = null;
+        final LocalDate today = sessionNow.toLocalDate();
+        if (today.isAfter(dueDate) && lateDaysAllowed > 0) {
+            // See if an "automatically granted" extension makes sense...
+            final SystemData systemData = cache.getSystemData();
+
+            extendedDueDate = dueDate;
+            for (int i = 0; i < lateDaysAllowed; ++i) {
+                extendedDueDate = extendedDueDate.plusDays(1L);
+                final DayOfWeek day = extendedDueDate.getDayOfWeek();
+
+                if (day == DayOfWeek.SATURDAY) {
+                    extendedDueDate = extendedDueDate.plusDays(2L);
+                } else if (day == DayOfWeek.SUNDAY) {
+                    extendedDueDate = extendedDueDate.plusDays(1L);
+                }
+
+                while (systemData.isHoliday(extendedDueDate)) {
+                    extendedDueDate = extendedDueDate.plusDays(1L);
+                }
+            }
+
+            final LocalDate lastClassDay = systemData.getLastClassDay();
+            if (lastClassDay.isAfter(extendedDueDate)) {
+                extendedDueDate = lastClassDay;
+            }
+        }
+
+        return extendedDueDate;
     }
 
     /**

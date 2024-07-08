@@ -387,10 +387,11 @@ enum PageLesson {
         fixed.add("&media-id=");
 
         if (lessonId != null) {
-            final String[] lines = FileLoader.loadFileAsLines(new File("/bls/lessons/" + lessonId + ".html"), true);
+            final String[] lines = FileLoader.loadFileAsLines(new File("/opt/zircon/lessons/" + lessonId + ".html"),
+                    true);
 
             if (lines == null) {
-                htm.sP().add("FAILED TO READ LESSON!").eP();
+                htm.sP().add("FAILED TO READ LESSON ", lessonId, "!").eP();
             } else {
                 boolean inBody = false;
 
