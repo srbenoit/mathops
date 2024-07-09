@@ -151,7 +151,8 @@ class EligibilityTesterBase {
      * @throws SQLException if there is an error accessing the database
      */
     private boolean processHolds(final Cache cache, final HtmlBuilder reasons,
-                                 final Collection<? super RawAdminHold> holds, final boolean checkHolds) throws SQLException {
+                                 final Collection<? super RawAdminHold> holds, final boolean checkHolds)
+            throws SQLException {
 
         final boolean ok;
 

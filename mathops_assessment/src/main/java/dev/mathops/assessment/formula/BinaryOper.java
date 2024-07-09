@@ -129,8 +129,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      * Evaluates the object within the tree. Subclasses should override this to produce the correct value.
      *
      * @param context the context under which to evaluate the formula
-     * @return a {@code Long}, {@code Double}, {@code Boolean}, or {@code DocSimpleSpan} value of the object, or an {@code
-     *         ErrorValue} if unable to compute
+     * @return a {@code Long}, {@code Double}, {@code Boolean}, or {@code DocSimpleSpan} value of the object, or an
+     *         {@code ErrorValue} if unable to compute
      */
     @Override
     public Object evaluate(final EvalContext context) {
@@ -187,8 +187,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      * Determine the logical AND between any number of Boolean values. The result is a Boolean.
      *
      * @param context the evaluation context
-     * @return {@code TRUE} if all terms are TRUE; {@code FALSE} otherwise, or an {@code ErrorValue} if either term is not
-     *         a {@code Boolean}
+     * @return {@code TRUE} if all terms are TRUE; {@code FALSE} otherwise, or an {@code ErrorValue} if either term is
+     *         not a {@code Boolean}
      */
     private Object doAnd(final EvalContext context) {
 
@@ -230,8 +230,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      * Determine the logical OR between any number of Boolean values. The result is a Boolean.
      *
      * @param context the evaluation context
-     * @return {@code TRUE} if at least one term is TRUE; {@code FALSE} otherwise, or an {@code ErrorValue} if either term
-     *         is not a {@code Boolean}
+     * @return {@code TRUE} if at least one term is TRUE; {@code FALSE} otherwise, or an {@code ErrorValue} if either
+     *         term is not a {@code Boolean}
      */
     private Object doOr(final EvalContext context) {
 
@@ -570,8 +570,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      *
      * @param left  the first term
      * @param right the second term
-     * @return {@code TRUE} if the first term is less than the second term; {@code FALSE} if not, and an {@code ErrorValue}
-     *         if either term is non-numeric
+     * @return {@code TRUE} if the first term is less than the second term; {@code FALSE} if not, and an
+     *         {@code ErrorValue} if either term is non-numeric
      */
     private static Object doLessThan(final Object left, final Object right) {
 
@@ -600,8 +600,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      *
      * @param left  the first term
      * @param right the second term
-     * @return {@code TRUE} if the first term is greater than the second term; {@code FALSE} if not, and an {@code
-     *         ErrorValue} if either term is non-numeric
+     * @return {@code TRUE} if the first term is greater than the second term; {@code FALSE} if not, and an
+     *         {@code ErrorValue} if either term is non-numeric
      */
     private static Object doGreaterThan(final Object left, final Object right) {
 
@@ -630,8 +630,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      *
      * @param left  the first term
      * @param right the second term
-     * @return {@code TRUE} if the first term is less than or equal to the second term; {@code FALSE} if not, and an {@code
-     *         ErrorValue} if either term is non-numeric
+     * @return {@code TRUE} if the first term is less than or equal to the second term; {@code FALSE} if not, and an
+     *         {@code ErrorValue} if either term is non-numeric
      */
     private static Object doLessThanOrEqual(final Object left, final Object right) {
 
@@ -692,8 +692,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      *
      * @param left  the first term
      * @param right the second term
-     * @return {@code TRUE} if the first term is equal to the second term; {@code FALSE} if not, and an {@code ErrorValue}
-     *         if the two values cannot be compared
+     * @return {@code TRUE} if the first term is equal to the second term; {@code FALSE} if not, and an
+     *         {@code ErrorValue} if the two values cannot be compared
      */
     private static Object doEqual(final Object left, final Object right) {
 
@@ -731,8 +731,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
      *
      * @param left  the first term
      * @param right the second term
-     * @return {@code TRUE} if the first term is not equal to the second term; {@code FALSE} if not, and an {@code
-     *         ErrorValue} if the two values cannot be compared
+     * @return {@code TRUE} if the first term is not equal to the second term; {@code FALSE} if not, and an
+     *         {@code ErrorValue} if the two values cannot be compared
      */
     private static Object doNotEqual(final Object left, final Object right) {
 

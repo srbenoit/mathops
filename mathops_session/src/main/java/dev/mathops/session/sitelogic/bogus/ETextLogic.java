@@ -208,8 +208,8 @@ public enum ETextLogic {
 //     * @param studentId         the student ID
 //     * @param key               the key
 //     * @param now               the date/time to consider "now"
-//     * @param expiresInNextTerm true to use the end of the subsequent term as the expiration date (if retention is 'C')
-//     *                          rather than the end of the current term
+//     * @param expiresInNextTerm true to use the end of the subsequent term as the expiration date (if retention is
+//     *                          'C') rather than the end of the current term
 //     * @return an error message if activation failed; {@code null} on success
 //     * @throws SQLException if there is an error accessing the database
 //     */
@@ -256,8 +256,8 @@ public enum ETextLogic {
 //     * @param etextKey          the CEtextKey model
 //     * @param studentId         the student ID
 //     * @param now               the date/time to consider as "now"
-//     * @param expiresInNextTerm true to use the end of the subsequent term as the expiration date (if retention is 'C')
-//     *                          rather than the end of the current term
+//     * @param expiresInNextTerm true to use the end of the subsequent term as the expiration date (if retention is
+//     *                          'C') rather than the end of the current term
 //     * @return an error message if activation failed; {@code null} on success
 //     * @throws SQLException if there is an error accessing the database
 //     */
@@ -334,8 +334,8 @@ public enum ETextLogic {
 
 //    /**
 //     * Called when activating a new e-text, but the e-text key is found to have already been marked as active. Either
-//     * the student owns the text, and is entering the code a second time, or a different student is attempting to use a
-//     * code owned by another student.
+//     * the student owns the text, and is entering the code a second time, or a different student is attempting to use
+//     * a code owned by another student.
 //     *
 //     * @param cache     the data cache
 //     * @param studentId the student ID
@@ -345,7 +345,8 @@ public enum ETextLogic {
 //     * @throws SQLException if there is an error accessing the database
 //     */
 //    private static String activateActiveEText(final Cache cache, final String studentId,
-//                                              final String key, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+//                                              final String key, final ChronoZonedDateTime<LocalDate> now)
+//                                              throws SQLException {
 //
 //        String error;
 //

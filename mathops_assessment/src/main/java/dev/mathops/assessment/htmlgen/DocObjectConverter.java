@@ -782,7 +782,8 @@ public enum DocObjectConverter {
 
                 if ((style & AbstractDocObjectTemplate.UNDERLINE) == AbstractDocObjectTemplate.UNDERLINE
                         || (style & AbstractDocObjectTemplate.OVERLINE) == AbstractDocObjectTemplate.OVERLINE
-                        || (style & AbstractDocObjectTemplate.STRIKETHROUGH) == AbstractDocObjectTemplate.STRIKETHROUGH) {
+                        || (style & AbstractDocObjectTemplate.STRIKETHROUGH)
+                        == AbstractDocObjectTemplate.STRIKETHROUGH) {
                     htm.add("text-decoration:");
 
                     if ((style & AbstractDocObjectTemplate.UNDERLINE) == AbstractDocObjectTemplate.UNDERLINE) {

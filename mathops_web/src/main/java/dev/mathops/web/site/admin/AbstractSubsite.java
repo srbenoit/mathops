@@ -8,6 +8,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -42,7 +43,8 @@ public abstract class AbstractSubsite {
      * @throws SQLException if there is an error accessing the database
      */
     public final void doGet(final Cache cache, final String subpath, final ImmutableSessionInfo session,
-                            final HttpServletRequest req, final HttpServletResponse resp) throws IOException, SQLException {
+                            final HttpServletRequest req, final HttpServletResponse resp) throws IOException,
+            SQLException {
 
         if ("basestyle.css".equals(subpath)) {
             AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css",

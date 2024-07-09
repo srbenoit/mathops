@@ -87,8 +87,8 @@ public enum DocObjectInstConverter {
      * @return the generated HTML
      */
     private static String convertDocFence(final DocColumnInst column, final DocFenceInst obj,
-                                          final Deque<DocObjectInstStyle> styleStack, final boolean enabled, final int[] id,
-                                          final boolean inMath) {
+                                          final Deque<DocObjectInstStyle> styleStack, final boolean enabled,
+                                          final int[] id, final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -188,8 +188,8 @@ public enum DocObjectInstConverter {
      * @return the generated HTML
      */
     private static String convertDocFraction(final DocColumnInst column, final DocFractionInst obj,
-                                             final Deque<DocObjectInstStyle> styleStack, final boolean enabled, final int[] id,
-                                             final boolean inMath) {
+                                             final Deque<DocObjectInstStyle> styleStack, final boolean enabled,
+                                             final int[] id, final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -284,8 +284,8 @@ public enum DocObjectInstConverter {
      * @param obj        the object whose style to examine
      * @param styleStack the stack of active styles
      * @param htm        the {@code HtmlBuilder} to which to append
-     * @return {@code true} if a new style was needed and a "span" element was opened and a new style was pushed
-     * onto the style stack
+     * @return {@code true} if a new style was needed and a "span" element was opened and a new style was pushed onto
+     *         the style stack
      */
     private static boolean checkForNewStyle(final AbstractDocObjectInst obj,
                                             final Deque<DocObjectInstStyle> styleStack,
@@ -512,8 +512,8 @@ public enum DocObjectInstConverter {
      * @return the generated HTML
      */
     private static String convertDocTable(final DocColumnInst column, final DocTableInst obj,
-                                          final Deque<DocObjectInstStyle> styleStack, final boolean enabled, final int[] id,
-                                          final boolean inMath) {
+                                          final Deque<DocObjectInstStyle> styleStack, final boolean enabled,
+                                          final int[] id, final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -611,7 +611,8 @@ public enum DocObjectInstConverter {
      * @param inMath     {@code true} if content is within a math span
      * @return the generated HTML
      */
-    private static String convertDocText(final DocTextInst obj, final Deque<DocObjectInstStyle> styleStack, final boolean inMath) {
+    private static String convertDocText(final DocTextInst obj, final Deque<DocObjectInstStyle> styleStack,
+                                         final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -639,7 +640,7 @@ public enum DocObjectInstConverter {
     /**
      * Given a realized {@code DocHSpace}, generates the corresponding HTML.
      *
-     * @param obj     the {@code DocHSpaceInst}
+     * @param obj the {@code DocHSpaceInst}
      * @return the generated HTML
      */
     private static String convertDocHSpace(final DocHSpaceInst obj) {
@@ -656,7 +657,7 @@ public enum DocObjectInstConverter {
     /**
      * Given a realized {@code DocVSpaceInst}, generates the corresponding HTML.
      *
-     * @param obj     the {@code DocVSpaceInst}
+     * @param obj the {@code DocVSpaceInst}
      * @return the generated HTML
      */
     private static String convertDocVSpace(final DocVSpaceInst obj) {
@@ -1424,7 +1425,8 @@ public enum DocObjectInstConverter {
      * @param styleStack the font size stack - top Integer is current HTML font size
      * @return the generated HTML
      */
-    private static String convertDocWhitespace(final DocWhitespaceInst obj, final Deque<DocObjectInstStyle> styleStack) {
+    private static String convertDocWhitespace(final DocWhitespaceInst obj,
+                                               final Deque<DocObjectInstStyle> styleStack) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -2013,7 +2015,8 @@ public enum DocObjectInstConverter {
      * @return the generated HTML
      */
     private static String convertDocMathSpan(final DocColumnInst column, final DocMathSpanInst obj,
-                                             final Deque<DocObjectInstStyle> styleStack, final boolean enabled, final int[] id) {
+                                             final Deque<DocObjectInstStyle> styleStack, final boolean enabled,
+                                             final int[] id) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -2086,14 +2089,14 @@ public enum DocObjectInstConverter {
     /**
      * Appends the HTML for a single child to an {@code HtmlBuilder}.
      *
-     * @param column  the owning column
-     * @param child   the child to append
-     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param column     the owning column
+     * @param child      the child to append
+     * @param htm        the {@code HtmlBuilder} to which to append
      * @param styleStack the font size stack - top Integer is current HTML font size
-     * @param enabled true to disable inputs (used when showing answers or solutions)
-     * @param id      a one-integer array that holds a value used to generate unique IDs for spans (element [0] is
-     *                incremented each time a unique ID is called for)
-     * @param inMath  {@code true} if content is within a math span
+     * @param enabled    true to disable inputs (used when showing answers or solutions)
+     * @param id         a one-integer array that holds a value used to generate unique IDs for spans (element [0] is
+     *                   incremented each time a unique ID is called for)
+     * @param inMath     {@code true} if content is within a math span
      */
     private static void appendChildHtml(final DocColumnInst column, final AbstractDocObjectInst child,
                                         final HtmlBuilder htm, final Deque<DocObjectInstStyle> styleStack,

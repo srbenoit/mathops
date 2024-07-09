@@ -6,8 +6,8 @@ package dev.mathops.db.old.logic.mathplan.data;
 public enum ENextStep {
 
     /**
-     * 1A. "It is critical that you satisfy the prerequisites for your first semester course, so you can register to take
-     * that course in the {APLN_TERM} semester (ideally during Orientation)."
+     * 1A. "It is critical that you satisfy the prerequisites for your first semester course, so you can register to
+     * take that course in the {APLN_TERM} semester (ideally during Orientation)."
      */
     MSG_1A_SINGULAR,
 

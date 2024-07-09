@@ -98,8 +98,8 @@ public enum EPF {
      * @param cache             the data cache
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
      * @param result            a map to be populated by this method - keys are the number of days behind, where -2
-     *                          means "not started", "-1" means "no user's exam", and "0" means on-time or ahead,
-     *                          and values are the list of CSU IDs of students in that condition
+     *                          means "not started", "-1" means "no user's exam", and "0" means on-time or ahead, and
+     *                          values are the list of CSU IDs of students in that condition
      * @throws SQLException if there is an error accessing the database
      */
     private static void exec(final Cache cache, final Map<String, ? extends List<String>> incCourseSections,
@@ -813,7 +813,8 @@ public enum EPF {
      * @return the milestone date
      */
     private static LocalDate findDate(final Iterable<RawMilestone> milestones,
-                                      final Iterable<RawStmilestone> stmilestones, final String type, final int number) {
+                                      final Iterable<RawStmilestone> stmilestones, final String type,
+                                      final int number) {
 
         LocalDate due = null;
 

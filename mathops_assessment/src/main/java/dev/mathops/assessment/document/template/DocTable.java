@@ -667,10 +667,12 @@ public final class DocTable extends AbstractDocContainer {
                 new StrokeStyle((double) this.boxWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final StrokeStyle hlines = this.hLineWidth == 0 ? null :
-                new StrokeStyle((double) this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+                new StrokeStyle((double) this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+                        10.0f);
 
         final StrokeStyle vlines = this.vLineWidth == 0 ? null :
-                new StrokeStyle((double) this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+                new StrokeStyle((double) this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+                        10.0f);
 
         return new DocTableInst(objStyle, this.backgroundColorName, cells, colSizing, ETableSizing.NONUNIFORM, just,
                 padding, border, hlines, vlines);

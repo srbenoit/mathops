@@ -79,8 +79,8 @@ public enum FormulaFactory {
      * @param mode        the parser mode
      * @return a {@code Formula} object if successful, null if unsuccessful
      */
-    private static Formula parseFormulaString(final EvalContext evalContext, final FormulaSource source, final int[] pos,
-                                              final EParserMode mode) {
+    private static Formula parseFormulaString(final EvalContext evalContext, final FormulaSource source,
+                                              final int[] pos, final EParserMode mode) {
 
         Formula formula = null;
 

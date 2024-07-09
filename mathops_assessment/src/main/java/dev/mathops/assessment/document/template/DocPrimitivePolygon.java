@@ -323,7 +323,8 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
                         }
                         this.xCoordFormulas = new ArrayList<>(splitLen);
                         for (int i = 0; ok && (i < splitLen); ++i) {
-                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
+                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i],
+                                    mode);
                             if (formula == null) {
                                 ok = false;
                             } else {
@@ -367,7 +368,8 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
 
                         this.yCoordFormulas = new ArrayList<>(splitLen);
                         for (int i = 0; ok && (i < splitLen); ++i) {
-                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i], mode);
+                            final Formula formula = FormulaFactory.parseFormulaString(new EvalContext(), split[i],
+                                    mode);
                             if (formula == null) {
                                 ok = false;
                             } else {
