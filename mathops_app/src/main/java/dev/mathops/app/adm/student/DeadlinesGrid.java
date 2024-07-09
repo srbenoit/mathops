@@ -26,7 +26,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,10 +66,9 @@ public final class DeadlinesGrid extends JPanel {
         final GroupLayout.SequentialGroup vGroup = this.layout.createSequentialGroup();
 
         final RawStterm stterm = data.studentTerm;
-        final List<RawStcourse> paceRegs = organizeRegistrations(data.studentCoursesPastAndCurrent, stterm);
         final String paceStr = Integer.toString(stterm.pace);
 
-        for (final RawStcourse reg : paceRegs) {
+        for (final RawStcourse reg : data.pacedRegistrations) {
 
             final String courseName = reg.course.startsWith("M ") ? reg.course.replace("M ", "MATH ") : reg.course;
             final String paceOrderStr = Integer.toString(reg.paceOrder);
@@ -99,54 +97,6 @@ public final class DeadlinesGrid extends JPanel {
 
         this.layout.setHorizontalGroup(hGroup);
         this.layout.setVerticalGroup(vGroup);
-    }
-
-    /**
-     * Organizes course registrations into an ordered list with pace order assigned to each registration.
-     *
-     * @param studentCoursesPastAndCurrent the list of all registrations (includes Incompletes and dropped)
-     * @param stterm                       the student term record
-     * @return the organized list of registrations
-     */
-    private List<RawStcourse> organizeRegistrations(final List<RawStcourse> studentCoursesPastAndCurrent,
-                                                    final RawStterm stterm) {
-
-        final List<RawStcourse> currentTermRegs = new ArrayList<>(studentCoursesPastAndCurrent);
-
-        // Remove any that are dropped, not in the current term, or a non-counted Incomplete
-        currentTermRegs.removeIf(test -> "D".equals(test.openStatus) || !test.termKey.equals(stterm.termKey)
-                || ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)));
-        final int numRegs = currentTermRegs.size();
-
-        // Assign pace order if any regs do not yet have a pace order
-        final List<RawStcourse> toassign = new ArrayList<>(numRegs);
-        final List<Integer> orders = new ArrayList<>(numRegs);
-        for (int i = 1; i <= numRegs; ++i) {
-            orders.add(Integer.valueOf(i));
-        }
-
-        for (final RawStcourse reg : currentTermRegs) {
-            final Integer order = reg.paceOrder;
-            if (order == null) {
-                toassign.add(reg);
-            } else if (order.intValue() >= numRegs) {
-                reg.paceOrder = null;
-                toassign.add(reg);
-            } else {
-                orders.remove(order);
-            }
-        }
-
-        if (!toassign.isEmpty()) {
-            Collections.sort(toassign);
-            for (final RawStcourse row : toassign) {
-                row.paceOrder = orders.removeFirst();
-            }
-        }
-        toassign.clear();
-        orders.clear();
-
-        return currentTermRegs;
     }
 
     /**
@@ -244,19 +194,7 @@ public final class DeadlinesGrid extends JPanel {
                 milestoneRow.addComponent(unitLbl);
                 col1.addComponent(unitLbl);
 
-                final String typeStr = switch (ms.msType) {
-                    case "RE" -> "Review Exam";
-                    case "UE" -> "Unit Exam";
-                    case "FE" -> "Final Exam";
-                    case "F1" -> "Final +1";
-                    case "SR" -> "Skills Review";
-                    case "H1" -> "Homework 1";
-                    case "H2" -> "Homework 2";
-                    case "H3" -> "Homework 3";
-                    case "H4" -> "Homework 4";
-                    case "H5" -> "Homework 5";
-                    case null, default -> ms.msType;
-                };
+                final String typeStr = ms.getTypeString();
 
                 final JLabel msTypeLbl = new JLabel(typeStr);
                 msTypeLbl.setFont(Skin.MEDIUM_13_FONT);
@@ -293,10 +231,6 @@ public final class DeadlinesGrid extends JPanel {
                         }
 
                         appealsList.add(found);
-
-                        if (found != null) {
-                            paceAppeals.remove(found);
-                        }
 
                         if (test.msDate.isAfter(effDate)) {
                             effDate = test.msDate;

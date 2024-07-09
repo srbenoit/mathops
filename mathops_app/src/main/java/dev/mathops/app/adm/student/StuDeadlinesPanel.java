@@ -11,7 +11,9 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
+import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.svc.term.TermRec;
@@ -33,10 +35,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.util.Objects;
 
 /**
  * A panel that shows student deadlines.
@@ -55,6 +59,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
 
     /** The data cache. */
     private final Cache cache;
+
+    /** The fixed data. */
+    private final FixedData fixed;
 
     /** The current student data. */
     private StudentData studentData = null;
@@ -115,6 +122,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         super();
 
         this.cache = theCache;
+        this.fixed = theFixed;
         setBackground(Skin.LIGHTEST);
 
         final Integer permission = theFixed.getClearanceLevel("STU_DLINE");
@@ -182,7 +190,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         this.applyBtn.setFont(Skin.MEDIUM_15_FONT);
         this.applyBtn.addActionListener(this);
         this.cancelBtn = new JButton("Cancel");
-        this.cancelBtn.setEnabled(false);
         this.cancelBtn.setActionCommand(CANCEL_CMD);
         this.cancelBtn.setFont(Skin.MEDIUM_15_FONT);
         this.cancelBtn.addActionListener(this);
@@ -199,9 +206,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
 
         if (allowEdit) {
             // Center: detail fields for a deadline override
-
-            // Empty header to make spacing match left panel
-            this.appealForm.add(makeHeader(CoreConstants.SPC, false), StackedBorderLayout.NORTH);
 
             final JLabel[] labels = new JLabel[5];
             labels[0] = new JLabel("Interviewer:");
@@ -329,59 +333,222 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         final String cmd = e.getActionCommand();
 
         if (APPLY_CMD.equals(cmd)) {
-            if (this.studentData == null || this.studentData.studentTerm == null) {
-                JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
-                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
-            } else if (this.reliefGiven.isSelected()) {
-                try {
-                    applyAppealReliefGiven();
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            } else {
-                // TODO: Just documenting a request or an SDC accommodation
-            }
+            doApply();
         } else if (CANCEL_CMD.equals(cmd)) {
-            this.appealHeading.setText(CoreConstants.EMPTY);
-            this.interviewerField.setText(CoreConstants.EMPTY);
-            this.appealDateField.setText(CoreConstants.EMPTY);
-            this.reliefGiven.setSelected(false);
-            this.nbrAttemptsField.setText(CoreConstants.EMPTY);
-            this.circumstancesArea.setText(CoreConstants.EMPTY);
-            this.commentsArea.setText(CoreConstants.EMPTY);
-            this.applyBtn.setEnabled(false);
-            this.appealForm.setVisible(false);
+            doCancel();
         } else if (cmd.startsWith("ADD") && cmd.length() > 5) {
-            final String type = cmd.substring(3, 5);
-            final String nbr = cmd.substring(5);
+            doAdd(cmd);
+        } else if (cmd.startsWith("EDIT") && cmd.length() > 6) {
+            doEdit(cmd);
+        }
+    }
+
+    /**
+     * Performs the "Apply" action.
+     */
+    private void doApply() {
+
+        if (this.studentData == null || this.studentData.studentTerm == null) {
+            JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
+                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+        } else if (this.reliefGiven.isSelected()) {
             try {
-                final int nbrValue = Integer.parseInt(nbr);
-                final int pace = nbrValue / 100;
+                applyAppealReliefGiven();
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+            }
+        } else {
+            // TODO: Just documenting a request or an SDC accommodation
+        }
+    }
+
+    /**
+     * Performs the "Cancel" action.
+     */
+    private void doCancel() {
+
+        this.appealHeading.setText(CoreConstants.EMPTY);
+        this.interviewerField.setText(CoreConstants.EMPTY);
+        this.appealDateField.setText(CoreConstants.EMPTY);
+        this.reliefGiven.setSelected(false);
+        this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+        this.circumstancesArea.setText(CoreConstants.EMPTY);
+        this.commentsArea.setText(CoreConstants.EMPTY);
+
+        this.reliefGiven.setEnabled(false);
+        this.nbrAttemptsField.setEnabled(false);
+        this.newDeadlineField.setEnabled(false);
+        this.circumstancesArea.setEnabled(false);
+        this.commentsArea.setEnabled(false);
+        this.applyBtn.setEnabled(false);
+
+        this.appealForm.setVisible(false);
+
+        invalidate();
+        revalidate();
+    }
+
+    /**
+     * Performs the "Add" action.
+     *
+     * @param cmd the action command, known to have length greater than 5, whose format follows the form "ADDRE432" to
+     *            add a RE milestone override for MS number 432
+     */
+    private void doAdd(final String cmd) {
+
+        final String nbr = cmd.substring(5);
+
+        try {
+            final int nbrValue = Integer.parseInt(nbr);
+
+            final String type = cmd.substring(3, 5);
+            RawMilestone ms = null;
+            for (final RawMilestone test : this.studentData.milestones) {
+                if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
+                    ms = test;
+                    break;
+                }
+            }
+
+            if (ms != null) {
                 final int order = (nbrValue / 10) % 10;
                 final int unit = nbrValue % 10;
+                final String typeStr = ms.getTypeString();
 
-                Log.info("Request to ADD extension for MS (" + type + ") ", nbr);
+                final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
 
-                this.appealHeading.setText(CoreConstants.EMPTY);
-                this.interviewerField.setText(CoreConstants.EMPTY);
-                this.appealDateField.setText(CoreConstants.EMPTY);
+                this.appealHeading.setText("Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+                this.interviewerField.setText(this.fixed.username);
+                final LocalDate now = LocalDate.now();
+                final String nowStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(now);
+                this.appealDateField.setText(nowStr);
                 this.reliefGiven.setSelected(false);
+                this.newDeadlineField.setText(CoreConstants.EMPTY);
                 this.nbrAttemptsField.setText(CoreConstants.EMPTY);
                 this.circumstancesArea.setText(CoreConstants.EMPTY);
                 this.commentsArea.setText(CoreConstants.EMPTY);
-                this.applyBtn.setEnabled(false);
-                this.appealForm.setVisible(false);
+                this.appealForm.setVisible(true);
+
+                this.reliefGiven.setEnabled(true);
+                this.nbrAttemptsField.setEnabled(true);
+                this.newDeadlineField.setEnabled(true);
+                this.circumstancesArea.setEnabled(true);
+                this.commentsArea.setEnabled(true);
+                this.applyBtn.setEnabled(true);
+
+                invalidate();
+                revalidate();
+            }
+        } catch (final NumberFormatException ex) {
+            Log.warning("Invalid milestone number (", nbr, ")", ex);
+        }
+    }
+
+    /**
+     * Performs the "Edit" action.
+     *
+     * @param cmd the action command, known to have length greater than 5, whose format follows the form "EDITRE432.2"
+     *            to edit the [2] index RE milestone override for MS number 432
+     */
+    private void doEdit(final String cmd) {
+
+        final int dot = cmd.indexOf('.');
+        if (dot > 6) {
+            final String nbr = cmd.substring(6, dot);
+            final String index = cmd.substring(dot + 1);
+
+            try {
+                final int nbrValue = Integer.parseInt(nbr);
+                final int indexValue = Integer.parseInt(index);
+
+                final String type = cmd.substring(4, 6);
+
+                Log.info("Request to EDIT extension [" + index + "] for MS (" + type + ") ", nbr);
+
+                RawMilestone ms = null;
+                for (final RawMilestone test : this.studentData.milestones) {
+                    if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
+                        ms = test;
+                        break;
+                    }
+                }
+
+                if (ms == null) {
+                    Log.warning("Unable to find milestone associated with appeal being edited.");
+                } else {
+                    RawStmilestone stms = null;
+                    int i = 0;
+                    for (final RawStmilestone test : this.studentData.studentMilestones) {
+                        if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
+                            if (i == indexValue) {
+                                stms = test;
+                                break;
+                            }
+                            ++i;
+                        }
+                    }
+
+                    if (stms == null) {
+                        Log.warning("Unable to find student milestone associated with appeal being edited.");
+                    } else {
+                        final String track = this.studentData.studentTerm.paceTrack;
+
+                        RawPaceAppeals appeal = null;
+                        for (final RawPaceAppeals test : this.studentData.paceAppeals) {
+                            if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
+                                    && test.newDeadlineDt.equals(stms.msDate)
+                                    && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
+                                appeal = test;
+                                break;
+                            }
+                        }
+
+                        if (appeal == null) {
+                            Log.warning("Unable to find pace appeal associated with appeal being edited.");
+                        } else {
+                            final int order = (nbrValue / 10) % 10;
+                            final int unit = nbrValue % 10;
+                            final String typeStr = ms.getTypeString();
+
+                            final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
+
+                            this.appealHeading.setText("Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+
+                            this.interviewerField.setText(appeal.interviewer);
+                            final String dtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(appeal.appealDt);
+                            this.appealDateField.setText(dtStr);
+                            this.reliefGiven.setSelected("Y".equals(appeal.reliefGiven));
+
+                            if (!stms.msDate.equals(appeal.newDeadlineDt)) {
+                                Log.warning("Date in appeal record does not match date in StMilestone record!");
+                            }
+
+                            final String msDtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(stms.msDate);
+                            this.newDeadlineField.setText(msDtStr);
+                            this.nbrAttemptsField.setText(stms.nbrAtmptsAllow == null ? CoreConstants.EMPTY :
+                                    Integer.toString(stms.nbrAtmptsAllow));
+                            this.circumstancesArea.setText(appeal.circumstances == null ? CoreConstants.EMPTY :
+                                    appeal.circumstances);
+                            this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY : appeal.comment);
+                            this.appealForm.setVisible(true);
+
+                            this.reliefGiven.setEnabled(true);
+                            this.nbrAttemptsField.setEnabled(true);
+                            this.newDeadlineField.setEnabled(true);
+                            this.circumstancesArea.setEnabled(true);
+                            this.commentsArea.setEnabled(true);
+                            this.applyBtn.setEnabled(true);
+
+                            invalidate();
+                            revalidate();
+                        }
+                    }
+                }
             } catch (final NumberFormatException ex) {
                 Log.warning("Invalid milestone number (", nbr, ")", ex);
             }
-        } else if (cmd.startsWith("EDIT")) {
-            final int dot = cmd.indexOf('.');
-            if (dot > 6) {
-                final String type = cmd.substring(4, 6);
-                final String nbr = cmd.substring(6, dot);
-                final String index = cmd.substring(dot + 1);
-                Log.info("Request to EDIT extension [" + index + "] for MS (" + type + ") ", nbr);
-            }
+        } else {
+            Log.warning("Invalid milestone request (", cmd, ")");
         }
     }
 
@@ -408,7 +575,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                     "If relief was given, new deadline date field may not be empty.", "Deadline Appeal",
                     JOptionPane.ERROR_MESSAGE);
         } else {
-            final LocalDate newDate = interpretDate(newDeadlineStr);
+            final LocalDate newDate = interpretDate(newDeadlineStr.trim());
             if (newDate == null) {
                 JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date", "Deadline Appeal",
                         JOptionPane.ERROR_MESSAGE);
@@ -490,7 +657,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
      * @param dateString the date string
      * @return the parsed date; null if unable to interpret
      */
-    private static LocalDate interpretDate(final CharSequence dateString) {
+    private static LocalDate interpretDate(final String dateString) {
 
         LocalDate date = null;
         TemporalAccessor newDate = null;
@@ -504,6 +671,19 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                 try {
                     newDate = TemporalUtils.FMT_INFORMIX.parse(dateString);
                 } catch (final DateTimeParseException ex3) {
+                    if (dateString.length() == 6) {
+                        // Try Informix format MMDDYY, like 123199
+                        try {
+                            final int value = Integer.parseInt(dateString);
+                            final int month = value / 10000;
+                            final int day = (value / 100) % 100;
+                            final int year = 2000 + (value % 100);
+
+                            newDate = LocalDate.of(year, month, day);
+                        } catch (final NumberFormatException | DateTimeException ex) {
+                            // No action
+                        }
+                    }
                 }
             }
         }

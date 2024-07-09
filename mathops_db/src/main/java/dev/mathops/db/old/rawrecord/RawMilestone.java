@@ -317,4 +317,26 @@ public final class RawMilestone extends RawTermRecordBase implements Comparable<
 
         return equal;
     }
+
+    /**
+     * Gets the friendly string name of the milestone type.
+     *
+     * @return the string name
+     */
+    public String getTypeString() {
+
+        return switch (this.msType) {
+            case "RE" -> "Review Exam";
+            case "UE" -> "Unit Exam";
+            case "FE" -> "Final Exam";
+            case "F1" -> "Final +1";
+            case "SR" -> "Skills Review";
+            case "H1" -> "Homework 1";
+            case "H2" -> "Homework 2";
+            case "H3" -> "Homework 3";
+            case "H4" -> "Homework 4";
+            case "H5" -> "Homework 5";
+            case null, default -> this.msType;
+        };
+    }
 }

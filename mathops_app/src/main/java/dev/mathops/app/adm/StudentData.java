@@ -49,7 +49,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * A container for all data needed by the admin app to populate displays. This is queried once when a student is picked,
@@ -84,6 +86,9 @@ public final class StudentData {
 
     /** All student course records (including OT credit, but not dropped courses). */
     public final List<RawStcourse> studentCoursesPastAndCurrent;
+
+    /** The registrations that participate in the N-course pace, in order, with non-null pace_order. */
+    public final List<RawStcourse> pacedRegistrations;
 
     /** Course section records for the current-term. */
     public final List<RawCsection> currentTermCourseSections;
@@ -182,6 +187,66 @@ public final class StudentData {
 
         this.placementFee = RawPlcFeeLogic.queryByStudent(cache, stuId);
         this.challengeFees = RawChallengeFeeLogic.queryByStudent(cache, stuId);
+
+        this.pacedRegistrations = this.studentTerm == null ? new ArrayList<>(0) : organizeRegistrations();
+    }
+
+    /**
+     * Organizes course registrations into an ordered list with pace order assigned to each registration.
+     *
+     * @return the organized list of registrations
+     */
+    private List<RawStcourse> organizeRegistrations() {
+
+        final List<RawStcourse> regs = new ArrayList<>(this.studentCoursesPastAndCurrent);
+
+        // Remove any that are dropped, not in the current term, or a non-counted Incomplete
+        regs.removeIf(test -> "D".equals(test.openStatus) || !test.termKey.equals(this.studentTerm.termKey)
+                || ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)));
+        final int numRegs = regs.size();
+
+        // Assign pace order if any regs do not yet have a pace order
+        final List<RawStcourse> toassign = new ArrayList<>(numRegs);
+        final List<Integer> orders = new ArrayList<>(numRegs);
+
+        for (int i = 1; i <= numRegs; ++i) {
+            orders.add(Integer.valueOf(i));
+        }
+
+        for (final RawStcourse reg : regs) {
+            final Integer order = reg.paceOrder;
+            if (order == null) {
+                toassign.add(reg);
+            } else if (order.intValue() >= numRegs) {
+                reg.paceOrder = null;
+                toassign.add(reg);
+            } else {
+                orders.remove(order);
+            }
+        }
+
+        // At this point, "toassign" has all the registrations that need a pace order, and "orders" has the ordered list
+        // of unassigned order numbers.
+
+        if (!toassign.isEmpty()) {
+            // Sort courses to be assigned by course ID as a default ordering.
+            Collections.sort(toassign);
+            for (final RawStcourse row : toassign) {
+                row.paceOrder = orders.removeFirst();
+            }
+        }
+
+        // At this point, all courses in "regs" have a pace order, but they may not be in the proper order
+
+        final TreeMap<Integer, RawStcourse> sorted = new TreeMap();
+        for (final RawStcourse reg : regs) {
+            sorted.put(reg.paceOrder, reg);
+        }
+
+        regs.clear();
+        regs.addAll(sorted.values());
+
+        return regs;
     }
 
     /**
