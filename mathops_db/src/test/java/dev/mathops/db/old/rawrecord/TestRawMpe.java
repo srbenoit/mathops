@@ -56,22 +56,8 @@ final class TestRawMpe {
 
         final RawMpe obj = new RawMpe(TEST_VERSION, TEST_MAX_ONLINE_ATMPTS, TEST_MAX_PROCTORED_ATMPTS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawMpe obj = RawMpe.parse(EXPECT_SER99);
-
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_MAX_ONLINE_ATMPTS, obj.maxOnlineAtmpts,
-                "Invalid max_online_atmpts value after deserialization");
-        assertEquals(TEST_MAX_PROCTORED_ATMPTS, obj.maxProctoredAtmpts,
-                "Invalid max_proctored_atmpts value after deserialization");
     }
 }

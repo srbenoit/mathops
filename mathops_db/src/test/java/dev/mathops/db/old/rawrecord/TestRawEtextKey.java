@@ -56,20 +56,8 @@ final class TestRawEtextKey {
 
         final RawEtextKey obj = new RawEtextKey(TEST_ETEXT_ID, TEST_ETEXT_KEY, TEST_ACTIVE_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawEtextKey obj = RawEtextKey.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ETEXT_ID, obj.etextId, "Invalid etext_id value after deserialization");
-        assertEquals(TEST_ETEXT_KEY, obj.etextKey, "Invalid etext_key value after deserialization");
-        assertEquals(TEST_ACTIVE_DT, obj.activeDt, "Invalid active_dt value after deserialization");
     }
 }

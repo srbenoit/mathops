@@ -1662,6 +1662,7 @@ public final class StudentCourseStatus extends LogicBase {
 
                 stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
                         stterm.paceTrack.substring(0, 1), studentId);
+                stMilestones.sort(null);
 
                 Log.info("Found " + allMilestones.size() + " milestones and " + stMilestones.size()
                         + " student milestones");
@@ -1676,6 +1677,7 @@ public final class StudentCourseStatus extends LogicBase {
 
                 stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
                         stterm.paceTrack.substring(0, 1), studentId);
+                stMilestones.sort(null);
                 break;
             }
         }
@@ -1738,6 +1740,8 @@ public final class StudentCourseStatus extends LogicBase {
                     for (final RawStmilestone stms : stMilestones) {
                         if (reIndex.equals(stms.msNbr) && reviewImp.equals(stms.msType)) {
                             this.unitReviewDeadlines[unit] = stms.msDate;
+                            // Don't break - student milestones are sorted by due date, and if there are multiple
+                            // matching rows, we want the latest date
                         }
                     }
                 }
@@ -1762,6 +1766,8 @@ public final class StudentCourseStatus extends LogicBase {
                     for (final RawStmilestone stms : stMilestones) {
                         if (ueIndex.equals(stms.msNbr) && unitImp.equals(stms.msType)) {
                             this.unitExamDeadlines[unit] = stms.msDate;
+                            // Don't break - student milestones are sorted by due date, and if there are multiple
+                            // matching rows, we want the latest date
                         }
                     }
                 }
@@ -1800,10 +1806,11 @@ public final class StudentCourseStatus extends LogicBase {
 
                     if (ltIndex != null) {
                         for (final RawStmilestone stms : stMilestones) {
-                            if (ltIndex.equals(stms.msNbr) //
-                                    && RawMilestone.FINAL_LAST_TRY.equals(stms.msType)) {
+                            if (ltIndex.equals(stms.msNbr) && RawMilestone.FINAL_LAST_TRY.equals(stms.msType)) {
                                 this.unitExamLastTries[unit] = stms.msDate;
                                 this.unitExamLastTryAttempts[unit] = stms.nbrAtmptsAllow;
+                                // Don't break - student milestones are sorted by due date, and if there are multiple
+                                // matching rows, we want the latest date
                             }
                         }
                     }

@@ -201,6 +201,7 @@ public class EmailsNeeded {
                         } else {
                             final List<RawStmilestone> stmilestones = RawStmilestoneLogic
                                     .getStudentMilestones(cache, active.term, track, stuId);
+                            stmilestones.sort(null);
 
                             final RawStudent stu = RawStudentLogic.query(cache, stuId, false);
                             final RawStterm stterm =

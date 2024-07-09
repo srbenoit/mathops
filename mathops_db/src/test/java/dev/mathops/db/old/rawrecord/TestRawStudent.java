@@ -259,59 +259,8 @@ final class TestRawStudent {
                 TEST_ADVISER_EMAIL, TEST_PASSWORD, TEST_ADMIT_TYPE, TEST_ORDER_ENFORCE,
                 TEST_PACING_STRUCTURE, TEST_CREATE_DT, TEST_EXTENSION_DAYS, TEST_CANVAS_ID);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStudent obj = RawStudent.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_PIDM, obj.pidm, "Invalid pidm value after deserialization");
-        assertEquals(TEST_LAST_NAME, obj.lastName, "Invalid last_name value after deserialization");
-        assertEquals(TEST_FIRST_NAME, obj.firstName, "Invalid first_name value after deserialization");
-        assertEquals(TEST_PREF_NAME, obj.prefName, "Invalid pref_name value after deserialization");
-        assertEquals(TEST_MIDDLE_INITIAL, obj.middleInitial, "Invalid middle_initial value after deserialization");
-        assertEquals(TEST_APLN_TERM, obj.aplnTerm, "Invalid apln_term value after deserialization");
-        assertEquals(TEST_CLASS, obj.clazz, "Invalid clazz value after deserialization");
-        assertEquals(TEST_COLLEGE, obj.college, "Invalid college value after deserialization");
-        assertEquals(TEST_DEPT, obj.dept, "Invalid dept value after deserialization");
-        assertEquals(TEST_PROGRAM_CODE, obj.programCode, "Invalid program_code value after deserialization");
-        assertEquals(TEST_MINOR, obj.minor, "Invalid minor value after deserialization");
-        assertEquals(TEST_EST_GRADUATION, obj.estGraduation, "Invalid est_graduation value after deserialization");
-        assertEquals(TEST_TR_CREDITS, obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertEquals(TEST_HS_CODE, obj.hsCode, "Invalid hs_code value after deserialization");
-        assertEquals(TEST_HS_GPA, obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertEquals(TEST_HS_CLASS_RANK, obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertEquals(TEST_HS_SIZE_CLASS, obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertEquals(TEST_ACT_SCORE, obj.actScore, "Invalid act_score value after deserialization");
-        assertEquals(TEST_SAT_SCORE, obj.satScore, "Invalid sat_score value after deserialization");
-        assertEquals(TEST_AP_SCORE, obj.apScore, "Invalid ap_score value after deserialization");
-        assertEquals(TEST_RESIDENT, obj.resident, "Invalid resident value after deserialization");
-        assertEquals(TEST_BIRTHDATE, obj.birthdate, "Invalid birthdate value after deserialization");
-        assertEquals(TEST_ETHNICITY, obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertEquals(TEST_GENDER, obj.gender, "Invalid gender value after deserialization");
-        assertEquals(TEST_DISCIP_HISTORY, obj.discipHistory, "Invalid discip_history value after deserialization");
-        assertEquals(TEST_DISCIP_STATUS, obj.discipStatus, "Invalid discip_status value after deserialization");
-        assertEquals(TEST_SEV_ADMIN_HOLD, obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertEquals(TEST_TIMELIMIT_FACTOR, obj.timelimitFactor,
-                "Invalid timelimit_factor value after deserialization");
-        assertEquals(TEST_LICENSED, obj.licensed, "Invalid licensed value after deserialization");
-        assertEquals(TEST_CAMPUS, obj.campus, "Invalid campus value after deserialization");
-        assertEquals(TEST_STU_EMAIL, obj.stuEmail, "Invalid stu_email value after deserialization");
-        assertEquals(TEST_ADVISER_EMAIL, obj.adviserEmail, "Invalid adviser_email value after deserialization");
-        assertEquals(TEST_PASSWORD, obj.password, "Invalid password value after deserialization");
-        assertEquals(TEST_ADMIT_TYPE, obj.admitType, "Invalid admit_type value after deserialization");
-        assertEquals(TEST_ORDER_ENFORCE, obj.orderEnforce, "Invalid order_enforce value after deserialization");
-        assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure,
-                "Invalid pacing_structure value after deserialization");
-        assertEquals(TEST_CREATE_DT, obj.createDt, "Invalid create_dt value after deserialization");
-        assertEquals(TEST_EXTENSION_DAYS, obj.extensionDays, "Invalid extension_days value after deserialization");
-        assertEquals(TEST_CANVAS_ID, obj.canvasId, "Invalid canvas_id value after deserialization");
     }
 }

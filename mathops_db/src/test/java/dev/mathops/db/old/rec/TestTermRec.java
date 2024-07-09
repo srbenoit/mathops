@@ -80,25 +80,8 @@ final class TestTermRec {
         final TermRec obj = new TermRec(TEST_TERM, TEST_START_DATE, TEST_END_DATE, TEST_ACADEMIC_YEAR,
                 TEST_ACTIVE_INDEX, TEST_DROP_DEADLINE, TEST_WITHDRAW_DEADLINE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final TermRec obj = TermRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.term, "Invalid term_key value after deserialization");
-        assertEquals(TEST_START_DATE, obj.startDate, "Invalid start_date value after deserialization");
-        assertEquals(TEST_END_DATE, obj.endDate, "Invalid end_date value after deserialization");
-        assertEquals(TEST_ACADEMIC_YEAR, obj.academicYear, "Invalid academic_year value after deserialization");
-        assertEquals(TEST_ACTIVE_INDEX, obj.activeIndex, "Invalid active_index value after deserialization");
-        assertEquals(TEST_DROP_DEADLINE, obj.dropDeadline, "Invalid drop_deadline value after deserialization");
-        assertEquals(TEST_WITHDRAW_DEADLINE, obj.withdrawDeadline, "Invalid withdraw_deadline value after " +
-                "deserialization");
     }
 }

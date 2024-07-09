@@ -43,18 +43,8 @@ final class TestRawWhichDb {
 
         final RawWhichDb obj = new RawWhichDb(TEST_DESCR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawWhichDb obj = RawWhichDb.parse(EXPECT_SER99);
-
-        assertEquals(TEST_DESCR, obj.descr, "Invalid descr value after deserialization");
     }
 }

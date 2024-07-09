@@ -95,27 +95,8 @@ final class TestRawDiscipline {
                 TEST_INCIDENT_TYPE, TEST_COURSE, TEST_UNIT, TEST_CHEAT_DESC, TEST_ACTION_TYPE,
                 TEST_ACTION_COMMENT, TEST_INTERVIEWER, TEST_PROCTOR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawDiscipline obj = RawDiscipline.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_DT_INCIDENT, obj.dtIncident, "Invalid dt_incident value after deserialization");
-        assertEquals(TEST_INCIDENT_TYPE, obj.incidentType, "Invalid incident_type value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_CHEAT_DESC, obj.cheatDesc, "Invalid cheat_desc value after deserialization");
-        assertEquals(TEST_ACTION_TYPE, obj.actionType, "Invalid action_type value after deserialization");
-        assertEquals(TEST_ACTION_COMMENT, obj.actionComment, "Invalid action_comment value after deserialization");
-        assertEquals(TEST_INTERVIEWER, obj.interviewer, "Invalid interviewer value after deserialization");
-        assertEquals(TEST_PROCTOR, obj.proctor, "Invalid proctor value after deserialization");
     }
 }

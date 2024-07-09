@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 
@@ -1130,47 +1129,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER1);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1182,47 +1143,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER2);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1234,47 +1157,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER3);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1286,47 +1171,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER4);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_SECTION_ID, obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1338,47 +1185,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER5);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertEquals(TEST_ARIES_START_DT, obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1390,48 +1199,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER6);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertEquals(TEST_ARIES_END_DT, obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1443,47 +1213,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER7, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0015() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER7);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1495,47 +1227,9 @@ final class TestRawCsection {
                 TEST_EXAM_DELETE_DT, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER8, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0017() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER8);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertEquals(TEST_EXAM_DELETE_DT, obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1547,47 +1241,9 @@ final class TestRawCsection {
                 TEST_INSTRN_TYPE, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER9, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0019() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER9);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertEquals(TEST_INSTRN_TYPE, obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1599,47 +1255,9 @@ final class TestRawCsection {
                 null, TEST_INSTRUCTOR, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER10, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0021() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER10);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertEquals(TEST_INSTRUCTOR, obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1651,47 +1269,9 @@ final class TestRawCsection {
                 null, null, TEST_CAMPUS, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER11, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0023() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER11);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertEquals(TEST_CAMPUS, obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1703,48 +1283,9 @@ final class TestRawCsection {
                 null, null, null, TEST_PACING_STRUCTURE, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER12, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0025() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER12);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure,
-                "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1756,47 +1297,9 @@ final class TestRawCsection {
                 null, null, null, null, TEST_MTG_DAYS, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER13, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0027() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER13);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertEquals(TEST_MTG_DAYS, obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1808,47 +1311,9 @@ final class TestRawCsection {
                 null, null, null, null, null, TEST_CLASSROOM_ID, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER14, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0029() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER14);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertEquals(TEST_CLASSROOM_ID, obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1860,48 +1325,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, TEST_LST_STCRS_CREAT_DT, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER15, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0031() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER15);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertEquals(TEST_LST_STCRS_CREAT_DT, obj.lstStcrsCreatDt,
-                "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1913,47 +1339,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, TEST_GRADING_STD, null, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER16, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0033() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER16);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertEquals(TEST_GRADING_STD, obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -1965,47 +1353,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, TEST_A_MIN_SCORE, null, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER17, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0035() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER17);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertEquals(TEST_A_MIN_SCORE, obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2017,47 +1367,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, TEST_B_MIN_SCORE, null, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER18, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0037() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER18);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertEquals(TEST_B_MIN_SCORE, obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2069,47 +1381,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, TEST_C_MIN_SCORE, null,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER19, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0039() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER19);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertEquals(TEST_C_MIN_SCORE, obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2121,47 +1395,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, TEST_D_MIN_SCORE,
                 null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER20, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0041() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER20);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertEquals(TEST_D_MIN_SCORE, obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2173,47 +1409,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, TEST_SURVEY_ID,
                 null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER21, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0043() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER21);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertEquals(TEST_SURVEY_ID, obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2225,48 +1423,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
                 TEST_COURSE_LABEL_SHOWN, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER22, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0045() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER22);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertEquals(TEST_COURSE_LABEL_SHOWN, obj.courseLabelShown,
-                "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2278,47 +1437,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 TEST_DISPLAY_SCORE, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER23, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0047() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER23);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertEquals(TEST_DISPLAY_SCORE, obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2330,48 +1451,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, TEST_DISPLAY_GRADE_SCALE, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER24, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0049() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER24);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertEquals(TEST_DISPLAY_GRADE_SCALE, obj.displayGradeScale,
-                "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2383,48 +1465,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, TEST_COUNT_IN_MAX_COURSES, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER25, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0051() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER25);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertEquals(TEST_COUNT_IN_MAX_COURSES, obj.countInMaxCourses,
-                "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2436,47 +1479,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, TEST_ONLINE, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER26, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0053() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER26);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertEquals(TEST_ONLINE, obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2488,47 +1493,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, TEST_BOGUS, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER27, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0055() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER27);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertEquals(TEST_BOGUS, obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2540,47 +1507,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, TEST_CANVAS_ID, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER28, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0057() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER28);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertEquals(TEST_CANVAS_ID, obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertNull(obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2592,47 +1521,9 @@ final class TestRawCsection {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, TEST_SUBTERM);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER29, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0059() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER29);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
-        assertNull(obj.sectionId, "Invalid section_id value after deserialization");
-        assertNull(obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertNull(obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertNull(obj.startDt, "Invalid start_dt value after deserialization");
-        assertNull(obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertNull(obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
-        assertNull(obj.campus, "Invalid campus value after deserialization");
-        assertNull(obj.pacingStructure, "Invalid pacing_structure value after deserialization");
-        assertNull(obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertNull(obj.classroomId, "Invalid classroomId value after deserialization");
-        assertNull(obj.lstStcrsCreatDt, "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertNull(obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertNull(obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertNull(obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertNull(obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertNull(obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertNull(obj.surveyId, "Invalid survey_id value after deserialization");
-        assertNull(obj.courseLabelShown, "Invalid course_label_shown value after deserialization");
-        assertNull(obj.displayScore, "Invalid display_score value after deserialization");
-        assertNull(obj.displayGradeScale, "Invalid display_grade_scale value after deserialization");
-        assertNull(obj.countInMaxCourses, "Invalid count_in_max_courses value after deserialization");
-        assertNull(obj.online, "Invalid online value after deserialization");
-        assertNull(obj.bogus, "Invalid bogus value after deserialization");
-        assertNull(obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertEquals(TEST_SUBTERM, obj.subterm, "Invalid subterm value after deserialization");
     }
 
     /** Test case. */
@@ -2648,51 +1539,8 @@ final class TestRawCsection {
                 TEST_COURSE_LABEL_SHOWN, TEST_DISPLAY_SCORE, TEST_DISPLAY_GRADE_SCALE,
                 TEST_COUNT_IN_MAX_COURSES, TEST_ONLINE, TEST_BOGUS, TEST_CANVAS_ID, TEST_SUBTERM);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER30, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0061() {
-
-        final RawCsection obj = RawCsection.parse(EXPECT_SER30);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term key value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_SECTION_ID, obj.sectionId, "Invalid section_id value after deserialization");
-        assertEquals(TEST_ARIES_START_DT, obj.ariesStartDt, "Invalid aries_start_dt value after deserialization");
-        assertEquals(TEST_ARIES_END_DT, obj.ariesEndDt, "Invalid aries_end_dt value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after deserialization");
-        assertEquals(TEST_EXAM_DELETE_DT, obj.examDeleteDt, "Invalid exam_delete_dt value after deserialization");
-        assertEquals(TEST_INSTRN_TYPE, obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertEquals(TEST_INSTRUCTOR, obj.instructor, "Invalid instructor value after deserialization");
-        assertEquals(TEST_CAMPUS, obj.campus, "Invalid campus value after deserialization");
-        assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure,
-                "Invalid pacing_structure value after deserialization");
-        assertEquals(TEST_MTG_DAYS, obj.mtgDays, "Invalid mtg_days value after deserialization");
-        assertEquals(TEST_CLASSROOM_ID, obj.classroomId, "Invalid classroomId value after deserialization");
-        assertEquals(TEST_LST_STCRS_CREAT_DT, obj.lstStcrsCreatDt,
-                "Invalid lst_stcrs_creat_dt value after deserialization");
-        assertEquals(TEST_GRADING_STD, obj.gradingStd, "Invalid grading_std value after deserialization");
-        assertEquals(TEST_A_MIN_SCORE, obj.aMinScore, "Invalid a_min_score value after deserialization");
-        assertEquals(TEST_B_MIN_SCORE, obj.bMinScore, "Invalid b_min_score value after deserialization");
-        assertEquals(TEST_C_MIN_SCORE, obj.cMinScore, "Invalid c_min_score value after deserialization");
-        assertEquals(TEST_D_MIN_SCORE, obj.dMinScore, "Invalid d_min_score value after deserialization");
-        assertEquals(TEST_SURVEY_ID, obj.surveyId, "Invalid survey_id value after deserialization");
-        assertEquals(TEST_COURSE_LABEL_SHOWN, obj.courseLabelShown,
-                "Invalid course_label_shown value after deserialization");
-        assertEquals(TEST_DISPLAY_SCORE, obj.displayScore, "Invalid display_score value after deserialization");
-        assertEquals(TEST_DISPLAY_GRADE_SCALE, obj.displayGradeScale,
-                "Invalid display_grade_scale value after deserialization");
-        assertEquals(TEST_COUNT_IN_MAX_COURSES, obj.countInMaxCourses,
-                "Invalid count_in_max_courses value after deserialization");
-        assertEquals(TEST_ONLINE, obj.online, "Invalid online value after deserialization");
-        assertEquals(TEST_BOGUS, obj.bogus, "Invalid bogus value after deserialization");
-        assertEquals(TEST_CANVAS_ID, obj.canvasId, "Invalid canvas_id value after deserialization");
-        assertEquals(TEST_SUBTERM, obj.subterm, "Invalid subterm value after deserialization");
     }
 }

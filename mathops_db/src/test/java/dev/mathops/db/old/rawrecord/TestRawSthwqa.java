@@ -95,27 +95,8 @@ final class TestRawSthwqa {
                 TEST_OBJECTIVE, TEST_STU_ANSWER, TEST_STU_ID, TEST_VERSION, TEST_ANS_CORRECT,
                 TEST_HW_DT, TEST_FINISH_TIME);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawSthwqa obj = RawSthwqa.parse(EXPECT_SER99);
-
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_QUESTION_NBR, obj.questionNbr, "Invalid question_nbr value after deserialization");
-        assertEquals(TEST_ANSWER_NBR, obj.answerNbr, "Invalid answer_nbr value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_STU_ANSWER, obj.stuAnswer, "Invalid stu_answer value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_ANS_CORRECT, obj.ansCorrect, "Invalid ans_correct value after deserialization");
-        assertEquals(TEST_HW_DT, obj.hwDt, "Invalid hw_dt value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
     }
 }

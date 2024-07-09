@@ -83,25 +83,8 @@ final class TestRawStterm {
         final RawStterm obj = new RawStterm(TEST_TERM, TEST_STU_ID, TEST_PACE, TEST_PACE_TRACK,
                 TEST_FIRST_COURSE, TEST_COHORT, TEST_URGENCY, TEST_DO_NOT_DISTURB);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStterm obj = RawStterm.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid pace_track value after deserialization");
-        assertEquals(TEST_FIRST_COURSE, obj.firstCourse, "Invalid first_course value after deserialization");
-        assertEquals(TEST_COHORT, obj.cohort, "Invalid cohort value after deserialization");
-        assertEquals(TEST_URGENCY, obj.urgency, "Invalid urgency value after deserialization");
-        assertEquals(TEST_DO_NOT_DISTURB, obj.doNotDisturb, "Invalid do_not_disturb value after deserialization");
     }
 }

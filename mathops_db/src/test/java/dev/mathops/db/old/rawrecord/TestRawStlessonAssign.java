@@ -95,27 +95,8 @@ final class TestRawStlessonAssign {
                 TEST_LESSON_ID, TEST_WHEN_SHOWN, TEST_WHEN_OPEN, TEST_WHEN_CLOSED, TEST_WHEN_HIDDEN,
                 TEST_WHEN_STARTED, TEST_WHEN_FINISHED, TEST_SCORE_TENTHS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStlessonAssign obj = RawStlessonAssign.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_COURSE_ID, obj.course, "Invalid course_id value after deserialization");
-        assertEquals(TEST_LESSON_ID, obj.lessonId, "Invalid lesson_id value after deserialization");
-        assertEquals(TEST_WHEN_SHOWN, obj.whenShown, "Invalid when_shown value after deserialization");
-        assertEquals(TEST_WHEN_OPEN, obj.whenOpen, "Invalid when_open value after deserialization");
-        assertEquals(TEST_WHEN_CLOSED, obj.whenClosed, "Invalid when_closed value after deserialization");
-        assertEquals(TEST_WHEN_HIDDEN, obj.whenHidden, "Invalid when_hidden value after deserialization");
-        assertEquals(TEST_WHEN_STARTED, obj.whenStarted, "Invalid when_started value after deserialization");
-        assertEquals(TEST_WHEN_FINISHED, obj.whenFinished, "Invalid when_finished value after deserialization");
-        assertEquals(TEST_SCORE_TENTHS, obj.scoreTenths, "Invalid score_tenths value after deserialization");
     }
 }

@@ -69,22 +69,8 @@ final class TestRawRemoteMpe {
         final RawRemoteMpe obj =
                 new RawRemoteMpe(TEST_TERM, TEST_APLN_TERM, TEST_COURSE, TEST_START_DT, TEST_END_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawRemoteMpe obj = RawRemoteMpe.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_APLN_TERM, obj.aplnTerm, "Invalid apln_term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after deserialization");
-        assertEquals(TEST_END_DT, obj.endDt, "Invalid end_dt value after deserialization");
     }
 }

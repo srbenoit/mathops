@@ -54,20 +54,8 @@ final class TestRawZipCode {
 
         final RawZipCode obj = new RawZipCode(TEST_ZIP_CODE, TEST_CITY, TEST_STATE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawZipCode obj = RawZipCode.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ZIP_CODE, obj.zipCode, "Invalid zip_code value after deserialization");
-        assertEquals(TEST_CITY, obj.city, "Invalid city value after deserialization");
-        assertEquals(TEST_STATE, obj.state, "Invalid state value after deserialization");
     }
 }

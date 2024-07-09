@@ -214,7 +214,7 @@ final class TestRawApplicantLogic {
                             && fa23.equals(test.aplnTerm)) {
                         found3 = true;
                     } else {
-                        Log.warning("Unexpected applicant: ", test.serializedString());
+                        Log.warning("Unexpected applicant: ", test);
                     }
                 }
 

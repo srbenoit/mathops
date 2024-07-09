@@ -288,7 +288,8 @@ public final class SiteDataMilestone {
 
         final List<RawStmilestone> stuMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term, track,
                 studentId);
-        Collections.sort(stuMilestones);
+        stuMilestones.sort(null);
+
         this.studentMilestones.put(term.term, stuMilestones);
 
         return true;

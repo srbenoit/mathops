@@ -85,25 +85,8 @@ final class TestRawUsers {
         final RawUsers obj = new RawUsers(TEST_TERM, TEST_STU_ID, TEST_SERIAL_NBR, TEST_VERSION,
                 TEST_EXAM_DT, TEST_EXAM_SCORE, TEST_CALC_COURSE, TEST_PASSED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawUsers obj = RawUsers.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_EXAM_SCORE, obj.examScore, "Invalid exam_score value after deserialization");
-        assertEquals(TEST_CALC_COURSE, obj.calcCourse, "Invalid calc_course value after deserialization");
-        assertEquals(TEST_PASSED, obj.passed, "Invalid passed value after deserialization");
     }
 }

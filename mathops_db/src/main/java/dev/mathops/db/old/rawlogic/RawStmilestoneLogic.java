@@ -60,7 +60,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
         }
 
         final String sql = SimpleBuilder.concat("INSERT INTO stmilestone (",
-                "stu_id,term,term_yr,pace_track,ms_nbr,ms_type,ms_date,nbr_atmpts_allow,ext_type) VALUES (",
+                "stu_id,term,term_yr,pace_track,ms_nbr,ms_type,ms_date,nbr_atmpts_allow) VALUES (",
                 sqlStringValue(record.stuId), ",",
                 sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
@@ -68,8 +68,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
                 record.msNbr, ",",
                 sqlStringValue(record.msType), ",",
                 sqlDateValue(record.msDate), ",",
-                sqlIntegerValue(record.nbrAtmptsAllow), ",",
-                sqlStringValue(record.extType), ")");
+                sqlIntegerValue(record.nbrAtmptsAllow),")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -103,8 +102,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
                 "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
                 "   AND pace_track=", sqlStringValue(record.paceTrack),
                 "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType),
-                "   AND ext_type=", sqlStringValue(record.extType));
+                "   AND ms_type=", sqlStringValue(record.msType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql.toString()) == 1;
@@ -255,8 +253,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
                 "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
                 "   AND pace_track=", sqlStringValue(record.paceTrack),
                 "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType),
-                "   AND ext_type=", sqlStringValue(record.extType));
+                "   AND ms_type=", sqlStringValue(record.msType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql.toString()) == 1;

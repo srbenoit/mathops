@@ -307,6 +307,7 @@ final class EPFStudents {
                     final List<RawMilestone> milestones = msMap.get(paceInt).get(track);
                     final List<RawStmilestone> stmilestones = RawStmilestoneLogic
                             .getStudentMilestones(this.cache, active.term, track, stuId);
+                    stmilestones.sort(null);
 
                     final RawStudent stu = RawStudentLogic.query(this.cache, stuId, false);
                     final RawStterm stterm = RawSttermLogic.query(this.cache, active.term, stuId);

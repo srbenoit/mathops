@@ -34,13 +34,8 @@ public final class Major implements Comparable<Major> {
     /** The catalog URL. */
     public final String catalogUrl;
 
-//    /**
-//     * Constructs a new {@code Major}.
-//     */
-//    public Major() {
-//
-//        // Empty
-//    }
+    /** Indicates the major is bogus and cannot be selected in the Math Plan. */
+    public final boolean bogus;
 
     /**
      * Constructs a new {@code Program} when the program code is of the form "MAJR-XX", where "XX" is the degree type
@@ -54,8 +49,28 @@ public final class Major implements Comparable<Major> {
      * @param theCatalogUrl     the catalog URL
      * @throws IllegalArgumentException if the program code is not in a valid format
      */
-    public Major(final int theQuestionNumber, final String theProgramCode,
-                 final Boolean theCheckable, final String theMajorName, final String theCatalogUrl)
+    public Major(final int theQuestionNumber, final String theProgramCode, final Boolean theCheckable,
+                 final String theMajorName, final String theCatalogUrl)
+            throws IllegalArgumentException {
+
+        this(theQuestionNumber, theProgramCode, theCheckable, theMajorName, theCatalogUrl, false);
+    }
+
+    /**
+     * Constructs a new {@code Program} when the program code is of the form "MAJR-XX", where "XX" is the degree type
+     * ("BS", "BA", etc.).
+     *
+     * @param theQuestionNumber the profile question number
+     * @param theProgramCode    the program code
+     * @param theCheckable      true if the major or concentration can be selected by itself (FALSE for majors in which
+     *                          the student MUST choose a concentration)
+     * @param theMajorName      the name of the major
+     * @param theCatalogUrl     the catalog URL
+     * @param isBogus           true if the major is bogus and cannot be selected in the Math Plan
+     * @throws IllegalArgumentException if the program code is not in a valid format
+     */
+    public Major(final int theQuestionNumber, final String theProgramCode, final Boolean theCheckable,
+                 final String theMajorName, final String theCatalogUrl, final boolean isBogus)
             throws IllegalArgumentException {
 
         this.questionNumber = Integer.valueOf(theQuestionNumber);
@@ -63,6 +78,7 @@ public final class Major implements Comparable<Major> {
         this.checkable = theCheckable;
         this.majorName = theMajorName;
         this.catalogUrl = theCatalogUrl;
+        this.bogus = isBogus;
     }
 
     /**
@@ -81,12 +97,33 @@ public final class Major implements Comparable<Major> {
                  final Boolean theAutoCheck, final String theMajorName, final String theConcentrationName,
                  final String theCatalogUrl) throws IllegalArgumentException {
 
+        this(theQuestionNumber, theProgramCode, theAutoCheck, theMajorName, theConcentrationName, theCatalogUrl, false);
+    }
+
+    /**
+     * Constructs a new {@code Program} when the program code is of the form "MAJR-CONC-XX", where "XX" is the degree
+     * type ("BS", "BA", etc.).
+     *
+     * @param theQuestionNumber    the profile question number
+     * @param theProgramCode       the program code
+     * @param theAutoCheck         true if the concentration should be automatically checked when the major is checked
+     * @param theMajorName         the name of the major
+     * @param theConcentrationName the concentration name
+     * @param theCatalogUrl        the catalog URL
+     * @param isBogus              true if the major is bogus and cannot be selected in the Math Plan
+     * @throws IllegalArgumentException if the program code is not in a valid format
+     */
+    public Major(final int theQuestionNumber, final String theProgramCode,
+                 final Boolean theAutoCheck, final String theMajorName, final String theConcentrationName,
+                 final String theCatalogUrl, final boolean isBogus) throws IllegalArgumentException {
+
         this.questionNumber = Integer.valueOf(theQuestionNumber);
         this.programCode = theProgramCode;
         this.autoCheck = theAutoCheck;
         this.majorName = theMajorName;
         this.concentrationName = theConcentrationName;
         this.catalogUrl = theCatalogUrl;
+        this.bogus = isBogus;
     }
 
     /**
@@ -150,6 +187,10 @@ public final class Major implements Comparable<Major> {
                 result = 1;
             } else {
                 result = this.concentrationName.compareTo(other.concentrationName);
+            }
+
+            if (result == 0) {
+                result = this.programCode.compareTo(other.programCode);
             }
         }
 

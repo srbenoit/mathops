@@ -76,24 +76,8 @@ final class TestStandardMilestoneRec {
         final StandardMilestoneRec obj = new StandardMilestoneRec(TEST_PACE_TRACK, TEST_PACE, TEST_PACE_INDEX,
                 TEST_UNIT, TEST_OBJECTIVE, TEST_MS_TYPE, TEST_MS_DATE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final StandardMilestoneRec obj = StandardMilestoneRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid pace_track value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_PACE_INDEX, obj.paceIndex, "Invalid pace_index value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_MS_TYPE, obj.msType, "Invalid ms_type value after deserialization");
-        assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after deserialization");
     }
 }

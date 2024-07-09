@@ -172,7 +172,7 @@ final class TestRawDisciplineLogic {
                             && "Juan Doe".equals(test.proctor)) {
                         found3 = true;
                     } else {
-                        Log.warning("Unexpected discipline: ", test.serializedString());
+                        Log.warning("Unexpected discipline: ", test);
                     }
                 }
 

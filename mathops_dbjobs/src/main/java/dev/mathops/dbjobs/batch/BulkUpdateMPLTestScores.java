@@ -76,20 +76,20 @@ public final class BulkUpdateMPLTestScores {
             "ENGL-LINZ-BA", "ENGL-LITZ-BA", "ENGL-WRLZ-BA", "ETST-BA", "ETST-COIZ-BA", "ETST-RPRZ-BA", "ETST-SOTZ-BA",
             "GEOG-BS", "HIST-BA", "HIST-GENZ-BA", "HIST-LNGZ-BA", "HIST-SBSZ-BA", "HIST-SSTZ-BA", "HIST-DPUZ-BA",
             "JAMC-BA", "LLAC-BA", "LLAC-LFRZ-BA", "LLAC-LGEZ-BA", "LLAC-LSPZ-BA", "LLAC-SPPZ-BA", "MUSI-BA", "MUSC-BM",
-            "MUSC-MUEZ-BM", "MUSC-MUTZ-BM", "MUSC-PERZ-BM", "PHIL-GNPZ-BA", "PHIL-GPRZ-BA", "PHIL-PSAZ-BA", "POLS-BA",
-            "POLS-EPAZ-BA", "POLS-GPPZ-BA", "POLS-ULPZ-BA", "SOCI-BA", "SOCI-CRCZ-BA", "SOCI-ENSZ-BA", "SOCI-GNSZ-BA",
-            "THTR-BA", "THTR-MUSZ-BA", "THTR-PRFZ-BA", "THTR-CDTZ-BA", "THTR-LDTZ-BA", "THTR-PDTZ-BA", "THTR-SDSZ-BA",
-            "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA", "INST-GBLZ-BA", "INST-LTSZ-BA",
-            "INST-MEAZ-BA", "ILAR-BA",
+            "MUSC-COMZ-BM", "MUSC-MUEZ-BM", "MUSC-MUTZ-BM", "MUSC-PERZ-BM", "PHIL-BA", "PHIL-GNPZ-BA", "PHIL-GPRZ-BA",
+            "PHIL-PSAZ-BA", "POLS-BA", "POLS-EPAZ-BA", "POLS-GPPZ-BA", "POLS-ULPZ-BA", "SOCI-BA", "SOCI-CRCZ-BA",
+            "SOCI-ENSZ-BA", "SOCI-GNSZ-BA", "THTR-BA", "THTR-MUSZ-BA", "THTR-PRFZ-BA", "THTR-CDTZ-BA", "THTR-LDTZ-BA",
+            "THTR-PDTZ-BA", "THTR-SDSZ-BA", "THTR-SDTZ-BA", "WGST-BA", "INST-BA", "INST-ASTZ-BA", "INST-EUSZ-BA",
+            "INST-GBLZ-BA", "INST-LTSZ-BA", "INST-MEAZ-BA", "ILAR-BA",
             // Below are not in catalog
             "THTR-DTHZ-BA", "CMST-DD-BA", "HDFS-DHDZ-BS", "HDFS-DECZ-BS", "SOCI-DGSZ-BA", "ANTH-DD-BA", "HDFS-DPHZ-BS",
-            "MUSC-COMZ-BM", "JAMC-DD-BA", "ILAR-DD-BA", "POLS-DD-BA", "DANC-DEDZ-BF", "HDFS-LEPZ-BS", "PHIL-BA",
+            "JAMC-DD-BA", "ILAR-DD-BA", "POLS-DD-BA", "DANC-DEDZ-BF", "HDFS-LEPZ-BS",
             "HDFS-DPIZ-BS", "ENGL-LANZ-BA", "HDFS-DLAZ-BS", "SOWK-ADSZ-BW", "HDFS-DLEZ-BS", "SPCM-TCLZ-BA",
             "MUS0", // Pre-music
             "UNLA", // Assuming liberal arts
             "DNC0", // Assuming Dance
             "THR0" // Assuming Theatre
-            );
+    );
 
     private static final List<String> MAJORS_NEEDING_MORE = Arrays.asList(
             "AGBI-BS", "AGBI-ENTZ-BS", "AGBI-PLPZ-BS", "AGBI-WEEZ-BS", "AGBU-BS", "AGBU-AECZ-BS", "AGBU-FRCZ-BS",
@@ -112,16 +112,16 @@ public final class BulkUpdateMPLTestScores {
             "CPSC-SEGZ-BS", "CPSC-CSEZ-BS", "DSCI-BS", "DSCI-CSCZ-BS", "DSCI-ECNZ-BS", "DSCI-MATZ-BS", "DSCI-STSZ-BS",
             "DSCI-NEUZ-BS", "MATH-BS", "MATH-ALSZ-BS", "MATH-AMTZ-BS", "MATH-GNMZ-BS", "MATH-MTEZ-BS", "MATH-CPMZ-BS",
             "NSCI-BS", "NSCI-BLEZ-BS", "NSCI-CHEZ-BS", "NSCI-GLEZ-BS", "NSCI-PHSZ-BS", "NSCI-PHEZ-BS", "PHYS-BS",
-            "PHYS-APPZ-BS", "PHYS-PHYZ-BS", "PSYC-BS", "PSYC-CCPZ-BS", "PSYC-GPSZ-BS", "PSYC-IOPZ-BS", "PSYC-MBBZ-BS",
-            "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS", "NERO-BCNZ-BS",
-            "NERO-CMNZ-BS", "HEMG-BS",
+            "PHYS-APPZ-BS", "PHYS-PHYZ-BS", "PSYC-BS", "PSYC-ADCZ-BS", "PSYC-CCPZ-BS", "PSYC-GPSZ-BS", "PSYC-IOPZ-BS",
+            "PSYC-MBBZ-BS", "STAT-BS", "ZOOL-BS", "BIOM-BS", "BIOM-APHZ-BS", "BIOM-EPHZ-BS", "BIOM-MIDZ-BS", "NERO-BS",
+            "NERO-BCNZ-BS", "NERO-CMNZ-BS", "HEMG-BS",
             // Below are not in catalog
             "PSYC-GDSZ-BS", "CPSC-DCSZ-BS", "HORT-DHBZ-BS", "BUSA-OIMZ-BS", "AGBU-DD-BS", "WSSS-WSDZ-BS", "WSSS-BS",
-            "NRTM-NRTZ-BS", "PSYC-ADCZ-BS", "NRTM-GLTZ-BS", "FESV-DD-BS", "CHEM-ACSZ-BS", "WSSS-WSSZ-BS", "EVHL-BS",
+            "NRTM-NRTZ-BS", "NRTM-GLTZ-BS", "FESV-DD-BS", "CHEM-ACSZ-BS", "WSSS-WSSZ-BS", "EVHL-BS",
             "WSSS-WSUZ-BS", "NAFS-NUSZ-BS", "ENRE-DD-BS", "ECON-DD-BA", "SOCR-DSAZ-BS", "CPSC-DSEZ-BS", "MICR-BS",
-            "N2CP-CPSY-UG", "WSSS-WSUZ-BS", "NAFS-FSNZ-BS", "NRTM-DNRZ-BS", "BUSA-DACZ-BS", "CPSC-DHCZ-BS",
-            "CPSC-DCYZ-BS", "CPSC-DAIZ-BS", "SOCR-SOEZ-BS", "APCT-CPTZ-BS", "BCHM-GBCZ-BS", "CPSC-DNSZ-BS",
-            "FRST-FMGZ-BS", "SOCR-PBGZ-BS", "SOCR-ISCZ-BS", "CPSC-CFCZ-BS", "SOCR-APMZ-BS", "NAFS-FSYZ-BS",
+            "N2CP-CPSY-UG", "NAFS-FSNZ-BS", "NRTM-DNRZ-BS", "BUSA-DACZ-BS", "CPSC-DHCZ-BS", "CPSC-DCYZ-BS",
+            "CPSC-DAIZ-BS", "SOCR-SOEZ-BS", "APCT-CPTZ-BS", "BCHM-GBCZ-BS", "CPSC-DNSZ-BS", "FRST-FMGZ-BS",
+            "SOCR-PBGZ-BS", "SOCR-ISCZ-BS", "CPSC-CFCZ-BS", "SOCR-APMZ-BS", "NAFS-FSYZ-BS",
             "CTM0", // Pre-construction management
             "EXPL", "EXLA", // Exploratory studies: Land, Plant, and Animal Science
             "EXHF", // Exploratory studies: Health, Life, and Food
@@ -149,7 +149,7 @@ public final class BulkUpdateMPLTestScores {
             "CTED-UG", // Unknown - assume it needs some math...
             "FCST-UG",  // Unknown - assume it needs some math...
             "SSAS-UG"  // Unknown - assume it needs some math...
-            );
+    );
 
     /** Debug flag - true to skip (but print) updates; false to actually perform updates. */
     private static final boolean DEBUG = false;

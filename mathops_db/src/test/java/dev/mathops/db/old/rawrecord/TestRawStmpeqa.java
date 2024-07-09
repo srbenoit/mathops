@@ -90,26 +90,8 @@ final class TestRawStmpeqa {
                 new RawStmpeqa(TEST_STU_ID, TEST_VERSION, TEST_EXAM_DT, TEST_FINISH_TIME,
                         TEST_QUESTION_NBR, TEST_STU_ANSWER, TEST_ANS_CORRECT, TEST_SUBTEST, TEST_TREE_REF);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStmpeqa obj = RawStmpeqa.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
-        assertEquals(TEST_QUESTION_NBR, obj.questionNbr, "Invalid question_nbr value after deserialization");
-        assertEquals(TEST_STU_ANSWER, obj.stuAnswer, "Invalid stu_answer value after deserialization");
-        assertEquals(TEST_ANS_CORRECT, obj.ansCorrect, "Invalid ans_correct value after deserialization");
-        assertEquals(TEST_SUBTEST, obj.subtest, "Invalid subtest value after deserialization");
-        assertEquals(TEST_TREE_REF, obj.treeRef, "Invalid tree_ref value after deserialization");
     }
 }

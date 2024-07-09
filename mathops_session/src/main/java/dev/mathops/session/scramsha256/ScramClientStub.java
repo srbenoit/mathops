@@ -163,7 +163,7 @@ public final class ScramClientStub {
             }
 
             final URL url= uri.toURL();
-            Log.info(url);
+//            Log.info(url);
 
             final URLConnection conn = url.openConnection();
             final Object content = conn.getContent();

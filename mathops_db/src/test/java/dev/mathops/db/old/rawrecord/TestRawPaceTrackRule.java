@@ -68,22 +68,8 @@ final class TestRawPaceTrackRule {
         final RawPaceTrackRule obj = new RawPaceTrackRule(TEST_TERM, TEST_SUBTERM, TEST_PACE,
                 TEST_PACE_TRACK, TEST_CRITERIA);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawPaceTrackRule obj = RawPaceTrackRule.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_SUBTERM, obj.subterm, "Invalid subterm value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid paceTrack value after deserialization");
-        assertEquals(TEST_CRITERIA, obj.criteria, "Invalid criteria value after deserialization");
     }
 }

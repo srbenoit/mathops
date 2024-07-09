@@ -71,23 +71,8 @@ final class TestRawResource {
         final RawResource obj = new RawResource(TEST_RESOURCE_ID, TEST_RESOURCE_TYPE,
                 TEST_RESOURCE_DESC, TEST_DAYS_ALLOWED, TEST_HOLDS_ALLOWED, TEST_HOLD_ID);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawResource obj = RawResource.parse(EXPECT_SER99);
-
-        assertEquals(TEST_RESOURCE_ID, obj.resourceId, "Invalid term value after deserialization");
-        assertEquals(TEST_RESOURCE_TYPE, obj.resourceType, "Invalid apln_term value after deserialization");
-        assertEquals(TEST_RESOURCE_DESC, obj.resourceDesc, "Invalid course value after deserialization");
-        assertEquals(TEST_DAYS_ALLOWED, obj.daysAllowed, "Invalid start_dt value after deserialization");
-        assertEquals(TEST_HOLDS_ALLOWED, obj.holdsAllowed, "Invalid end_dt value after deserialization");
-        assertEquals(TEST_HOLD_ID, obj.holdId, "Invalid end_dt value after deserialization");
     }
 }

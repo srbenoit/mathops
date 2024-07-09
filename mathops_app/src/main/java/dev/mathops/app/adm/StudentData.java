@@ -156,6 +156,7 @@ public final class StudentData {
 
         this.studentMilestones = this.studentTerm == null ? new ArrayList<>(0) : RawStmilestoneLogic
                 .getStudentMilestones(cache, this.activeKey, this.studentTerm.paceTrack, stuId);
+        this.studentMilestones.sort(null);
 
         this.studentCoursesPastAndCurrent = RawStcourseLogic.queryByStudent(cache, stuId, true, true);
         this.currentTermCourseSections = systemData.getCourseSections(this.activeKey);

@@ -64,22 +64,8 @@ final class TestRawTreePath {
 
         final RawTreePath obj = new RawTreePath(TEST_IDENT, TEST_PARENT_IDENT, TEST_DEPTH, TEST_SORT_ORDER, TEST_LABEL);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawTreePath obj = RawTreePath.parse(EXPECT_SER99);
-
-        assertEquals(TEST_IDENT, obj.ident, "Invalid ident value after deserialization");
-        assertEquals(TEST_PARENT_IDENT, obj.parentIdent, "Invalid parent_ident value after deserialization");
-        assertEquals(TEST_DEPTH, obj.depth, "Invalid depth value after deserialization");
-        assertEquals(TEST_SORT_ORDER, obj.sortOrder, "Invalid sort_order value after deserialization");
-        assertEquals(TEST_LABEL, obj.label, "Invalid label value after deserialization");
     }
 }

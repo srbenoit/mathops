@@ -9,6 +9,9 @@ public enum MathPlanConstants {
     /** The prefix for catalog URLs. */
     public static final String CAT = "https://catalog.colostate.edu/general-catalog/colleges/";
 
+    /** The prefix for catalog URLs. */
+    public static final String CAT2 = "https://catalog.colostate.edu/general-catalog/";
+
     /** A course ID. */
     public static final String M_101 = "M 101";
 

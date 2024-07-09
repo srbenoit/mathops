@@ -717,6 +717,10 @@ public final class MathPlanLogic {
             }
         }
 
+        if (result == null) {
+            Log.warning("No major found with program code '", programCode, "' (scanned " + allMajors.size() + ")");
+        }
+
         return result;
     }
 
@@ -731,7 +735,7 @@ public final class MathPlanLogic {
 
         synchronized (this.synch) {
             if (this.majors == null) {
-                final Map<Major, MajorMathRequirement> map = new HashMap<>(50);
+                final Map<Major, MajorMathRequirement> map = new HashMap<>(400);
 
                 // *** Last reviewed April 29, 2024 ***
 
@@ -1691,7 +1695,7 @@ public final class MathPlanLogic {
                         MathPlanConstants.CAT + "health-human-sciences/school-of-social-work/"
                                 + "social-work-major/addictions-counseling-concentration/");
                 final MajorMathRequirement rSOWKADSZ =
-                        new MajorMathRequirement("SOWK-ADSZ-BS")
+                        new MajorMathRequirement("SOWK-ADSZ-BSW")
                                 .setSemesterCourses("AUCC3!", null, null);
                 map.put(mSOWKADSZ, rSOWKADSZ);
 
@@ -3323,8 +3327,657 @@ public final class MathPlanLogic {
                                         MathPlanConstants.M_255);
                 map.put(mNEROCMNZ, rNEROCMNZ);
 
+                // ***
+                // ***
+                // ***
+                // ***
+                // Add records for "fake" program codes so we can display something sensible for Current declared major
+                // ***
+                // ***
+                // ***
+                // ***
+                // ***
+                // ***
+
+                final Major mAGBUDD = new Major(9000, "AGBU-DD-BS", Boolean.FALSE,
+                        "Agricultural Business",
+                        MathPlanConstants.CAT + "agricultural-sciences/agricultural-resource-economics/business-major/",
+                        true);
+                final MajorMathRequirement rAGBUDD = new MajorMathRequirement("AGBU-DD-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124", null, MathPlanConstants.M_141);
+                map.put(mAGBUDD, rAGBUDD);
+
+                final Major mANTHDD = new Major(9000, "ANTH-DD-BA", Boolean.FALSE,
+                        "Anthropology",
+                        MathPlanConstants.CAT + "liberal-arts/anthropology-geography/anthropology-major/",
+                        true);
+                final MajorMathRequirement rANTHDD = new MajorMathRequirement("ANTH-DD-BA")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mANTHDD, rANTHDD);
+
+                final Major mAPCTCPTZ = new Major(9000, "APCT-CPTZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/",
+                        true);
+                final MajorMathRequirement rAPCTCPTZ = new MajorMathRequirement("APCT-CPTZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, null);
+                map.put(mAPCTCPTZ, rAPCTCPTZ);
+
+                final Major mBCHMGBCZ = new Major(9000, "BCHM-GBCZ-BS", Boolean.FALSE,
+                        "Biochemistry",
+                        MathPlanConstants.CAT + "natural-sciences/biochemistry-molecular-biology/biochemistry-major/",
+                        true);
+                final MajorMathRequirement rBCHMGBCZ = new MajorMathRequirement("BCHM-GBCZ-S")
+                        .setSemesterCourses("CALC1BIO!", "CALC2BIO!", null);
+                map.put(mBCHMGBCZ, rBCHMGBCZ);
+
+                final Major mBUSADACZ = new Major(9000, "BUSA-DACZ-BS", Boolean.FALSE,
+                        "Business Administration",
+                        MathPlanConstants.CAT + "business/business-administration/business-administration-major/",
+                        true);
+                final MajorMathRequirement rBUSADACZ = new MajorMathRequirement("BUSA-DACZ-BS")
+                        .setSemesterCourses(MathPlanConstants.BUSA3, null, null);
+                map.put(mBUSADACZ, rBUSADACZ);
+
+                final Major mBUSAOIMZ = new Major(9000, "BUSA-OIMZ-BS", Boolean.FALSE,
+                        "Business Administration",
+                        MathPlanConstants.CAT + "business/business-administration/business-administration-major/",
+                        true);
+                final MajorMathRequirement rBUSAOIMZ = new MajorMathRequirement("BUSA-OIMZ-BS")
+                        .setSemesterCourses(MathPlanConstants.BUSA3, null, null);
+                map.put(mBUSAOIMZ, rBUSAOIMZ);
+
+                final Major mCHEMACSZ = new Major(9000, "CHEM-ACSZ-BS", Boolean.FALSE,
+                        "Chemistry",
+                        MathPlanConstants.CAT + "natural-sciences/chemistry/chemistry-major/",
+                        true);
+                final MajorMathRequirement rCHEMACSZ = new MajorMathRequirement("CHEM-ACSZ-BS")
+                        .setSemesterCourses(null, "CALC1BIO!", "CALC2CHM,CALC3CHM");
+                map.put(mCHEMACSZ, rCHEMACSZ);
+
+                final Major mCMSTDD = new Major(9000, "CMST-DD-BA", Boolean.FALSE,
+                        "Communication Studies",
+                        MathPlanConstants.CAT + "liberal-arts/communication-studies/communication-studies-major/",
+                        true);
+                final MajorMathRequirement rCMSTDD = new MajorMathRequirement("CMST-DD-BA")
+                        .setSemesterCourses(null, "AUCC3", null);
+                map.put(mCMSTDD, rCMSTDD);
+
+                final Major mCPSCCFCZ = new Major(9000, "CPSC-CFCZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCCFCZ = new MajorMathRequirement("CPSC-CFCZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCCFCZ, rCPSCCFCZ);
+
+                final Major mCPSCDAIZ = new Major(9000, "CPSC-DAIZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDAIZ = new MajorMathRequirement("CPSC-DAIZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDAIZ, rCPSCDAIZ);
+
+                final Major mCPSCDCSZ = new Major(9000, "CPSC-DCSZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDCSZ = new MajorMathRequirement("CPSC-DCSZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDCSZ, rCPSCDCSZ);
+
+                final Major mCPSCDCYZ = new Major(9000, "CPSC-DCYZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDCYZ = new MajorMathRequirement("CPSC-DCYZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDCYZ, rCPSCDCYZ);
+
+                final Major mCPSCDHCZ = new Major(9000, "CPSC-DHCZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDHCZ = new MajorMathRequirement("CPSC-DHCZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDHCZ, rCPSCDHCZ);
+
+                final Major mCPSCDNSZ = new Major(9000, "CPSC-DNSZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDNSZ = new MajorMathRequirement("CPSC-DNSZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDNSZ, rCPSCDNSZ);
+
+                final Major mCPSCDSEZ = new Major(9000, "CPSC-DSEZ-BS", Boolean.FALSE,
+                        "Computer Science",
+                        MathPlanConstants.CAT + "natural-sciences/computer-science/computer-science-major/",
+                        true);
+                final MajorMathRequirement rCPSCDSEZ = new MajorMathRequirement("CPSC-DSEZ-BS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1CS, MathPlanConstants.LINALG369);
+                map.put(mCPSCDSEZ, rCPSCDSEZ);
+
+                final Major mCTM0 = new Major(9000, "CTM0", Boolean.FALSE,
+                        "Pre-Construction Management",
+                        MathPlanConstants.CAT + "health-human-sciences/construction-management/",
+                        true);
+                final MajorMathRequirement rCTM0 = new MajorMathRequirement("CTM0")
+                        .setSemesterCourses("M 117!,M 118!,M 125!", null, MathPlanConstants.M_141);
+                map.put(mCTM0, rCTM0);
+
+                final Major mDNC0 = new Major(9000, "DNC0", Boolean.FALSE,
+                        "Pre-Dance",
+                        MathPlanConstants.CAT + "liberal-arts/music-theatre-dance/dance/dance-ba/",
+                        true);
+                final MajorMathRequirement rDNC0 = new MajorMathRequirement("DNC0")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mDNC0, rDNC0);
+
+                final Major mDANCDEDZ = new Major(9000, "DANC-DEDZ-BF", Boolean.FALSE,
+                        "Dance",
+                        MathPlanConstants.CAT + "liberal-arts/music-theatre-dance/dance/dance-bfa/",
+                        true);
+                final MajorMathRequirement rDANCDEDZ = new MajorMathRequirement("DANC-DEDZ-BF")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mDANCDEDZ, rDANCDEDZ);
+
+                final Major mECONDD = new Major(9000, "ECON-DD-BA", Boolean.FALSE,
+                        "Economics",
+                        MathPlanConstants.CAT + "liberal-arts/economics/economics-major/",
+                        true);
+                final MajorMathRequirement rECONDD = new MajorMathRequirement("ECON-DD-BA")
+                        .setSemesterCourses(null, "CALC!", null);
+                map.put(mECONDD, rECONDD);
+
+                final Major mENGLLANZ = new Major(9000, "ENGL-LANZ-BA", Boolean.FALSE,
+                        "English",
+                        "Language",
+                        MathPlanConstants.CAT + "liberal-arts/english/english-major-creative-writing-concentration/",
+                        true);
+                final MajorMathRequirement rENGLLANZ = new MajorMathRequirement("ENGL-LANZ-BA")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mENGLLANZ, rENGLLANZ);
+
+                final Major mENREDD = new Major(9000, "ENRE-DD-BS", Boolean.FALSE,
+                        "Environmental and Natural Resource Economics",
+                        MathPlanConstants.CAT + "agricultural-sciences/agricultural-resource-economics/",
+                        true);
+                final MajorMathRequirement rENREDD = new MajorMathRequirement("ENRE-DD-BS")
+                        .setSemesterCourses("M 117!,M 118,M 124", null, MathPlanConstants.M_141);
+                map.put(mENREDD, rENREDD);
+
+                final Major mEVHL = new Major(9000, "EVHL-BS", Boolean.FALSE,
+                        "Environmental Health",
+                        MathPlanConstants.CAT + "veterinary-medicine-biomedical-sciences/"
+                                + "environmental-radiological-health-sciences/",
+                        true);
+                final MajorMathRequirement rEVHL = new MajorMathRequirement("EVHL-BS")
+                        .setSemesterCourses("M 124!,M 125!,M 126!", MathPlanConstants.M_155, null);
+                map.put(mEVHL, rEVHL);
+
+                final Major mEXAD = new Major(9000, "EXAD", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Arts, Humanities, and Design)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXAD = new MajorMathRequirement("EXAD")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXAD, rEXAD);
+
+                final Major mEXCO = new Major(9000, "EXCO", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Journalism and Communication)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXCO = new MajorMathRequirement("EXCO")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXCO, rEXCO);
+
+                final Major mEXGS = new Major(9000, "EXGS", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Global and Social Sciences)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXGS = new MajorMathRequirement("EXGS")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXGS, rEXGS);
+
+                final Major mEXHF = new Major(9000, "EXHF", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Health, Life, and Food Sciences)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXHF = new MajorMathRequirement("EXHF")
+                        .setSemesterCourses("M 117,M 118,M 124", "M 125,M 126", null);
+                map.put(mEXHF, rEXHF);
+
+                final Major mEXLA = new Major(9000, "EXLA", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Arts, Humanities, and Design)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXLA = new MajorMathRequirement("EXLA")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXLA, rEXLA);
+
+                final Major mEXNR = new Major(9000, "EXNR", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Environment and Natural Resources)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXNR = new MajorMathRequirement("EXNR")
+                        .setSemesterCourses("M 117,M 118,M 124", "M 125,M 126", null);
+                map.put(mEXNR, rEXNR);
+
+                final Major mEXPE = new Major(9000, "EXPE", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Physical Sciences and Engineering)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXPE = new MajorMathRequirement("EXPE")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1BIO, null);
+                map.put(mEXPE, rEXPE);
+
+                final Major mEXPO = new Major(9000, "EXPO", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Global and Social Sciences)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXPO = new MajorMathRequirement("EXPO")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXPO, rEXPO);
+
+                final Major mEXPL = new Major(9000, "EXPL", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Land, Plant, and Animal Sciences)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXPL = new MajorMathRequirement("EXPL")
+                        .setSemesterCourses("M 117,M 118,M 124", "M 125,M 126", null);
+                map.put(mEXPL, rEXPL);
+
+                final Major mEXTC = new Major(9000, "EXTC", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Education and Teaching)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rEXTC = new MajorMathRequirement("EXTC")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mEXTC, rEXTC);
+
+                final Major mFESVDD = new Major(9000, "FESV-DD-BS", Boolean.FALSE,
+                        "Fire and Emergency Services Administration",
+                        MathPlanConstants.CAT + "/natural-resources/forest-rangeland-stewardship/"
+                                + "fire-emergency-services-administration-major/",
+                        true);
+                final MajorMathRequirement rFESVDD = new MajorMathRequirement("FESV-DD-BS")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mFESVDD, rFESVDD);
+
+                final Major mFRSTFMGZ = new Major(6083, "FRST-FMGZ-BS", Boolean.FALSE,
+                        "Forestry",
+                        MathPlanConstants.CAT + "natural-resources/forest-rangeland-stewardship/",
+                        true);
+                final MajorMathRequirement rFRSTFMGZ = new MajorMathRequirement("FRST-FMGZ-BS")
+                        .setSemesterCourses("M 117!,M 118!", "M 141!", null);
+                map.put(mFRSTFMGZ, rFRSTFMGZ);
+
+                final Major mHDFSDECZ = new Major(9000, "HDFS-DECZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDECZ = new MajorMathRequirement("HDFS-DECZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDECZ, rHDFSDECZ);
+
+                final Major mHDFSDHDZ = new Major(9000, "HDFS-DHDZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDHDZ = new MajorMathRequirement("HDFS-DHDZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDHDZ, rHDFSDHDZ);
+
+                final Major mHDFSDPHZ = new Major(9000, "HDFS-DPHZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDPHZ = new MajorMathRequirement("HDFS-DPHZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDPHZ, rHDFSDPHZ);
+
+                final Major mHDFSDPIZ = new Major(9000, "HDFS-DPIZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDPIZ = new MajorMathRequirement("HDFS-DPIZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDPIZ, rHDFSDPIZ);
+
+                final Major mHDFSDLAZ = new Major(9000, "HDFS-DLAZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDLAZ = new MajorMathRequirement("HDFS-DLAZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDLAZ, rHDFSDLAZ);
+
+                final Major mHDFSDLEZ = new Major(9000, "HDFS-DLEZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSDLEZ = new MajorMathRequirement("HDFS-DLEZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSDLEZ, rHDFSDLEZ);
+
+                final Major mHDFSLPEZ = new Major(9000, "HDFS-LEPZ-BS", Boolean.FALSE,
+                        "Human Development and Family Studies",
+                        MathPlanConstants.CAT + "health-human-sciences/human-development-family-studies/",
+                        true);
+                final MajorMathRequirement rHDFSLPEZ = new MajorMathRequirement("HDFS-LEPZ-BS")
+                        .setSemesterCourses(MathPlanConstants.AUCC3, null, null);
+                map.put(mHDFSLPEZ, rHDFSLPEZ);
+
+                final Major mHORTDHBZ = new Major(9000, "HORT-DHBZ-BS", Boolean.FALSE,
+                        "Horticulture",
+                        MathPlanConstants.CAT + "agricultural-sciences/horticulture-landscape-architecture" +
+                                "/horticulture-major/",
+                        true);
+                final MajorMathRequirement rHORTDHBZ = new MajorMathRequirement("HORT-DHBZ-BS")
+                        .setSemesterCourses("M 117!,M 118,M 124", null, null);
+                map.put(mHORTDHBZ, rHORTDHBZ);
+
+                final Major mILARDD = new Major(9000, "ILAR-DD-BA", Boolean.FALSE,
+                        "Interdisciplinary Liberal Arts",
+                        MathPlanConstants.CAT + "liberal-arts/interdisciplinary-liberal-arts-major/",
+                        true);
+                final MajorMathRequirement rILARDD = new MajorMathRequirement("ILAR-DD-BA")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mILARDD, rILARDD);
+
+                final Major mJAMCDD = new Major(9000, "JAMC-DD-BA", Boolean.FALSE,
+                        "Journalism and Media Communication",
+                        MathPlanConstants.CAT + "liberal-arts/journalism-media-communication/media-major/",
+                        true);
+                final MajorMathRequirement rJAMCDD = new MajorMathRequirement("JAMC-DD-BA")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mJAMCDD, rJAMCDD);
+
+                final Major mMICR = new Major(9000, "MICR-BS", Boolean.FALSE,
+                        "Biomedical Sciences",
+                        "Microbiology and Infectious Disease",
+                        MathPlanConstants.CAT + "veterinary-medicine-biomedical-sciences/microbiology-immunology" +
+                                "-pathology/",
+                        true);
+                final MajorMathRequirement rMICR =
+                        new MajorMathRequirement("MICR-BS")
+                                .setSemesterCourses(MathPlanConstants.BIOM1, MathPlanConstants.BIOM3, null);
+                map.put(mMICR, rMICR);
+
+                final Major mMUS0 = new Major(9000, "MUS0", Boolean.FALSE,
+                        "Pre-Music",
+                        MathPlanConstants.CAT + "liberal-arts/music-theatre-dance/",
+                        true);
+                final MajorMathRequirement rMUS0 = new MajorMathRequirement("MUS0")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mMUS0, rMUS0);
+
+                final Major mNAFSFSNZ = new Major(9000, "NAFS-FSNZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSFSNZ = new MajorMathRequirement("NAFS-FSNZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSFSNZ, rNAFSFSNZ);
+
+                final Major mNAFSFSYZ = new Major(9000, "NAFS-FSYZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSFSYZ = new MajorMathRequirement("NAFS-FSYZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSFSYZ, rNAFSFSYZ);
+
+                final Major mNAFSNUSZ = new Major(9000, "NAFS-NUSZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSNUSZ = new MajorMathRequirement("NAFS-NUSZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSNUSZ, rNAFSNUSZ);
+
+                final Major mNAFSDNRZ = new Major(9000, "NAFS-DNRZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSDNRZ = new MajorMathRequirement("NAFS-DNRZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSDNRZ, rNAFSDNRZ);
+
+                final Major mNAFSGLTZ = new Major(9000, "NAFS-GLTZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSGLTZ = new MajorMathRequirement("NAFS-GLTZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSGLTZ, rNAFSGLTZ);
+
+                final Major mNAFSNRTZ = new Major(9000, "NAFS-NRTZ-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSNRTZ = new MajorMathRequirement("NAFS-NRTZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSNRTZ, rNAFSNRTZ);
+
+                final Major mNAFSCPSY = new Major(9000, "NAFS-CPSY-BS", Boolean.FALSE,
+                        "Nutrition and Food Science",
+                        MathPlanConstants.CAT + "health-human-sciences/food-science-human-nutrition/nutrition-food" +
+                                "-science-major/",
+                        true);
+                final MajorMathRequirement rNAFSCPSY = new MajorMathRequirement("NAFS-CPSY-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mNAFSCPSY, rNAFSCPSY);
+
+                final Major mPOLSDD = new Major(9000, "POLS-DD-BA", Boolean.FALSE,
+                        "Political Science",
+                        MathPlanConstants.CAT + "liberal-arts/political-science/political-science-major/",
+                        true);
+                final MajorMathRequirement rPOLSDD = new MajorMathRequirement("POLS-DD-BA")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mPOLSDD, rPOLSDD);
+
+                final Major mPSYCGDSZ = new Major(9000, "PSYC-GDSZ-BS", Boolean.FALSE,
+                        "Psychology",
+                        MathPlanConstants.CAT + "natural-sciences/psychology/",
+                        true);
+                final MajorMathRequirement rPSYCGDSZ = new MajorMathRequirement("PSYC-GDSZ-BS")
+                        .setSemesterCourses("M 117!", "M 118!,M 124!", null);
+                map.put(mPSYCGDSZ, rPSYCGDSZ);
+
+                final Major mSOCIDGSZ = new Major(9000, "SOCI-DGSZ-BA", Boolean.FALSE,
+                        "Sociology",
+                        MathPlanConstants.CAT + "liberal-arts/sociology/",
+                        true);
+                final MajorMathRequirement rSOCIDGSZ = new MajorMathRequirement("SOCI-DGSZ-BA")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mSOCIDGSZ, rSOCIDGSZ);
+
+                final Major mSOCRAPMZ = new Major(9000, "SOCR-APMZ-BS", Boolean.FALSE,
+                        "Soil and Crop Sciences",
+                        MathPlanConstants.CAT + "agricultural-sciences/soil-crop-sciences/soil-crop-sciences-major/",
+                        true);
+                final MajorMathRequirement rSOCRAPMZ = new MajorMathRequirement("SOCR-APMZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mSOCRAPMZ, rSOCRAPMZ);
+
+                final Major mSOCRDSAZ = new Major(9000, "SOCR-DSAZ-BS", Boolean.FALSE,
+                        "Soil and Crop Sciences",
+                        MathPlanConstants.CAT + "agricultural-sciences/soil-crop-sciences/soil-crop-sciences-major/",
+                        true);
+                final MajorMathRequirement rSOCRDSAZ = new MajorMathRequirement("SOCR-DSAZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mSOCRDSAZ, rSOCRDSAZ);
+
+                final Major mSOCRISCZ = new Major(9000, "SOCR-ISCZ-BS", Boolean.FALSE,
+                        "Soil and Crop Sciences",
+                        MathPlanConstants.CAT + "agricultural-sciences/soil-crop-sciences/soil-crop-sciences-major/",
+                        true);
+                final MajorMathRequirement rSOCRISCZ = new MajorMathRequirement("SOCR-ISCZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mSOCRISCZ, rSOCRISCZ);
+
+                final Major mSOCRPBGZ = new Major(9000, "SOCR-PBGZ-BS", Boolean.FALSE,
+                        "Soil and Crop Sciences",
+                        MathPlanConstants.CAT + "agricultural-sciences/soil-crop-sciences/soil-crop-sciences-major/",
+                        true);
+                final MajorMathRequirement rSOCRPBGZ = new MajorMathRequirement("SOCR-PBGZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mSOCRPBGZ, rSOCRPBGZ);
+
+                final Major mSOCRSOEZ = new Major(9000, "SOCR-SOEZ-BS", Boolean.FALSE,
+                        "Soil and Crop Sciences",
+                        MathPlanConstants.CAT + "agricultural-sciences/soil-crop-sciences/soil-crop-sciences-major/",
+                        true);
+                final MajorMathRequirement rSOCRSOEZ = new MajorMathRequirement("SOCR-SOEZ-BS")
+                        .setSemesterCourses("M 117!,M 118!,M 124!", null, null);
+                map.put(mSOCRSOEZ, rSOCRSOEZ);
+
+                final Major mSOWKADSZ2 = new Major(9000, "SOWK-ADSZ-BW", Boolean.FALSE,
+                        "Social Work",
+                        "Addictions Counseling",
+                        MathPlanConstants.CAT + "health-human-sciences/school-of-social-work/"
+                                + "social-work-major/addictions-counseling-concentration/",
+                        true);
+                final MajorMathRequirement rSOWKADSZ2 =
+                        new MajorMathRequirement("SOWK-ADSZ-BW")
+                                .setSemesterCourses("AUCC3!", null, null);
+                map.put(mSOWKADSZ2, rSOWKADSZ2);
+
+                final Major mSPCMTCLZ = new Major(9000, "SPCM-TCLZ-BA", Boolean.FALSE,
+                        "Communication Studies",
+                        MathPlanConstants.CAT + "liberal-arts/communication-studies/",
+                        true);
+                final MajorMathRequirement rSPCMTCLZ = new MajorMathRequirement("SPCM-TCLZ-BA")
+                        .setSemesterCourses(null, "AUCC3!", null);
+                map.put(mSPCMTCLZ, rSPCMTCLZ);
+
+                final Major mTHTRDTHZ = new Major(9000, "THTR-DTHZ-BA", Boolean.FALSE,
+                        "Theatre",
+                        "Design and Technology",
+                        MathPlanConstants.CAT + "liberal-arts/music-theatre-dance/theatre/",
+                        true);
+                final MajorMathRequirement rTHTRDTHZ = new MajorMathRequirement("THTR-DTHZ-BA")
+                        .setSemesterCourses(null, "AUCC3", null);
+                map.put(mTHTRDTHZ, rTHTRDTHZ);
+
+                final Major mTHR0 = new Major(9000, "THR0", Boolean.FALSE,
+                        "Pre-Theatre",
+                        MathPlanConstants.CAT + "liberal-arts/music-theatre-dance/theatre/",
+                        true);
+                final MajorMathRequirement rTHR0 = new MajorMathRequirement("THR0")
+                        .setSemesterCourses(null, "AUCC3", null);
+                map.put(mTHR0, rTHR0);
+
+                final Major mUNLA = new Major(9000, "UNLA", Boolean.FALSE,
+                        "Undeclared - Liberal Arts",
+                        MathPlanConstants.CAT + "liberal-arts/",
+                        true);
+                final MajorMathRequirement rUNLA = new MajorMathRequirement("UNLA")
+                        .setSemesterCourses(null, "AUCC3", null);
+                map.put(mUNLA, rUNLA);
+
+                final Major mUSBS = new Major(9000, "USBS", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Business Interest)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rUSBS = new MajorMathRequirement("USBS")
+                        .setSemesterCourses("M 117,M 118,M 124", null, null);
+                map.put(mUSBS, rUSBS);
+
+                final Major mUSBU = new Major(9000, "USBU", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Business Interest)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rUSBU = new MajorMathRequirement("USBU")
+                        .setSemesterCourses("M 117,M 118,M 124", null, null);
+                map.put(mUSBU, rUSBU);
+
+                final Major mUSCS = new Major(9000, "USCS", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Physical Sciences and Engineering)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rUSCS = new MajorMathRequirement("USCS")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1BIO, null);
+                map.put(mUSCS, rUSCS);
+
+                final Major mUSEG = new Major(9000, "USEG", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Physical Sciences and Engineering)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rUSEG = new MajorMathRequirement("USEG")
+                        .setSemesterCourses("M 124!,M 126!", MathPlanConstants.CALC1BIO, null);
+                map.put(mUSEG, rUSEG);
+
+                final Major mUSJC = new Major(9000, "USJC", Boolean.FALSE,
+                        "Exploratory Studies", // (assuming Journalism and Communication)
+                        MathPlanConstants.CAT2 + "/academic-standards/advising/#Exploratory%20Studies%20Advising",
+                        true);
+                final MajorMathRequirement rUSJC = new MajorMathRequirement("USJC")
+                        .setSemesterCourses("AUCC3.", null, null);
+                map.put(mUSJC, rUSJC);
+
+                final Major mWSSS = new Major(9000, "WSSS-BS", Boolean.FALSE,
+                        "Watershed Science and Sustainability",
+                        MathPlanConstants.CAT + "natural-resources/ecosystem-science-sustainability/"
+                                + "watershed-science-sustainability-major/",
+                        true);
+                final MajorMathRequirement rWSSS = new MajorMathRequirement("WSSS-BS")
+                        .setSemesterCourses("CALC1BIO!", null, null);
+                map.put(mWSSS, rWSSS);
+
+                final Major mWSSSWSDZ = new Major(9000, "WSSS-WSDZ-BS", Boolean.FALSE,
+                        "Watershed Science and Sustainability",
+                        MathPlanConstants.CAT + "natural-resources/ecosystem-science-sustainability/"
+                                + "watershed-science-sustainability-major/",
+                        true);
+                final MajorMathRequirement rWSSSWSDZ = new MajorMathRequirement("WSSS-WSDZ-BS")
+                        .setSemesterCourses("CALC1BIO!", null, null);
+                map.put(mWSSSWSDZ, rWSSSWSDZ);
+
+                final Major mWSSSWSSZ = new Major(9000, "WSSS-WSSZ-BS", Boolean.FALSE,
+                        "Watershed Science and Sustainability",
+                        MathPlanConstants.CAT + "natural-resources/ecosystem-science-sustainability/"
+                                + "watershed-science-sustainability-major/",
+                        true);
+                final MajorMathRequirement rWSSSWSSZ = new MajorMathRequirement("WSSS-WSSZ-BS")
+                        .setSemesterCourses("CALC1BIO!", null, null);
+                map.put(mWSSSWSSZ, rWSSSWSSZ);
+
+                final Major mWSSSWSUZ = new Major(9000, "WSSS-WSUZ-BS", Boolean.FALSE,
+                        "Watershed Science and Sustainability",
+                        MathPlanConstants.CAT + "natural-resources/ecosystem-science-sustainability/"
+                                + "watershed-science-sustainability-major/",
+                        true);
+                final MajorMathRequirement rWSSSWSUZ = new MajorMathRequirement("WSSS-WSUZ-BS")
+                        .setSemesterCourses("CALC1BIO!", null, null);
+                map.put(mWSSSWSUZ, rWSSSWSUZ);
+
                 this.majors = new TreeMap<>(map);
             }
+
+            // Below are not in catalog
+
+//            "IAD0", // Unknown - assume it needs some math...
+//            "EGOP", // Unknown - assume it needs some math...
+//            "CSOR", // Unknown - assume it needs some math...
+//            "N2IE-SI", // Unknown - assume it needs some math...
+//            "GUES-CEUG", // Unknown - assume it needs some math...
+//            "N2EG-ENGX-UG", // Unknown - assume it needs some math...
+
+//            "GRAD-UG", // Unknown - assume it needs some math...
+//            "SPCL-UG", // Unknown - assume it needs some math...
+//            "CTED-UG", // Unknown - assume it needs some math...
+//            "FCST-UG",  // Unknown - assume it needs some math...
+//            "SSAS-UG"  // Unknown - assume it needs some math...
 
             return Collections.unmodifiableMap(this.majors);
         }
@@ -4031,7 +4684,8 @@ public final class MathPlanLogic {
         final MathPlanPlacementStatus result;
 
         if (satisfiedByPlacement) {
-            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.MATH_PLACEMENT_COMPLETED);
+            result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true,
+                    EHowSatisfiedPlacement.MATH_PLACEMENT_COMPLETED);
         } else if (satisfiedByTransfer) {
             result = new MathPlanPlacementStatus(planSaysPlacementNeeded, true, EHowSatisfiedPlacement.TRANSFER_CREDIT);
         } else if (satisfiedByCourse) {
@@ -4046,10 +4700,10 @@ public final class MathPlanLogic {
     /**
      * Deletes all responses for a student for a specific page.
      *
-     * @param cache   the data cache
-     * @param student the student
-     * @param pageId  the page ID
-     * @param now the date/time to consider "now"
+     * @param cache           the data cache
+     * @param student         the student
+     * @param pageId          the page ID
+     * @param now             the date/time to consider "now"
      * @param loginSessionTag the login session tag
      * @return true if successful; false if not
      * @throws SQLException if there is an error accessing the database
@@ -4164,11 +4818,11 @@ public final class MathPlanLogic {
 
                 // Student 823251213 PIDM 10567708
 
-                final String status1 = getMathPlanStatus(cache, 11806361);
-                Log.info("Student 833004236  plan status: " + status1);
+                final String status1 = getMathPlanStatus(cache, 12370959);
+                Log.info("Student 836959005 plan status: " + status1);
 
-                final MathPlanPlacementStatus status2 = getMathPlacementStatus(cache, "837045910");
-                Log.info("Student 833004236  placement status: ");
+                final MathPlanPlacementStatus status2 = getMathPlacementStatus(cache, "836959005");
+                Log.info("Student 836959005 placement status: ");
                 Log.info("    Placement needed:   ", status2.isPlacementNeeded);
                 Log.info("    Placement complete: ", status2.isPlacementComplete);
                 Log.info("    How satisfied:      ", status2.howSatisfied);

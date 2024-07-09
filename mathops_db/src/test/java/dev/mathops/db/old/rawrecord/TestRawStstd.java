@@ -73,23 +73,8 @@ final class TestRawStstd {
         final RawStstd obj = new RawStstd(TEST_STU_ID, TEST_STD_ID, TEST_WHEN_PLACED_OUT,
                 TEST_WHEN_MASTERED, TEST_MASTERED_GROUPS, TEST_COMPLETED_STEPS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStstd obj = RawStstd.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_STD_ID, obj.stdId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_WHEN_PLACED_OUT, obj.whenPlacedOut, "Invalid when_placed_out value after deserialization");
-        assertEquals(TEST_WHEN_MASTERED, obj.whenMastered, "Invalid when_mastered value after deserialization");
-        assertEquals(TEST_MASTERED_GROUPS, obj.masteredGroups, "Invalid mastered_groups value after deserialization");
-        assertEquals(TEST_COMPLETED_STEPS, obj.completedSteps, "Invalid completed_steps value after deserialization");
     }
 }

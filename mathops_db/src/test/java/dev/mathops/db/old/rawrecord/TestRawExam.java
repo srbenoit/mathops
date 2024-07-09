@@ -95,27 +95,8 @@ final class TestRawExam {
                 new RawExam(TEST_VERSION, TEST_COURSE, TEST_UNIT, TEST_VSN_EXPLT, TEST_TITLE,
                         TEST_TREE_REF, TEST_EXAM_TYPE, TEST_ACTIVE_DT, TEST_PULL_DT, TEST_BUTTON_LABEL);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawExam obj = RawExam.parse(EXPECT_SER99);
-
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_VSN_EXPLT, obj.vsnExplt, "Invalid vsn_explt value after deserialization");
-        assertEquals(TEST_TITLE, obj.title, "Invalid title value after deserialization");
-        assertEquals(TEST_TREE_REF, obj.treeRef, "Invalid tree_ref value after deserialization");
-        assertEquals(TEST_EXAM_TYPE, obj.examType, "Invalid exam_type value after deserialization");
-        assertEquals(TEST_ACTIVE_DT, obj.activeDt, "Invalid active_dt value after deserialization");
-        assertEquals(TEST_PULL_DT, obj.pullDt, "Invalid pull_dt value after deserialization");
-        assertEquals(TEST_BUTTON_LABEL, obj.buttonLabel, "Invalid button_label value after deserialization");
     }
 }

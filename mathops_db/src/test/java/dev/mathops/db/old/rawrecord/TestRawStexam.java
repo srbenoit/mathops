@@ -132,34 +132,8 @@ final class TestRawStexam {
                 TEST_TIME_OK, TEST_PASSED, TEST_SEQ_NBR, TEST_COURSE, TEST_UNIT, TEST_EXAM_TYPE,
                 TEST_IS_FIRST_PASSED, TEST_EXAM_SOURCE, TEST_CALC_NBR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStexam obj = RawStexam.parse(EXPECT_SER99);
-
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_EXAM_SCORE, obj.examScore, "Invalid exam_score value after deserialization");
-        assertEquals(TEST_MASTERY_SCORE, obj.masteryScore, "Invalid masery_score value after deserialization");
-        assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
-        assertEquals(TEST_TIME_OK, obj.timeOk, "Invalid time_ok value after deserialization");
-        assertEquals(TEST_PASSED, obj.passed, "Invalid passed value after deserialization");
-        assertEquals(TEST_SEQ_NBR, obj.seqNbr, "Invalid seq_nbr value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_EXAM_TYPE, obj.examType, "Invalid exam_type value after deserialization");
-        assertEquals(TEST_IS_FIRST_PASSED, obj.isFirstPassed, "Invalid is_first_passed value after deserialization");
-        assertEquals(TEST_EXAM_SOURCE, obj.examSource, "Invalid exam_source value after deserialization");
-        assertEquals(TEST_CALC_NBR, obj.calcNbr, "Invalid calc_nbr value after deserialization");
     }
 }

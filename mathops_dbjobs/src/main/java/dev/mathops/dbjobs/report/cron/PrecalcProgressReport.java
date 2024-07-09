@@ -220,6 +220,7 @@ public final class PrecalcProgressReport {
 
             final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track,
                     stu.stuId);
+            stmilestones.sort(null);
 
             // Generate report
 
@@ -255,7 +256,8 @@ public final class PrecalcProgressReport {
                     for (final RawStmilestone test : stmilestones) {
                         if (test.msNbr.intValue() == msnbr && "RE".equals(test.msType)) {
                             due = test.msDate;
-                            break;
+                            // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                            // the later date
                         }
                     }
 
@@ -312,7 +314,8 @@ public final class PrecalcProgressReport {
                 for (final RawStmilestone test : stmilestones) {
                     if (test.msNbr.intValue() == msnbr && "FE".equals(test.msType)) {
                         due = test.msDate;
-                        break;
+                        // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                        // the later date
                     }
                 }
 

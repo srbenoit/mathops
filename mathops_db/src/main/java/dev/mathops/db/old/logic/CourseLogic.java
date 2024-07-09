@@ -86,6 +86,7 @@ public enum CourseLogic {
 
                     final List<RawStmilestone> stmilestones = RawStmilestoneLogic
                             .getStudentMilestones(cache, active.term, stterm.paceTrack, stuId);
+                    stmilestones.sort(null);
 
                     LocalDate unit1 = null;
                     LocalDate unit2 = null;
@@ -115,6 +116,8 @@ public enum CourseLogic {
                             } else if (unit4 != null && test.msNbr.intValue() == pace * 100 + order * 10 + 4) {
                                 unit4 = test.msDate;
                             }
+                            // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                            // the later date
                         }
                     }
 
@@ -284,6 +287,7 @@ public enum CourseLogic {
         final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, reg.termKey, pace, track);
         final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, reg.termKey,
                 track, reg.stuId);
+        stmilestones.sort(null);
 
         int index = 1;
         if (reg.paceOrder == null) {
@@ -314,7 +318,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re1 = stms.msDate;
-                                break;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (unit == 2) {
@@ -322,7 +327,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re2 = stms.msDate;
-                                break;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (unit == 3) {
@@ -330,7 +336,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re3 = stms.msDate;
-                                break;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (unit == 4) {
@@ -338,7 +345,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re4 = stms.msDate;
-                                break;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     }
@@ -349,7 +357,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("FE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 fe = stms.msDate;
-                                break;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     }

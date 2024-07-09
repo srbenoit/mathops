@@ -49,19 +49,8 @@ final class TestRawEtextCourse {
 
         final RawEtextCourse obj = new RawEtextCourse(TEST_ETEXT_ID, TEST_COURSE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawEtextCourse obj = RawEtextCourse.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ETEXT_ID, obj.etextId, "Invalid etext_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
     }
 }

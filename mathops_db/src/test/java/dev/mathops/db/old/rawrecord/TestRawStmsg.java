@@ -78,24 +78,8 @@ final class TestRawStmsg {
         final RawStmsg obj = new RawStmsg(TEST_STU_ID, TEST_MSG_DT, TEST_PACE, TEST_COURSE_INDEX,
                 TEST_TOUCH_POINT, TEST_MSG_CODE, TEST_SENDER);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStmsg obj = RawStmsg.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_MSG_DT, obj.msgDt, "Invalid msg_dt value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_COURSE_INDEX, obj.courseIndex, "Invalid course_index value after deserialization");
-        assertEquals(TEST_TOUCH_POINT, obj.touchPoint, "Invalid touch_point value after deserialization");
-        assertEquals(TEST_MSG_CODE, obj.msgCode, "Invalid msg_code value after deserialization");
-        assertEquals(TEST_SENDER, obj.sender, "Invalid sender value after deserialization");
     }
 }

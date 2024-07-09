@@ -79,25 +79,8 @@ final class TestStudentUnitMasteryRec {
         final StudentUnitMasteryRec obj = new StudentUnitMasteryRec(TEST_STU_ID, TEST_COURSE_ID,
                 TEST_UNIT, TEST_SCORE, TEST_SR_STATUS, TEST_S1_STATUS, TEST_S2_STATUS, TEST_S3_STATUS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** A test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final StudentUnitMasteryRec obj = StudentUnitMasteryRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE_ID, obj.courseId, "Invalid course_id value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_SCORE, obj.score, "Invalid score value after deserialization");
-        assertEquals(TEST_SR_STATUS, obj.srStatus, "Invalid sr_status value after deserialization");
-        assertEquals(TEST_S1_STATUS, obj.s1Status, "Invalid s1_status value after deserialization");
-        assertEquals(TEST_S2_STATUS, obj.s2Status, "Invalid s2_status value after deserialization");
-        assertEquals(TEST_S3_STATUS, obj.s3Status, "Invalid s3_status value after deserialization");
     }
 }

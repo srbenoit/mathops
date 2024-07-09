@@ -826,6 +826,8 @@ public enum EPF {
             for (final RawStmilestone sms : stmilestones) {
                 if (sms.msType.equals(type) && sms.msNbr.intValue() == number) {
                     due = sms.msDate;
+                    // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                    // the later date
                 }
             }
         }

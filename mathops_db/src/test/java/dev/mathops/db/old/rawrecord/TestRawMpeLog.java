@@ -95,27 +95,8 @@ final class TestRawMpeLog {
                 new RawMpeLog(TEST_STU_ID, TEST_ACADEMIC_YR, TEST_COURSE, TEST_VERSION, TEST_START_DT,
                         TEST_EXAM_DT, TEST_RECOVER_DT, TEST_SERIAL_NBR, TEST_START_TIME, TEST_CALC_NBR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawMpeLog obj = RawMpeLog.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_ACADEMIC_YR, obj.academicYr, "Invalid academic_yr value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_RECOVER_DT, obj.recoverDt, "Invalid recover_dt value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after deserialization");
-        assertEquals(TEST_CALC_NBR, obj.calcNbr, "Invalid calc_nbr value after deserialization");
     }
 }

@@ -73,23 +73,8 @@ final class TestRawStsurveyqa {
         final RawStsurveyqa obj = new RawStsurveyqa(TEST_STU_ID, TEST_VERSION, TEST_EXAM_DT,
                 TEST_SURVEY_NBR, TEST_STU_ANSWER, TEST_FINISH_TIME);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStsurveyqa obj = RawStsurveyqa.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_SURVEY_NBR, obj.surveyNbr, "Invalid survey_nbr value after deserialization");
-        assertEquals(TEST_STU_ANSWER, obj.stuAnswer, "Invalid stu_answer value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
     }
 }

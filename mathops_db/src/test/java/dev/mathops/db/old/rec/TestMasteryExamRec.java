@@ -92,27 +92,8 @@ final class TestMasteryExamRec {
         final MasteryExamRec obj = new MasteryExamRec(TEST_EXAM_ID, TEST_EXAM_TYPE, TEST_COURSE_ID, TEST_UNIT,
                 TEST_OBJECTIVE, TEST_TREE_REF, TEST_TITLE, TEST_BUTTON_LABEL, TEST_WHEN_ACTIVE, TEST_WHEN_PULLED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final MasteryExamRec obj = MasteryExamRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_EXAM_ID, obj.examId, "Invalid exam_id value after deserialization");
-        assertEquals(TEST_EXAM_TYPE, obj.examType, "Invalid exam_type value after deserialization");
-        assertEquals(TEST_COURSE_ID, obj.courseId, "Invalid course_id value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_TREE_REF, obj.treeRef, "Invalid tree_ref value after deserialization");
-        assertEquals(TEST_TITLE, obj.title, "Invalid title value after deserialization");
-        assertEquals(TEST_BUTTON_LABEL, obj.buttonLabel, "Invalid button_label value after deserialization");
-        assertEquals(TEST_WHEN_ACTIVE, obj.whenActive, "Invalid when_active value after deserialization");
-        assertEquals(TEST_WHEN_PULLED, obj.whenPulled, "Invalid when_pulled value after deserialization");
     }
 }

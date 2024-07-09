@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for the {@code RawCohort} class.
@@ -74,21 +73,9 @@ final class TestRawCohort {
 
         final RawCohort obj = new RawCohort(TEST_COHORT, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawCohort obj = RawCohort.parse(EXPECT_SER1);
-
-        assertEquals(TEST_COHORT, obj.cohort, "Invalid cohort value after deserialization");
-        assertNull(obj.size, "Invalid size value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
     }
 
     /** Test case. */
@@ -98,21 +85,9 @@ final class TestRawCohort {
 
         final RawCohort obj = new RawCohort(null, TEST_SIZE, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawCohort obj = RawCohort.parse(EXPECT_SER2);
-
-        assertNull(obj.cohort, "Invalid cohort value after deserialization");
-        assertEquals(TEST_SIZE, obj.size, "Invalid size value after deserialization");
-        assertNull(obj.instructor, "Invalid instructor value after deserialization");
     }
 
     /** Test case. */
@@ -122,21 +97,9 @@ final class TestRawCohort {
 
         final RawCohort obj = new RawCohort(null, null, TEST_INSTRUCTOR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawCohort obj = RawCohort.parse(EXPECT_SER3);
-
-        assertNull(obj.cohort, "Invalid cohort value after deserialization");
-        assertNull(obj.size, "Invalid size value after deserialization");
-        assertEquals(TEST_INSTRUCTOR, obj.instructor, "Invalid instructor value after deserialization");
     }
 
     /** Test case. */
@@ -146,20 +109,8 @@ final class TestRawCohort {
 
         final RawCohort obj = new RawCohort(TEST_COHORT, TEST_SIZE, TEST_INSTRUCTOR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawCohort obj = RawCohort.parse(EXPECT_SER4);
-
-        assertEquals(TEST_COHORT, obj.cohort, "Invalid cohort value after deserialization");
-        assertEquals(TEST_SIZE, obj.size, "Invalid size value after deserialization");
-        assertEquals(TEST_INSTRUCTOR, obj.instructor, "Invalid instructor value after deserialization");
     }
 }

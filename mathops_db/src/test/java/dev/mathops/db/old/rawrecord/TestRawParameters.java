@@ -100,28 +100,8 @@ final class TestRawParameters {
                 new RawParameters(TEST_PGM_NAME, TEST_PARM1, TEST_PARM2, TEST_PARM3, TEST_PARM4,
                         TEST_PARM5, TEST_PARM6, TEST_PARM7, TEST_PARM8, TEST_PARM9, TEST_PARM10);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawParameters obj = RawParameters.parse(EXPECT_SER99);
-
-        assertEquals(TEST_PGM_NAME, obj.pgmName, "Invalid pgm_name value after deserialization");
-        assertEquals(TEST_PARM1, obj.parm1, "Invalid parm1 value after deserialization");
-        assertEquals(TEST_PARM2, obj.parm2, "Invalid parm2 value after deserialization");
-        assertEquals(TEST_PARM3, obj.parm3, "Invalid parm3 value after deserialization");
-        assertEquals(TEST_PARM4, obj.parm4, "Invalid parm4 value after deserialization");
-        assertEquals(TEST_PARM5, obj.parm5, "Invalid parm5 value after deserialization");
-        assertEquals(TEST_PARM6, obj.parm6, "Invalid parm6 value after deserialization");
-        assertEquals(TEST_PARM7, obj.parm7, "Invalid parm7 value after deserialization");
-        assertEquals(TEST_PARM8, obj.parm8, "Invalid parm8 value after deserialization");
-        assertEquals(TEST_PARM9, obj.parm9, "Invalid parm9 value after deserialization");
-        assertEquals(TEST_PARM10, obj.parm10, "Invalid parm10 value after deserialization");
     }
 }

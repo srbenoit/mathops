@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,14 +48,17 @@ enum PagePlanMajors1 {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final DbProfile dbProfile = site.getDbProfile();
+        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final ZonedDateTime now = session.getNow();
+        final StudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
 
@@ -88,7 +93,8 @@ enum PagePlanMajors1 {
             htm.add("</nav>");
 
             htm.sDiv("folder-content");
-            emitMajorsSelectionForm(htm, data.getMajorProfileResponses(), data, session, logic);
+            final Map<Integer, RawStmathplan> majorProfileResponses = data.getMajorProfileResponses();
+            emitMajorsSelectionForm(htm, majorProfileResponses, data, session, logic);
             htm.eDiv();
 
             htm.eDiv(); // folders
@@ -109,8 +115,7 @@ enum PagePlanMajors1 {
      * @param session      the session
      * @param logic        the site logic
      */
-    private static void emitMajorsSelectionForm(final HtmlBuilder htm,
-                                                final Map<Integer, RawStmathplan> curResponses,
+    private static void emitMajorsSelectionForm(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
                                                 final StudentData data, final ImmutableSessionInfo session,
                                                 final MathPlanLogic logic) {
 
@@ -158,6 +163,7 @@ enum PagePlanMajors1 {
             selectedMajors.add(declaredMajor);
         }
         for (final Major major : allMajors.keySet()) {
+
             final RawStmathplan curResp = curResponses.get(major.questionNumber);
             if (curResp != null && "Y".equals(curResp.stuAnswer)) {
                 selectedMajors.add(major);
@@ -256,6 +262,9 @@ enum PagePlanMajors1 {
 
         boolean foundDeclared = false;
         for (final Major major : majors) {
+            if (major.bogus) {
+                continue;
+            }
 
             // Get just majors (not concentrations) first
             if (major.concentrationName != null) {
@@ -327,6 +336,9 @@ enum PagePlanMajors1 {
             }
 
             for (final Major conc : majors) {
+                if (conc.bogus) {
+                    continue;
+                }
 
                 if (conc.concentrationName != null && major.majorName.equals(conc.majorName)) {
 

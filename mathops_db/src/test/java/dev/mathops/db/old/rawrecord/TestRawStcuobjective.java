@@ -79,25 +79,8 @@ final class TestRawStcuobjective {
         final RawStcuobjective obj = new RawStcuobjective(TEST_STU_ID, TEST_COURSE, TEST_UNIT,
                 TEST_OBJECTIVE, TEST_LECTURE_VIEWED_DT, TEST_SEED, TEST_LAST_COMPONENT_FINISHED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStcuobjective obj = RawStcuobjective.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid version value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid academic_yr value after deserialization");
-        assertEquals(TEST_LECTURE_VIEWED_DT, obj.lectureViewedDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_SEED, obj.seed, "Invalid start_time value after deserialization");
-        assertEquals(TEST_LAST_COMPONENT_FINISHED, obj.lastComponentFinished,
-                "Invalid finish_time value after deserialization");
     }
 }

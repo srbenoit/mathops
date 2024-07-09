@@ -71,23 +71,8 @@ final class TestRawHighSchools {
         final RawHighSchools obj = new RawHighSchools(TEST_HS_CODE, TEST_HS_NAME, TEST_ADDRES_1,
                 TEST_CITY, TEST_STATE, TEST_ZIP_CODE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawHighSchools obj = RawHighSchools.parse(EXPECT_SER99);
-
-        assertEquals(TEST_HS_CODE, obj.hsCode, "Invalid hs_code value after deserialization");
-        assertEquals(TEST_HS_NAME, obj.hsName, "Invalid hs_name value after deserialization");
-        assertEquals(TEST_ADDRES_1, obj.addres1, "Invalid addres_1 value after deserialization");
-        assertEquals(TEST_CITY, obj.city, "Invalid city value after deserialization");
-        assertEquals(TEST_STATE, obj.state, "Invalid state value after deserialization");
-        assertEquals(TEST_ZIP_CODE, obj.zipCode, "Invalid zip_code value after deserialization");
     }
 }

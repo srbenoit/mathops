@@ -62,21 +62,8 @@ final class TestRawMpscorequeue {
         final RawMpscorequeue obj =
                 new RawMpscorequeue(TEST_PIDM, TEST_TEST_CODE, TEST_TEST_DATE, TEST_TEST_SCORE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawMpscorequeue obj = RawMpscorequeue.parse(EXPECT_SER99);
-
-        assertEquals(TEST_PIDM, obj.pidm, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_TEST_CODE, obj.testCode, "Invalid test_code value after deserialization");
-        assertEquals(TEST_TEST_DATE, obj.testDate, "Invalid test_date value after deserialization");
-        assertEquals(TEST_TEST_SCORE, obj.testScore, "Invalid test_score value after deserialization");
     }
 }

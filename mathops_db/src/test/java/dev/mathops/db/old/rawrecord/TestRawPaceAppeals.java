@@ -119,31 +119,8 @@ final class TestRawPaceAppeals {
                         TEST_PACE_TRACK, TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NEW_DEADLINE_DT,
                         TEST_NBR_ATMPTS_ALLOW, TEST_CIRCUMSTANCES, TEST_COMMENT, TEST_INTERVIEWER);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawPaceAppeals obj = RawPaceAppeals.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_APPEAL_DT, obj.appealDt, "Invalid test_code value after deserialization");
-        assertEquals(TEST_RELIEF_GIVEN, obj.reliefGiven, "Invalid test_date value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid test_code value after deserialization");
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid test_date value after deserialization");
-        assertEquals(TEST_MS_NBR, obj.msNbr, "Invalid test_code value after deserialization");
-        assertEquals(TEST_MS_TYPE, obj.msType, "Invalid test_date value after deserialization");
-        assertEquals(TEST_MS_DATE, obj.msDate, "Invalid test_code value after deserialization");
-        assertEquals(TEST_NEW_DEADLINE_DT, obj.newDeadlineDt, "Invalid test_date value after deserialization");
-        assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow, "Invalid test_code value after deserialization");
-        assertEquals(TEST_CIRCUMSTANCES, obj.circumstances, "Invalid test_date value after deserialization");
-        assertEquals(TEST_COMMENT, obj.comment, "Invalid test_code value after deserialization");
-        assertEquals(TEST_INTERVIEWER, obj.interviewer, "Invalid test_date value after deserialization");
     }
 }

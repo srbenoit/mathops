@@ -59,21 +59,8 @@ final class TestRawNewstu {
 
         final RawNewstu obj = new RawNewstu(TEST_STU_ID, TEST_ACAD_LEVEL, TEST_REG_TYPE, TEST_TERM);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawNewstu obj = RawNewstu.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_ACAD_LEVEL, obj.acadLevel, "Invalid test_code value after deserialization");
-        assertEquals(TEST_REG_TYPE, obj.regType, "Invalid test_date value after deserialization");
-        assertEquals(TEST_TERM, obj.term, "Invalid test_score value after deserialization");
     }
 }

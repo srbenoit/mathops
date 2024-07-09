@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 
@@ -109,23 +108,9 @@ final class TestRawCalcs {
 
         final RawCalcs obj = new RawCalcs(TEST_STU_ID, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER1);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertNull(obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertNull(obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
     }
 
     /** Test case. */
@@ -135,23 +120,9 @@ final class TestRawCalcs {
 
         final RawCalcs obj = new RawCalcs(null, TEST_ISSUED_NBR, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER2);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_ISSUED_NBR, obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertNull(obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertNull(obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
     }
 
     /** Test case. */
@@ -161,23 +132,9 @@ final class TestRawCalcs {
 
         final RawCalcs obj = new RawCalcs(null, null, TEST_RETURN_NBR, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER3);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertEquals(TEST_RETURN_NBR, obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertNull(obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
     }
 
     /** Test case. */
@@ -187,23 +144,9 @@ final class TestRawCalcs {
 
         final RawCalcs obj = new RawCalcs(null, null, null, TEST_SERIAL_NBR, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER4);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertNull(obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
     }
 
     /** Test case. */
@@ -213,23 +156,9 @@ final class TestRawCalcs {
 
         final RawCalcs obj = new RawCalcs(null, null, null, null, TEST_EXAM_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER5);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertNull(obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertNull(obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
     }
 
     /** Test case. */
@@ -240,22 +169,8 @@ final class TestRawCalcs {
         final RawCalcs obj = new RawCalcs(TEST_STU_ID, TEST_ISSUED_NBR, TEST_RETURN_NBR,
                 TEST_SERIAL_NBR, TEST_EXAM_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawCalcs obj = RawCalcs.parse(EXPECT_SER6);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_ISSUED_NBR, obj.issuedNbr, "Invalid issued_nbr value after deserialization");
-        assertEquals(TEST_RETURN_NBR, obj.returnNbr, "Invalid return_nbr value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
     }
 }

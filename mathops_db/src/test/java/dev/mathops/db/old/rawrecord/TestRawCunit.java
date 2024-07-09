@@ -90,26 +90,8 @@ final class TestRawCunit {
                 new RawCunit(TEST_TERM, TEST_COURSE, TEST_UNIT, TEST_UNIT_EXAM_WGT, TEST_UNIT_DESC,
                         TEST_UNIT_TIMELIMIT, TEST_POSSIBLE_SCORE, TEST_NBR_QUESTIONS, TEST_UNIT_TYPE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawCunit obj = RawCunit.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_UNIT_EXAM_WGT, obj.unitExamWgt, "Invalid unit_exam_wgt value after deserialization");
-        assertEquals(TEST_UNIT_DESC, obj.unitDesc, "Invalid unit_desc value after deserialization");
-        assertEquals(TEST_UNIT_TIMELIMIT, obj.unitTimelimit, "Invalid unit_timelimit value after deserialization");
-        assertEquals(TEST_POSSIBLE_SCORE, obj.possibleScore, "Invalid possible_score value after deserialization");
-        assertEquals(TEST_NBR_QUESTIONS, obj.nbrQuestions, "Invalid nbr_questions value after deserialization");
-        assertEquals(TEST_UNIT_TYPE, obj.unitType, "Invalid unit_type value after deserialization");
     }
 }

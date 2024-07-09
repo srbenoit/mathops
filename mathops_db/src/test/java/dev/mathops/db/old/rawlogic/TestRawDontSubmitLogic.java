@@ -143,7 +143,7 @@ final class TestRawDontSubmitLogic {
                             && "003".equals(test.sect)) {
                         found3 = true;
                     } else {
-                        Log.warning("Unexpected dont_submit: ", test.serializedString());
+                        Log.warning("Unexpected dont_submit: ", test);
                     }
                 }
 

@@ -86,26 +86,8 @@ final class TestRawStetext {
                 new RawStetext(TEST_STU_ID, TEST_ETEXT_ID, TEST_ACTIVE_DT, TEST_ETEXT_KEY,
                         TEST_EXPIRATION_DT, TEST_REFUND_DEADLINE_DT, TEST_REFUND_DT, TEST_REFUND_REASON);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStetext obj = RawStetext.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_ETEXT_ID, obj.etextId, "Invalid etext_id value after deserialization");
-        assertEquals(TEST_ACTIVE_DT, obj.activeDt, "Invalid active_dt value after deserialization");
-        assertEquals(TEST_ETEXT_KEY, obj.etextKey, "Invalid etext_key value after deserialization");
-        assertEquals(TEST_EXPIRATION_DT, obj.expirationDt, "Invalid expiration_dt value after deserialization");
-        assertEquals(TEST_REFUND_DEADLINE_DT, obj.refundDeadlineDt,
-                "Invalid refund_deadline_dt value after deserialization");
-        assertEquals(TEST_REFUND_DT, obj.refundDt, "Invalid refund_dt value after deserialization");
-        assertEquals(TEST_REFUND_REASON, obj.refundReason, "Invalid refund_reason value after deserialization");
     }
 }

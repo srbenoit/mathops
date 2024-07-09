@@ -385,6 +385,7 @@ final class UrgencyHistoryAnalysis {
         final List<RawStexam> stexams = RawStexamLogic.queryByStudent(this.cache, stuId, true);
         final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(this.cache,
                 this.active.term, stuId);
+        stmilestones.sort(null);
 
         final int maxWeek = this.active.term.name == ETermName.SUMMER ? 12 : 15;
         final StudentReportRow studentRow = new StudentReportRow(stuId, maxWeek * 5);
@@ -679,7 +680,8 @@ final class UrgencyHistoryAnalysis {
                 if (test.paceTrack.equals(track) && test.msNbr.intValue() == msNbr
                         && "RE".equals(test.msType) && test.msDate.isAfter(result)) {
                     result = test.msDate;
-                    break;
+                    // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                    // the later date
                 }
             }
         }

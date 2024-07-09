@@ -80,24 +80,8 @@ final class TestRawMilestone {
         final RawMilestone obj = new RawMilestone(TEST_TERM, TEST_PACE, TEST_PACE_TRACK,
                 TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawMilestone obj = RawMilestone.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid pace_track value after deserialization");
-        assertEquals(TEST_MS_NBR, obj.msNbr, "Invalid ms_nbr value after deserialization");
-        assertEquals(TEST_MS_TYPE, obj.msType, "Invalid ms_type value after deserialization");
-        assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after deserialization");
-        assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow, "Invalid nbr_atmps_allow value after deserialization");
     }
 }

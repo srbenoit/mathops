@@ -108,31 +108,8 @@ final class TestRawLogins {
                         TEST_SERVER_KEY, TEST_DTIME_CREATED, TEST_DTIME_EXPIRES, TEST_DTIME_LAST_LOGIN,
                         TEST_FORCE_PW_CHANGE, TEST_EMAIL, TEST_SALT, TEST_NBR_INVALID_ATMPTS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawLogins obj = RawLogins.parse(EXPECT_SER99);
-
-        assertEquals(TEST_USER_ID, obj.userId, "Invalid user_id value after deserialization");
-        assertEquals(TEST_USER_TYPE, obj.userType, "Invalid user_type value after deserialization");
-        assertEquals(TEST_USER_NAME, obj.userName, "Invalid user_name value after deserialization");
-        assertEquals(TEST_STORED_KEY, obj.storedKey, "Invalid stored_key value after deserialization");
-        assertEquals(TEST_SERVER_KEY, obj.serverKey, "Invalid server_key value after deserialization");
-        assertEquals(TEST_DTIME_CREATED, obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertEquals(TEST_DTIME_EXPIRES, obj.dtimeExpires, "Invalid dtime_expires value after deserialization");
-        assertEquals(TEST_DTIME_LAST_LOGIN, obj.dtimeLastLogin,
-                "Invalid dtime_last_login value after deserialization");
-        assertEquals(TEST_FORCE_PW_CHANGE, obj.forcePwChange, "Invalid force_pw_change value after deserialization");
-        assertEquals(TEST_EMAIL, obj.email, "Invalid email value after deserialization");
-        assertEquals(TEST_SALT, obj.salt, "Invalid salt value after deserialization");
-        assertEquals(TEST_NBR_INVALID_ATMPTS, obj.nbrInvalidAtmpts,
-                "Invalid nbr_invalid_atmpts value after deserialization");
     }
 }

@@ -76,24 +76,8 @@ final class TestRawEtext {
         final RawEtext obj = new RawEtext(TEST_ETEXT_ID, TEST_RETENTION, TEST_PURCHASE_URL,
                 TEST_REFUND_PERIOD, TEST_KEY_ENTRY, TEST_ACTIVE, TEST_BUTTON_LABEL);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawEtext obj = RawEtext.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ETEXT_ID, obj.etextId, "Invalid etext_id value after deserialization");
-        assertEquals(TEST_RETENTION, obj.retention, "Invalid retention value after deserialization");
-        assertEquals(TEST_PURCHASE_URL, obj.purchaseUrl, "Invalid purchase_url value after deserialization");
-        assertEquals(TEST_REFUND_PERIOD, obj.refundPeriod, "Invalid refund_period value after deserialization");
-        assertEquals(TEST_KEY_ENTRY, obj.keyEntry, "Invalid key_entry value after deserialization");
-        assertEquals(TEST_ACTIVE, obj.active, "Invalid active value after deserialization");
-        assertEquals(TEST_BUTTON_LABEL, obj.buttonLabel, "Invalid button_label value after deserialization");
     }
 }

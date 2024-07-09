@@ -479,6 +479,8 @@ public class EffectiveMilestones {
                 if (stuMsRow.msType.equals(RawMilestone.FINAL_LAST_TRY)
                         && stuMsRow.msNbr.intValue() == unit5 && stuMsRow.nbrAtmptsAllow != null) {
                     tries = stuMsRow.nbrAtmptsAllow;
+                    // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                    // the later date
                 }
             }
         }
@@ -511,6 +513,8 @@ public class EffectiveMilestones {
             for (final RawStmilestone sms : stmilestones) {
                 if (sms.msType.equals(type) && sms.msNbr.intValue() == number) {
                     due = sms.msDate;
+                    // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                    // the later date
                 }
             }
         }

@@ -197,48 +197,8 @@ final class TestRawFinalCroll {
                 TEST_BYPASS_TIMEOUT, TEST_INSTRN_TYPE, TEST_REGISTRATION_STATUS,
                 TEST_LAST_CLASS_ROLL_DT, TEST_I_TERM, TEST_I_DEADLINE_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawFinalCroll obj = RawFinalCroll.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_PACE_ORDER, obj.paceOrder, "Invalid pace_order value after deserialization");
-        assertEquals(TEST_OPEN_STATUS, obj.openStatus, "Invalid open_status value after deserialization");
-        assertEquals(TEST_GRADING_OPTION, obj.gradingOption, "Invalid grading_option value after deserialization");
-        assertEquals(TEST_COMPLETED, obj.completed, "Invalid completed value after deserialization");
-        assertEquals(TEST_SCORE, obj.score, "Invalid score value after deserialization");
-        assertEquals(TEST_COURSE_GRADE, obj.courseGrade, "Invalid course_grade value after deserialization");
-        assertEquals(TEST_PREREQ_SATIS, obj.prereqSatis, "Invalid prereq_satis value after deserialization");
-        assertEquals(TEST_INIT_CLASS_ROLL, obj.initClassRoll, "Invalid init_class_roll value after deserialization");
-        assertEquals(TEST_STU_PROVIDED, obj.stuProvided, "Invalid stu_provided value after deserialization");
-        assertEquals(TEST_FINAL_CLASS_ROLL, obj.finalClassRoll, "Invalid final_class_roll value after " +
-                "deserialization");
-        assertEquals(TEST_EXAM_PLACED, obj.examPlaced, "Invalid exam_placed value after deserialization");
-        assertEquals(TEST_ZERO_UNIT, obj.zeroUnit, "Invalid zero_unit value after deserialization");
-        assertEquals(TEST_TIMEOUT_FACTOR, obj.timeoutFactor, "Invalid timeout_factor value after deserialization");
-        assertEquals(TEST_FORFEIT_I, obj.forfeitI, "Invalid forfeit_i value after deserialization");
-        assertEquals(TEST_I_IN_PROGRESS, obj.iInProgress, "Invalid i_in_progress value after deserialization");
-        assertEquals(TEST_I_COUNTED, obj.iCounted, "Invalid i_counted value after deserialization");
-        assertEquals(TEST_CTRL_TEST, obj.ctrlTest, "Invalid ctrl_test value after deserialization");
-        assertEquals(TEST_DEFERRED_F_DT, obj.deferredFDt, "Invalid deferred_f_dt value after deserialization");
-        assertEquals(TEST_BYPASS_TIMEOUT, obj.bypassTimeout, "Invalid bypass_timeout value after deserialization");
-        assertEquals(TEST_INSTRN_TYPE, obj.instrnType, "Invalid instrn_type value after deserialization");
-        assertEquals(TEST_REGISTRATION_STATUS, obj.registrationStatus,
-                "Invalid registration_status value after deserialization");
-        assertEquals(TEST_LAST_CLASS_ROLL_DT, obj.lastClassRollDt,
-                "Invalid last_class_roll_dt value after deserialization");
-        assertEquals(TEST_I_TERM, obj.iTermKey, "Invalid i_term value after deserialization");
-        assertEquals(TEST_I_DEADLINE_DT, obj.iDeadlineDt, "Invalid i_deadline_dt value after deserialization");
     }
 }

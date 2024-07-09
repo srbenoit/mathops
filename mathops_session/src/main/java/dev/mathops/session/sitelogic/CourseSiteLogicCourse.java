@@ -438,6 +438,7 @@ public final class CourseSiteLogicCourse {
             final TermRec regTerm = this.data.registrationData.getRegistrationTerm(stcourse.course, stcourse.sect);
             final List<RawMilestone> allMilestones = this.data.milestoneData.getMilestones(regTerm.term);
             final List<RawStmilestone> stuMilestones = this.data.milestoneData.getStudentMilestones(regTerm.term);
+            stuMilestones.sort(null);
 
             final SiteDataCfgCourse cfg = courseData.getCourse(stcourse.course, stcourse.sect);
             if (cfg == null) {
@@ -484,6 +485,8 @@ public final class CourseSiteLogicCourse {
                         for (final RawStmilestone stuMs : stuMilestones) {
                             if (stuMs.msNbr.equals(msRec.msNbr) && stuMs.msType.equals(msRec.msType)) {
                                 paceDeadlineDay = stuMs.msDate;
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if ("F1".equals(msType)) {
@@ -498,6 +501,8 @@ public final class CourseSiteLogicCourse {
                             if (stuMs.msNbr.equals(msRec.msNbr) && stuMs.msType.equals(msRec.msType)) {
                                 lastTryDeadlineDay = stuMs.msDate;
                                 lastTryAttempts = stuMs.nbrAtmptsAllow == null ? 1 : stuMs.nbrAtmptsAllow.intValue();
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     }

@@ -90,26 +90,8 @@ final class TestRawStresource {
                 new RawStresource(TEST_STU_ID, TEST_RESOURCE_ID, TEST_LOAN_DT, TEST_START_TIME,
                         TEST_DUE_DT, TEST_RETURN_DT, TEST_FINISH_TIME, TEST_TIMES_DISPLAY, TEST_CREATE_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStresource obj = RawStresource.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_RESOURCE_ID, obj.resourceId, "Invalid resource_id value after deserialization");
-        assertEquals(TEST_LOAN_DT, obj.loanDt, "Invalid loan_dt value after deserialization");
-        assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after deserialization");
-        assertEquals(TEST_DUE_DT, obj.dueDt, "Invalid due_dt value after deserialization");
-        assertEquals(TEST_RETURN_DT, obj.returnDt, "Invalid return_dt value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
-        assertEquals(TEST_TIMES_DISPLAY, obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertEquals(TEST_CREATE_DT, obj.createDt, "Invalid create_dt value after deserialization");
     }
 }

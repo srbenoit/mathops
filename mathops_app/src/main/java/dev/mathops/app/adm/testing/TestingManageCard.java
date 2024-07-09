@@ -51,6 +51,12 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
     /** An action command. */
     private static final String REFRESH = "REFRESH";
 
+    /** A common string. */
+    private static final String USERNAME = "sbenoit";
+
+    /** A common string. */
+    private static final String AUTH = "thinflation";
+
     /** The data cache. */
     private final Cache cache;
 
@@ -158,8 +164,10 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         final byte[] buffer = new byte[1024];
 
-        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        final String handshakeError = stub.handshake(USERNAME, AUTH);
         if (handshakeError == null) {
+            final String token = stub.getToken();
+
             try {
                 final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
 
@@ -182,7 +190,7 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
 
                         try {
                             final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
-                                    + stub.getToken() + "&computer-id=" + station.computerId);
+                                    + token + "&computer-id=" + station.computerId);
                             final URL url = uri.toURL();
 
                             final URLConnection conn = url.openConnection();
@@ -214,7 +222,7 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
                     }
 
                     try {
-                        Thread.sleep(200L);
+                        Thread.sleep(100L);
                     } catch (final InterruptedException ex) {
                         Log.warning(ex);
                         Thread.currentThread().interrupt();
@@ -239,9 +247,11 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         final byte[] buffer = new byte[1024];
 
-        final String handshakeError = stub.handshake("sbenoit", "thinflation");
+        final String handshakeError = stub.handshake(USERNAME, AUTH);
         if (handshakeError == null) {
             try {
+                final String token = stub.getToken();
+
                 final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
 
                 for (final RawClientPc station : stations) {
@@ -252,7 +262,7 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
 
                             try {
                                 final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
-                                        + stub.getToken() + "&computer-id=" + station.computerId);
+                                        + token + "&computer-id=" + station.computerId);
                                 final URL url = uri.toURL();
 
                                 final URLConnection conn = url.openConnection();

@@ -73,23 +73,8 @@ final class TestRawGradeRoll {
         final RawGradeRoll obj = new RawGradeRoll(TEST_TERM, TEST_STU_ID, TEST_COURSE, TEST_SECT,
                 TEST_FULLNAME, TEST_GRADE_OPT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawGradeRoll obj = RawGradeRoll.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term_key value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_FULLNAME, obj.fullname, "Invalid fullname value after deserialization");
-        assertEquals(TEST_GRADE_OPT, obj.gradeOpt, "Invalid grade_opt value after deserialization");
     }
 }

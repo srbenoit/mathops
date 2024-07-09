@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for the {@code RawCourse} class.
@@ -197,27 +196,9 @@ final class TestRawCourse {
         final RawCourse obj =
                 new RawCourse(TEST_COURSE, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER1);
-
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -228,27 +209,9 @@ final class TestRawCourse {
         final RawCourse obj =
                 new RawCourse(null, TEST_NBR_UNITS, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER2);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_NBR_UNITS, obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -258,27 +221,9 @@ final class TestRawCourse {
 
         final RawCourse obj = new RawCourse(null, null, TEST_COURSE_NAME, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER3);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertEquals(TEST_COURSE_NAME, obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -288,27 +233,9 @@ final class TestRawCourse {
 
         final RawCourse obj = new RawCourse(null, null, null, TEST_NBR_CREDIT, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER4);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertEquals(TEST_NBR_CREDIT, obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -319,27 +246,9 @@ final class TestRawCourse {
         final RawCourse obj =
                 new RawCourse(null, null, null, null, TEST_CALC_OK, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER5);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertEquals(TEST_CALC_OK, obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -350,27 +259,9 @@ final class TestRawCourse {
         final RawCourse obj =
                 new RawCourse(null, null, null, null, null, TEST_COURSE_LABEL, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER6);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertEquals(TEST_COURSE_LABEL, obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -380,27 +271,9 @@ final class TestRawCourse {
 
         final RawCourse obj = new RawCourse(null, null, null, null, null, null, TEST_INLINE_PREFIX, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER7, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0015() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER7);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertEquals(TEST_INLINE_PREFIX, obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -410,27 +283,9 @@ final class TestRawCourse {
 
         final RawCourse obj = new RawCourse(null, null, null, null, null, null, null, TEST_IS_TUTORIAL, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER8, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0017() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER8);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertEquals(TEST_IS_TUTORIAL, obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertNull(obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -440,27 +295,9 @@ final class TestRawCourse {
 
         final RawCourse obj = new RawCourse(null, null, null, null, null, null, null, null, TEST_REQUIRE_ETEXT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER9, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0019() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER9);
-
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertNull(obj.courseName, "Invalid course_name value after deserialization");
-        assertNull(obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertNull(obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertNull(obj.courseLabel, "Invalid course_label value after deserialization");
-        assertNull(obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertNull(obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertEquals(TEST_REQUIRE_ETEXT, obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 
     /** Test case. */
@@ -472,26 +309,8 @@ final class TestRawCourse {
                 TEST_NBR_CREDIT, TEST_CALC_OK, TEST_COURSE_LABEL, TEST_INLINE_PREFIX, TEST_IS_TUTORIAL,
                 TEST_REQUIRE_ETEXT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER10, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0021() {
-
-        final RawCourse obj = RawCourse.parse(EXPECT_SER10);
-
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_NBR_UNITS, obj.nbrUnits, "Invalid nbr_units value after deserialization");
-        assertEquals(TEST_COURSE_NAME, obj.courseName, "Invalid course_name value after deserialization");
-        assertEquals(TEST_NBR_CREDIT, obj.nbrCredits, "Invalid nbr_credits value after deserialization");
-        assertEquals(TEST_CALC_OK, obj.calcOk, "Invalid calc_ok value after deserialization");
-        assertEquals(TEST_COURSE_LABEL, obj.courseLabel, "Invalid course_label value after deserialization");
-        assertEquals(TEST_INLINE_PREFIX, obj.inlinePrefix, "Invalid inline_prefix value after deserialization");
-        assertEquals(TEST_IS_TUTORIAL, obj.isTutorial, "Invalid is_tutorial value after deserialization");
-        assertEquals(TEST_REQUIRE_ETEXT, obj.requireEtext, "Invalid require_etext value after deserialization");
     }
 }

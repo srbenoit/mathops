@@ -80,24 +80,8 @@ final class TestRawCuobjective {
         final RawCuobjective obj = new RawCuobjective(TEST_TERM, TEST_COURSE, TEST_UNIT,
                 TEST_OBJECTIVE, TEST_LESSON_ID, TEST_LESSON_NBR, TEST_START_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawCuobjective obj = RawCuobjective.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_LESSON_ID, obj.lessonId, "Invalid lesson_id value after deserialization");
-        assertEquals(TEST_LESSON_NBR, obj.lessonNbr, "Invalid lesson_nbr value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after deserialization");
     }
 }

@@ -66,22 +66,8 @@ final class TestRawHoldType {
         final RawHoldType obj = new RawHoldType(TEST_HOLD_ID, TEST_SEV_ADMIN_HOLD, TEST_HOLD_TYPE,
                 TEST_ADD_HOLD, TEST_DELETE_HOLD);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawHoldType obj = RawHoldType.parse(EXPECT_SER99);
-
-        assertEquals(TEST_HOLD_ID, obj.holdId, "Invalid hold_id value after deserialization");
-        assertEquals(TEST_SEV_ADMIN_HOLD, obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertEquals(TEST_HOLD_TYPE, obj.holdType, "Invalid hold_type value after deserialization");
-        assertEquals(TEST_ADD_HOLD, obj.addHold, "Invalid add_hold value after deserialization");
-        assertEquals(TEST_DELETE_HOLD, obj.deleteHold, "Invalid delete_hold value after deserialization");
     }
 }

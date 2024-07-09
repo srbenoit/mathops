@@ -548,6 +548,8 @@ public final class SiteDataStatus {
         for (final RawStmilestone stms : stmilestones) {
             if (stms.paceTrack.equals(milestone.paceTrack) && stms.msNbr.equals(number) && stms.msType.equals(type)) {
                 date = stms.msDate;
+                // Don't break - student milestones are sorted by due date, and if there are multiple matching rows,
+                // we want the latest date
             }
         }
 
@@ -573,7 +575,8 @@ public final class SiteDataStatus {
         for (final RawStmilestone stms : stmilestones) {
             if (stms.paceTrack.equals(milestone.paceTrack) && stms.msNbr.equals(number) && stms.msType.equals(type)) {
                 attempts = stms.nbrAtmptsAllow;
-                break;
+                // Don't break - student milestones are sorted by due date, and if there are multiple matching rows,
+                // we want the latest date
             }
         }
 

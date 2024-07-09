@@ -64,21 +64,8 @@ final class TestRawSemesterCalendar {
 
         final RawSemesterCalendar obj = new RawSemesterCalendar(TEST_TERM, TEST_WEEK_NBR, TEST_START_DT, TEST_END_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawSemesterCalendar obj = RawSemesterCalendar.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_WEEK_NBR, obj.weekNbr, "Invalid apln_term value after deserialization");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid course value after deserialization");
-        assertEquals(TEST_END_DT, obj.endDt, "Invalid start_dt value after deserialization");
     }
 }

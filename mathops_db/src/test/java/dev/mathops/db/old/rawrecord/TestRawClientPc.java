@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDateTime;
 
@@ -516,36 +515,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(TEST_COMPUTER_ID, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER1);
-
-        assertEquals(TEST_COMPUTER_ID, obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -556,37 +528,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, TEST_TESTING_CENTER_ID, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER2);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertEquals(TEST_TESTING_CENTER_ID, obj.testingCenterId,
-                "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -597,36 +541,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, TEST_STATION_NBR, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER3);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertEquals(TEST_STATION_NBR, obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -637,36 +554,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, TEST_COMPUTER_DESC, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER4);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertEquals(TEST_COMPUTER_DESC, obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -677,36 +567,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, TEST_ICON_X, null, null,
                 null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER5);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertEquals(TEST_ICON_X, obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -717,36 +580,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, TEST_ICON_Y, null,
                 null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER6);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertEquals(TEST_ICON_Y, obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -757,36 +593,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, TEST_PC_USAGE,
                 null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER7, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0015() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER7);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertEquals(TEST_PC_USAGE, obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -797,36 +606,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null,
                 TEST_CURRENT_STATUS, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER8, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0017() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER8);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertEquals(TEST_CURRENT_STATUS, obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -837,36 +619,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 TEST_DTIME_CREATED, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER9, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0019() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER9);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertEquals(TEST_DTIME_CREATED, obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -877,36 +632,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, TEST_DTIME_APPROVED, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER10, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0021() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER10);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertEquals(TEST_DTIME_APPROVED, obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -917,36 +645,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, TEST_MAC_ADDRESS, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER11, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0023() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER11);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertEquals(TEST_MAC_ADDRESS, obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -957,36 +658,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, TEST_POWER_STATUS, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER12, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0025() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER12);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertEquals(TEST_POWER_STATUS, obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -997,36 +671,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, TEST_POWER_ON_DUE, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER13, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0027() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER13);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertEquals(TEST_POWER_ON_DUE, obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1037,36 +684,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, TEST_LAST_PING, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER14, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0029() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER14);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertEquals(TEST_LAST_PING, obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1077,36 +697,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, TEST_CURRENT_STU_ID, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER15, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0031() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER15);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertEquals(TEST_CURRENT_STU_ID, obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1117,36 +710,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, TEST_CURRENT_COURSE, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER16, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0033() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER16);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertEquals(TEST_CURRENT_COURSE, obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1157,36 +723,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, TEST_CURRENT_UNIT, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER17, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0035() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER17);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertEquals(TEST_CURRENT_UNIT, obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertNull(obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1197,36 +736,9 @@ final class TestRawClientPc {
         final RawClientPc obj = new RawClientPc(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, TEST_CURRENT_VERSION);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER18, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0037() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER18);
-
-        assertNull(obj.computerId, "Invalid computer_id value after deserialization");
-        assertNull(obj.testingCenterId, "Invalid testing_center_id value after deserialization");
-        assertNull(obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertNull(obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertNull(obj.iconX, "Invalid icon_x value after deserialization");
-        assertNull(obj.iconY, "Invalid icon_y value after deserialization");
-        assertNull(obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertNull(obj.currentStatus, "Invalid current_status value after deserialization");
-        assertNull(obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertNull(obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertNull(obj.macAddress, "Invalid mac_address value after deserialization");
-        assertNull(obj.powerStatus, "Invalid power_status value after deserialization");
-        assertNull(obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertNull(obj.lastPing, "Invalid last_ping value after deserialization");
-        assertNull(obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertNull(obj.currentCourse, "Invalid current_course value after deserialization");
-        assertNull(obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertEquals(TEST_CURRENT_VERSION, obj.currentVersion, "Invalid current_version value after deserialization");
     }
 
     /** Test case. */
@@ -1240,36 +752,8 @@ final class TestRawClientPc {
                 TEST_POWER_STATUS, TEST_POWER_ON_DUE, TEST_LAST_PING, TEST_CURRENT_STU_ID,
                 TEST_CURRENT_COURSE, TEST_CURRENT_UNIT, TEST_CURRENT_VERSION);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER19, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0039() {
-
-        final RawClientPc obj = RawClientPc.parse(EXPECT_SER19);
-
-        assertEquals(TEST_COMPUTER_ID, obj.computerId, "Invalid computer_id value after deserialization");
-        assertEquals(TEST_TESTING_CENTER_ID, obj.testingCenterId, "Invalid testing_center_id value after " +
-                "deserialization");
-        assertEquals(TEST_STATION_NBR, obj.stationNbr, "Invalid station_nbr value after deserialization");
-        assertEquals(TEST_COMPUTER_DESC, obj.computerDesc, "Invalid computer_desc value after deserialization");
-        assertEquals(TEST_ICON_X, obj.iconX, "Invalid icon_x value after deserialization");
-        assertEquals(TEST_ICON_Y, obj.iconY, "Invalid icon_y value after deserialization");
-        assertEquals(TEST_PC_USAGE, obj.pcUsage, "Invalid pc_usage value after deserialization");
-        assertEquals(TEST_CURRENT_STATUS, obj.currentStatus, "Invalid current_status value after deserialization");
-        assertEquals(TEST_DTIME_CREATED, obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertEquals(TEST_DTIME_APPROVED, obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertEquals(TEST_MAC_ADDRESS, obj.macAddress, "Invalid mac_address value after deserialization");
-        assertEquals(TEST_POWER_STATUS, obj.powerStatus, "Invalid power_status value after deserialization");
-        assertEquals(TEST_POWER_ON_DUE, obj.powerOnDue, "Invalid power_on_due value after deserialization");
-        assertEquals(TEST_LAST_PING, obj.lastPing, "Invalid last_ping value after deserialization");
-        assertEquals(TEST_CURRENT_STU_ID, obj.currentStuId, "Invalid current_stu_id value after deserialization");
-        assertEquals(TEST_CURRENT_COURSE, obj.currentCourse, "Invalid current_course value after deserialization");
-        assertEquals(TEST_CURRENT_UNIT, obj.currentUnit, "Invalid current_unit value after deserialization");
-        assertEquals(TEST_CURRENT_VERSION, obj.currentVersion, "Invalid current_version value after deserialization");
     }
 }

@@ -59,21 +59,8 @@ final class TestMasteryAttemptQaRec {
         final MasteryAttemptQaRec obj = new MasteryAttemptQaRec(TEST_SERIAL_NBR, TEST_EXAM_ID, TEST_QUESTION_NBR,
                 TEST_CORRECT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final MasteryAttemptQaRec obj = MasteryAttemptQaRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_EXAM_ID, obj.examId, "Invalid exam_id value after deserialization");
-        assertEquals(TEST_QUESTION_NBR, obj.questionNbr, "Invalid exam_score value after deserialization");
-        assertEquals(TEST_CORRECT, obj.correct, "Invalid passed value after deserialization");
     }
 }

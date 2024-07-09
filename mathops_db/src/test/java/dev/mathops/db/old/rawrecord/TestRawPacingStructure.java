@@ -186,53 +186,8 @@ final class TestRawPacingStructure {
                 TEST_RE_DUE_DATE_ENFORCED, TEST_UE_DUE_DATE_ENFORCED, TEST_FE_DUE_DATE_ENFORCED,
                 TEST_FIRST_OBJ_AVAIL);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawPacingStructure obj = RawPacingStructure.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure,
-                "Invalid pacing_structure value after deserialization");
-        assertEquals(TEST_DEF_PACE_TRACK, obj.defPaceTrack, "Invalid def_pace_track value after deserialization");
-        assertEquals(TEST_REQUIRE_LICENSED, obj.requireLicensed,
-                "Invalid require_licensed value after deserialization");
-        assertEquals(TEST_REQUIRE_PARTIC, obj.requirePartic, "Invalid require_partic value after deserialization");
-        assertEquals(TEST_MAX_PARTIC_MISSED, obj.maxParticMissed,
-                "Invalid max_partic_missed value after deserialization");
-        assertEquals(TEST_ALLOW_INC, obj.allowInc, "Invalid allow_inc value after deserialization");
-        assertEquals(TEST_MAX_COURSES, obj.maxCourses, "Invalid max_courses value after deserialization");
-        assertEquals(TEST_NBR_OPEN_ALLOWED, obj.nbrOpenAllowed,
-                "Invalid nbr_open_allowed value after deserialization");
-        assertEquals(TEST_REQUIRE_UNIT_EXAMS, obj.requireUnitExams,
-                "Invalid require_unit_exams value after deserialization");
-        assertEquals(TEST_USE_MIDTERMS, obj.useMidterms, "Invalid use_midterm value after deserialization");
-        assertEquals(TEST_ALLOW_COUPONS, obj.allowCoupons, "Invalid allow_coupons value after deserialization");
-        assertEquals(TEST_COUPONS_AFTER_WINDOW, obj.couponsAfterWindow,
-                "Invalid coupons_after_window value after deserialization");
-        assertEquals(TEST_USERS_PROGRESS_CR, obj.usersProgressCr,
-                "Invalid users_progress_cr value after deserialization");
-        assertEquals(TEST_HW_PROGRESS_CR, obj.hwProgressCr, "Invalid hw_progress_cr value after deserialization");
-        assertEquals(TEST_RE_PROGRESS_CR, obj.reProgressCr, "Invalid re_progress_cr value after deserialization");
-        assertEquals(TEST_UE_PROGRESS_CR, obj.ueProgressCr, "Invalid ue_progress_cr value after deserialization");
-        assertEquals(TEST_FIN_PROGRESS_CR, obj.finProgressCr, "Invalid fin_progress_Cr value after deserialization");
-        assertEquals(TEST_PACING_NAME, obj.pacingName, "Invalid pacing_name value after deserialization");
-        assertEquals(TEST_SCHEDULE_SOURCE, obj.scheduleSource, "Invalid schedule_source value after deserialization");
-        assertEquals(TEST_SR_DUE_DATE_ENFORCED, obj.srDueDateEnforced,
-                "Invalid sr_due_date_enforced value after deserialization");
-        assertEquals(TEST_RE_DUE_DATE_ENFORCED, obj.reDueDateEnforced,
-                "Invalid re_due_date_enforced value after deserialization");
-        assertEquals(TEST_UE_DUE_DATE_ENFORCED, obj.ueDueDateEnforced,
-                "Invalid ue_due_date_enforced value after deserialization");
-        assertEquals(TEST_FE_DUE_DATE_ENFORCED, obj.feDueDateEnforced,
-                "Invalid fe_due_date_enforced value after deserialization");
-        assertEquals(TEST_FIRST_OBJ_AVAIL, obj.firstObjAvail, "Invalid first_obj_avail value after deserialization");
     }
 }

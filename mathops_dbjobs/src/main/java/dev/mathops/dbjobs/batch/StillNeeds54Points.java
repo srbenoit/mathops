@@ -405,6 +405,7 @@ final class StillNeeds54Points {
 
             final List<RawStmilestone> stMilestones = RawStmilestoneLogic
                     .getStudentMilestones(cache, active.term, stterm.paceTrack, reg.stuId);
+            stMilestones.sort(null);
 
             // Find deadline for review exams
             LocalDate deadlineRE1 = null;
@@ -420,6 +421,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE1 = sms.msDate;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (ms.getUnit() == 2) {
@@ -427,6 +430,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE2 = sms.msDate;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (ms.getUnit() == 3) {
@@ -434,6 +439,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE3 = sms.msDate;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     } else if (ms.getUnit() == 4) {
@@ -441,6 +448,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE4 = sms.msDate;
+                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                                // the later date
                             }
                         }
                     }

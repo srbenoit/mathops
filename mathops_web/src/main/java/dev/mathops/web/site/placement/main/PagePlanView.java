@@ -2,6 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
@@ -276,7 +277,7 @@ enum PagePlanView {
     }
 
     /**
-     * Emits the studnt's majors of interest and declared major.
+     * Emits the student's majors of interest and declared major.
      *
      * @param htm   the {@code HtmlBuilder} to which to append
      * @param data  the student data
@@ -426,6 +427,7 @@ enum PagePlanView {
 
         int count = 0;
         final Map<Major, MajorMathRequirement> majors = logic.getMajors();
+
         final Major declared = logic.getMajor(data.student.programCode);
 
         final Collection<String> printedMajors = new ArrayList<>(10);
@@ -446,8 +448,7 @@ enum PagePlanView {
                     // so print the top-level major first
 
                     for (final Major inner : majors.keySet()) {
-                        if (inner.concentrationName == null
-                                && inner.majorName.equals(major.majorName)) {
+                        if (inner.concentrationName == null && inner.majorName.equals(major.majorName)) {
 
                             htm.add("<li>");
                             if (inner.catalogUrl == null) {

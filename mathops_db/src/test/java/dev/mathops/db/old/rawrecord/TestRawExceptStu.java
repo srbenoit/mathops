@@ -83,25 +83,8 @@ final class TestRawExceptStu {
         final RawExceptStu obj = new RawExceptStu(TEST_TERM, TEST_STU_ID, TEST_COURSE, TEST_UNIT,
                 TEST_COURSE_ENROLL, TEST_HWORK_STATUS, TEST_SECT, TEST_SECT_ENROLL);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawExceptStu obj = RawExceptStu.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_COURSE_ENROLL, obj.courseEnroll, "Invalid course_enroll value after deserialization");
-        assertEquals(TEST_HWORK_STATUS, obj.hworkStatus, "Invalid hwork_status value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_SECT_ENROLL, obj.sectEnroll, "Invalid sect_enroll value after deserialization");
     }
 }

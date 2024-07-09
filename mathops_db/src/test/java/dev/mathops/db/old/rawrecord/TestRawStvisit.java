@@ -68,22 +68,8 @@ final class TestRawStvisit {
         final RawStvisit obj = new RawStvisit(TEST_STU_ID, TEST_WHEN_STARTED, TEST_WHEN_ENDED, TEST_LOCATION,
                 TEST_SEAT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStvisit obj = RawStvisit.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_WHEN_STARTED, obj.whenStarted, "Invalid when_started value after deserialization");
-        assertEquals(TEST_WHEN_ENDED, obj.whenEnded, "Invalid when_ended value after deserialization");
-        assertEquals(TEST_LOCATION, obj.location, "Invalid location value after deserialization");
-        assertEquals(TEST_SEAT, obj.seat, "Invalid seat value after deserialization");
     }
 }

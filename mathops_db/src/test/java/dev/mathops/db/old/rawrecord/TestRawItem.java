@@ -43,18 +43,8 @@ final class TestRawItem {
 
         final RawItem obj = new RawItem(TEST_ITEM_ID);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawItem obj = RawItem.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ITEM_ID, obj.itemId, "Invalid item_id value after deserialization");
     }
 }

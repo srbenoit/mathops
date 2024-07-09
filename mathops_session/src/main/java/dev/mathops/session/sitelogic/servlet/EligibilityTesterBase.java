@@ -604,6 +604,7 @@ class EligibilityTesterBase {
                             pace, stterm.paceTrack);
                     final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(cache,
                             this.activeTerm.term, stterm.paceTrack, this.studentId);
+                    stuMs.sort(null);
 
                     // There may not be a "last try", so start with the final deadline
                     LocalDate deadline = null;
@@ -620,6 +621,8 @@ class EligibilityTesterBase {
                                     && ms.getIndex() == this.studentCourse.paceOrder.intValue()
                                     && "FE".equals(ms.msType)) {
                                 deadline = ms.msDate;
+                                // Don't break - student milestones are sorted by due date, and if there are multiple
+                                // matching rows, we want the latest date
                             }
                         }
                         for (final RawMilestone ms : allMs) {
@@ -634,6 +637,8 @@ class EligibilityTesterBase {
                                     ms.getIndex() == this.studentCourse.paceOrder.intValue()
                                     && "F1".equals(ms.msType) && ms.msDate.isAfter(deadline)) {
                                 deadline = ms.msDate;
+                                // Don't break - student milestones are sorted by due date, and if there are multiple
+                                // matching rows, we want the latest date
                             }
                         }
                     }

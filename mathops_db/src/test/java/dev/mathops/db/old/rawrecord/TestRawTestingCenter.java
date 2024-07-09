@@ -122,33 +122,8 @@ final class TestRawTestingCenter {
                 TEST_ACTIVE, TEST_DTIME_CREATED, TEST_DTIME_APPROVED, TEST_DTIME_DENIED,
                 TEST_DTIME_REVOKED, TEST_IS_REMOTE, TEST_IS_PROCTORED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawTestingCenter obj = RawTestingCenter.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TESTING_CENTER_ID, obj.testingCenterId,
-                "Invalid testing_center_id value after deserialization");
-        assertEquals(TEST_TC_NAME, obj.tcName, "Invalid tc_name value after deserialization");
-        assertEquals(TEST_ADDRES_1, obj.addres1, "Invalid addres1 value after deserialization");
-        assertEquals(TEST_ADDRES_2, obj.addres2, "Invalid addres2 value after deserialization");
-        assertEquals(TEST_ADDRES_3, obj.addres3, "Invalid addres3 value after deserialization");
-        assertEquals(TEST_CITY, obj.city, "Invalid city value after deserialization");
-        assertEquals(TEST_STATE, obj.state, "Invalid state value after deserialization");
-        assertEquals(TEST_ZIP_CODE, obj.zipCode, "Invalid zip_code value after deserialization");
-        assertEquals(TEST_ACTIVE, obj.active, "Invalid active value after deserialization");
-        assertEquals(TEST_DTIME_CREATED, obj.dtimeCreated, "Invalid dtime_created value after deserialization");
-        assertEquals(TEST_DTIME_APPROVED, obj.dtimeApproved, "Invalid dtime_approved value after deserialization");
-        assertEquals(TEST_DTIME_DENIED, obj.dtimeDenied, "Invalid dtime_denied value after deserialization");
-        assertEquals(TEST_DTIME_REVOKED, obj.dtimeRevoked, "Invalid dtime_revoked value after deserialization");
-        assertEquals(TEST_IS_REMOTE, obj.isRemote, "Invalid is_remote value after deserialization");
-        assertEquals(TEST_IS_PROCTORED, obj.isProctored, "Invalid is_proctored value after deserialization");
     }
 }

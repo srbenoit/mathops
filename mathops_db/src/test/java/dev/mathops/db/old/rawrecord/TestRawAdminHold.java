@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 
@@ -109,23 +108,9 @@ final class TestRawAdminHold {
 
         final RawAdminHold obj = new RawAdminHold(TEST_STU_ID, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER1);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.holdId, "Invalid hold_id value after deserialization");
-        assertNull(obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertNull(obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertNull(obj.createDt, "Invalid create_dt value after deserialization");
     }
 
     /** Test case. */
@@ -135,23 +120,9 @@ final class TestRawAdminHold {
 
         final RawAdminHold obj = new RawAdminHold(null, TEST_HOLD_ID, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER2);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_HOLD_ID, obj.holdId, "Invalid hold_id value after deserialization");
-        assertNull(obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertNull(obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertNull(obj.createDt, "Invalid create_dt value after deserialization");
     }
 
     /** Test case. */
@@ -161,23 +132,9 @@ final class TestRawAdminHold {
 
         final RawAdminHold obj = new RawAdminHold(null, null, TEST_SEV, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER3);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.holdId, "Invalid hold_id value after deserialization");
-        assertEquals(TEST_SEV, obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertNull(obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertNull(obj.createDt, "Invalid create_dt value after deserialization");
     }
 
     /** Test case. */
@@ -187,23 +144,9 @@ final class TestRawAdminHold {
 
         final RawAdminHold obj = new RawAdminHold(null, null, null, TEST_TIMES, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER4);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.holdId, "Invalid hold_id value after deserialization");
-        assertNull(obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertEquals(TEST_TIMES, obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertNull(obj.createDt, "Invalid create_dt value after deserialization");
     }
 
     /** Test case. */
@@ -213,23 +156,9 @@ final class TestRawAdminHold {
 
         final RawAdminHold obj = new RawAdminHold(null, null, null, null, TEST_DATE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER5);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.holdId, "Invalid hold_id value after deserialization");
-        assertNull(obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertNull(obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertEquals(TEST_DATE, obj.createDt, "Invalid create_dt value after deserialization");
     }
 
     /** Test case. */
@@ -240,22 +169,8 @@ final class TestRawAdminHold {
         final RawAdminHold obj =
                 new RawAdminHold(TEST_STU_ID, TEST_HOLD_ID, TEST_SEV, TEST_TIMES, TEST_DATE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawAdminHold obj = RawAdminHold.parse(EXPECT_SER6);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_HOLD_ID, obj.holdId, "Invalid hold_id value after deserialization");
-        assertEquals(TEST_SEV, obj.sevAdminHold, "Invalid sev_admin_hold value after deserialization");
-        assertEquals(TEST_TIMES, obj.timesDisplay, "Invalid times_display value after deserialization");
-        assertEquals(TEST_DATE, obj.createDt, "Invalid create_dt value after deserialization");
     }
 }

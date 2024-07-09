@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for the {@code RawDontSubmit} class.
@@ -76,21 +75,9 @@ final class TestRawDontSubmit {
 
         final RawDontSubmit obj = new RawDontSubmit(TEST_TERM, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawDontSubmit obj = RawDontSubmit.parse(EXPECT_SER1);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
     }
 
     /** Test case. */
@@ -100,21 +87,9 @@ final class TestRawDontSubmit {
 
         final RawDontSubmit obj = new RawDontSubmit(null, TEST_COURSE, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawDontSubmit obj = RawDontSubmit.parse(EXPECT_SER2);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertNull(obj.sect, "Invalid sect value after deserialization");
     }
 
     /** Test case. */
@@ -124,21 +99,9 @@ final class TestRawDontSubmit {
 
         final RawDontSubmit obj = new RawDontSubmit(null, null, TEST_SECT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawDontSubmit obj = RawDontSubmit.parse(EXPECT_SER3);
-
-        assertNull(obj.termKey, "Invalid term key value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
     }
 
     /** Test case. */
@@ -148,20 +111,8 @@ final class TestRawDontSubmit {
 
         final RawDontSubmit obj = new RawDontSubmit(TEST_TERM, TEST_COURSE, TEST_SECT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawDontSubmit obj = RawDontSubmit.parse(EXPECT_SER4);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term key value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
     }
 }

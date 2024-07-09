@@ -87,26 +87,8 @@ final class TestAssignmentRec {
         final AssignmentRec obj = new AssignmentRec(TEST_ASSIGNMENT_ID, TEST_ASSIGNMENT_TYPE, TEST_COURSE_ID,
                 TEST_UNIT, TEST_OBJECTIVE, TEST_TREE_REF, TEST_TITLE, TEST_WHEN_ACTIVE, TEST_WHEN_PULLED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final AssignmentRec obj = AssignmentRec.parse(EXPECT_SER99);
-
-        assertEquals(TEST_ASSIGNMENT_ID, obj.assignmentId, "Invalid version value after deserialization");
-        assertEquals(TEST_COURSE_ID, obj.courseId, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_TITLE, obj.title, "Invalid title value after deserialization");
-        assertEquals(TEST_TREE_REF, obj.treeRef, "Invalid tree_ref value after deserialization");
-        assertEquals(TEST_ASSIGNMENT_TYPE, obj.assignmentType, "Invalid hw_type value after deserialization");
-        assertEquals(TEST_WHEN_ACTIVE, obj.whenActive, "Invalid active_dt value after deserialization");
-        assertEquals(TEST_WHEN_PULLED, obj.whenPulled, "Invalid pull_dt value after deserialization");
     }
 }

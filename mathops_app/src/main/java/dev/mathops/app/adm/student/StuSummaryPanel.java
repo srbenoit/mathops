@@ -738,12 +738,16 @@ final class StuSummaryPanel extends AdminPanelBase {
                     for (final RawStmilestone sms : data.studentMilestones) {
                         if (sms.paceTrack.equals(track) && "FE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                             finalDueDate = sms.msDate;
+                            // Don't break - if there are multiple matching rows (which are sorted by deadline date),
+                            // we want to take the latest one
                         }
                     }
                     for (final RawStmilestone sms : data.studentMilestones) {
                         if ((sms.paceTrack.equals(track) && "F1".equals(sms.msType) && sms.msNbr.intValue() == msNbr)
                                 && finalDueDate.isBefore(sms.msDate)) {
                             finalDueDate = sms.msDate;
+                            // Don't break - if there are multiple matching rows (which are sorted by deadline date),
+                            // we want to take the latest one
                         }
                     }
                 }
@@ -1062,6 +1066,8 @@ final class StuSummaryPanel extends AdminPanelBase {
                 for (final RawStmilestone sms : data.studentMilestones) {
                     if (sms.paceTrack.equals(track) && "FE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                         dueDate = sms.msDate;
+                        // Don't break - if there are multiple matching rows (which are sorted by deadline date),
+                        // we want to take the latest one
                     }
                 }
             } else if ("R".equals(examType)) {
@@ -1073,6 +1079,8 @@ final class StuSummaryPanel extends AdminPanelBase {
                 for (final RawStmilestone sms : data.studentMilestones) {
                     if (sms.paceTrack.equals(track) && "RE".equals(sms.msType) && sms.msNbr.intValue() == msNbr) {
                         dueDate = sms.msDate;
+                        // Don't break - if there are multiple matching rows (which are sorted by deadline date),
+                        // we want to take the latest one
                     }
                 }
             }

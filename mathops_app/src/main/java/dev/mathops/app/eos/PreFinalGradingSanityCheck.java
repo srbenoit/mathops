@@ -120,6 +120,7 @@ final class PreFinalGradingSanityCheck {
         // Get student milestone overrides
         final List<RawStmilestone> stmilestones =
                 RawStmilestoneLogic.getStudentMilestones(cache, active.term, track, studentId);
+        stmilestones.sort(null);
 
         final List<RawMilestone> effectiveMilestones = stmilestones.isEmpty() ? milestones
                 : computeEffectiveMilestones(milestones, stmilestones);
@@ -380,6 +381,8 @@ final class PreFinalGradingSanityCheck {
                     override.nbrAtmptsAllow = test.nbrAtmptsAllow;
 
                     milestones.set(i, override);
+                    // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                    // the later date
                 }
             }
         }

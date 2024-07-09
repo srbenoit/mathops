@@ -61,21 +61,8 @@ final class TestRawLessonComponent {
         final RawLessonComponent obj =
                 new RawLessonComponent(TEST_LESSON_ID, TEST_SEQ_NBR, TEST_TYPE, TEST_XML_DATA);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawLessonComponent obj = RawLessonComponent.parse(EXPECT_SER99);
-
-        assertEquals(TEST_LESSON_ID, obj.lessonId, "Invalid lesson_id value after deserialization");
-        assertEquals(TEST_SEQ_NBR, obj.seqNbr, "Invalid seq_nbr value after deserialization");
-        assertEquals(TEST_TYPE, obj.type, "Invalid type value after deserialization");
-        assertEquals(TEST_XML_DATA, obj.xmlData, "Invalid xml_data value after deserialization");
     }
 }

@@ -68,22 +68,8 @@ final class TestRawFfrTrns {
         final RawFfrTrns obj = new RawFfrTrns(TEST_STU_ID, TEST_COURSE, TEST_EXAM_PLACED,
                 TEST_EXAM_DT, TEST_DT_CR_REFUSED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawFfrTrns obj = RawFfrTrns.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_EXAM_PLACED, obj.examPlaced, "Invalid exam_placed value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_DT_CR_REFUSED, obj.dtCrRefused, "Invalid dt_cr_refused value after deserialization");
     }
 }

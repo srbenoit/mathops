@@ -30,10 +30,10 @@ import java.util.Objects;
  * preferred name, college, department, and program of study. If found, the name is updated to the mixed-case name from
  * ODS rather than the all-caps name we have had historically, and other fields are updated accordingly.
  */
-final class BulkUpdateStudentInformation {
+public final class BulkUpdateStudentInformation {
 
     /** When true, does not update database - just logs what would be updated. */
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
@@ -47,7 +47,7 @@ final class BulkUpdateStudentInformation {
     /**
      * Constructs a new {@code StudentNamesToMixedCase}.
      */
-    private BulkUpdateStudentInformation() {
+    public BulkUpdateStudentInformation() {
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
@@ -59,7 +59,7 @@ final class BulkUpdateStudentInformation {
     /**
      * Executes the job.
      */
-    private void execute() {
+    public void execute() {
 
         if (this.dbProfile == null) {
             Log.warning("Unable to create production context.");
@@ -229,7 +229,7 @@ final class BulkUpdateStudentInformation {
         final String sql = SimpleBuilder.concat(
                 "SELECT CSU_ID, PIDM, FIRST_NAME, MIDDLE_NAME, LAST_NAME, PREFERRED_FIRST_NAME, EMAIL, BIRTH_DATE, ",
                 "SATR_MATH, SAT_MATH, ACT_MATH, HS_GPA, HS_CODE, HS_CLASS_SIZE, HS_CLASS_RANK ",
-                "FROM CSUBAN.CSUG_GP_ADMISSIONS");
+                "FROM CSUBAN.CSUG_GP_ADMISSIONS WHERE MULTI_SOURCE='CSU'");
 
         try (final Statement stmt = odsConn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql)) {
@@ -272,6 +272,8 @@ final class BulkUpdateStudentInformation {
 
                         if (result.containsKey(csuId)) {
                             Log.warning(" *** Duplicate ODS record for student ", csuId);
+                            Log.fine(result.get(csuId));
+                            Log.fine(rec);
                         }
                         result.put(csuId, rec);
 
@@ -678,8 +680,7 @@ final class BulkUpdateStudentInformation {
     /**
      * A container for data from the ODS about a single person
      */
-    private record OdsPersonData(String csuId, Integer pidm, String firstName, String middleInitial,
-                                 String lastName,
+    private record OdsPersonData(String csuId, Integer pidm, String firstName, String middleInitial, String lastName,
                                  String prefName, String email, LocalDate birthDate, Integer satR, Integer sat,
                                  Integer act, String hsGpa, String hsCode, Integer hsClassSize,
                                  Integer hsClassRank) {

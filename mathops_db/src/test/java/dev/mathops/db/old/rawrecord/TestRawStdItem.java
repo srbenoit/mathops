@@ -71,24 +71,8 @@ final class TestRawStdItem {
         final RawStdItem obj = new RawStdItem(TEST_STD_ID, TEST_ITEM_ID, TEST_MASTERY_GRP_NBR,
                 TEST_PRACTICE_GRP_NBR, TEST_FORMATIVE, TEST_PLACEMENT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStdItem obj = RawStdItem.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STD_ID, obj.stdId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_ITEM_ID, obj.itemId, "Invalid item_id value after deserialization");
-        assertEquals(TEST_MASTERY_GRP_NBR, obj.masteryGrpNbr, "Invalid version mastery_grp_nbr after deserialization");
-        assertEquals(TEST_PRACTICE_GRP_NBR, obj.practiceGrpNbr,
-                "Invalid practice_grp_nbr value after deserialization");
-        assertEquals(TEST_FORMATIVE, obj.formative, "Invalid formative value after deserialization");
-        assertEquals(TEST_PLACEMENT, obj.placement, "Invalid placement value after deserialization");
     }
 }

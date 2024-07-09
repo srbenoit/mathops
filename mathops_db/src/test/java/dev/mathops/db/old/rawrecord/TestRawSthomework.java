@@ -132,34 +132,8 @@ final class TestRawSthomework {
                 TEST_HW_TYPE, TEST_COURSE, TEST_SECT, TEST_UNIT, TEST_OBJECTIVE, TEST_HW_COUPON,
                 TEST_USED_DT, TEST_USED_SERIAL_NBR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawSthomework obj = RawSthomework.parse(EXPECT_SER99);
-
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_HW_DT, obj.hwDt, "Invalid hw_dt value after deserialization");
-        assertEquals(TEST_HW_SCORE, obj.hwScore, "Invalid hw_score value after deserialization");
-        assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
-        assertEquals(TEST_TIME_OK, obj.timeOk, "Invalid time_ok value after deserialization");
-        assertEquals(TEST_PASSED, obj.passed, "Invalid passed value after deserialization");
-        assertEquals(TEST_HW_TYPE, obj.hwType, "Invalid hw_type value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_OBJECTIVE, obj.objective, "Invalid objective value after deserialization");
-        assertEquals(TEST_HW_COUPON, obj.hwCoupon, "Invalid hw_coupon value after deserialization");
-        assertEquals(TEST_USED_DT, obj.usedDt, "Invalid used_dt value after deserialization");
-        assertEquals(TEST_USED_SERIAL_NBR, obj.usedSerialNbr, "Invalid used_serial_nbr value after deserialization");
     }
 }

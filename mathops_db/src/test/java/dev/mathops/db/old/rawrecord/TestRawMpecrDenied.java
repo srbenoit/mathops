@@ -83,25 +83,8 @@ final class TestRawMpecrDenied {
         final RawMpecrDenied obj = new RawMpecrDenied(TEST_STU_ID, TEST_COURSE, TEST_EXAM_PLACED,
                 TEST_EXAM_DT, TEST_WHY_DENIED, TEST_SERIAL_NBR, TEST_VERSION, TEST_EXAM_SOURCE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawMpecrDenied obj = RawMpecrDenied.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_EXAM_PLACED, obj.examPlaced, "Invalid exam_placed value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_WHY_DENIED, obj.whyDenied, "Invalid why_denied value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_EXAM_SOURCE, obj.examSource, "Invalid exam_source value after deserialization");
     }
 }

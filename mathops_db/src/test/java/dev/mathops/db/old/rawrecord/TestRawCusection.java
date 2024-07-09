@@ -153,46 +153,8 @@ final class TestRawCusection {
                 TEST_LAST_COUPON_DT, TEST_SHOW_TEST_WINDOW, TEST_UNPROCTORED_EXAM,
                 TEST_RE_POINTS_ONTIME);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawCusection obj = RawCusection.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_TIMEOUT, obj.timeout, "Invalid timeout value after deserialization");
-        assertEquals(TEST_RE_MASTERY_SCORE, obj.reMasteryScore,
-                "Invalid re_mastery_score value after deserialization");
-        assertEquals(TEST_UE_MASTERY_SCORE, obj.ueMasteryScore,
-                "Invalid ue_mastery_score value after deserialization");
-        assertEquals(TEST_HW_MASTERY_SCORE, obj.hwMasteryScore,
-                "Invalid hw_mastery_score value after deserialization");
-        assertEquals(TEST_HW_MOVEON_SCORE, obj.hwMoveonScore, "Invalid hw_moveon_score value after deserialization");
-        assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow,
-                "Invalid nbr_atmpts_allow value after deserialization");
-        assertEquals(TEST_ATMPTS_PER_REVIEW, obj.atmptsPerReview,
-                "Invalid atmpts_per_review value after deserialization");
-        assertEquals(TEST_FIRST_TEST_DT, obj.firstTestDt, "Invalid first_test_dt value after deserialization");
-        assertEquals(TEST_LAST_TEST_DT, obj.lastTestDt, "Invalid last_test_dt value after deserialization");
-        assertEquals(TEST_BEGIN_TEST_PERIOD, obj.beginTestPeriod,
-                "Invalid begin_test_period value after deserialization");
-        assertEquals(TEST_END_TEST_PERIOD, obj.endTestPeriod, "Invalid end_test_period value after deserialization");
-        assertEquals(TEST_COUPON_COST, obj.couponCost, "Invalid coupon_cost value after deserialization");
-        assertEquals(TEST_LAST_COUPON_DT, obj.lastCouponDt, "Invalid last_coupon_dt value after deserialization");
-        assertEquals(TEST_SHOW_TEST_WINDOW, obj.showTestWindow,
-                "Invalid show_test_window value after deserialization");
-        assertEquals(TEST_UNPROCTORED_EXAM, obj.unproctoredExam,
-                "Invalid unproctored_exam value after deserialization");
-        assertEquals(TEST_RE_POINTS_ONTIME, obj.rePointsOntime,
-                "Invalid re_points_ontime value after deserialization");
     }
 }

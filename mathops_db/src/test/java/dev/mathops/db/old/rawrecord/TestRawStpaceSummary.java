@@ -117,31 +117,8 @@ final class TestRawStpaceSummary {
                 TEST_SECT, TEST_I_IN_PROGRESS, TEST_PACE, TEST_PACE_TRACK, TEST_PACE_ORDER, TEST_MS_NBR,
                 TEST_MS_UNIT, TEST_MS_DATE, TEST_NEW_MS_DATE, TEST_EXAM_DT, TEST_RE_POINTS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStpaceSummary obj = RawStpaceSummary.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_SECT, obj.sect, "Invalid sect value after deserialization");
-        assertEquals(TEST_I_IN_PROGRESS, obj.iInProgress, "Invalid i_in_progress value after deserialization");
-        assertEquals(TEST_PACE, obj.pace, "Invalid pace value after deserialization");
-        assertEquals(TEST_PACE_TRACK, obj.paceTrack, "Invalid pace_track value after deserialization");
-        assertEquals(TEST_PACE_ORDER, obj.paceOrder, "Invalid pace_order value after deserialization");
-        assertEquals(TEST_MS_NBR, obj.msNbr, "Invalid ms_nbr value after deserialization");
-        assertEquals(TEST_MS_UNIT, obj.msUnit, "Invalid ms_unit value after deserialization");
-        assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after deserialization");
-        assertEquals(TEST_NEW_MS_DATE, obj.newMsDate, "Invalid new_ms_date value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_date value after deserialization");
-        assertEquals(TEST_RE_POINTS, obj.rePoints, "Invalid re_points value after deserialization");
     }
 }

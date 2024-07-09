@@ -123,32 +123,8 @@ final class TestRawStchallenge {
                 TEST_FIRST_NAME, TEST_MIDDLE_INITIAL, TEST_SEQ_NBR, TEST_SERIAL_NBR, TEST_SCORE,
                 TEST_PASSED, TEST_HOW_VALIDATED);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawStchallenge obj = RawStchallenge.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_ACADEMIC_YR, obj.academicYr, "Invalid academic_yr value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after deserialization");
-        assertEquals(TEST_FINISH_TIME, obj.finishTime, "Invalid finish_time value after deserialization");
-        assertEquals(TEST_LAST_NAME, obj.lastName, "Invalid last_name value after deserialization");
-        assertEquals(TEST_FIRST_NAME, obj.firstName, "Invalid first_name value after deserialization");
-        assertEquals(TEST_MIDDLE_INITIAL, obj.middleInitial, "Invalid middle_initial value after deserialization");
-        assertEquals(TEST_SEQ_NBR, obj.seqNbr, "Invalid seq_nbr value after deserialization");
-        assertEquals(TEST_SERIAL_NBR, obj.serialNbr, "Invalid serial_nbr value after deserialization");
-        assertEquals(TEST_SCORE, obj.score, "Invalid score value after deserialization");
-        assertEquals(TEST_PASSED, obj.passed, "Invalid passed value after deserialization");
-        assertEquals(TEST_HOW_VALIDATED, obj.howValidated, "Invalid how_validated value after deserialization");
     }
 }

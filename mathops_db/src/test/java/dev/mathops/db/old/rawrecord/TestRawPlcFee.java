@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 
@@ -91,22 +90,9 @@ final class TestRawPlcFee {
 
         final RawPlcFee obj = new RawPlcFee(TEST_STU_ID, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0003() {
-
-        final RawPlcFee obj = RawPlcFee.parse(EXPECT_SER1);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
-        assertNull(obj.billDt, "Invalid bill_dt value after deserialization");
     }
 
     /** Test case. */
@@ -116,22 +102,9 @@ final class TestRawPlcFee {
 
         final RawPlcFee obj = new RawPlcFee(null, TEST_COURSE, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawPlcFee obj = RawPlcFee.parse(EXPECT_SER2);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
-        assertNull(obj.billDt, "Invalid bill_dt value after deserialization");
     }
 
     /** Test case. */
@@ -141,22 +114,9 @@ final class TestRawPlcFee {
 
         final RawPlcFee obj = new RawPlcFee(null, null, TEST_EXAM_DT, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawPlcFee obj = RawPlcFee.parse(EXPECT_SER3);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertNull(obj.billDt, "Invalid bill_dt value after deserialization");
     }
 
     /** Test case. */
@@ -166,22 +126,9 @@ final class TestRawPlcFee {
 
         final RawPlcFee obj = new RawPlcFee(null, null, null, TEST_BILL_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawPlcFee obj = RawPlcFee.parse(EXPECT_SER4);
-
-        assertNull(obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.course, "Invalid course value after deserialization");
-        assertNull(obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_BILL_DT, obj.billDt, "Invalid bill_dt value after deserialization");
     }
 
     /** Test case. */
@@ -191,21 +138,8 @@ final class TestRawPlcFee {
 
         final RawPlcFee obj = new RawPlcFee(TEST_STU_ID, TEST_COURSE, TEST_EXAM_DT, TEST_BILL_DT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawPlcFee obj = RawPlcFee.parse(EXPECT_SER5);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_EXAM_DT, obj.examDt, "Invalid exam_dt value after deserialization");
-        assertEquals(TEST_BILL_DT, obj.billDt, "Invalid bill_dt value after deserialization");
     }
 }

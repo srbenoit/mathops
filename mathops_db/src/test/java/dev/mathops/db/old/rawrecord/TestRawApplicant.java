@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 
@@ -610,38 +609,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(TEST_STU_ID, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER1, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0003() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER1);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -652,38 +622,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, TEST_FIRST_NAME, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER2, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0005() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER2);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_FIRST_NAME, obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -694,38 +635,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, TEST_LAST_NAME, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER3, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0007() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER3);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertEquals(TEST_LAST_NAME, obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -736,38 +648,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, TEST_BIRTHDATE, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER4, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0009() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER4);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertEquals(TEST_BIRTHDATE, obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -778,38 +661,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, TEST_ETHNICITY, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER5, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0011() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER5);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertEquals(TEST_ETHNICITY, obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -820,38 +674,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, TEST_GENDER, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER6, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0013() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER6);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertEquals(TEST_GENDER, obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -862,38 +687,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, TEST_COLLEGE,
                 null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER7, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0015() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER7);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertEquals(TEST_COLLEGE, obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -905,38 +701,9 @@ final class TestRawApplicant {
                 new RawApplicant(null, null, null, null, null, null, null, TEST_PROG_STUDY, null, null,
                         null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER8, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0017() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER8);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertEquals(TEST_PROG_STUDY, obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -947,38 +714,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 TEST_HS_CODE, null, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER9, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0019() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER9);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertEquals(TEST_HS_CODE, obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -989,38 +727,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, TEST_TR_CREDITS, null, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER10, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0021() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER10);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertEquals(TEST_TR_CREDITS, obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1031,38 +740,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, TEST_RESIDENT, null, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER11, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0023() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER11);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertEquals(TEST_RESIDENT, obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1073,38 +753,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, TEST_RESIDENT_STATE, null, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER12, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0025() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER12);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertEquals(TEST_RESIDENT_STATE, obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1115,38 +766,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, TEST_RESIDENT_COUNTY, null, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER13, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0027() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER13);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertEquals(TEST_RESIDENT_COUNTY, obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1157,38 +779,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, TEST_HS_GPA, null, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER14, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0029() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER14);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertEquals(TEST_HS_GPA, obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1199,38 +792,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, TEST_HS_CLASS_RANK, null, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER15, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0031() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER15);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertEquals(TEST_HS_CLASS_RANK, obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1241,38 +805,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, TEST_HS_SIZE_CLASS, null, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER16, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0033() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER16);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertEquals(TEST_HS_SIZE_CLASS, obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1283,38 +818,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, TEST_ACT_SCORE, null, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER17, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0035() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER17);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertEquals(TEST_ACT_SCORE, obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1325,38 +831,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, TEST_SAT_SCORE, null, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER18, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0037() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER18);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertEquals(TEST_SAT_SCORE, obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1367,38 +844,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, TEST_PIDM, null);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER19, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0039() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER19);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertEquals(TEST_PIDM, obj.pidm, "Invalid pidm value after deserialization");
-        assertNull(obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1409,38 +857,9 @@ final class TestRawApplicant {
         final RawApplicant obj = new RawApplicant(null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, TEST_APLN_TERM);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER20, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0041() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER20);
-
-        assertNull(obj.stuId, "Invalid std_id value after deserialization");
-        assertNull(obj.firstName, "Invalid first_name value after deserialization");
-        assertNull(obj.lastName, "Invalid last_name value after deserialization");
-        assertNull(obj.birthdate, "Invalid birthdate value after deserialization");
-        assertNull(obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertNull(obj.gender, "Invalid gender value after deserialization");
-        assertNull(obj.college, "Invalid college value after deserialization");
-        assertNull(obj.progStudy, "Invalid program_code value after deserialization");
-        assertNull(obj.hsCode, "Invalid hs_code value after deserialization");
-        assertNull(obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertNull(obj.resident, "Invalid resident value after deserialization");
-        assertNull(obj.residentState, "Invalid resident_state value after deserialization");
-        assertNull(obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertNull(obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertNull(obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertNull(obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertNull(obj.actScore, "Invalid act_score value after deserialization");
-        assertNull(obj.satScore, "Invalid sat_score value after deserialization");
-        assertNull(obj.pidm, "Invalid pidm value after deserialization");
-        assertEquals(TEST_APLN_TERM, obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 
     /** Test case. */
@@ -1454,37 +873,8 @@ final class TestRawApplicant {
                 TEST_HS_GPA, TEST_HS_CLASS_RANK, TEST_HS_SIZE_CLASS, TEST_ACT_SCORE, TEST_SAT_SCORE,
                 TEST_PIDM, TEST_APLN_TERM);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawApplicant obj = RawApplicant.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after deserialization");
-        assertEquals(TEST_FIRST_NAME, obj.firstName, "Invalid first_name value after deserialization");
-        assertEquals(TEST_LAST_NAME, obj.lastName, "Invalid last_name value after deserialization");
-        assertEquals(TEST_BIRTHDATE, obj.birthdate, "Invalid birthdate value after deserialization");
-        assertEquals(TEST_ETHNICITY, obj.ethnicity, "Invalid ethnicity value after deserialization");
-        assertEquals(TEST_GENDER, obj.gender, "Invalid gender value after deserialization");
-        assertEquals(TEST_COLLEGE, obj.college, "Invalid college value after deserialization");
-        assertEquals(TEST_PROG_STUDY, obj.progStudy, "Invalid program_code value after deserialization");
-        assertEquals(TEST_HS_CODE, obj.hsCode, "Invalid hs_code value after deserialization");
-        assertEquals(TEST_TR_CREDITS, obj.trCredits, "Invalid tr_credits value after deserialization");
-        assertEquals(TEST_RESIDENT, obj.resident, "Invalid resident value after deserialization");
-        assertEquals(TEST_RESIDENT_STATE, obj.residentState, "Invalid resident_state value after deserialization");
-        assertEquals(TEST_RESIDENT_COUNTY, obj.residentCounty, "Invalid resident_county value after deserialization");
-        assertEquals(TEST_HS_GPA, obj.hsGpa, "Invalid hs_gpa value after deserialization");
-        assertEquals(TEST_HS_CLASS_RANK, obj.hsClassRank, "Invalid hs_class_rank value after deserialization");
-        assertEquals(TEST_HS_SIZE_CLASS, obj.hsSizeClass, "Invalid hs_size_class value after deserialization");
-        assertEquals(TEST_ACT_SCORE, obj.actScore, "Invalid act_score value after deserialization");
-        assertEquals(TEST_SAT_SCORE, obj.satScore, "Invalid sat_score value after deserialization");
-        assertEquals(TEST_PIDM, obj.pidm, "Invalid pidm value after deserialization");
-        assertEquals(TEST_APLN_TERM, obj.aplnTerm, "Invalid apln_term value after deserialization");
     }
 }

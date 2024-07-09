@@ -54,20 +54,8 @@ final class TestRawLesson {
 
         final RawLesson obj = new RawLesson(TEST_LESSON_ID, TEST_LESSON_TYPE, TEST_DESCR);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawLesson obj = RawLesson.parse(EXPECT_SER99);
-
-        assertEquals(TEST_LESSON_ID, obj.lessonId, "Invalid lesson_id value after deserialization");
-        assertEquals(TEST_LESSON_TYPE, obj.lessonType, "Invalid lesson_type value after deserialization");
-        assertEquals(TEST_DESCR, obj.descr, "Invalid descr value after deserialization");
     }
 }

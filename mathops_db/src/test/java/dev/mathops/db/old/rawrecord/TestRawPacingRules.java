@@ -63,22 +63,8 @@ final class TestRawPacingRules {
         final RawPacingRules obj = new RawPacingRules(TEST_TERM, TEST_PACING_STRUCTURE,
                 TEST_ACTIVITY_TYPE, TEST_REQUIREMENT);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawPacingRules obj = RawPacingRules.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure,
-                "Invalid pacing_structure value after deserialization");
-        assertEquals(TEST_ACTIVITY_TYPE, obj.activityType, "Invalid activity_type value after deserialization");
-        assertEquals(TEST_REQUIREMENT, obj.requirement, "Invalid requirement value after deserialization");
     }
 }

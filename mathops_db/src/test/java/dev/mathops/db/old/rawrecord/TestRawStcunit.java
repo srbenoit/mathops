@@ -88,28 +88,8 @@ final class TestRawStcunit {
                 TEST_REVIEW_STATUS, TEST_REVIEW_SCORE, TEST_REVIEW_POINTS, TEST_PROCTORED_STATUS,
                 TEST_PROCTORED_SCORE, TEST_PROCTORED_POINTS);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string serialization")
-    void test0099() {
-
-        final RawStcunit obj = RawStcunit.parse(EXPECT_SER99);
-
-        assertEquals(TEST_STU_ID, obj.stuId, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid version value after deserialization");
-        assertEquals(TEST_REVIEW_STATUS, obj.reviewStatus, "Invalid review_status value after deserialization");
-        assertEquals(TEST_REVIEW_SCORE, obj.reviewScore, "Invalid review_score value after deserialization");
-        assertEquals(TEST_REVIEW_POINTS, obj.reviewPoints, "Invalid review_points value after deserialization");
-        assertEquals(TEST_PROCTORED_STATUS, obj.proctoredStatus,
-                "Invalid proctored_status value after deserialization");
-        assertEquals(TEST_PROCTORED_SCORE, obj.proctoredScore, "Invalid proctored_score value after deserialization");
-        assertEquals(TEST_PROCTORED_POINTS, obj.proctoredPoints,
-                "Invalid proctored_points value after deserialization");
     }
 }

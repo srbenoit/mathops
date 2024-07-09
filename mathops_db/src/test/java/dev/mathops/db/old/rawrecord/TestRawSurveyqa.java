@@ -95,27 +95,8 @@ final class TestRawSurveyqa {
                 TEST_QUESTION_DESC, TEST_TYPE_QUESTION, TEST_ANSWER, TEST_ANSWER_DESC,
                 TEST_ANSWER_MEANING, TEST_MUST_ANSWER, TEST_TREE_REF);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawSurveyqa obj = RawSurveyqa.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid sttermd_id value after deserialization");
-        assertEquals(TEST_VERSION, obj.version, "Invalid version value after deserialization");
-        assertEquals(TEST_SURVEY_NBR, obj.surveyNbr, "Invalid survey_nbr value after deserialization");
-        assertEquals(TEST_QUESTION_DESC, obj.questionDesc, "Invalid question_desc value after deserialization");
-        assertEquals(TEST_TYPE_QUESTION, obj.typeQuestion, "Invalid type_question value after deserialization");
-        assertEquals(TEST_ANSWER, obj.answer, "Invalid answer value after deserialization");
-        assertEquals(TEST_ANSWER_DESC, obj.answerDesc, "Invalid answer_desc value after deserialization");
-        assertEquals(TEST_ANSWER_MEANING, obj.answerMeaning, "Invalid answer_meaning value after deserialization");
-        assertEquals(TEST_MUST_ANSWER, obj.mustAnswer, "Invalid must_answer value after deserialization");
-        assertEquals(TEST_TREE_REF, obj.treeRef, "Invalid tree_ref value after deserialization");
     }
 }

@@ -59,21 +59,8 @@ final class TestRawCustd {
 
         final RawCustd obj = new RawCustd(TEST_COURSE, TEST_UNIT, TEST_INDEX, TEST_STD_ID);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawCustd obj = RawCustd.parse(EXPECT_SER99);
-
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_UNIT, obj.unit, "Invalid unit value after deserialization");
-        assertEquals(TEST_INDEX, obj.index, "Invalid index value after deserialization");
-        assertEquals(TEST_STD_ID, obj.stdId, "Invalid std_id value after deserialization");
     }
 }

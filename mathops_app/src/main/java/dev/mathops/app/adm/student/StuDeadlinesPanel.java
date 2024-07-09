@@ -50,6 +50,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
 
+    /** An action command. */
+    private static final String CANCEL_CMD = "CANCEL";
+
     /** The data cache. */
     private final Cache cache;
 
@@ -67,6 +70,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
 
     /** An error message. */
     private final JLabel error;
+
+    /** The panel that contains the appeal entry form. */
+    private final JPanel appealForm;
 
     /** A heading for the appeal. */
     private final JLabel appealHeading;
@@ -94,6 +100,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
 
     /** The apply button. */
     private final JButton applyBtn;
+
+    /** The cancel button. */
+    private final JButton cancelBtn;
 
     /**
      * Constructs a new {@code StuDeadlinesPanel}.
@@ -170,22 +179,29 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         this.applyBtn = new JButton("Apply");
         this.applyBtn.setEnabled(false);
         this.applyBtn.setActionCommand(APPLY_CMD);
+        this.applyBtn.setFont(Skin.MEDIUM_15_FONT);
         this.applyBtn.addActionListener(this);
+        this.cancelBtn = new JButton("Cancel");
+        this.cancelBtn.setEnabled(false);
+        this.cancelBtn.setActionCommand(CANCEL_CMD);
+        this.cancelBtn.setFont(Skin.MEDIUM_15_FONT);
+        this.cancelBtn.addActionListener(this);
 
         // For some reason, text areas don't get borders by default...
         final Border border = this.interviewerField.getBorder();
         this.circumstancesArea.setBorder(border);
         this.commentsArea.setBorder(border);
 
+        this.appealForm = makeOffWhitePanel(new StackedBorderLayout(5, 5));
+        this.appealForm.setBackground(Skin.LIGHTEST);
+        this.appealForm.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        add(this.appealForm, StackedBorderLayout.WEST);
+
         if (allowEdit) {
             // Center: detail fields for a deadline override
-            final JPanel center = makeOffWhitePanel(new StackedBorderLayout(5, 5));
-            center.setBackground(Skin.LIGHTEST);
-            center.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-            add(center, StackedBorderLayout.CENTER);
 
             // Empty header to make spacing match left panel
-            center.add(makeHeader(CoreConstants.SPC, false), StackedBorderLayout.NORTH);
+            this.appealForm.add(makeHeader(CoreConstants.SPC, false), StackedBorderLayout.NORTH);
 
             final JLabel[] labels = new JLabel[5];
             labels[0] = new JLabel("Interviewer:");
@@ -206,54 +222,55 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                 lbl.setPreferredSize(newPref);
             }
 
-            center.add(this.appealHeading, StackedBorderLayout.NORTH);
+            this.appealForm.add(this.appealHeading, StackedBorderLayout.NORTH);
 
             final JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 1));
             row1.setBackground(Skin.LIGHTEST);
             row1.add(labels[0]);
             row1.add(this.interviewerField);
-            center.add(row1, StackedBorderLayout.NORTH);
+            this.appealForm.add(row1, StackedBorderLayout.NORTH);
 
             final JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 1));
             row2.setBackground(Skin.LIGHTEST);
             row2.add(labels[1]);
             row2.add(this.appealDateField);
-            center.add(row2, StackedBorderLayout.NORTH);
+            this.appealForm.add(row2, StackedBorderLayout.NORTH);
 
             final JPanel row3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 1));
             row3.setBackground(Skin.LIGHTEST);
             row3.add(labels[2]);
             row3.add(this.reliefGiven);
-            center.add(row3, StackedBorderLayout.NORTH);
+            this.appealForm.add(row3, StackedBorderLayout.NORTH);
 
             final JPanel row4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 1));
             row4.setBackground(Skin.LIGHTEST);
             row4.add(labels[3]);
             row4.add(this.newDeadlineField);
-            center.add(row4, StackedBorderLayout.NORTH);
+            this.appealForm.add(row4, StackedBorderLayout.NORTH);
 
             final JPanel row5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 1));
             row5.setBackground(Skin.LIGHTEST);
             row5.add(labels[4]);
             row5.add(this.nbrAttemptsField);
-            center.add(row5, StackedBorderLayout.NORTH);
+            this.appealForm.add(row5, StackedBorderLayout.NORTH);
 
             final JLabel lbl5 = new JLabel("Circumstances:");
             lbl5.setFont(Skin.MEDIUM_15_FONT);
-            center.add(lbl5, StackedBorderLayout.NORTH);
-            center.add(this.circumstancesArea, StackedBorderLayout.NORTH);
+            this.appealForm.add(lbl5, StackedBorderLayout.NORTH);
+            this.appealForm.add(this.circumstancesArea, StackedBorderLayout.NORTH);
 
             final JLabel lbl6 = new JLabel("Comments:");
             lbl6.setFont(Skin.MEDIUM_15_FONT);
-            center.add(lbl6, StackedBorderLayout.NORTH);
-            center.add(this.commentsArea, StackedBorderLayout.NORTH);
+            this.appealForm.add(lbl6, StackedBorderLayout.NORTH);
+            this.appealForm.add(this.commentsArea, StackedBorderLayout.NORTH);
 
             final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 3));
             buttons.setBackground(Skin.LIGHTEST);
-            this.applyBtn.setFont(Skin.MEDIUM_15_FONT);
             buttons.add(this.applyBtn);
-            center.add(buttons, StackedBorderLayout.NORTH);
+            buttons.add(this.cancelBtn);
+            this.appealForm.add(buttons, StackedBorderLayout.NORTH);
         }
+        this.appealForm.setVisible(false);
 
         // Bottom: error message space
         this.error = makeError();
@@ -297,10 +314,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         if (stterm != null) {
             this.paceDisplay.setText(stterm.pace == null ? "?" : stterm.pace.toString());
             this.paceTrackDisplay.setText(stterm.paceTrack);
-            this.deadlinesGrid.populateDisplay(data);
+            this.deadlinesGrid.populateDisplay(data, this);
         }
     }
-
 
     /**
      * Called when a button is pressed.
@@ -323,7 +339,48 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                     Log.warning(ex);
                 }
             } else {
-                // Just documenting a request or an SDC accommodation
+                // TODO: Just documenting a request or an SDC accommodation
+            }
+        } else if (CANCEL_CMD.equals(cmd)) {
+            this.appealHeading.setText(CoreConstants.EMPTY);
+            this.interviewerField.setText(CoreConstants.EMPTY);
+            this.appealDateField.setText(CoreConstants.EMPTY);
+            this.reliefGiven.setSelected(false);
+            this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+            this.circumstancesArea.setText(CoreConstants.EMPTY);
+            this.commentsArea.setText(CoreConstants.EMPTY);
+            this.applyBtn.setEnabled(false);
+            this.appealForm.setVisible(false);
+        } else if (cmd.startsWith("ADD") && cmd.length() > 5) {
+            final String type = cmd.substring(3, 5);
+            final String nbr = cmd.substring(5);
+            try {
+                final int nbrValue = Integer.parseInt(nbr);
+                final int pace = nbrValue / 100;
+                final int order = (nbrValue / 10) % 10;
+                final int unit = nbrValue % 10;
+
+                Log.info("Request to ADD extension for MS (" + type + ") ", nbr);
+
+                this.appealHeading.setText(CoreConstants.EMPTY);
+                this.interviewerField.setText(CoreConstants.EMPTY);
+                this.appealDateField.setText(CoreConstants.EMPTY);
+                this.reliefGiven.setSelected(false);
+                this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+                this.circumstancesArea.setText(CoreConstants.EMPTY);
+                this.commentsArea.setText(CoreConstants.EMPTY);
+                this.applyBtn.setEnabled(false);
+                this.appealForm.setVisible(false);
+            } catch (final NumberFormatException ex) {
+                Log.warning("Invalid milestone number (", nbr, ")", ex);
+            }
+        } else if (cmd.startsWith("EDIT")) {
+            final int dot = cmd.indexOf('.');
+            if (dot > 6) {
+                final String type = cmd.substring(4, 6);
+                final String nbr = cmd.substring(6, dot);
+                final String index = cmd.substring(dot + 1);
+                Log.info("Request to EDIT extension [" + index + "] for MS (" + type + ") ", nbr);
             }
         }
     }
@@ -341,26 +398,26 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         final String attemptsStr = this.nbrAttemptsField.getText();
 
         if (interviewer == null || interviewer.isBlank()) {
-            JOptionPane.showMessageDialog(this, "Interviewer field may not be empty.",
-                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Interviewer field may not be empty.", "Deadline Appeal",
+                    JOptionPane.ERROR_MESSAGE);
         } else if (appealDateStr == null || appealDateStr.isBlank()) {
-            JOptionPane.showMessageDialog(this, "Appeal date field may not be empty.",
-                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Appeal date field may not be empty.", "Deadline Appeal",
+                    JOptionPane.ERROR_MESSAGE);
         } else if (newDeadlineStr == null || newDeadlineStr.isBlank()) {
             JOptionPane.showMessageDialog(this,
-                    "If relief was given, new deadline date field may not be empty.",
-                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    "If relief was given, new deadline date field may not be empty.", "Deadline Appeal",
+                    JOptionPane.ERROR_MESSAGE);
         } else {
             final LocalDate newDate = interpretDate(newDeadlineStr);
             if (newDate == null) {
-                JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date",
-                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date", "Deadline Appeal",
+                        JOptionPane.ERROR_MESSAGE);
             } else {
                 final LocalDate appealDate = interpretDate(appealDateStr);
 
                 if (appealDate == null) {
-                    JOptionPane.showMessageDialog(this, "Unable to interpret appeal date",
-                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to interpret appeal date", "Deadline Appeal",
+                            JOptionPane.ERROR_MESSAGE);
                 } else {
                     RawPaceAppeals appealRec = null;
                     RawStmilestone stmilestoneRec = null;

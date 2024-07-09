@@ -296,7 +296,7 @@ enum CourseImporter {
 
             if (endStrong == -1) {
                 Log.info("Processing ", fields);
-                Log.info("Record:    ", record.serializedString());
+                Log.info("Record:    ", record);
                 Log.warning("Missing closure of 'strong' tag in course information block.");
                 ok = ESuccessFailure.FAILURE;
             } else {
@@ -305,7 +305,7 @@ enum CourseImporter {
                     final int valueEnd = fields.indexOf("<br", endStrong + 9);
                     if (valueEnd == -1) {
                         Log.info("Processing ", fields);
-                        Log.info("Record:    ", record.serializedString());
+                        Log.info("Record:    ", record);
                         Log.warning("Missing line break at end of '", fieldName, " field in course information block.");
                         ok = ESuccessFailure.FAILURE;
                     } else {

@@ -23,6 +23,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,9 +56,10 @@ public final class DeadlinesGrid extends JPanel {
     /**
      * Populates the grid for a selected student.
      *
-     * @param data the student data
+     * @param data     the student data
+     * @param listener the listener to receive ActionEvents when buttons in the grid are activated
      */
-    public void populateDisplay(final StudentData data) {
+    public void populateDisplay(final StudentData data, final ActionListener listener) {
 
         clearDisplay();
 
@@ -89,7 +91,7 @@ public final class DeadlinesGrid extends JPanel {
             hGroup.addComponent(header);
             vGroup.addComponent(header);
 
-            final JPanel deadlineGrid = makeDeadlineGrid(data, reg);
+            final JPanel deadlineGrid = makeDeadlineGrid(data, reg, listener);
 
             hGroup.addComponent(deadlineGrid);
             vGroup.addComponent(deadlineGrid);
@@ -150,11 +152,13 @@ public final class DeadlinesGrid extends JPanel {
     /**
      * Creates a panel that displays all deadlines for a single course.
      *
-     * @param data the student data
-     * @param reg  the registration record (the pace order controls which deadlines are used)
+     * @param data     the student data
+     * @param reg      the registration record (the pace order controls which deadlines are used)
+     * @param listener the listener to receive ActionEvents when buttons in the grid are activated
      * @return the deadline grid
      */
-    private static JPanel makeDeadlineGrid(final StudentData data, final RawStcourse reg) {
+    private static JPanel makeDeadlineGrid(final StudentData data, final RawStcourse reg,
+                                           final ActionListener listener) {
 
         final RawStterm stterm = data.studentTerm;
         final Integer pace = stterm.pace;
@@ -223,6 +227,9 @@ public final class DeadlinesGrid extends JPanel {
 
         final int regIndex = reg.paceOrder.intValue();
 
+        final List<RawStmilestone> stmsList = new ArrayList<>(3);
+        final List<RawPaceAppeals> appealsList = new ArrayList<>(3);
+
         for (final RawMilestone ms : milestones) {
             if (ms.pace.equals(pace) && ms.paceTrack.equals(track) && ms.getIndex() == regIndex) {
                 // This is a milestone we want to display...
@@ -231,7 +238,7 @@ public final class DeadlinesGrid extends JPanel {
 
                 final GroupLayout.ParallelGroup milestoneRow = gridLayout.createParallelGroup();
 
-                final JLabel unitLbl = new JLabel("  " + unit);
+                final JLabel unitLbl = new JLabel("    " + unit);
                 unitLbl.setFont(Skin.MEDIUM_13_FONT);
                 unitLbl.setForeground(Skin.LABEL_COLOR2);
                 milestoneRow.addComponent(unitLbl);
@@ -266,8 +273,8 @@ public final class DeadlinesGrid extends JPanel {
 
                 // Collect student milestones and pace appeals attached to this milestone, find the currently effective
                 // deadline date
-                final List<RawStmilestone> stmsList = new ArrayList<>(3);
-                final List<RawPaceAppeals> appealsList = new ArrayList<>(3);
+                stmsList.clear();
+                appealsList.clear();
 
                 LocalDate effDate = ms.msDate;
                 for (final RawStmilestone test : stmilestones) {
@@ -370,6 +377,8 @@ public final class DeadlinesGrid extends JPanel {
 
                     final String label = newDateStr + extTypeStr;
                     final JButton editExtension = new JButton(label);
+                    editExtension.setActionCommand("EDIT" + ms.msType + ms.msNbr + "." + i);
+                    editExtension.addActionListener(listener);
                     editExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
                     editExtension.setFont(Skin.BUTTON_13_FONT);
                     editExtension.setForeground(Skin.LABEL_COLOR3);
@@ -382,6 +391,8 @@ public final class DeadlinesGrid extends JPanel {
                 final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
                 flow.setBackground(Skin.WHITE);
                 final JButton addExtension = new JButton("Add...");
+                addExtension.setActionCommand("ADD" + ms.msType + ms.msNbr);
+                addExtension.addActionListener(listener);
                 addExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
                 addExtension.setFont(Skin.BUTTON_13_FONT);
                 flow.add(addExtension);
@@ -405,7 +416,7 @@ public final class DeadlinesGrid extends JPanel {
 
                 for (final RawStexam exam : exams) {
                     if (exam.course.equals(reg.course) && exam.unit.intValue() == unit && exam.examType.equals
-                    (examType)
+                            (examType)
                             && "Y".equals(exam.passed)) {
                         if (earliestCompletion == null || exam.examDt.isBefore(earliestCompletion)) {
                             earliestCompletion = exam.examDt;
@@ -421,7 +432,7 @@ public final class DeadlinesGrid extends JPanel {
                     }
                 }
 
-                final String completionStr = earliestCompletion == null? CoreConstants.SPC :
+                final String completionStr = earliestCompletion == null ? CoreConstants.SPC :
                         TemporalUtils.FMT_MDY_COMPACT_FIXED.format(earliestCompletion);
                 final JLabel completionLbl = new JLabel(completionStr);
                 completionLbl.setFont(Skin.MEDIUM_13_FONT);
@@ -430,7 +441,7 @@ public final class DeadlinesGrid extends JPanel {
                 milestoneRow.addComponent(completionLbl);
                 col5.addComponent(completionLbl);
 
-                final String onTimeStr = onTime == null? CoreConstants.SPC : onTime.booleanValue() ? "Y" : "N";
+                final String onTimeStr = onTime == null ? CoreConstants.SPC : onTime.booleanValue() ? "Y" : "N";
                 final JLabel onTimeLbl = new JLabel(onTimeStr);
                 onTimeLbl.setFont(Skin.MEDIUM_13_FONT);
                 onTimeLbl.setForeground(Skin.LABEL_COLOR2);

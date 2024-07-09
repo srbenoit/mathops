@@ -58,20 +58,8 @@ final class TestRawPrereq {
 
         final RawPrereq obj = new RawPrereq(TEST_TERM, TEST_COURSE, TEST_PREREQUISITE);
 
-        final String ser = obj.serializedString();
+        final String ser = obj.toString();
 
         assertEquals(EXPECT_SER99, ser, "Invalid serialized string");
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("string deserialization")
-    void test0099() {
-
-        final RawPrereq obj = RawPrereq.parse(EXPECT_SER99);
-
-        assertEquals(TEST_TERM, obj.termKey, "Invalid term value after deserialization");
-        assertEquals(TEST_COURSE, obj.course, "Invalid course value after deserialization");
-        assertEquals(TEST_PREREQUISITE, obj.prerequisite, "Invalid prerequisite value after deserialization");
     }
 }
