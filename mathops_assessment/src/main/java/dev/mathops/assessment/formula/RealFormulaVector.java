@@ -165,6 +165,8 @@ public final class RealFormulaVector extends AbstractFormulaContainer implements
                 }
             }
 
+            // TODO: If all constant, return a constant vector
+
             if (value instanceof final Number numberVal) {
                 elements[i] = numberVal.doubleValue();
             } else if (value instanceof final ErrorValue errorVal) {
@@ -174,15 +176,7 @@ public final class RealFormulaVector extends AbstractFormulaContainer implements
             }
         }
 
-        final AbstractFormulaObject result;
-
-        if (error == null) {
-            result = new ConstRealVector(new RealVectorValue(elements));
-        } else {
-            result = error;
-        }
-
-        return result;
+        return error == null ? new ConstRealVector(new RealVectorValue(elements)) : error;
     }
 
     /**

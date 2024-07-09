@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.Container;
 import java.awt.FlowLayout;
@@ -238,30 +237,20 @@ public final class DeadlinesGrid extends JPanel {
                 milestoneRow.addComponent(unitLbl);
                 col1.addComponent(unitLbl);
 
-                final String typeStr;
-                if ("RE".equals(ms.msType)) {
-                    typeStr = "Review Exam";
-                } else if ("UE".equals(ms.msType)) {
-                    typeStr = "Unit Exam";
-                } else if ("FE".equals(ms.msType)) {
-                    typeStr = "Final Exam";
-                } else if ("F1".equals(ms.msType)) {
-                    typeStr = "Final +1";
-                } else if ("SR".equals(ms.msType)) {
-                    typeStr = "Skills Review";
-                } else if ("H1".equals(ms.msType)) {
-                    typeStr = "Homework 1";
-                } else if ("H2".equals(ms.msType)) {
-                    typeStr = "Homework 2";
-                } else if ("H3".equals(ms.msType)) {
-                    typeStr = "Homework 3";
-                } else if ("H4".equals(ms.msType)) {
-                    typeStr = "Homework 4";
-                } else if ("H5".equals(ms.msType)) {
-                    typeStr = "Homework 5";
-                } else {
-                    typeStr = ms.msType;
-                }
+                final String typeStr = switch (ms.msType) {
+                    case "RE" -> "Review Exam";
+                    case "UE" -> "Unit Exam";
+                    case "FE" -> "Final Exam";
+                    case "F1" -> "Final +1";
+                    case "SR" -> "Skills Review";
+                    case "H1" -> "Homework 1";
+                    case "H2" -> "Homework 2";
+                    case "H3" -> "Homework 3";
+                    case "H4" -> "Homework 4";
+                    case "H5" -> "Homework 5";
+                    case null, default -> ms.msType;
+                };
+
                 final JLabel msTypeLbl = new JLabel(typeStr);
                 msTypeLbl.setFont(Skin.MEDIUM_13_FONT);
                 msTypeLbl.setForeground(Skin.LABEL_COLOR2);

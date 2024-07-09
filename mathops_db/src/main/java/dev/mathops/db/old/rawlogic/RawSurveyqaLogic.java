@@ -4,7 +4,6 @@ import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

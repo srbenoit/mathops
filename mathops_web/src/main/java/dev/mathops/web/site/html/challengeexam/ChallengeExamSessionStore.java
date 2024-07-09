@@ -15,7 +15,6 @@ import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.Attribute;
 import dev.mathops.commons.parser.xml.CData;
 import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.NonemptyElement;
 import dev.mathops.commons.parser.xml.XmlContent;

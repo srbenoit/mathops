@@ -1,7 +1,5 @@
 package dev.mathops.dbjobs.batch.daily;
 
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -10,14 +8,9 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * A simple class that connects to the ODS system and queries metadata for the views we use.

@@ -6,15 +6,9 @@ import com.sun.net.httpserver.HttpServer;
 import dev.mathops.commons.log.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * The observer, who simply gets notified of a positive result.

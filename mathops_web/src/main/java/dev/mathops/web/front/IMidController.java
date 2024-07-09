@@ -1,8 +1,8 @@
 package dev.mathops.web.front;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 /**
@@ -18,11 +18,10 @@ public interface IMidController {
      * @param req         the request
      * @param resp        the response
      * @param requestPath the complete request path
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     void serviceInsecure(HttpServletRequest req, HttpServletResponse resp, String requestPath)
-            throws IOException, ServletException;
+            throws IOException;
 
     /**
      * Services a request. The connection is known to be secure (HTTPS) at this point.
@@ -30,9 +29,8 @@ public interface IMidController {
      * @param req         the request
      * @param resp        the response
      * @param requestPath the complete request path
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     void serviceSecure(HttpServletRequest req, HttpServletResponse resp, String requestPath)
-            throws IOException, ServletException;
+            throws IOException;
 }

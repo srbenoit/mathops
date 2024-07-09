@@ -5,8 +5,8 @@ import dev.mathops.commons.PathList;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
@@ -43,13 +43,13 @@ import dev.mathops.web.site.tutorial.precalc.PrecalcTutorialSite;
 import dev.mathops.web.site.txn.TxnSite;
 import dev.mathops.web.site.video.VideoSite;
 import dev.mathops.web.webservice.WebServiceSite;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -240,13 +240,11 @@ public final class WebMidController implements IMidController {
      * @param req         the request
      * @param resp        the response
      * @param requestPath the complete request path
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     @Override
-    public void serviceSecure(final HttpServletRequest req,
-                              final HttpServletResponse resp, final String requestPath)
-            throws IOException, ServletException {
+    public void serviceSecure(final HttpServletRequest req, final HttpServletResponse resp, final String requestPath)
+            throws IOException {
 
         final ESiteType type;
         final String reqHost;
@@ -357,12 +355,11 @@ public final class WebMidController implements IMidController {
      * @param req         the request
      * @param resp        the response
      * @param requestPath the complete request path
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     @Override
-    public void serviceInsecure(final HttpServletRequest req, final HttpServletResponse resp,
-                                final String requestPath) throws IOException, ServletException {
+    public void serviceInsecure(final HttpServletRequest req, final HttpServletResponse resp, final String requestPath)
+            throws IOException {
 
         final ESiteType type;
         final String reqHost;

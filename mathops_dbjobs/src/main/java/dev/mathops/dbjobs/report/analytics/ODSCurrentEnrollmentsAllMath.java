@@ -81,12 +81,7 @@ final class ODSCurrentEnrollmentsAllMath {
         } else if (this.odsCtx == null) {
             Log.warning("Unable to create ODS database context.");
         } else {
-            try {
-                generateReport(report, csv);
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                report.add("EXCEPTION: " + ex.getMessage());
-            }
+            generateReport(report, csv);
         }
 
         final HtmlBuilder reportContent = new HtmlBuilder(10000);
@@ -118,16 +113,14 @@ final class ODSCurrentEnrollmentsAllMath {
         }
     }
 
-
     /**
      * Queries data from Banner and generates the report.
      *
      * @param report a list of strings to which to add report output lines
-     * @param csv a list of strings to which to add CSV report lines
+     * @param csv    a list of strings to which to add CSV report lines
      * @throws SQLException if there is an error accessing the database
      */
-    private void generateReport(final Collection<? super String> report, final Collection<? super String> csv)
-            throws SQLException {
+    private void generateReport(final Collection<? super String> report, final Collection<? super String> csv) {
 
         final LocalDate today = LocalDate.now();
         report.add(SimpleBuilder.concat("MATH Enrollment Report as of ", TemporalUtils.FMT_MDY.format(today)));
@@ -205,9 +198,9 @@ final class ODSCurrentEnrollmentsAllMath {
     /**
      * Processes a list of registration records to generate report output.
      *
-     * @param regs the list of registration records
+     * @param regs   the list of registration records
      * @param report the report to which to append
-     * @param csv the CSV file to which to append
+     * @param csv    the CSV file to which to append
      */
     private void processList(final List<RegData> regs, final Collection<? super String> report,
                              final Collection<? super String> csv) {

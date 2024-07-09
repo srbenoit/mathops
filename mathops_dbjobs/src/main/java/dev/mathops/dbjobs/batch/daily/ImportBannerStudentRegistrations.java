@@ -139,10 +139,8 @@ public final class ImportBannerStudentRegistrations {
      * @param cache  the data cache
      * @param active the active term
      * @param report a list of strings to which to add report output lines
-     * @throws SQLException if there is an error querying the database
      */
-    private void executeInTerm(final Cache cache, final TermRec active, final Collection<? super String> report)
-            throws SQLException {
+    private void executeInTerm(final Cache cache, final TermRec active, final Collection<? super String> report) {
 
         report.add(CoreConstants.EMPTY);
         report.add("Retrieving data from Banner:");

@@ -24,13 +24,13 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
@@ -99,6 +99,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A handler for requests to update an in-progress exam, including finalization of the exam, resulting in execution of
@@ -106,7 +107,7 @@ import java.util.List;
  * <p>
  * This class is not thread-safe. Use a new handler within each thread.
  */
-public final  class UpdateExamHandler extends AbstractHandlerBase {
+public final class UpdateExamHandler extends AbstractHandlerBase {
 
     /**
      * Constructs a new {@code UpdateExamHandler}.
@@ -446,6 +447,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         }
 
     }
+
     /**
      * Processes finalization of an "OLD" exam.
      *
@@ -471,11 +473,11 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         final ZoneOffset zonedNowOffset = zonedNow.getOffset();
 
         final long startSecond = presented.presentationTime / 1000L;
-        final int startNano = (int)(presented.presentationTime % 1000L) * 1000000;
+        final int startNano = (int) (presented.presentationTime % 1000L) * 1000000;
         final LocalDateTime start = LocalDateTime.ofEpochSecond(startSecond, startNano, zonedNowOffset);
 
         final long endSecond = presented.completionTime / 1000L;
-        final int endNano = (int)(presented.completionTime % 1000L) * 1000000;
+        final int endNano = (int) (presented.completionTime % 1000L) * 1000000;
         final LocalDateTime finish = LocalDateTime.ofEpochSecond(endSecond, endNano, zonedNowOffset);
 
         final int ser = presented.serialNumber.intValue();
@@ -562,7 +564,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 } else {
                     final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ", unitInt, ".",
                             objInt);
-                    Log.warning("Found " + count+ " mastery exams for ", courseTargetStr);
+                    Log.warning("Found " + count + " mastery exams for ", courseTargetStr);
                 }
             }
         }
@@ -572,6 +574,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
     /**
      * Attempts to parse a unit and objective number from the short name of an exam section.
+     *
      * @param shortName the short name
      * @return a 2-integer array with the parsed unit and objective number if successful; null if not
      */
@@ -588,7 +591,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 final int unit = Integer.parseInt(unitStr);
                 final int obj = Integer.parseInt(objStr);
 
-                result = new int[] {unit, obj};
+                result = new int[]{unit, obj};
 
             } catch (final NumberFormatException ex) {
                 Log.warning("Unable to parse unit number from section name: ", shortName, ex);
@@ -623,7 +626,6 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
 
         Log.info("Grading exam for student ", student.stuId, ", exam ", presented.examVersion, ": Proctored=",
                 param1.getValue(), ", Remote=" + presented.remote);
-
 
         // Get the student's SAT and ACT scores from the database, and store in parameters for use in scoring formulas.
         loadSatActSurvey(cache, params);
@@ -1668,11 +1670,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
     private boolean insertPlacementResults(final Cache cache, final StudentExamRec stexam) throws SQLException {
 
         // Indicate all required placements.
-        final Iterator<String> iter1 = stexam.earnedPlacement.iterator();
 
-        while (iter1.hasNext()) {
-            final String placeIn = iter1.next();
-
+        for (final String placeIn : stexam.earnedPlacement) {
             if (stexam.earnedCredit.contains(placeIn)) {
                 // If credit is awarded, we don't award placement too
                 continue;
@@ -1735,11 +1734,7 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         // Record all ignored placement results
-        final Iterator<String> iter4 = stexam.deniedPlacement.keySet().iterator();
-
-        while (iter4.hasNext()) {
-            final String placeIn = iter4.next();
-
+        for (final Map.Entry<String, String> entry : stexam.deniedPlacement.entrySet()) {
             String source = null;
             if (stexam.proctored) {
                 if (getMachineId() == null) {
@@ -1751,9 +1746,8 @@ public final  class UpdateExamHandler extends AbstractHandlerBase {
                 }
             }
 
-            final RawMpecrDenied denied = new RawMpecrDenied(stexam.studentId, placeIn, //
-                    "P", stexam.finish.toLocalDate(),
-                    stexam.deniedPlacement.get(placeIn), stexam.serialNumber, stexam.examId, source);
+            final RawMpecrDenied denied = new RawMpecrDenied(stexam.studentId, entry.getKey(), "P",
+                    stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId, source);
 
             RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
         }

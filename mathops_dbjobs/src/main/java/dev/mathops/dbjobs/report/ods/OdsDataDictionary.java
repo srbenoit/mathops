@@ -53,12 +53,7 @@ final class OdsDataDictionary {
         } else if (this.odsCtx == null) {
             report.add("Unable to create ODS database context.");
         } else {
-            try {
-                execute(report);
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                report.add("Unable to obtain connection to ODS database");
-            }
+            execute(report);
         }
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
@@ -75,9 +70,8 @@ final class OdsDataDictionary {
      * Executes the query against the ODS and loads data into the primary schema.
      *
      * @param report a list of strings to which to add report output lines
-     * @throws SQLException if there is an error querying the database
      */
-    private void execute(final Collection<? super String> report) throws SQLException {
+    private void execute(final Collection<? super String> report) {
 
         final DbConnection odsConn = this.odsCtx.checkOutConnection();
 

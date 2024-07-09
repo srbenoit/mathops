@@ -21,10 +21,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionListener;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 

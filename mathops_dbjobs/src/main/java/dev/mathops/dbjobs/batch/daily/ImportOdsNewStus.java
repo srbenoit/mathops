@@ -68,9 +68,6 @@ public final class ImportOdsNewStus {
 
                 try {
                     execute(cache, report);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    report.add("Unable to perform query");
                 } finally {
                     this.primaryCtx.checkInConnection(conn);
                 }
@@ -95,9 +92,8 @@ public final class ImportOdsNewStus {
      *
      * @param cache  the data cache
      * @param report a list of strings to which to add report output lines
-     * @throws SQLException if there is an error querying the database
      */
-    private void execute(final Cache cache, final Collection<? super String> report) throws SQLException {
+    private void execute(final Cache cache, final Collection<? super String> report) {
 
         final DbConnection odsConn = this.odsCtx.checkOutConnection();
 
