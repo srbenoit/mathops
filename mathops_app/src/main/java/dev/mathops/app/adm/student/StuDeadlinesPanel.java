@@ -144,7 +144,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
         setBackground(Skin.LIGHTEST);
 
         final Integer permission = theFixed.getClearanceLevel("STU_DLINE");
-        final boolean allowEdit = permission != null && permission.intValue() < 3;
+        final boolean editAllowed = permission != null && permission.intValue() < 3;
 
         // Top - student's pace and pace track
         final JPanel top = makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
@@ -177,7 +177,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
 
         add(makeHeader("Deadlines", false), StackedBorderLayout.NORTH);
 
-        this.deadlinesGrid = new DeadlinesGrid();
+        this.deadlinesGrid = new DeadlinesGrid(editAllowed);
 
         // Left side: Deadlines by registration, with 'appeal' option, if authorized
 
@@ -237,7 +237,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
         this.appealForm.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         add(this.appealForm, StackedBorderLayout.WEST);
 
-        if (allowEdit) {
+        if (editAllowed) {
             // Center: detail fields for a deadline override
 
             final JLabel[] labels = new JLabel[5];
@@ -350,17 +350,23 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
 
         final RawStterm stterm = data.studentTerm;
 
-        if (stterm != null) {
-            this.paceDisplay.setText(stterm.pace == null ? "?" : stterm.pace.toString());
-            this.paceTrackDisplay.setText(stterm.paceTrack);
-
+        if (data.pacedRegistrations.isEmpty()) {
+          this.deadlinesGrid.indicateNoCourses();
+        } else {
             if (data.student.extensionDays == null) {
                 this.extDaysDisplay.setText(CoreConstants.EMPTY);
             } else {
                 this.extDaysDisplay.setText(data.student.extensionDays.toString());
             }
 
-            this.deadlinesGrid.populateDisplay(data, this);
+            if (stterm == null) {
+                this.deadlinesGrid.clearDisplay();
+            } else {
+                this.paceDisplay.setText(stterm.pace == null ? "?" : stterm.pace.toString());
+                this.paceTrackDisplay.setText(stterm.paceTrack);
+
+                this.deadlinesGrid.populateDisplay(data, this);
+            }
         }
 
         clearAndHideForm();
@@ -395,6 +401,10 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
      */
     private void initiateAdd(final String cmd) {
 
+        final Integer permission = this.fixed.getClearanceLevel("STU_DLINE");
+        final boolean allowEdit = permission != null && permission.intValue() < 3;
+
+        if (allowEdit) {
         final String nbr = cmd.substring(5);
 
         this.editAppeal = null;
@@ -449,6 +459,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
         } catch (final NumberFormatException ex) {
             Log.warning("Invalid milestone number (", nbr, ")", ex);
         }
+        }
     }
 
     /**
@@ -459,110 +470,115 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
      */
     private void initiateEdit(final String cmd) {
 
-        this.editAppeal = null;
-        this.editMilestone = null;
-        this.addMilestone = null;
+        final Integer permission = this.fixed.getClearanceLevel("STU_DLINE");
+        final boolean allowEdit = permission != null && permission.intValue() < 3;
 
-        final int dot = cmd.indexOf('.');
-        if (dot > 6) {
-            final String nbr = cmd.substring(6, dot);
-            final String index = cmd.substring(dot + 1);
+        if (allowEdit) {
+            this.editAppeal = null;
+            this.editMilestone = null;
+            this.addMilestone = null;
 
-            try {
-                final int nbrValue = Integer.parseInt(nbr);
-                final int indexValue = Integer.parseInt(index);
+            final int dot = cmd.indexOf('.');
+            if (dot > 6) {
+                final String nbr = cmd.substring(6, dot);
+                final String index = cmd.substring(dot + 1);
 
-                final String type = cmd.substring(4, 6);
+                try {
+                    final int nbrValue = Integer.parseInt(nbr);
+                    final int indexValue = Integer.parseInt(index);
 
-                RawMilestone ms = null;
-                for (final RawMilestone test : this.studentData.milestones) {
-                    if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
-                        ms = test;
-                        break;
-                    }
-                }
+                    final String type = cmd.substring(4, 6);
 
-                if (ms == null) {
-                    Log.warning("Unable to find milestone associated with appeal being edited.");
-                } else {
-                    RawStmilestone stms = null;
-                    int i = 0;
-                    for (final RawStmilestone test : this.studentData.studentMilestones) {
+                    RawMilestone ms = null;
+                    for (final RawMilestone test : this.studentData.milestones) {
                         if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
-                            if (i == indexValue) {
-                                stms = test;
-                                break;
-                            }
-                            ++i;
+                            ms = test;
+                            break;
                         }
                     }
 
-                    if (stms == null) {
-                        Log.warning("Unable to find student milestone associated with appeal being edited.");
+                    if (ms == null) {
+                        Log.warning("Unable to find milestone associated with appeal being edited.");
                     } else {
-                        final String track = this.studentData.studentTerm.paceTrack;
-
-                        RawPaceAppeals appeal = null;
-                        for (final RawPaceAppeals test : this.studentData.paceAppeals) {
-                            if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
-                                    && test.newDeadlineDt.equals(stms.msDate)
-                                    && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
-                                appeal = test;
-                                break;
+                        RawStmilestone stms = null;
+                        int i = 0;
+                        for (final RawStmilestone test : this.studentData.studentMilestones) {
+                            if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
+                                if (i == indexValue) {
+                                    stms = test;
+                                    break;
+                                }
+                                ++i;
                             }
                         }
 
-                        if (appeal == null) {
-                            Log.warning("Unable to find pace appeal associated with appeal being edited.");
+                        if (stms == null) {
+                            Log.warning("Unable to find student milestone associated with appeal being edited.");
                         } else {
-                            this.editMilestone = stms;
-                            this.editAppeal = appeal;
+                            final String track = this.studentData.studentTerm.paceTrack;
 
-                            final int order = (nbrValue / 10) % 10;
-                            final int unit = nbrValue % 10;
-                            final String typeStr = ms.getTypeString();
-
-                            final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
-
-                            this.appealHeading.setText("Edit Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
-
-                            this.interviewerField.setText(appeal.interviewer);
-                            final String dtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(appeal.appealDt);
-                            this.appealDateField.setText(dtStr);
-                            this.reliefGiven.setSelected("Y".equals(appeal.reliefGiven));
-
-                            if (!stms.msDate.equals(appeal.newDeadlineDt)) {
-                                Log.warning("Date in appeal record does not match date in StMilestone record!");
+                            RawPaceAppeals appeal = null;
+                            for (final RawPaceAppeals test : this.studentData.paceAppeals) {
+                                if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
+                                        && test.newDeadlineDt.equals(stms.msDate)
+                                        && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
+                                    appeal = test;
+                                    break;
+                                }
                             }
 
-                            final String msDtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(stms.msDate);
-                            this.newDeadlineField.setText(msDtStr);
-                            this.nbrAttemptsField.setText(stms.nbrAtmptsAllow == null ? CoreConstants.EMPTY :
-                                    Integer.toString(stms.nbrAtmptsAllow));
-                            this.circumstancesArea.setText(appeal.circumstances == null ? CoreConstants.EMPTY :
-                                    appeal.circumstances);
-                            this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY : appeal.comment);
+                            if (appeal == null) {
+                                Log.warning("Unable to find pace appeal associated with appeal being edited.");
+                            } else {
+                                this.editMilestone = stms;
+                                this.editAppeal = appeal;
 
-                            this.reliefGiven.setEnabled(true);
-                            this.nbrAttemptsField.setEnabled(true);
-                            this.newDeadlineField.setEnabled(true);
-                            this.circumstancesArea.setEnabled(true);
-                            this.commentsArea.setEnabled(true);
-                            this.applyBtn.setEnabled(true);
+                                final int order = (nbrValue / 10) % 10;
+                                final int unit = nbrValue % 10;
+                                final String typeStr = ms.getTypeString();
 
-                            this.appealForm.setVisible(true);
-                            this.calendar.setListener(this);
+                                final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
 
-                            invalidate();
-                            revalidate();
+                                this.appealHeading.setText("Edit Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+
+                                this.interviewerField.setText(appeal.interviewer);
+                                final String dtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(appeal.appealDt);
+                                this.appealDateField.setText(dtStr);
+                                this.reliefGiven.setSelected("Y".equals(appeal.reliefGiven));
+
+                                if (!stms.msDate.equals(appeal.newDeadlineDt)) {
+                                    Log.warning("Date in appeal record does not match date in StMilestone record!");
+                                }
+
+                                final String msDtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(stms.msDate);
+                                this.newDeadlineField.setText(msDtStr);
+                                this.nbrAttemptsField.setText(stms.nbrAtmptsAllow == null ? CoreConstants.EMPTY :
+                                        Integer.toString(stms.nbrAtmptsAllow));
+                                this.circumstancesArea.setText(appeal.circumstances == null ? CoreConstants.EMPTY :
+                                        appeal.circumstances);
+                                this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY : appeal.comment);
+
+                                this.reliefGiven.setEnabled(true);
+                                this.nbrAttemptsField.setEnabled(true);
+                                this.newDeadlineField.setEnabled(true);
+                                this.circumstancesArea.setEnabled(true);
+                                this.commentsArea.setEnabled(true);
+                                this.applyBtn.setEnabled(true);
+
+                                this.appealForm.setVisible(true);
+                                this.calendar.setListener(this);
+
+                                invalidate();
+                                revalidate();
+                            }
                         }
                     }
+                } catch (final NumberFormatException ex) {
+                    Log.warning("Invalid milestone number (", nbr, ")", ex);
                 }
-            } catch (final NumberFormatException ex) {
-                Log.warning("Invalid milestone number (", nbr, ")", ex);
+            } else {
+                Log.warning("Invalid milestone request (", cmd, ")");
             }
-        } else {
-            Log.warning("Invalid milestone request (", cmd, ")");
         }
     }
 

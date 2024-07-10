@@ -37,10 +37,15 @@ public final class DeadlinesGrid extends JPanel {
     /** The layout. */
     private final GroupLayout layout;
 
+    /** True if the current user is allowed to edit deadlines. */
+    private final boolean editAllowed;
+
     /**
      * Constructs a new {@code DeadlinesGrid}.
+     *
+     * @param isEditAllowed true if the current user is allowed to edit deadlines
      */
-    DeadlinesGrid() {
+    DeadlinesGrid(final boolean isEditAllowed) {
 
         super();
 
@@ -50,6 +55,8 @@ public final class DeadlinesGrid extends JPanel {
         this.layout.setAutoCreateGaps(true);
         this.layout.setAutoCreateContainerGaps(false);
         setLayout(this.layout);
+
+        this.editAllowed = isEditAllowed;
     }
 
     /**
@@ -122,8 +129,7 @@ public final class DeadlinesGrid extends JPanel {
      * @param listener the listener to receive ActionEvents when buttons in the grid are activated
      * @return the deadline grid
      */
-    private static JPanel makeDeadlineGrid(final StudentData data, final RawStcourse reg,
-                                           final ActionListener listener) {
+    private JPanel makeDeadlineGrid(final StudentData data, final RawStcourse reg, final ActionListener listener) {
 
         final RawStterm stterm = data.studentTerm;
         final Integer pace = stterm.pace;
@@ -325,28 +331,37 @@ public final class DeadlinesGrid extends JPanel {
                     }
 
                     final String label = newDateStr + extTypeStr;
-                    final JButton editExtension = new JButton(label);
-                    editExtension.setActionCommand("EDIT" + ms.msType + ms.msNbr + "." + i);
-                    editExtension.addActionListener(listener);
-                    editExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
-                    editExtension.setFont(Skin.BUTTON_13_FONT);
-                    editExtension.setForeground(Skin.LABEL_COLOR3);
-                    editExtension.setToolTipText(toolText);
-                    flow.add(editExtension);
+
+                    if (this.editAllowed) {
+                        final JButton editExtension = new JButton(label);
+                        editExtension.setActionCommand("EDIT" + ms.msType + ms.msNbr + "." + i);
+                        editExtension.addActionListener(listener);
+                        editExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
+                        editExtension.setFont(Skin.BUTTON_13_FONT);
+                        editExtension.setForeground(Skin.LABEL_COLOR3);
+                        editExtension.setToolTipText(toolText);
+                        flow.add(editExtension);
+                    } else {
+                        final JLabel lbl = new JLabel(label);
+                        lbl.setForeground(Skin.LABEL_COLOR3);
+                        flow.add(lbl);
+                    }
 
                     extensions.add(flow, StackedBorderLayout.NORTH);
                 }
 
-                final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
-                flow.setBackground(Skin.WHITE);
-                final JButton addExtension = new JButton("Add...");
-                addExtension.setActionCommand("ADD" + ms.msType + ms.msNbr);
-                addExtension.addActionListener(listener);
-                addExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
-                addExtension.setFont(Skin.BUTTON_13_FONT);
-                flow.add(addExtension);
+                if (this.editAllowed) {
+                    final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
+                    flow.setBackground(Skin.WHITE);
+                    final JButton addExtension = new JButton("Add...");
+                    addExtension.setActionCommand("ADD" + ms.msType + ms.msNbr);
+                    addExtension.addActionListener(listener);
+                    addExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
+                    addExtension.setFont(Skin.BUTTON_13_FONT);
+                    flow.add(addExtension);
 
-                extensions.add(flow, StackedBorderLayout.NORTH);
+                    extensions.add(flow, StackedBorderLayout.NORTH);
+                }
 
                 milestoneRow.addComponent(extensions);
                 col4.addComponent(extensions);
@@ -415,6 +430,40 @@ public final class DeadlinesGrid extends JPanel {
     public void clearDisplay() {
 
         removeAll();
+    }
+
+    /**
+     * Displays an indication that the student is not registered for any courses that would count toward their paced
+     * deadlines this term.
+     */
+    public void indicateNoCourses() {
+
+        clearDisplay();
+
+        final GroupLayout.ParallelGroup hGroup = this.layout.createParallelGroup(GroupLayout.Alignment.LEADING);
+        final GroupLayout.SequentialGroup vGroup = this.layout.createSequentialGroup();
+
+        final JPanel messages = new JPanel(new StackedBorderLayout());
+        messages.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+
+        final JLabel msg1 = new JLabel("This student is not registered for any courses that count");
+        msg1.setFont(Skin.MEDIUM_15_FONT);
+        msg1.setBackground(Skin.LIGHTEST);
+        msg1.setForeground(Skin.DARK);
+        messages.add(msg1, StackedBorderLayout.NORTH);
+
+
+        final JLabel msg2 = new JLabel("toward their pace in this term.");
+        msg2.setFont(Skin.MEDIUM_15_FONT);
+        msg2.setBackground(Skin.LIGHTEST);
+        msg2.setForeground(Skin.DARK);
+        messages.add(msg2, StackedBorderLayout.NORTH);
+
+        hGroup.addComponent(messages);
+        vGroup.addComponent(messages);
+
+        this.layout.setHorizontalGroup(hGroup);
+        this.layout.setVerticalGroup(vGroup);
     }
 
     /**
