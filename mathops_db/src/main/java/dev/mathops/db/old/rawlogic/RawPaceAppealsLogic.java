@@ -2,6 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 
@@ -104,7 +105,7 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
     }
 
     /**
-     * /** Deletes a record.
+     * Deletes a record.
      *
      * @param cache  the data cache
      * @param record the record to delete
@@ -118,11 +119,59 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
-        sql.add("DELETE FROM pace_appeals ",
+        sql.add("DELETE FROM pace_appeals",
                 " WHERE stu_id=", sqlStringValue(record.stuId),
+                "   AND term=", sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
                 "   AND appeal_dt=", sqlDateValue(record.appealDt),
+                "   AND pace=", sqlIntegerValue(record.pace),
+                "   AND pace_track=", sqlStringValue(record.paceTrack),
                 "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
                 "   AND ms_type=", sqlStringValue(record.msType));
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            result = stmt.executeUpdate(sql.toString()) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Updates a record.
+     *
+     * @param cache  the data cache
+     * @param record the record to update
+     * @return {@code true} if successful; {@code false} if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static boolean update(final Cache cache, final RawPaceAppeals record) throws SQLException {
+
+        final boolean result;
+
+        final HtmlBuilder sql = new HtmlBuilder(100);
+
+        sql.add("UPDATE pace_appeals",
+                " SET relief_given=", sqlStringValue(record.reliefGiven),
+                ", new_deadline_dt=", sqlDateValue(record.newDeadlineDt),
+                ", nbr_atmpts_allow=", sqlIntegerValue(record.nbrAtmptsAllow),
+                ", circumstances=", sqlStringValue(record.circumstances),
+                ", comment=", sqlStringValue(record.comment),
+                " WHERE stu_id=", sqlStringValue(record.stuId),
+                "   AND term=", sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
+                "   AND appeal_dt=", sqlDateValue(record.appealDt),
+                "   AND pace=", sqlIntegerValue(record.pace),
+                "   AND pace_track=", sqlStringValue(record.paceTrack),
+                "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
+                "   AND ms_type=", sqlStringValue(record.msType));
+
+        Log.info(sql.toString());
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;

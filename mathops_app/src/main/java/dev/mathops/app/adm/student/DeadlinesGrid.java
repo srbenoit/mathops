@@ -81,7 +81,22 @@ public final class DeadlinesGrid extends JPanel {
             courseNameLbl.setForeground(Skin.LABEL_COLOR);
             header.add(courseNameLbl);
 
-            final JLabel paceOrderLbl = new JLabel("(Course " + paceOrderStr + " of " + paceStr + ")");
+            String labelText;
+            if ("G".equals(reg.openStatus)) {
+                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [G])";
+            } else if ("N".equals(reg.openStatus)) {
+                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [N])";
+            } else if ("Y".equals(reg.openStatus)) {
+                if ("Y".equals(reg.completed)) {
+                    labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Completed)";
+                } else {
+                    labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Open)";
+                }
+            } else {
+                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Not started)";
+            }
+
+            final JLabel paceOrderLbl = new JLabel(labelText);
             paceOrderLbl.setFont(Skin.MEDIUM_15_FONT);
             paceOrderLbl.setForeground(Skin.LABEL_COLOR);
             header.add(paceOrderLbl);
@@ -134,16 +149,16 @@ public final class DeadlinesGrid extends JPanel {
         final JLabel milestoneHeading = new JLabel("Milestone:");
         milestoneHeading.setFont(Skin.MEDIUM_15_FONT);
         milestoneHeading.setBorder(underline);
-        final JLabel origDateHeading = new JLabel("Orig. Date:   ");
+        final JLabel origDateHeading = new JLabel("Orig. Date:");
         origDateHeading.setFont(Skin.MEDIUM_15_FONT);
         origDateHeading.setBorder(underline);
-        final JLabel extensionsHeading = new JLabel("Extensions:   ");
+        final JLabel extensionsHeading = new JLabel("Extensions:");
         extensionsHeading.setFont(Skin.MEDIUM_15_FONT);
         extensionsHeading.setBorder(underline);
-        final JLabel completedHeading = new JLabel("Completed:   ");
+        final JLabel completedHeading = new JLabel("Completed:");
         completedHeading.setFont(Skin.MEDIUM_15_FONT);
         completedHeading.setBorder(underline);
-        final JLabel onTimeHeading = new JLabel("On-Time:   ");
+        final JLabel onTimeHeading = new JLabel("On-Time:");
         onTimeHeading.setFont(Skin.MEDIUM_15_FONT);
         onTimeHeading.setBorder(underline);
 

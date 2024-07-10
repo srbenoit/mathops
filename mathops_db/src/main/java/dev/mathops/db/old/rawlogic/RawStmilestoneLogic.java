@@ -2,6 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
@@ -254,6 +255,8 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
                 "   AND pace_track=", sqlStringValue(record.paceTrack),
                 "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
                 "   AND ms_type=", sqlStringValue(record.msType));
+
+        Log.info(sql.toString());
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql.toString()) == 1;

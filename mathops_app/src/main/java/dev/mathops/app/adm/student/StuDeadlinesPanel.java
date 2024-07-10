@@ -2,6 +2,8 @@ package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdminPanelBase;
 import dev.mathops.app.adm.FixedData;
+import dev.mathops.app.adm.ISemesterCalendarPaneListener;
+import dev.mathops.app.adm.SemesterCalendarPane;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
@@ -29,6 +31,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -45,7 +48,7 @@ import java.util.Objects;
 /**
  * A panel that shows student deadlines.
  */
-final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
+final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, ISemesterCalendarPaneListener {
 
     /** Version number for serialization. */
     @Serial
@@ -71,6 +74,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
 
     /** A display for the student's pace track. */
     private final JTextField paceTrackDisplay;
+
+    /** A display for the student's number of accommodation extension days. */
+    private final JTextField extDaysDisplay;
 
     /** A panel that will be populated with deadlines. */
     private final DeadlinesGrid deadlinesGrid;
@@ -111,6 +117,18 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
     /** The cancel button. */
     private final JButton cancelBtn;
 
+    /** The calendar display. */
+    final SemesterCalendarPane calendar;
+
+    /** The milestone record currently being edited. */
+    private RawStmilestone editMilestone;
+
+    /** The appeal record currently being edited. */
+    private RawPaceAppeals editAppeal;
+
+    /** The milestone for which an appeal is being added. */
+    private RawMilestone addMilestone;
+
     /**
      * Constructs a new {@code StuDeadlinesPanel}.
      *
@@ -146,25 +164,40 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         trackHeader.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         top.add(trackHeader);
 
-        add(makeHeader("Deadlines", false), StackedBorderLayout.NORTH);
-
         this.paceTrackDisplay = makeTextField(2);
         top.add(this.paceTrackDisplay);
+
+        final JLabel sdcDaysHeader = makeLabel("SDC Extension Days:");
+        sdcDaysHeader.setFont(Skin.MEDIUM_15_FONT);
+        sdcDaysHeader.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        top.add(sdcDaysHeader);
+
+        this.extDaysDisplay = makeTextField(2);
+        top.add(this.extDaysDisplay);
+
+        add(makeHeader("Deadlines", false), StackedBorderLayout.NORTH);
 
         this.deadlinesGrid = new DeadlinesGrid();
 
         // Left side: Deadlines by registration, with 'appeal' option, if authorized
 
-        final JPanel left = new JPanel(new StackedBorderLayout(5, 5));
+        final JPanel left = new JPanel(new BorderLayout(5, 5));
         left.setBackground(Skin.LIGHTEST);
 
-        final JScrollPane deadlinesScroll = new JScrollPane(this.deadlinesGrid);
+        final JPanel inner = new JPanel(new BorderLayout(0, 0));
+        inner.setBackground(Skin.LIGHTEST);
+        inner.add(this.deadlinesGrid, BorderLayout.NORTH);
+
+        final JScrollPane deadlinesScroll = new JScrollPane(inner);
         deadlinesScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         deadlinesScroll.getVerticalScrollBar().setUnitIncrement(10);
         deadlinesScroll.getVerticalScrollBar().setBlockIncrement(100);
-        left.add(deadlinesScroll, StackedBorderLayout.NORTH);
+        left.add(deadlinesScroll, StackedBorderLayout.CENTER);
 
         add(left, StackedBorderLayout.WEST);
+
+        this.calendar = new SemesterCalendarPane(this.cache);
+        add(this.calendar, StackedBorderLayout.WEST);
 
         this.appealHeading = new JLabel("Appeal for:");
         this.appealHeading.setFont(Skin.MEDIUM_15_FONT);
@@ -311,6 +344,8 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
      */
     private void populateDisplay(final StudentData data) {
 
+        this.calendar.initialize();
+
         this.studentData = data;
 
         final RawStterm stterm = data.studentTerm;
@@ -318,8 +353,17 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         if (stterm != null) {
             this.paceDisplay.setText(stterm.pace == null ? "?" : stterm.pace.toString());
             this.paceTrackDisplay.setText(stterm.paceTrack);
+
+            if (data.student.extensionDays == null) {
+                this.extDaysDisplay.setText(CoreConstants.EMPTY);
+            } else {
+                this.extDaysDisplay.setText(data.student.extensionDays.toString());
+            }
+
             this.deadlinesGrid.populateDisplay(data, this);
         }
+
+        clearAndHideForm();
     }
 
     /**
@@ -337,55 +381,10 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         } else if (CANCEL_CMD.equals(cmd)) {
             doCancel();
         } else if (cmd.startsWith("ADD") && cmd.length() > 5) {
-            doAdd(cmd);
+            initiateAdd(cmd);
         } else if (cmd.startsWith("EDIT") && cmd.length() > 6) {
-            doEdit(cmd);
+            initiateEdit(cmd);
         }
-    }
-
-    /**
-     * Performs the "Apply" action.
-     */
-    private void doApply() {
-
-        if (this.studentData == null || this.studentData.studentTerm == null) {
-            JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
-                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
-        } else if (this.reliefGiven.isSelected()) {
-            try {
-                applyAppealReliefGiven();
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-            }
-        } else {
-            // TODO: Just documenting a request or an SDC accommodation
-        }
-    }
-
-    /**
-     * Performs the "Cancel" action.
-     */
-    private void doCancel() {
-
-        this.appealHeading.setText(CoreConstants.EMPTY);
-        this.interviewerField.setText(CoreConstants.EMPTY);
-        this.appealDateField.setText(CoreConstants.EMPTY);
-        this.reliefGiven.setSelected(false);
-        this.nbrAttemptsField.setText(CoreConstants.EMPTY);
-        this.circumstancesArea.setText(CoreConstants.EMPTY);
-        this.commentsArea.setText(CoreConstants.EMPTY);
-
-        this.reliefGiven.setEnabled(false);
-        this.nbrAttemptsField.setEnabled(false);
-        this.newDeadlineField.setEnabled(false);
-        this.circumstancesArea.setEnabled(false);
-        this.commentsArea.setEnabled(false);
-        this.applyBtn.setEnabled(false);
-
-        this.appealForm.setVisible(false);
-
-        invalidate();
-        revalidate();
     }
 
     /**
@@ -394,9 +393,13 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
      * @param cmd the action command, known to have length greater than 5, whose format follows the form "ADDRE432" to
      *            add a RE milestone override for MS number 432
      */
-    private void doAdd(final String cmd) {
+    private void initiateAdd(final String cmd) {
 
         final String nbr = cmd.substring(5);
+
+        this.editAppeal = null;
+        this.editMilestone = null;
+        this.addMilestone = null;
 
         try {
             final int nbrValue = Integer.parseInt(nbr);
@@ -411,13 +414,15 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
             }
 
             if (ms != null) {
+                this.addMilestone = ms;
+
                 final int order = (nbrValue / 10) % 10;
                 final int unit = nbrValue % 10;
                 final String typeStr = ms.getTypeString();
 
                 final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
 
-                this.appealHeading.setText("Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+                this.appealHeading.setText("New Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
                 this.interviewerField.setText(this.fixed.username);
                 final LocalDate now = LocalDate.now();
                 final String nowStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(now);
@@ -427,7 +432,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                 this.nbrAttemptsField.setText(CoreConstants.EMPTY);
                 this.circumstancesArea.setText(CoreConstants.EMPTY);
                 this.commentsArea.setText(CoreConstants.EMPTY);
-                this.appealForm.setVisible(true);
 
                 this.reliefGiven.setEnabled(true);
                 this.nbrAttemptsField.setEnabled(true);
@@ -435,6 +439,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                 this.circumstancesArea.setEnabled(true);
                 this.commentsArea.setEnabled(true);
                 this.applyBtn.setEnabled(true);
+
+                this.appealForm.setVisible(true);
+                this.calendar.setListener(this);
 
                 invalidate();
                 revalidate();
@@ -450,7 +457,11 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
      * @param cmd the action command, known to have length greater than 5, whose format follows the form "EDITRE432.2"
      *            to edit the [2] index RE milestone override for MS number 432
      */
-    private void doEdit(final String cmd) {
+    private void initiateEdit(final String cmd) {
+
+        this.editAppeal = null;
+        this.editMilestone = null;
+        this.addMilestone = null;
 
         final int dot = cmd.indexOf('.');
         if (dot > 6) {
@@ -462,8 +473,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                 final int indexValue = Integer.parseInt(index);
 
                 final String type = cmd.substring(4, 6);
-
-                Log.info("Request to EDIT extension [" + index + "] for MS (" + type + ") ", nbr);
 
                 RawMilestone ms = null;
                 for (final RawMilestone test : this.studentData.milestones) {
@@ -506,13 +515,16 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                         if (appeal == null) {
                             Log.warning("Unable to find pace appeal associated with appeal being edited.");
                         } else {
+                            this.editMilestone = stms;
+                            this.editAppeal = appeal;
+
                             final int order = (nbrValue / 10) % 10;
                             final int unit = nbrValue % 10;
                             final String typeStr = ms.getTypeString();
 
                             final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
 
-                            this.appealHeading.setText("Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+                            this.appealHeading.setText("Edit Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
 
                             this.interviewerField.setText(appeal.interviewer);
                             final String dtStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(appeal.appealDt);
@@ -530,7 +542,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                             this.circumstancesArea.setText(appeal.circumstances == null ? CoreConstants.EMPTY :
                                     appeal.circumstances);
                             this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY : appeal.comment);
-                            this.appealForm.setVisible(true);
 
                             this.reliefGiven.setEnabled(true);
                             this.nbrAttemptsField.setEnabled(true);
@@ -538,6 +549,9 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
                             this.circumstancesArea.setEnabled(true);
                             this.commentsArea.setEnabled(true);
                             this.applyBtn.setEnabled(true);
+
+                            this.appealForm.setVisible(true);
+                            this.calendar.setListener(this);
 
                             invalidate();
                             revalidate();
@@ -553,102 +567,268 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
     }
 
     /**
-     * Applies relief for an appeal.
-     *
-     * @throws SQLException if there is an error accessing the database
+     * Performs the "Apply" action.
      */
-    private void applyAppealReliefGiven() throws SQLException {
+    private void doApply() {
 
-        final String interviewer = this.interviewerField.getText();
-        final String appealDateStr = this.appealDateField.getText();
-        final String newDeadlineStr = this.newDeadlineField.getText();
-        final String attemptsStr = this.nbrAttemptsField.getText();
-
-        if (interviewer == null || interviewer.isBlank()) {
-            JOptionPane.showMessageDialog(this, "Interviewer field may not be empty.", "Deadline Appeal",
-                    JOptionPane.ERROR_MESSAGE);
-        } else if (appealDateStr == null || appealDateStr.isBlank()) {
-            JOptionPane.showMessageDialog(this, "Appeal date field may not be empty.", "Deadline Appeal",
-                    JOptionPane.ERROR_MESSAGE);
-        } else if (newDeadlineStr == null || newDeadlineStr.isBlank()) {
-            JOptionPane.showMessageDialog(this,
-                    "If relief was given, new deadline date field may not be empty.", "Deadline Appeal",
-                    JOptionPane.ERROR_MESSAGE);
+        if (this.studentData == null || this.studentData.studentTerm == null) {
+            JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
+                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+        } else if (this.editAppeal == null || this.editMilestone == null) {
+            doAddApply();
         } else {
-            final LocalDate newDate = interpretDate(newDeadlineStr.trim());
-            if (newDate == null) {
-                JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date", "Deadline Appeal",
-                        JOptionPane.ERROR_MESSAGE);
+            doEditApply();
+        }
+    }
+
+    /**
+     * Performs the "Apply" action when adding a new appeal.
+     */
+    private void doAddApply() {
+
+        this.newDeadlineField.setBackground(Skin.FIELD_BG);
+        this.nbrAttemptsField.setBackground(Skin.FIELD_BG);
+
+        final LocalDate newDate = extractNewDate();
+
+        boolean ok = newDate != null;
+
+        Integer newAttempts = null;
+
+        if (ok) {
+            final String attemptsStr = this.nbrAttemptsField.getText();
+            if (attemptsStr == null || attemptsStr.isBlank()) {
+                if ("F1".equals(this.addMilestone.msType)) {
+                    this.nbrAttemptsField.setBackground(Skin.FIELD_ERROR_BG);
+                    JOptionPane.showMessageDialog(this,
+                            "Number of attempts allowed must be specified for 'Final +1' milestone.",
+                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                }
             } else {
-                final LocalDate appealDate = interpretDate(appealDateStr);
+                try {
+                    newAttempts = Integer.valueOf(attemptsStr.trim());
+                } catch (final NumberFormatException ex) {
+                    this.nbrAttemptsField.setBackground(Skin.FIELD_ERROR_BG);
+                    JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts allowed.",
+                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                }
+            }
+        }
 
-                if (appealDate == null) {
-                    JOptionPane.showMessageDialog(this, "Unable to interpret appeal date", "Deadline Appeal",
-                            JOptionPane.ERROR_MESSAGE);
-                } else {
-                    RawPaceAppeals appealRec = null;
-                    RawStmilestone stmilestoneRec = null;
+        TermRec active = null;
 
-                    final TermRec active = this.cache.getSystemData().getActiveTerm();
+        try {
+            active = this.cache.getSystemData().getActiveTerm();
+        } catch (final SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Unable to query for active term.",
+                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+        }
 
-                    if (attemptsStr == null || attemptsStr.isBlank()) {
-//                        appealRec = new RawPaceAppeals(active.term,
-//                                this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm.pace,
-//                                this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-//                                this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
-//                                newDate, null, this.circumstancesArea.getText(), this.commentsArea.getText(),
-//                                interviewer);
-//                        // FIXME: Use correct extension type
-//                        stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
-//                                this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-//                                this.currentRow.milestoneRecord.msType, newDate, null, "ACC");
-                    } else {
-                        try {
-                            final Integer attempts = Integer.valueOf(attemptsStr);
+        if (ok) {
+            if (active == null) {
+                JOptionPane.showMessageDialog(this, "Unable to query active term.",
+                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+            } else if (this.addMilestone == null) {
+                JOptionPane.showMessageDialog(this, "Unable to determine milestone to appeal.",
+                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+            } else {
+                final String newRelief = this.reliefGiven.isSelected() ? "Y" : "N";
+                final LocalDate appealDate = LocalDate.now();
 
-//                            appealRec = new RawPaceAppeals(active.term,
-//                                    this.studentData.student.stuId, appealDate, "Y", this.studentData.studentTerm
-//                                    .pace,
-//                                    this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-//                                    this.currentRow.milestoneRecord.msType, this.currentRow.milestoneRecord.msDate,
-//                                    newDate, attempts, this.circumstancesArea.getText(), this.commentsArea.getText(),
-//                                    interviewer);
-//                            // FIXME: Use correct extension type
-//                            stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
-//                                    this.studentData.studentTerm.paceTrack, this.currentRow.milestoneRecord.msNbr,
-//                                    this.currentRow.milestoneRecord.msType, newDate, attempts, "ACC");
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts",
-                                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
-                        }
+                final RawPaceAppeals appealRec = new RawPaceAppeals(active.term,
+                        this.studentData.student.stuId, appealDate, newRelief, this.studentData.studentTerm.pace,
+                        this.studentData.studentTerm.paceTrack, this.addMilestone.msNbr, this.addMilestone.msType,
+                        this.addMilestone.msDate, newDate, newAttempts, this.circumstancesArea.getText(),
+                        this.commentsArea.getText(), this.interviewerField.getText());
+
+                // FIXME: Gather and use a real extension type, once the database can record it.
+
+                final RawStmilestone stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
+                        this.studentData.studentTerm.paceTrack, this.addMilestone.msNbr,
+                        this.addMilestone.msType, newDate, newAttempts, "OTH");
+
+                try {
+                    RawPaceAppealsLogic.INSTANCE.insert(this.cache, appealRec);
+                    RawStmilestoneLogic.INSTANCE.insert(this.cache, stmilestoneRec);
+                    clearAndHideForm();
+
+                    // Refresh
+                    this.studentData.studentMilestones.add(stmilestoneRec);
+                    this.studentData.paceAppeals.add(appealRec);
+                    populateDisplay(this.studentData);
+                } catch (final SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Failed to insert appeal: " + ex.getMessage(),
+                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs the "Apply" action when editing an existing appeal.
+     */
+    private void doEditApply() {
+
+        this.newDeadlineField.setBackground(Skin.FIELD_BG);
+        this.nbrAttemptsField.setBackground(Skin.FIELD_BG);
+
+        final LocalDate newDate = extractNewDate();
+
+        boolean ok = newDate != null;
+
+        Integer newAttempts = null;
+
+        if (ok) {
+            final String attemptsStr = this.nbrAttemptsField.getText();
+            if (attemptsStr == null || attemptsStr.isBlank()) {
+                if ("F1".equals(this.editMilestone.msType)) {
+                    this.nbrAttemptsField.setBackground(Skin.FIELD_ERROR_BG);
+                    JOptionPane.showMessageDialog(this,
+                            "Number of attempts allowed must be specified for a 'Final +1' milestone.",
+                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                }
+            } else {
+                try {
+                    newAttempts = Integer.valueOf(attemptsStr.trim());
+                    if (newAttempts.intValue() < 1) {
+                        this.nbrAttemptsField.setBackground(Skin.FIELD_ERROR_BG);
+                        JOptionPane.showMessageDialog(this, "Number of attempts must be at least 1.",
+                                "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                        ok = false;
                     }
+                } catch (final NumberFormatException ex) {
+                    this.nbrAttemptsField.setBackground(Skin.FIELD_ERROR_BG);
+                    JOptionPane.showMessageDialog(this, "Unable to interpret number of attempts allowed.",
+                            "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                }
+            }
+        }
 
-                    if (appealRec != null && stmilestoneRec != null) {
-                        try {
-                            RawPaceAppealsLogic.INSTANCE.insert(this.cache, appealRec);
-                            RawStmilestoneLogic.INSTANCE.insert(this.cache, stmilestoneRec);
+        if (ok) {
+            final String newCircumstances = this.circumstancesArea.getText();
+            final String newComment = this.commentsArea.getText();
 
-                            this.appealHeading.setText(CoreConstants.EMPTY);
-                            this.interviewerField.setText(CoreConstants.EMPTY);
-                            this.appealDateField.setText(CoreConstants.EMPTY);
-                            this.reliefGiven.setSelected(false);
-                            this.newDeadlineField.setText(CoreConstants.EMPTY);
-                            this.nbrAttemptsField.setText(CoreConstants.EMPTY);
-                            this.circumstancesArea.setText(CoreConstants.EMPTY);
-                            this.commentsArea.setText(CoreConstants.EMPTY);
-                            this.applyBtn.setEnabled(false);
+            if (Objects.equals(newDate, this.editMilestone.msDate)
+                    && Objects.equals(newAttempts, this.editMilestone.nbrAtmptsAllow)) {
+                Log.warning("Apply on an edit with no changes to STMILESTONE row.");
+            } else {
+                this.editMilestone.msDate = newDate;
+                this.editMilestone.nbrAtmptsAllow = newAttempts;
+                try {
+                    RawStmilestoneLogic.update(this.cache, this.editMilestone);
+                } catch (final SQLException ex) {
+                    final String[] msg = {"Failed to update student milestone record: ", ex.getMessage()};
+                    JOptionPane.showMessageDialog(this, msg, "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                }
+            }
 
-                            // Refresh
-                            this.studentData.studentMilestones.add(stmilestoneRec);
-                            populateDisplay(this.studentData);
-                        } catch (final SQLException ex) {
-                            JOptionPane.showMessageDialog(this, "Failed to insert appeal: " + ex.getMessage(),
-                                    "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
-                        }
+            if (ok) {
+                final String newRelief = this.reliefGiven.isSelected() ? "Y" : "N";
+
+                if (Objects.equals(newRelief, this.editAppeal.reliefGiven)
+                        && Objects.equals(newDate, this.editAppeal.newDeadlineDt)
+                        && Objects.equals(newAttempts, this.editAppeal.nbrAtmptsAllow)
+                        && Objects.equals(newCircumstances, this.editAppeal.circumstances)
+                        && Objects.equals(newComment, this.editAppeal.comment)) {
+                    Log.warning("Apply on an edit with no changes to PACE_APPEALS row.");
+                } else {
+                    try {
+                        this.editAppeal.reliefGiven = newRelief;
+                        this.editAppeal.newDeadlineDt = newDate;
+                        this.editAppeal.nbrAtmptsAllow = newAttempts;
+                        this.editAppeal.circumstances = newCircumstances;
+                        this.editAppeal.comment = newComment;
+
+                        RawPaceAppealsLogic.update(this.cache, this.editAppeal);
+                    } catch (final SQLException ex) {
+                        final String[] msg = {"Failed to update pace appeal record: ", ex.getMessage()};
+                        JOptionPane.showMessageDialog(this, msg, "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+                        ok = false;
                     }
                 }
             }
         }
+
+        if (ok) {
+            clearAndHideForm();
+            this.populateDisplay(this.studentData);
+        }
+    }
+
+    /**
+     * Extracts the new deadline date from the text field, displaying a warning dialog if the date was not specified or
+     * is not valid.
+     *
+     * @return the extracted date
+     */
+    private LocalDate extractNewDate() {
+
+        LocalDate newDate = null;
+
+        final String newDateStr = this.newDeadlineField.getText();
+        if (newDateStr == null || newDateStr.isBlank()) {
+            this.newDeadlineField.setBackground(Skin.FIELD_ERROR_BG);
+            if (this.reliefGiven.isSelected()) {
+                JOptionPane.showMessageDialog(this, "A deadline is required.", "Deadline Appeal",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "A deadline is required, even if relief was not given.",
+                        "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            newDate = interpretDate(newDateStr.trim());
+            if (newDate == null) {
+                this.newDeadlineField.setBackground(Skin.FIELD_ERROR_BG);
+                JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date.", "Deadline Appeal",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        return newDate;
+    }
+
+    /**
+     * Performs the "Cancel" action.
+     */
+    private void doCancel() {
+
+        clearAndHideForm();
+    }
+
+    /**
+     * Clears and hides the appeal form.
+     */
+    private void clearAndHideForm() {
+
+        this.editMilestone = null;
+        this.editAppeal = null;
+        this.addMilestone = null;
+
+        this.appealHeading.setText(CoreConstants.EMPTY);
+        this.interviewerField.setText(CoreConstants.EMPTY);
+        this.appealDateField.setText(CoreConstants.EMPTY);
+        this.reliefGiven.setSelected(false);
+        this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+        this.circumstancesArea.setText(CoreConstants.EMPTY);
+        this.commentsArea.setText(CoreConstants.EMPTY);
+
+        this.reliefGiven.setEnabled(false);
+        this.nbrAttemptsField.setEnabled(false);
+        this.newDeadlineField.setEnabled(false);
+        this.circumstancesArea.setEnabled(false);
+        this.commentsArea.setEnabled(false);
+        this.applyBtn.setEnabled(false);
+
+        this.appealForm.setVisible(false);
+        this.calendar.setListener(null);
+
+        invalidate();
+        revalidate();
     }
 
     /**
@@ -663,32 +843,30 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         TemporalAccessor newDate = null;
 
         try {
-            newDate = TemporalUtils.FMT_MDY.parse(dateString);
-        } catch (final DateTimeParseException ex1) {
+            newDate = TemporalUtils.FMT_MDY_COMPACT.parse(dateString);
+        } catch (final DateTimeParseException ex2) {
             try {
-                newDate = TemporalUtils.FMT_MDY_COMPACT.parse(dateString);
-            } catch (final DateTimeParseException ex2) {
-                try {
-                    newDate = TemporalUtils.FMT_INFORMIX.parse(dateString);
-                } catch (final DateTimeParseException ex3) {
-                    if (dateString.length() == 6) {
-                        // Try Informix format MMDDYY, like 123199
-                        try {
-                            final int value = Integer.parseInt(dateString);
-                            final int month = value / 10000;
-                            final int day = (value / 100) % 100;
-                            final int year = 2000 + (value % 100);
+                newDate = TemporalUtils.FMT_MDY_COMPACT_FIXED.parse(dateString);
+            } catch (final DateTimeParseException ex3) {
+                if (dateString.length() == 6) {
+                    // Try Informix format MMDDYY, like 123199
+                    try {
+                        final int value = Integer.parseInt(dateString);
+                        final int month = value / 10000;
+                        final int day = (value / 100) % 100;
+                        final int year = 2000 + (value % 100);
 
-                            newDate = LocalDate.of(year, month, day);
-                        } catch (final NumberFormatException | DateTimeException ex) {
-                            // No action
-                        }
+                        newDate = LocalDate.of(year, month, day);
+                    } catch (final NumberFormatException | DateTimeException ex) {
+                        // No action
                     }
                 }
             }
         }
 
-        if (newDate != null) {
+        if (newDate == null) {
+            Log.warning("Failed to interpret '", dateString, "' as date");
+        } else {
             final int day = newDate.get(ChronoField.DAY_OF_MONTH);
             final int month = newDate.get(ChronoField.MONTH_OF_YEAR);
             final int year = newDate.get(ChronoField.YEAR);
@@ -696,5 +874,17 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener {
         }
 
         return date;
+    }
+
+    /**
+     * Called when the user selects a date from the calendar panel.
+     *
+     * @param date the selected date
+     */
+    @Override
+    public void dateSelected(final LocalDate date) {
+
+        final String dateStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(date);
+        this.newDeadlineField.setText(dateStr);
     }
 }
