@@ -57,7 +57,6 @@ import java.util.TreeMap;
  * A container for all data needed by the admin app to populate displays. This is queried once when a student is picked,
  * and then is used to update all tabs, and to support creation of a printed report if needed.
  */
-@Deprecated
 public final class StudentData {
 
     /** A commonly-used string. */
