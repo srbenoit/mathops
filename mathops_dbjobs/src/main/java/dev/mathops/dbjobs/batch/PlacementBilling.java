@@ -98,78 +98,88 @@ public enum PlacementBilling {
      */
     public static void execute(final Cache cache) throws SQLException {
 
-        final LocalDateTime now = LocalDateTime.now();
-        final HtmlBuilder report = new HtmlBuilder(1000);
-        final HtmlBuilder upload = new HtmlBuilder(1000);
-        final HtmlBuilder errors = new HtmlBuilder(100);
-
-        final RawParameters params = gatherParams(cache, errors);
-
-        if (params != null) {
-            writeReportHeader(params, report, now);
-
-            final int count = runJob(cache, params, report, upload, errors);
-
-            if (count > 0) {
-                final File hardcopyFile = new File("/opt/zircon/reports/plc_fee_hardcopy.txt");
-
-                if (hardcopyFile.exists()) {
-                    boolean hit = true;
-                    File bakFile = null;
-                    int bak = 1;
-                    while (hit) {
-                        final String bakName = "plc_fee_hardcopy.bak" + bak;
-                        bakFile = new File(hardcopyFile.getParentFile(), bakName);
-                        hit = bakFile.exists();
-                        ++bak;
-                    }
-                    if (!hardcopyFile.renameTo(bakFile)) {
-                        Log.warning("Failed to rename hardcopy backup file");
-                    }
-                }
-
-                try (final FileWriter fw = new FileWriter(hardcopyFile, StandardCharsets.UTF_8)) {
-                    fw.write(report.toString());
-                    Log.info("Hardcopy report complete, written to: ", hardcopyFile.getAbsolutePath());
-                } catch (final IOException ex) {
-                    Log.warning(ex);
-                }
-
-                final File uploadFile = new File("/opt/zircon/reports/plc_fee_upload.txt");
-
-                if (uploadFile.exists()) {
-                    boolean hit = true;
-                    File bakFile = null;
-                    int bak = 1;
-                    while (hit) {
-                        final String bakName = "plc_fee_upload.bak" + bak;
-                        bakFile = new File(uploadFile.getParentFile(), bakName);
-                        hit = bakFile.exists();
-                        ++bak;
-                    }
-                    if (!uploadFile.renameTo(bakFile)) {
-                        Log.warning("Failed to rename upload backup file");
-                    }
-                }
-
-                try (final FileWriter fw = new FileWriter(uploadFile, StandardCharsets.UTF_8)) {
-                    fw.write(upload.toString());
-                    Log.info("Upload file complete, written to: ", uploadFile.getAbsolutePath());
-                } catch (final IOException ex) {
-                    Log.warning(ex);
-                }
-            }
+        File dir = new File("/opt/zircon/reports/");
+        if (!dir.exists()) {
+            dir = new File("C:\\opt\\zircon\\reports\\");
         }
 
-        if (errors.length() > 0) {
-            final File errFile = new File("/opt/zircon/reports/plc_fee_errors.txt");
+        if (dir.exists() && dir.isDirectory()) {
 
-            try (final FileWriter fw = new FileWriter(errFile, StandardCharsets.UTF_8)) {
-                fw.write(errors.toString());
-                Log.info("Error report written to: ", errFile.getAbsolutePath());
-            } catch (final IOException ex) {
-                Log.warning(ex);
+            final LocalDateTime now = LocalDateTime.now();
+            final HtmlBuilder report = new HtmlBuilder(1000);
+            final HtmlBuilder upload = new HtmlBuilder(1000);
+            final HtmlBuilder errors = new HtmlBuilder(100);
+
+            final RawParameters params = gatherParams(cache, errors);
+
+            if (params != null) {
+                writeReportHeader(params, report, now);
+
+                final int count = runJob(cache, params, report, upload, errors);
+
+                if (count > 0) {
+                    final File hardcopyFile = new File(dir, "plc_fee_hardcopy.txt");
+
+                    if (hardcopyFile.exists()) {
+                        boolean hit = true;
+                        File bakFile = null;
+                        int bak = 1;
+                        while (hit) {
+                            final String bakName = "plc_fee_hardcopy.bak" + bak;
+                            bakFile = new File(hardcopyFile.getParentFile(), bakName);
+                            hit = bakFile.exists();
+                            ++bak;
+                        }
+                        if (!hardcopyFile.renameTo(bakFile)) {
+                            Log.warning("Failed to rename hardcopy backup file");
+                        }
+                    }
+
+                    try (final FileWriter fw = new FileWriter(hardcopyFile, StandardCharsets.UTF_8)) {
+                        fw.write(report.toString());
+                        Log.info("Hardcopy report complete, written to: ", hardcopyFile.getAbsolutePath());
+                    } catch (final IOException ex) {
+                        Log.warning(ex);
+                    }
+
+                    final File uploadFile = new File(dir, "plc_fee_upload.txt");
+
+                    if (uploadFile.exists()) {
+                        boolean hit = true;
+                        File bakFile = null;
+                        int bak = 1;
+                        while (hit) {
+                            final String bakName = "plc_fee_upload.bak" + bak;
+                            bakFile = new File(uploadFile.getParentFile(), bakName);
+                            hit = bakFile.exists();
+                            ++bak;
+                        }
+                        if (!uploadFile.renameTo(bakFile)) {
+                            Log.warning("Failed to rename upload backup file");
+                        }
+                    }
+
+                    try (final FileWriter fw = new FileWriter(uploadFile, StandardCharsets.UTF_8)) {
+                        fw.write(upload.toString());
+                        Log.info("Upload file complete, written to: ", uploadFile.getAbsolutePath());
+                    } catch (final IOException ex) {
+                        Log.warning(ex);
+                    }
+                }
             }
+
+            if (errors.length() > 0) {
+                final File errFile = new File(dir, "plc_fee_errors.txt");
+
+                try (final FileWriter fw = new FileWriter(errFile, StandardCharsets.UTF_8)) {
+                    fw.write(errors.toString());
+                    Log.info("Error report written to: ", errFile.getAbsolutePath());
+                } catch (final IOException ex) {
+                    Log.warning(ex);
+                }
+            }
+        } else {
+            throw new SQLException("Unable to locate directory in which to write reports.");
         }
     }
 
