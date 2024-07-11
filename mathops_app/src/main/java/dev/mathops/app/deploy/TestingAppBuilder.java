@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 final class TestingAppBuilder {
 
     /** The version number. */
-    private static final String VERSION = "1.2.021";
+    private static final String VERSION = "1.2.022";
 
     /** Directory where project is stored. */
     private final File projectDir;
@@ -91,7 +91,7 @@ final class TestingAppBuilder {
                 createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", commonsJar,
                         updaterJar);
 
-                // TODO: Copy all to /opt/public/app/testing
+                // Copy all to /opt/public/app/testing
 
                 copyFile(bls8Jar, this.targetDir);
                 copyFile(commonsJar, this.targetDir);
@@ -110,6 +110,9 @@ final class TestingAppBuilder {
                 copyFile(launchXml, targetLaunch);
                 copyFile(updaterJar, targetLaunch);
                 copyFile(updaterXml, targetLaunch);
+
+                final String targetPath = this.targetDir.getAbsolutePath();
+                Log.finest(Res.fmt(Res.FILE_CREATED, "Testing application files", targetPath), CoreConstants.CRLF);
             }
         } catch (final NoSuchAlgorithmException ex) {
             Log.warning(ex);
@@ -242,7 +245,9 @@ final class TestingAppBuilder {
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.FILE_CREATED, "bls8"), CoreConstants.CRLF);
+
+                final String jarsPath = jars.getAbsolutePath();
+                Log.finest(Res.fmt(Res.FILE_CREATED, "bls8", jarsPath), CoreConstants.CRLF);
 
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
@@ -281,8 +286,9 @@ final class TestingAppBuilder {
                 addFiles(appRoot, wsClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.FILE_CREATED, "launch"), CoreConstants.CRLF);
 
+                final String jarsPath = jars.getAbsolutePath();
+                Log.finest(Res.fmt(Res.FILE_CREATED, "launch", jarsPath), CoreConstants.CRLF);
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
                 success = false;
@@ -309,7 +315,6 @@ final class TestingAppBuilder {
         boolean success = checkDirectoriesExist(appClasses, jars);
 
         if (success) {
-
             try (final FileOutputStream out = new FileOutputStream(new File(jars, "updater.jar"));
                  final BufferedOutputStream bos = new BufferedOutputStream(out, 128 << 10);
                  final JarOutputStream jar = new JarOutputStream(bos)) {
@@ -320,8 +325,9 @@ final class TestingAppBuilder {
                 addFiles(appRoot, wsClasses, jar);
 
                 jar.finish();
-                Log.finest(Res.fmt(Res.FILE_CREATED, "updater"), CoreConstants.CRLF);
 
+                final String jarsPath = jars.getAbsolutePath();
+                Log.finest(Res.fmt(Res.FILE_CREATED, "updater", jarsPath), CoreConstants.CRLF);
             } catch (final IOException ex) {
                 Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
                 success = false;
