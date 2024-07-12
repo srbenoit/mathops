@@ -51,6 +51,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -237,7 +238,7 @@ public final class StudentData {
 
         // At this point, all courses in "regs" have a pace order, but they may not be in the proper order
 
-        final TreeMap<Integer, RawStcourse> sorted = new TreeMap();
+        final SortedMap<Integer, RawStcourse> sorted = new TreeMap<>();
         for (final RawStcourse reg : regs) {
             sorted.put(reg.paceOrder, reg);
         }

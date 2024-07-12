@@ -57,8 +57,7 @@ public final class FormulaEditorTest implements Runnable, IFormulaEditorListener
         final String testText = "test({cd}=1?'':test({cd}=-1?'-':'{cd}'))";
 
         final EvalContext ctx = new EvalContext();
-        final Formula testFormula =
-                FormulaFactory.parseFormulaString(ctx, testText, EParserMode.NORMAL);
+        final Formula testFormula = FormulaFactory.parseFormulaString(ctx, testText, EParserMode.NORMAL);
 
         final HtmlBuilder htm = new HtmlBuilder(100);
         testFormula.appendXml(htm);
@@ -69,8 +68,7 @@ public final class FormulaEditorTest implements Runnable, IFormulaEditorListener
             final XmlContent xmlContent = new XmlContent(xml, false, false);
             final IElement top = xmlContent.getToplevel();
             if (top instanceof final NonemptyElement nonempty) {
-                final Formula extracted =
-                        XmlFormulaFactory.extractFormula(ctx, nonempty, EParserMode.NORMAL);
+                final Formula extracted = XmlFormulaFactory.extractFormula(ctx, nonempty, EParserMode.NORMAL);
 
                 htm.reset();
                 extracted.appendXml(htm);

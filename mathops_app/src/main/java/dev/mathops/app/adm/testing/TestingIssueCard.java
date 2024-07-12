@@ -771,7 +771,7 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         this.studentIdField.requestFocus();
 
         for (final ExamButtonPane pane : this.examButtons.values()) {
-            pane.disable();
+            pane.disableButton();
         }
     }
 
@@ -970,10 +970,10 @@ final class TestingIssueCard extends AdminPanelBase implements ActionListener, F
         button.setTooltip(tipString);
 
         if (status.available) {
-            button.enable();
+            button.enableButton();
             button.setStatusText(Objects.requireNonNullElse(status.note, CoreConstants.SPC));
         } else {
-            button.disable();
+            button.disableButton();
             button.setStatusText(Objects.requireNonNullElse(status.note, CoreConstants.SPC));
             if ("Not Registered".equals(status.note) || "Not Eligible".equals(status.note)) {
                 button.indicateNotRegistered();

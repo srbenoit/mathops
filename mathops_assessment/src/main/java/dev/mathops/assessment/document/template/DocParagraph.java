@@ -7,7 +7,10 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocParagraphInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
+import dev.mathops.font.BundledFontManager;
 
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.PrintStream;
@@ -36,14 +39,47 @@ public final class DocParagraph extends AbstractDocSpanBase {
     /** Code for full justification. */
     static final int FULL = 4;
 
+    /** Code for left hanging justification. */
+    public static final int LEFT_HANG = 5;
+
+    /** Code for no spacing. */
+    public static final int NONE = 11;
+
+    /** Code for small spacing. */
+    public static final int SMALL = 12;
+
+    /** Code for normal spacing. */
+    public static final int NORMAL = 13;
+
+    /** Code for large spacing. */
+    public static final int LARGE = 14;
+
     /** The top inset. */
-    private static final int INSET_TOP = 7;
+    private static final int INSET_TOP_NONE = 1;
+
+    /** The top inset. */
+    private static final int INSET_TOP_NORMAL = 7;
+
+    /** The top inset. */
+    private static final int INSET_TOP_SMALL = 3;
+
+    /** The top inset. */
+    private static final int INSET_TOP_LARGE = 11;
 
     /** The right inset. */
     private static final int INSET_RIGHT = 4;
 
     /** The bottom inset. */
-    private static final int INSET_BOTTOM = 7;
+    private static final int INSET_BOTTOM_NONE = 1;
+
+    /** The bottom inset. */
+    private static final int INSET_BOTTOM_SMALL = 3;
+
+    /** The bottom inset. */
+    private static final int INSET_BOTTOM_NORMAL = 7;
+
+    /** The bottom inset. */
+    private static final int INSET_BOTTOM_LARGE = 11;
 
     /** The left inset. */
     private static final int INSET_LEFT = 4;
@@ -54,6 +90,12 @@ public final class DocParagraph extends AbstractDocSpanBase {
 
     /** The paragraph justification. */
     private int justification = LEFT;
+
+    /** The paragraph spacing. */
+    private int spacing = NORMAL;
+
+    /** The indentation level. */
+    private int indent = 0;
 
     /**
      * Construct a new {@code DocParagraph} object.
@@ -75,6 +117,8 @@ public final class DocParagraph extends AbstractDocSpanBase {
 
         copy.copyObjectFromContainer(this);
         copy.justification = this.justification;
+        copy.spacing = this.spacing;
+        copy.indent = this.indent;
 
         for (final AbstractDocObjectTemplate child : getChildren()) {
             copy.add(child.deepCopy());
@@ -100,12 +144,57 @@ public final class DocParagraph extends AbstractDocSpanBase {
      */
     public void setJustification(final int theJustification) {
 
-        if ((theJustification != LEFT) && (theJustification != RIGHT)
-                && (theJustification != CENTER) && (theJustification != FULL)) {
+        if (theJustification == LEFT || theJustification == RIGHT || theJustification == CENTER
+                || theJustification == FULL || theJustification == LEFT_HANG) {
+            this.justification = theJustification;
+        } else {
             throw new IllegalArgumentException("Invalid justification setting");
         }
+    }
 
-        this.justification = theJustification;
+    /**
+     * Get the paragraph spacing.
+     *
+     * @return the spacing setting. One of NONE, SMALL, NORMAL, or LARGE
+     */
+    public int getSpacing() {
+
+        return this.spacing;
+    }
+
+    /**
+     * Set the paragraph spacing.
+     *
+     * @param theSpacing the spacing setting. One of NONE, SMALL, NORMAL, or LARGE
+     */
+    public void setSpacing(final int theSpacing) {
+
+        if ((theSpacing != NONE) && (theSpacing != SMALL)
+                && (theSpacing != NORMAL) && (theSpacing != LARGE)) {
+            throw new IllegalArgumentException("Invalid spacing setting");
+        }
+
+        this.spacing = theSpacing;
+    }
+
+    /**
+     * Get the indentation level.
+     *
+     * @return the indentation level, as a number of widths of a decimal "0" digit"
+     */
+    public int getIndent() {
+
+        return this.indent;
+    }
+
+    /**
+     * Set the indentation level.
+     *
+     * @param theIndent the indentation level (negative numbers clamped to zero)
+     */
+    public void setIndent(final int theIndent) {
+
+        this.indent = Math.max(0, theIndent);
     }
 
     /**
@@ -156,42 +245,81 @@ public final class DocParagraph extends AbstractDocSpanBase {
             }
         }
 
+        int topInset;
+        int bottomInset;
+
+        switch (this.spacing) {
+            case NONE:
+                topInset = INSET_TOP_NONE;
+                bottomInset = INSET_BOTTOM_NONE;
+                break;
+
+            case SMALL:
+                topInset = INSET_TOP_SMALL;
+                bottomInset = INSET_BOTTOM_SMALL;
+                break;
+
+            case LARGE:
+                topInset = INSET_TOP_LARGE;
+                bottomInset = INSET_BOTTOM_LARGE;
+                break;
+
+            case NORMAL:
+            default:
+                topInset = INSET_TOP_NORMAL;
+                bottomInset = INSET_BOTTOM_NORMAL;
+                break;
+        }
+
+        int leftInset = INSET_LEFT;
+        if (this.indent > 0) {
+            final FontMetrics fm = BundledFontManager.getInstance().getFontMetrics(getFont());
+            final int digitWidth = fm.stringWidth("0");
+            leftInset += (int) Math.round(Math.max(0.0, (double) digitWidth * this.indent));
+        }
+
         // Now, lay out the accumulated list of flowable objects into lines, and, using the
         // computed baseline and centerline for each line, position each object within the line.
-        int x = INSET_LEFT;
-        int y = INSET_TOP;
+        int x = leftInset;
+        int y = topInset;
         final int height;
 
+        int hanging = 0;
         int first = 0;
         for (; i < count; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
-            final int oWidth = obj.getWidth();
 
-            final int oX;
-            if ((x + oWidth) > (getWidth() - INSET_RIGHT)) {
+            if (this.justification == LEFT_HANG && obj instanceof DocAlignmentMark) {
+                hanging = x;
+            }
 
-                // Object won't fit on current line, so do vertical arrangement for the line we
-                // just finished, if any.
+            final int objWidth = obj.getWidth();
+
+            final int objX;
+            if ((x + objWidth) > (getWidth() - INSET_RIGHT)) {
+
+                // Object won't fit on current line, so do vertical arrangement for the line we just finished, if any.
                 if (first < i) {
                     y = arrangeSingleLine(objects, first, i - 1, y);
                     first = i;
                 }
 
                 // Wrap the line
-                oX = INSET_LEFT;
+                objX = hanging > 0 ? hanging : leftInset;
 
                 if (obj instanceof DocWhitespace) {
-                    x = INSET_LEFT;
+                    // If we wrap and leave whitespace at the start, don't advance for the whitespace
+                    x = objX;
                 } else {
-                    x = INSET_LEFT + oWidth;
+                    x = objX + objWidth;
                 }
             } else {
                 // Add object to current line
-                oX = x;
-                x += oWidth;
+                objX = x;
+                x += objWidth;
             }
 
-            obj.setX(oX);
+            obj.setX(objX);
             obj.setY(0);
         }
 
@@ -200,7 +328,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
             y = arrangeSingleLine(objects, first, count - 1, y);
         }
 
-        height = y + INSET_BOTTOM;
+        height = y + bottomInset;
 
         setHeight(height);
     }
@@ -400,10 +528,44 @@ public final class DocParagraph extends AbstractDocSpanBase {
                     xml.add("full");
                     break;
 
+                case LEFT_HANG:
+                    xml.add("left-hang");
+                    break;
+
                 default:
                     break;
             }
 
+            xml.add('"');
+        }
+
+        if (this.spacing != NORMAL) {
+            xml.add(" spacing=\"");
+
+            switch (this.spacing) {
+
+                case NONE:
+                    xml.add("none");
+                    break;
+
+                case SMALL:
+                    xml.add("small");
+                    break;
+
+                case LARGE:
+                    xml.add("large");
+                    break;
+
+                default:
+                    break;
+            }
+
+            xml.add('"');
+        }
+
+        if (this.indent > 0) {
+            xml.add(" indent=\"");
+            xml.add(this.indent);
             xml.add('"');
         }
 
@@ -454,6 +616,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
                 break;
 
             case LEFT:
+            case LEFT_HANG:
                 builder.addln("\\begin{raggedright}");
                 break;
 
@@ -484,6 +647,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
         switch (this.justification) {
 
             case LEFT:
+            case LEFT_HANG:
                 builder.addln("\\end{raggedright}~\\\\*[6pt]");
                 break;
 
@@ -534,6 +698,10 @@ public final class DocParagraph extends AbstractDocSpanBase {
                 ps.println(" [FULL]");
                 break;
 
+            case LEFT_HANG:
+                ps.println(" [LEFT-HANG]");
+                break;
+
             default:
                 break;
         }
@@ -551,7 +719,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + this.justification;
+        return innerHashCode() + this.justification + this.spacing + this.indent;
     }
 
     /**
@@ -568,7 +736,9 @@ public final class DocParagraph extends AbstractDocSpanBase {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocParagraph paragraph) {
-            equal = innerEquals(paragraph) && this.justification == paragraph.justification;
+            equal = innerEquals(paragraph) && this.justification == paragraph.justification
+                    && this.spacing == paragraph.spacing
+                    && this.indent == paragraph.indent;
         } else {
             equal = false;
         }

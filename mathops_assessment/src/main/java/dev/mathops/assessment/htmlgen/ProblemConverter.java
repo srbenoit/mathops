@@ -31,6 +31,8 @@ public enum ProblemConverter {
      */
     public static void populateProblemHtml(final AbstractProblemTemplate problem, final int[] id) {
 
+        Log.info("populateProblemHtml called");
+
         synchronized (problem) {
             switch (problem) {
                 case ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->

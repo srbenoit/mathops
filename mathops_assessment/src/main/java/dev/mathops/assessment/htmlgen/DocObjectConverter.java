@@ -6,6 +6,7 @@ import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocInput;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
+import dev.mathops.assessment.document.template.DocAlignmentMark;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.document.template.DocDrawing;
 import dev.mathops.assessment.document.template.DocFence;
@@ -35,9 +36,11 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.HtmlImage;
 
+import javax.print.Doc;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -374,15 +377,138 @@ public enum DocObjectConverter {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
-        if (obj.getJustification() == DocParagraph.CENTER) {
-            htm.addln("<div style='margin:.5em 0; text-align:center;'>");
-        } else if (obj.getJustification() == DocParagraph.RIGHT) {
-            htm.addln("<div style='margin:.5em 0; text-align:right;'>");
-        } else {
-            htm.addln("<div style='margin:.5em 0;'>");
+        String leftMargin = "0";
+        final int indent = obj.getIndent();
+        if (indent > 0) {
+            leftMargin = indent + "ch";
         }
 
-        appendChildrenHtml(column, obj, htm, styleStack, enabled, id, context, false);
+        final String topBottomMargin;
+        switch (obj.getSpacing()) {
+            case DocParagraph.NONE:
+                topBottomMargin = ".07em";
+                break;
+
+            case DocParagraph.SMALL:
+                topBottomMargin = ".21em";
+                break;
+
+            case DocParagraph.LARGE:
+                topBottomMargin = ".78em";
+                break;
+
+            case DocParagraph.NORMAL:
+            default:
+                topBottomMargin = ".5em";
+                break;
+        }
+
+        final String marginStr = SimpleBuilder.concat("margin:", topBottomMargin, " 0 ", topBottomMargin, " ",
+                leftMargin, ";");
+
+        if (obj.getJustification() == DocParagraph.LEFT_HANG) {
+
+            boolean hasMark = false;
+            for (final AbstractDocObjectTemplate child : obj.getChildren()) {
+                if (child instanceof DocAlignmentMark) {
+                    hasMark = true;
+                    break;
+                }
+            }
+            if (hasMark) {
+                htm.addln("<div style='", marginStr,
+                        " display:flex;align-items:baseline;align-content:flex-start;'>");
+                htm.add("<span style='white-space:nowrap;'>");
+
+                // Append all children until we get to an alignment mark
+                final float parentFontSize = (float) obj.getFontSize();
+
+                final Style current = styleStack.peek();
+                final boolean updateSize = current != null && Math.abs(parentFontSize - current.getSize()) > 0.01f;
+                final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+
+                if (updateSize || updateColor) {
+                    final Style newStyle = new Style(parentFontSize, obj.getColorName());
+                    styleStack.push(newStyle);
+                    htm.add("<span style='");
+                    if (updateSize) {
+                        htm.add("font-size:" + obj.getFontSize() + "px;");
+                    }
+                    if (updateColor) {
+                        htm.add("color:", obj.getColorName(), ";");
+                    }
+                    htm.add("'>");
+                }
+
+                AbstractDocObjectTemplate prior = null;
+                for (final AbstractDocObjectTemplate child : obj.getChildren()) {
+                    if (child instanceof DocAlignmentMark) {
+                        Log.info("Prior object when alignment mark found was ", prior.getClass().getName());
+                        if (prior instanceof DocWhitespace) {
+                            // The flex layout will kill this, so put something in to keep it.
+                            htm.add("<span style='font-size:0.1pt;'>&nbsp;</span>");
+                        }
+                        break;
+                    }
+                    if (child.isVisible()) {
+                        appendChildHtml(column, child, htm, styleStack, enabled, id, context, false);
+                        prior = child;
+                    }
+                }
+
+                if (updateSize || updateColor) {
+                    htm.eSpan();
+                    styleStack.pop();
+                }
+
+                htm.eSpan();
+
+                // Append all children after the alignment mark
+
+                if (updateSize || updateColor) {
+                    final Style newStyle = new Style(parentFontSize, obj.getColorName());
+                    styleStack.push(newStyle);
+                    htm.add("<span style='");
+                    if (updateSize) {
+                        htm.add("font-size:" + obj.getFontSize() + "px;");
+                    }
+                    if (updateColor) {
+                        htm.add("color:", obj.getColorName(), ";");
+                    }
+                    htm.add("'>");
+                }
+
+                boolean emit = false;
+                for (final AbstractDocObjectTemplate child : obj.getChildren()) {
+                    if (child instanceof DocAlignmentMark) {
+                        emit = true;
+                    } else if (emit && child.isVisible()) {
+                        appendChildHtml(column, child, htm, styleStack, enabled, id, context, false);
+                    }
+                }
+
+                if (updateSize || updateColor) {
+                    htm.eSpan();
+                    styleStack.pop();
+                }
+
+            } else {
+                // Treat "left-hang" as "left" if there is no mark
+                htm.addln("<div style='", marginStr, "'>");
+                appendChildrenHtml(column, obj, htm, styleStack, enabled, id, context, false);
+                htm.eDiv();
+            }
+        } else {
+            if (obj.getJustification() == DocParagraph.CENTER) {
+                htm.addln("<div style='", marginStr, " text-align:center;'>");
+            } else if (obj.getJustification() == DocParagraph.RIGHT) {
+                htm.addln("<div style='", marginStr, " text-align:right;'>");
+            } else {
+                htm.addln("<div style='", marginStr, "'>");
+            }
+
+            appendChildrenHtml(column, obj, htm, styleStack, enabled, id, context, false);
+        }
         htm.eDiv();
 
         return htm.toString();

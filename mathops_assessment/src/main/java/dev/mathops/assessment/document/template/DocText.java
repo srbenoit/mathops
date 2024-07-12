@@ -259,12 +259,6 @@ public final class DocText extends AbstractDocObjectTemplate {
             } else if ("''''".equals(this.text)) {
                 txt = "\u2057";
                 font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
-            } else if (txt.length() == 1) {
-                final char ch = txt.charAt(0);
-
-                if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '\u03b1' && ch <= '\u03f5')) {
-                    font = font.deriveFont(Font.ITALIC);
-                }
             }
         }
 

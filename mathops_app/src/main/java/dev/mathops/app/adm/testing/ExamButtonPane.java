@@ -37,9 +37,9 @@ final class ExamButtonPane extends JPanel {
     /**
      * Constructs a new {@code ExamButtonPane}.
      *
-     * @param buttonTitle      the button title
-     * @param listener         the action listener to register with the button
-     * @param cmd              the action command to assign to the button
+     * @param buttonTitle the button title
+     * @param listener    the action listener to register with the button
+     * @param cmd         the action command to assign to the button
      */
     ExamButtonPane(final String buttonTitle, final ActionListener listener, final String cmd) {
 
@@ -80,8 +80,7 @@ final class ExamButtonPane extends JPanel {
     /**
      * Enables the button.
      */
-    @Override
-    public void enable() {
+    public void enableButton() {
 
         this.button.setEnabled(true);
         setBackground(Skin.OFF_WHITE_GREEN);
@@ -91,8 +90,7 @@ final class ExamButtonPane extends JPanel {
     /**
      * Disables the button.
      */
-    @Override
-    public void disable() {
+    public void disableButton() {
 
         this.button.setEnabled(false);
         setBackground(Skin.LIGHTEST);

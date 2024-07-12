@@ -12,6 +12,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.AbstractAttributedElementBase;
 import dev.mathops.commons.parser.xml.CData;
@@ -67,6 +68,9 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String FENCE = "fence";
+
+    /** A commonly-used string. */
+    private static final String ALIGN_MARK = "align-mark";
 
     /** A commonly-used string. */
     private static final String H_SPACE = "h-space";
@@ -166,6 +170,27 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String FULL = "full";
+
+    /** A commonly-used string. */
+    private static final String LEFT_HANG = "left-hang";
+
+    /** A commonly-used string. */
+    private static final String SPACING = "spacing";
+
+    /** A commonly-used string. */
+    private static final String NONE = "none";
+
+    /** A commonly-used string. */
+    private static final String SMALL = "small";
+
+    /** A commonly-used string. */
+    private static final String NORMAL = "normal";
+
+    /** A commonly-used string. */
+    private static final String LARGE = "large";
+
+    /** A commonly-used string. */
+    private static final String INDENT = "indent";
 
     /** A commonly-used string. */
     private static final String BGCOLOR = "bgcolor";
@@ -591,8 +616,14 @@ public enum DocFactory {
                         valid = valid && extractImage(empty, span);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(span);
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHSpace(empty, span);
+                    } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractSymbolPalette(empty, span);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within this a span.");
+                        elem.logError("An empty " + childTag + " element is not valid within a span.");
                         valid = false;
                     }
                 }
@@ -782,15 +813,43 @@ public enum DocFactory {
 
         final String justificationStr = elem.getStringAttr(JUSTIFICATION);
         if (justificationStr != null) {
+
             switch (justificationStr) {
                 case LEFT -> par.setJustification(DocParagraph.LEFT);
                 case RIGHT -> par.setJustification(DocParagraph.RIGHT);
                 case CENTER -> par.setJustification(DocParagraph.CENTER);
                 case FULL -> par.setJustification(DocParagraph.FULL);
+                case LEFT_HANG -> par.setJustification(DocParagraph.LEFT_HANG);
                 default -> {
-                    elem.logError("Invalid justification (should be 'left', 'right', 'center' or 'full').");
+                    elem.logError(
+                            "Invalid justification (should be 'left', 'right', 'center', 'full', or 'left-hang').");
                     valid = false;
                 }
+            }
+        }
+
+        final String spacingStr = elem.getStringAttr(SPACING);
+        if (spacingStr != null) {
+            switch (spacingStr) {
+                case NONE -> par.setSpacing(DocParagraph.NONE);
+                case SMALL -> par.setSpacing(DocParagraph.SMALL);
+                case NORMAL -> par.setSpacing(DocParagraph.NORMAL);
+                case LARGE -> par.setSpacing(DocParagraph.LARGE);
+                default -> {
+                    elem.logError("Invalid paragraph spacing (should be 'none', 'small', 'normal' or 'large').");
+                    valid = false;
+                }
+            }
+        }
+
+        final String indentStr = elem.getStringAttr(INDENT);
+        if (indentStr != null) {
+            try {
+                int parsed = Integer.parseInt(indentStr);
+                par.setIndent(parsed);
+            } catch (final NumberFormatException ex) {
+                elem.logError("Invalid paragraph indent.");
+                valid = false;
             }
         }
 
@@ -838,6 +897,8 @@ public enum DocFactory {
                         valid = valid && extractInput(evalContext, empty, par, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, par);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(par);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, par);
                     } else {
@@ -922,6 +983,8 @@ public enum DocFactory {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, span);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
@@ -1022,6 +1085,8 @@ public enum DocFactory {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, span);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
@@ -1104,6 +1169,8 @@ public enum DocFactory {
                         valid = valid && extractImage(empty, span);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
                     } else {
@@ -1534,6 +1601,10 @@ public enum DocFactory {
                         valid = valid && extractImage(empty, fence);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, fence, mode);
+                    } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractAlignMark(fence);
+                    } else if (H_SPACE.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHSpace(empty, fence);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within fence.");
                         valid = false;
@@ -1693,6 +1764,20 @@ public enum DocFactory {
         }
 
         return valid;
+    }
+
+    /**
+     * Generate a {@code DocAlignMark} object from XML source. Any errors encountered while generating the input object
+     * will be reflected in the source file's error context.
+     *
+     * @param container the span to which to add this input
+     * @return true if loading successful; false otherwise
+     */
+    private static boolean extractAlignMark(final AbstractDocSpanBase container) {
+
+        container.add(new DocAlignmentMark());
+
+        return true;
     }
 
     /**
