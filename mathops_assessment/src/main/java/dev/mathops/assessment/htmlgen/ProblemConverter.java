@@ -356,7 +356,6 @@ public enum ProblemConverter {
         // TODO: Apply number format
         final Number ans = problem.acceptNumber.getCorrectAnswerValue(problem.evalContext);
 
-        // Print, using \u2013 as the minus sign
         if (ans == null) {
             content.add("Unable to compute answer");
         } else if (ans instanceof Double) {

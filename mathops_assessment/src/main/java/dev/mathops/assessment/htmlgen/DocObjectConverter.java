@@ -1007,7 +1007,7 @@ public enum DocObjectConverter {
                 } else if (ch == '\u03F5') {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'>&epsilon;</span>");
                 } else if (ch == '\u2013') {
-                    htm.add("<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>");
+                    htm.add("<span class='sr-only'> dash </span><span class='no-sr'>&ndash;</span>");
                 } else if (ch == '-') {
                     htm.add(inMath ? "<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>"
                             : CoreConstants.DASH);

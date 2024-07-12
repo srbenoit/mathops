@@ -148,7 +148,7 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
                 if (var instanceof final AbstractFormattableVariable formattable) {
                     str = formattable.valueAsString();
                 } else {
-                    str = numberValue.toString().replace('-', '\u2014');
+                    str = numberValue.toString().replace('-', '\u2212');
                 }
                 this.laidOutContents.add(new DocText(str));
             } else if (value instanceof IntegerVectorValue || value instanceof RealVectorValue) {

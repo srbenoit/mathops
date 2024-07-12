@@ -401,7 +401,7 @@ public final class DocText extends AbstractDocObjectTemplate {
                     // xml.add("\\u003e");
                     xml.add("&gt;");
                 } else if (ch == '\"') {
-                    xml.add("\\u0022");
+                    xml.add("&quot;");
                 } else if (ch == '&') {
                     // xml.add("\\u0026");
                     // xml.add("&amp;");
