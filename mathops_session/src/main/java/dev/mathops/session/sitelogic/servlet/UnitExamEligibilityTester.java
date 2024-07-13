@@ -367,92 +367,95 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
 
         boolean ok = true;
 
-        // If the student has passed the Final, we're done
-        boolean finalNotYetPassed = true;
+        if (Boolean.FALSE.equals(this.isCourseTutorial)) {
 
-        final List<RawStexam> passedFinals = RawStexamLogic.getExams(cache, this.studentId,
-                this.studentCourse.course, true, "F");
+            // If the student has passed the Final, we're done
+            boolean finalNotYetPassed = true;
 
-        for (final RawStexam test : passedFinals) {
-            Log.info(test);
+            final List<RawStexam> passedFinals = RawStexamLogic.getExams(cache, this.studentId,
+                    this.studentCourse.course, true, "F");
 
-            if (test.course.equals(this.studentCourse.course)) {
-                finalNotYetPassed = false;
-                break;
-            }
-        }
+            for (final RawStexam test : passedFinals) {
+                Log.info(test);
 
-        if (finalNotYetPassed && this.studentCourse.paceOrder != null) {
-            final RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, this.studentId);
-
-            if (stterm == null || stterm.pace == null) {
-                reasons.add("Unable to determine your course pace.");
-                ok = false;
-            } else {
-                final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache,
-                        this.activeTerm.term, stterm.pace.intValue(), stterm.paceTrack);
-
-                final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(
-                        cache, this.activeTerm.term, stterm.paceTrack, this.studentId);
-                stuMs.sort(null);
-
-                // There may not be a "last try", so start with the final deadline
-                LocalDate deadline = null;
-                for (final RawMilestone ms : allMs) {
-
-                    final int unit = ms.getUnit();
-                    final int index = ms.getIndex();
-
-                    if (unit == 5 && "FE".equals(ms.msType)
-                            && Integer.valueOf(index).equals(this.studentCourse.paceOrder)) {
-                        deadline = ms.msDate;
-                        break;
-                    }
+                if (test.course.equals(this.studentCourse.course)) {
+                    finalNotYetPassed = false;
+                    break;
                 }
-                if (deadline != null) {
-                    for (final RawStmilestone ms : stuMs) {
+            }
 
-                        final int unit = ms.getUnit();
-                        final int index = ms.getIndex();
+            if (finalNotYetPassed && this.studentCourse.paceOrder != null) {
+                final RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, this.studentId);
 
-                        if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                && "FE".equals(ms.msType)) {
-                            deadline = ms.msDate;
-                            // Don't break - student milestones are sorted by due date, and if there are multiple
-                            // matching rows, we want the latest date
-                        }
-                    }
+                if (stterm == null || stterm.pace == null) {
+                    reasons.add("Unable to determine your course pace.");
+                    ok = false;
+                } else {
+                    final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache,
+                            this.activeTerm.term, stterm.pace.intValue(), stterm.paceTrack);
 
+                    final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(
+                            cache, this.activeTerm.term, stterm.paceTrack, this.studentId);
+                    stuMs.sort(null);
+
+                    // There may not be a "last try", so start with the final deadline
+                    LocalDate deadline = null;
                     for (final RawMilestone ms : allMs) {
 
                         final int unit = ms.getUnit();
                         final int index = ms.getIndex();
 
-                        if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                && "F1".equals(ms.msType)
-                                && ms.msDate.isAfter(deadline)) {
+                        if (unit == 5 && "FE".equals(ms.msType)
+                                && Integer.valueOf(index).equals(this.studentCourse.paceOrder)) {
                             deadline = ms.msDate;
                             break;
                         }
                     }
-                    for (final RawStmilestone ms : stuMs) {
+                    if (deadline != null) {
+                        for (final RawStmilestone ms : stuMs) {
 
-                        final int unit = ms.getUnit();
-                        final int index = ms.getIndex();
+                            final int unit = ms.getUnit();
+                            final int index = ms.getIndex();
 
-                        if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                && "F1".equals(ms.msType)
-                                && ms.msDate.isAfter(deadline)) {
-                            deadline = ms.msDate;
-                            // Don't break - student milestones are sorted by due date, and if there are multiple
-                            // matching rows, we want the latest date
+                            if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
+                                    && "FE".equals(ms.msType)) {
+                                deadline = ms.msDate;
+                                // Don't break - student milestones are sorted by due date, and if there are multiple
+                                // matching rows, we want the latest date
+                            }
+                        }
+
+                        for (final RawMilestone ms : allMs) {
+
+                            final int unit = ms.getUnit();
+                            final int index = ms.getIndex();
+
+                            if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
+                                    && "F1".equals(ms.msType)
+                                    && ms.msDate.isAfter(deadline)) {
+                                deadline = ms.msDate;
+                                break;
+                            }
+                        }
+                        for (final RawStmilestone ms : stuMs) {
+
+                            final int unit = ms.getUnit();
+                            final int index = ms.getIndex();
+
+                            if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
+                                    && "F1".equals(ms.msType)
+                                    && ms.msDate.isAfter(deadline)) {
+                                deadline = ms.msDate;
+                                // Don't break - student milestones are sorted by due date, and if there are multiple
+                                // matching rows, we want the latest date
+                            }
                         }
                     }
-                }
 
-                if (deadline != null && session.getNow().toLocalDate().isAfter(deadline)) {
-                    reasons.add("Course deadline has passed.");
-                    ok = false;
+                    if (deadline != null && session.getNow().toLocalDate().isAfter(deadline)) {
+                        reasons.add("Course deadline has passed.");
+                        ok = false;
+                    }
                 }
             }
         }

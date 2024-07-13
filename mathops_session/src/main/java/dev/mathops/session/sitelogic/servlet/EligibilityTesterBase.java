@@ -55,6 +55,9 @@ class EligibilityTesterBase {
     /** The special student records. */
     private List<RawSpecialStus> specials;
 
+    /** Flag indicating this is a tutorial, not subject to lockout dates. */
+    Boolean isCourseTutorial;
+
     /** The student registration record for the course. */
     RawStcourse studentCourse;
 
@@ -356,70 +359,74 @@ class EligibilityTesterBase {
 
         final SystemData systemData = cache.getSystemData();
 
-        final Boolean isTut = systemData.isCourseTutorial(course);
-        if (isTut == null) {
+        this.isCourseTutorial = systemData.isCourseTutorial(course);
+        if (this.isCourseTutorial == null) {
             reasons.add("Unable to query for this course");
             ok = false;
-        } else if (isTut.booleanValue()) {
-            gatherTutorialSectionInfo(course);
         } else {
-            ok = gatherCourseSectionInfo(cache, reasons, course);
-        }
+            final boolean isTut = this.isCourseTutorial.booleanValue();
 
-        if (isTut != null && ok) {
-            final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
-                    : this.activeTerm.term;
-
-            this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect, term);
-
-            if (this.courseSection == null) {
-                reasons.add("Unable to query course section information");
-                ok = false;
+            if (isTut) {
+                gatherTutorialSectionInfo(course);
             } else {
-                final List<RawCusection> cusections = systemData.getCourseUnitSections(course, this.studentCourse.sect,
-                        term);
-                for (final RawCusection cusect : cusections) {
-                    if (cusect.unit.equals(unit)) {
-                        this.courseSectionUnit = cusect;
-                        break;
-                    }
-                }
+                ok = gatherCourseSectionInfo(cache, reasons, course);
+            }
 
-                if (this.courseSectionUnit == null) {
-                    reasons.add("No data found for your section of the course.");
+            if (ok) {
+                final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
+                        : this.activeTerm.term;
+
+                this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect, term);
+
+                if (this.courseSection == null) {
+                    reasons.add("Unable to query course section information");
                     ok = false;
                 } else {
-                    String pacingId = null;
-
-                    if (this.courseSection != null) {
-                        pacingId = this.courseSection.pacingStructure;
-
-                        if (!isTut.booleanValue() && this.student != null
-                                && "N".equals(this.studentCourse.iInProgress)
-                                && this.student.pacingStructure == null && pacingId != null) {
-
-                            // Set the student's rule set if not yet known and this is a real course
-                            Log.info("Setting student pacing to ", pacingId, " as part of testing exam eligibility");
-                            RawStudentLogic.updatePacingStructure(cache, this.student.stuId, pacingId);
+                    final List<RawCusection> cusections = systemData.getCourseUnitSections(course, this.studentCourse.sect,
+                            term);
+                    for (final RawCusection cusect : cusections) {
+                        if (cusect.unit.equals(unit)) {
+                            this.courseSectionUnit = cusect;
+                            break;
                         }
                     }
 
-                    if (pacingId == null) {
-                        reasons.add("Unable to determine pacing structure.");
-                        return false;
-                    }
+                    if (this.courseSectionUnit == null) {
+                        reasons.add("No data found for your section of the course.");
+                        ok = false;
+                    } else {
+                        String pacingId = null;
 
-                    this.pacingStructure = RawPacingStructureLogic.query(cache, pacingId);
+                        if (this.courseSection != null) {
+                            pacingId = this.courseSection.pacingStructure;
 
-                    if (this.pacingStructure == null) {
-                        reasons.add("Unable to look up pacing structure.");
-                        return false;
-                    }
+                            if (!isTut && this.student != null
+                                    && "N".equals(this.studentCourse.iInProgress)
+                                    && this.student.pacingStructure == null && pacingId != null) {
 
-                    if (checkLicensed && "Y".equals(this.pacingStructure.requireLicensed)
-                            && "N".equals(this.student.licensed)) {
-                        reasons.add("You must complete the User's Exam before you can access this assignment.");
-                        return false;
+                                // Set the student's rule set if not yet known and this is a real course
+                                Log.info("Setting student pacing to ", pacingId, " as part of testing exam eligibility");
+                                RawStudentLogic.updatePacingStructure(cache, this.student.stuId, pacingId);
+                            }
+                        }
+
+                        if (pacingId == null) {
+                            reasons.add("Unable to determine pacing structure.");
+                            return false;
+                        }
+
+                        this.pacingStructure = RawPacingStructureLogic.query(cache, pacingId);
+
+                        if (this.pacingStructure == null) {
+                            reasons.add("Unable to look up pacing structure.");
+                            return false;
+                        }
+
+                        if (checkLicensed && "Y".equals(this.pacingStructure.requireLicensed)
+                                && "N".equals(this.student.licensed)) {
+                            reasons.add("You must complete the User's Exam before you can access this assignment.");
+                            return false;
+                        }
                     }
                 }
             }
