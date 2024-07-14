@@ -183,7 +183,7 @@ public final class DocFraction extends AbstractDocContainer {
 
         innerPaintComponent(grx);
 
-        grx.setColor(getColorName() == null ? Color.BLACK : ColorNames.getColor(getColorName()));
+        grx.setColor(ColorNames.getColor(getColorName()));
 
         final int w = getWidth();
 

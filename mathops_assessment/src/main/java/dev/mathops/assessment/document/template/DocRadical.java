@@ -194,7 +194,7 @@ public final class DocRadical extends AbstractDocContainer {
 
         final int basey = this.base.getHeight() - 2;
 
-        grx.setColor(getColorName() == null ? Color.BLACK : ColorNames.getColor(getColorName()));
+        grx.setColor(ColorNames.getColor(getColorName()));
 
         // Draw radical symbol
         grx.drawLine(this.base.getX() - 2, this.base.getY(), this.base.getX() + this.base.getWidth() + 1,

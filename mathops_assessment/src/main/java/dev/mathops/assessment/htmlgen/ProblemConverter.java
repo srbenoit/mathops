@@ -31,8 +31,6 @@ public enum ProblemConverter {
      */
     public static void populateProblemHtml(final AbstractProblemTemplate problem, final int[] id) {
 
-        Log.info("populateProblemHtml called");
-
         synchronized (problem) {
             switch (problem) {
                 case ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->
@@ -353,7 +351,7 @@ public enum ProblemConverter {
                 Float.toString(floatFontSize), "px;' name='ANSWER' id='ANSWER'>");
         content.eDiv();
         content.addln("<div style='background:#eee; border:1px solid #777; padding:5px; ",
-                "margin-top:3px; text-align:center;'>");
+                "margin-top:3px; text-align:center; color:#0032CA;'>");
         content.add("The correct answer is ");
         // TODO: Apply number format
         final Number ans = problem.acceptNumber.getCorrectAnswerValue(problem.evalContext);
@@ -380,7 +378,7 @@ public enum ProblemConverter {
         content.addln("<input disabled type='text' data-lpignore='true' autocomplete='off' size='6' style='font-size:",
                 Float.toString(floatFontSize), "px;' name='ANSWER' id='ANSWER'>");
         content.eDiv();
-        content.addln("<div style='text-align:center; margin-top:3px;'>");
+        content.addln("<div style='text-align:center; margin-top:3px; color:#0032CA;'>");
         content.add("The correct answer is ");
 
         // TODO: Apply number format

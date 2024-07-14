@@ -9,7 +9,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -266,11 +265,7 @@ public final class DocText extends AbstractDocObjectTemplate {
         final FontMetrics fm = grx.getFontMetrics();
         final int lwidth = fm.stringWidth(txt);
 
-        if (getColorName() == null) {
-            grx.setColor(Color.BLACK);
-        } else {
-            grx.setColor(ColorNames.getColor(getColorName()));
-        }
+        grx.setColor(ColorNames.getColor(getColorName()));
 
         int x = 0;
         int y = getBaseLine();

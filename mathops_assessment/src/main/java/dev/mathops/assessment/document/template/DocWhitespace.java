@@ -102,11 +102,7 @@ public final class DocWhitespace extends AbstractDocObjectTemplate {
 
         final int lwidth = fm.stringWidth(CoreConstants.SPC);
 
-        if (getColorName() != null) {
-            grx.setColor(ColorNames.getColor(getColorName()));
-        } else {
-            grx.setColor(Color.BLACK);
-        }
+        grx.setColor(ColorNames.getColor(getColorName()));
 
         if (isUnderline()) {
             final int x = 0;

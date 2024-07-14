@@ -182,7 +182,7 @@ public final class ProblemNumericPanel extends AbstractProblemPanelBase
             this.correct = new JLabel(txt == null ? "No correct answer provided."
                     : "The correct answer is " + txt.replace('-', '\u2212'));
             this.correct.setFont(this.problem.question.getFont());
-            this.correct.setForeground(Color.BLUE);
+            this.correct.setForeground(new Color(0, 50, 202));
             add(this.correct, NumericProblemLayout.CORRECT_ANSWER);
         }
 

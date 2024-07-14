@@ -1125,6 +1125,8 @@ public enum DocFactory {
                                        final boolean containerIsNonwrap, final EParserMode mode) {
 
         final DocMathSpan span = containerIsNonwrap ? (DocMathSpan) container : new DocMathSpan();
+        span.setColorName(DocMathSpan.MATH_COLOR_NAME);
+
         span.tag = name;
 
         boolean valid = extractFormattable(elem, span);

@@ -40,7 +40,6 @@ import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.HtmlImage;
 
-import javax.print.Doc;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -443,7 +442,6 @@ public enum DocObjectConverter {
                 AbstractDocObjectTemplate prior = null;
                 for (final AbstractDocObjectTemplate child : obj.getChildren()) {
                     if (child instanceof DocAlignmentMark) {
-                        Log.info("Prior object when alignment mark found was ", prior.getClass().getName());
                         if (prior instanceof DocWhitespace) {
                             // The flex layout will kill this, so put something in to keep it.
                             htm.add("<span style='font-size:0.1pt;'>&nbsp;</span>");
@@ -462,6 +460,7 @@ public enum DocObjectConverter {
                 }
 
                 htm.eSpan();
+                htm.sSpan(null);
 
                 // Append all children after the alignment mark
 
@@ -491,6 +490,7 @@ public enum DocObjectConverter {
                     htm.eSpan();
                     styleStack.pop();
                 }
+                htm.eSpan();
 
             } else {
                 // Treat "left-hang" as "left" if there is no mark
@@ -2440,7 +2440,9 @@ public enum DocObjectConverter {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
+        htm.add("<span style='white-space:nowrap; color:#0070C0;'>");
         appendChildrenHtml(column, obj, htm, styleStack, enabled, id, context, true);
+        htm.eSpan();
 
         return htm.toString();
     }

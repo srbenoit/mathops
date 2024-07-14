@@ -18,8 +18,8 @@ import java.io.Serial;
 /**
  * A panel designed to host a single {@code DocColumn} object.
  */
-public final class DocColumnPanel extends JPanel implements ComponentListener, MouseListener,
-        MouseMotionListener, KeyListener, InputChangeListener {
+public final class DocColumnPanel extends JPanel implements ComponentListener, MouseListener, MouseMotionListener,
+        KeyListener, InputChangeListener {
 
     /** Version number for serialization. */
     @Serial

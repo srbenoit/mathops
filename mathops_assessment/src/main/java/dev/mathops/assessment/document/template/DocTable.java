@@ -523,7 +523,7 @@ public final class DocTable extends AbstractDocContainer {
             grx.fillRect(left, top, right - left, bottom - top);
         }
 
-        final Color lineColor = (getColorName() == null) ? Color.BLACK : ColorNames.getColor(getColorName());
+        final Color lineColor = ColorNames.getColor(getColorName());
         grx.setColor(lineColor);
 
         // Draw the box

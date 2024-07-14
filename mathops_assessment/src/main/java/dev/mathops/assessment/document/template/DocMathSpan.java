@@ -8,6 +8,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.PrintStream;
@@ -20,6 +21,13 @@ import java.util.List;
  * formatting. Some characters will automatically be rendered in italics.
  */
 public final class DocMathSpan extends AbstractDocSpanBase {
+
+    /** The color to use for math spans. */
+    public static final String MATH_COLOR_NAME = "DeepSkyBlue4";
+
+
+
+
 
     /** Version number for serialization. */
     @Serial
@@ -76,23 +84,22 @@ public final class DocMathSpan extends AbstractDocSpanBase {
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
-        // Gather all flow objects contained, and perform layout on them. For parameter reference
-        // children, this will re-generate the referenced content
+        // Gather all flow objects contained, and perform layout on them. For parameter reference children, this will
+        // re-generate the referenced content
 
         final List<AbstractDocObjectTemplate> objects = new ArrayList<>(10);
 
         for (final AbstractDocObjectTemplate child : getChildren()) {
 
-            // Nonwrap spans, Math spans and Fences all lay out without line breaks - they all
-            // become a single "flow object".
+            // Non-wrap spans, Math spans and Fences all lay out without line breaks - they all become a single
+            // "flow object".
 
-            // Simple spans (which include wrapping spans), emit their child objects (they are
-            // "transparent"). Parameter references will emit either a DocText with the parameter value
-            // or the contents of a Span parameter, but are also "transparent" with span values.
+            // Simple spans (which include wrapping spans), emit their child objects (they are "transparent"). Parameter
+            // references will emit either a DocText with the parameter value or the contents of a Span parameter, but
+            // are also "transparent" with span values.
 
-            // Allow the child to lay out its own contents. For transparent spans, this lays out
-            // child objects recursively. Parameter references will use this method to build a
-            // list of resolved layout objects.
+            // Allow the child to lay out its own contents. For transparent spans, this lays out child objects
+            // recursively. Parameter references will use this method to build a list of resolved layout objects.
 
             child.doLayout(context, mathMode);
 
@@ -105,8 +112,8 @@ public final class DocMathSpan extends AbstractDocSpanBase {
             }
         }
 
-        // For all baseline objects, find max center height above baseline (this is the
-        // "true centerline" as distance above baseline)
+        // For all baseline objects, find max center height above baseline (this is the "true center line" as distance
+        // above baseline)
         int maxCenter = 0;
         for (final AbstractDocObjectTemplate obj : objects) {
             if (obj.getLeftAlign() == BASELINE) {
@@ -118,8 +125,7 @@ public final class DocMathSpan extends AbstractDocSpanBase {
             }
         }
 
-        // Compute maximum height of any object - this will become the new baseline height for the
-        // whole span.
+        // Compute maximum height of any object - this will become the new baseline height for the whole span.
         int maxHeight = 0;
         for (final AbstractDocObjectTemplate obj : objects) {
 
@@ -135,12 +141,11 @@ public final class DocMathSpan extends AbstractDocSpanBase {
             }
         }
 
-        // Store the baseline and centerline offsets
+        // Store the baseline and center line offsets
         setBaseLine(maxHeight);
         setCenterLine(maxHeight - maxCenter);
 
-        // Generate the correct Y values for all objects, tracking the bottom-most point to use as
-        // bounds of this object.
+        // Generate the correct Y values for all objects, tracking the bottom-most point to use as bounds of this object
         int x = 0;
         int y = 0;
 
