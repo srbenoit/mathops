@@ -21,13 +21,13 @@ public final class VariableRandomInteger extends AbstractFormattableVariable
     static final String TYPE_TAG = "random-int";
 
     /** The minimum value. */
-    private NumberOrFormula min;
+    private NumberOrFormula min = null;
 
     /** The maximum value. */
-    private NumberOrFormula max;
+    private NumberOrFormula max = null;
 
     /** A list of excluded random integer values, which may be formulae. */
-    private Formula[] exclude;
+    private Formula[] exclude = null;
 
     /**
      * Constructs a new {@code VariableRandomInteger}.
@@ -191,8 +191,8 @@ public final class VariableRandomInteger extends AbstractFormattableVariable
     @Override
     public int hashCode() {
 
-        return innerHashCode() + Objects.hashCode(this.min) //
-                + Objects.hashCode(this.max) //
+        return innerHashCode() + Objects.hashCode(this.min)
+                + Objects.hashCode(this.max)
                 + Objects.hashCode(this.exclude);
     }
 
@@ -241,7 +241,8 @@ public final class VariableRandomInteger extends AbstractFormattableVariable
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max);
 
         final Formula[] exc = getExcludes();
 
@@ -276,34 +277,47 @@ public final class VariableRandomInteger extends AbstractFormattableVariable
         final String ind1 = makeIndent(indent + 1);
 
         startXml(xml, indent, TYPE_TAG);
-        writeAttribute(xml, "value", getValue());
+
+        final Object value = getValue();
+        writeAttribute(xml, "value", value);
+
         if (this.min != null) {
-            writeAttribute(xml, "min", this.min.getNumber());
+            final Number minConstant = this.min.getNumber();
+            writeAttribute(xml, "min", minConstant);
         }
+
         if (this.max != null) {
-            writeAttribute(xml, "max", this.max.getNumber());
+            final Number maxConstant = this.max.getNumber();
+            writeAttribute(xml, "max", maxConstant);
         }
-        xml.addln('>');
 
-        if (this.min != null && this.min.getFormula() != null) {
-            xml.add(ind1, "<min>");
-            this.min.getFormula().appendChildrenXml(xml);
-            xml.addln("</min>");
-        }
-        if (this.max != null && this.max.getFormula() != null) {
-            xml.add(ind1, "<max>");
-            this.max.getFormula().appendChildrenXml(xml);
-            xml.addln("</max>");
-        }
-        if (this.exclude != null) {
-            for (final Formula formula : this.exclude) {
-                xml.add(ind1, "<exclude>");
-                formula.appendChildrenXml(xml);
-                xml.addln("</exclude>");
+        if ((this.min != null && this.min.getFormula() != null)
+                || (this.max != null && this.max.getFormula() != null)
+                || (this.exclude != null && this.exclude.length > 0)) {
+            xml.addln('>');
+
+            if (this.min != null && this.min.getFormula() != null) {
+                xml.add(ind1, "<min>");
+                this.min.getFormula().appendChildrenXml(xml);
+                xml.addln("</min>");
             }
-        }
+            if (this.max != null && this.max.getFormula() != null) {
+                xml.add(ind1, "<max>");
+                this.max.getFormula().appendChildrenXml(xml);
+                xml.addln("</max>");
+            }
+            if (this.exclude != null) {
+                for (final Formula formula : this.exclude) {
+                    xml.add(ind1, "<exclude>");
+                    formula.appendChildrenXml(xml);
+                    xml.addln("</exclude>");
+                }
+            }
 
-        xml.addln(ind0, "</var>");
+            xml.addln(ind0, "</var>");
+        } else {
+            xml.addln("/>");
+        }
     }
 
     /**
@@ -343,7 +357,8 @@ public final class VariableRandomInteger extends AbstractFormattableVariable
 
         if (hasValue()) {
             ps.print(" generated=");
-            ps.print(getValue());
+            final Object value = getValue();
+            ps.print(value);
         }
 
         ps.println(RPAREN);

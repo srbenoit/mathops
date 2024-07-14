@@ -143,6 +143,8 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
             result = doOr(context);
         } else if (this.op == EBinaryOp.ADD) {
             result = doAdd(context);
+        } else if (this.op == EBinaryOp.MULTIPLY) {
+            result = doMultiply(context);
         } else if (this.op == EBinaryOp.APPROX) {
             result = doApprox(context);
         } else {
@@ -161,7 +163,6 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
                     } else {
                         result = switch (this.op) {
                             case SUBTRACT -> doSubtract(left, right);
-                            case MULTIPLY -> doMultiply(left, right);
                             case DIVIDE -> doDivide(left, right);
                             case POWER -> doPower(left, right);
                             case REMAINDER -> doModulo(left, right);
@@ -322,6 +323,60 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
     }
 
     /**
+     * Calculates the product of a list of numerical arguments.
+     *
+     * @param context the evaluation context
+     * @return the sum - a {@code Long} if all arguments are integers, a {@code Double} if at least one is a real
+     */
+    private Object doMultiply(final EvalContext context) {
+
+        Object result = null;
+
+        final int count = numChildren();
+        if (count == 0) {
+            result = new ErrorValue("* operator cannot be evaluated without children");
+        } else {
+            long longValue = 1L;
+            double doubleValue = 1.0;
+            boolean allInteger = true;
+
+            for (int i = 0; i < count; ++i) {
+                final Object child = getChild(i).evaluate(context);
+
+                if (child instanceof final ErrorValue error) {
+                    result = error;
+                    break;
+                }
+
+                if (child instanceof final Long longChild) {
+                    if (allInteger) {
+                        longValue *= longChild.longValue();
+                    }
+                    doubleValue *= longChild.doubleValue();
+                } else if (child instanceof final Number numberChild) {
+                    doubleValue *= numberChild.doubleValue();
+                    allInteger = false;
+                } else {
+                    result = new ErrorValue("Can only perform * operation on numeric values.");
+                    break;
+                }
+            }
+
+            if (result == null) {
+                if (allInteger) {
+                    result = Long.valueOf(longValue);
+                } else {
+                    result = Double.valueOf(doubleValue);
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+
+    /**
      * Calculates the Boolean result of an "approximately equal to" operation. This operation takes three numeric
      * arguments, where the last is a tolerance value. If the absolute value of the difference between the first two
      * arguments is less than or equal to this tolerance, TRUE is returned; otherwise FALSE is returned. If there are
@@ -396,39 +451,6 @@ public final class BinaryOper extends AbstractFormulaContainer implements IEdita
         if (result == null) {
             result = new ErrorValue(SimpleBuilder.concat("Can't subtract ", right.getClass().getSimpleName(), " from ",
                     left.getClass().getSimpleName(), " value"));
-        }
-
-        return result;
-    }
-
-    /**
-     * Multiply two values. If both multiplicands are integers, the result is an integer. Otherwise, the result is a
-     * real.
-     *
-     * @param left  the left multiplicand
-     * @param right the right multiplicand
-     * @return the product
-     */
-    private static Object doMultiply(final Object left, final Object right) {
-
-        Object result = null;
-
-        if (left instanceof final Long lLong) {
-            if (right instanceof final Long rLong) {
-                final long prodInt = lLong.longValue() * rLong.longValue();
-                result = Long.valueOf(prodInt);
-            } else if (right instanceof final Number rNum) {
-                final double prodReal = (double) lLong.longValue() * rNum.doubleValue();
-                result = Double.valueOf(prodReal);
-            }
-        } else if (left instanceof final Number lNum && right instanceof final Number rNum) {
-            final double prodReal = lNum.doubleValue() * rNum.doubleValue();
-            result = Double.valueOf(prodReal);
-        }
-
-        if (result == null) {
-            result = new ErrorValue(SimpleBuilder.concat("Can't multiply ", left.getClass().getSimpleName(), " and ",
-                    right.getClass().getSimpleName(), " value"));
         }
 
         return result;

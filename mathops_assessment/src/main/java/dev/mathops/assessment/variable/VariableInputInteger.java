@@ -86,8 +86,8 @@ public final class VariableInputInteger extends AbstractVariable {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableInputInteger var) {
-            equal = innerEquals(var);
+        } else if (obj instanceof final VariableInputInteger variable) {
+            equal = innerEquals(variable);
         } else {
             equal = false;
         }
@@ -115,7 +115,8 @@ public final class VariableInputInteger extends AbstractVariable {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return htm.toString();
     }
@@ -147,7 +148,8 @@ public final class VariableInputInteger extends AbstractVariable {
 
         ps.print(TYPE_TAG);
         ps.print(" value=");
-        ps.print(getValue());
+        final Object value = getValue();
+        ps.print(value);
         ps.println(RPAREN);
     }
 }

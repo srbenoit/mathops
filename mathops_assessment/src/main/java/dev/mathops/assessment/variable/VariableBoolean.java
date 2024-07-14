@@ -116,7 +116,8 @@ public final class VariableBoolean extends AbstractVariable {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        builder.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return builder.toString();
     }
@@ -131,7 +132,8 @@ public final class VariableBoolean extends AbstractVariable {
     public void appendXml(final HtmlBuilder xml, final int indent) {
 
         startXml(xml, indent, TYPE_TAG);
-        AbstractXmlObject.writeAttribute(xml, "value", getValue());
+        final Object value = getValue();
+        AbstractXmlObject.writeAttribute(xml, "value", value);
         xml.addln("/>");
     }
 
@@ -149,7 +151,8 @@ public final class VariableBoolean extends AbstractVariable {
 
         ps.print(TYPE_TAG);
         ps.print(" value=");
-        ps.print(getValue());
+        final Object value = getValue();
+        ps.print(value);
         ps.println(RPAREN);
     }
 }

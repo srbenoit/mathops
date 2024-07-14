@@ -1,6 +1,5 @@
 package dev.mathops.assessment.variable;
 
-import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.NumberOrFormula;
@@ -29,16 +28,16 @@ public final class VariableDerived extends AbstractFormattableVariable
     private static final Formula[] ZERO_LEN_FORMULA_ARR = new Formula[0];
 
     /** The minimum integer/real value. */
-    private NumberOrFormula min;
+    private NumberOrFormula min = null;
 
     /** The maximum integer/real value. */
-    private NumberOrFormula max;
+    private NumberOrFormula max = null;
 
     /** A list of excluded random integer values, which may be formulae. */
-    private Formula[] exclude;
+    private Formula[] exclude = null;
 
     /** A formula used to derive the parameter from other parameters. */
-    private Formula formula;
+    private Formula formula = null;
 
     /**
      * Constructs a new {@code IntVariable}.
@@ -246,11 +245,11 @@ public final class VariableDerived extends AbstractFormattableVariable
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableDerived var) {
-            equal = innerEqualsVariable(var) && Objects.equals(this.min, var.min)
-                    && Objects.equals(this.max, var.max)
-                    && Arrays.equals(this.exclude, var.exclude)
-                    && Objects.equals(this.formula, var.formula);
+        } else if (obj instanceof final VariableDerived variable) {
+            equal = innerEqualsVariable(variable) && Objects.equals(this.min, variable.min)
+                    && Objects.equals(this.max, variable.max)
+                    && Arrays.equals(this.exclude, variable.exclude)
+                    && Objects.equals(this.formula, variable.formula);
         } else {
             equal = false;
         }
@@ -278,7 +277,8 @@ public final class VariableDerived extends AbstractFormattableVariable
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max);
+        final Object value = getValue();
+        builder.add(this.name, " = ", value, LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max);
 
         final Formula[] exc = getExcludes();
 
@@ -311,8 +311,8 @@ public final class VariableDerived extends AbstractFormattableVariable
 
         final Object value = getValue();
 
-        final String ind0 = AbstractXmlObject.makeIndent(indent);
-        final String ind1 = AbstractXmlObject.makeIndent(indent + 1);
+        final String ind0 = makeIndent(indent);
+        final String ind1 = makeIndent(indent + 1);
 
         startXml(xml, indent, TYPE_TAG);
 
@@ -323,32 +323,38 @@ public final class VariableDerived extends AbstractFormattableVariable
             Log.warning("Variable {", this.name, "} has ERROR type with value ", value);
         }
 
-        AbstractXmlObject.writeAttribute(xml, "value-type", this.type);
+        writeAttribute(xml, "value-type", this.type);
         if (this.min != null) {
-            AbstractXmlObject.writeAttribute(xml, "min", this.min.getNumber());
+            final Number minConstant = this.min.getNumber();
+            writeAttribute(xml, "min", minConstant);
         }
         if (this.max != null) {
-            AbstractXmlObject.writeAttribute(xml, "max", this.max.getNumber());
+            final Number maxConstant = this.max.getNumber();
+            writeAttribute(xml, "max", maxConstant);
         }
 
         if (value instanceof Long) {
-            AbstractXmlObject.writeAttribute(xml, "long", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "long", valueStr);
         } else if (value instanceof Double) {
-            AbstractXmlObject.writeAttribute(xml, "double", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "double", valueStr);
         } else if (value instanceof Boolean) {
-            AbstractXmlObject.writeAttribute(xml, "boolean", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "boolean", valueStr);
         } else if (value instanceof Irrational) {
-            AbstractXmlObject.writeAttribute(xml, "irrational", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "irrational", valueStr);
         } else if (value instanceof final String str) {
-            AbstractXmlObject.writeAttribute(xml, "string", str);
+            writeAttribute(xml, "string", str);
         } else if (value instanceof final IntegerVectorValue vec) {
-            AbstractXmlObject.writeAttribute(xml, "int-vector", vec);
+            writeAttribute(xml, "int-vector", vec);
         }
         xml.addln('>');
 
         if (value instanceof final DocSimpleSpan span) {
-            xml.addln(ind1, "<span>", span.toXml(0),
-                    "</span>");
+            final String spanXml = span.toXml(0);
+            xml.addln(ind1, "<span>", spanXml, "</span>");
         }
 
         if (this.min != null && this.min.getFormula() != null) {
@@ -367,9 +373,9 @@ public final class VariableDerived extends AbstractFormattableVariable
             xml.addln();
         }
         if (this.exclude != null) {
-            for (final Formula f : this.exclude) {
+            for (final Formula expr : this.exclude) {
                 xml.add(ind1, "<exclude>");
-                f.appendChildrenXml(xml);
+                expr.appendChildrenXml(xml);
                 xml.addln("</exclude>");
             }
         }
@@ -399,7 +405,10 @@ public final class VariableDerived extends AbstractFormattableVariable
             ps.print(this.max);
         }
         ps.print(" formula=");
-        ps.print(this.formula.toString().replace("<", "&lt;").replace(">", "&gt;"));
+        final String formulaStr = this.formula.toString();
+        final String replacedLT = formulaStr.replace("<", "&lt;");
+        final String replacedGT = replacedLT.replace(">", "&gt;");
+        ps.print(replacedGT);
 
         if (hasValue()) {
             final Object value = getValue();

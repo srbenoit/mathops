@@ -87,8 +87,8 @@ public final class VariableRandomBoolean extends AbstractVariable {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableRandomBoolean var) {
-            equal = innerEquals(var);
+        } else if (obj instanceof final VariableRandomBoolean variable) {
+            equal = innerEquals(variable);
         } else {
             equal = false;
         }
@@ -116,7 +116,8 @@ public final class VariableRandomBoolean extends AbstractVariable {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return htm.toString();
     }
@@ -132,7 +133,10 @@ public final class VariableRandomBoolean extends AbstractVariable {
 
         startXml(xml, indent, TYPE_TAG);
         if (getValue() != null) {
-            writeAttribute(xml, "value", getValue().toString().toUpperCase(Locale.ROOT));
+            final Object value = getValue();
+            final String valueStr = value.toString();
+            final String upperCase = valueStr.toUpperCase(Locale.ROOT);
+            writeAttribute(xml, "value", upperCase);
         }
         xml.addln("/>");
     }
@@ -152,7 +156,8 @@ public final class VariableRandomBoolean extends AbstractVariable {
         ps.print(TYPE_TAG);
         if (hasValue()) {
             ps.print(" generated=");
-            ps.print(getValue());
+            final Object value = getValue();
+            ps.print(value);
         }
 
         ps.println(RPAREN);

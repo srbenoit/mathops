@@ -296,7 +296,13 @@ final class FilePane extends JPanel implements ActionListener {
                         this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Exam file XML: "
                                 + ex.getMessage() + "</div>");
                     }
-                } else if (fileContent.contains("</problem>")) {
+                } else if (fileContent.contains("</problem>")
+                        || fileContent.contains("</problem-multiple-choice>")
+                        || fileContent.contains("</problem-multiple-selection")
+                        || fileContent.contains("</problem-numeric>")
+                        || fileContent.contains("</problem-embedded-input>")
+                        || fileContent.contains("</problem-auto-correct>")
+                        || fileContent.contains("</problem-dummy>")) {
                     try {
                         final XmlContent source = new XmlContent(fileContent, false, false);
                         final AbstractProblemTemplate problem =

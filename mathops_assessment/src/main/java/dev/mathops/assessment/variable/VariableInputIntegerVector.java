@@ -86,8 +86,8 @@ public final class VariableInputIntegerVector extends AbstractVariable {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableInputIntegerVector var) {
-            equal = innerEquals(var);
+        } else if (obj instanceof final VariableInputIntegerVector variable) {
+            equal = innerEquals(variable);
         } else {
             equal = false;
         }
@@ -115,7 +115,8 @@ public final class VariableInputIntegerVector extends AbstractVariable {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        builder.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return builder.toString();
     }
@@ -147,7 +148,8 @@ public final class VariableInputIntegerVector extends AbstractVariable {
 
         ps.print(TYPE_TAG);
         ps.print(" value=");
-        ps.print(getValue());
+        final Object value = getValue();
+        ps.print(value);
         ps.println(RPAREN);
     }
 }

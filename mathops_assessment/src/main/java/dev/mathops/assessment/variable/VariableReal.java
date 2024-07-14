@@ -1,6 +1,5 @@
 package dev.mathops.assessment.variable;
 
-import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.EType;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -87,8 +86,8 @@ public final class VariableReal extends AbstractFormattableVariable {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableReal var) {
-            equal = innerEqualsVariable(var);
+        } else if (obj instanceof final VariableReal variable) {
+            equal = innerEqualsVariable(variable);
         } else {
             equal = false;
         }
@@ -116,7 +115,8 @@ public final class VariableReal extends AbstractFormattableVariable {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return htm.toString();
     }
@@ -131,7 +131,8 @@ public final class VariableReal extends AbstractFormattableVariable {
     public void appendXml(final HtmlBuilder xml, final int indent) {
 
         startXml(xml, indent, TYPE_TAG);
-        AbstractXmlObject.writeAttribute(xml, "value", getValue());
+        final Object value = getValue();
+        writeAttribute(xml, "value", value);
         xml.addln("/>");
     }
 
@@ -149,7 +150,8 @@ public final class VariableReal extends AbstractFormattableVariable {
 
         ps.print(TYPE_TAG);
         ps.print(" value=");
-        ps.print(getValue());
+        final Object value = getValue();
+        ps.print(value);
         ps.println(RPAREN);
     }
 }

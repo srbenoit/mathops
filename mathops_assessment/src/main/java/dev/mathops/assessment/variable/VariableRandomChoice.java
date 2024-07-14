@@ -25,10 +25,10 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
     private static final Formula[] ZERO_LEN_FORMULA_ARR = new Formula[0];
 
     /** A list of excluded random integer values, which may be formulae. */
-    private Formula[] exclude;
+    private Formula[] exclude = null;
 
     /** A list of values from which to choose. */
-    private Formula[] chooseFrom;
+    private Formula[] chooseFrom = null;
 
     /**
      * Constructs a new {@code VariableRandomChoice}.
@@ -211,9 +211,9 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableRandomChoice var) {
-            equal = innerEqualsVariable(var) && Arrays.equals(this.exclude, var.exclude)
-                    && Arrays.equals(this.chooseFrom, var.chooseFrom);
+        } else if (obj instanceof final VariableRandomChoice variable) {
+            equal = innerEqualsVariable(variable) && Arrays.equals(this.exclude, variable.exclude)
+                    && Arrays.equals(this.chooseFrom, variable.chooseFrom);
         } else {
             equal = false;
         }
@@ -241,7 +241,8 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG);
 
         if (this.chooseFrom != null) {
             htm.add(" from ");
@@ -292,22 +293,29 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
         writeAttribute(xml, "value-type", this.type);
 
         if (value instanceof Long) {
-            writeAttribute(xml, "long", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "long", valueStr);
         } else if (value instanceof Double) {
-            writeAttribute(xml, "double", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "double", valueStr);
         } else if (value instanceof Boolean) {
-            writeAttribute(xml, "boolean", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "boolean", valueStr);
         } else if (value instanceof Irrational) {
-            writeAttribute(xml, "irrational", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "irrational", valueStr);
         } else if (value instanceof String) {
-            writeAttribute(xml, "string", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "string", valueStr);
         } else if (value instanceof IntegerVectorValue) {
-            writeAttribute(xml, "int-vector", value.toString());
+            final String valueStr = value.toString();
+            writeAttribute(xml, "int-vector", valueStr);
         }
         xml.addln('>');
 
         if (value instanceof final DocSimpleSpan span) {
-            xml.addln(ind1, "<span>", span.toXml(0), "</span>");
+            final String spanXml = span.toXml(0);
+            xml.addln(ind1, "<span>", spanXml, "</span>");
         }
 
         if (this.chooseFrom != null) {
@@ -368,7 +376,8 @@ public final class VariableRandomChoice extends AbstractFormattableVariable impl
 
         if (hasValue()) {
             ps.print(" generated=");
-            ps.print(getValue());
+            final Object value = getValue();
+            ps.print(value);
         }
 
         ps.println(RPAREN);

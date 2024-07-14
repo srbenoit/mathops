@@ -115,7 +115,8 @@ public final class VariableInteger extends AbstractFormattableVariable {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
-        htm.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        htm.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return htm.toString();
     }
@@ -130,7 +131,8 @@ public final class VariableInteger extends AbstractFormattableVariable {
     public void appendXml(final HtmlBuilder xml, final int indent) {
 
         startXml(xml, indent, TYPE_TAG);
-        writeAttribute(xml, "value", getValue());
+        final Object value = getValue();
+        writeAttribute(xml, "value", value);
         xml.addln("/>");
     }
 
@@ -148,7 +150,8 @@ public final class VariableInteger extends AbstractFormattableVariable {
 
         ps.print(TYPE_TAG);
         ps.print(" value=");
-        ps.print(getValue());
+        final Object value = getValue();
+        ps.print(value);
         ps.println(RPAREN);
     }
 }

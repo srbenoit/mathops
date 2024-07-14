@@ -511,6 +511,37 @@ public enum XmlFormulaFactory {
 
         if (result != null) {
             extractChildren(evalContext, element, result, mode);
+
+            // Check for opportunities to streamline AND checks
+            if (result.op == EBinaryOp.AND) {
+                final int count = result.numChildren();
+                for (int i = 0; i < count; ++i) {
+                    if (result.getChild(i) instanceof final BinaryOper child && child.op == EBinaryOp.AND) {
+                        element.logError("Nested AND operators - simplify?");
+                    }
+                }
+            } else if (result.op == EBinaryOp.OR) {
+                final int count = result.numChildren();
+                for (int i = 0; i < count; ++i) {
+                    if (result.getChild(i) instanceof final BinaryOper child && child.op == EBinaryOp.OR) {
+                        element.logError("Nested OR operators - simplify?");
+                    }
+                }
+            } else if (result.op == EBinaryOp.ADD) {
+                final int count = result.numChildren();
+                for (int i = 0; i < count; ++i) {
+                    if (result.getChild(i) instanceof final BinaryOper child && child.op == EBinaryOp.ADD) {
+                        element.logError("Nested ADD operators - simplify?");
+                    }
+                }
+            } else if (result.op == EBinaryOp.MULTIPLY) {
+                final int count = result.numChildren();
+                for (int i = 0; i < count; ++i) {
+                    if (result.getChild(i) instanceof final BinaryOper child && child.op == EBinaryOp.MULTIPLY) {
+                        element.logError("Nested MULTIPLY operators - simplify?");
+                    }
+                }
+            }
         }
 
         return result;
@@ -537,6 +568,7 @@ public enum XmlFormulaFactory {
 
         if ("+".equals(oper)) {
             result = new UnaryOper(EUnaryOp.PLUS);
+            element.logError("Useless unary '+' operator.");
         } else if ("-".equals(oper)) {
             result = new UnaryOper(EUnaryOp.MINUS);
         } else {
@@ -546,6 +578,13 @@ public enum XmlFormulaFactory {
 
         if (result != null) {
             extractChildren(evalContext, element, result, mode);
+
+            if (result.numChildren() == 1) {
+                final AbstractFormulaObject child = result.getChild(0);
+                if (child != null && child.isConstant()) {
+                    element.logError("Unary '-' operator applied to constant - simplify?.");
+                }
+            }
         }
 
         return result;

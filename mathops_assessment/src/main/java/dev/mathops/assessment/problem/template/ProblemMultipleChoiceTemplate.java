@@ -329,7 +329,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
             int which = 0;
 
             if (size > 0) {
-                final  List<ProblemChoiceTemplate> choices = getChoices();
+                final List<ProblemChoiceTemplate> choices = getChoices();
                 final int count = choices.size();
 
                 for (int i = 0; i < count; ++i) {
@@ -576,6 +576,30 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
     }
 
     /**
+     * Emits the start of the opening &lt;problem-... tag (attributes can be emitted after this).
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void openTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.add(indent, "<problem-multiple-choice");
+    }
+
+    /**
+     * Emits the closing &lt;/problem-...&gt; tag.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void closeTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.addln(indent, "</problem-multiple-choice>");
+    }
+
+    /**
      * A method that subclasses override to print their subclass-specific attributes on the problem element.
      *
      * @param builder The {@code HtmlBuilder} to which to write the XML.
@@ -599,7 +623,7 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
      * @param overwriteAll A 1-boolean array whose only entry contains True if the user has selected "overwrite all";
      *                     false to ask the user each time. This method can update this value to true if it is false and
      *                     the user is asked "Overwrite? [YES] [ALL] [NO]" and chooses [ALL].
-     * @param builder          The {@code HtmlBuilder} to which to write the LaTeX.
+     * @param builder      The {@code HtmlBuilder} to which to write the LaTeX.
      * @param showAnswers  True to show the correct answers; false to leave blank
      * @param mode         The current LaTeX mode (T=text, $=in-line math, M=math).
      */

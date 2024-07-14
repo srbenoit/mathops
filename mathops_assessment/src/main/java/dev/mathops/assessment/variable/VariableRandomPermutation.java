@@ -17,10 +17,10 @@ public final class VariableRandomPermutation extends AbstractVariable implements
     static final String TYPE_TAG = "random-permutation";
 
     /** The minimum random integer/real value. */
-    private NumberOrFormula min;
+    private NumberOrFormula min = null;
 
     /** The maximum random integer/real value. */
-    private NumberOrFormula max;
+    private NumberOrFormula max = null;
 
     /**
      * Constructs a new {@code VariableRandomPermutation}.
@@ -129,8 +129,7 @@ public final class VariableRandomPermutation extends AbstractVariable implements
     @Override
     public int hashCode() {
 
-        return innerHashCode() + Objects.hashCode(this.min)
-                + Objects.hashCode(this.max);
+        return innerHashCode() + Objects.hashCode(this.min) + Objects.hashCode(this.max);
     }
 
     /**
@@ -147,9 +146,9 @@ public final class VariableRandomPermutation extends AbstractVariable implements
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableRandomPermutation var) {
-            equal = innerEquals(var) && Objects.equals(this.min, var.min)
-                    && Objects.equals(this.max, var.max);
+        } else if (obj instanceof final VariableRandomPermutation variable) {
+            equal = innerEquals(variable) && Objects.equals(this.min, variable.min)
+                    && Objects.equals(this.max, variable.max);
         } else {
             equal = false;
         }
@@ -196,27 +195,39 @@ public final class VariableRandomPermutation extends AbstractVariable implements
         final String ind1 = makeIndent(indent + 1);
 
         startXml(xml, indent, TYPE_TAG);
-        writeAttribute(xml, "value", getValue());
+        final Object value = getValue();
+        writeAttribute(xml, "value", value);
+
         if (this.min != null) {
-            writeAttribute(xml, "min", this.min.getNumber());
+            final Number minConstant = this.min.getNumber();
+            writeAttribute(xml, "min", minConstant);
         }
+
         if (this.max != null) {
-            writeAttribute(xml, "max", this.max.getNumber());
-        }
-        xml.addln('>');
-
-        if (this.min != null && this.min.getFormula() != null) {
-            xml.add(ind1, "<min>");
-            this.min.getFormula().appendChildrenXml(xml);
-            xml.addln("</min>");
-        }
-        if (this.max != null && this.max.getFormula() != null) {
-            xml.add(ind1, "<max>");
-            this.max.getFormula().appendChildrenXml(xml);
-            xml.addln("</max>");
+            final Number maxConstant = this.max.getNumber();
+            writeAttribute(xml, "max", maxConstant);
         }
 
-        xml.addln(ind0, "</var>");
+        if ((this.min != null && this.min.getFormula() != null)
+                || (this.max != null && this.max.getFormula() != null)) {
+
+            xml.addln('>');
+
+            if (this.min != null && this.min.getFormula() != null) {
+                xml.add(ind1, "<min>");
+                this.min.getFormula().appendChildrenXml(xml);
+                xml.addln("</min>");
+            }
+            if (this.max != null && this.max.getFormula() != null) {
+                xml.add(ind1, "<max>");
+                this.max.getFormula().appendChildrenXml(xml);
+                xml.addln("</max>");
+            }
+
+            xml.addln(ind0, "</var>");
+        } else {
+            xml.addln("/>");
+        }
     }
 
     /**

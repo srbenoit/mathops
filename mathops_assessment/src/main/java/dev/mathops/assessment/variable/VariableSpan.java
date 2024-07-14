@@ -87,8 +87,8 @@ public final class VariableSpan extends AbstractVariable {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableSpan var) {
-            equal = innerEquals(var);
+        } else if (obj instanceof final VariableSpan variable) {
+            equal = innerEquals(variable);
         } else {
             equal = false;
         }
@@ -116,7 +116,8 @@ public final class VariableSpan extends AbstractVariable {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, RPAREN);
+        final Object value = getValue();
+        builder.add(this.name, " = ", value, LPAREN, TYPE_TAG, RPAREN);
 
         return builder.toString();
     }
@@ -134,7 +135,8 @@ public final class VariableSpan extends AbstractVariable {
         xml.add('>');
 
         if (getValue() instanceof final DocSimpleSpan span) {
-            xml.add(span.toXml(0));
+            final String spanXml = span.toXml(0);
+            xml.add(spanXml);
         }
 
         xml.addln("</var>");

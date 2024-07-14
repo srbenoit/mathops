@@ -35,7 +35,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /** The problem type. */
     private EProblemType type;
 
-    /**The problem's unique ID within the organizational tree in which all instructional material is maintained.*/
+    /** The problem's unique ID within the organizational tree in which all instructional material is maintained. */
     public String id;
 
     /** An evaluation context for algorithmically generating problems. */
@@ -257,17 +257,11 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
         final String ind0 = makeIndent(indent);
         final String ind1 = makeIndent(indent + 1);
 
-        xml.add(ind0, "<problem");
-        writeAttribute(xml, "type", getType().label);
+        openTopLevelTag(xml, ind0);
         printSubclassAttributes(xml);
         xml.addln(">");
 
         printSubclassXmlBegin(xml, indent + 1);
-
-        if (this.id != null) {
-            xml.addln();
-            xml.addln(ind1, "<ref-base>", this.id, "</ref-base>");
-        }
 
         if (this.evalContext != null) {
             final Collection<AbstractVariable> vars = this.evalContext.getVariables();
@@ -310,8 +304,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
         }
 
         printSubclassXmlEnd(xml, indent + 1);
-
-        xml.addln(ind0, "</problem>");
+        closeTopLevelTag(xml, ind0);
     }
 
     /**
@@ -321,6 +314,10 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
      */
     @Override
     public void printSubclassAttributes(final HtmlBuilder builder) {
+
+        if (this.id != null) {
+            writeAttribute(builder, "id", this.id);
+        }
 
         if (this.calculator != null && this.calculator != ECalculatorType.FULL_CALC) {
             writeAttribute(builder, "calculator", this.calculator.label);
@@ -334,8 +331,8 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /**
      * Prints subclass-specific elements.
      *
-     * @param builder    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
      */
     @Override
     public abstract void printSubclassXmlBegin(HtmlBuilder builder, int indent);
@@ -343,8 +340,8 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /**
      * Prints subclass-specific elements.
      *
-     * @param builder    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
      */
     @Override
     public abstract void printSubclassXmlEnd(HtmlBuilder builder, int indent);
@@ -352,7 +349,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /**
      * Prints diagnostic data about the problem to a print stream.
      *
-     * @param ps      the print stream to output to
+     * @param ps           the print stream to output to
      * @param includeTrees {@code true} to include a dump of contained document tree structures
      */
     @Override
@@ -434,7 +431,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     /**
      * Prints subclass-specific diagnostic information.
      *
-     * @param ps      the print stream to which to write the data
+     * @param ps           the print stream to which to write the data
      * @param includeTrees {@code true} to include a dump of the entire document tree structure
      */
     @Override
@@ -448,7 +445,7 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
      * @param overwriteAll a 1-boolean array whose only entry contains True if the user has selected "overwrite all";
      *                     false to ask the user each time. This method can update this value to true if it is false and
      *                     the user is asked "Overwrite? [YES] [ALL] [NO]" and chooses [ALL]
-     * @param builder          the {@code HtmlBuilder} to which to write the LaTeX
+     * @param builder      the {@code HtmlBuilder} to which to write the LaTeX
      * @param showAnswers  {@code true} to show the correct answers; {@code false} to leave blank
      * @param mode         the current LaTeX mode (T=text, $=in-line math, M=math)
      * @param context      the evaluation context

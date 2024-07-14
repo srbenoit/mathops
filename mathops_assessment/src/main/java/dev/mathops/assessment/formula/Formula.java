@@ -363,9 +363,9 @@ public final class Formula extends AbstractFormulaContainer {
     @Override
     public void appendXml(final HtmlBuilder xml) {
 
-        xml.add("<formula>");
+        xml.add("<expr>");
         appendChildrenXml(xml);
-        xml.add("</formula>");
+        xml.add("</expr>");
     }
 
     /**

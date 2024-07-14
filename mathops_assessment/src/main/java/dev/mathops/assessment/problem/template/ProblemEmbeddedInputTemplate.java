@@ -218,6 +218,30 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     }
 
     /**
+     * Emits the start of the opening &lt;problem-... tag (attributes can be emitted after this).
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void openTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.add(indent, "<problem-embedded-input");
+    }
+
+    /**
+     * Emits the closing &lt;/problem-...&gt; tag.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void closeTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.addln(indent, "</problem-embedded-input>");
+    }
+
+    /**
      * Prints subclass-specific elements.
      *
      * @param builder    the {@code HtmlBuilder} to which to write the XML

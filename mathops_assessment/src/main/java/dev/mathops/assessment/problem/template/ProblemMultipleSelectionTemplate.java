@@ -569,6 +569,30 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
     }
 
     /**
+     * Emits the start of the opening &lt;problem-... tag (attributes can be emitted after this).
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void openTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.add(indent, "<problem-multiple-selection");
+    }
+
+    /**
+     * Emits the closing &lt;/problem-...&gt; tag.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    @Override
+    public void closeTopLevelTag(final HtmlBuilder builder, final String indent) {
+
+        builder.addln(indent, "</problem-multiple-selection>");
+    }
+
+    /**
      * Prints subclass-specific attributes on the problem element.
      *
      * @param builder the {@code HtmlBuilder} to which to write the XML

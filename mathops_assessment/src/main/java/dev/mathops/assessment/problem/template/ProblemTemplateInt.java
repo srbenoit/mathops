@@ -47,6 +47,22 @@ interface ProblemTemplateInt {
     boolean isCorrect(Object[] response);
 
     /**
+     * Emits the start of the opening &lt;problem-... tag (attributes can be emitted after this).
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    void openTopLevelTag(HtmlBuilder builder, String indent);
+
+    /**
+     * Emits the closing &lt;/problem-...&gt; tag.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the indentation string
+     */
+    void closeTopLevelTag(HtmlBuilder builder, String indent);
+
+    /**
      * Prints subclass-specific attributes on the problem element.
      *
      * @param builder the {@code HtmlBuilder} to which to write the XML

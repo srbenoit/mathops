@@ -200,20 +200,27 @@ public final class VariableRandomReal extends AbstractFormattableVariable implem
         if (this.max != null) {
             writeAttribute(xml, "max", this.max.getNumber());
         }
-        xml.addln('>');
 
-        if (this.min != null && this.min.getFormula() != null) {
-            xml.add(ind1, "<min>");
-            this.min.getFormula().appendChildrenXml(xml);
-            xml.addln("</min>");
-        }
-        if (this.max != null && this.max.getFormula() != null) {
-            xml.add(ind1, "<max>");
-            this.max.getFormula().appendChildrenXml(xml);
-            xml.addln("</max>");
-        }
+        if ((this.min != null && this.min.getFormula() != null)
+                || (this.max != null && this.max.getFormula() != null)) {
 
-        xml.addln(ind0, "</var>");
+            xml.addln('>');
+
+            if (this.min != null && this.min.getFormula() != null) {
+                xml.add(ind1, "<min>");
+                this.min.getFormula().appendChildrenXml(xml);
+                xml.addln("</min>");
+            }
+            if (this.max != null && this.max.getFormula() != null) {
+                xml.add(ind1, "<max>");
+                this.max.getFormula().appendChildrenXml(xml);
+                xml.addln("</max>");
+            }
+
+            xml.addln(ind0, "</var>");
+        } else {
+            xml.addln("/>");
+        }
     }
 
     /**

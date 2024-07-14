@@ -222,9 +222,8 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
     @Override
     public int hashCode() {
 
-        return innerHashCode() + Objects.hashCode(this.min)
-                + Objects.hashCode(this.max) + Objects.hashCode(this.maxDenom)
-                + Objects.hashCode(this.exclude);
+        return innerHashCode() + Objects.hashCode(this.min) + Objects.hashCode(this.max)
+                + Objects.hashCode(this.maxDenom) + Objects.hashCode(this.exclude);
     }
 
     /**
@@ -241,11 +240,11 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final VariableRandomSimpleAngle var) {
-            equal = innerEquals(var) && Objects.equals(this.min, var.min)
-                    && Objects.equals(this.max, var.max)
-                    && Objects.equals(this.maxDenom, var.maxDenom)
-                    && Arrays.equals(this.exclude, var.exclude);
+        } else if (obj instanceof final VariableRandomSimpleAngle variable) {
+            equal = innerEquals(variable) && Objects.equals(this.min, variable.min)
+                    && Objects.equals(this.max, variable.max)
+                    && Objects.equals(this.maxDenom, variable.maxDenom)
+                    && Arrays.equals(this.exclude, variable.exclude);
         } else {
             equal = false;
         }
@@ -273,7 +272,8 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.name, " = ", getValue(), LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max,
+        final Object value = getValue();
+        builder.add(this.name, " = ", value, LPAREN, TYPE_TAG, " between ", this.min, " and ", this.max,
                 " with max denominator ", this.maxDenom);
 
         final Formula[] exc = getExcludes();
@@ -307,42 +307,58 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
         final String ind1 = makeIndent(indent + 1);
 
         startXml(xml, indent, TYPE_TAG);
-        writeAttribute(xml, "value", getValue());
+        final Object value = getValue();
+        writeAttribute(xml, "value", value);
+
         if (this.min != null) {
-            writeAttribute(xml, "min", this.min.getNumber());
+            final Number minConstant = this.min.getNumber();
+            writeAttribute(xml, "min", minConstant);
         }
+
         if (this.max != null) {
-            writeAttribute(xml, "max", this.max.getNumber());
+            final Number maxConstant = this.max.getNumber();
+            writeAttribute(xml, "max", maxConstant);
         }
+
         if (this.maxDenom != null) {
-            writeAttribute(xml, "max-denom", this.maxDenom.getNumber());
+            final Number maxDenomConstant = this.maxDenom.getNumber();
+            writeAttribute(xml, "max-denom", maxDenomConstant);
         }
-        xml.addln('>');
 
-        if (this.min != null && this.min.getFormula() != null) {
-            xml.add(ind1, "<min>");
-            this.min.getFormula().appendChildrenXml(xml);
-            xml.addln("</min>");
-        }
-        if (this.max != null && this.max.getFormula() != null) {
-            xml.add(ind1, "<max>");
-            this.max.getFormula().appendChildrenXml(xml);
-            xml.addln("</max>");
-        }
-        if (this.maxDenom != null && this.maxDenom.getFormula() != null) {
-            xml.add(ind1, "<max-denom>");
-            this.maxDenom.getFormula().appendChildrenXml(xml);
-            xml.addln("</max-denom>");
-        }
-        if (this.exclude != null) {
-            for (final Formula formula : this.exclude) {
-                xml.add(ind1, "<exclude>");
-                formula.appendChildrenXml(xml);
-                xml.addln("</exclude>");
+        if ((this.min != null && this.min.getFormula() != null)
+                || (this.max != null && this.max.getFormula() != null)
+                || (this.maxDenom != null && this.maxDenom.getFormula() != null)
+                || (this.exclude != null && this.exclude.length > 0)) {
+
+            xml.addln('>');
+
+            if (this.min != null && this.min.getFormula() != null) {
+                xml.add(ind1, "<min>");
+                this.min.getFormula().appendChildrenXml(xml);
+                xml.addln("</min>");
             }
-        }
+            if (this.max != null && this.max.getFormula() != null) {
+                xml.add(ind1, "<max>");
+                this.max.getFormula().appendChildrenXml(xml);
+                xml.addln("</max>");
+            }
+            if (this.maxDenom != null && this.maxDenom.getFormula() != null) {
+                xml.add(ind1, "<max-denom>");
+                this.maxDenom.getFormula().appendChildrenXml(xml);
+                xml.addln("</max-denom>");
+            }
+            if (this.exclude != null) {
+                for (final Formula formula : this.exclude) {
+                    xml.add(ind1, "<exclude>");
+                    formula.appendChildrenXml(xml);
+                    xml.addln("</exclude>");
+                }
+            }
 
-        xml.addln(ind0, "</var>");
+            xml.addln(ind0, "</var>");
+        } else {
+            xml.addln("/>");
+        }
     }
 
     /**
@@ -386,7 +402,8 @@ public final class VariableRandomSimpleAngle extends AbstractVariable
 
         if (hasValue()) {
             ps.print(" generated=");
-            ps.print(getValue());
+            final Object value = getValue();
+            ps.print(value);
         }
 
         ps.println(RPAREN);

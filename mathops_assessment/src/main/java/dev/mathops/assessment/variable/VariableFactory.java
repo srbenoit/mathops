@@ -36,6 +36,90 @@ public enum VariableFactory {
     /** The value emitted by {@code toString} for a false value. */
     private static final String FALSE_STRING = "false";
 
+    /** A commonly used string. */
+    private static final String PARAM = "param";
+
+    /** A commonly used string. */
+    private static final String VAR = "var";
+
+    /** A commonly used string. */
+    private static final String NAME = "name";
+
+    /** A commonly used string. */
+    private static final String TYPE = "type";
+
+    /** A commonly used string. */
+    private static final String VALUE_TYPE = "value-type";
+
+    /** A commonly used string. */
+    private static final String EXCLUDE = "exclude";
+
+    /** A commonly used string. */
+    private static final String MIN = "min";
+
+    /** A commonly used string. */
+    private static final String MAX = "max";
+
+    /** A commonly used string. */
+    private static final String FORMULA = "formula";
+
+    /** A commonly used string. */
+    private static final String EXPR = "expr";
+
+    /** A commonly used string. */
+    private static final String SPAN = "span";
+
+    /** A commonly used string. */
+    private static final String FORMAT = "format";
+
+    /** A commonly used string. */
+    private static final String DECIMAL_FORMAT = "decimal-format";
+
+    /** A commonly used string. */
+    private static final String CHOOSE_FROM = "choose-from";
+
+    /** A commonly used string. */
+    private static final String VALUE = "value";
+
+    /** A commonly used string. */
+    private static final String LONG = "long";
+
+    /** A commonly used string. */
+    private static final String DOUBLE = "double";
+
+    /** A commonly used string. */
+    private static final String BOOLEAN = "boolean";
+
+    /** A commonly used string. */
+    private static final String IRRATIONAL = "irrational";
+
+    /** A commonly used string. */
+    private static final String STRING = "string";
+
+    /** A commonly used string. */
+    private static final String INT_VECTOR = "int-vector";
+
+    /** A commonly used string. */
+    private static final String MAX_DENOM = "max-denom";
+
+    /** A commonly used string. */
+    private static final String GENERATED_INTEGER = "generated-integer";
+
+    /** A commonly used string. */
+    private static final String GENERATED_REAL = "generated-real";
+
+    /** A commonly used string. */
+    private static final String GENERATED_BOOLEAN = "generated-boolean";
+
+    /** A commonly used string. */
+    private static final String GENERATED_STRING = "generated-string";
+
+    /** A commonly used character. */
+    private static final int L_BRACE = (int) '{';
+
+    /** A commonly used character. */
+    private static final int R_BRACE = (int) '}';
+
     /** Characters that are interpreted as TRUE in input strings, the first is used in output. */
     private static final String TRUE_CHARS = "YyTt1!";
 
@@ -54,15 +138,14 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    public static boolean parseVars(final EvalContext evalContext, final NonemptyElement elem,
-                                    final EParserMode mode) {
+    public static boolean parseVars(final EvalContext evalContext, final NonemptyElement elem, final EParserMode mode) {
 
         // "<param .../>" is old style tag with formulas in attributes
         // "<var> ... </var>" is new style tag with formulas as child objects
         // We do one pass extracting "param" elements and a second pass for "var" elements.
 
-        // If there are one or more comments that directly precedes a variable, we associate those
-        // comments with the variable.
+        // If there are one or more comments that directly precedes a variable, we associate those comments with the
+        // variable.
 
         // Log.info("Parsing Vars in a problem...");
 
@@ -75,15 +158,15 @@ public enum VariableFactory {
                 final String tag = childElem.getTagName();
 
                 if (child instanceof final EmptyElement empty) {
-                    if ("param".equals(tag)) {
+                    if (PARAM.equals(tag)) {
                         result = result && processEmptyParamElement(evalContext, empty, comments, mode);
-                    } else if ("var".equals(tag)) {
-                        result = result && processEmptyVarElement(evalContext, empty, comments);
+                    } else if (VAR.equals(tag)) {
+                        result = result && processEmptyVarElement(evalContext, empty, comments, mode);
                     }
                 } else if (child instanceof final NonemptyElement nonempty) {
-                    if ("param".equals(tag)) {
+                    if (PARAM.equals(tag)) {
                         result = result && processNonemptyParamElement(evalContext, nonempty, comments, mode);
-                    } else if ("var".equals(tag)) {
+                    } else if (VAR.equals(tag)) {
                         result = result && processNonemptyVarElement(evalContext, nonempty, comments, mode);
                     }
                 }
@@ -114,30 +197,29 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean processEmptyParamElement(final EvalContext evalContext,
-                                                    final EmptyElement elem, final Iterable<Comment> comments,
-                                                    final EParserMode mode) {
+    private static boolean processEmptyParamElement(final EvalContext evalContext, final EmptyElement elem,
+                                                    final Iterable<Comment> comments, final EParserMode mode) {
 
         boolean valid = true;
 
         if (mode == EParserMode.NORMAL) {
-            elem.logError("Deprecated '<param>' element");
+            elem.logError("Deprecated &lt;param&gt; element");
         }
 
-        final String parameterName = elem.getStringAttr("name");
-        final String parameterType = elem.getStringAttr("type");
-        final String valueTypeStr = elem.getStringAttr("value-type");
+        final String parameterName = elem.getStringAttr(NAME);
+        final String parameterType = elem.getStringAttr(TYPE);
+        final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
 
         if (parameterName == null) {
             elem.logError("<param> element is missing 'name' attribute.");
             valid = false;
-        } else if (parameterName.indexOf('{') != -1 || parameterName.indexOf('}') != -1) {
+        } else if (parameterName.indexOf(L_BRACE) != -1 || parameterName.indexOf(R_BRACE) != -1) {
             elem.logError("Parameter names may not contain '{' or '}'");
             valid = false;
         }
 
         if (parameterType == null) {
-            elem.logError("<param> element is missing 'type' attribute.");
+            elem.logError("&lt;param&gt; element is missing 'type' attribute.");
             valid = false;
         }
 
@@ -147,42 +229,42 @@ public enum VariableFactory {
         }
 
         // Create the variable object, and begin populating it.
-        AbstractVariable var = null;
+        AbstractVariable variable = null;
 
         if (VariableInteger.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableInteger(parameterName);
+            variable = new VariableInteger(parameterName);
         } else if (VariableReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableReal(parameterName);
+            variable = new VariableReal(parameterName);
         } else if (VariableBoolean.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableBoolean(parameterName);
+            variable = new VariableBoolean(parameterName);
         } else if (VariableSpan.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableSpan(parameterName);
+            variable = new VariableSpan(parameterName);
         } else if (VariableRandomInteger.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomInteger(parameterName);
+            variable = new VariableRandomInteger(parameterName);
         } else if (VariableRandomReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomReal(parameterName);
+            variable = new VariableRandomReal(parameterName);
         } else if (VariableRandomBoolean.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomBoolean(parameterName);
+            variable = new VariableRandomBoolean(parameterName);
         } else if (VariableRandomChoice.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomChoice(parameterName, type);
+            variable = new VariableRandomChoice(parameterName, type);
         } else if (VariableDerived.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableDerived(parameterName, type);
+            variable = new VariableDerived(parameterName, type);
         } else {
             elem.logError("Unrecognized parameter type: " + parameterType);
             valid = false;
         }
 
-        if (var != null) {
-            if (var.type == null) {
-                var.type = type;
+        if (variable != null) {
+            if (variable.type == null) {
+                variable.type = type;
             }
 
             // PARSE min/max for variables that need it...
 
-            final String minStr = elem.getStringAttr("min");
-            final String maxStr = elem.getStringAttr("max");
+            final String minStr = elem.getStringAttr(MIN);
+            final String maxStr = elem.getStringAttr(MAX);
 
-            switch (var) {
+            switch (variable) {
                 case final VariableRandomInteger vRInt -> {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
@@ -266,10 +348,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String excludeStr = elem.getStringAttr("exclude");
+            final String excludeStr = elem.getStringAttr(EXCLUDE);
 
             if (excludeStr != null) {
-                if (var instanceof final IExcludableVariable excludeVar) {
+                if (variable instanceof final IExcludableVariable excludeVar) {
                     final String[] split = excludeStr.split(CoreConstants.COMMA);
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
@@ -297,10 +379,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String chooseFromStr = elem.getStringAttr("choose-from");
+            final String chooseFromStr = elem.getStringAttr(CHOOSE_FROM);
 
             if (chooseFromStr != null) {
-                if (var instanceof final VariableRandomChoice rcvar) {
+                if (variable instanceof final VariableRandomChoice rcvar) {
 
                     final String[] split = chooseFromStr.split(CoreConstants.COMMA);
                     final List<Formula> formulas = new ArrayList<>(split.length);
@@ -317,7 +399,7 @@ public enum VariableFactory {
 
                                 if (formulaType != null && formulaType != EType.ERROR) {
                                     type = formulaType;
-                                    var.type = formulaType;
+                                    variable.type = formulaType;
                                 }
                             }
                             formulas.add(formula);
@@ -337,10 +419,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String formulaStr = elem.getStringAttr("formula");
+            final String formulaStr = elem.getStringAttr(FORMULA);
 
             if (formulaStr != null) {
-                if (var instanceof final VariableDerived vDer) {
+                if (variable instanceof final VariableDerived vDer) {
 
                     final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
                     if (formula == null) {
@@ -353,7 +435,7 @@ public enum VariableFactory {
                             final EType formulaType = formula.getType(evalContext);
 
                             if (formulaType != null && formulaType != EType.ERROR) {
-                                var.type = formulaType;
+                                variable.type = formulaType;
                             }
                         }
                     }
@@ -363,15 +445,16 @@ public enum VariableFactory {
                 }
             }
 
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
-                if (var instanceof VariableInteger || var instanceof VariableReal || var instanceof VariableBoolean) {
+                if (variable instanceof VariableInteger || variable instanceof VariableReal
+                        || variable instanceof VariableBoolean) {
                     elem.logError("Constant parameter with no value.");
                     valid = false;
                 }
-            } else if (var instanceof VariableInteger || var instanceof VariableReal
-                    || var instanceof VariableBoolean) {
+            } else if (variable instanceof VariableInteger || variable instanceof VariableReal
+                    || variable instanceof VariableBoolean) {
 
                 final Formula formula = FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
 
@@ -385,26 +468,28 @@ public enum VariableFactory {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError("Can't evaluate constant value.\n" + evaluationResult);
+                        elem.logError("Can't evaluate constant value:" + evaluationResult);
                         valid = false;
-                    } else if (var instanceof VariableInteger) {
+                    } else if (variable instanceof VariableInteger) {
                         if (evaluationResult instanceof Long) {
-                            var.setValue(evaluationResult);
+                            variable.setValue(evaluationResult);
                         } else {
                             elem.logError("Integer parameter value is not integer.");
                             valid = false;
                         }
-                    } else if (var instanceof VariableReal) {
-                        if (evaluationResult instanceof Long) {
-                            var.setValue(Double.valueOf(((Long) evaluationResult).doubleValue()));
+                    } else if (variable instanceof VariableReal) {
+                        if (evaluationResult instanceof final Long longVal) {
+                            final double dblVal = longVal.doubleValue();
+                            final Double dblObject = Double.valueOf(dblVal);
+                            variable.setValue(dblObject);
                         } else if (evaluationResult instanceof Double) {
-                            var.setValue(evaluationResult);
+                            variable.setValue(evaluationResult);
                         } else {
                             elem.logError("Real parameter value is not real.");
                             valid = false;
                         }
                     } else if (evaluationResult instanceof Boolean) {
-                        var.setValue(evaluationResult);
+                        variable.setValue(evaluationResult);
                     } else {
                         elem.logError("Boolean parameter value is not boolean.");
                         valid = false;
@@ -415,33 +500,35 @@ public enum VariableFactory {
                 valid = false;
             }
 
-            final String generatedIntegerStr = elem.getStringAttr("generated-integer");
+            final String generatedIntegerStr = elem.getStringAttr(GENERATED_INTEGER);
 
             if (generatedIntegerStr != null) {
-                if (var instanceof VariableRandomInteger || var instanceof VariableRandomReal
-                        || var instanceof VariableRandomChoice || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomInteger || variable instanceof VariableRandomReal
+                        || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(Long.valueOf(generatedIntegerStr));
+                        final Long parsedLong = Long.valueOf(generatedIntegerStr);
+                        variable.setValue(parsedLong);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr);
                         valid = false;
                     }
                 } else {
                     elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
-                                    "integer value.");
+                            "integer value.");
                     valid = false;
                 }
             }
 
-            final String generatedRealStr = elem.getStringAttr("generated-real");
+            final String generatedRealStr = elem.getStringAttr(GENERATED_REAL);
 
             if (generatedRealStr != null) {
-                if (var instanceof VariableRandomReal || var instanceof VariableRandomChoice
-                        || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomReal || variable instanceof VariableRandomChoice
+                        || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(Double.valueOf(generatedRealStr));
+                        final Double parsedDbl = Double.valueOf(generatedRealStr);
+                        variable.setValue(parsedDbl);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-real' value: " + generatedRealStr);
                         valid = false;
@@ -452,14 +539,15 @@ public enum VariableFactory {
                 }
             }
 
-            final String generatedBooleanStr = elem.getStringAttr("generated-boolean");
+            final String generatedBooleanStr = elem.getStringAttr(GENERATED_BOOLEAN);
 
             if (generatedBooleanStr != null) {
-                if (var instanceof VariableRandomBoolean || var instanceof VariableRandomChoice
-                        || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomBoolean || variable instanceof VariableRandomChoice
+                        || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(parseBooleanValue(generatedBooleanStr));
+                        final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
+                        variable.setValue(parsedBoolean);
                     } catch (final IllegalArgumentException ex) {
                         elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr);
                         valid = false;
@@ -470,12 +558,12 @@ public enum VariableFactory {
                 }
             }
 
-            final String generatedString = elem.getStringAttr("generated-string");
+            final String generatedString = elem.getStringAttr(GENERATED_STRING);
 
             if (generatedString != null) {
-                if (var instanceof VariableDerived) {
+                if (variable instanceof VariableDerived) {
                     try {
-                        var.setValue(generatedString);
+                        variable.setValue(generatedString);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-string' value: " + generatedString);
                         valid = false;
@@ -486,30 +574,31 @@ public enum VariableFactory {
                 }
             }
 
-            final String decimalFormatStr = elem.getStringAttr("decimal-format");
+            final String decimalFormatStr = elem.getStringAttr(DECIMAL_FORMAT);
 
             if (decimalFormatStr != null) {
-                if (var instanceof final AbstractFormattableVariable formattable) {
-                    formattable.setFormatPattern(decimalFormatStr);
+                if (variable instanceof final AbstractFormattableVariable fmt) {
+                    fmt.setFormatPattern(decimalFormatStr);
                 } else {
                     elem.logError("Only formattable variables may have decimal-format.");
                     valid = false;
                 }
             }
 
-            if (var instanceof VariableSpan) {
+            if (variable instanceof VariableSpan) {
                 elem.logError("Span parameter must contain span elements.");
                 valid = false;
             }
 
             if (valid) {
-                if (evalContext.getVariable(var.name) == null) {
+                if (evalContext.getVariable(variable.name) == null) {
                     for (final Comment comment : comments) {
-                        var.addComment(comment.getContent().trim());
+                        final String trimmed = comment.getContent().trim();
+                        variable.addComment(trimmed);
                     }
-                    evalContext.addVariable(var);
+                    evalContext.addVariable(variable);
                 } else {
-                    elem.logError("Parameter '" + var.name + "' is duplicated.");
+                    elem.logError("Parameter '" + variable.name + "' is duplicated.");
                     valid = false;
                 }
             }
@@ -529,24 +618,23 @@ public enum VariableFactory {
      * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean processNonemptyParamElement(final EvalContext evalContext,
-                                                       final NonemptyElement elem, final Iterable<Comment> comments,
-                                                       final EParserMode mode) {
+    private static boolean processNonemptyParamElement(final EvalContext evalContext, final NonemptyElement elem,
+                                                       final Iterable<Comment> comments, final EParserMode mode) {
 
         boolean valid = true;
 
         if (mode == EParserMode.NORMAL) {
-            elem.logError("Deprecated '<param>' element");
+            elem.logError("Deprecated &lt;param&gt; element");
         }
 
-        final String parameterName = elem.getStringAttr("name");
-        final String parameterType = elem.getStringAttr("type");
-        final String valueTypeStr = elem.getStringAttr("value-type");
+        final String parameterName = elem.getStringAttr(NAME);
+        final String parameterType = elem.getStringAttr(TYPE);
+        final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
 
         if (parameterName == null) {
             elem.logError("<param> element is missing 'name' attribute.");
             valid = false;
-        } else if (parameterName.indexOf('{') != -1 || parameterName.indexOf('}') != -1) {
+        } else if (parameterName.indexOf(L_BRACE) != -1 || parameterName.indexOf(R_BRACE) != -1) {
             elem.logError("Parameter names may not contain '{' or '}'");
             valid = false;
         }
@@ -562,48 +650,48 @@ public enum VariableFactory {
         }
 
         // Create the variable object, and begin populating it.
-        AbstractVariable var = null;
+        AbstractVariable variable = null;
 
         if (VariableInteger.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableInteger(parameterName);
+            variable = new VariableInteger(parameterName);
         } else if (VariableReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableReal(parameterName);
+            variable = new VariableReal(parameterName);
         } else if (VariableBoolean.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableBoolean(parameterName);
+            variable = new VariableBoolean(parameterName);
         } else if (VariableSpan.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableSpan(parameterName);
+            variable = new VariableSpan(parameterName);
         } else if (VariableRandomInteger.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomInteger(parameterName);
+            variable = new VariableRandomInteger(parameterName);
         } else if (VariableRandomReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomReal(parameterName);
+            variable = new VariableRandomReal(parameterName);
         } else if (VariableRandomBoolean.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableRandomBoolean(parameterName);
+            variable = new VariableRandomBoolean(parameterName);
         } else if (VariableRandomChoice.TYPE_TAG.equalsIgnoreCase(parameterType)) {
             // We make some bogus assumption about type until we learn more
-            var = new VariableRandomChoice(parameterName, EType.SPAN);
+            variable = new VariableRandomChoice(parameterName, EType.SPAN);
         } else if (VariableDerived.TYPE_TAG.equalsIgnoreCase(parameterType)) {
             // We make some bogus assumption about type until we learn more
-            var = new VariableDerived(parameterName, EType.SPAN);
+            variable = new VariableDerived(parameterName, EType.SPAN);
         } else if (VariableInputInteger.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableInputInteger(parameterName);
+            variable = new VariableInputInteger(parameterName);
         } else if (VariableInputReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
-            var = new VariableInputReal(parameterName);
+            variable = new VariableInputReal(parameterName);
         } else {
             elem.logError("Unrecognized parameter type: " + parameterType);
             valid = false;
         }
 
-        if (var != null) {
-            if (var.type == null) {
-                var.type = type;
+        if (variable != null) {
+            if (variable.type == null) {
+                variable.type = type;
             }
 
             // PARSE min/max for variables that need it...
 
-            final String minStr = elem.getStringAttr("min");
-            final String maxStr = elem.getStringAttr("max");
+            final String minStr = elem.getStringAttr(MIN);
+            final String maxStr = elem.getStringAttr(MAX);
 
-            switch (var) {
+            switch (variable) {
                 case final VariableRandomInteger vRInt -> {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
@@ -687,10 +775,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String excludeStr = elem.getStringAttr("exclude");
+            final String excludeStr = elem.getStringAttr(EXCLUDE);
 
             if (excludeStr != null) {
-                if (var instanceof final IExcludableVariable excludeVar) {
+                if (variable instanceof final IExcludableVariable excludeVar) {
                     final String[] split = excludeStr.split(CoreConstants.COMMA);
                     final List<Formula> formulas = new ArrayList<>(split.length);
 
@@ -718,10 +806,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String chooseFromStr = elem.getStringAttr("choose-from");
+            final String chooseFromStr = elem.getStringAttr(CHOOSE_FROM);
 
             if (chooseFromStr != null) {
-                if (var instanceof final VariableRandomChoice rcvar) {
+                if (variable instanceof final VariableRandomChoice rcvar) {
 
                     final String[] split = chooseFromStr.split(CoreConstants.COMMA);
                     final List<Formula> formulas = new ArrayList<>(split.length);
@@ -738,7 +826,7 @@ public enum VariableFactory {
 
                                 if (formulaType != null && formulaType != EType.ERROR) {
                                     type = formulaType;
-                                    var.type = formulaType;
+                                    variable.type = formulaType;
                                 }
                             }
                             formulas.add(formula);
@@ -762,10 +850,10 @@ public enum VariableFactory {
                 }
             }
 
-            final String formulaStr = elem.getStringAttr("formula");
+            final String formulaStr = elem.getStringAttr(FORMULA);
 
             if (formulaStr != null) {
-                if (var instanceof final VariableDerived vDer) {
+                if (variable instanceof final VariableDerived vDer) {
                     final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
 
                     if (formula == null) {
@@ -778,7 +866,7 @@ public enum VariableFactory {
                             final EType formulaType = formula.getType(evalContext);
 
                             if (formulaType != null && formulaType != EType.ERROR) {
-                                var.type = formulaType;
+                                variable.type = formulaType;
                             }
                         }
                     }
@@ -788,17 +876,17 @@ public enum VariableFactory {
                 }
             }
 
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
-                if (var instanceof VariableInteger || var instanceof VariableReal
-                        || var instanceof VariableBoolean) {
+                if (variable instanceof VariableInteger || variable instanceof VariableReal
+                        || variable instanceof VariableBoolean) {
                     elem.logError("Constant parameter with no value.");
                     valid = false;
                 }
-            } else if (var instanceof VariableInteger || var instanceof VariableReal
-                    || var instanceof VariableBoolean || var instanceof VariableInputInteger
-                    || var instanceof VariableInputReal) {
+            } else if (variable instanceof VariableInteger || variable instanceof VariableReal
+                    || variable instanceof VariableBoolean || variable instanceof VariableInputInteger
+                    || variable instanceof VariableInputReal) {
 
                 final Formula formula =
                         FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
@@ -813,27 +901,28 @@ public enum VariableFactory {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError("Can't evaluate constant value.\n" + evaluationResult);
+                        elem.logError("Can't evaluate constant value: " + evaluationResult);
                         valid = false;
-                    } else if (var instanceof VariableInteger
-                            || var instanceof VariableInputInteger) {
+                    } else if (variable instanceof VariableInteger || variable instanceof VariableInputInteger) {
                         if (evaluationResult instanceof Long) {
-                            var.setValue(evaluationResult);
+                            variable.setValue(evaluationResult);
                         } else {
                             elem.logError("Integer parameter value is not integer.");
                             valid = false;
                         }
-                    } else if (var instanceof VariableReal || var instanceof VariableInputReal) {
-                        if (evaluationResult instanceof Long) {
-                            var.setValue(Double.valueOf(((Long) evaluationResult).doubleValue()));
+                    } else if (variable instanceof VariableReal || variable instanceof VariableInputReal) {
+                        if (evaluationResult instanceof final Long longVal) {
+                            final double dblVal = longVal.doubleValue();
+                            final Double dblObject = Double.valueOf(dblVal);
+                            variable.setValue(dblObject);
                         } else if (evaluationResult instanceof Double) {
-                            var.setValue(evaluationResult);
+                            variable.setValue(evaluationResult);
                         } else {
                             elem.logError("Real parameter value is not real.");
                             valid = false;
                         }
                     } else if (evaluationResult instanceof Boolean) {
-                        var.setValue(evaluationResult);
+                        variable.setValue(evaluationResult);
                     } else {
                         elem.logError("Boolean parameter value is not boolean.");
                         valid = false;
@@ -844,14 +933,15 @@ public enum VariableFactory {
                 valid = false;
             }
 
-            final String generatedIntegerStr = elem.getStringAttr("generated-integer");
+            final String generatedIntegerStr = elem.getStringAttr(GENERATED_INTEGER);
 
             if (generatedIntegerStr != null) {
-                if (var instanceof VariableRandomInteger || var instanceof VariableRandomReal
-                        || var instanceof VariableRandomChoice || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomInteger || variable instanceof VariableRandomReal
+                        || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(Long.valueOf(generatedIntegerStr));
+                        final Long parsedLong = Long.valueOf(generatedIntegerStr);
+                        variable.setValue(parsedLong);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr);
                         valid = false;
@@ -863,14 +953,15 @@ public enum VariableFactory {
                 }
             }
 
-            final String generatedRealStr = elem.getStringAttr("generated-real");
+            final String generatedRealStr = elem.getStringAttr(GENERATED_REAL);
 
             if (generatedRealStr != null) {
-                if (var instanceof VariableRandomReal || var instanceof VariableRandomChoice
-                        || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomReal || variable instanceof VariableRandomChoice
+                        || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(Double.valueOf(generatedRealStr));
+                        final Double parsedDbl = Double.valueOf(generatedRealStr);
+                        variable.setValue(parsedDbl);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-real' value: " + generatedRealStr);
                         valid = false;
@@ -881,14 +972,15 @@ public enum VariableFactory {
                 }
             }
 
-            final String generatedBooleanStr = elem.getStringAttr("generated-boolean");
+            final String generatedBooleanStr = elem.getStringAttr(GENERATED_BOOLEAN);
 
             if (generatedBooleanStr != null) {
-                if (var instanceof VariableRandomBoolean || var instanceof VariableRandomChoice
-                        || var instanceof VariableDerived) {
+                if (variable instanceof VariableRandomBoolean || variable instanceof VariableRandomChoice
+                        || variable instanceof VariableDerived) {
 
                     try {
-                        var.setValue(parseBooleanValue(generatedBooleanStr));
+                        final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
+                        variable.setValue(parsedBoolean);
                     } catch (final IllegalArgumentException ex) {
                         elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr);
                         valid = false;
@@ -899,12 +991,12 @@ public enum VariableFactory {
                 }
             }
 
-            final String generatedString = elem.getStringAttr("generated-string");
+            final String generatedString = elem.getStringAttr(GENERATED_STRING);
 
             if (generatedString != null) {
-                if (var instanceof VariableDerived) {
+                if (variable instanceof VariableDerived) {
                     try {
-                        var.setValue(generatedString);
+                        variable.setValue(generatedString);
                     } catch (final NumberFormatException e) {
                         elem.logError("Invalid 'generated-string' value: " + generatedString);
                         valid = false;
@@ -915,38 +1007,39 @@ public enum VariableFactory {
                 }
             }
 
-            final String decimalFormatStr = elem.getStringAttr("decimal-format");
+            final String decimalFormatStr = elem.getStringAttr(DECIMAL_FORMAT);
 
             if (decimalFormatStr != null) {
-                if (var instanceof final AbstractFormattableVariable formattable) {
-                    formattable.setFormatPattern(decimalFormatStr);
+                if (variable instanceof final AbstractFormattableVariable fmt) {
+                    fmt.setFormatPattern(decimalFormatStr);
                 } else {
                     elem.logError("Only formattable variables may have decimal-format.");
                     valid = false;
                 }
             }
 
-            if (var instanceof VariableSpan) {
+            if (variable instanceof VariableSpan) {
                 final DocSimpleSpan span = DocFactory.parseSpan(evalContext, elem, mode);
                 if (span != null && span.numChildren() > 0) {
-                    var.setValue(span);
+                    variable.setValue(span);
                 }
-            } else if ((var instanceof VariableDerived || var instanceof VariableRandomChoice)) {
+            } else if ((variable instanceof VariableDerived || variable instanceof VariableRandomChoice)) {
                 DocSimpleSpan span = DocFactory.parseSpan(evalContext, elem, mode);
                 if (span == null) {
                     span = new DocSimpleSpan();
                 }
-                var.setValue(span);
+                variable.setValue(span);
             }
 
             if (valid) {
-                if (evalContext.getVariable(var.name) == null) {
+                if (evalContext.getVariable(variable.name) == null) {
                     for (final Comment comment : comments) {
-                        var.addComment(comment.getContent().trim());
+                        final String trimmed = comment.getContent().trim();
+                        variable.addComment(trimmed);
                     }
-                    evalContext.addVariable(var);
+                    evalContext.addVariable(variable);
                 } else {
-                    elem.logError("Parameter '" + var.name + "' is duplicated.");
+                    elem.logError("Parameter '" + variable.name + "' is duplicated.");
                     valid = false;
                 }
             }
@@ -966,63 +1059,65 @@ public enum VariableFactory {
      * @param elem        the element
      * @param evalContext the evaluation context to which to add the parsed variable
      * @param comments    comments to associate with the variable
+     * @param mode        the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
     private static boolean processEmptyVarElement(final EvalContext evalContext, final EmptyElement elem,
-                                                  final Iterable<Comment> comments) {
+                                                  final Iterable<Comment> comments, final EParserMode mode) {
 
         boolean valid = false;
 
-        final String varName = elem.getStringAttr("name");
-        final String typeStr = elem.getStringAttr("type");
+        final String varName = elem.getStringAttr(NAME);
+        final String typeStr = elem.getStringAttr(TYPE);
 
         if (varName == null) {
             elem.logError("Missing 'name' attribute on <var> element");
         } else if (typeStr == null) {
             elem.logError("Missing 'type' attribute on <var> element");
-        } else if (varName.indexOf('{') != -1 || varName.indexOf('}') != -1) {
+        } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf(R_BRACE) != -1) {
             elem.logError("Variable names may not contain '{' or '}'");
         } else {
-            AbstractVariable var = null;
+            AbstractVariable variable = null;
 
             if (VariableBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableBoolean(elem, varName);
+                variable = extractVariableBoolean(elem, varName);
             } else if (VariableInteger.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInteger(elem, varName);
+                variable = extractVariableInteger(elem, varName, mode);
             } else if (VariableReal.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableReal(elem, varName);
+                variable = extractVariableReal(elem, varName, mode);
             } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomBoolean(elem, varName);
+                variable = extractVariableRandomBoolean(elem, varName);
             } else if (VariableRandomInteger.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomInteger(elem, varName);
+                variable = extractVariableRandomInteger(elem, varName, mode);
             } else if (VariableRandomReal.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomReal(elem, varName);
+                variable = extractVariableRandomReal(elem, varName, mode);
             } else if (VariableRandomPermutation.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomPermutation(elem, varName);
+                variable = extractVariableRandomPermutation(elem, varName);
             } else if (VariableRandomSimpleAngle.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomSimpleAngle(elem, varName);
+                variable = extractVariableRandomSimpleAngle(elem, varName);
 
             } else if (VariableInputInteger.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInputInteger(varName);
+                variable = extractVariableInputInteger(varName);
             } else if (VariableInputIntegerVector.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInputIntegerVector(varName);
+                variable = extractVariableInputIntegerVector(varName);
             } else if (VariableInputReal.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInputReal(varName);
+                variable = extractVariableInputReal(varName);
             } else if (VariableInputString.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInputString(varName);
+                variable = extractVariableInputString(varName);
             } else {
                 elem.logError("Unrecognized empty-element variable type.");
             }
 
-            if (var != null) {
-                if (evalContext.getVariable(var.name) == null) {
+            if (variable != null) {
+                if (evalContext.getVariable(variable.name) == null) {
                     for (final Comment comment : comments) {
-                        var.addComment(comment.getContent().trim());
+                        final String trimmed = comment.getContent().trim();
+                        variable.addComment(trimmed);
                     }
-                    evalContext.addVariable(var);
+                    evalContext.addVariable(variable);
                     valid = true;
                 } else {
-                    elem.logError("Variable '" + var.name + "' is duplicated.");
+                    elem.logError("Variable '" + variable.name + "' is duplicated.");
                 }
             }
         }
@@ -1055,53 +1150,58 @@ public enum VariableFactory {
 
         boolean valid = false;
 
-        final String varName = elem.getStringAttr("name");
-        final String typeStr = elem.getStringAttr("type");
+        final String varName = elem.getStringAttr(NAME);
+        final String typeStr = elem.getStringAttr(TYPE);
 
         if (varName == null) {
             elem.logError("Missing 'name' attribute on <var> element");
         } else if (typeStr == null) {
             elem.logError("Missing 'type' attribute on <var> element");
-        } else if (varName.indexOf('{') != -1 || varName.indexOf('}') != -1) {
+        } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf((int) R_BRACE) != -1) {
             elem.logError("Variable names may not contain '{' or '}'");
         } else {
-            AbstractVariable var = null;
+            if (elem.getElementChildrenAsList().isEmpty() && !VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
+                elem.logError("Variable could be in '&lt;var ... /&gt;' format.");
+            }
+
+            AbstractVariable variable = null;
 
             if (VariableBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableBoolean(elem, varName);
+                variable = extractVariableBoolean(elem, varName);
             } else if (VariableInteger.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableInteger(elem, varName);
+                variable = extractVariableInteger(elem, varName, mode);
             } else if (VariableReal.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableReal(elem, varName);
+                variable = extractVariableReal(elem, varName, mode);
             } else if (VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableSpan(evalContext, elem, varName, mode);
+                variable = extractVariableSpan(evalContext, elem, varName, mode);
             } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomBoolean(elem, varName);
+                variable = extractVariableRandomBoolean(elem, varName);
             } else if (VariableRandomInteger.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomInteger(evalContext, elem, varName, mode);
+                variable = extractVariableRandomInteger(evalContext, elem, varName, mode);
             } else if (VariableRandomReal.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomReal(evalContext, elem, varName, mode);
+                variable = extractVariableRandomReal(evalContext, elem, varName, mode);
             } else if (VariableRandomPermutation.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomPermutation(evalContext, elem, varName, mode);
+                variable = extractVariableRandomPermutation(evalContext, elem, varName, mode);
             } else if (VariableRandomChoice.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomChoice(evalContext, elem, varName, mode);
+                variable = extractVariableRandomChoice(evalContext, elem, varName, mode);
             } else if (VariableRandomSimpleAngle.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableRandomSimpleAngle(evalContext, elem, varName, mode);
+                variable = extractVariableRandomSimpleAngle(evalContext, elem, varName, mode);
             } else if (VariableDerived.TYPE_TAG.contentEquals(typeStr)) {
-                var = extractVariableDerived(evalContext, elem, varName, mode);
+                variable = extractVariableDerived(evalContext, elem, varName, mode);
             } else {
                 elem.logError("Unrecognized nonempty-element variable type.");
             }
 
-            if (var != null) {
-                if (evalContext.getVariable(var.name) == null) {
+            if (variable != null) {
+                if (evalContext.getVariable(variable.name) == null) {
                     for (final Comment comment : comments) {
-                        var.addComment(comment.getContent().trim());
+                        final String trimmed = comment.getContent().trim();
+                        variable.addComment(trimmed);
                     }
-                    evalContext.addVariable(var);
+                    evalContext.addVariable(variable);
                     valid = true;
                 } else {
-                    elem.logError("Variable '" + var.name + "' is duplicated.");
+                    elem.logError("Variable '" + variable.name + "' is duplicated.");
                 }
             }
         }
@@ -1124,14 +1224,14 @@ public enum VariableFactory {
 
         VariableBoolean result = null;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
             elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
-        } else if ("true".equalsIgnoreCase(valueStr)) {
+        } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableBoolean(varName);
             result.setValue(Boolean.TRUE);
-        } else if ("false".equalsIgnoreCase(valueStr)) {
+        } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableBoolean(varName);
             result.setValue(Boolean.FALSE);
         } else {
@@ -1158,14 +1258,14 @@ public enum VariableFactory {
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
                 elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
-            } else if ("true".equalsIgnoreCase(valueStr)) {
+            } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableBoolean(varName);
                 result.setValue(Boolean.TRUE);
-            } else if ("false".equalsIgnoreCase(valueStr)) {
+            } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableBoolean(varName);
                 result.setValue(Boolean.FALSE);
             } else {
@@ -1187,21 +1287,29 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableInteger extractVariableInteger(final EmptyElement elem, final String varName) {
+    private static VariableInteger extractVariableInteger(final EmptyElement elem, final String varName,
+                                                          final EParserMode mode) {
 
         VariableInteger result = null;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
             elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
         } else {
-            String formatStr = elem.getStringAttr("format");
+            String formatStr = elem.getStringAttr(FORMAT);
             if (formatStr == null) {
-                // TODO: Deprecate this format at some point
-                formatStr = elem.getStringAttr("decimal-format");
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                }
+            }
+
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
             }
 
             try {
@@ -1228,21 +1336,29 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableInteger extractVariableInteger(final NonemptyElement elem, final String varName) {
+    private static VariableInteger extractVariableInteger(final NonemptyElement elem, final String varName,
+                                                          final EParserMode mode) {
 
         VariableInteger result = null;
 
-        String formatStr = elem.getStringAttr("format");
+        String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
-            // TODO: Deprecate this format at some point
-            formatStr = elem.getStringAttr("decimal-format");
+            formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+            if (mode.reportDeprecated && formatStr != null) {
+                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+            }
+        }
+
+        if (formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
             if (valueStr == null) {
                 elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
             } else {
@@ -1271,19 +1387,27 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableReal extractVariableReal(final EmptyElement elem, final String varName) {
+    private static VariableReal extractVariableReal(final EmptyElement elem, final String varName,
+                                                    final EParserMode mode) {
 
         VariableReal result = null;
 
-        String formatStr = elem.getStringAttr("format");
+        String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
-            // TODO: Deprecate this format at some point
-            formatStr = elem.getStringAttr("decimal-format");
+            formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+            if (mode.reportDeprecated && formatStr != null) {
+                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+            }
         }
 
-        final String valueStr = elem.getStringAttr("value");
+        if (formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+        }
+
+        final String valueStr = elem.getStringAttr(VALUE);
         if (valueStr == null) {
             elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
         } else {
@@ -1311,22 +1435,29 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableReal extractVariableReal(final NonemptyElement elem,
-                                                    final String varName) {
+    private static VariableReal extractVariableReal(final NonemptyElement elem, final String varName,
+                                                    final EParserMode mode) {
 
         VariableReal result = null;
 
-        String formatStr = elem.getStringAttr("format");
+        String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
-            // TODO: Deprecate this format at some point
-            formatStr = elem.getStringAttr("decimal-format");
+            formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+            if (mode.reportDeprecated && formatStr != null) {
+                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+            }
+        }
+
+        if (formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
                 elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
@@ -1394,14 +1525,14 @@ public enum VariableFactory {
 
         VariableRandomBoolean result = null;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
             result = new VariableRandomBoolean(varName);
-        } else if ("true".equalsIgnoreCase(valueStr)) {
+        } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableRandomBoolean(varName);
             result.setValue(Boolean.TRUE);
-        } else if ("false".equalsIgnoreCase(valueStr)) {
+        } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableRandomBoolean(varName);
             result.setValue(Boolean.FALSE);
         } else {
@@ -1422,20 +1553,21 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomBoolean extractVariableRandomBoolean(final NonemptyElement elem, final String varName) {
+    private static VariableRandomBoolean extractVariableRandomBoolean(final NonemptyElement elem,
+                                                                      final String varName) {
 
         VariableRandomBoolean result = null;
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
-            final String valueStr = elem.getStringAttr("value");
+            final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
                 result = new VariableRandomBoolean(varName);
-            } else if ("true".equalsIgnoreCase(valueStr)) {
+            } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableRandomBoolean(varName);
                 result.setValue(Boolean.TRUE);
-            } else if ("false".equalsIgnoreCase(valueStr)) {
+            } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableRandomBoolean(varName);
                 result.setValue(Boolean.FALSE);
             } else {
@@ -1457,13 +1589,15 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomInteger extractVariableRandomInteger(final EmptyElement elem, final String varName) {
+    private static VariableRandomInteger extractVariableRandomInteger(final EmptyElement elem, final String varName,
+                                                                      final EParserMode mode) {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
 
         if (valueStr != null) {
@@ -1477,15 +1611,16 @@ public enum VariableFactory {
 
         VariableRandomInteger result = null;
 
-        final String minStr = elem.getStringAttr("min");
-        final String maxStr = elem.getStringAttr("max");
+        final String minStr = elem.getStringAttr(MIN);
+        final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
             elem.logError("Missing required min/max value in random integer var {" + varName + "}");
         } else {
             NumberOrFormula min = null;
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
@@ -1493,19 +1628,26 @@ public enum VariableFactory {
 
             NumberOrFormula max = null;
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
 
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
                 result = new VariableRandomInteger(varName);
                 result.setValue(value);
                 result.setFormatPattern(formatStr);
@@ -1542,7 +1684,7 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
 
         if (valueStr != null) {
@@ -1559,20 +1701,22 @@ public enum VariableFactory {
         NumberOrFormula min = null;
         NumberOrFormula max = null;
 
-        final String minStr = elem.getStringAttr("min");
+        final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
 
-        final String maxStr = elem.getStringAttr("max");
+        final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -1589,13 +1733,18 @@ public enum VariableFactory {
                     final String tag = child.getTagName();
 
                     switch (tag) {
-                        case "min" -> {
+                        case MIN -> {
                             if (min == null) {
-                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (minFormula == null) {
                                     elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (minFormula.isConstant()) {
+                                        elem.logError("Constant 'min' in {" + varName
+                                                + "} could be specified in attribute?");
+                                    }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
@@ -1603,13 +1752,18 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "max" -> {
+                        case MAX -> {
                             if (max == null) {
-                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (maxFormula == null) {
                                     elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (maxFormula.isConstant()) {
+                                        elem.logError("Constant 'max' in {" + varName
+                                                + "} could be specified in attribute?");
+                                    }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {
@@ -1617,7 +1771,7 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "exclude" -> {
+                        case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
                                 elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
@@ -1634,13 +1788,19 @@ public enum VariableFactory {
                 }
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
 
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
                 result = new VariableRandomInteger(varName);
                 result.setValue(value);
                 result.setFormatPattern(formatStr);
@@ -1662,13 +1822,15 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomReal extractVariableRandomReal(final EmptyElement elem, final String varName) {
+    private static VariableRandomReal extractVariableRandomReal(final EmptyElement elem, final String varName,
+                                                                final EParserMode mode) {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Number value = null;
 
         if (valueStr != null) {
@@ -1682,15 +1844,16 @@ public enum VariableFactory {
 
         VariableRandomReal result = null;
 
-        final String minStr = elem.getStringAttr("min");
-        final String maxStr = elem.getStringAttr("max");
+        final String minStr = elem.getStringAttr(MIN);
+        final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
             elem.logError("Missing required min/max value in random real var {" + varName + "}");
         } else {
             NumberOrFormula min = null;
             try {
-                min = new NumberOrFormula(NumberParser.parse(minStr));
+                final Number parsedMin = NumberParser.parse(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
@@ -1698,18 +1861,26 @@ public enum VariableFactory {
 
             NumberOrFormula max = null;
             try {
-                max = new NumberOrFormula(NumberParser.parse(maxStr));
+                final Number parsedMax = NumberParser.parse(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
+
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
 
                 result = new VariableRandomReal(varName);
                 result.setValue(value);
@@ -1744,7 +1915,7 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Double value = null;
 
         if (valueStr != null) {
@@ -1759,20 +1930,22 @@ public enum VariableFactory {
         NumberOrFormula min = null;
         NumberOrFormula max = null;
 
-        final String minStr = elem.getStringAttr("min");
+        final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                min = new NumberOrFormula(NumberParser.parse(minStr));
+                final Number parsedMin = NumberParser.parse(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
 
-        final String maxStr = elem.getStringAttr("max");
+        final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(NumberParser.parse(maxStr));
+                final Number parsedMax = NumberParser.parse(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -1787,26 +1960,34 @@ public enum VariableFactory {
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("min".equals(tag)) {
+                    if (MIN.equals(tag)) {
                         if (min == null) {
                             final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
                                 elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
+                                if (minFormula.isConstant()) {
+                                    elem.logError("Constant 'min' in {" + varName
+                                            + "} could be specified in attribute?");
+                                }
                                 min = new NumberOrFormula(minFormula);
                             }
                         } else {
                             elem.logError("Multiple 'min' values in {" + varName + "}");
                             break;
                         }
-                    } else if ("max".equals(tag)) {
+                    } else if (MAX.equals(tag)) {
                         if (max == null) {
                             final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
                                 elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
+                                if (maxFormula.isConstant()) {
+                                    elem.logError("Constant 'max' in {" + varName
+                                            + "} could be specified in attribute?");
+                                }
                                 max = new NumberOrFormula(maxFormula);
                             }
                         } else {
@@ -1820,13 +2001,19 @@ public enum VariableFactory {
                 }
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
 
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
                 result = new VariableRandomReal(varName);
                 result.setValue(value);
                 result.setFormatPattern(formatStr);
@@ -1850,12 +2037,12 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomPermutation
-    extractVariableRandomPermutation(final EmptyElement elem, final String varName) {
+    private static VariableRandomPermutation extractVariableRandomPermutation(final EmptyElement elem,
+                                                                              final String varName) {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         IntegerVectorValue value = null;
 
         if (valueStr != null) {
@@ -1869,15 +2056,16 @@ public enum VariableFactory {
 
         VariableRandomPermutation result = null;
 
-        final String minStr = elem.getStringAttr("min");
-        final String maxStr = elem.getStringAttr("max");
+        final String minStr = elem.getStringAttr(MIN);
+        final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
             elem.logError("Missing required min/max value in random permutation var {" + varName + "}");
         } else {
             NumberOrFormula min = null;
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
@@ -1885,7 +2073,8 @@ public enum VariableFactory {
 
             NumberOrFormula max = null;
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -1922,7 +2111,7 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         IntegerVectorValue value = null;
 
         if (valueStr != null) {
@@ -1937,20 +2126,22 @@ public enum VariableFactory {
         NumberOrFormula min = null;
         NumberOrFormula max = null;
 
-        final String minStr = elem.getStringAttr("min");
+        final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
 
-        final String maxStr = elem.getStringAttr("max");
+        final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -1965,26 +2156,34 @@ public enum VariableFactory {
                 if (child instanceof final NonemptyElement nonempty) {
                     final String tag = child.getTagName();
 
-                    if ("min".equals(tag)) {
+                    if (MIN.equals(tag)) {
                         if (min == null) {
                             final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
                                 elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
+                                if (minFormula.isConstant()) {
+                                    elem.logError("Constant 'min' in {" + varName
+                                            + "} could be specified in attribute?");
+                                }
                                 min = new NumberOrFormula(minFormula);
                             }
                         } else {
                             elem.logError("Multiple 'min' values in {" + varName + "}");
                             break;
                         }
-                    } else if ("max".equals(tag)) {
+                    } else if (MAX.equals(tag)) {
                         if (max == null) {
                             final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
                                 elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
+                                if (maxFormula.isConstant()) {
+                                    elem.logError("Constant 'max' in {" + varName
+                                            + "} could be specified in attribute?");
+                                }
                                 max = new NumberOrFormula(maxFormula);
                             }
                         } else {
@@ -2040,23 +2239,23 @@ public enum VariableFactory {
         Object value = null;
 
         EType type = EType.ERROR;
-        final String valueTypeStr = elem.getStringAttr("value-type");
+        final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
         if (valueTypeStr != null) {
             type = EType.forLabel(valueTypeStr);
         }
 
-        final String longStr = elem.getStringAttr("long");
+        final String longStr = elem.getStringAttr(LONG);
         if (longStr == null) {
-            final String doubleStr = elem.getStringAttr("double");
+            final String doubleStr = elem.getStringAttr(DOUBLE);
             if (doubleStr == null) {
-                final String booleanStr = elem.getStringAttr("boolean");
+                final String booleanStr = elem.getStringAttr(BOOLEAN);
                 if (booleanStr == null) {
-                    final String irrationalStr = elem.getStringAttr("irrational");
+                    final String irrationalStr = elem.getStringAttr(IRRATIONAL);
                     if (irrationalStr == null) {
-                        final String stringStr = elem.getStringAttr("string");
+                        final String stringStr = elem.getStringAttr(STRING);
                         if (stringStr == null) {
 
-                            final String intVectorStr = elem.getStringAttr("int-vector");
+                            final String intVectorStr = elem.getStringAttr(INT_VECTOR);
                             if (intVectorStr != null) {
                                 if (type == EType.ERROR) {
                                     type = EType.INTEGER_VECTOR;
@@ -2090,9 +2289,9 @@ public enum VariableFactory {
                     if (type == EType.ERROR) {
                         type = EType.BOOLEAN;
                     }
-                    if ("true".equalsIgnoreCase(booleanStr)) {
+                    if (TRUE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.TRUE;
-                    } else if ("false".equalsIgnoreCase(booleanStr)) {
+                    } else if (FALSE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
                         elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
@@ -2136,7 +2335,7 @@ public enum VariableFactory {
                     final String tag = child.getTagName();
 
                     switch (tag) {
-                        case "exclude" -> {
+                        case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
                                 elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
@@ -2145,7 +2344,7 @@ public enum VariableFactory {
                                 excludes.add(exclude);
                             }
                         }
-                        case "choose-from" -> {
+                        case CHOOSE_FROM -> {
                             final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (choice == null) {
                                 elem.logError("Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
@@ -2166,7 +2365,7 @@ public enum VariableFactory {
                                 }
                             }
                         }
-                        case "span" -> {
+                        case SPAN -> {
                             if (type == EType.ERROR) {
                                 type = EType.SPAN;
                             }
@@ -2194,13 +2393,19 @@ public enum VariableFactory {
                 valid = false;
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
 
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in choice variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
                 result = new VariableRandomChoice(varName, type);
                 result.setValue(value == null ? span : value);
                 result.setFormatPattern(formatStr);
@@ -2224,12 +2429,12 @@ public enum VariableFactory {
      * @param varName the variable name
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomSimpleAngle
-    extractVariableRandomSimpleAngle(final EmptyElement elem, final String varName) {
+    private static VariableRandomSimpleAngle extractVariableRandomSimpleAngle(final EmptyElement elem,
+                                                                              final String varName) {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
 
         if (valueStr != null) {
@@ -2243,15 +2448,16 @@ public enum VariableFactory {
 
         VariableRandomSimpleAngle result = null;
 
-        final String minStr = elem.getStringAttr("min");
-        final String maxStr = elem.getStringAttr("max");
+        final String minStr = elem.getStringAttr(MIN);
+        final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
             elem.logError("Missing required min/max value in random integer var {" + varName + "}");
         } else {
             NumberOrFormula min = null;
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
@@ -2259,16 +2465,18 @@ public enum VariableFactory {
 
             NumberOrFormula max = null;
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
             }
 
-            final String maxDenomStr = elem.getStringAttr("max-denom");
+            final String maxDenomStr = elem.getStringAttr(MAX_DENOM);
             NumberOrFormula maxDenom = null;
             try {
-                maxDenom = new NumberOrFormula(Long.valueOf(maxDenomStr));
+                final Long parsedMaxDenom = Long.valueOf(maxDenomStr);
+                maxDenom = new NumberOrFormula(parsedMaxDenom);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
@@ -2313,7 +2521,7 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        final String valueStr = elem.getStringAttr("value");
+        final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
 
         if (valueStr != null) {
@@ -2329,30 +2537,33 @@ public enum VariableFactory {
         NumberOrFormula max = null;
         NumberOrFormula maxDenom = null;
 
-        final String minStr = elem.getStringAttr("min");
+        final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
 
-        final String maxStr = elem.getStringAttr("max");
+        final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                 valid = false;
             }
         }
 
-        final String maxDenomStr = elem.getStringAttr("max-denom");
+        final String maxDenomStr = elem.getStringAttr(MAX_DENOM);
         if (maxDenomStr != null) {
             try {
-                maxDenom = new NumberOrFormula(Long.valueOf(maxDenomStr));
+                final Long parsedMaxDenom = Long.valueOf(maxDenomStr);
+                maxDenom = new NumberOrFormula(parsedMaxDenom);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid max-denom value: '" + maxDenomStr + "' in {" + varName + "}");
                 valid = false;
@@ -2371,9 +2582,10 @@ public enum VariableFactory {
                     final String tag = child.getTagName();
 
                     switch (tag) {
-                        case "min" -> {
+                        case MIN -> {
                             if (min == null) {
-                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (minFormula == null) {
                                     elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
@@ -2385,9 +2597,10 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "max" -> {
+                        case MAX -> {
                             if (max == null) {
-                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (maxFormula == null) {
                                     elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
@@ -2399,14 +2612,19 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "max-denom" -> {
+                        case MAX_DENOM -> {
                             if (maxDenom == null) {
                                 final Formula maxDenomFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (maxDenomFormula == null) {
-                                    elem.logError("Invalid 'max-denom' formula in {" + varName + "}: " + nonempty.print(0));
+                                    elem.logError("Invalid 'max-denom' formula in {" + varName + "}: "
+                                            + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (maxDenomFormula.isConstant()) {
+                                        elem.logError("Constant 'max-denom' in {" + varName
+                                                + "} could be specified in attribute?");
+                                    }
                                     maxDenom = new NumberOrFormula(maxDenomFormula);
                                 }
                             } else {
@@ -2414,7 +2632,7 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "exclude" -> {
+                        case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
                                 elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
@@ -2474,7 +2692,7 @@ public enum VariableFactory {
         Object value = null;
 
         EType type = EType.ERROR;
-        final String valueTypeStr = elem.getStringAttr("value-type");
+        final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
         if (valueTypeStr == null) {
             elem.logError("Derived variable {" + varName + "} does not specify value type");
         } else {
@@ -2485,17 +2703,17 @@ public enum VariableFactory {
             }
         }
 
-        final String longStr = elem.getStringAttr("long");
+        final String longStr = elem.getStringAttr(LONG);
         if (longStr == null) {
-            final String doubleStr = elem.getStringAttr("double");
+            final String doubleStr = elem.getStringAttr(DOUBLE);
             if (doubleStr == null) {
-                final String booleanStr = elem.getStringAttr("boolean");
+                final String booleanStr = elem.getStringAttr(BOOLEAN);
                 if (booleanStr == null) {
-                    final String irrationalStr = elem.getStringAttr("irrational");
+                    final String irrationalStr = elem.getStringAttr(IRRATIONAL);
                     if (irrationalStr == null) {
-                        final String stringStr = elem.getStringAttr("string");
+                        final String stringStr = elem.getStringAttr(STRING);
                         if (stringStr == null) {
-                            final String intVectorStr = elem.getStringAttr("int-vector");
+                            final String intVectorStr = elem.getStringAttr(INT_VECTOR);
                             if (intVectorStr != null) {
                                 if (type == EType.ERROR) {
                                     type = EType.INTEGER_VECTOR;
@@ -2529,9 +2747,9 @@ public enum VariableFactory {
                     if (type == EType.ERROR) {
                         type = EType.BOOLEAN;
                     }
-                    if ("true".equalsIgnoreCase(booleanStr)) {
+                    if (TRUE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.TRUE;
-                    } else if ("false".equalsIgnoreCase(booleanStr)) {
+                    } else if (FALSE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
                         elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
@@ -2566,13 +2784,15 @@ public enum VariableFactory {
         NumberOrFormula min = null;
         NumberOrFormula max = null;
 
-        final String minStr = elem.getStringAttr("min");
+        final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                min = new NumberOrFormula(Long.valueOf(minStr));
+                final Long parsedMin = Long.valueOf(minStr);
+                min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
                 try {
-                    min = new NumberOrFormula(Double.valueOf(minStr));
+                    final Double parsedMin = Double.valueOf(minStr);
+                    min = new NumberOrFormula(parsedMin);
                 } catch (final NumberFormatException ex2) {
                     elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
                     valid = false;
@@ -2580,13 +2800,15 @@ public enum VariableFactory {
             }
         }
 
-        final String maxStr = elem.getStringAttr("max");
+        final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                max = new NumberOrFormula(Long.valueOf(maxStr));
+                final Long parsedMax = Long.valueOf(maxStr);
+                max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
                 try {
-                    max = new NumberOrFormula(Double.valueOf(maxStr));
+                    final Double parsedMax = Double.valueOf(maxStr);
+                    max = new NumberOrFormula(parsedMax);
                 } catch (final NumberFormatException ex2) {
                     elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
                     valid = false;
@@ -2606,9 +2828,10 @@ public enum VariableFactory {
                     final String tag = child.getTagName();
 
                     switch (tag) {
-                        case "min" -> {
+                        case MIN -> {
                             if (min == null) {
-                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (minFormula == null) {
                                     elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
@@ -2620,9 +2843,10 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "max" -> {
+                        case MAX -> {
                             if (max == null) {
-                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
+                                        mode);
                                 if (maxFormula == null) {
                                     elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
@@ -2634,7 +2858,7 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "exclude" -> {
+                        case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
                                 elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
@@ -2643,7 +2867,7 @@ public enum VariableFactory {
                                 excludes.add(exclude);
                             }
                         }
-                        case "span" -> {
+                        case SPAN -> {
                             if (type == EType.ERROR) {
                                 type = EType.SPAN;
                             }
@@ -2658,7 +2882,22 @@ public enum VariableFactory {
                                 break label;
                             }
                         }
-                        case "formula" -> {
+                        case EXPR -> {
+                            if (formula == null) {
+                                formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (formula == null) {
+                                    elem.logError("Invalid 'expr' formula in {" + varName + "}: " + nonempty.print(0));
+                                    valid = false;
+                                }
+                            } else {
+                                elem.logError("Multiple 'expr/formula' values in {" + varName + "}");
+                                break label;
+                            }
+                        }
+                        case FORMULA -> {
+                            if (mode.reportDeprecated) {
+                                elem.logError("&lt;formula&gt; is deprecated, use &lt;expr&gt; instead.");
+                            }
                             if (formula == null) {
                                 formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (formula == null) {
@@ -2666,7 +2905,7 @@ public enum VariableFactory {
                                     valid = false;
                                 }
                             } else {
-                                elem.logError("Multiple 'formula' values in {" + varName + "}");
+                                elem.logError("Multiple 'expr/formula' values in {" + varName + "}");
                                 break label;
                             }
                         }
@@ -2686,13 +2925,19 @@ public enum VariableFactory {
                 valid = false;
             }
 
-            if (valid) {
-                String formatStr = elem.getStringAttr("format");
-                if (formatStr == null) {
-                    // TODO: Deprecate this format at some point
-                    formatStr = elem.getStringAttr("decimal-format");
+            String formatStr = elem.getStringAttr(FORMAT);
+            if (formatStr == null) {
+                formatStr = elem.getStringAttr(DECIMAL_FORMAT);
+                if (mode.reportDeprecated && formatStr != null) {
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
                 }
+            }
 
+            if (formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in derived variable '" + varName + "' could be simplified?");
+            }
+
+            if (valid) {
                 result = new VariableDerived(varName, type);
                 result.setValue(value == null ? span : value);
                 result.setFormatPattern(formatStr);

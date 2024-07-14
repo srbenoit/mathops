@@ -37,9 +37,8 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
      * Constructs a new {@code ProblemChoice}.
      */
     public ProblemChoiceTemplate() {
-        super();
 
-        // Empty
+        super();
     }
 
     /**
@@ -130,7 +129,9 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
 
         xml.add(ind, "<choice");
         writeAttribute(xml, "id", Integer.toString(this.choiceId));
-        writeAttribute(xml, "correct", this.correct);
+        if (this.correct != null && this.correct.isConstant()) {
+            writeAttribute(xml, "correct", this.correct);
+        }
 
         if (this.pos != 0) {
             writeAttribute(xml, "position", Integer.toString(this.pos));
@@ -138,7 +139,7 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
 
         xml.addln(">");
 
-        if (this.correct != null) {
+        if (this.correct != null && !this.correct.isConstant()) {
             xml.add(ind2, "<correct>");
             this.correct.appendChildrenXml(xml);
             xml.addln("</correct>");

@@ -34,10 +34,10 @@ public abstract class AbstractVariable extends AbstractXmlObject {
     public EType type;
 
     /** The value of the parameter. */
-    private Object value;
+    private Object value = null;
 
     /** Comments attached to the variable. */
-    private List<String> comments;
+    private List<String> comments = null;
 
     /**
      * Constructs a new {@code AbstractVariable}.
@@ -169,16 +169,18 @@ public abstract class AbstractVariable extends AbstractXmlObject {
         final Object v = this.value;
         final String str;
 
-        if (v instanceof Long) {
+        if (v instanceof final Long l) {
             final DecimalFormat fmt = new DecimalFormat();
-            str = fmt.format(((Long) v).longValue());
-        } else if (v instanceof Double) {
+            final long longValue = l.longValue();
+            str = fmt.format(longValue);
+        } else if (v instanceof final Double d) {
             // By default, we truncate reals at 8 decimal points
             final DecimalFormat fmt = new DecimalFormat();
             fmt.setMaximumFractionDigits(8);
-            str = fmt.format(((Double) v).doubleValue());
-        } else if (v instanceof Boolean) {
-            str = ((Boolean) v).toString().toUpperCase(Locale.ROOT);
+            final double dblValue = d.doubleValue();
+            str = fmt.format(dblValue);
+        } else if (v instanceof final Boolean b) {
+            str = b.toString().toUpperCase(Locale.ROOT);
         } else if (v != null) {
             str = v.toString();
         } else {
@@ -272,24 +274,6 @@ public abstract class AbstractVariable extends AbstractXmlObject {
      * @param includeTree {@code true} to include a dump of the entire span tree structures
      */
     public abstract void printDiagnostics(PrintStream ps, boolean includeTree);
-
-    /**
-     * Gets the hash code of the object.
-     *
-     * @return the hash code
-     */
-    @Override
-    public abstract int hashCode();
-
-    /**
-     * Tests whether this object is equal to another object. To be equal, the other object must be a {@code Parameter}
-     * and be in exactly the same state.
-     *
-     * @param obj the object to test for equality
-     * @return {@code true} if the objects are equal; {@code false} otherwise
-     */
-    @Override
-    public abstract boolean equals(Object obj);
 
     /**
      * Gets the hash code of the fields in the base class.

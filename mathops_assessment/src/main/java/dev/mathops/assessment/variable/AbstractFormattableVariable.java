@@ -13,10 +13,10 @@ import java.util.Objects;
 public abstract class AbstractFormattableVariable extends AbstractVariable {
 
     /** The pattern for the decimal formatter. */
-    private String formatPattern;
+    private String formatPattern = null;
 
     /** The formatter to use when printing the value, if numeric. */
-    private DecimalFormat decimalFormat;
+    private DecimalFormat decimalFormat = null;
 
     /**
      * Constructs a new {@code AbstractFormattableVariable}.
@@ -104,39 +104,42 @@ public abstract class AbstractFormattableVariable extends AbstractVariable {
         final Object value = getValue();
         String str;
 
-        if (value instanceof final Long longValue) {
+        if (value instanceof final Long longObj) {
 
+            final long longValue = longObj.longValue();
             if (this.decimalFormat != null) {
-                str = this.decimalFormat.format(longValue.longValue());
+                str = this.decimalFormat.format(longValue);
             } else {
                 final DecimalFormat fmt = new DecimalFormat();
-                str = fmt.format(longValue.longValue());
+                str = fmt.format(longValue);
             }
             str = str.replace('-', '\u2212');
-        } else if (value instanceof final Integer intValue) {
+        } else if (value instanceof final Integer integerObj) {
 
+            final long longValue = integerObj.longValue();
             if (this.decimalFormat != null) {
-                str = this.decimalFormat.format(intValue.longValue());
+                str = this.decimalFormat.format(longValue);
             } else {
                 final DecimalFormat fmt = new DecimalFormat();
-                str = fmt.format(intValue.longValue());
+                str = fmt.format(longValue);
             }
             str = str.replace('-', '\u2212');
-        } else if (value instanceof final Double doubleValue) {
+        } else if (value instanceof final Double doubleObj) {
 
+            final double doubleValue = doubleObj.doubleValue();
             if (this.decimalFormat != null) {
-                str = this.decimalFormat.format(doubleValue.doubleValue());
+                str = this.decimalFormat.format(doubleValue);
             } else {
                 // By default, we truncate reals at 8 decimal points
                 final DecimalFormat fmt = new DecimalFormat();
                 fmt.setMaximumFractionDigits(8);
-                str = fmt.format(doubleValue.doubleValue());
+                str = fmt.format(doubleValue);
             }
             str = str.replace('-', '\u2212');
-        } else if (value instanceof Boolean) {
-            str = ((Boolean) value).toString().toUpperCase(Locale.ROOT);
-        } else if (value instanceof String) {
-            str = (String) value;
+        } else if (value instanceof final Boolean booleanObj) {
+            str = booleanObj.toString().toUpperCase(Locale.ROOT);
+        } else if (value instanceof final String stringObj) {
+            str = stringObj;
         } else if (value != null) {
             str = value.toString();
         } else {
@@ -158,7 +161,7 @@ public abstract class AbstractFormattableVariable extends AbstractVariable {
                                   final String typeLabel) {
 
         super.startXml(xml, indent, typeLabel);
-        writeAttribute(xml, "decimal-format", this.formatPattern);
+        writeAttribute(xml, "format", this.formatPattern);
     }
 
     /**

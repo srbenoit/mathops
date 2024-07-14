@@ -41,6 +41,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.HtmlImage;
 
 import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -49,7 +51,7 @@ import java.util.Queue;
 /**
  * Converts document objects into HTML form.
  */
-public enum DocObjectConverter {
+enum DocObjectConverter {
     ;
 
     /**
@@ -63,8 +65,8 @@ public enum DocObjectConverter {
      * @param context    the evaluation context
      * @return the generated HTML
      */
-    public static String convertDocColumn(final DocColumn obj, final Deque<Style> styleStack,
-                                          final boolean enabled, final int[] id, final EvalContext context) {
+    static String convertDocColumn(final DocColumn obj, final Deque<Style> styleStack,
+                                   final boolean enabled, final int[] id, final EvalContext context) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -88,14 +90,16 @@ public enum DocObjectConverter {
 
         obj.buildOffscreen(false, context);
 
-        if (obj.getOffscreen() != null) {
+        final BufferedImage offscreen = obj.getOffscreen();
+        if (offscreen != null) {
             final Style style = styleStack.peek();
             if (style != null) {
                 final String alt = obj.getAltText();
                 final String actualAlt = alt == null ? null : obj.generateStringContents(context, alt);
 
-                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize(), actualAlt)
-                        .toImg((double) obj.getScale());
+                final float size = style.getSize();
+                final float scale = obj.getScale();
+                result = new HtmlImage(offscreen, 0.0, (double) size, actualAlt).toImg((double) scale);
             }
         }
 
@@ -115,17 +119,16 @@ public enum DocObjectConverter {
      * @param inMath     {@code true} if content is within a math span
      * @return the generated HTML
      */
-    private static String convertDocFence(final DocColumn column, final DocFence obj,
-                                          final Deque<Style> styleStack, final boolean enabled, final int[] id,
-                                          final EvalContext context, final boolean inMath) {
+    private static String convertDocFence(final DocColumn column, final DocFence obj, final Deque<Style> styleStack,
+                                          final boolean enabled, final int[] id, final EvalContext context,
+                                          final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final String openText;
         String closeText = null;
 
-        htm.add("<div style='display:inline-block; white-space:nowrap; "
-                , "border-width:0 .5em; border-style:solid; ",
+        htm.add("<div style='display:inline-block; white-space:nowrap; border-width:0 .5em; border-style:solid; ",
                 "border-image-slice:0 20 0 20; border-image-width:0 .5em 0 .5em; ",
                 "vertical-align:middle;padding-bottom:.22em;");
 
@@ -135,11 +138,9 @@ public enum DocObjectConverter {
                 closeText = "close bracket";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
                         "&lt;text x=&apos;2&apos; y=&apos;37&apos;&gt;[&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;]&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;]&lt;/text&gt;&lt;/svg&gt;\");");
                 break;
 
             case DocFence.BARS:
@@ -147,11 +148,9 @@ public enum DocObjectConverter {
                 closeText = "close vertical bar";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
                         "&lt;text x=&apos;5&apos; y=&apos;37&apos;&gt;|&lt;/text&gt;",
-                        "&lt;text x=&apos;24&apos; y=&apos;37&apos;&gt;|&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                        "&lt;text x=&apos;24&apos; y=&apos;37&apos;&gt;|&lt;/text&gt;&lt;/svg&gt;\");");
                 break;
 
             case DocFence.BRACES:
@@ -159,21 +158,17 @@ public enum DocObjectConverter {
                 closeText = "close brace";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        " width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        " width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
                         "&lt;text x=&apos;-3&apos; y=&apos;37&apos;&gt;{&lt;/text&gt;",
-                        "&lt;text x=&apos;19&apos; y=&apos;37&apos;&gt;}&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                        "&lt;text x=&apos;19&apos; y=&apos;37&apos;&gt;}&lt;/text&gt;&lt;/svg&gt;\");");
                 break;
 
             case DocFence.LBRACE:
                 openText = "left brace";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos;&gt;{&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos;&gt;{&lt;/text&gt;&lt;/svg&gt;\");");
                 break;
 
             case DocFence.PARENTHESES:
@@ -182,11 +177,9 @@ public enum DocObjectConverter {
                 closeText = "close parenthesis";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
                         "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;", //
+                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
                         "&lt;text x=&apos;2&apos; y=&apos;37&apos;&gt;(&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;)&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;)&lt;/text&gt;&lt;/svg&gt;\");");
                 break;
         }
         htm.add("'>");
@@ -228,15 +221,19 @@ public enum DocObjectConverter {
         htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center;",
                 "border-bottom:1px solid black; padding:.2em; line-height:1em;'>");
         htm.addln("<span class='sr-only'> fraction whose numerator is </span>");
-        if (obj.getNumerator() != null) {
-            htm.add(convertDocNonwrappingSpan(column, obj.getNumerator(), styleStack, enabled, id, context, inMath));
+
+        final DocNonwrappingSpan numerator = obj.getNumerator();
+        if (numerator != null) {
+            htm.add(convertDocNonwrappingSpan(column, numerator, styleStack, enabled, id, context, inMath));
         }
         htm.eTd().eTr();
         htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center; padding:0 .2em; ",
                 "line-height:1em;'>");
         htm.addln("<span class='sr-only'> and whose denominator is </span>");
-        if (obj.getDenominator() != null) {
-            htm.add(convertDocNonwrappingSpan(column, obj.getDenominator(), styleStack, enabled, id, context, inMath));
+
+        final DocNonwrappingSpan denominator = obj.getDenominator();
+        if (denominator != null) {
+            htm.add(convertDocNonwrappingSpan(column, denominator, styleStack, enabled, id, context, inMath));
         }
         htm.eTd().eTr().eTable();
         htm.addln("<span class='sr-only'> end of fraction, </span>");
@@ -259,14 +256,17 @@ public enum DocObjectConverter {
 
         obj.buildOffscreen(false, context);
 
-        if (obj.getOffscreen() != null) {
+        final BufferedImage offscreen = obj.getOffscreen();
+
+        if (offscreen != null) {
             final Style style = styleStack.peek();
             if (style != null) {
                 final String alt = obj.getAltText();
                 final String actualAlt = alt == null ? null : obj.generateStringContents(context, alt);
 
-                result = new HtmlImage(obj.getOffscreen(), 0.0, (double) style.getSize(), actualAlt)
-                        .toImg((double) obj.getScale());
+                final float size = style.getSize();
+                final float scale = obj.getScale();
+                result = new HtmlImage(offscreen, 0.0, (double) size, actualAlt).toImg((double) scale);
             }
         }
 
@@ -285,26 +285,32 @@ public enum DocObjectConverter {
         final HtmlBuilder result = new HtmlBuilder(100);
 
         final String alt = obj.getAltText();
+        final URL source = obj.getSource();
 
-        if (obj.getSource() == null) {
-            if (obj.getImage() != null) {
+        if (source == null) {
+            final BufferedImage image = obj.getImage();
+
+            if (image != null) {
                 final Style style = styleStack.peek();
                 if (style != null) {
-                    result.add(new HtmlImage(obj.getImage(), 0.0, (double) style.getSize(), alt)
-                            .toImg((double) obj.getScale()));
+                    final float size = style.getSize();
+                    final float scale = obj.getScale();
+                    result.add(new HtmlImage(image, 0.0, (double) size, alt).toImg((double) scale));
                 }
             }
         } else {
-            result.add("<img src='", obj.getSource(), "'");
+            result.add("<img src='", source, "'");
 
             final NumberOrFormula scaledWidth = obj.getScaledWidth();
             if (scaledWidth != null) {
-                result.addAttribute("width", scaledWidth.toString(), 0);
+                final String widthStr = scaledWidth.toString();
+                result.addAttribute("width", widthStr, 0);
             }
 
             final NumberOrFormula scaledHeight = obj.getScaledHeight();
             if (scaledHeight != null) {
-                result.addAttribute("height", scaledHeight.toString(), 0);
+                final String heightStr = scaledHeight.toString();
+                result.addAttribute("height", heightStr, 0);
             }
 
             if (alt != null) {
@@ -336,21 +342,24 @@ public enum DocObjectConverter {
 
         final String result;
 
-        final AbstractVariable var = context.getVariable(obj.getVariableName());
+        final String varName = obj.getVariableName();
+        final AbstractVariable variable = context.getVariable(varName);
 
-        if (var == null) {
-            Log.warning(obj.getVariableName() + " is not defined");
+        if (variable == null) {
+            Log.warning(varName + " is not defined");
             result = "null";
         } else {
             final HtmlBuilder htm = new HtmlBuilder(200);
 
-            final Object value = var.getValue();
+            final Object value = variable.getValue();
 
             if (value instanceof AbstractDocObjectTemplate) {
                 appendChildHtml(column, (AbstractDocObjectTemplate) value, htm, styleStack, enabled, id, context,
                         inMath);
             } else {
-                convertHtmlString(htm, obj.getFontName(), var.valueAsString(), inMath);
+                final String fontName = obj.getFontName();
+                final String valueStr = variable.valueAsString();
+                convertHtmlString(htm, fontName, valueStr, inMath);
             }
             result = htm.toString();
         }
@@ -382,25 +391,12 @@ public enum DocObjectConverter {
             leftMargin = indent + "ch";
         }
 
-        final String topBottomMargin;
-        switch (obj.getSpacing()) {
-            case DocParagraph.NONE:
-                topBottomMargin = ".07em";
-                break;
-
-            case DocParagraph.SMALL:
-                topBottomMargin = ".21em";
-                break;
-
-            case DocParagraph.LARGE:
-                topBottomMargin = ".78em";
-                break;
-
-            case DocParagraph.NORMAL:
-            default:
-                topBottomMargin = ".5em";
-                break;
-        }
+        final String topBottomMargin = switch (obj.getSpacing()) {
+            case DocParagraph.NONE -> ".07em";
+            case DocParagraph.SMALL -> ".21em";
+            case DocParagraph.LARGE -> ".78em";
+            default -> ".5em";
+        };
 
         final String marginStr = SimpleBuilder.concat("margin:", topBottomMargin, " 0 ", topBottomMargin, " ",
                 leftMargin, ";");
@@ -415,26 +411,26 @@ public enum DocObjectConverter {
                 }
             }
             if (hasMark) {
-                htm.addln("<div style='", marginStr,
-                        " display:flex;align-items:baseline;align-content:flex-start;'>");
+                htm.addln("<div style='", marginStr, " display:flex;align-items:baseline;align-content:flex-start;'>");
                 htm.add("<span style='white-space:nowrap;'>");
 
                 // Append all children until we get to an alignment mark
-                final float parentFontSize = (float) obj.getFontSize();
+                final float objFontSize = (float) obj.getFontSize();
+                final String objColorName = obj.getColorName();
 
                 final Style current = styleStack.peek();
-                final boolean updateSize = current != null && Math.abs(parentFontSize - current.getSize()) > 0.01f;
-                final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+                final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+                final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
                 if (updateSize || updateColor) {
-                    final Style newStyle = new Style(parentFontSize, obj.getColorName());
+                    final Style newStyle = new Style(objFontSize, objColorName);
                     styleStack.push(newStyle);
                     htm.add("<span style='");
                     if (updateSize) {
-                        htm.add("font-size:" + obj.getFontSize() + "px;");
+                        htm.add("font-size:" + objFontSize + "px;");
                     }
                     if (updateColor) {
-                        htm.add("color:", obj.getColorName(), ";");
+                        htm.add("color:", objColorName, ";");
                     }
                     htm.add("'>");
                 }
@@ -465,14 +461,14 @@ public enum DocObjectConverter {
                 // Append all children after the alignment mark
 
                 if (updateSize || updateColor) {
-                    final Style newStyle = new Style(parentFontSize, obj.getColorName());
+                    final Style newStyle = new Style(objFontSize, objColorName);
                     styleStack.push(newStyle);
                     htm.add("<span style='");
                     if (updateSize) {
-                        htm.add("font-size:" + obj.getFontSize() + "px;");
+                        htm.add("font-size:" + objFontSize + "px;");
                     }
                     if (updateColor) {
-                        htm.add("color:", obj.getColorName(), ";");
+                        htm.add("color:", objColorName, ";");
                     }
                     htm.add("'>");
                 }
@@ -531,23 +527,24 @@ public enum DocObjectConverter {
                                             final Deque<Style> styleStack, final boolean enabled, final int[] id,
                                             final EvalContext context, final boolean inMath) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -622,24 +619,25 @@ public enum DocObjectConverter {
                                                    final Deque<Style> styleStack, final boolean enabled,
                                                    final int[] id, final EvalContext context, final boolean inMath) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
 
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -674,8 +672,7 @@ public enum DocObjectConverter {
             if (under == null) {
                 // Just over
                 htm.add("<div style='display:inline-grid; grid-template-columns: 1fr; ",
-                        "grid-template-rows: 1em 1fr; grid-template-areas: \"over\" \"base\"; ",
-                        "align-content: end;'>");
+                        "grid-template-rows: 1em 1fr; grid-template-areas: \"over\" \"base\"; align-content: end;'>");
                 htm.add("<span style='grid-over; text-align:center;'>");
             } else {
                 // Under and over
@@ -696,9 +693,11 @@ public enum DocObjectConverter {
         // Sub and sup should be relative to font size of base
 
         final Style style = styleStack.peek();
-        final boolean fixBaseSize = style != null && Math.abs(baseSize - style.getSize()) > 0.01f;
+        final float styleSize = style.getSize();
+        final boolean fixBaseSize = style != null && Math.abs(baseSize - styleSize) > 0.01f;
         if (fixBaseSize) {
-            styleStack.push(new Style(baseSize, style.getColorName()));
+            final String styleColorName = style.getColorName();
+            styleStack.push(new Style(baseSize, styleColorName));
             htm.add("<span style='font-size:" + baseSize + "px;'>");
         }
 
@@ -753,23 +752,24 @@ public enum DocObjectConverter {
                                           final Deque<Style> styleStack, final boolean enabled, final int[] id,
                                           final EvalContext context, final boolean inMath) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -778,7 +778,8 @@ public enum DocObjectConverter {
         if (obj.boxWidth == 0) {
             htm.add("border-width:0; ");
         } else {
-            htm.add("border:", Integer.toString(obj.boxWidth), "px solid black; ");
+            final String boxWidthStr = Integer.toString(obj.boxWidth);
+            htm.add("border:", boxWidthStr, "px solid black; ");
         }
         if (obj.backgroundColorName != null) {
             htm.add("background-color:", obj.backgroundColorName, ";");
@@ -820,19 +821,21 @@ public enum DocObjectConverter {
                 }
 
                 htm.add("<td style='font-size:inherit; font-family:inherit; text-align:", textAlign, ";");
-                htm.add(cellBorder.toString());
+                final String borderStr = cellBorder.toString();
+                htm.add(borderStr);
 
                 if (cellInsets != null) {
-                    htm.add(" padding:", Integer.toString(cellInsets.top),
-                            "px ", Integer.toString(cellInsets.right),
-                            "px ", Integer.toString(cellInsets.bottom),
-                            "px ", Integer.toString(cellInsets.left),
-                            "px;");
+                    final String topStr = Integer.toString(cellInsets.top);
+                    final String rightStr = Integer.toString(cellInsets.right);
+                    final String bottomStr = Integer.toString(cellInsets.bottom);
+                    final String leftStr = Integer.toString(cellInsets.left);
+                    htm.add(" padding:", topStr, "px ", rightStr, "px ", bottomStr, "px ", leftStr, "px;");
                 }
                 htm.add('\'');
                 if (row == 0 && uniform) {
                     final float pct = 100.0f / (float) rowLen;
-                    htm.add(" width='", Float.toString(pct), "%'");
+                    final String pctStr = Float.toString(pct);
+                    htm.add(" width='", pctStr, "%'");
                 }
                 htm.add('>');
 
@@ -871,21 +874,22 @@ public enum DocObjectConverter {
         final String txt = obj.getText();
 
         if (txt != null) {
-            final float fontSize = (float) obj.getFontSize();
+            final float objFontSize = (float) obj.getFontSize();
+            final String objColorName = obj.getColorName();
 
             final Style current = styleStack.peek();
-            final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-            final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+            final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+            final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
             if (updateSize || updateColor) {
-                final Style newStyle = new Style(fontSize, obj.getColorName());
+                final Style newStyle = new Style(objFontSize, objColorName);
                 styleStack.push(newStyle);
                 htm.add("<span style='");
                 if (updateSize) {
-                    htm.add("font-size:" + obj.getFontSize() + "px;");
+                    htm.add("font-size:" + objFontSize + "px;");
                 }
                 if (updateColor) {
-                    htm.add("color:", obj.getColorName(), ";");
+                    htm.add("color:", objColorName, ";");
                 }
                 htm.add("'>");
             }
@@ -994,22 +998,22 @@ public enum DocObjectConverter {
 
         for (int i = 0; i < len; ++i) {
 
-            final char ch = chars[i];
+            final int cur = (int) chars[i];
 
-            if (ch == '<') {
+            if (cur == (int) '<') {
                 htm.add("&lt;");
-            } else if (ch == '>') {
+            } else if (cur == (int) '>') {
                 htm.add("&gt;");
-            } else if (ch == '"') {
+            } else if (cur == (int) '"') {
                 htm.add("&quot;");
-            } else if (ch == '\'') {
+            } else if (cur == (int) '\'') {
                 if (inMath) {
                     // Look for sequences of primes
-                    if (i + 1 < len && chars[i + 1] == '\'') {
+                    if (i + 1 < len && (int) chars[i + 1] == (int) '\'') {
                         // At least two
-                        if (i + 2 < len && chars[i + 2] == '\'') {
+                        if (i + 2 < len && (int) chars[i + 2] == (int) '\'') {
                             // At least three
-                            if (i + 3 < len && chars[i + 3] == '\'') {
+                            if (i + 3 < len && (int) chars[i + 3] == (int) '\'') {
                                 htm.add("<span class='sr-only'> quadruple prime </span>",
                                         "<span class='no-sr'>&qprime;</span>");
                             } else {
@@ -1019,708 +1023,714 @@ public enum DocObjectConverter {
                             }
                         } else {
                             // Two primes
-                            htm.add("<span class='sr-only'> double prime </span>",
-                                    "<span class='no-sr'>&Prime;</span>");
+                            htm.add("<span class='sr-only'> double prime </span><span class='no-sr'>&Prime;</span>");
                         }
                     } else {
                         // Just one prime
-                        htm.add("<span class='sr-only'> prime </span>",
-                                "<span class='no-sr'>&prime;</span>");
+                        htm.add("<span class='sr-only'> prime </span><span class='no-sr'>&prime;</span>");
                     }
                 } else {
                     htm.add("&apos;");
                 }
-            } else if (ch == '&') {
+            } else if (cur == (int) (int) '&') {
                 htm.add("&amp;");
             } else if (fontName == null || fontName.contains("Times") || fontName.contains("Arial")) {
 
-                if (ch == '\u00a0') {
+                if (cur == (int) '\u00a0') {
                     htm.add("&nbsp;");
-                } else if (ch == '\u00b0') {
+                } else if (cur == (int) '\u00b0') {
                     htm.add("<span class='sr-only'> degrees </span><span class='no-sr'>&deg;</span>");
-                } else if (ch == '\u00b1') {
+                } else if (cur == (int) '\u00b1') {
                     htm.add("<span class='sr-only'> plus or minus </span><span class='no-sr'>&plusmn;</span>");
-                } else if (ch == '\u00b7') {
+                } else if (cur == (int) '\u00b7') {
                     htm.add("<span class='sr-only'> dot </span><span class='no-sr'>&middot;</span>");
-                } else if (ch == '\u00d7') {
+                } else if (cur == (int) '\u00d7') {
                     htm.add("<span class='sr-only'> times </span><span class='no-sr'>&times;</span>");
-                } else if (ch == '\u00f7') {
+                } else if (cur == (int) '\u00f7') {
                     htm.add("<span class='sr-only'> divided by </span><span class='no-sr'>&div;</span>");
-                } else if (ch == '\u0192') {
+                } else if (cur == (int) '\u0192') {
                     htm.add("<span class='sr-only'> f </span><span class='no-sr'>&fnof;</span>");
-                } else if (ch == '\u0393') {
+                } else if (cur == (int) '\u0393') {
                     htm.add("<span class='sr-only'> Gamma </span><span class='no-sr'>&Gamma;</span>");
-                } else if (ch == '\u0394') {
+                } else if (cur == (int) '\u0394') {
                     htm.add("<span class='sr-only'> Delta </span><span class='no-sr'>&Delta;</span>");
-                } else if (ch == '\u0398') {
+                } else if (cur == (int) '\u0398') {
                     htm.add("<span class='sr-only'> Theta </span><span class='no-sr'>&Theta;</span>");
-                } else if (ch == '\u039B') {
+                } else if (cur == (int) '\u039B') {
                     htm.add("<span class='sr-only'> Lamda </span><span class='no-sr'>&Lamda;</span>");
-                } else if (ch == '\u039E') {
+                } else if (cur == (int) '\u039E') {
                     htm.add("<span class='sr-only'> Xi </span><span class='no-sr'>&Xi;</span>");
-                } else if (ch == '\u03A0') {
+                } else if (cur == (int) '\u03A0') {
                     htm.add("<span class='sr-only'> Pi </span><span class='no-sr'>&Pi;</span>");
-                } else if (ch == '\u03A3') {
+                } else if (cur == (int) '\u03A3') {
                     htm.add("<span class='sr-only'> Sigma </span><span class='no-sr'>&Sigma;</span>");
-                } else if (ch == '\u03A5') {
+                } else if (cur == (int) '\u03A5') {
                     htm.add("<span class='sr-only'> Upsilon </span><span class='no-sr'>&Upsilon;</span>");
-                } else if (ch == '\u03A6') {
+                } else if (cur == (int) '\u03A6') {
                     htm.add("<span class='sr-only'> Phi </span><span class='no-sr'>&Phi;</span>");
-                } else if (ch == '\u03A8') {
+                } else if (cur == (int) '\u03A8') {
                     htm.add("<span class='sr-only'> Psi </span><span class='no-sr'>&Psi;</span>");
-                } else if (ch == '\u03A9') {
+                } else if (cur == (int) '\u03A9') {
                     htm.add("<span class='sr-only'> Omega </span><span class='no-sr'>&Omega;</span>");
-                } else if (ch == '\u03B1') {
+                } else if (cur == (int) '\u03B1') {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'>&alpha;</span>");
-                } else if (ch == '\u03B2') {
+                } else if (cur == (int) '\u03B2') {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'>&beta;</span>");
-                } else if (ch == '\u03B3') {
+                } else if (cur == (int) '\u03B3') {
                     htm.add("<span class='sr-only'> gamma </span><span class='no-sr'>&gamma;</span>");
-                } else if (ch == '\u03B4') {
+                } else if (cur == (int) '\u03B4') {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'>&delta;</span>");
-                } else if (ch == '\u03B5') {
+                } else if (cur == (int) '\u03B5') {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'>&epsilon;</span>");
-                } else if (ch == '\u03B6') {
+                } else if (cur == (int) '\u03B6') {
                     htm.add("<span class='sr-only'> zeta </span><span class='no-sr'>&zeta;</span>");
-                } else if (ch == '\u03B7') {
+                } else if (cur == (int) '\u03B7') {
                     htm.add("<span class='sr-only'> eta </span><span class='no-sr'>&eta;</span>");
-                } else if (ch == '\u03B8') {
+                } else if (cur == (int) '\u03B8') {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'>&theta;</span>");
-                } else if (ch == '\u03B9') {
+                } else if (cur == (int) '\u03B9') {
                     htm.add("<span class='sr-only'> iota </span><span class='no-sr'>&iota;</span>");
-                } else if (ch == '\u03BA') {
+                } else if (cur == (int) '\u03BA') {
                     htm.add("<span class='sr-only'> kappa </span><span class='no-sr'>&kappa;</span>");
-                } else if (ch == '\u03BB') {
+                } else if (cur == (int) '\u03BB') {
                     htm.add("<span class='sr-only'> lamda </span><span class='no-sr'>&lamda;</span>");
-                } else if (ch == '\u03BC') {
+                } else if (cur == (int) '\u03BC') {
                     htm.add("<span class='sr-only'> mu </span><span class='no-sr'>&mu;</span>");
-                } else if (ch == '\u03BD') {
+                } else if (cur == (int) '\u03BD') {
                     htm.add("<span class='sr-only'> nu </span><span class='no-sr'>&nu;</span>");
-                } else if (ch == '\u03BE') {
+                } else if (cur == (int) '\u03BE') {
                     htm.add("<span class='sr-only'> xi </span><span class='no-sr'>&xi;</span>");
-                } else if (ch == '\u03BF') {
+                } else if (cur == (int) '\u03BF') {
                     htm.add("<span class='sr-only'> omicron </span><span class='no-sr'>&omicron;</span>");
-                } else if (ch == '\u03C0') {
+                } else if (cur == (int) '\u03C0') {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'>&pi;</span>");
-                } else if (ch == '\u03C1') {
+                } else if (cur == (int) '\u03C1') {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'>&rho;</span>");
-                } else if (ch == '\u03C2') {
+                } else if (cur == (int) '\u03C2') {
                     htm.add("<span class='sr-only'> stigma </span><span class='no-sr'>&stigmaf;</span>");
-                } else if (ch == '\u03C3') {
+                } else if (cur == (int) '\u03C3') {
                     htm.add("<span class='sr-only'> sigma </span><span class='no-sr'>&sigma;</span>");
-                } else if (ch == '\u03C4') {
+                } else if (cur == (int) '\u03C4') {
                     htm.add("<span class='sr-only'> tau </span><span class='no-sr'>&tau;</span>");
-                } else if (ch == '\u03C5') {
+                } else if (cur == (int) '\u03C5') {
                     htm.add("<span class='sr-only'> upsilon </span><span class='no-sr'>&upsilon;</span>");
-                } else if (ch == '\u03C6') {
+                } else if (cur == (int) '\u03C6') {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'>&phi;</span>");
-                } else if (ch == '\u03C7') {
+                } else if (cur == (int) '\u03C7') {
                     htm.add("<span class='sr-only'> chi </span><span class='no-sr'>&chi;</span>");
-                } else if (ch == '\u03C8') {
+                } else if (cur == (int) '\u03C8') {
                     htm.add("<span class='sr-only'> psi </span><span class='no-sr'>&psi;</span>");
-                } else if (ch == '\u03C9') {
+                } else if (cur == (int) '\u03C9') {
                     htm.add("<span class='sr-only'> omega </span><span class='no-sr'>&omega;</span>");
-                } else if (ch == '\u03D1') {
+                } else if (cur == (int) '\u03D1') {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'>&thetasym;</span>");
-                } else if (ch == '\u03D5') {
+                } else if (cur == (int) '\u03D5') {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'>&phi;</span>");
-                } else if (ch == '\u03D6') {
+                } else if (cur == (int) '\u03D6') {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'>&piv;</span>");
-                } else if (ch == '\u03F0') {
+                } else if (cur == (int) '\u03F0') {
                     htm.add("<span class='sr-only'> kappa </span><span class='no-sr'>&varkappa;</span>");
-                } else if (ch == '\u03F1') {
+                } else if (cur == (int) '\u03F1') {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'>&rho;</span>");
-                } else if (ch == '\u03F5') {
+                } else if (cur == (int) '\u03F5') {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'>&epsilon;</span>");
-                } else if (ch == '\u2013') {
+                } else if (cur == (int) '\u2013') {
                     htm.add("<span class='sr-only'> dash </span><span class='no-sr'>&ndash;</span>");
-                } else if (ch == '-') {
+                } else if (cur == (int) '-') {
                     htm.add(inMath ? "<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>"
                             : CoreConstants.DASH);
-                } else if (ch == '\u2014') {
+                } else if (cur == (int) '\u2014') {
                     htm.add("<span class='sr-only'> dash </span><span class='no-sr'>&mdash;</span>");
-                } else if (ch == '\u2018') {
+                } else if (cur == (int) '\u2018') {
                     htm.add("<span class='sr-only'> open quote </span><span class='no-sr'>&lsquo;</span>");
-                } else if (ch == '\u2019') {
+                } else if (cur == (int) '\u2019') {
                     htm.add("<span class='sr-only'> close quote </span><span class='no-sr'>&rsquo;</span>");
-                } else if (ch == '\u201C') {
+                } else if (cur == (int) '\u201C') {
                     htm.add("<span class='sr-only'> open quote </span><span class='no-sr'>&ldquo;</span>");
-                } else if (ch == '\u201D') {
+                } else if (cur == (int) '\u201D') {
                     htm.add("<span class='sr-only'> close quote </span><span class='no-sr'>&rdquo;</span>");
-                } else if (ch == '\u2022') {
+                } else if (cur == (int) '\u2022') {
                     htm.add("<span class='sr-only'> bullet </span><span class='no-sr'>&bull;</span>");
-                } else if (ch == '\u2032') {
+                } else if (cur == (int) '\u2032') {
                     htm.add("<span class='sr-only'> prime </span><span class='no-sr'>&prime;</span>");
-                } else if (ch == '\u2033') {
+                } else if (cur == (int) '\u2033') {
                     htm.add("<span class='sr-only'> double prime </span><span class='no-sr'>&Prime;</span>");
-                } else if (ch == '\u2034') {
+                } else if (cur == (int) '\u2034') {
                     htm.add("<span class='sr-only'> triple prime </span><span class='no-sr'>&tprime;</span>");
-                } else if (ch == '\u2057') {
+                } else if (cur == (int) '\u2057') {
                     htm.add("<span class='sr-only'> quadruple prime </span><span class='no-sr'>&qprime;</span>");
-                } else if (ch == '\u2147') {
+                } else if (cur == (int) '\u2147') {
                     htm.add("<i><b>e</b></i>");
-                } else if (ch == '\u2148') {
+                } else if (cur == (int) '\u2148') {
                     htm.add("<i><b>i</b></i>");
-                } else if (ch == '\u2190') {
+                } else if (cur == (int) '\u2190') {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&larr;</span>");
-                } else if (ch == '\u2191') {
+                } else if (cur == (int) '\u2191') {
                     htm.add("<span class='sr-only'> up arrow </span><span class='no-sr'>&uarr;</span>");
-                } else if (ch == '\u2192') {
+                } else if (cur == (int) '\u2192') {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&rarr;</span>");
-                } else if (ch == '\u2193') {
+                } else if (cur == (int) '\u2193') {
                     htm.add("<span class='sr-only'> down arrow </span><span class='no-sr'>&darr;</span>");
-                } else if (ch == '\u2194') {
+                } else if (cur == (int) '\u2194') {
                     htm.add("<span class='sr-only'> left right arrow </span><span class='no-sr'>&harr;</span>");
-                } else if (ch == '\u2195') {
+                } else if (cur == (int) '\u2195') {
                     htm.add("<span class='sr-only'> up down arrow </span><span class='no-sr'>&varr;</span>");
-                } else if (ch == '\u2206') {
+                } else if (cur == (int) '\u2206') {
                     htm.add("<span class='sr-only'> Delta </span><span class='no-sr'>&xutri;</span>");
-                } else if (ch == '\u2212') {
+                } else if (cur == (int) '\u2212') {
                     htm.add("<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>");
-                } else if (ch == '\u2218') {
+                } else if (cur == (int) '\u2218') {
                     htm.add("<span class='sr-only'> composed with </span><span class='no-sr'>&compfn;</span>");
-                } else if (ch == '\u221D') {
+                } else if (cur == (int) '\u221D') {
                     htm.add("<span class='sr-only'> proportional to </span><span class='no-sr'>&varpropto;</span>");
                     htm.add("&;");
-                } else if (ch == '\u221E') {
+                } else if (cur == (int) '\u221E') {
                     htm.add("<span class='sr-only'> infinity </span><span class='no-sr'>&infin;</span>");
-                } else if (ch == '\u2220') {
+                } else if (cur == (int) '\u2220') {
                     htm.add("<span class='sr-only'> angle </span><span class='no-sr'>&angle;</span>");
-                } else if (ch == '\u2221') {
+                } else if (cur == (int) '\u2221') {
                     htm.add("<span class='sr-only'> measured angle </span><span class='no-sr'>&measuredangle;</span>");
-                } else if (ch == '\u222B') {
+                } else if (cur == (int) '\u222B') {
                     htm.add("<span class='sr-only'> integral of </span>",
                             "<span class='no-sr' style='position:relative; top:.2em;'>&int;</span>");
-                } else if (ch == '\u2243') {
+                } else if (cur == (int) '\u2243') {
                     htm.add("<span class='sr-only'> similar to </span><span class='no-sr'>&sime;</span>");
-                } else if (ch == '\u2248') {
+                } else if (cur == (int) '\u2248') {
                     htm.add("<span class='sr-only'> approximately equal to </span><span class='no-sr'>&asymp;</span>");
-                } else if (ch == '\u2260') {
+                } else if (cur == (int) '\u2260') {
                     htm.add("<span class='sr-only'> not equal to </span><span class='no-sr'>&ne;</span>");
-                } else if (ch == '\u2264') {
+                } else if (cur == (int) '\u2264') {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'>&le;</span>");
-                } else if (ch == '\u2265') {
+                } else if (cur == (int) '\u2265') {
                     htm.add("<span class='sr-only'> greater than or equal to </span><span class='no-sr'>&ge;</span>");
-                } else if (ch == '\u2266') {
+                } else if (cur == (int) '\u2266') {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'>&leqq;</span>");
-                } else if (ch == '\u2267') {
+                } else if (cur == (int) '\u2267') {
                     htm.add("<span class='sr-only'> greater than or equal to </span><span class='no-sr'>&geqq;</span>");
-                } else if (ch == '\u2268') {
+                } else if (cur == (int) '\u2268') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&lneqq;</span>");
-                } else if (ch == '\u2269') {
+                } else if (cur == (int) '\u2269') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&gneqq;</span>");
-                } else if (ch == '\u226A') {
+                } else if (cur == (int) '\u226A') {
                     htm.add("<span class='sr-only'> much less than or equal to </span><span class='no-sr'>&ll;</span>");
-                } else if (ch == '\u226B') {
+                } else if (cur == (int) '\u226B') {
                     htm.add("<span class='sr-only'> much greater than or equal to </span>",
                             "<span class='no-sr'>&gg;</span>");
-                } else if (ch == '\u226C') {
+                } else if (cur == (int) '\u226C') {
                     htm.add("<span class='sr-only'> between </span><span class='no-sr'>&between;</span>");
-                } else if (ch == '\u226E') {
+                } else if (cur == (int) '\u226E') {
                     htm.add("<span class='sr-only'> not less than </span><span class='no-sr'>&nless;</span>");
-                } else if (ch == '\u226F') {
+                } else if (cur == (int) '\u226F') {
                     htm.add("<span class='sr-only'> not greater than </span><span class='no-sr'>&ngt;</span>");
-                } else if (ch == '\u2270') {
+                } else if (cur == (int) '\u2270') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&nleq;</span>");
-                } else if (ch == '\u2271') {
+                } else if (cur == (int) '\u2271') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&ngeq;</span>");
-                } else if (ch == '\u2272') {
+                } else if (cur == (int) '\u2272') {
                     htm.add("<span class='sr-only'> less than or similar to </span>",
                             "<span class='no-sr'>&lesssim;</span>");
-                } else if (ch == '\u2273') {
+                } else if (cur == (int) '\u2273') {
                     htm.add("<span class='sr-only'> greater than or similar to </span>",
                             "<span class='no-sr'>&gtrsim;</span>");
-                } else if (ch == '\u2276') {
+                } else if (cur == (int) '\u2276') {
                     htm.add("<span class='sr-only'> less than greater than </span>",
                             "<span class='no-sr'>&lessgtr;</span>");
-                } else if (ch == '\u2277') {
+                } else if (cur == (int) '\u2277') {
                     htm.add("<span class='sr-only'> greater than less than </span>",
                             "<span class='no-sr'>&gtrless;</span>");
-                } else if (ch == '\u227A') {
+                } else if (cur == (int) '\u227A') {
                     htm.add("<span class='sr-only'> precedes </span><span class='no-sr'>&prec;</span>");
-                } else if (ch == '\u227B') {
+                } else if (cur == (int) '\u227B') {
                     htm.add("<span class='sr-only'> succeeds </span><span class='no-sr'>&succ;</span>");
-                } else if (ch == '\u227C') {
+                } else if (cur == (int) '\u227C') {
                     htm.add("&preccurlyeq;");
-                } else if (ch == '\u227D') {
+                } else if (cur == (int) '\u227D') {
                     htm.add("&succcurlyeq;");
-                } else if (ch == '\u227E') {
+                } else if (cur == (int) '\u227E') {
                     htm.add("&precsim;");
-                } else if (ch == '\u227F') {
+                } else if (cur == (int) '\u227F') {
                     htm.add("&succsim;");
-                } else if (ch == '\u2280') {
+                } else if (cur == (int) '\u2280') {
                     htm.add("&nprec;");
-                } else if (ch == '\u2281') {
+                } else if (cur == (int) '\u2281') {
                     htm.add("&nsucc;");
-                } else if (ch == '\u22D6') {
+                } else if (cur == (int) '\u22D6') {
                     htm.add("&lessdot;");
-                } else if (ch == '\u22D7') {
+                } else if (cur == (int) '\u22D7') {
                     htm.add("&gtrdot;");
-                } else if (ch == '\u22DA') {
+                } else if (cur == (int) '\u22DA') {
                     htm.add("&lesseqgtr;");
-                } else if (ch == '\u22DB') {
+                } else if (cur == (int) '\u22DB') {
                     htm.add("&gtreqless;");
-                } else if (ch == '\u22DE') {
+                } else if (cur == (int) '\u22DE') {
                     htm.add("&curlyeqprec;");
-                } else if (ch == '\u22DF') {
+                } else if (cur == (int) '\u22DF') {
                     htm.add("&curlyeqsucc;");
-                } else if (ch == '\u22E0') {
+                } else if (cur == (int) '\u22E0') {
                     htm.add("&npreceq;");
-                } else if (ch == '\u22E1') {
+                } else if (cur == (int) '\u22E1') {
                     htm.add("&nsucceq;");
-                } else if (ch == '\u22E6') {
+                } else if (cur == (int) '\u22E6') {
                     htm.add("&lnsim;");
-                } else if (ch == '\u22E7') {
+                } else if (cur == (int) '\u22E7') {
                     htm.add("&gnsim;");
-                } else if (ch == '\u22E8') {
+                } else if (cur == (int) '\u22E8') {
                     htm.add("&precnsim;");
-                } else if (ch == '\u22E9') {
+                } else if (cur == (int) '\u22E9') {
                     htm.add("&succnsim;");
-                } else if (ch == '\u22EF') {
+                } else if (cur == (int) '\u22EF') {
                     htm.add("<span class='sr-only'> three middle dots </span>",
                             "<span class='no-sr'>&middot;&middot;&middot;</span>");
-                } else if (ch == '\u2322') {
+                } else if (cur == (int) '\u2322') {
                     htm.add("<span class='sr-only'> frown </span><span class='no-sr'>&smallfrown;</span>");
-                } else if (ch == '\u2323') {
+                } else if (cur == (int) '\u2323') {
                     htm.add("<span class='sr-only'> smile </span><span class='no-sr'>&smallsmile;</span>");
-                } else if (ch == '\u2329') {
+                } else if (cur == (int) '\u2329') {
                     htm.add("<span class='sr-only'> left angle brackets </span><span class='no-sr'>&lang;</span>");
-                } else if (ch == '\u232A') {
+                } else if (cur == (int) '\u232A') {
                     htm.add("<span class='sr-only'> right angle brackets </span><span class='no-sr'>&rang;</span>");
-                } else if (ch == '\u25A0') {
+                } else if (cur == (int) '\u25A0') {
                     htm.add("<span class='sr-only'> filled square </span>",
                             "<span class='no-sr'>&FilledSmallSquare;</span>");
-                } else if (ch == '\u25B2') {
+                } else if (cur == (int) '\u25B2') {
                     htm.add("<span class='sr-only'> up-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangle;</span>");
-                } else if (ch == '\u25B3') {
+                } else if (cur == (int) '\u25B3') {
                     htm.add("<span class='sr-only'> up-pointing triangle </span><span class='no-sr'>&xutri;</span>");
-                } else if (ch == '\u25BA') {
+                } else if (cur == (int) '\u25BA') {
                     htm.add("<span class='sr-only'> right-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangleright;</span>");
-                } else if (ch == '\u25BC') {
+                } else if (cur == (int) '\u25BC') {
                     htm.add("<span class='sr-only'> down-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangledown;</span>");
-                } else if (ch == '\u25C4') {
+                } else if (cur == (int) '\u25C4') {
                     htm.add("<span class='sr-only'> left-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangleleft;</span>");
-                } else if (ch == '\u2660') {
+                } else if (cur == (int) '\u2660') {
                     htm.add("<span class='sr-only'> class </span><span class='no-sr'>&class;</span>");
-                } else if (ch == '\u2663') {
+                } else if (cur == (int) '\u2663') {
                     htm.add("<span class='sr-only'> clubs </span><span class='no-sr'>&clubs;</span>");
-                } else if (ch == '\u2665') {
+                } else if (cur == (int) '\u2665') {
                     htm.add("<span class='sr-only'> hearts </span><span class='no-sr'>&hearts;</span>");
-                } else if (ch == '\u2666') {
+                } else if (cur == (int) '\u2666') {
                     htm.add("<span class='sr-only'> diamonds </span><span class='no-sr'>&diams;</span>");
-                } else if (ch == '\u2713') {
+                } else if (cur == (int) '\u2713') {
                     htm.add("<span class='sr-only'> checkmark </span><span class='no-sr'>&check;</span>");
-                } else if (ch == '\u27CB') {
+                } else if (cur == (int) '\u27CB') {
                     htm.add("<span class='sr-only'> diagonal up arrow </span><span class='no-sr'>&diagup;</span>");
-                } else if (ch == '\u27CD') {
+                } else if (cur == (int) '\u27CD') {
                     htm.add("<span class='sr-only'> diagonal down arrow </span><span class='no-sr'>&diagdown;</span>");
-                } else if (ch == '\u27F8') {
+                } else if (cur == (int) '\u27F8') {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&Longleftarrow;</span>");
-                } else if (ch == '\u27F9') {
+                } else if (cur == (int) '\u27F9') {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&Longrightarrow;</span>");
-                } else if (ch == '\u2A7D') {
+                } else if (cur == (int) '\u2A7D') {
                     htm.add("<span class='sr-only'> less than or equal to </span>",
                             "<span class='no-sr'>&leqslant;</span>");
-                } else if (ch == '\u2A7E') {
+                } else if (cur == (int) '\u2A7E') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'>&geqslant;</span>");
-                } else if (ch == '\u2A85') {
+                } else if (cur == (int) '\u2A85') {
                     htm.add("&lessapprox;");
-                } else if (ch == '\u2A86') {
+                } else if (cur == (int) '\u2A86') {
                     htm.add("&gtrapprox;");
-                } else if (ch == '\u2A87') {
+                } else if (cur == (int) '\u2A87') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&lneq;</span>");
-                } else if (ch == '\u2A88') {
+                } else if (cur == (int) '\u2A88') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&gneq;</span>");
-                } else if (ch == '\u2A89') {
+                } else if (cur == (int) '\u2A89') {
                     htm.add("&lnapprox;");
-                } else if (ch == '\u2A8A') {
+                } else if (cur == (int) '\u2A8A') {
                     htm.add("&gnapprox;");
-                } else if (ch == '\u2A8B') {
+                } else if (cur == (int) '\u2A8B') {
                     htm.add("&lesseqqgtr;");
-                } else if (ch == '\u2A8C') {
+                } else if (cur == (int) '\u2A8C') {
                     htm.add("&gtreqqless;");
-                } else if (ch == '\u2A95') {
+                } else if (cur == (int) '\u2A95') {
                     htm.add("<span class='sr-only'> less than or equal to </span>",
                             "<span class='no-sr'>&eqslantless;</span>");
-                } else if (ch == '\u2A96') {
+                } else if (cur == (int) '\u2A96') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'>&eqslantgtr;</span>");
-                } else if (ch == '\u2AA1') {
+                } else if (cur == (int) '\u2AA1') {
                     htm.add("&lll;");
-                } else if (ch == '\u2AA2') {
+                } else if (cur == (int) '\u2AA2') {
                     htm.add("&ggg;");
-                } else if (ch == '\u2AAF') {
+                } else if (cur == (int) '\u2AAF') {
                     htm.add("&preceq;");
-                } else if (ch == '\u2AB0') {
+                } else if (cur == (int) '\u2AB0') {
                     htm.add("&succeq;");
-                } else if (ch == '\u2AB5') {
+                } else if (cur == (int) '\u2AB5') {
                     htm.add("&precneqq;");
-                } else if (ch == '\u2AB6') {
+                } else if (cur == (int) '\u2AB6') {
                     htm.add("&succneqq;");
-                } else if (ch == '\u2AB7') {
+                } else if (cur == (int) '\u2AB7') {
                     htm.add("&precapprox;");
-                } else if (ch == '\u2AB8') {
+                } else if (cur == (int) '\u2AB8') {
                     htm.add("&succapprox;");
-                } else if (ch == '\u2AB9') {
+                } else if (cur == (int) '\u2AB9') {
                     htm.add("&precnapprox;");
-                } else if (ch == '\u2ABA') {
+                } else if (cur == (int) '\u2ABA') {
                     htm.add("&succnapprox;");
-                } else if (ch == '\u2ADB') {
+                } else if (cur == (int) '\u2ADB') {
                     htm.add("&pitchfork;");
                 } else {
-                    htm.add(ch);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXOne")) {
 
-                if (ch == '\u0029') {
+                if (cur == (int) '\u0029') {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&larr;</span>");
-                } else if (ch == '\u002A') {
+                } else if (cur == (int) '\u002A') {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&Longleftarrow;</span>");
-                } else if (ch == '\u002f') {
+                } else if (cur == (int) '\u002f') {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&rarr;</span>");
-                } else if (ch == '\u0030') {
+                } else if (cur == (int) '\u0030') {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&Longrightarrow;</span>");
-                } else if (ch == '\u0035') {
+                } else if (cur == (int) '\u0035') {
                     htm.add("<span class='sr-only'> left right arrow </span><span class='no-sr'>&hArr;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXOne: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    Log.warning("Unmatched character from ESSTIXOne: 0x", Integer.toHexString(cur), " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXTwo")) {
 
-                if (ch == '\u0023') {
+                if (cur == (int) '\u0023') {
                     htm.add("<span class='sr-only'> checkmark </span><span class='no-sr'>&check;</span>");
-                } else if (ch == '\u0036') {
+                } else if (cur == (int) '\u0036') {
                     htm.add("<span class='sr-only'> triangle </span><span class='no-sr'>&xutri;</span>");
                     htm.add("&xutri;");
-                } else if (ch == '\u004f') {
+                } else if (cur == (int) '\u004f') {
                     htm.add("<span class='sr-only'> triangle </span><span class='no-sr'>&xutri;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXTwo: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    Log.warning("Unmatched character from ESSTIXTwo: 0x", Integer.toHexString(cur), " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXThree")) {
 
-                if (ch == '\u0021') {
+                if (cur == (int) '\u0021') {
                     htm.add("<span class='sr-only'> less than </span><span class='no-sr'> &lt; </span>");
-                } else if (ch == '\u0023') {
+                } else if (cur == (int) '\u0023') {
                     htm.add(" &leqslant; ");
-                } else if (ch == '\u0024') {
+                } else if (cur == (int) '\u0024') {
                     htm.add(" &eqslantless; ");
-                } else if (ch == '\u0025') {
+                } else if (cur == (int) '\u0025') {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'> &leq; </span>");
-                } else if (ch == '\u0026') {
+                } else if (cur == (int) '\u0026') {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'> &leqq; </span>");
-                } else if (ch == '\u0028') {
+                } else if (cur == (int) '\u0028') {
                     htm.add(" &lesssim; ");
-                } else if (ch == '\u0029') {
+                } else if (cur == (int) '\u0029') {
                     htm.add(" &lessapprox; ");
-                } else if (ch == '\u002b') {
+                } else if (cur == (int) '\u002b') {
                     htm.add(" &lessgtr; ");
-                } else if (ch == '\u002c') {
+                } else if (cur == (int) '\u002c') {
                     htm.add(" &lesseqgtr; ");
-                } else if (ch == '\u002d') {
+                } else if (cur == (int) '\u002d') {
                     htm.add(" &lesseqqgtr; ");
-                } else if (ch == '\u002f') {
+                } else if (cur == (int) '\u002f') {
                     htm.add(" &ll; ");
-                } else if (ch == '\u0030') {
+                } else if (cur == (int) '\u0030') {
                     htm.add(" &lll; ");
-                } else if (ch == '\u0031') {
+                } else if (cur == (int) '\u0031') {
                     htm.add(" &lessdot; ");
-                } else if (ch == '\u0033') {
+                } else if (cur == (int) '\u0033') {
                     htm.add(" &prec; ");
-                } else if (ch == '\u0034') {
+                } else if (cur == (int) '\u0034') {
                     htm.add(" &precsim; ");
-                } else if (ch == '\u0035') {
+                } else if (cur == (int) '\u0035') {
                     htm.add(" &precapprox; ");
-                } else if (ch == '\u0036') {
+                } else if (cur == (int) '\u0036') {
                     htm.add(" &preceq; ");
-                } else if (ch == '\u0037') {
+                } else if (cur == (int) '\u0037') {
                     htm.add(" &preccurlyeq; ");
-                } else if (ch == '\u0038') {
+                } else if (cur == (int) '\u0038') {
                     htm.add(" &curlyeqprec; ");
-                } else if (ch == '\u003a') {
+                } else if (cur == (int) '\u003a') {
                     htm.add("<span class='sr-only'> angle </span><span class='no-sr'> &angle; </span>");
-                } else if (ch == '\u003b') {
-                    htm.add("<span class='sr-only'> measured angle </span>", //
+                } else if (cur == (int) '\u003b') {
+                    htm.add("<span class='sr-only'> measured angle </span>",
                             "<span class='no-sr'> &measuredangle; </span>");
-                } else if (ch == '\u003e') {
+                } else if (cur == (int) '\u003e') {
                     htm.add("<span class='sr-only'> not less than </span><span class='no-sr'> &nless; </span>");
-                } else if (ch == '\u003f') {
+                } else if (cur == (int) '\u003f') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleq; </span>");
-                } else if (ch == '\u0040') {
+                } else if (cur == (int) '\u0040') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &lneq; </span>");
-                } else if (ch == '\u0041') {
+                } else if (cur == (int) '\u0041') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &lneqq; </span>");
-                } else if (ch == '\u0042') {
+                } else if (cur == (int) '\u0042') {
                     htm.add(" &lnsim; ");
-                } else if (ch == '\u0043') {
+                } else if (cur == (int) '\u0043') {
                     htm.add(" &lnapprox; ");
-                } else if (ch == '\u0046') {
+                } else if (cur == (int) '\u0046') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleq; </span>");
-                } else if (ch == '\u0047') {
+                } else if (cur == (int) '\u0047') {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleqq; </span>");
-                } else if (ch == '\u0048') {
+                } else if (cur == (int) '\u0048') {
                     htm.add("<span class='sr-only'> between </span><span class='no-sr'> &between; </span>");
-                } else if (ch == '\u0049') {
+                } else if (cur == (int) '\u0049') {
                     htm.add(" &nprec; ");
-                } else if (ch == '\u004a') {
+                } else if (cur == (int) '\u004a') {
                     htm.add(" &precnsim; ");
-                } else if (ch == '\u004b') {
+                } else if (cur == (int) '\u004b') {
                     htm.add(" &precnapprox; ");
-                } else if (ch == '\u004c') {
+                } else if (cur == (int) '\u004c') {
                     htm.add(" &precneqq; ");
-                } else if (ch == '\u004d') {
+                } else if (cur == (int) '\u004d') {
                     htm.add(" &npreceq; ");
-                } else if (ch == '\u004e') {
+                } else if (cur == (int) '\u004e') {
                     htm.add("<span class='sr-only'> infinity </span><span class='no-sr'>&infin;</span>");
-                } else if (ch == '\u004f') {
+                } else if (cur == (int) '\u004f') {
                     htm.add("<span class='sr-only'> greater than </span><span class='no-sr'> &gt; </span>");
-                } else if (ch == '\u0050') {
+                } else if (cur == (int) '\u0050') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geqslant; </span>");
                     htm.add(" &geqslant; ");
-                } else if (ch == '\u0051') {
+                } else if (cur == (int) '\u0051') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &eqslantgtr; </span>");
-                } else if (ch == '\u0052') {
+                } else if (cur == (int) '\u0052') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geq; </span>");
-                } else if (ch == '\u0053') {
+                } else if (cur == (int) '\u0053') {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geqq; </span>");
-                } else if (ch == '\u0054') {
+                } else if (cur == (int) '\u0054') {
                     htm.add(" &gtrsim; ");
-                } else if (ch == '\u0055') {
+                } else if (cur == (int) '\u0055') {
                     htm.add(" &gtrapprox; ");
-                } else if (ch == '\u0057') {
+                } else if (cur == (int) '\u0057') {
                     htm.add(" &gtrless; ");
-                } else if (ch == '\u0058') {
+                } else if (cur == (int) '\u0058') {
                     htm.add(" &gtreqless; ");
-                } else if (ch == '\u0059') {
+                } else if (cur == (int) '\u0059') {
                     htm.add(" &gtreqqless; ");
-                } else if (ch == '\u005b') {
+                } else if (cur == (int) '\u005b') {
                     htm.add(" &gg; ");
-                } else if (ch == '&') {
+                } else if (cur == (int) '&') {
                     htm.add(" &ggg; ");
-                } else if (ch == '\u005d') {
+                } else if (cur == (int) '\u005d') {
                     htm.add(" &gtrdot; ");
-                } else if (ch == '\u005f') {
+                } else if (cur == (int) '\u005f') {
                     htm.add(" &succ; ");
-                } else if (ch == '\u0061') {
+                } else if (cur == (int) '\u0061') {
                     htm.add(" &succsim; ");
-                } else if (ch == '\u0062') {
+                } else if (cur == (int) '\u0062') {
                     htm.add(" &succapprox; ");
-                } else if (ch == '\u0063') {
+                } else if (cur == (int) '\u0063') {
                     htm.add(" &succeq; ");
-                } else if (ch == '\u0064') {
+                } else if (cur == (int) '\u0064') {
                     htm.add(" &succcurlyeq; ");
-                } else if (ch == '\u0065') {
+                } else if (cur == (int) '\u0065') {
                     htm.add(" &curlyeqsucc; ");
-                } else if (ch == '\u0066') {
+                } else if (cur == (int) '\u0066') {
                     htm.add(" &varpropto; ");
-                } else if (ch == '\u0067') {
+                } else if (cur == (int) '\u0067') {
                     htm.add(" &smallsmile; ");
-                } else if (ch == '\u0068') {
+                } else if (cur == (int) '\u0068') {
                     htm.add(" &smallfrown; ");
-                } else if (ch == '\u0069') {
+                } else if (cur == (int) '\u0069') {
                     htm.add(" &pitchfork; ");
-                } else if (ch == '\u006a') {
+                } else if (cur == (int) '\u006a') {
                     htm.add("<span class='sr-only'> not greater than </span>",
                             "<span class='no-sr'> &ngt; </span>");
-                } else if (ch == '\u006b') {
+                } else if (cur == (int) '\u006b') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeq; </span>");
-                } else if (ch == '\u006c') {
+                } else if (cur == (int) '\u006c') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &gneq; </span>");
-                } else if (ch == '\u006d') {
+                } else if (cur == (int) '\u006d') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &gneqq; </span>");
-                } else if (ch == '\u006e') {
+                } else if (cur == (int) '\u006e') {
                     htm.add(" &gnsim; ");
-                } else if ((ch == '\u006f') || (ch == '\u0070')) {
+                } else if ((cur == (int) '\u006f') || (cur == (int) '\u0070')) {
                     htm.add(" &gnapprox; ");
-                } else if (ch == '\u0072') {
+                } else if (cur == (int) '\u0072') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeq; </span>");
-                } else if (ch == '\u0073') {
+                } else if (cur == (int) '\u0073') {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeqq; </span>");
-                } else if (ch == '\u0074') {
+                } else if (cur == (int) '\u0074') {
                     htm.add(" &nsucc; ");
-                } else if (ch == '\u0075') {
+                } else if (cur == (int) '\u0075') {
                     htm.add(" &succnsim; ");
-                } else if (ch == '\u0076') {
+                } else if (cur == (int) '\u0076') {
                     htm.add(" &succnapprox; ");
-                } else if (ch == '\u0077') {
+                } else if (cur == (int) '\u0077') {
                     htm.add(" &succneqq; ");
-                } else if (ch == '\u0078') {
+                } else if (cur == (int) '\u0078') {
                     htm.add(" &nsucceq; ");
-                } else if (ch == '\u0079') {
+                } else if (cur == (int) '\u0079') {
                     htm.add("<span class='sr-only'> diagonal up arrow </span>",
                             "<span class='no-sr'> &diagup; </span>");
-                } else if (ch == '\u007a') {
+                } else if (cur == (int) '\u007a') {
                     htm.add("<span class='sr-only'> diagonal down arrow </span>",
                             "<span class='no-sr'> &diagdown; </span>");
-                } else if (ch == '\u2010') {
+                } else if (cur == (int) '\u2010') {
                     htm.add(" &lesseqqgtr; ");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXThree: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    Log.warning("Unmatched character from ESSTIXThree: 0x", Integer.toHexString(cur), " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXFour")) {
 
-                if (ch == '\u0021') {
+                if (cur == (int) '\u0021') {
                     htm.add("<span class='sr-only'> grave </span><span class='no-sr'>grave</span>");
-                } else if (ch == '\u0023') {
+                } else if (cur == (int) '\u0023') {
                     htm.add("<span class='sr-only'> prime </span><span class='no-sr'>prime</span>");
-                } else if (ch == '\u0024') {
+                } else if (cur == (int) '\u0024') {
                     htm.add("<span class='sr-only'> double prime </span><span class='no-sr'>Prime</span>");
-                } else if (ch == '\u0025') {
+                } else if (cur == (int) '\u0025') {
                     htm.add("<span class='sr-only'> triple prime </span><span class='no-sr'>tprime</span>");
-                } else if (ch == '\u0026') {
+                } else if (cur == (int) '\u0026') {
                     htm.add("<span class='sr-only'> quadruple prime </span><span class='no-sr'>&Prime;&Prime;</span>");
-                } else if (ch == '\u0028') {
+                } else if (cur == (int) '\u0028') {
                     htm.add("<span class='sr-only'> degrees </span><span class='no-sr'>&deg;</span>");
-                } else if (ch == '\u002b') {
+                } else if (cur == (int) '\u002b') {
                     htm.add("<span class='sr-only'> composed with </span><span class='no-sr'>&compfn;</span>");
-                } else if (ch == '\u002f') {
+                } else if (cur == (int) '\u002f') {
                     htm.add("<span class='sr-only'> three middle dots </span>",
                             "<span class='no-sr'>&middot;&middot;&middot;</span>");
-                } else if (ch == '\u007a') {
+                } else if (cur == (int) '\u007a') {
                     htm.add("<span class='sr-only'> approximately equal to </span><span class='no-sr'>&asymp;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXFour: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXFour: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXFive")) {
 
-                if ((ch == '\u0021') || (ch == '\u0023')) {
+                if ((cur == (int) '\u0021') || (cur == (int) '\u0023')) {
                     htm.add("<span class='sr-only'> times </span><span class='no-sr'>&times;</span>");
-                } else if (ch == '\u0025') {
+                } else if (cur == (int) '\u0025') {
                     htm.add("<span class='sr-only'> bullet </span><span class='no-sr'>&bull;</span>");
-                } else if (ch == '\u004f') {
+                } else if (cur == (int) '\u004f') {
                     htm.add("<span class='sr-only'> divided by </span><span class='no-sr'>&div;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXFive: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXFive: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXSix")) {
 
-                if (ch == '\u0021' || ch == '\u0045') {
+                if (cur == (int) '\u0021' || cur == (int) '\u0045') {
 
                     // Integral signs are large - we really want to center it on the line
                     // rather than align it with the baseline
                     htm.add("<span class='sr-only'> integral of </span>",
                             "<span class='no-sr' style='position:relative; top:.2em;'>&int;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXSix: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXSix: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXSeven")) {
 
-                if (ch == '\u0030') {
+                if (cur == (int) '\u0030') {
                     htm.add('(');
-                } else if (ch == '\u0031') {
+                } else if (cur == (int) '\u0031') {
                     htm.add(')');
-                } else if (ch == '\u0034') {
+                } else if (cur == (int) '\u0034') {
                     htm.add("<span style='font-size:larger'>{").eSpan();
-                } else if (ch == '\u0035') {
+                } else if (cur == (int) '\u0035') {
                     htm.add("<span style='font-size:larger'>}").eSpan();
-                } else if (ch == '\u0041') {
+                } else if (cur == (int) '\u0041') {
                     htm.add('{');
-                } else if (ch == '\u0042') {
+                } else if (cur == (int) '\u0042') {
                     htm.add('}');
-                } else if (ch == '\u0043') {
+                } else if (cur == (int) '\u0043') {
                     htm.add("<span class='sr-only'> left angle bracket </span><span class='no-sr'>&lang;</span>");
-                } else if (ch == '\u0044') {
+                } else if (cur == (int) '\u0044') {
                     htm.add("<span class='sr-only'> right angle bracket </span><span class='no-sr'>&rang;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXSeven: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXSeven: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXNine")) {
 
-                if (ch == '\u0061') {
+                if (cur == (int) '\u0061') {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'><b>&alpha;</b></span>");
-                } else if (ch == '\u0062') {
+                } else if (cur == (int) '\u0062') {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'><b>&beta;</b></span>");
-                } else if (ch == '\u0064') {
+                } else if (cur == (int) '\u0064') {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'><b>&delta;</b></span>");
-                } else if (ch == '\u0070') {
+                } else if (cur == (int) '\u0070') {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'><b>&pi;</b></span>");
-                } else if (ch == '\u0071') {
+                } else if (cur == (int) '\u0071') {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'><b>&theta;</b></span>");
-                } else if (ch == '\u0072') {
+                } else if (cur == (int) '\u0072') {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'><b>&rho;</b></span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXNine: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXNine: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXEleven")) {
 
-                if (ch == '\u0061') {
+                if (cur == (int) '\u0061') {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'><b>&alpha;</b></span>");
-                } else if (ch == '\u0062') {
+                } else if (cur == (int) '\u0062') {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'><b>&beta;</b></span>");
-                } else if (ch == '\u0064') {
+                } else if (cur == (int) '\u0064') {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'><b>&delta;</b></span>");
-                } else if (ch == '\u0065') {
+                } else if (cur == (int) '\u0065') {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'><b>&epsilon;</b></span>");
-                } else if (ch == '\u0066') {
+                } else if (cur == (int) '\u0066') {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'><b>&phi;</b></span>");
-                } else if (ch == '\u0067') {
+                } else if (cur == (int) '\u0067') {
                     htm.add("<span class='sr-only'> gamma </span><span class='no-sr'><b>&gamma;</b></span>");
-                } else if (ch == '\u006d') {
+                } else if (cur == (int) '\u006d') {
                     htm.add("<span class='sr-only'> mu </span><span class='no-sr'><b>&mu;</b></span>");
-                } else if (ch == '\u0070') {
+                } else if (cur == (int) '\u0070') {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'><b>&pi;</b></span>");
-                } else if (ch == '\u0072') {
+                } else if (cur == (int) '\u0072') {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'><b>&rho;</b></span>");
-                } else if (ch == '\u0074') {
+                } else if (cur == (int) '\u0074') {
                     htm.add("<span class='sr-only'> tau </span><span class='no-sr'><b>&tau;</b></span>");
-                } else if (ch == '\u0075') {
+                } else if (cur == (int) '\u0075') {
                     htm.add("<span class='sr-only'> omega </span><span class='no-sr'><b>&omega;</b></span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXEleven: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXEleven: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else if (fontName.contains("ESSTIXThirteen")) {
 
-                if (ch == '\u0065') {
+                if (cur == (int) '\u0065') {
                     htm.add("<span class='sr-only'> script E </span><span class='no-sr'>&escr;</span>");
-                } else if (ch == '\u0066') {
+                } else if (cur == (int) '\u0066') {
                     htm.add("<span class='sr-only'> f </span><span class='no-sr'>&fnof;</span>");
-                } else if (ch == '\u0069') {
+                } else if (cur == (int) '\u0069') {
                     htm.add("<i><b>i</b></i>");
-                } else if (ch == '\u006c') {
+                } else if (cur == (int) '\u006c') {
                     htm.add("<span class='sr-only'> script L </span><span class='no-sr'>&lscr;</span>");
-                } else if (ch == '\u0078') {
+                } else if (cur == (int) '\u0078') {
                     htm.add("<span class='sr-only'> script X </span><span class='no-sr'>&xscr;</span>");
                 } else {
-                    Log.warning("Unmatched character from ESSTIXThirteen: 0x", Integer.toHexString(ch), " in ", txt);
-                    htm.add(ch);
+                    final String hex = Integer.toHexString((int) cur);
+                    Log.warning("Unmatched character from ESSTIXThirteen: 0x", hex, " in ", txt);
+                    htm.add(cur);
                 }
             } else {
-                Log.warning("Unmatched character from ", fontName, ": 0x", Integer.toHexString(ch), " in ", txt);
-                htm.add(ch);
+                final String hex = Integer.toHexString((int) cur);
+                Log.warning("Unmatched character from ", fontName, ": 0x", hex, " in ", txt);
+                htm.add(cur);
             }
         }
     }
@@ -1734,23 +1744,24 @@ public enum DocObjectConverter {
      */
     private static String convertDocWhitespace(final DocWhitespace obj, final Deque<Style> styleStack) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -1777,23 +1788,24 @@ public enum DocObjectConverter {
     private static String convertDocInputDoubleField(final DocInputDoubleField obj, final Deque<Style> styleStack,
                                                      final boolean enabled, final EvalContext context) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -1839,9 +1851,10 @@ public enum DocObjectConverter {
 
         final Style style = styleStack.peek();
         final float styleSize = style == null ? 16.0f : style.getSize();
+        final String styleSizeStr = Float.toString(styleSize);
         htm.add("<input type='text' data-lpignore='true' autocomplete='off' ",
                 "oninput=\"this.value = this.value.replace(/[^0-9./\\-\u03c0]/g, '');\" ",
-                "style='font-family:serif;font-size:", Float.toString(styleSize), "px;");
+                "style='font-family:serif;font-size:", styleSizeStr, "px;");
         if (obj.style == EFieldStyle.UNDERLINE) {
             htm.add("border:0;outline:0;background:transparent;border-bottom:1px solid black;");
         }
@@ -1881,23 +1894,24 @@ public enum DocObjectConverter {
     private static String convertDocInputLongField(final DocInputLongField obj, final Deque<Style> styleStack,
                                                    final boolean enabled, final EvalContext context) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -1940,9 +1954,10 @@ public enum DocObjectConverter {
 
         final Style style = styleStack.peek();
         final float styleSize = style == null ? 16.0f : style.getSize();
+        final String styleSizeStr = Float.toString(styleSize);
         htm.add("<input type='text' data-lpignore='true' autocomplete='off' ",
                 "oninput=\"this.value = this.value.replace(/[^0-9\\-]/g, '');\" ",
-                "style='font-family:serif;font-size:", Float.toString(styleSize), "px;");
+                "style='font-family:serif;font-size:", styleSizeStr, "px;");
         if (obj.style == EFieldStyle.UNDERLINE) {
             htm.add("border:0;outline:0;background:transparent;border-bottom:1px solid black;");
         }
@@ -1960,7 +1975,9 @@ public enum DocObjectConverter {
         if (data != null) {
             htm.add(data);
         }
-        htm.add(" id='INP_", obj.getName(), "' name='INP_", obj.getName(), "'/> ");
+
+        final String objName = obj.getName();
+        htm.add(" id='INP_", objName, "' name='INP_", objName, "'/> ");
 
         if (updateSize || updateColor) {
             htm.eSpan();
@@ -1982,23 +1999,24 @@ public enum DocObjectConverter {
     private static String convertDocInputStringField(final DocInputStringField obj, final Deque<Style> styleStack,
                                                      final boolean enabled, final EvalContext context) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -2043,8 +2061,9 @@ public enum DocObjectConverter {
         final Style style = styleStack.peek();
         final float styleSize = style == null ? 16.0f : style.getSize();
 
+        final String styleSizeStr = Float.toString(styleSize);
         htm.add("<input type='text' data-lpignore='true' autocomplete='off' style='font-family:serif;font-size:",
-                Float.toString(styleSize), "px;");
+                styleSizeStr, "px;");
         if (obj.style == EFieldStyle.UNDERLINE) {
             htm.add("border:0;outline:0;background:transparent;border-bottom:1px solid black;");
         }
@@ -2062,7 +2081,8 @@ public enum DocObjectConverter {
         if (data != null) {
             htm.add(data);
         }
-        htm.add(" id='INP_", obj.getName(), "' name='INP_", obj.getName(), "'/> ");
+        final String objName = obj.getName();
+        htm.add(" id='INP_", objName, "' name='INP_", objName, "'/> ");
 
         if (updateSize || updateColor) {
             htm.eSpan();
@@ -2082,27 +2102,28 @@ public enum DocObjectConverter {
      * @param context    the evaluation context
      * @return the generated HTML
      */
-    private static String convertDocInputRadioButton(final DocColumn column,
-                                                     final DocInputRadioButton obj, final Deque<Style> styleStack,
-                                                     final boolean enabled, final EvalContext context) {
+    private static String convertDocInputRadioButton(final DocColumn column, final DocInputRadioButton obj,
+                                                     final Deque<Style> styleStack, final boolean enabled,
+                                                     final EvalContext context) {
 
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + obj.getFontSize() + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -2122,6 +2143,7 @@ public enum DocObjectConverter {
                 if (formula != null) {
                     final String formstr = formula.toString();
                     if (formstr.startsWith("{which}=")) {
+                        // FIXME: what should be happening here?
                     } else if (formstr.startsWith("{WHICH}=")) {
                     } else if (formstr.startsWith("{which2}=")) {
                     }
@@ -2142,13 +2164,12 @@ public enum DocObjectConverter {
 
         // Other inputs may set their enabled status based on this radio button.
 
-        // Such inputs will have an "enabledFormula" of the form "{WHICH}=1" where WHICH
-        // must match this input's name, and 1 must match this input's value.
+        // Such inputs will have an "enabledFormula" of the form "{WHICH}=1" where WHICH must match this input's name,
+        // and 1 must match this input's value.
 
-        // So we add an "onClick" handler to the radio button, and for all other inputs whose
-        // enabled formula is of the form {THIS-INPUT'S-ID}=number, the handler will set the
-        // disabled state of that input accordingly. The click event will always occur on the
-        // button that is becoming the selected radio button
+        // So we add an "onClick" handler to the radio button, and for all other inputs whose enabled formula is of the
+        // form {THIS-INPUT'S-ID}=number, the handler will set the disabled state of that input accordingly. The click
+        // event will always occur on the button that is becoming the selected radio button
 
         final String name = obj.getName();
         final String value = Integer.toString(obj.value);
@@ -2165,6 +2186,7 @@ public enum DocObjectConverter {
 
                 final String varName = input.getEnabledVarName();
                 final Object varValue = input.getEnabledVarValue();
+                final String inputName = input.getName();
 
                 if (varName == null || varValue == null) {
                     final Formula enabledFormula = input.getEnabledFormula();
@@ -2174,19 +2196,21 @@ public enum DocObjectConverter {
                     final String str = enabledFormula.toString();
                     if (str.startsWith(start)) {
                         // The input's enabled state depends on this radio button
-                        if (value.equals(str.substring(start.length()))) {
-                            // Input is enabled if this radio button is selected, so the "onClick"
-                            // for this button should enable it.
-                            toEnable.add(input.getName());
+                        final int startLen = start.length();
+                        final String substring = str.substring(startLen);
+                        if (value.equals(substring)) {
+                            // Input is enabled if this radio button is selected, so the "onClick" for this button
+                            // should enable it.
+                            toEnable.add(inputName);
                         } else {
-                            toDisable.add(input.getName());
+                            toDisable.add(inputName);
                         }
                     }
                 } else if (varName.equals(name) && varValue instanceof final Long longValue) {
                     if (longValue.intValue() == obj.value) {
-                        toEnable.add(input.getName());
+                        toEnable.add(inputName);
                     } else {
-                        toDisable.add(input.getName());
+                        toDisable.add(inputName);
                     }
                 }
             }
@@ -2194,7 +2218,8 @@ public enum DocObjectConverter {
 
         final Style style = styleStack.peek();
         final float floatFontSize = style == null ? 16.0f : style.getSize();
-        final String boxSizeStr = Integer.toString(Math.round(floatFontSize * 0.8f));
+        final int boxSize = Math.round(floatFontSize * 0.8f);
+        final String boxSizeStr = Integer.toString(boxSize);
         final String fontSizeStr = Float.toString(floatFontSize);
 
         htm.add("<input type='radio' style='width:", boxSizeStr, "px;height:", boxSizeStr, "px;font-size:",
@@ -2245,20 +2270,21 @@ public enum DocObjectConverter {
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         final Style current = styleStack.peek();
-        final float fontSize = (float) obj.getFontSize();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
 
-        final boolean updateSize = current != null && Math.abs(fontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !obj.getColorName().equals(current.getColorName());
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(fontSize, obj.getColorName());
+            final Style newStyle = new Style(objFontSize, objColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + fontSize + "px;");
+                htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", obj.getColorName(), ";");
+                htm.add("color:", objColorName, ";");
             }
             htm.add("'>");
         }
@@ -2338,7 +2364,8 @@ public enum DocObjectConverter {
 
         final Style style = styleStack.peek();
         final float floatFontSize = style == null ? 16.0f : style.getSize();
-        final String boxSizeStr = Integer.toString(Math.round(floatFontSize * 0.7f));
+        final int boxSize = Math.round(floatFontSize * 0.7f);
+        final String boxSizeStr = Integer.toString(boxSize);
         final String fontSizeStr = Float.toString(floatFontSize);
 
         htm.add("<input type='checkbox' style='width:", boxSizeStr, "px;height:", boxSizeStr, "px;font-size:",
@@ -2459,10 +2486,10 @@ public enum DocObjectConverter {
 
         for (final DocSymbolPalette.Key key : obj.keys) {
 
-            final String fname = "typeSymbol" + key.label;
+            final String name = "typeSymbol" + key.label;
 
             htm.addln("<script>");
-            htm.addln("  function " + fname + "() {");
+            htm.addln("  function " + name + "() {");
             htm.addln("    if (document.activeElement) {");
             htm.addln("      document.activeElement.value = document.activeElement.value + \""
                     + key.symbol.character + "\";");
@@ -2472,7 +2499,7 @@ public enum DocObjectConverter {
 
             htm.add("<div style='display:inline-block;border-radius:6px;border-width:0px;",
                     "color:#fff;line-height:1.2em;background:#1e4d2b;padding:4px 12px;",
-                    "margin:6px 0;white-space:nowrap;' onMouseDown='" + fname + "(); return false;'>");
+                    "margin:6px 0;white-space:nowrap;' onMouseDown='" + name + "(); return false;'>");
             htm.add(key.symbol.character);
             htm.eDiv();
         }
@@ -2499,20 +2526,21 @@ public enum DocObjectConverter {
                                            final boolean inMath) {
 
         final float parentFontSize = (float) parent.getFontSize();
+        final String parentColorName = parent.getColorName();
 
         final Style current = styleStack.peek();
         final boolean updateSize = current != null && Math.abs(parentFontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !parent.getColorName().equals(current.getColorName());
+        final boolean updateColor = current != null && !parentColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(parentFontSize, parent.getColorName());
+            final Style newStyle = new Style(parentFontSize, parentColorName);
             styleStack.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + parent.getFontSize() + "px;");
+                htm.add("font-size:" + parentFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", parent.getColorName(), ";");
+                htm.add("color:", parentColorName, ";");
             }
             htm.add("'>");
         }
@@ -2547,21 +2575,22 @@ public enum DocObjectConverter {
                                         final int[] id, final EvalContext context, final boolean inMath) {
 
         final float childFontSize = (float) child.getFontSize();
+        final String childColorName = child.getColorName();
 
         final Style current = styles.peek();
 
         final boolean updateSize = current != null && Math.abs(childFontSize - current.getSize()) > 0.01f;
-        final boolean updateColor = current != null && !child.getColorName().equals(current.getColorName());
+        final boolean updateColor = current != null && !childColorName.equals(current.getColorName());
 
         if (updateSize || updateColor) {
-            final Style newStyle = new Style(childFontSize, child.getColorName());
+            final Style newStyle = new Style(childFontSize, childColorName);
             styles.push(newStyle);
             htm.add("<span style='");
             if (updateSize) {
-                htm.add("font-size:" + child.getFontSize() + "px;");
+                htm.add("font-size:" + childFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", child.getColorName(), ";");
+                htm.add("color:", childColorName, ";");
             }
             htm.add("'>");
         }

@@ -7,6 +7,7 @@ import dev.mathops.assessment.document.template.AbstractDocInput;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.document.template.DocFactory;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
+import dev.mathops.assessment.formula.ConstBooleanValue;
 import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
@@ -308,14 +309,33 @@ public enum ProblemTemplateFactory {
             if (problemType == null) {
                 nonempty.logError("&lt;problem&gt; element missing required 'type' attribute..");
             } else if ("numeric".equalsIgnoreCase(problemType)) {
+                if (mode.reportDeprecated) {
+                    nonempty.logError("Deprecated &lt;problem type='numeric'&gt; tag; use &lt;problem-numeric&gt;");
+                }
                 problem = parseNumericProblem(nonempty, mode);
             } else if ("multiplechoice".equalsIgnoreCase(problemType)) {
+                if (mode.reportDeprecated) {
+                    nonempty.logError("Deprecated &lt;problem type='multiplechoice'&gt; tag; "
+                            + "use &lt;problem-multiple-choice&gt;");
+                }
                 problem = parseMultipleChoiceProblem(nonempty, mode);
             } else if ("multipleselection".equalsIgnoreCase(problemType)) {
+                if (mode.reportDeprecated) {
+                    nonempty.logError("Deprecated &lt;problem type='multipleselection'&gt; tag; "
+                            + "use &lt; problem-multiple-selection&gt;");
+                }
                 problem = parseMultipleSelectionProblem(nonempty, mode);
             } else if ("embeddedinput".equalsIgnoreCase(problemType)) {
+                if (mode.reportDeprecated) {
+                    nonempty.logError(
+                            "Deprecated &lt;problem type='embeddedinput'&gt; tag; use &lt; problem-embedded-input&gt;");
+                }
                 problem = parseEmbeddedInputProblem(nonempty, mode);
             } else if ("autocorrect".equalsIgnoreCase(problemType)) {
+                if (mode.reportDeprecated) {
+                    nonempty.logError(
+                            "Deprecated &lt;problem type='autocorrect'&gt; tag; use &lt;problem-auto-correct&gt;");
+                }
                 problem = parseAutocorrectProblem();
             } else {
                 nonempty.logError("Invalid 'type' attribute on &lt;problem&gt; element: " + problemType);
@@ -326,7 +346,8 @@ public enum ProblemTemplateFactory {
                 problem = null;
             }
         } else {
-            nonempty.logError("Attempt to extract problem from '" + tagName + "' element (expected 'problem' element)");
+            nonempty.logError("Attempt to extract problem from '" + tagName
+                    + "' element (expected &lt;problem&gt; element)");
         }
 
         return problem;
@@ -564,7 +585,7 @@ public enum ProblemTemplateFactory {
     private static boolean parseCommonElements(final NonemptyElement elem, final AbstractProblemTemplate problem,
                                                final EParserMode mode) {
 
-        return parseProblemId(elem, problem)
+        return parseProblemId(elem, problem, mode)
                 && VariableFactory.parseVars(problem.evalContext, elem, mode)
                 && parseQuestion(elem, problem, mode)
                 && parseSolution(elem, problem, mode)
@@ -580,12 +601,16 @@ public enum ProblemTemplateFactory {
      * @param problem the {@code Problem} to populate with the parsed data
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean parseProblemId(final NonemptyElement elem, final AbstractProblemTemplate problem) {
+    private static boolean parseProblemId(final NonemptyElement elem, final AbstractProblemTemplate problem,
+                                          final EParserMode mode) {
 
         problem.id = elem.getStringAttr("id");
 
         if (problem.id == null) {
             problem.id = getRefElement("ref-base", elem, true);
+            if (mode.reportDeprecated) {
+                elem.logError("Deprecated <ref-base> element; use id attribute on problem element>.");
+            }
         }
 
         return problem.id != null;
@@ -1175,11 +1200,27 @@ public enum ProblemTemplateFactory {
 
                 if (valid) {
                     if (newFormat) {
+                        final String correctStr = nonempty.getStringAttr("correct");
+
+                        if ("TRUE".equalsIgnoreCase(correctStr)) {
+                            correct = new Formula(new ConstBooleanValue(Boolean.TRUE));
+                        } else if ("FALSE".equalsIgnoreCase(correctStr)) {
+                            correct = new Formula(new ConstBooleanValue(Boolean.FALSE));
+                        } else if (correctStr != null) {
+                            elem.logError("Invalid &lt;correct&gt; attribute value in &lt;choice&gt;.");
+                            valid = false;
+                        }
+
                         for (final IElement grandchild : nonempty.getElementChildrenAsList()) {
                             final String tag = grandchild.getTagName();
 
                             if (grandchild instanceof final NonemptyElement nonempty2) {
                                 if ("correct".equals(tag)) {
+
+                                    if (mode.reportDeprecated && correct != null) {
+                                        nonempty.logError("Correctness defined both as attribute and child element in" +
+                                                " &lt;choice&gt;");
+                                    }
                                     correct = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty2, mode);
 
                                     if (correct == null) {
