@@ -48,17 +48,6 @@ public final class DocAlignmentMark extends AbstractDocObjectTemplate {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Recompute the size of the object's bounding box.
      *
      * @param context  the evaluation context

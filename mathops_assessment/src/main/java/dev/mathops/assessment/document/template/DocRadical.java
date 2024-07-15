@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocRadicalInst;
@@ -8,7 +9,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -105,9 +105,9 @@ public final class DocRadical extends AbstractDocContainer {
      * @return the object insets
      */
     @Override
-    public int getLeftAlign() {
+    public EVAlign getLeftAlign() {
 
-        return this.base == null ? BASELINE : this.base.getLeftAlign();
+        return this.base == null ? EVAlign.BASELINE : this.base.getLeftAlign();
     }
 
     /**

@@ -653,7 +653,7 @@ public final class PastExamSession extends HtmlSessionBase {
         htm.addln("<main style='flex:1 1 73%; order:3; margin:1px; padding:2px; border:1px solid SteelBlue;'>");
 
         htm.addln("<div style='padding:8px; min-height:100%; border:1px solid #b3b3b3; ",
-                "background:#f5f5f5; font-family:serif; font-size:",
+                "background:#8f8f8; font-family:serif; font-size:",
                 Float.toString(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE), "px;'>");
     }
 

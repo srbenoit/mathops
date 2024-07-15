@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -118,7 +119,7 @@ public final class DocNonwrappingSpan extends AbstractDocSpanBase {
         // "true centerline" as distance above baseline)
         int maxCenter = 0;
         for (final AbstractDocObjectTemplate obj : objects) {
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 final int center = obj.getBaseLine() - obj.getCenterLine();
 
                 if (center > maxCenter) {
@@ -133,9 +134,9 @@ public final class DocNonwrappingSpan extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int height = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 height = obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 height = maxCenter + obj.getCenterLine();
             }
 
@@ -156,9 +157,9 @@ public final class DocNonwrappingSpan extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int objY = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 objY = getBaseLine() - obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 objY = getCenterLine() - obj.getCenterLine();
             }
 

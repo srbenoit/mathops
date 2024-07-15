@@ -220,17 +220,6 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Recompute the size of the bounding box of the object, based on the current image size.
      *
      * @param context  the evaluation context
@@ -256,8 +245,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
                     h = (int) ((float) this.image.getHeight() * getScale());
                 }
             } else {
-                // We have a scaled height but no scaled width - we want to preserve the image's
-                // aspect ratio.
+                // We have a scaled height but no scaled width - we want to preserve the image's aspect ratio.
                 if (this.image == null) {
                     // No image, placeholder will be square
                     w = (int) (scaledHeightNumber.floatValue() * getScale());
@@ -269,8 +257,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
                 }
             }
         } else if (scaledHeightNumber == null) {
-            // We have a scaled width but no scaled height - we want to preserve the image's
-            // aspect ratio.
+            // We have a scaled width but no scaled height - we want to preserve the image's aspect ratio.
             if (this.image == null) {
                 // No image, placeholder will be square
                 w = (int) (scaledWidthNumber.floatValue() * getScale());
@@ -287,7 +274,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         }
 
         setBaseLine(h);
-        setCenterLine(getBaseLine() / 2);
+        setCenterLine(h / 2);
 
         setWidth(w);
         setHeight(h);
@@ -330,8 +317,8 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
      *
      * @param img       the image
      * @param infoflags flags indicating information now available
-     * @param x      x position
-     * @param y      y position
+     * @param x         x position
+     * @param y         y position
      * @param width     image width
      * @param height    image height
      * @return false if all needed data has arrived
@@ -378,7 +365,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
     @Override
     public DocImageInst createInstance(final EvalContext evalContext) {
 
-        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
+        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
         final String alt = getAltText();

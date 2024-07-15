@@ -170,17 +170,6 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Draw the graph to an offscreen image.
      *
      * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing

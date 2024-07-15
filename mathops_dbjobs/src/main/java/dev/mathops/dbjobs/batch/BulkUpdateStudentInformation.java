@@ -506,50 +506,50 @@ public final class BulkUpdateStudentInformation {
 
         if (changed) {
             final String stuId = student.stuId;
-            Log.fine("PERSON data for student ", stuId, " needs to be updated:");
 
-            if (!matchPidm) {
-                Log.fine("    PIDM           : [", student.pidm, "] -> [", pidm, "]");
-            }
-            if (!matchFirstName) {
-                Log.fine("    FIRST NAME     : [", student.firstName, "] -> [", firstName, "]");
-            }
-            if (!matchMiddleInitial) {
-                Log.fine("    MIDDLE INITIAL : [", student.middleInitial, "] -> [", middleInitial, "]");
-            }
-            if (!matchLastName) {
-                Log.fine("    LAST NAME      : [", student.lastName, "] -> [", lastName, "]");
-            }
-            if (!matchPrefName) {
-                Log.fine("    PREF NAME      : [", student.prefName, "] -> [", prefName, "]");
-            }
-            if (!matchEmail) {
-                Log.fine("    EMAIL          : [", student.stuEmail, "] -> [", email, "]");
-            }
-            if (!matchBirthDate) {
-                Log.fine("    BIRTH DATE     : [", student.birthdate, "] -> [", birthDate, "]");
-            }
-            if (!matchAct) {
-                Log.fine("    ACT SCORE      : [", student.actScore, "] -> [", act, "]");
-            }
-            if (!matchSat) {
-                Log.fine("    SAT SCORE      : [", student.satScore, "] -> [", effectiveSat, "]");
-            }
-            if (!matchHsGpa) {
-                Log.fine("    HS GPA         : [", student.hsGpa, "] -> [", hsGpa, "]");
-            }
-            if (!matchHsCode) {
-                Log.fine("    HS CODE        : [", student.hsCode, "] -> [", hsCode, "]");
-            }
-            if (!matchHsClassSize) {
-                Log.fine("    HS CLASS SIZE  : [", student.hsSizeClass, "] -> [", hsClassSize, "]");
-            }
-            if (!matchHsClassRank) {
-                Log.fine("    HS CLASS RANK  : [", student.hsClassRank, "] -> [", hsClassRank, "]");
-            }
+            if (DEBUG) {
+                Log.fine("PERSON data for student ", stuId, " needs to be updated:");
 
-            if (!DEBUG) {
-                // TODO: Do the actual updates!
+                if (!matchPidm) {
+                    Log.fine("    PIDM           : [", student.pidm, "] -> [", pidm, "]");
+                }
+                if (!matchFirstName) {
+                    Log.fine("    FIRST NAME     : [", student.firstName, "] -> [", firstName, "]");
+                }
+                if (!matchMiddleInitial) {
+                    Log.fine("    MIDDLE INITIAL : [", student.middleInitial, "] -> [", middleInitial, "]");
+                }
+                if (!matchLastName) {
+                    Log.fine("    LAST NAME      : [", student.lastName, "] -> [", lastName, "]");
+                }
+                if (!matchPrefName) {
+                    Log.fine("    PREF NAME      : [", student.prefName, "] -> [", prefName, "]");
+                }
+                if (!matchEmail) {
+                    Log.fine("    EMAIL          : [", student.stuEmail, "] -> [", email, "]");
+                }
+                if (!matchBirthDate) {
+                    Log.fine("    BIRTH DATE     : [", student.birthdate, "] -> [", birthDate, "]");
+                }
+                if (!matchAct) {
+                    Log.fine("    ACT SCORE      : [", student.actScore, "] -> [", act, "]");
+                }
+                if (!matchSat) {
+                    Log.fine("    SAT SCORE      : [", student.satScore, "] -> [", effectiveSat, "]");
+                }
+                if (!matchHsGpa) {
+                    Log.fine("    HS GPA         : [", student.hsGpa, "] -> [", hsGpa, "]");
+                }
+                if (!matchHsCode) {
+                    Log.fine("    HS CODE        : [", student.hsCode, "] -> [", hsCode, "]");
+                }
+                if (!matchHsClassSize) {
+                    Log.fine("    HS CLASS SIZE  : [", student.hsSizeClass, "] -> [", hsClassSize, "]");
+                }
+                if (!matchHsClassRank) {
+                    Log.fine("    HS CLASS RANK  : [", student.hsClassRank, "] -> [", hsClassRank, "]");
+                }
+            } else {
                 if (!matchPidm) {
                     RawStudentLogic.updateInternalId(cache, stuId, pidm);
                 }
@@ -621,31 +621,31 @@ public final class BulkUpdateStudentInformation {
 
         if (changed) {
             final String stuId = student.stuId;
-            Log.fine("TERM data for student ", student.stuId, " needs to be updated:");
+            if (DEBUG) {
+                Log.fine("TERM data for student ", student.stuId, " needs to be updated:");
 
-            if (!matchGradTerm) {
-                Log.fine("    EST GRAD TERM  : [", student.estGraduation, "] -> [", effectiveTerm, "]");
-            }
-            if (!matchCampus) {
-                Log.fine("    CAMPUS         : [", student.campus, "] -> [", campus, "]");
-            }
-            if (!matchCollege) {
-                Log.fine("    COLLEGE        : [", student.college, "] -> [", college, "]");
-            }
-            if (!matchDept) {
-                Log.fine("    DEPARTMENT     : [", student.dept, "] -> [", dept, "]");
-            }
-            if (!matchProgram) {
-                Log.fine("    PROGRAM        : [", student.programCode, "] -> [", program, "]");
-            }
-            if (!matchResidency) {
-                Log.fine("    RESIDENCY      : [", student.resident, "] -> [", residency, "]");
-            }
-            if (!matchStudentClass) {
-                Log.fine("    STUDENT CLASS  : [", student.clazz, "] -> [", studentClass, "]");
-            }
-
-            if (!DEBUG) {
+                if (!matchGradTerm) {
+                    Log.fine("    EST GRAD TERM  : [", student.estGraduation, "] -> [", effectiveTerm, "]");
+                }
+                if (!matchCampus) {
+                    Log.fine("    CAMPUS         : [", student.campus, "] -> [", campus, "]");
+                }
+                if (!matchCollege) {
+                    Log.fine("    COLLEGE        : [", student.college, "] -> [", college, "]");
+                }
+                if (!matchDept) {
+                    Log.fine("    DEPARTMENT     : [", student.dept, "] -> [", dept, "]");
+                }
+                if (!matchProgram) {
+                    Log.fine("    PROGRAM        : [", student.programCode, "] -> [", program, "]");
+                }
+                if (!matchResidency) {
+                    Log.fine("    RESIDENCY      : [", student.resident, "] -> [", residency, "]");
+                }
+                if (!matchStudentClass) {
+                    Log.fine("    STUDENT CLASS  : [", student.clazz, "] -> [", studentClass, "]");
+                }
+            } else {
                 if (!matchGradTerm) {
                     RawStudentLogic.updateAnticGradTerm(cache, stuId, effectiveTerm);
                 }

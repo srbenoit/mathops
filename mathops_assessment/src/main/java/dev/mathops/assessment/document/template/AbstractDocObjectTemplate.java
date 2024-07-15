@@ -3,6 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.document.DocObjectLayoutBounds;
 import dev.mathops.assessment.document.DocObjectStyle;
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
@@ -55,12 +56,6 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     /** Hidden font style. */
     public static final int HIDDEN = 0x40;
 
-    /** Align baseline of object to baseline of current line. */
-    static final int BASELINE = 1;
-
-    /** Align centerline of object to centerline of current line. */
-    static final int CENTERLINE = 2;
-
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 7492832285509796852L;
@@ -74,7 +69,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     /** Flag to toggle showing of baseline when rendering. */
     private static boolean showBaselineFlag;
 
-    /** Flag to toggle showing of centerline when rendering. */
+    /** Flag to toggle showing of center-line when rendering. */
     private static boolean showCenterlineFlag;
 
     /** The object that contains this object. */
@@ -85,6 +80,9 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
 
     /** The layout bounds, once they are computed. */
     private DocObjectLayoutBounds bounds;
+
+    /** The left alignment. */
+    private EVAlign leftAlign = EVAlign.BASELINE;
 
     /** The rendering scale. */
     private float scale = 1.0f;
@@ -144,6 +142,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
             this.bounds.baseLine = source.bounds.baseLine;
             this.bounds.centerLine = source.bounds.centerLine;
         }
+        this.leftAlign = source.getLeftAlign();
 
         copyFormatFrom(source);
     }
@@ -225,11 +224,24 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     }
 
     /**
-     * Get the left alignment for the object.
+     * Sets the left alignment for the object.
      *
-     * @return the object insets
+     * @param theLeftAlign the new left alignment
      */
-    protected abstract int getLeftAlign();
+    public void setLeftAlign(final EVAlign theLeftAlign) {
+
+        this.leftAlign = theLeftAlign;
+    }
+
+    /**
+     * Gets the left alignment for the object.
+     *
+     * @return the left alignment
+     */
+    protected EVAlign getLeftAlign() {
+
+        return this.leftAlign;
+    }
 
     /**
      * Set the font color name.
@@ -691,7 +703,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      * names.
      *
      * @param toScan the string to scan
-     * @param set the set to which to add parameter names
+     * @param set    the set to which to add parameter names
      */
     static void scanStringForParameterReferences(final String toScan, final Collection<? super String> set) {
 
@@ -1000,7 +1012,8 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
 
         return Objects.equals(thisColor, objColor)
                 && Objects.equals(thisFontName, objFontName) && thisFontSize == objFontSize
-                && Objects.equals(thisFontStyle, objFontStyle);
+                && Objects.equals(thisFontStyle, objFontStyle)
+                && this.leftAlign == obj.getLeftAlign();
     }
 
     /**

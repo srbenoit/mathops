@@ -4,6 +4,7 @@ import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.EFieldStyle;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.formula.XmlFormulaFactory;
@@ -159,6 +160,9 @@ public enum DocFactory {
     private static final String JUSTIFICATION = "justification";
 
     /** A commonly-used string. */
+    private static final String VALIGN = "valign";
+
+    /** A commonly-used string. */
     private static final String LEFT = "left";
 
     /** A commonly-used string. */
@@ -274,9 +278,6 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String LBRACE = "lbrace";
-
-    /** A commonly-used string. */
-    private static final String VALIGN = "valign";
 
     /** A commonly-used string. */
     private static final String BASELINE = "baseline";
@@ -1551,9 +1552,9 @@ public enum DocFactory {
         final String valignStr = elem.getStringAttr(VALIGN);
         if (valignStr != null) {
             if (CENTER.equals(valignStr)) {
-                fence.leftAlign = AbstractDocObjectTemplate.CENTERLINE;
+                fence.setLeftAlign(EVAlign.CENTER);
             } else if (BASELINE.equals(valignStr)) {
-                fence.leftAlign = AbstractDocObjectTemplate.BASELINE;
+                fence.setLeftAlign(EVAlign.BASELINE);
             } else {
                 elem.logError("Invalid fence valign setting (should be 'center', 'baseline').");
                 valid = false;
@@ -2083,6 +2084,21 @@ public enum DocFactory {
             }
         }
 
+        final String valignStr = elem.getStringAttr(VALIGN);
+        EVAlign valign = null;
+        if (valignStr != null) {
+            if (BASELINE.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.BASELINE;
+            } else if (CENTER.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.CENTER;
+            } else if (TOP.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.TOP;
+            } else {
+                elem.logError("<image> element has invalid value in '' attribute.");
+            }
+        }
+
+
         final String altStr = elem.getStringAttr(ALT);
 
         final DocDrawing drawing = new DocDrawing(width, height, altStr);
@@ -2163,6 +2179,7 @@ public enum DocFactory {
         valid = valid && extractFormattable(elem, drawing);
 
         if (valid) {
+            drawing.setLeftAlign(valign);
             container.add(drawing);
         }
 
@@ -2207,6 +2224,7 @@ public enum DocFactory {
         final String ticklabelfontsizeStr = elem.getStringAttr(TICK_LABEL_FONT_SIZE);
         final String xaxislabelStr = elem.getStringAttr(X_AXIS_LABEL);
         final String yaxislabelStr = elem.getStringAttr(Y_AXIS_LABEL);
+        final String valignStr = elem.getStringAttr(VALIGN);
 
         int width = 0;
         if (widthStr == null) {
@@ -2393,6 +2411,20 @@ public enum DocFactory {
             graph.yAxisLabel = yaxislabelStr;
         }
 
+        EVAlign valign = null;
+        if (valignStr != null) {
+            if (BASELINE.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.BASELINE;
+            } else if (CENTER.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.CENTER;
+            } else if (TOP.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.TOP;
+            } else {
+                elem.logError("<image> element has invalid value in '' attribute.");
+            }
+        }
+
+
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
@@ -2453,6 +2485,7 @@ public enum DocFactory {
         }
 
         if (valid) {
+            graph.setLeftAlign(valign);
             container.add(graph);
         }
 
@@ -3559,6 +3592,7 @@ public enum DocFactory {
         final String heightStr = elem.getStringAttr(HEIGHT);
         final String srcStr = elem.getStringAttr(SRC);
         final String altStr = elem.getStringAttr(ALT);
+        final String valignStr = elem.getStringAttr(VALIGN);
 
         NumberOrFormula width = null;
         if (widthStr != null) {
@@ -3594,6 +3628,19 @@ public enum DocFactory {
             } catch (final MalformedURLException | URISyntaxException e) {
                 elem.logError("<image> element has invalid URL in 'src' attribute.");
                 valid = false;
+            }
+        }
+
+        EVAlign valign = null;
+        if (valignStr != null) {
+            if (BASELINE.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.BASELINE;
+            } else if (CENTER.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.CENTER;
+            } else if (TOP.equalsIgnoreCase(valignStr)) {
+                valign = EVAlign.TOP;
+            } else {
+                elem.logError("<image> element has invalid value in '' attribute.");
             }
         }
 
@@ -3638,6 +3685,7 @@ public enum DocFactory {
             image.setScaledWidth(width);
             image.setScaledHeight(height);
             image.setSource(url);
+            image.setLeftAlign(valign);
             container.add(image);
         }
 

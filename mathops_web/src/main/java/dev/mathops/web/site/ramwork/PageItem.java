@@ -49,8 +49,7 @@ enum PageItem {
 
             htm.add("<h1 style='display:inline-block;float:left;'>").add(itemId).eH(1);
             htm.sDiv(null, "style='display:inline-block;float:right;'")
-                    .add("<a class='btn' href='item-edit.html?id=", itemId,
-                            "'>Edit</a>")
+                    .add("<a class='btn' href='item-edit.html?id=", itemId, "'>Edit</a>")
                     .eDiv();
             htm.div("clear");
 

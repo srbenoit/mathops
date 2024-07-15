@@ -447,17 +447,6 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
     public abstract boolean setValue(String theValue);
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public final int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Implementation of {@code hashCode}.
      *
      * @return the hash code of the object

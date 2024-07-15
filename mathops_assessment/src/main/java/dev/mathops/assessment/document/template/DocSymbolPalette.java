@@ -131,17 +131,6 @@ public final class DocSymbolPalette extends AbstractDocContainer {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Add any parameter names referenced by the object or its children to a set of names.
      *
      * @param set the set of parameter names

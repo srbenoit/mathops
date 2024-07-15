@@ -2718,6 +2718,8 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 try {
                     RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, stu.pidm,
                             new ArrayList<>(stexam.earnedPlacement), stexam.finish);
+                } catch (final SQLException ex) {
+                    Log.warning("Failed to post placement results!", ex);
                 } finally {
                     liveCtx.checkInConnection(liveConn);
                 }

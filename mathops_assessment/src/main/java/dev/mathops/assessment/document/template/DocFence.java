@@ -3,6 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.document.EFenceType;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.EPrimaryBaseline;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocFenceInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -50,9 +51,6 @@ public final class DocFence extends AbstractDocSpanBase {
     @Serial
     private static final long serialVersionUID = 2013064330513943343L;
 
-    /** The point used to align on the left. */
-    int leftAlign = CENTERLINE;
-
     /** The type of fence this is. */
     public int type = PARENTHESES;
 
@@ -71,6 +69,8 @@ public final class DocFence extends AbstractDocSpanBase {
     DocFence() {
 
         super();
+
+        setLeftAlign(EVAlign.CENTER);
     }
 
     /**
@@ -117,7 +117,6 @@ public final class DocFence extends AbstractDocSpanBase {
         copyObjectFromContainer(source);
 
         this.outLines = source.outLines;
-        this.leftAlign = source.leftAlign;
     }
 
     /**
@@ -174,7 +173,7 @@ public final class DocFence extends AbstractDocSpanBase {
         // "true centerline" as distance above baseline)
         int maxCenter = 0;
         for (final AbstractDocObjectTemplate obj : objects) {
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 final int center = obj.getBaseLine() - obj.getCenterLine();
                 maxCenter = Math.max(maxCenter, center);
             }
@@ -185,9 +184,9 @@ public final class DocFence extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int height = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 height = obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 height = maxCenter + obj.getCenterLine();
             }
 
@@ -206,9 +205,9 @@ public final class DocFence extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int objY = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 objY = getBaseLine() - obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 objY = getCenterLine() - obj.getCenterLine();
             }
 
@@ -702,7 +701,7 @@ public final class DocFence extends AbstractDocSpanBase {
                 break;
         }
 
-        if (getLeftAlign() == BASELINE) {
+        if (getLeftAlign() == EVAlign.BASELINE) {
             xml.add(" valign='baseline'");
         }
 
@@ -847,7 +846,7 @@ public final class DocFence extends AbstractDocSpanBase {
     @Override
     public int hashCode() {
 
-        return innerHashCode() + Float.hashCode((float) this.leftAlign) + this.type;
+        return innerHashCode() + this.type;
     }
 
     /**
@@ -864,7 +863,7 @@ public final class DocFence extends AbstractDocSpanBase {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocFence fence) {
-            equal = innerEquals(fence) && this.leftAlign == fence.leftAlign && this.type == fence.type;
+            equal = innerEquals(fence) && this.type == fence.type;
         } else {
             equal = false;
         }

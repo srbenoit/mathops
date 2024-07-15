@@ -5,6 +5,7 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.ETableSizing;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.Padding;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
@@ -132,6 +133,8 @@ public final class DocTable extends AbstractDocContainer {
                 }
             }
         }
+
+        setLeftAlign(EVAlign.CENTER);
     }
 
     /**
@@ -240,17 +243,6 @@ public final class DocTable extends AbstractDocContainer {
     public int getNumRows() {
 
         return this.objectData.length;
-    }
-
-    /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return CENTERLINE;
     }
 
     /**

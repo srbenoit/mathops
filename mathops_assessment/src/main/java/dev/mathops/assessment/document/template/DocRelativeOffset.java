@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocRelativeOffsetInst;
@@ -178,9 +179,9 @@ public final class DocRelativeOffset extends AbstractDocContainer {
      * @return the object insets
      */
     @Override
-    public int getLeftAlign() {
+    public EVAlign getLeftAlign() {
 
-        return this.base == null ? BASELINE : this.base.getLeftAlign();
+        return this.base == null ? EVAlign.BASELINE : this.base.getLeftAlign();
     }
 
     /**

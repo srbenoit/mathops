@@ -1940,8 +1940,8 @@ enum PageOutline {
                         if ("Passed".equals(status) && !courseStatus.isReviewPassedOnTime(unitNum)
                                 && !earliestPassing.isAfter(extendedDueDate)) {
 
-                            // FIXME: How to detect, in the calculation of the "due date" whether the automatic extension
-                            //  has already been used?
+                            // FIXME: How to detect, in the calculation of the "due date" whether the automatic
+                            //  extension has already been used?
 
                             // TODO: Make this a button in a form that actually requests the extension
                             htm.sP().add("You may request an extension of this due date until ",
@@ -1964,12 +1964,14 @@ enum PageOutline {
                 htm.eDiv();
                 htm.addln("</form>");
 
-                final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
-                        dueDate);
-                if (extendedDueDate != null) {
-                    // TODO: Make this a button in a form that actually requests the extension
-                    htm.sP().add("You may request an extension of this due date until ",
-                            TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
+                if (dueDate != null) {
+                    final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
+                            dueDate);
+                    if (extendedDueDate != null) {
+                        // TODO: Make this a button in a form that actually requests the extension
+                        htm.sP().add("You may request an extension of this due date until ",
+                                TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
+                    }
                 }
 
                 htm.eDiv(); // indent
@@ -2124,8 +2126,6 @@ enum PageOutline {
 
         // TODO: See if the student has already used the automatic extension for this unit...
 
-
-
         int lateDaysAllowed = 0;
         final RawCusection cusection = courseStatus.getCourseSectionUnit(unitNum);
         if (cusection != null && cusection.couponCost != null) {
@@ -2134,7 +2134,7 @@ enum PageOutline {
 
         LocalDate extendedDueDate = null;
         final LocalDate today = sessionNow.toLocalDate();
-        if (today.isAfter(dueDate) && lateDaysAllowed > 0) {
+        if (dueDate != null && today.isAfter(dueDate) && lateDaysAllowed > 0) {
             // See if an "automatically granted" extension makes sense...
             final SystemData systemData = cache.getSystemData();
 

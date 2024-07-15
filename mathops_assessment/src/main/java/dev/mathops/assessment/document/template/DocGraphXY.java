@@ -388,17 +388,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
-    /**
      * Generate the string label for a tick mark, given the value of the point along the axis, and the tick mark
      * interval. The string is chosen as the nearest multiple of the interval to the point.
      *

@@ -104,19 +104,6 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        // TODO: If this object is a span, check the left-align of the first item in that span.
-
-        return BASELINE;
-    }
-
-    /**
      * Recompute the size of the object's bounding box, and those of its children. This base class method simply calls
      * {@code doLayout} on all children. It will be up to overriding subclasses to set the locations of the children
      * relative to each other.

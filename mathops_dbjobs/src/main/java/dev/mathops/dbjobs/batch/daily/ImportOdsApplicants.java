@@ -252,6 +252,7 @@ public final class ImportOdsApplicants {
                     + "  AND (B.TERM Between '" + start
                     + "'      And '" + end + "') "
                     + "  AND (A.LAST_NAME Not Like '-Purge%') "
+                    + "  AND (A.MULTI_SOURCE = 'CSU') "
                     + "  AND (   (B.ADM_CAMPUS = 'MC')"
                     + "       OR ((B.STUDENT_LEVEL = 'GR') And (B.STUDENT_TYPE = 'N')) "
                     + "       OR ((B.STUDENT_LEVEL = 'UG') "
@@ -322,16 +323,6 @@ public final class ImportOdsApplicants {
                         final String email = rs.getString("email");
 
                         final String admType = rs.getString("admType");
-
-//                        String college = rs.getString("college");
-//                        if (college == null) {
-//                            college = rs.getString("admCollege");
-//                        }
-
-//                        String department = rs.getString("dept");
-//                        if (department == null) {
-//                            department = rs.getString("admDept");
-//                        }
 
                         String programOfStudy = rs.getString("program");
                         if (programOfStudy == null) {
@@ -567,13 +558,15 @@ public final class ImportOdsApplicants {
                         newRec.hsGpa = liveStu.highSchoolGpa;
                     }
 
-                    if (liveStu.highSchoolClassRank != null && !Objects.equals(liveStu.highSchoolClassRank, newRec.hsClassRank)) {
+                    if (liveStu.highSchoolClassRank != null && !Objects.equals(liveStu.highSchoolClassRank,
+                            newRec.hsClassRank)) {
                         Log.warning("Banner/ODS mismatch on hsClassRank: ", liveStu.highSchoolClassRank, "/",
                                 newRec.hsClassRank);
                         newRec.hsClassRank = liveStu.highSchoolClassRank;
                     }
 
-                    if (liveStu.highSchoolClassSize != null && !Objects.equals(liveStu.highSchoolClassSize, newRec.hsSizeClass)) {
+                    if (liveStu.highSchoolClassSize != null && !Objects.equals(liveStu.highSchoolClassSize,
+                            newRec.hsSizeClass)) {
                         Log.warning("Banner/ODS mismatch on hsSizeClass: ", liveStu.highSchoolClassSize, "/",
                                 newRec.hsSizeClass);
                         newRec.hsSizeClass = liveStu.highSchoolClassSize;
@@ -783,15 +776,15 @@ public final class ImportOdsApplicants {
          * @param theAdmitted        true if student is admitted; false if still an applicant
          * @param theProgram         the program of study
          */
-        ApplicantRecord(final String theCsuId, final String theFirstName, // NO UCD
-                        final String theLastName, final String thePrefName, final String theMiddleName,
-                        final Date theBirthDate, final String theGender, final String theEmail,
-                        final String theAdmType, final String theStudentClass, final String theHsCode,
-                        final String theResidency, final String theResidencyState, final String theHsGpa,
-                        final Integer theHsClassRank, final Integer theHsClassSize, final Integer theActMath,
-                        final Integer theSatMath, final Integer thePidm, final TermKey theApplicationTerm,
-                        final Date theApplicationDate, final String theGradTerm, final String theCampus,
-                        final Boolean theAdmitted, final String theProgram) {
+        ApplicantRecord(final String theCsuId, final String theFirstName, final String theLastName,
+                        final String thePrefName, final String theMiddleName, final Date theBirthDate,
+                        final String theGender, final String theEmail, final String theAdmType,
+                        final String theStudentClass, final String theHsCode, final String theResidency,
+                        final String theResidencyState, final String theHsGpa, final Integer theHsClassRank,
+                        final Integer theHsClassSize, final Integer theActMath, final Integer theSatMath,
+                        final Integer thePidm, final TermKey theApplicationTerm, final Date theApplicationDate,
+                        final String theGradTerm, final String theCampus, final Boolean theAdmitted,
+                        final String theProgram) {
 
             this.csuId = theCsuId;
             this.firstName = prune(theFirstName, 30);
@@ -846,7 +839,7 @@ public final class ImportOdsApplicants {
          * @param other the record against which to compare
          * @return true if this record is more recent (should win and be used)
          */
-        boolean isMoreRecentThan(final ApplicantRecord other) { // NO UCD
+        boolean isMoreRecentThan(final ApplicantRecord other) {
 
             Boolean moreRecent = null;
 

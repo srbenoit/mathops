@@ -269,8 +269,13 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
             throws SQLException {
 
         List<RawMpscorequeue> existing = null;
-        if (!AbstractLogicModule.isBannerDown()) {
-            existing = querySORTESTByStudent(liveConn, pidm);
+        if (!isBannerDown()) {
+            try {
+                existing = querySORTESTByStudent(liveConn, pidm);
+            } catch (final SQLException ex) {
+                Log.warning("Failed to look up SORTEST in Banner - indicating Banner is down for 15 minutes", ex);
+                indicateBannerDown();
+            }
         }
 
         int mc00 = 0;
@@ -296,7 +301,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
             }
         }
 
-        if (existing == null) {
+        if (isBannerDown() || existing == null) {
             logActivity("BANNER down - queueing placement scores for PIDM " + pidm);
 
             final RawMpscorequeue rec00 = new RawMpscorequeue(pidm, MC00, examFinishTime, Integer.toString(mc00));
@@ -597,7 +602,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
 
         final List<RawMpscorequeue> result = new ArrayList<>(10);
 
-        if (!AbstractLogicModule.isBannerDown()) {
+        if (!isBannerDown()) {
             final String sql = SimpleBuilder.concat("SELECT * FROM SORTEST",
                     " WHERE SORTEST_PIDM=", pidm,
                     " AND SORTEST_TESC_CODE IN ('MPL','MC00','MC17','MC18','MC24','MC25','MC26')");

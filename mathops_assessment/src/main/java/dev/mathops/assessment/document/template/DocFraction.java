@@ -2,6 +2,7 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.EFractionFormat;
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.DocFractionInst;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -9,7 +10,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.PrintStream;
@@ -74,6 +74,8 @@ public final class DocFraction extends AbstractDocContainer {
             this.denominator.tag = "denominator";
             add(this.denominator);
         }
+
+        setLeftAlign(EVAlign.CENTER);
     }
 
     /**
@@ -121,17 +123,6 @@ public final class DocFraction extends AbstractDocContainer {
         copy.lineY = this.lineY;
 
         return copy;
-    }
-
-    /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return CENTERLINE;
     }
 
     /**

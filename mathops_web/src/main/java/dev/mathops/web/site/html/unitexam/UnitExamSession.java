@@ -1042,7 +1042,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         htm.addln(" <input type='hidden' name='currentItem' value='", Integer.toString(this.currentItem), "'>");
 
         htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid #b3b3b3; ",
-                "background:#f5f5f5; font-family:serif; font-size:"
+                "background:#f8f8f8; font-family:serif; font-size:"
                         + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
     }
 

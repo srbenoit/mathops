@@ -130,7 +130,7 @@ public final class ProblemEmbeddedInputPanel extends AbstractProblemPanelBase im
         this.correct = new JLabel(CoreConstants.EMPTY);
         this.correct.setFont(this.problem.question.getFont());
         this.correctBaseFontSize = (float) this.correct.getFont().getSize();
-        this.correct.setForeground(Color.BLUE);
+        this.correct.setForeground(new Color(0, 50, 202));
         this.correct.setVisible(this.showAnswers || this.showSolutions);
         updateCorrectnessLabel();
         add(this.correct, EmbeddedInputProblemLayout.CORRECTNESS);
@@ -145,7 +145,7 @@ public final class ProblemEmbeddedInputPanel extends AbstractProblemPanelBase im
             this.correctAnswer = new DocColumnPanel(this.problem.correctAnswer, context);
             this.correctAnswer.setFont(this.problem.correctAnswer.getFont());
             this.correctAnswer.setVisible(this.showAnswers);
-            this.correctAnswer.setForeground(Color.BLUE);
+            this.correctAnswer.setForeground(new Color(0, 50, 202));
             add(this.correctAnswer, EmbeddedInputProblemLayout.CORRECT_ANSWER);
         }
 

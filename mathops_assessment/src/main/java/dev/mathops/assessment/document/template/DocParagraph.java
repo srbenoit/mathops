@@ -2,12 +2,12 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.EJustification;
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocParagraphInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.font.BundledFontManager;
 
 import java.awt.FontMetrics;
@@ -351,12 +351,12 @@ public final class DocParagraph extends AbstractDocSpanBase {
         int height = 0;
         int maxHeight = 0;
 
-        // For all baseline objects, find max center height above baseline (this is the "true
-        // centerline" as distance above baseline)
+        // For all baseline objects, find max center height above baseline (this is the "true center-line" as distance
+        // above baseline)
         for (int i = first; i <= last; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
-            if (obj.getLeftAlign() == AbstractDocObjectTemplate.BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 final int center = obj.getBaseLine() - obj.getCenterLine();
 
                 if (center > maxCenter) {
@@ -370,9 +370,9 @@ public final class DocParagraph extends AbstractDocSpanBase {
         for (int i = first; i <= last; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
-            if (obj.getLeftAlign() == AbstractDocObjectTemplate.BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 height = obj.getBaseLine();
-            } else if (obj.getLeftAlign() == AbstractDocObjectTemplate.CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 height = maxCenter + obj.getCenterLine();
             }
 
@@ -388,9 +388,9 @@ public final class DocParagraph extends AbstractDocSpanBase {
 
             final int oHeight = obj.getHeight();
 
-            if (obj.getLeftAlign() == AbstractDocObjectTemplate.BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 oY = yPos + maxHeight - obj.getBaseLine();
-            } else if (obj.getLeftAlign() == AbstractDocObjectTemplate.CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 oY = yPos + maxHeight - maxCenter - obj.getCenterLine();
             }
 

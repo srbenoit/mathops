@@ -103,40 +103,6 @@ public final class DocColumn extends AbstractDocContainer {
         }
     }
 
-//    /**
-//     * Tests whether this document column is non-null and references a named parameter.
-//     *
-//     * @param paramName the parameter name
-//     * @return {@code true} if the formulas array is not null and contains at least one formula
-//     *         that references the parameter
-//     */
-//     public boolean referencesParam(final String paramName) {
-//
-//     final Set<String> names = parameterNames();
-//
-//     boolean found = false;
-//
-//     for (final String name : names) {
-//     if (name.equals(paramName)) {
-//     found = true;
-//     break;
-//     }
-//     }
-//
-//     return found;
-//     }
-
-    /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public int getLeftAlign() {
-
-        return BASELINE;
-    }
-
     /**
      * Recompute the size of the object's bounding box.
      *

@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocMathSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -8,7 +9,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.PrintStream;
@@ -116,7 +116,7 @@ public final class DocMathSpan extends AbstractDocSpanBase {
         // above baseline)
         int maxCenter = 0;
         for (final AbstractDocObjectTemplate obj : objects) {
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 final int center = obj.getBaseLine() - obj.getCenterLine();
 
                 if (center > maxCenter) {
@@ -130,9 +130,9 @@ public final class DocMathSpan extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int height = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 height = obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 height = maxCenter + obj.getCenterLine();
             }
 
@@ -152,9 +152,9 @@ public final class DocMathSpan extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate obj : objects) {
 
             int objY = 0;
-            if (obj.getLeftAlign() == BASELINE) {
+            if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 objY = getBaseLine() - obj.getBaseLine();
-            } else if (obj.getLeftAlign() == CENTERLINE) {
+            } else if (obj.getLeftAlign() == EVAlign.CENTER) {
                 objY = getCenterLine() - obj.getCenterLine();
             }
 

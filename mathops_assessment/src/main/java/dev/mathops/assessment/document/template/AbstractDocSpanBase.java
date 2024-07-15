@@ -1,5 +1,7 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.document.EVAlign;
+
 import java.io.Serial;
 import java.util.Set;
 
@@ -42,9 +44,9 @@ public abstract class AbstractDocSpanBase extends AbstractDocContainer {
      * @return the object insets
      */
     @Override
-    public final int getLeftAlign() {
+    public final EVAlign getLeftAlign() {
 
-        return getChildren().isEmpty() ? BASELINE : getChildren().getFirst().getLeftAlign();
+        return getChildren().isEmpty() ? EVAlign.BASELINE : getChildren().getFirst().getLeftAlign();
     }
 
     /**
