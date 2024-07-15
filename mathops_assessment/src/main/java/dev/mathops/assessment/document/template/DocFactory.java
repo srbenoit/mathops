@@ -12,7 +12,6 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.xml.AbstractAttributedElementBase;
 import dev.mathops.commons.parser.xml.CData;
@@ -2115,15 +2114,17 @@ public enum DocFactory {
                     if (theWidth == null) {
                         elem.logError("Invalid 'width' formula.");
                         valid = false;
+                    } else {
+                        drawing.setWidthFormula(theWidth);
                     }
-                    drawing.setWidthFormula(theWidth);
                 } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {
                         elem.logError("Invalid 'height' formula.");
                         valid = false;
+                    } else {
+                        drawing.setHeightFormula(theHeight);
                     }
-                    drawing.setHeightFormula(theHeight);
                 } else {
                     elem.logError("The " + childTag + " tag is not valid within drawing.");
                     valid = false;
@@ -2673,29 +2674,33 @@ public enum DocFactory {
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theXCoord));
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theYCoord));
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
                     } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
+                        } else {
+                            p.setWidth(new NumberOrFormula(theWidth));
                         }
-                        p.setWidth(new NumberOrFormula(theWidth));
                     } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
+                        } else {
+                            p.setHeight(new NumberOrFormula(theHeight));
                         }
-                        p.setHeight(new NumberOrFormula(theHeight));
                     }
                 }
             }
@@ -2908,29 +2913,33 @@ public enum DocFactory {
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theXCoord));
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theYCoord));
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
                     } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
+                        } else {
+                            p.setWidth(new NumberOrFormula(theWidth));
                         }
-                        p.setWidth(new NumberOrFormula(theWidth));
                     } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
+                        } else {
+                            p.setHeight(new NumberOrFormula(theHeight));
                         }
-                        p.setHeight(new NumberOrFormula(theHeight));
                     }
                 }
             }
@@ -2979,29 +2988,33 @@ public enum DocFactory {
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theXCoord));
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theYCoord));
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
                     } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
+                        } else {
+                            p.setWidth(new NumberOrFormula(theWidth));
                         }
-                        p.setWidth(new NumberOrFormula(theWidth));
                     } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
+                        } else {
+                            p.setHeight(new NumberOrFormula(theHeight));
                         }
-                        p.setHeight(new NumberOrFormula(theHeight));
                     }
                 }
             }
@@ -3190,29 +3203,33 @@ public enum DocFactory {
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theXCoord));
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theYCoord));
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
                     } else if (WIDTH.equals(tag)) {
                         final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theWidth == null) {
                             e.logError("Invalid 'width' formula.");
                             valid = false;
+                        } else {
+                            p.setWidth(new NumberOrFormula(theWidth));
                         }
-                        p.setWidth(new NumberOrFormula(theWidth));
                     } else if (HEIGHT.equals(tag)) {
                         final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theHeight == null) {
                             e.logError("Invalid 'height' formula.");
                             valid = false;
+                        } else {
+                            p.setHeight(new NumberOrFormula(theHeight));
                         }
-                        p.setHeight(new NumberOrFormula(theHeight));
                     }
                 }
             }
@@ -3282,15 +3299,17 @@ public enum DocFactory {
                         if (theXCoord == null) {
                             e.logError("Invalid 'x' formula.");
                             valid = false;
+                        } else {
+                            p.setXCoord(new NumberOrFormula(theXCoord));
                         }
-                        p.setXCoord(new NumberOrFormula(theXCoord));
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
                             e.logError("Invalid 'y' formula.");
                             valid = false;
+                        } else {
+                            p.setYCoord(new NumberOrFormula(theYCoord));
                         }
-                        p.setYCoord(new NumberOrFormula(theYCoord));
                     }
                 }
             }
@@ -3409,16 +3428,18 @@ public enum DocFactory {
                             if (theXCoord == null) {
                                 e.logError("Invalid 'x' formula.");
                                 valid = false;
+                            } else {
+                                p.setXCoord(new NumberOrFormula(theXCoord));
                             }
-                            p.setXCoord(new NumberOrFormula(theXCoord));
                         } else if (Y.equals(tag)) {
                             final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, nonemptyChild,
                                     mode);
                             if (theYCoord == null) {
                                 e.logError("Invalid 'y' formula.");
                                 valid = false;
+                            } else {
+                                p.setYCoord(new NumberOrFormula(theYCoord));
                             }
-                            p.setYCoord(new NumberOrFormula(theYCoord));
                         } else if (CONTENT.equals(tag)) {
                             final DocSimpleSpan innerSpan = parseSpan(evalContext, nonemptyChild, mode);
                             if (innerSpan == null) {
@@ -3583,7 +3604,12 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
                 if (WIDTH.equals(childTag)) {
                     final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
-                    width = new NumberOrFormula(theWidth);
+                    if (theWidth == null) {
+                        elem.logError("Invalid 'width' formula.");
+                        valid = false;
+                    } else {
+                        width = new NumberOrFormula(theWidth);
+                    }
                 } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {

@@ -122,8 +122,8 @@ public abstract class AbstractProblemMultipleChoiceTemplate extends AbstractProb
     /**
      * Prints subclass-specific elements.
      *
-     * @param builder    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
      */
     @Override
     public void printSubclassXmlBegin(final HtmlBuilder builder, final int indent) {
@@ -146,11 +146,11 @@ public abstract class AbstractProblemMultipleChoiceTemplate extends AbstractProb
     /**
      * Prints subclass-specific elements.
      *
-     * @param builder    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
      */
     @Override
-    public final void printSubclassXmlEnd(final HtmlBuilder builder, final int indent) {
+    public void printSubclassXmlPreQuestion(final HtmlBuilder builder, final int indent) {
 
         if (this.choices != null) {
             for (final ProblemChoiceTemplate choice : this.choices) {
@@ -162,7 +162,19 @@ public abstract class AbstractProblemMultipleChoiceTemplate extends AbstractProb
     /**
      * Prints subclass-specific elements.
      *
-     * @param ps       the print stream to which to write the data
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
+     */
+    @Override
+    public final void printSubclassXmlEnd(final HtmlBuilder builder, final int indent) {
+
+        // No action
+    }
+
+    /**
+     * Prints subclass-specific elements.
+     *
+     * @param ps           the print stream to which to write the data
      * @param includeTrees {@code true} to include a dump of the entire document tree structure
      */
     @Override

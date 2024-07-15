@@ -83,6 +83,14 @@ interface ProblemTemplateInt {
      * @param builder    the {@code HtmlBuilder} to which to write the XML
      * @param indent the number of spaces to indent the printout
      */
+    void printSubclassXmlPreQuestion(HtmlBuilder builder, int indent);
+
+    /**
+     * Prints subclass-specific elements.
+     *
+     * @param builder    the {@code HtmlBuilder} to which to write the XML
+     * @param indent the number of spaces to indent the printout
+     */
     void printSubclassXmlEnd(HtmlBuilder builder, int indent);
 
     /**

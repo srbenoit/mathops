@@ -9,6 +9,7 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -289,13 +290,15 @@ public final class DocFence extends AbstractDocSpanBase {
         GeneralPath path;
         final int maxH = Math.max(getHeight(), maxy - miny);
 
+        final Color color = ColorNames.getColor(getColorName());
+
         switch (this.type) {
 
             case PARENTHESES:
                 final BufferedImage img = new BufferedImage(maxx - minx, maxH, BufferedImage.TYPE_INT_ARGB);
                 final Graphics2D ig = (Graphics2D) (img.getGraphics());
                 ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                ig.setColor(Color.BLACK);
+                ig.setColor(color);
 
                 final Path2D.Double parenPath = new Path2D.Double();
                 double cx = (double) w;

@@ -61,6 +61,9 @@ public enum XmlFormulaFactory {
     private static final String FORMULA = "formula";
 
     /** A commonly-used String. */
+    private static final String EXPR = "expr";
+
+    /** A commonly-used String. */
     private static final String FUNCTION = "function";
 
     /** A commonly-used String. */
@@ -154,7 +157,7 @@ public enum XmlFormulaFactory {
                     case ERROR -> root = extractError(nonempty);
                     case BINARY -> root = extractBinaryOp(evalContext, nonempty, mode);
                     case UNARY -> root = extractUnaryOp(evalContext, nonempty, mode);
-                    case FORMULA -> root = extractFormula(evalContext, nonempty, mode);
+                    case FORMULA,EXPR -> root = extractFormula(evalContext, nonempty, mode);
                     case FUNCTION -> root = extractFunction(evalContext, nonempty, mode);
                     case GROUPING -> {
                         if (mode == EParserMode.NORMAL) {
@@ -816,7 +819,7 @@ public enum XmlFormulaFactory {
                     case ERROR -> extracted = extractError(nonempty);
                     case BINARY -> extracted = extractBinaryOp(evalContext, nonempty, mode);
                     case UNARY -> extracted = extractUnaryOp(evalContext, nonempty, mode);
-                    case FORMULA -> extracted = extractFormula(evalContext, nonempty, mode);
+                    case FORMULA,EXPR -> extracted = extractFormula(evalContext, nonempty, mode);
                     case FUNCTION -> extracted = extractFunction(evalContext, nonempty, mode);
                     case GROUPING -> {
                         if (mode == EParserMode.NORMAL) {

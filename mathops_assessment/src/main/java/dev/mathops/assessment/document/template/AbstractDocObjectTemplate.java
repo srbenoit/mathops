@@ -209,7 +209,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      *
      * @param theParent the parent object
      */
-    final void setParent(final AbstractDocContainer theParent) {
+    public final void setParent(final AbstractDocContainer theParent) {
 
         this.parent = theParent;
     }
@@ -219,7 +219,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      *
      * @return the parent object
      */
-    final AbstractDocContainer getParent() {
+    public final AbstractDocContainer getParent() {
 
         return this.parent;
     }

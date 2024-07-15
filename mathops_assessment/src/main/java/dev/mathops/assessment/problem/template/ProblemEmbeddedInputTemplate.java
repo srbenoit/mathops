@@ -263,6 +263,18 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     /**
      * Prints subclass-specific elements.
      *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
+     */
+    @Override
+    public void printSubclassXmlPreQuestion(final HtmlBuilder builder, final int indent) {
+
+        // No action
+    }
+
+    /**
+     * Prints subclass-specific elements.
+     *
      * @param builder    the {@code HtmlBuilder} to which to write the XML
      * @param indent the number of spaces to indent the printout
      */

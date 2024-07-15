@@ -160,6 +160,18 @@ public final class ProblemDummyTemplate extends AbstractProblemTemplate {
     }
 
     /**
+     * Prints subclass-specific elements.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
+     */
+    @Override
+    public void printSubclassXmlPreQuestion(final HtmlBuilder builder, final int indent) {
+
+        // No action
+    }
+
+    /**
      * A method that subclasses override to print their subclass-specific elements.
      *
      * @param builder    The {@code HtmlBuilder} to which to write the XML.

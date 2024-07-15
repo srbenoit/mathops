@@ -38,8 +38,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.commons.ui.HtmlImage;
 
+import java.awt.Color;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -107,6 +109,23 @@ enum DocObjectConverter {
     }
 
     /**
+     * Gets the color string, in the form "rgb(1,2,3)" from a color name.
+     *
+     * @param colorName the color name
+     * @return the color string
+     */
+    private static String getColorString(final String colorName) {
+
+        final Color color = ColorNames.getColor(colorName);
+
+        final int red = color.getRed();
+        final int green = color.getGreen();
+        final int blue = color.getBlue();
+
+        return "rgb(" + red + " " + green + " " + blue + ")";
+    }
+
+    /**
      * Given a realized {@code DocFence}, generates the corresponding HTML.
      *
      * @param column     the owning column
@@ -132,43 +151,56 @@ enum DocObjectConverter {
                 "border-image-slice:0 20 0 20; border-image-width:0 .5em 0 .5em; ",
                 "vertical-align:middle;padding-bottom:.22em;");
 
+        final String colorString = getColorString(obj.getColorName());
+
         switch (obj.type) {
             case DocFence.BRACKETS:
                 openText = "open bracket";
                 closeText = "close bracket";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;2&apos; y=&apos;37&apos;&gt;[&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;]&lt;/text&gt;&lt;/svg&gt;\");");
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;2&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;[&lt;/text&gt;",
+                        "&lt;text x=&apos;21&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;]&lt;/text&gt;",
+                        "&lt;/svg&gt;\");");
                 break;
 
             case DocFence.BARS:
                 openText = "open vertical bar";
                 closeText = "close vertical bar";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;5&apos; y=&apos;37&apos;&gt;|&lt;/text&gt;",
-                        "&lt;text x=&apos;24&apos; y=&apos;37&apos;&gt;|&lt;/text&gt;&lt;/svg&gt;\");");
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;5&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;|&lt;/text&gt;",
+                        "&lt;text x=&apos;24&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;|&lt;/text&gt;",
+                        "&lt;/svg&gt;\");");
                 break;
 
             case DocFence.BRACES:
                 openText = "open brace";
                 closeText = "close brace";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        " width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos;&gt;{&lt;/text&gt;",
-                        "&lt;text x=&apos;19&apos; y=&apos;37&apos;&gt;}&lt;/text&gt;&lt;/svg&gt;\");");
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos;  width=&apos;40&apos; ",
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;{&lt;/text&gt;",
+                        "&lt;text x=&apos;19&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;}&lt;/text&gt;",
+                        "&lt;/svg&gt;\");");
                 break;
 
             case DocFence.LBRACE:
                 openText = "left brace";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos;&gt;{&lt;/text&gt;&lt;/svg&gt;\");");
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;-3&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;{&lt;/text&gt;",
+                        "&lt;/svg&gt;\");");
                 break;
 
             case DocFence.PARENTHESES:
@@ -176,10 +208,13 @@ enum DocObjectConverter {
                 openText = "open parenthesis";
                 closeText = "close parenthesis";
                 htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; ",
-                        "width=&apos;40&apos; height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;2&apos; y=&apos;37&apos;&gt;(&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos;&gt;)&lt;/text&gt;&lt;/svg&gt;\");");
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
+                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
+                        "&lt;text x=&apos;2&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;(&lt;/text&gt;",
+                        "&lt;text x=&apos;21&apos; y=&apos;37&apos; fill=&apos;", colorString,
+                        "&apos;&gt;)&lt;/text&gt;",
+                        "&lt;/svg&gt;\");");
                 break;
         }
         htm.add("'>");
@@ -215,11 +250,12 @@ enum DocObjectConverter {
                                              final EvalContext context, final boolean inMath) {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
+        final String colorName = getColorString(obj.getColorName());
 
         htm.addln("<table style='font-size:inherit; font-family:inherit; display:inline-table; ",
                 "vertical-align:middle;'>");
         htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center;",
-                "border-bottom:1px solid black; padding:.2em; line-height:1em;'>");
+                "border-bottom:1px solid " , colorName, "; padding:.2em; line-height:1em;'>");
         htm.addln("<span class='sr-only'> fraction whose numerator is </span>");
 
         final DocNonwrappingSpan numerator = obj.getNumerator();
@@ -353,9 +389,12 @@ enum DocObjectConverter {
 
             final Object value = variable.getValue();
 
-            if (value instanceof AbstractDocObjectTemplate) {
-                appendChildHtml(column, (AbstractDocObjectTemplate) value, htm, styleStack, enabled, id, context,
-                        inMath);
+            if (value instanceof final AbstractDocObjectTemplate template) {
+                final AbstractDocContainer origParent = template.getParent();
+                final AbstractDocContainer refParent = obj.getParent();
+                template.setParent(refParent);
+                appendChildHtml(column, template, htm, styleStack, enabled, id, context, inMath);
+                template.setParent(origParent);
             } else {
                 final String fontName = obj.getFontName();
                 final String valueStr = variable.valueAsString();
@@ -575,15 +614,16 @@ enum DocObjectConverter {
             }
         }
 
+        final String colorName = getColorString(obj.getColorName());
+
         htm.add("<div style='display:inline-block; margin-left:2px;border-width:0 0 0 .8em;",
                 " border-style:solid; border-image-slice:0 0 0 30; border-image-width:0 0 0 .8em;",
                 " border-image-source: url(\"data:image/svg+xml;utf8,",
                 "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
-                "height=&apos;50&apos; font-size=&apos;47&apos;&gt;",
-                "&lt;polygon points=&apos;30,2 27,2 21,40 12,21 5,26 11,24 22,47 29,3 30,3&apos;/&gt;",
-                "&lt;/svg&gt;\");'>");
-        htm.add("<div style='display:inline-block;border-top:1px solid black;",
-                "margin-left:-1px;margin-top:1px;padding-left:3px; padding-right:2px;'>");
+                "height=&apos;50&apos; font-size=&apos;47&apos;&gt;&lt;polygon fill=&apos;", colorName,
+                "&apos; points=&apos;30,2 27,2 21,40 12,21 5,26 11,24 22,47 29,3 30,3&apos;/&gt;&lt;/svg&gt;\");'>");
+        htm.add("<div style='display:inline-block;border-top:1px solid ", colorName,
+                ";margin-left:-1px;margin-top:1px;padding-left:3px; padding-right:2px;'>");
 
         // Both 'base' and 'root' are children - just append the base...
         final AbstractDocObjectTemplate base = obj.getBase();
@@ -990,8 +1030,8 @@ enum DocObjectConverter {
      * @param txt      the text to convert
      * @param inMath   {@code true} if in math mode
      */
-    private static void convertHtmlString(final HtmlBuilder htm, final String fontName,
-                                          final String txt, final boolean inMath) {
+    private static void convertHtmlString(final HtmlBuilder htm, final String fontName, final String txt,
+                                          final boolean inMath) {
 
         final char[] chars = txt.toCharArray();
         final int len = chars.length;
@@ -1381,7 +1421,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u2ADB') {
                     htm.add("&pitchfork;");
                 } else {
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXOne")) {
 
@@ -1397,7 +1437,7 @@ enum DocObjectConverter {
                     htm.add("<span class='sr-only'> left right arrow </span><span class='no-sr'>&hArr;</span>");
                 } else {
                     Log.warning("Unmatched character from ESSTIXOne: 0x", Integer.toHexString(cur), " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXTwo")) {
 
@@ -1410,7 +1450,7 @@ enum DocObjectConverter {
                     htm.add("<span class='sr-only'> triangle </span><span class='no-sr'>&xutri;</span>");
                 } else {
                     Log.warning("Unmatched character from ESSTIXTwo: 0x", Integer.toHexString(cur), " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXThree")) {
 
@@ -1585,7 +1625,7 @@ enum DocObjectConverter {
                     htm.add(" &lesseqqgtr; ");
                 } else {
                     Log.warning("Unmatched character from ESSTIXThree: 0x", Integer.toHexString(cur), " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXFour")) {
 
@@ -1611,7 +1651,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXFour: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXFive")) {
 
@@ -1624,7 +1664,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXFive: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXSix")) {
 
@@ -1637,7 +1677,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXSix: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXSeven")) {
 
@@ -1660,7 +1700,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXSeven: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXNine")) {
 
@@ -1679,7 +1719,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXNine: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXEleven")) {
 
@@ -1708,7 +1748,7 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXEleven: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXThirteen")) {
 
@@ -1725,12 +1765,12 @@ enum DocObjectConverter {
                 } else {
                     final String hex = Integer.toHexString((int) cur);
                     Log.warning("Unmatched character from ESSTIXThirteen: 0x", hex, " in ", txt);
-                    htm.add(cur);
+                    htm.add((char) cur);
                 }
             } else {
                 final String hex = Integer.toHexString((int) cur);
                 Log.warning("Unmatched character from ", fontName, ": 0x", hex, " in ", txt);
-                htm.add(cur);
+                htm.add((char) cur);
             }
         }
     }

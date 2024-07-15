@@ -146,11 +146,11 @@ public final class ProblemChoiceTemplate extends AbstractXmlObject implements Re
         }
 
         if (this.doc != null) {
-            xml.add(ind2, "<content>");
+            xml.addln(ind2, "<content>");
             for (final AbstractDocObjectTemplate child : this.doc.getChildren()) {
-                child.toXml(xml, 0);
+                child.toXml(xml, indent + 2);
             }
-            xml.addln("</content>");
+            xml.addln(ind2, "</content>");
         }
 
         xml.addln(ind, "</choice>");

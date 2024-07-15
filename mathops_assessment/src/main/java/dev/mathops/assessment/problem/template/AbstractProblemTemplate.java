@@ -273,6 +273,8 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
             }
         }
 
+        printSubclassXmlPreQuestion(xml, indent + 1);
+
         if (this.question != null) {
             xml.addln();
             this.question.toXml(xml, indent + 1);
@@ -336,6 +338,15 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
      */
     @Override
     public abstract void printSubclassXmlBegin(HtmlBuilder builder, int indent);
+
+    /**
+     * Prints subclass-specific elements.
+     *
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
+     */
+    @Override
+    public abstract void printSubclassXmlPreQuestion(HtmlBuilder builder, int indent);
 
     /**
      * Prints subclass-specific elements.
