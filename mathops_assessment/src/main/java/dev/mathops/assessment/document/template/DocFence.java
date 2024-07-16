@@ -9,15 +9,21 @@ import dev.mathops.assessment.document.inst.DocFenceInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.font.BundledFontManager;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Arc2D;
+import java.awt.geom.CubicCurve2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -47,6 +53,21 @@ public final class DocFence extends AbstractDocSpanBase {
     /** A constant to indicate left braces (curly bracket). */
     public static final int LBRACE = 5;
 
+    /** The width of a parenthesis. */
+    private static final int PAREN_WIDTH = 6;
+
+    /** The width of a brace. */
+    private static final int BRACE_WIDTH = 6;
+
+    /** The width of a bracket. */
+    private static final int BRACKET_WIDTH = 5;
+
+    /** The width of vertical bars. */
+    private static final int BARS_WIDTH = 4;
+
+    /** The padding on the left and right of a fenced construction. */
+    private static final int FENCE_PAD = 2;
+
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 2013064330513943343L;
@@ -56,12 +77,6 @@ public final class DocFence extends AbstractDocSpanBase {
 
     /** The set of outlines of the object to draw. */
     private int outLines = 0xFFFF;
-
-    /** The opening fence text. */
-    DocText openFence;
-
-    /** The closing fence text. */
-    DocText closeFence;
 
     /**
      * Construct a new {@code DocFence} object.
@@ -86,21 +101,8 @@ public final class DocFence extends AbstractDocSpanBase {
         copy.copyObjectFrom(this);
         copy.type = this.type;
 
-        if (this.openFence != null) {
-            copy.openFence = this.openFence.deepCopy();
-            copy.add(copy.openFence);
-        }
-
         for (final AbstractDocObjectTemplate child : getChildren()) {
-            if (child == this.openFence || child == this.closeFence) {
-                continue;
-            }
             copy.add(child.deepCopy());
-        }
-
-        if (this.closeFence != null) {
-            copy.closeFence = this.closeFence.deepCopy();
-            copy.add(copy.closeFence);
         }
 
         return copy;
@@ -129,16 +131,6 @@ public final class DocFence extends AbstractDocSpanBase {
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
-        // NOTE: Fences are laid out only for width - their height will be adjusted as needed
-        // during rendering
-
-        if (this.openFence != null) {
-            this.openFence.doLayout(context, mathMode);
-        }
-        if (this.closeFence != null) {
-            this.closeFence.doLayout(context, mathMode);
-        }
-
         // Gather all flow objects contained, and perform layout on them. For parameter reference
         // children, this will re-generate the referenced content
 
@@ -166,18 +158,13 @@ public final class DocFence extends AbstractDocSpanBase {
             } else {
                 objects.add(child);
             }
-
         }
 
-        // For all baseline objects, find max center height above baseline (this is the
-        // "true centerline" as distance above baseline)
-        int maxCenter = 0;
-        for (final AbstractDocObjectTemplate obj : objects) {
-            if (obj.getLeftAlign() == EVAlign.BASELINE) {
-                final int center = obj.getBaseLine() - obj.getCenterLine();
-                maxCenter = Math.max(maxCenter, center);
-            }
-        }
+        final BundledFontManager bfm = BundledFontManager.getInstance();
+        final Font font = getFont();
+        final FontMetrics fm = bfm.getFontMetrics(font);
+        final GlyphVector gv = font.createGlyphVector(fm.getFontRenderContext(), "My");
+        final int maxCenter = (int) Math.round(-gv.getGlyphOutline(0).getBounds2D().getMinY() * 0.5);
 
         // Compute the maximum height of any object; this will become the new baseline height for the whole span.
         int maxHeight = 0;
@@ -199,11 +186,18 @@ public final class DocFence extends AbstractDocSpanBase {
 
         // Generate the correct Y values for all objects, tracking the bottom-most point to use as
         // bounds of this object.
-        int x = 0; // this.openFence.getWidth();
+        int x = FENCE_PAD;
         int y = 0;
 
-        for (final AbstractDocObjectTemplate obj : objects) {
+        // Add opening fence width
+        switch (this.type) {
+            case PARENTHESES -> x += PAREN_WIDTH;
+            case BRACKETS -> x += BRACKET_WIDTH;
+            case BARS -> x += BARS_WIDTH;
+            case BRACES, LBRACE -> x += BRACE_WIDTH;
+        }
 
+        for (final AbstractDocObjectTemplate obj : objects) {
             int objY = 0;
             if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 objY = getBaseLine() - obj.getBaseLine();
@@ -215,11 +209,18 @@ public final class DocFence extends AbstractDocSpanBase {
             obj.setY(objY);
 
             y = Math.max(y, objY + obj.getHeight());
-
             x += obj.getWidth();
         }
 
-        x += this.closeFence.getWidth();
+        // Add closing fence width
+        switch (this.type) {
+            case PARENTHESES -> x += PAREN_WIDTH;
+            case BRACKETS -> x += BRACKET_WIDTH;
+            case BARS -> x += BARS_WIDTH;
+            case BRACES -> x += BRACE_WIDTH;
+        }
+
+        x += FENCE_PAD;
 
         setWidth(x);
         setHeight(y);
@@ -238,15 +239,6 @@ public final class DocFence extends AbstractDocSpanBase {
         int miny = 10000;
         int maxy = 0;
 
-        Graphics2D g2d = null;
-        if (grx instanceof Graphics2D) {
-            g2d = (Graphics2D) grx;
-        } else {
-            Log.warning("FENCE: NULL GRAPHICS");
-        }
-
-        // FIXME: We can't print these to a Graphics!!!
-
         // Determine the bounding box for all contained children
         for (final AbstractDocObjectTemplate obj : getChildren()) {
             final int x = obj.getX();
@@ -262,366 +254,559 @@ public final class DocFence extends AbstractDocSpanBase {
             maxy = Math.max(maxy, y + height);
         }
 
-        // Paint all children
-
         prePaint(grx);
         innerPaintComponent(grx);
 
-        for (final AbstractDocObjectTemplate child : getChildren()) {
-            child.paintComponent(grx, mathMode);
+        final Graphics2D g2d;
+        BufferedImage offscreen = null;
+        if (grx instanceof Graphics2D) {
+            g2d = (Graphics2D) grx;
+        } else {
+            offscreen = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+            g2d = offscreen.createGraphics();
         }
 
-        // Now paint the fences
-        final int w = this.openFence.getWidth();
-        double thick = (double) maxy / 24.0;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if (thick < 2.0) {
-            thick = 2.0;
-        }
-
-        if (g2d != null) {
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-        }
-
-        Rectangle2D.Double bounds;
-        Arc2D.Double arc;
-        GeneralPath path;
-        final int maxH = Math.max(getHeight(), maxy - miny);
+        final int w = getWidth();
+        final int h = getHeight();
+        final Rectangle2D.Double bounds = new Rectangle2D.Double(0, miny, w, h);
 
         final Color color = ColorNames.getColor(getColorName());
+        g2d.setColor(color);
 
         switch (this.type) {
 
             case PARENTHESES:
-                final BufferedImage img = new BufferedImage(maxx - minx, maxH, BufferedImage.TYPE_INT_ARGB);
-                final Graphics2D ig = (Graphics2D) (img.getGraphics());
-                ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                ig.setColor(color);
-
-                final Path2D.Double parenPath = new Path2D.Double();
-                double cx = (double) w;
-                final double cy = (double) maxH / 2.0;
-                parenPath.moveTo(cx, 0.0);
-                for (int i = 1; i <= 30; ++i) {
-                    final double angle = Math.toRadians(270.0 - (double) (i * 180) / 30.0);
-                    parenPath.lineTo(cx + (double) (w - 2) * StrictMath.cos(angle), cy + cy * StrictMath.sin(angle));
-                }
-                for (int i = 1; i <= 30; ++i) {
-                    final double angle = Math.toRadians(90.0 + (double) (i * 180) / 30.0);
-                    parenPath.lineTo(cx + ((double) w - 2.0 - thick) * StrictMath.cos(angle), cy
-                            + cy * StrictMath.sin(angle));
-                }
-                parenPath.closePath();
-
-                cx = (double) (maxx - minx - w);
-                parenPath.moveTo(cx, 0.0);
-                for (int i = 1; i <= 30; ++i) {
-                    final double angle = Math.toRadians(270.0 + (double) (i * 180) / 30.0);
-                    parenPath.lineTo(cx + (double) (w - 2) * StrictMath.cos(angle), cy + cy * StrictMath.sin(angle));
-                }
-                for (int i = 1; i <= 30; ++i) {
-                    final double angle = Math.toRadians(90.0 - (double) (i * 180) / 30.0);
-                    parenPath.lineTo(cx + ((double) w - 2.0 - thick) * StrictMath.cos(angle), cy
-                            + cy * StrictMath.sin(angle));
-                }
-                parenPath.closePath();
-
-                ig.fill(parenPath);
-
-                grx.drawImage(img, minx, miny, minx + w, miny + maxH, 0, 0, w, maxH, null);
-                grx.drawImage(img, maxx - w, 0, maxx, miny + maxH, maxx - minx - w, 0, maxx - minx, maxH, null);
+                drawLeftParen(g2d, bounds);
+                drawRightParen(g2d, bounds);
                 break;
 
             case BARS:
-                grx.drawLine(minx + (w / 2), miny, minx + (w / 2), miny + maxH);
-                grx.drawLine(maxx - (w / 2), miny, maxx - (w / 2), miny + maxH);
+                final double height = bounds.getHeight();
+                final double top = bounds.getMinY();
+                final double left = bounds.getMinX() + (double) FENCE_PAD;
+                final double right = bounds.getMaxX() - (double) FENCE_PAD;
+                final Shape rect1 = new Rectangle2D.Double(left, top, 2.0, height);
+                g2d.fill(rect1);
+                final Shape rect2 = new Rectangle2D.Double(right - 2.0, top, 2.0, height);
+                g2d.fill(rect2);
                 break;
 
             case BRACKETS:
-                grx.fillRect(minx + (w / 2) - 2, miny, 2, maxH);
-                grx.drawLine(minx + (w / 2) - 2, miny, minx + (w / 2) + 4, miny);
-                grx.drawLine(minx + (w / 2) - 2, miny + 1, minx + (w / 2) + 4, miny);
-                grx.drawLine(minx + (w / 2) - 2, miny + maxH, minx + (w / 2) + 4, miny + maxH);
-                grx.drawLine(minx + (w / 2) - 2, miny + maxH - 1, minx + (w / 2) + 4, miny + maxH);
-
-                grx.fillRect(maxx - (w / 2), miny, 2, maxH);
-                grx.drawLine(maxx - (w / 2) + 1, miny, maxx - (w / 2) - 5, miny);
-                grx.drawLine(maxx - (w / 2) + 1, miny + 1, maxx - (w / 2) - 5, miny);
-                grx.drawLine(maxx - (w / 2) + 1, miny + maxH, maxx - (w / 2) - 5, miny + maxH);
-                grx.drawLine(maxx - (w / 2) + 1, miny + maxH - 1, maxx - (w / 2) - 5, miny + maxH);
+                drawLeftBracket(g2d, bounds);
+                drawRightBracket(g2d, bounds);
                 break;
 
             case BRACES:
-                // Top point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) - (thick / 2.0), (double) miny,
-                        (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, 90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to center point, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, (double) 0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Center point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0), (double) miny,
-                        (double) w + thick, ((double) maxH/ 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, -90.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to top point, inner edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
-
-                // Center point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) + (thick / 2.0),
-                        (double) (miny + (maxH / 2) + 1), (double) w - thick,
-                        ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, -90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to bottom point, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Bottom point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to center point, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0) - 1.0, (double) w + thick, ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, (double) 0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
-
-                // Adjust for right-hand brace
-                minx = maxx - w;
-
-                // Top point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0), (double) miny,
-                        (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, -90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to center point, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Center point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) (minx + (w / 2)) - (thick / 2.0), (double) miny,
-                        (double) w + thick, ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to top point, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 0.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
-
-                // Center point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0) + 1.0, (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, 90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to bottom point, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, (double) 0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Bottom point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) (minx - (w / 2)) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to center point, inner edge
-                bounds = new Rectangle2D.Double((double) (minx + (w / 2)) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0) - 1.0, (double) w + thick,
-                        ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
+                drawLeftBrace(g2d, bounds);
+                drawRightBrace(g2d, bounds);
                 break;
 
             case LBRACE:
-                // Top point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) (minx + (w / 2)) - (thick / 2.0), (double) miny,
-                        (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, 90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to center point, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 0.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Center point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0), (double) miny,
-                        (double) w + thick, ((double) (maxy - miny) / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, -90.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to top point, inner edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
-
-                // Center point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) (minx - (w / 2)) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0) + 1.0, (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, -90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to bottom point, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) - (thick / 2.0),
-                        (double) (miny + (maxH / 2)), (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Bottom point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to center point, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0) - 1.0, (double) w + thick, ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, 0.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-                if (g2d != null) {
-                    g2d.fill(path);
-                }
-
-                // Adjust for right-hand brace
-                minx = maxx - w;
-
-                // Top point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0), (double) miny,
-                        (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, -90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to center point, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0), (double) miny,
-                        (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Center point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) (minx + (w / 2)) - (thick / 2.0), (double) miny,
-                        (double) w + thick, ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to top point, inner edge
-                bounds = new Rectangle2D.Double((double) (minx - (w / 2)) + (thick / 2.0), (double) miny,
-                        (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, (double) 0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-                //
-                // if (g2d != null) {
-                // g2d.fill(path);
-                // }
-
-                // Center point down to vertical, outer edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) + (thick / 2.0),
-                        ((double) miny + ((double) maxH / 2.0) + 1.0), (double) w - thick, ((double) maxH / 2.0) - 1.0);
-
-                arc = new Arc2D.Double(bounds, 90.0, 90.0, Arc2D.OPEN);
-                path = new GeneralPath(arc);
-
-                // Vertical down to bottom point, outer edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) - (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w + thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 0.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Bottom point up to vertical, inner edge
-                bounds = new Rectangle2D.Double((double) minx - ((double) w / 2.0) + (thick / 2.0),
-                        (double) miny + ((double) maxH / 2.0), (double) w - thick, (double) maxH / 2.0);
-
-                arc = new Arc2D.Double(bounds, 270.0, 90.0, Arc2D.OPEN);
-                path.append(arc, true);
-
-                // Vertical up to center point, inner edge
-                bounds = new Rectangle2D.Double((double) minx + ((double) w / 2.0) - (thick / 2.0),
-                        (double) (miny + (maxH / 2) - 1), (double) w + thick, ((double) maxH / 2.0) + 1.0);
-
-                arc = new Arc2D.Double(bounds, 180.0, -90.0, Arc2D.OPEN);
-                path.append(arc, true);
-                // if (g2d != null) {
-                // g2d.fill(path);
-                // }
-
+                drawLeftBrace(g2d, bounds);
                 break;
 
             default:
                 break;
         }
 
+        if (offscreen != null) {
+            grx.drawImage(offscreen, 0, 0, null);
+            g2d.dispose();
+        }
+
+        // Paint all children
+        for (final AbstractDocObjectTemplate child : getChildren()) {
+            child.paintComponent(grx, mathMode);
+        }
+
         postPaint(grx);
+    }
+
+    /**
+     * Draws a left parenthesis at the left end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawLeftParen(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+
+        final double left = bounds.getMinX() + (double) FENCE_PAD;
+        final double x1 = left + (double) PAREN_WIDTH;
+        final double x2 = left;
+        final double x3 = x2 + 2.0;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+        final double curveHeight = Math.min(20.0, height * 0.4);
+
+        final double y1 = top;
+        final double y2 = top + 1.0;
+        final double y3 = top + curveHeight;
+        final double y4 = bottom - curveHeight;
+        final double y5 = bottom - 1.0;
+        final double y6 = bottom;
+
+        // Recall that positive Y is down, and that positive arc angle is counterclockwise
+
+        // Top outer curve
+        final double xrad1 = x1 - x2;
+        final double yrad1 = y3 - y1;
+        final Rectangle2D arc1Bounds = new Rectangle2D.Double(x2, y1, xrad1 * 2.0, yrad1 * 2.0);
+        final Shape seg1 = new Arc2D.Double(arc1Bounds, 90.0, 90.0, Arc2D.OPEN);
+        final GeneralPath path = new GeneralPath(seg1);
+
+        // Left straight edge
+        final Shape line2 = new Line2D.Double(x2, y3, x2, y4);
+        path.append(line2, true);
+
+        // Bottom outer curve
+        final double xrad3 = x1 - x2;
+        final double yrad3 = y6 - y4;
+        final Rectangle2D arc3Bounds = new Rectangle2D.Double(x2, y4 - yrad3, xrad3 * 2.0, yrad3 * 2.0);
+        final Shape seg3 = new Arc2D.Double(arc3Bounds, 180.0, 90.0, Arc2D.OPEN);
+        path.append(seg3, true);
+
+        // Vertical
+        final Shape line4 = new Line2D.Double(x1, y6, x1, y5);
+        path.append(line4, true);
+
+        // Bottom inner curve
+        final double xrad5 = x1 - x3;
+        final double yrad5 = y5 - y4;
+        final Rectangle2D arc5Bounds = new Rectangle2D.Double(x3, y4 - yrad5, xrad5 * 2.0, yrad5 * 2.0);
+        final Shape seg5 = new Arc2D.Double(arc5Bounds, 270.0, -90.0, Arc2D.OPEN);
+        path.append(seg5, true);
+
+        // inner straight edge
+        final Shape line6 = new Line2D.Double(x3, y4, x3, y3);
+        path.append(line6, true);
+
+        // Top inner curve
+        final double xrad7 = x1 - x3;
+        final double yrad7 = y3 - y2;
+        final Rectangle2D arc7Bounds = new Rectangle2D.Double(x3, y2, xrad7 * 2.0, yrad7 * 2.0);
+        final Shape seg7 = new Arc2D.Double(arc7Bounds, 180.0, -90.0, Arc2D.OPEN);
+        path.append(seg7, true);
+
+        // Top vertical
+        path.closePath();
+
+        g2d.fill(path);
+    }
+
+    /**
+     * Draws a right parenthesis at the left end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawRightParen(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+        final double right = bounds.getMaxX() - (double) FENCE_PAD;
+
+        final double x1 = right - (double) PAREN_WIDTH;
+        final double x2 = right;
+        final double x3 = x2 - 2.0;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+        final double curveHeight = Math.min(20.0, height * 0.4);
+
+        final double y1 = top;
+        final double y2 = top + 1.0;
+        final double y3 = top + curveHeight;
+        final double y4 = bottom - curveHeight;
+        final double y5 = bottom - 1.0;
+        final double y6 = bottom;
+
+        // Recall that positive Y is down, and that positive arc angle is counterclockwise
+
+        // Top outer curve
+        final double xrad1 = x2 - x1;
+        final double yrad1 = y3 - y1;
+        final Rectangle2D arc1Bounds = new Rectangle2D.Double(x1 - xrad1, y1, xrad1 * 2.0, yrad1 * 2.0);
+        final Shape seg1 = new Arc2D.Double(arc1Bounds, 90.0, -90.0, Arc2D.OPEN);
+        final GeneralPath path = new GeneralPath(seg1);
+
+        // Left straight edge
+        final Shape line2 = new Line2D.Double(x2, y3, x2, y4);
+        path.append(line2, true);
+
+        // Bottom outer curve
+        final double xrad3 = x2 - x1;
+        final double yrad3 = y6 - y4;
+        final Rectangle2D arc3Bounds = new Rectangle2D.Double(x1 - xrad3, y4 - yrad3, xrad3 * 2.0, yrad3 * 2.0);
+        final Shape seg3 = new Arc2D.Double(arc3Bounds, 0.0, -90.0, Arc2D.OPEN);
+        path.append(seg3, true);
+
+        // Vertical
+        final Shape line4 = new Line2D.Double(x1, y6, x1, y5);
+        path.append(line4, true);
+
+        // Bottom inner curve
+        final double xrad5 = x3 - x1;
+        final double yrad5 = y5 - y4;
+        final Rectangle2D arc5Bounds = new Rectangle2D.Double(x1 - xrad5, y4 - yrad5, xrad5 * 2.0, yrad5 * 2.0);
+        final Shape seg5 = new Arc2D.Double(arc5Bounds, 270.0, 90.0, Arc2D.OPEN);
+        path.append(seg5, true);
+
+        // inner straight edge
+        final Shape line6 = new Line2D.Double(x3, y4, x3, y3);
+        path.append(line6, true);
+
+        // Top inner curve
+        final double xrad7 = x3 - x1;
+        final double yrad7 = y3 - y2;
+        final Rectangle2D arc7Bounds = new Rectangle2D.Double(x1 - xrad7, y2, xrad7 * 2.0, yrad7 * 2.0);
+        final Shape seg7 = new Arc2D.Double(arc7Bounds, 0.0, 90.0, Arc2D.OPEN);
+        path.append(seg7, true);
+
+        // Top vertical
+        path.closePath();
+
+        g2d.fill(path);
+    }
+
+    /**
+     * Draws a left bracket at the left end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawLeftBracket(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+
+        final double left = bounds.getMinX() + (double) FENCE_PAD;
+        final double x1 = left + (double) BRACKET_WIDTH;
+        final double x2 = left;
+        final double x3 = x2 + 2.0;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+
+        final double y1 = top;
+        final double y2 = top + 1.5;
+        final double y3 = bottom - 1.5;
+        final double y4 = bottom;
+
+        // Recall that positive Y is down
+
+        final Path2D path = new Path2D.Double();
+        path.moveTo(x1, y1);
+        path.lineTo(x2, y1);
+        path.lineTo(x2, y4);
+        path.lineTo(x1, y4);
+        path.lineTo(x1, y3);
+        path.lineTo(x3, y3);
+        path.lineTo(x3, y2);
+        path.lineTo(x1, y2);
+        path.closePath();
+
+        g2d.fill(path);
+    }
+
+    /**
+     * Draws a right bracket at the left end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawRightBracket(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+        final double right = bounds.getMaxX() - (double) FENCE_PAD;
+
+        final double x1 = right - (double) BRACKET_WIDTH;
+        final double x2 = right;
+        final double x3 = x2 - 2.0;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+
+        final double y1 = top;
+        final double y2 = top + 1.5;
+        final double y3 = bottom - 1.5;
+        final double y4 = bottom;
+
+        // Recall that positive Y is down
+
+        final Path2D path = new Path2D.Double();
+        path.moveTo(x1, y1);
+        path.lineTo(x2, y1);
+        path.lineTo(x2, y4);
+        path.lineTo(x1, y4);
+        path.lineTo(x1, y3);
+        path.lineTo(x3, y3);
+        path.lineTo(x3, y2);
+        path.lineTo(x1, y2);
+        path.closePath();
+
+        g2d.fill(path);
+    }
+
+    /**
+     * Draws a left brace at the left end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawLeftBrace(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+
+        final double left = bounds.getMinX() + (double) FENCE_PAD;
+        final double x1 = left + (double) BRACE_WIDTH;
+        final double x2 = left + (double) BRACE_WIDTH * 0.2;
+        final double x3 = left + (double) BRACE_WIDTH * 0.33;
+        final double x4 = left;
+        final double x5 = left + 2.0 + (double) BRACE_WIDTH * 0.2;
+        final double x6 = left + (double) BRACE_WIDTH * 0.66;
+        final double x7 = (x4 + x6) * 0.5;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+        final double center = (top + bottom) * 0.5;
+
+        final double heightOver3 = height / 3.0;
+        final double heightOver6 = height / 6.0;
+        final double heightOver9 = height / 9.0;
+
+        final double y1 = top;
+        final double y2 = top + 1.0;
+        final double y3 = top + heightOver6;
+        final double y4 = top + heightOver3;
+        final double y5 = y4;
+        final double y6 = center - heightOver9;
+        final double y7 = center - 1.0;
+        final double y8 = center;
+        final double y15 = bottom;
+        final double y14 = bottom - 1.0;
+        final double y13 = bottom - heightOver6;
+        final double y12 = bottom - heightOver3;
+        final double y11 = y12;
+        final double y10 = center + heightOver9;
+        final double y9 = center + 1.0;
+
+        // Recall that positive Y is down, and that positive arc angle is counterclockwise
+
+        // Top outer curve
+        final double xrad1 = x1 - x2;
+        final double yrad1 = y3 - y1;
+        final Rectangle2D arc1Bounds = new Rectangle2D.Double(x2, y1, xrad1 * 2.0, yrad1 * 2.0);
+        final Shape seg1 = new Arc2D.Double(arc1Bounds, 90.0, 90.0, Arc2D.OPEN);
+        final GeneralPath path = new GeneralPath(seg1);
+
+        // Path down to center structure
+        final Shape seg2 = new CubicCurve2D.Double(x2, y3, x2, y4, x3, y5, x3, y6);
+        path.append(seg2, true);
+
+        // Upper outside arc
+        final double xrad35 = x3 - x4;
+        final double yrad3 = y7 - y6;
+        final Rectangle2D arc3Bounds = new Rectangle2D.Double(x4 - xrad35, y6 - yrad3, xrad35 * 2.0, yrad3 * 2.0);
+        final Shape seg3 = new Arc2D.Double(arc3Bounds, 0.0, -90.0, Arc2D.OPEN);
+        path.append(seg3, true);
+
+        // Left straight edge
+        final Shape line4 = new Line2D.Double(x4, y7, x4, y9);
+        path.append(line4, true);
+
+        // Lower outside arc
+        final double yrad5 = y10 - y9;
+        final Rectangle2D arc5Bounds = new Rectangle2D.Double(x4 - xrad35, y9, xrad35 * 2.0, yrad5 * 2.0);
+        final Shape seg5 = new Arc2D.Double(arc5Bounds, 90, -90.0, Arc2D.OPEN);
+        path.append(seg5, true);
+
+        // Path down to bottom structure
+        final Shape seg6 = new CubicCurve2D.Double(x3, y10, x3, y11, x2, y12, x2, y13);
+        path.append(seg6, true);
+
+        // Bottom outer curve
+        final double xrad7 = x1 - x2;
+        final double yrad7 = y15 - y13;
+        final Rectangle2D arc7Bounds = new Rectangle2D.Double(x2, y13 - yrad7, xrad7 * 2.0, yrad7 * 2.0);
+        final Shape seg7 = new Arc2D.Double(arc7Bounds, 180.0, 90.0, Arc2D.OPEN);
+        path.append(seg7, true);
+
+        // Vertical
+        final Shape line8 = new Line2D.Double(x1, y15, x1, y14);
+        path.append(line8, true);
+
+        // Bottom inner curve
+        final double xrad9 = x1 - x5;
+        final double yrad9 = y14 - y13;
+        final Rectangle2D arc9Bounds = new Rectangle2D.Double(x5, y13 - yrad9, xrad9 * 2.0, yrad9 * 2.0);
+        final Shape seg9 = new Arc2D.Double(arc9Bounds, 270.0, -90.0, Arc2D.OPEN);
+        path.append(seg9, true);
+
+        // Path up to center structure
+        final Shape seg10 = new CubicCurve2D.Double(x5, y13, x5, y12, x6, y11, x6, y10);
+        path.append(seg10, true);
+
+        // Lower inside center arc
+        final double xrad1112 = x6 - x7;
+        final double yrad11 = y10 - y8;
+        final Rectangle2D arc11Bounds = new Rectangle2D.Double(x7 - xrad1112, y8, xrad1112 * 2.0, yrad11 * 2.0);
+        final Shape seg11 = new Arc2D.Double(arc11Bounds, 0.0, 90.0, Arc2D.OPEN);
+        path.append(seg11, true);
+
+        // Upper inside center arc
+        final double yrad12 = y8 - y6;
+        final Rectangle2D arc12Bounds = new Rectangle2D.Double(x7 - xrad1112, y6 - yrad12, xrad1112 * 2.0,
+                yrad12 * 2.0);
+        final Shape seg12 = new Arc2D.Double(arc12Bounds, 270.0, 90.0, Arc2D.OPEN);
+        path.append(seg12, true);
+
+        // Path up to top structure
+        final Shape seg13 = new CubicCurve2D.Double(x6, y6, x6, y5, x5, y4, x5, y3);
+        path.append(seg13, true);
+
+        // Top inner curve
+        final double xrad15 = x1 - x5;
+        final double yrad15 = y3 - y2;
+        final Rectangle2D arc14Bounds = new Rectangle2D.Double(x5, y2, xrad15 * 2.0, yrad15 * 2.0);
+        final Shape seg14 = new Arc2D.Double(arc14Bounds, 180.0, -90.0, Arc2D.OPEN);
+        path.append(seg14, true);
+
+        // Top vertical
+        path.closePath();
+
+        g2d.fill(path);
+    }
+
+    /**
+     * Draws a right brace at the right end of a bounding box.
+     *
+     * @param g2d    the {@code Graphics2D} object to which to draw
+     * @param bounds the bounding box for the fenced construction
+     */
+    private void drawRightBrace(final Graphics2D g2d, final Rectangle2D bounds) {
+
+        final double height = bounds.getHeight();
+
+        final double right = bounds.getMaxX() - (double) FENCE_PAD;
+        final double x1 = right - (double) BRACE_WIDTH;
+        final double x2 = right - (double) BRACE_WIDTH * 0.2;
+        final double x3 = right - (double) BRACE_WIDTH * 0.33;
+        final double x4 = right;
+        final double x5 = right - 2.0 - (double) BRACE_WIDTH * 0.2;
+        final double x6 = right - (double) BRACE_WIDTH * 0.66;
+        final double x7 = (x4 + x6) * 0.5;
+
+        final double top = bounds.getMinY();
+        final double bottom = top + height;
+        final double center = (top + bottom) * 0.5;
+
+        final double heightOver3 = height / 3.0;
+        final double heightOver6 = height / 6.0;
+        final double heightOver9 = height / 9.0;
+
+        final double y1 = top;
+        final double y2 = top + 1.0;
+        final double y3 = top + heightOver6;
+        final double y4 = top + heightOver3;
+        final double y5 = y4;
+        final double y6 = center - heightOver9;
+        final double y7 = center - 1.0;
+        final double y8 = center;
+        final double y15 = bottom;
+        final double y14 = bottom - 1.0;
+        final double y13 = bottom - heightOver6;
+        final double y12 = bottom - heightOver3;
+        final double y11 = y12;
+        final double y10 = center + heightOver9;
+        final double y9 = center + 1.0;
+
+        // Recall that positive Y is down, and that positive arc angle is counterclockwise
+
+        // Top outer curve
+        final double xrad1 = x2 - x1;
+        final double yrad1 = y3 - y1;
+        final Rectangle2D arc1Bounds = new Rectangle2D.Double(x1 - xrad1, y1, xrad1 * 2.0, yrad1 * 2.0);
+        final Shape seg1 = new Arc2D.Double(arc1Bounds, 90.0, -90.0, Arc2D.OPEN);
+        final GeneralPath path = new GeneralPath(seg1);
+
+        // Path down to center structure
+        final Shape seg2 = new CubicCurve2D.Double(x2, y3, x2, y4, x3, y5, x3, y6);
+        path.append(seg2, true);
+
+        // Upper outside arc
+        final double xrad35 = x4 - x3;
+        final double yrad3 = y7 - y6;
+        final Rectangle2D arc3Bounds = new Rectangle2D.Double(x3, y6 - yrad3, xrad35 * 2.0, yrad3 * 2.0);
+        final Shape seg3 = new Arc2D.Double(arc3Bounds, 180.0, 90.0, Arc2D.OPEN);
+        path.append(seg3, true);
+
+        // Left straight edge
+        final Shape line4 = new Line2D.Double(x4, y7, x4, y9);
+        path.append(line4, true);
+
+        // Lower outside arc
+        final double yrad5 = y10 - y9;
+        final Rectangle2D arc5Bounds = new Rectangle2D.Double(x3, y9, xrad35 * 2.0, yrad5 * 2.0);
+        final Shape seg5 = new Arc2D.Double(arc5Bounds, 90, 90.0, Arc2D.OPEN);
+        path.append(seg5, true);
+
+        // Path down to bottom structure
+        final Shape seg6 = new CubicCurve2D.Double(x3, y10, x3, y11, x2, y12, x2, y13);
+        path.append(seg6, true);
+
+        // Bottom outer curve
+        final double xrad7 = x2 - x1;
+        final double yrad7 = y15 - y13;
+        final Rectangle2D arc7Bounds = new Rectangle2D.Double(x1 - xrad7, y13 - yrad7, xrad7 * 2.0, yrad7 * 2.0);
+        final Shape seg7 = new Arc2D.Double(arc7Bounds, 0.0, -90.0, Arc2D.OPEN);
+        path.append(seg7, true);
+
+        // Vertical
+        final Shape line8 = new Line2D.Double(x1, y15, x1, y14);
+        path.append(line8, true);
+
+        // Bottom inner curve
+        final double xrad9 = x5 - x1;
+        final double yrad9 = y14 - y13;
+        final Rectangle2D arc9Bounds = new Rectangle2D.Double(x1 - xrad9, y13 - yrad9, xrad9 * 2.0, yrad9 * 2.0);
+        final Shape seg9 = new Arc2D.Double(arc9Bounds, 270.0, 90.0, Arc2D.OPEN);
+        path.append(seg9, true);
+
+        // Path up to center structure
+        final Shape seg10 = new CubicCurve2D.Double(x5, y13, x5, y12, x6, y11, x6, y10);
+        path.append(seg10, true);
+
+        // Lower inside center arc
+        final double xrad1112 = x7 - x6;
+        final double yrad11 = y10 - y8;
+        final Rectangle2D arc11Bounds = new Rectangle2D.Double(x6, y8, xrad1112 * 2.0, yrad11 * 2.0);
+        final Shape seg11 = new Arc2D.Double(arc11Bounds, 180.0, -90.0, Arc2D.OPEN);
+        path.append(seg11, true);
+
+        // Upper inside center arc
+        final double yrad12 = y8 - y6;
+        final Rectangle2D arc12Bounds = new Rectangle2D.Double(x6, y6 - yrad12, xrad1112 * 2.0, yrad12 * 2.0);
+        final Shape seg12 = new Arc2D.Double(arc12Bounds, 270.0, -90.0, Arc2D.OPEN);
+        path.append(seg12, true);
+
+        // Path up to top structure
+        final Shape seg13 = new CubicCurve2D.Double(x6, y6, x6, y5, x5, y4, x5, y3);
+        path.append(seg13, true);
+
+        // Top inner curve
+        final double xrad15 = x5 - x1;
+        final double yrad15 = y3 - y2;
+        final Rectangle2D arc14Bounds = new Rectangle2D.Double(x1 - xrad15, y2, xrad15 * 2.0, yrad15 * 2.0);
+        final Shape seg14 = new Arc2D.Double(arc14Bounds, 0.0, 90.0, Arc2D.OPEN);
+        path.append(seg14, true);
+
+        // Top vertical
+        path.closePath();
+
+        g2d.fill(path);
     }
 
     /**
@@ -637,7 +822,7 @@ public final class DocFence extends AbstractDocSpanBase {
     @Override
     public DocFenceInst createInstance(final EvalContext evalContext) {
 
-        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
+        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
         final List<AbstractDocObjectTemplate> children = getChildren();
@@ -652,11 +837,11 @@ public final class DocFence extends AbstractDocSpanBase {
             fenceType = EFenceType.PARENTHESES;
         } else if (this.type == BRACKETS) {
             fenceType = EFenceType.BRACKETS;
-        }else if (this.type == BARS) {
+        } else if (this.type == BARS) {
             fenceType = EFenceType.BARS;
-        }else if (this.type == BRACES) {
+        } else if (this.type == BRACES) {
             fenceType = EFenceType.BRACES;
-        }else if (this.type == LBRACE) {
+        } else if (this.type == LBRACE) {
             fenceType = EFenceType.LBRACE;
         } else {
             fenceType = null;
@@ -829,11 +1014,24 @@ public final class DocFence extends AbstractDocSpanBase {
     @Override
     public String toString() {
 
-        final HtmlBuilder buf = new HtmlBuilder(50);
+        final String innerString = super.toString();
+        final int len = innerString.length();
 
-        buf.add(this.openFence.toString());
-        buf.add(super.toString());
-        buf.add(this.closeFence.toString());
+        final HtmlBuilder buf = new HtmlBuilder(len + 2);
+
+        switch (this.type) {
+            case PARENTHESES -> buf.add('(');
+            case BRACKETS -> buf.add('[');
+            case BARS -> buf.add('|');
+            case BRACES, LBRACE -> buf.add('{');
+        }
+        buf.add(innerString);
+        switch (this.type) {
+            case PARENTHESES -> buf.add(')');
+            case BRACKETS -> buf.add(']');
+            case BARS -> buf.add('|');
+            case BRACES -> buf.add('}');
+        }
 
         return buf.toString();
     }

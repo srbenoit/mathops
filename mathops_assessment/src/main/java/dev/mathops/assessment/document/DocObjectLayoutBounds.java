@@ -20,7 +20,7 @@ public final class DocObjectLayoutBounds {
     /** The Y offset from the top of the bounding box of the baseline. */
     public int baseLine;
 
-    /** The Y offset from the top of the bounding box of the centerline. */
+    /** The Y offset from the top of the bounding box of the center line. */
     public int centerLine;
 
     /**

@@ -2,6 +2,7 @@ package dev.mathops.assessment.htmlgen;
 
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EFieldStyle;
+import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.template.AbstractDocContainer;
 import dev.mathops.assessment.document.template.AbstractDocInput;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
@@ -153,31 +154,46 @@ enum DocObjectConverter {
 
         final String colorString = getColorString(obj.getColorName());
 
+        obj.doLayout(context, inMath ? ELayoutMode.INLINE_MATH : ELayoutMode.DISPLAY_MATH);
+        final int height = obj.getHeight();
+
         switch (obj.type) {
             case DocFence.BRACKETS:
                 openText = "open bracket";
                 closeText = "close bracket";
-                htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;2&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;[&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;]&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                htm.add(" display:inline-block; vertical-align:baseline; margin:0 2px; padding:0 1px; ",
+                        "border-image-source: url(\"data:image/svg+xml;utf8,",
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;50&apos; ",
+                        "height=&apos;50&apos;&gt;",
+                        "&lt;line x1=&apos;1&apos; y1=&apos;0&apos; x2=&apos;1&apos; y2=&apos;50&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;1&apos; y1=&apos;1&apos; x2=&apos;5&apos; y2=&apos;1&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;1&apos; y1=&apos;49&apos; x2=&apos;5&apos; y2=&apos;49&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;49&apos; y1=&apos;0&apos; x2=&apos;49&apos; y2=&apos;50&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;49&apos; y1=&apos;1&apos; x2=&apos;45&apos; y2=&apos;1&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;49&apos; y1=&apos;49&apos; x2=&apos;45&apos; y2=&apos;49&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;&lt;/svg&gt;\"); ",
+                        "border-image-slice: 5; border-image-width:5px; border-image-repeat:stretch; ",
+                        "border-width:0 5px;");
                 break;
 
             case DocFence.BARS:
                 openText = "open vertical bar";
                 closeText = "close vertical bar";
-                htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;5&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;|&lt;/text&gt;",
-                        "&lt;text x=&apos;24&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;|&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                htm.add(" display:inline-block; vertical-align:baseline; margin:0 2px; padding:0 2px; ",
+                        "border-image-source: url(\"data:image/svg+xml;utf8,",
+                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;50&apos; ",
+                        "height=&apos;50&apos;&gt;",
+                        "&lt;line x1=&apos;1&apos; y1=&apos;0&apos; x2=&apos;1&apos; y2=&apos;50&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;",
+                        "&lt;line x1=&apos;49&apos; y1=&apos;0&apos; x2=&apos;49&apos; y2=&apos;50&apos; ",
+                        "stroke=&apos;", colorString, "&apos; stroke-width=&apos;2&apos;/&gt;&lt;/svg&gt;\"); ",
+                        "border-image-slice: 5; border-image-width:4px; border-image-repeat:stretch; ",
+                        "border-width:0 2px;");
                 break;
 
             case DocFence.BRACES:
@@ -207,14 +223,15 @@ enum DocObjectConverter {
             default:
                 openText = "open parenthesis";
                 closeText = "close parenthesis";
-                htm.add(" border-image-source: url(\"data:image/svg+xml;utf8,",
-                        "&lt;svg xmlns=&apos;http://www.w3.org/2000/svg&apos; width=&apos;40&apos; ",
-                        "height=&apos;50&apos; font-size=&apos;50&apos;&gt;",
-                        "&lt;text x=&apos;2&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;(&lt;/text&gt;",
-                        "&lt;text x=&apos;21&apos; y=&apos;37&apos; fill=&apos;", colorString,
-                        "&apos;&gt;)&lt;/text&gt;",
-                        "&lt;/svg&gt;\");");
+                if (height < 30) {
+                    htm.add(" display:inline-block; vertical-align:baseline; margin:0 2px; padding:0 4px;",
+                            "border-left:2.5px ", colorString, " solid; ",
+                            "border-right:2.5px ", colorString, " solid; border-radius:7px/40%;");
+                } else {
+                    htm.add(" display:inline-block; vertical-align:baseline; margin:0 2px; padding:0 4px;",
+                            "border-left:2.7px ", colorString, " solid; ",
+                            "border-right:2.7px ", colorString, " solid; border-radius:7px/30%;");
+                }
                 break;
         }
         htm.add("'>");
@@ -469,7 +486,8 @@ enum DocObjectConverter {
                         htm.add("font-size:" + objFontSize + "px;");
                     }
                     if (updateColor) {
-                        htm.add("color:", objColorName, ";");
+                        final String colorString = getColorString(objColorName);
+                        htm.add("color:", colorString, ";");
                     }
                     htm.add("'>");
                 }
@@ -507,7 +525,8 @@ enum DocObjectConverter {
                         htm.add("font-size:" + objFontSize + "px;");
                     }
                     if (updateColor) {
-                        htm.add("color:", objColorName, ";");
+                        final String colorString = getColorString(objColorName);
+                        htm.add("color:", colorString, ";");
                     }
                     htm.add("'>");
                 }
@@ -583,7 +602,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -677,7 +697,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -809,7 +830,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -929,7 +951,8 @@ enum DocObjectConverter {
                     htm.add("font-size:" + objFontSize + "px;");
                 }
                 if (updateColor) {
-                    htm.add("color:", objColorName, ";");
+                    final String colorString = getColorString(objColorName);
+                    htm.add("color:", colorString, ";");
                 }
                 htm.add("'>");
             }
@@ -1801,7 +1824,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -1845,7 +1869,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -1951,7 +1976,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -2056,7 +2082,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -2163,7 +2190,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -2324,7 +2352,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + objFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", objColorName, ";");
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -2580,7 +2609,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + parentFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", parentColorName, ";");
+                final String colorString = getColorString(parentColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }
@@ -2630,7 +2660,8 @@ enum DocObjectConverter {
                 htm.add("font-size:" + childFontSize + "px;");
             }
             if (updateColor) {
-                htm.add("color:", childColorName, ";");
+                final String colorString = getColorString(childColorName);
+                htm.add("color:", colorString, ";");
             }
             htm.add("'>");
         }

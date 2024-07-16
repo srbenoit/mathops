@@ -630,9 +630,9 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     }
 
     /**
-     * Get the centerline of the object.
+     * Get the center line of the object.
      *
-     * @return the object's centerline offset
+     * @return the object's center line offset
      */
     final int getCenterLine() {
 
@@ -640,9 +640,9 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     }
 
     /**
-     * Set the centerline of the object.
+     * Set the center line of the object.
      *
-     * @param theCenterLine the object's new centerline offset
+     * @param theCenterLine the object's new center line offset
      */
     final void setCenterLine(final int theCenterLine) {
 

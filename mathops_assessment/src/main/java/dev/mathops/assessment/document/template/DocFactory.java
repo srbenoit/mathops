@@ -1518,37 +1518,6 @@ public enum DocFactory {
             }
         }
 
-        DocText text = null;
-        switch (fence.type) {
-
-            case DocFence.PARENTHESES:
-                text = new DocText("(");
-                break;
-
-            case DocFence.BRACKETS:
-                text = new DocText("[");
-                break;
-
-            case DocFence.BARS:
-                text = new DocText("|");
-                break;
-
-            case DocFence.BRACES:
-            case DocFence.LBRACE:
-                text = new DocText("{");
-                break;
-
-            default:
-                break;
-        }
-
-        if (text != null) {
-            final Integer styleInt = Integer.valueOf(AbstractDocObjectTemplate.HIDDEN);
-            text.setFontStyle(styleInt);
-            fence.add(text);
-            fence.openFence = text;
-        }
-
         final String valignStr = elem.getStringAttr(VALIGN);
         if (valignStr != null) {
             if (CENTER.equals(valignStr)) {
@@ -1613,38 +1582,6 @@ public enum DocFactory {
                     }
                 }
             }
-        }
-
-        switch (fence.type) {
-            case DocFence.PARENTHESES:
-                text = new DocText(")");
-                break;
-
-            case DocFence.BRACKETS:
-                text = new DocText("]");
-                break;
-
-            case DocFence.BARS:
-                text = new DocText("|");
-                break;
-
-            case DocFence.BRACES:
-                text = new DocText("}");
-                break;
-
-            case DocFence.LBRACE:
-                text = new DocText(CoreConstants.SPC);
-                break;
-
-            default:
-                break;
-        }
-
-        if (text != null) {
-            final Integer styleInt = Integer.valueOf(AbstractDocObjectTemplate.HIDDEN);
-            text.setFontStyle(styleInt);
-            fence.add(text);
-            fence.closeFence = text;
         }
 
         if (valid) {
