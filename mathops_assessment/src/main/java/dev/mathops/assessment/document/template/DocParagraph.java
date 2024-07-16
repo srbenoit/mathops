@@ -7,11 +7,15 @@ import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocParagraphInst;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.log.Log;
 import dev.mathops.font.BundledFontManager;
 
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.font.GlyphVector;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serial;
@@ -356,6 +360,11 @@ public final class DocParagraph extends AbstractDocSpanBase {
         for (int i = first; i <= last; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
+            if (obj instanceof DocDrawing || obj instanceof DocGraphXY || obj instanceof DocImage
+                    || obj instanceof DocTable) {
+                continue;
+            }
+
             if (obj.getLeftAlign() == EVAlign.BASELINE) {
                 final int center = obj.getBaseLine() - obj.getCenterLine();
 
@@ -365,8 +374,16 @@ public final class DocParagraph extends AbstractDocSpanBase {
             }
         }
 
-        // Compute maximum height of any object - this will become the new baseline height for the
-        // whole span.
+        if (maxCenter == 0) {
+            // There are no baseline-aligned things - use our font to find a center line.
+            final BundledFontManager bfm = BundledFontManager.getInstance();
+            final Font font = getFont();
+            final FontMetrics fm = bfm.getFontMetrics(font);
+            final GlyphVector gv = font.createGlyphVector(fm.getFontRenderContext(), "My");
+            maxCenter = (int) Math.round(-gv.getGlyphOutline(0).getBounds2D().getMinY() * 0.5);
+        }
+
+        // Compute maximum height of any object - this will become the new baseline height for the whole span.
         for (int i = first; i <= last; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
@@ -381,8 +398,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
             }
         }
 
-        // Generate the correct Y values for all objects, tracking the bottom-most point to use as
-        // bounds of this object.
+        // Generate the correct Y values for all objects, tracking the bottom-most point to use as bounds of this object
         for (int i = first; i <= last; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
@@ -506,7 +522,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
     @Override
     public void toXml(final HtmlBuilder xml, final int indent) {
 
-        final String ind = AbstractDocObjectTemplate.makeIndent(indent);
+        final String ind = makeIndent(indent);
 
         xml.add(ind, "<p");
         printFormat(xml, 1.0f);

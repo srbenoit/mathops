@@ -228,7 +228,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      *
      * @param theLeftAlign the new left alignment
      */
-    public void setLeftAlign(final EVAlign theLeftAlign) {
+    final void setLeftAlign(final EVAlign theLeftAlign) {
 
         this.leftAlign = theLeftAlign;
     }
@@ -238,7 +238,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      *
      * @return the left alignment
      */
-    protected EVAlign getLeftAlign() {
+    public EVAlign getLeftAlign() {
 
         return this.leftAlign;
     }

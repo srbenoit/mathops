@@ -8,8 +8,12 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.font.BundledFontManager;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.font.GlyphVector;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serial;
@@ -23,11 +27,7 @@ import java.util.List;
 public final class DocMathSpan extends AbstractDocSpanBase {
 
     /** The color to use for math spans. */
-    public static final String MATH_COLOR_NAME = "DeepSkyBlue4";
-
-
-
-
+    static final String MATH_COLOR_NAME = "DeepSkyBlue4";
 
     /** Version number for serialization. */
     @Serial
@@ -123,6 +123,15 @@ public final class DocMathSpan extends AbstractDocSpanBase {
                     maxCenter = center;
                 }
             }
+        }
+
+        if (maxCenter == 0) {
+            // There are no baseline-aligned things - use our font to find a center line.
+            final BundledFontManager bfm = BundledFontManager.getInstance();
+            final Font font = getFont();
+            final FontMetrics fm = bfm.getFontMetrics(font);
+            final GlyphVector gv = font.createGlyphVector(fm.getFontRenderContext(), "My");
+            maxCenter = (int) Math.round(-gv.getGlyphOutline(0).getBounds2D().getMinY() * 0.5);
         }
 
         // Compute maximum height of any object - this will become the new baseline height for the whole span.

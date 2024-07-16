@@ -253,9 +253,9 @@ enum DocObjectConverter {
         final String colorName = getColorString(obj.getColorName());
 
         htm.addln("<table style='font-size:inherit; font-family:inherit; display:inline-table; ",
-                "vertical-align:middle;'>");
+                "vertical-align:middle; position:relative; top:-0.1em;'>");
         htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center;",
-                "border-bottom:1px solid " , colorName, "; padding:.2em; line-height:1em;'>");
+                "border-bottom:1px solid " , colorName, "; padding:0 .2em .2em .2em; line-height:1em;'>");
         htm.addln("<span class='sr-only'> fraction whose numerator is </span>");
 
         final DocNonwrappingSpan numerator = obj.getNumerator();
