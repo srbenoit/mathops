@@ -15,6 +15,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.commons.ui.ColorNames;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -87,7 +88,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     private String borderColorName;
 
     /** The color of the graph border. */
-    private Color borderColor = Color.BLACK;
+    private Color borderColor = ColorNames.getColor("gray");
 
     /** The width of the grid lines (set to 0 to hide). */
     int gridWidth = 1;
