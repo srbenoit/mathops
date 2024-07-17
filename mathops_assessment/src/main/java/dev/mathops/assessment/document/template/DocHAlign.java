@@ -18,45 +18,45 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A run of horizontal space of specified width. Width is a formula that gives a real number of widths of a decimal "0"
- * digit" (clamped to non-negative values).
+ * An invisible object that gets positioned during paragraph layout to place the following object at a specified
+ * horizontal offset from the left edge, with the same units of measure as DocHSpace or DocAlignmentMark.
  */
-public final class DocHSpace extends AbstractDocObjectTemplate {
+public final class DocHAlign extends AbstractDocObjectTemplate {
 
     /** Version number for serialization. */
     @Serial
-    private static final long serialVersionUID = -3455775449313140196L;
+    private static final long serialVersionUID = 8488166895362286547L;
 
-    /** The width. */
-    private NumberOrFormula spaceWidth;
+    /** The position. */
+    private NumberOrFormula position;
 
     /**
-     * Construct a new {@code DocHSpace} object.
+     * Construct a new {@code DocHAlign} object.
      */
-    DocHSpace() {
+    DocHAlign() {
 
         super();
     }
 
     /**
-     * Sets the space width.
+     * Sets the position.
      *
-     * @param theSpaceWidth the new width
+     * @param thePosition the new position
      */
-    void setSpaceWidth(final NumberOrFormula theSpaceWidth) {
+    void setPosition(final NumberOrFormula thePosition) {
 
-        this.spaceWidth = theSpaceWidth;
+        this.position = thePosition;
     }
 
-//    /**
-//     * Gets the space width.
-//     *
-//     * @return the space width
-//     */
-//    public NumberOrFormula getSpaceWidth() {
-//
-//        return this.spaceWidth;
-//    }
+    /**
+     * Gets the position.
+     *
+     * @return the position
+     */
+    public NumberOrFormula getPosition() {
+
+        return this.position;
+    }
 
     /**
      * Perform a deep clone of the object, cloning all contained sub-objects.
@@ -64,12 +64,12 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
      * @return the cloned object
      */
     @Override
-    public DocHSpace deepCopy() {
+    public DocHAlign deepCopy() {
 
-        final DocHSpace copy = new DocHSpace();
+        final DocHAlign copy = new DocHAlign();
 
         copy.copyObjectFrom(this);
-        copy.spaceWidth = this.spaceWidth == null ? null : this.spaceWidth.deepCopy();
+        copy.position = this.position == null ? null : this.position.deepCopy();
 
         return copy;
     }
@@ -83,22 +83,14 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
-        final double wid = calculateWidth(context);
-
-        final int digitWidth = calculateDigitWidth();
-
         final FontMetrics fm = BundledFontManager.getInstance().getFontMetrics(getFont());
+
         final int h = fm.getAscent() + fm.getDescent();
 
-        int w = (int) Math.round(Math.max(0.0, (double) digitWidth * wid));
         setBaseLine(fm.getAscent());
         setCenterLine((fm.getAscent() << 1) / 3);
 
-        if (isBoxed()) {
-            w += 4; // Allow 2 pixels on either end for box
-        }
-
-        setWidth(w);
+        setWidth(0);
         setHeight(h);
     }
 
@@ -112,8 +104,8 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
 
         double wid = 1.0;
 
-        if (this.spaceWidth != null) {
-            final Object result = this.spaceWidth.evaluate(context);
+        if (this.position != null) {
+            final Object result = this.position.evaluate(context);
             if (result instanceof final Number nbr) {
                 wid = nbr.doubleValue();
             }
@@ -145,8 +137,8 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public void accumulateParameterNames(@SuppressWarnings("BoundedWildcard") final Set<String> set) {
 
-        if (this.spaceWidth != null && this.spaceWidth.getFormula() != null) {
-            set.addAll(this.spaceWidth.getFormula().params.keySet());
+        if (this.position != null && this.position.getFormula() != null) {
+            set.addAll(this.position.getFormula().params.keySet());
         }
     }
 
@@ -166,11 +158,11 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
         final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
                 getFontStyle());
 
-        final Object widthResult = this.spaceWidth.evaluate(evalContext);
+        final Object positionResult = this.position.evaluate(evalContext);
 
         final DocHSpaceInst instance;
 
-        if (widthResult instanceof final Number nbr) {
+        if (positionResult instanceof final Number nbr) {
             instance = new DocHSpaceInst(objStyle, null, nbr.doubleValue());
         } else  {
             instance = null;
@@ -188,15 +180,15 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public void toXml(final HtmlBuilder xml, final int indent) {
 
-        xml.add("<h-space");
-        if (this.spaceWidth != null) {
-            xml.addAttribute("width", this.spaceWidth.getNumber(), 0);
+        xml.add("<h-align");
+        if (this.position != null) {
+            xml.addAttribute("position", this.position.getNumber(), 0);
         }
 
-        if (this.spaceWidth != null && this.spaceWidth.getFormula() != null) {
-            xml.add("><width>");
-            this.spaceWidth.getFormula().appendChildrenXml(xml);
-            xml.add("</width></h-space>");
+        if (this.position != null && this.position.getFormula() != null) {
+            xml.add("><position>");
+            this.position.getFormula().appendChildrenXml(xml);
+            xml.add("</position></h-align>");
         } else {
             xml.add("/>");
         }
@@ -221,13 +213,15 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
                         final boolean[] overwriteAll, final HtmlBuilder builder, final boolean showAnswers,
                         final char[] mode, final EvalContext context) {
 
-        final double wid = calculateWidth(context);
+        // TODO: How to implement in LaTeX?
+
+//        final double wid = calculateWidth(context);
 
         // LATEX header must include this:
         // \newlength{\digitwidth}
         // \settowidth{\digitwidth}{6}
 
-        builder.add("\\hspace*{" + wid + "*\\digitwidth}");
+//        builder.add("\\hspace*{" + wid + "*\\digitwidth}");
     }
 
     /**
@@ -238,7 +232,7 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public void printTree(final PrintStream ps) {
 
-        ps.print("<li>HSpace</li>");
+        ps.print("<li>HAlign</li>");
     }
 
     /**
@@ -260,7 +254,7 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
     @Override
     public int hashCode() {
 
-        return docObjectHashCode() + Objects.hashCode(this.spaceWidth);
+        return docObjectHashCode() + Objects.hashCode(this.position);
     }
 
     /**
@@ -276,9 +270,9 @@ public final class DocHSpace extends AbstractDocObjectTemplate {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocHSpace spc) {
+        } else if (obj instanceof final DocHAlign spc) {
             equal = docObjectEquals(spc)
-                    && Objects.equals(this.spaceWidth, spc.spaceWidth);
+                    && Objects.equals(this.position, spc.position);
         } else {
             equal = false;
         }

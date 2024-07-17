@@ -39,17 +39,6 @@ public abstract class AbstractDocSpanBase extends AbstractDocContainer {
     }
 
     /**
-     * Get the left alignment for the object.
-     *
-     * @return the object insets
-     */
-    @Override
-    public final EVAlign getLeftAlign() {
-
-        return getChildren().isEmpty() ? EVAlign.BASELINE : getChildren().getFirst().getLeftAlign();
-    }
-
-    /**
      * Add any parameter names referenced by the object or its children to a set of names.
      *
      * @param set the set of parameter names

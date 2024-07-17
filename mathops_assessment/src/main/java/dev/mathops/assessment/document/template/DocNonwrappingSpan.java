@@ -241,6 +241,17 @@ public final class DocNonwrappingSpan extends AbstractDocSpanBase {
     }
 
     /**
+     * Get the left alignment for the object.
+     *
+     * @return the object insets
+     */
+    @Override
+    public EVAlign getLeftAlign() {
+
+        return getChildren().isEmpty() ? EVAlign.BASELINE : getChildren().getFirst().getLeftAlign();
+    }
+
+    /**
      * Write the XML representation of the object to a {@code HtmlBuilder}.
      *
      * @param xml    the {@code v} to which to write the XML

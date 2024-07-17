@@ -14,6 +14,7 @@ import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.PrintStream;
@@ -254,6 +255,16 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
             this.style = new DocObjectStyle();
         }
         this.style.colorName = theColorName;
+    }
+
+    /**
+     * Gets the object style.
+     *
+     * @return the object style (null until a style property is set)
+     */
+    final DocObjectStyle getStyle() {
+
+        return this.style;
     }
 
     /**
@@ -661,6 +672,17 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
     protected abstract void doLayout(EvalContext context, ELayoutMode mathMode);
 
     /**
+     * Calculates the width of a decimal digit 0 in the current font.
+     *
+     * @return the width of the digit 0
+     */
+    final int calculateDigitWidth() {
+
+        final FontMetrics fm = BundledFontManager.getInstance().getFontMetrics(getFont());
+        return fm.stringWidth("0");
+    }
+
+    /**
      * Create a string for a particular indentation level.
      *
      * @param indent the number of spaces to indent
@@ -904,7 +926,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
      *
      * @return the string representation
      */
-    private String makeStyleString() {
+    String makeStyleString() {
 
         // Called only when it is known that this.style.getFontStyle() is not null
 

@@ -76,6 +76,9 @@ public enum DocFactory {
     private static final String H_SPACE = "h-space";
 
     /** A commonly-used string. */
+    private static final String H_ALIGN = "h-align";
+
+    /** A commonly-used string. */
     private static final String TABLE = "table";
 
     /** A commonly-used string. */
@@ -155,6 +158,9 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String HEIGHT = "height";
+
+    /** A commonly-used string. */
+    private static final String POSITION = "position";
 
     /** A commonly-used string. */
     private static final String JUSTIFICATION = "justification";
@@ -597,6 +603,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, span, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -620,6 +628,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, span);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractSymbolPalette(empty, span);
                     } else {
@@ -876,6 +886,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, par, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, par, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, par, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, par, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -901,6 +913,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(par);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, par);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, par);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within a paragraph.");
                         valid = false;
@@ -962,6 +976,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, span, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -987,6 +1003,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
                         valid = false;
@@ -1064,6 +1082,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, span, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -1089,6 +1109,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
                         valid = false;
@@ -1152,6 +1174,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, span, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, span, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, span, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, span, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -1175,6 +1199,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, span);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, span);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within math.");
                         valid = false;
@@ -1553,6 +1579,8 @@ public enum DocFactory {
                         valid = valid && extractFence(evalContext, nonempty, fence, mode);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(evalContext, nonempty, fence, mode);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(evalContext, nonempty, fence, mode);
                     } else if (TABLE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTable(evalContext, nonempty, fence, mode);
                     } else if (DRAWING.equalsIgnoreCase(childTag)) {
@@ -1576,6 +1604,8 @@ public enum DocFactory {
                         valid = valid && extractAlignMark(fence);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractHSpace(empty, fence);
+                    } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
+                        valid = valid && extractHAlign(empty, fence);
                     } else {
                         elem.logError("An empty " + childTag + " element is not valid within fence.");
                         valid = false;
@@ -1645,13 +1675,13 @@ public enum DocFactory {
 
         boolean valid = true;
 
-        final String heightStr = elem.getStringAttr(WIDTH);
+        final String widthStr = elem.getStringAttr(WIDTH);
         Number widthC = null;
         Formula widthF = null;
 
-        if (heightStr != null) {
+        if (widthStr != null) {
             try {
-                widthC = NumberParser.parse(heightStr);
+                widthC = NumberParser.parse(widthStr);
             } catch (final NumberFormatException e) {
                 elem.logError("Invalid 'width' attribute value (must be a valid number).");
                 valid = false;
@@ -1700,6 +1730,120 @@ public enum DocFactory {
 
             hSpace.setSpaceWidth(width);
             container.add(hSpace);
+        }
+
+        return valid;
+    }
+
+    /**
+     * Generate a {@code DocHAlign} object from XML source. Any errors encountered while generating the input object
+     * will be reflected in the source file's error context.
+     *
+     * @param elem      the element
+     * @param container the span to which to add this input
+     * @return true if loading successful; false otherwise
+     */
+    private static boolean extractHAlign(final EmptyElement elem, final AbstractDocSpanBase container) {
+
+        boolean valid = true;
+
+        final String positionStr = elem.getStringAttr(POSITION);
+        Number positionC = null;
+
+        if (positionStr != null) {
+            try {
+                positionC = NumberParser.parse(positionStr);
+            } catch (final NumberFormatException e) {
+                elem.logError("Invalid 'position' attribute value (must be a valid number).");
+                valid = false;
+            }
+        }
+
+        if (valid) {
+            final DocHAlign hAlign = new DocHAlign();
+
+            NumberOrFormula position = null;
+            if (positionC != null) {
+                position = new NumberOrFormula(positionC);
+            }
+            hAlign.setPosition(position);
+
+            container.add(hAlign);
+        }
+
+        return valid;
+    }
+
+    /**
+     * Generate a {@code DocHAlign} object from XML source. Any errors encountered while generating the input object
+     * will be reflected in the source file's error context.
+     *
+     * @param evalContext the evaluation context
+     * @param elem        the element
+     * @param container   the span to which to add this input
+     * @param mode        the parser mode
+     * @return true if loading successful; false otherwise
+     */
+    private static boolean extractHAlign(final EvalContext evalContext, final NonemptyElement elem,
+                                         final AbstractDocSpanBase container, final EParserMode mode) {
+
+        boolean valid = true;
+
+        final String positionStr = elem.getStringAttr(POSITION);
+        Number positionC = null;
+        Formula positionF = null;
+
+        if (positionStr != null) {
+            try {
+                positionC = NumberParser.parse(positionStr);
+            } catch (final NumberFormatException e) {
+                elem.logError("Invalid 'position' attribute value (must be a valid number).");
+                valid = false;
+            }
+        }
+
+        for (final INode child : elem.getChildrenAsList()) {
+            if (child instanceof final NonemptyElement nonempty) {
+                final String childTag = nonempty.getTagName();
+
+                if (POSITION.equalsIgnoreCase(childTag)) {
+                    if (positionC == null) {
+                        if (positionF == null) {
+                            positionF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                            if (positionF == null) {
+                                elem.logError("Invalid 'position' formula.");
+                                valid = false;
+                            }
+                        } else {
+                            elem.logError("Cannot have multiple position formulas.");
+                            valid = false;
+                        }
+                    } else {
+                        elem.logError("Cannot have both position attribute and position formula.");
+                        valid = false;
+                    }
+                } else {
+                    elem.logError("The " + childTag + " tag is not valid within h-align.");
+                    valid = false;
+                }
+            } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
+                elem.logError("Found " + child.getClass().getSimpleName() + " in h-align.");
+                valid = false;
+            }
+        }
+
+        if (valid) {
+            final DocHAlign hAlign = new DocHAlign();
+
+            NumberOrFormula position = null;
+            if (positionC != null) {
+                position = new NumberOrFormula(positionC);
+            } else if (positionF != null) {
+                position = new NumberOrFormula(positionF);
+            }
+
+            hAlign.setPosition(position);
+            container.add(hAlign);
         }
 
         return valid;
