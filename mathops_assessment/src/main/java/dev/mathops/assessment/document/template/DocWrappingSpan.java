@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocWrappingSpanInst;

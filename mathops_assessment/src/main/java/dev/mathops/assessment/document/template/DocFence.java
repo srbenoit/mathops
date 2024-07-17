@@ -865,23 +865,18 @@ public final class DocFence extends AbstractDocSpanBase {
         printFormat(xml, 1.0f);
 
         switch (this.type) {
-
             case BRACKETS:
                 xml.add(" type='brackets'");
                 break;
-
             case BARS:
                 xml.add(" type='bars'");
                 break;
-
             case BRACES:
                 xml.add(" type='braces'");
                 break;
-
             case LBRACE:
                 xml.add(" type='lbrace'");
                 break;
-
             default:
                 break;
         }

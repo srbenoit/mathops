@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.document.DocObjectStyle;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
@@ -307,7 +308,27 @@ public final class DocMathSpan extends AbstractDocSpanBase {
     @Override
     public void printFormat(final HtmlBuilder builder, final float defaultFontScale) {
 
-        super.printFormat(builder, defaultFontScale);
+        final DocObjectStyle style = getStyle();
+
+        if (style != null) {
+            if (style.colorName != null && !style.colorName.equals(MATH_COLOR_NAME)) {
+                builder.add(" color='", style.colorName, "'");
+            }
+
+            if (style.fontName != null) {
+                builder.add(" fontname='", style.fontName, "'");
+            }
+
+            if (style.fontSize != 0.0f) {
+                builder.add(" fontsize='", Float.toString(style.fontSize), "'");
+            } else if (style.fontScale != defaultFontScale) {
+                builder.add(" fontsize='", Integer.toString((int) (style.fontScale * 100.0f)), "%'");
+            }
+
+            if (style.fontStyle != null) {
+                builder.add(" fontstyle='", makeStyleString(), "'");
+            }
+        }
 
         boolean comma = false;
 
@@ -320,31 +341,25 @@ public final class DocMathSpan extends AbstractDocSpanBase {
             }
 
             if ((this.outLines & DocTable.LEFTLINE) != 0) {
-
                 if (comma) {
                     builder.add(CoreConstants.COMMA_CHAR);
                 }
-
                 builder.add("left");
                 comma = true;
             }
 
             if ((this.outLines & DocTable.BOTTOMLINE) != 0) {
-
                 if (comma) {
                     builder.add(CoreConstants.COMMA_CHAR);
                 }
-
                 builder.add("bottom");
                 comma = true;
             }
 
             if ((this.outLines & DocTable.RIGHTLINE) != 0) {
-
                 if (comma) {
                     builder.add(CoreConstants.COMMA_CHAR);
                 }
-
                 builder.add("right");
             }
 

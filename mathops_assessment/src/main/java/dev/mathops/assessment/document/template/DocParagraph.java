@@ -1,15 +1,15 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EJustification;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocParagraphInst;
+import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.font.BundledFontManager;
 
 import java.awt.Font;
@@ -210,6 +210,8 @@ public final class DocParagraph extends AbstractDocSpanBase {
     @Override
     public void doLayout(final EvalContext context, final ELayoutMode mathMode) {
 
+        final int digitWidth = calculateDigitWidth();
+
         // Gather all flow objects contained, and perform layout on them. For parameter reference
         // children, this will re-generate the referenced content
 
@@ -239,8 +241,8 @@ public final class DocParagraph extends AbstractDocSpanBase {
             }
         }
 
-        // Skip any leading whitespace in the paragraph (a space or newline after the <p> tag
-        // should not trigger indentation).
+        // Skip any leading whitespace in the paragraph (a space or newline after the <p> tag should not trigger
+        // indentation).
         final int count = objects.size();
         int i;
         for (i = 0; i < count; i++) {
@@ -277,9 +279,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
 
         int leftInset = INSET_LEFT;
         if (this.indent > 0) {
-            final FontMetrics fm = BundledFontManager.getInstance().getFontMetrics(getFont());
-            final int digitWidth = fm.stringWidth("0");
-            leftInset += (int) Math.round(Math.max(0.0, (double) digitWidth * this.indent));
+            leftInset += (int) Math.round((double) digitWidth * this.indent);
         }
 
         // Now, lay out the accumulated list of flowable objects into lines, and, using the
@@ -293,38 +293,72 @@ public final class DocParagraph extends AbstractDocSpanBase {
         for (; i < count; i++) {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
-            if (this.justification == LEFT_HANG && obj instanceof DocAlignmentMark) {
-                hanging = x;
-            }
+            if (obj instanceof DocAlignmentMark) {
+                if (this.justification == LEFT_HANG) {
+                    hanging = x;
+                }
+            } else if (obj instanceof final DocHAlign hAlign) {
 
-            final int objWidth = obj.getWidth();
-
-            final int objX;
-            if ((x + objWidth) > (getWidth() - INSET_RIGHT)) {
-
-                // Object won't fit on current line, so do vertical arrangement for the line we just finished, if any.
-                if (first < i) {
-                    y = arrangeSingleLine(objects, first, i - 1, y);
-                    first = i;
+                final NumberOrFormula pos = hAlign.getPosition();
+                Number posC = pos.getNumber();
+                if (posC == null) {
+                    final Formula posF = pos.getFormula();
+                    if (posF.evaluate(context) instanceof final Number numberValue) {
+                        posC = numberValue;
+                    }
                 }
 
-                // Wrap the line
-                objX = hanging > 0 ? hanging : leftInset;
+                if (posC != null) {
+                    final double absolute = posC.doubleValue() * (double) digitWidth;
+                    if (Double.isFinite(absolute) && absolute > 0.0) {
+                        final int intAbs = INSET_LEFT + (int)absolute;
+                        if (intAbs > (getWidth() - INSET_RIGHT)) {
+                            // Tab is past end of line - do a line wrap
+                            if (first < i) {
+                                y = arrangeSingleLine(objects, first, i - 1, y);
+                                first = i;
+                            }
 
-                if (obj instanceof DocWhitespace) {
-                    // If we wrap and leave whitespace at the start, don't advance for the whitespace
-                    x = objX;
-                } else {
-                    x = objX + objWidth;
+                            obj.setX(x);
+                            x = hanging > 0 ? hanging : leftInset;
+                        } else if (intAbs > x) {
+                            // Move to the tab stop
+                            obj.setX(intAbs);
+                            x = intAbs;
+                        }
+                    }
                 }
             } else {
-                // Add object to current line
-                objX = x;
-                x += objWidth;
-            }
+                final int objWidth = obj.getWidth();
 
-            obj.setX(objX);
-            obj.setY(0);
+                final int objX;
+                if ((x + objWidth) > (getWidth() - INSET_RIGHT)) {
+
+                    // Object won't fit on current line, so do vertical arrangement for the line we just finished, if
+                    // any.
+                    if (first < i) {
+                        y = arrangeSingleLine(objects, first, i - 1, y);
+                        first = i;
+                    }
+
+                    // Wrap the line
+                    objX = hanging > 0 ? hanging : leftInset;
+
+                    if (obj instanceof DocWhitespace) {
+                        // If we wrap and leave whitespace at the start, don't advance for the whitespace
+                        x = objX;
+                    } else {
+                        x = objX + objWidth;
+                    }
+                } else {
+                    // Add object to current line
+                    objX = x;
+                    x += objWidth;
+                }
+
+                obj.setX(objX);
+                obj.setY(0);
+            }
         }
 
         // Arrange remaining items on last line.

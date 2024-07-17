@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
+import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.inst.AbstractDocContainerInst;
 import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -130,6 +131,17 @@ public class DocSimpleSpan extends AbstractDocSpanBase {
         for (final AbstractDocObjectTemplate child : getChildren()) {
             child.toXml(xml, 0);
         }
+    }
+
+    /**
+     * Get the left alignment for the object.
+     *
+     * @return the object insets
+     */
+    @Override
+    public final EVAlign getLeftAlign() {
+
+        return getChildren().isEmpty() ? EVAlign.BASELINE : getChildren().getFirst().getLeftAlign();
     }
 
     /**
