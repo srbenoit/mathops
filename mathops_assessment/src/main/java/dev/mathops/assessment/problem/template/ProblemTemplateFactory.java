@@ -916,9 +916,6 @@ public enum ProblemTemplateFactory {
                             }
                         }
                     } else {
-                        if (mode.reportDeprecated) {
-                            elem.logError("Deprecated 'correct-answer' attribute on accept-number");
-                        }
                         correct = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
                         if (correct == null) {
                             elem.logError("Invalid 'correct-answer' attribute on accept-number.");

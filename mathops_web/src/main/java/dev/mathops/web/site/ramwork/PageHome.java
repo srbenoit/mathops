@@ -48,6 +48,7 @@ enum PageHome {
             htm.sP().add("<a href='mathrefresherstudent.html'>CSU Math Refresher Student View</a>",
                     " (used by students)").eP();
             htm.sP().add("<a href='assessmentdev.html'>Assessment System Development</a>").eP();
+            htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
@@ -55,10 +56,18 @@ enum PageHome {
             final HtmlBuilder htm = new HtmlBuilder(2000);
             Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
 
+            htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
+
             Page.endOrdinaryPage(cache, site, htm, true);
             AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         } else {
-            resp.sendRedirect("proctoring.html");
+            final HtmlBuilder htm = new HtmlBuilder(2000);
+            Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+
+            htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
+
+            Page.endOrdinaryPage(cache, site, htm, true);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         }
     }
 }

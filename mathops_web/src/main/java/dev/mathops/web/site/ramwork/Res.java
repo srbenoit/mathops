@@ -32,6 +32,11 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String HOME_HEADING = key(index++);
 
+    // Used by PageAuthoring
+
+    /** A resource key. */
+    static final String AUTHORING_HEADING = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -40,6 +45,7 @@ final class Res extends ResBundle {
             {SITE_TITLE, "RAMwork"},
             {LANDING_HEADING, "Welcome to RAMwork"},
             {HOME_HEADING, "RAMwork Online Homework System"},
+            {AUTHORING_HEADING, "Problem Authoring Resources"},
     };
 
     /** The singleton instance. */

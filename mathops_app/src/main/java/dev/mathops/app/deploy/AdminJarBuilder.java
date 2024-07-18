@@ -28,7 +28,8 @@ final class AdminJarBuilder {
      */
     private AdminJarBuilder() {
 
-        final File userDir = new File(System.getProperty("user.home"));
+        final String homePath = System.getProperty("user.home");
+        final File userDir = new File(homePath);
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
@@ -78,31 +79,39 @@ final class AdminJarBuilder {
 
                 addManifest(mainClassName, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
+                final String msg1 = Res.fmt(Res.ADDING_FILES, db);
+                Log.finest(msg1, CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, dbjobs), CoreConstants.CRLF);
+                final String msg2 = Res.fmt(Res.ADDING_FILES, dbjobs);
+                Log.finest(msg2, CoreConstants.CRLF);
                 addFiles(dbjobsRoot, dbjobsClasses1, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
+                final String msg3 = Res.fmt(Res.ADDING_FILES, font);
+                Log.finest(msg3, CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, assessment), CoreConstants.CRLF);
+                final String msg4 = Res.fmt(Res.ADDING_FILES, assessment);
+                Log.finest(msg4, CoreConstants.CRLF);
                 addFiles(assessmentRoot, assessmentClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, session), CoreConstants.CRLF);
+                final String msg5 = Res.fmt(Res.ADDING_FILES, session);
+                Log.finest(msg5, CoreConstants.CRLF);
                 addFiles(sessionRoot, sessionClasses, jar);
 
-                Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
+                final String msg6 = Res.fmt(Res.ADDING_FILES, app);
+                Log.finest(msg6, CoreConstants.CRLF);
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
 
                 final String jarPath = jars.getAbsolutePath();
-                Log.finest(Res.fmt(Res.FILE_CREATED, targetFilename, jarPath), CoreConstants.CRLF);
+                final String msg7 = Res.fmt(Res.FILE_CREATED, targetFilename, jarPath);
+                Log.finest(msg7, CoreConstants.CRLF);
 
             } catch (final IOException ex) {
-                Log.warning(Res.get(Res.JAR_WRITE_FAILED), ex);
+                final String msg8 = Res.get(Res.JAR_WRITE_FAILED);
+                Log.warning(msg8, ex);
             }
         }
     }
@@ -130,16 +139,20 @@ final class AdminJarBuilder {
                 final StringBuilder builder = new StringBuilder(100);
 
                 while (!temp.equals(rootDir)) {
-                    builder.append(temp.getName()).append('.').append(pkgName);
+                    final String tempName = temp.getName();
+                    builder.append(tempName).append(CoreConstants.DOT).append(pkgName);
                     pkgName = builder.toString();
                     builder.setLength(0);
                     temp = temp.getParentFile();
                 }
 
-                final HtmlBuilder msg = new HtmlBuilder(80);
-                msg.add(' ').add(pkgName).padToLength(55);
-                msg.addln(": ", Integer.toString(count), CoreConstants.SPC, Res.get(Res.FILES_COPIED));
-                Log.finest(msg.toString());
+                final HtmlBuilder msgBuilder = new HtmlBuilder(80);
+                msgBuilder.add(CoreConstants.SPC_CHAR).add(pkgName).padToLength(55);
+                final String msg = Res.get(Res.FILES_COPIED);
+                final String countStr = Integer.toString(count);
+                msgBuilder.addln(": ", countStr, CoreConstants.SPC, msg);
+                final String logMsg = msgBuilder.toString();
+                Log.finest(logMsg);
             }
         }
     }
@@ -170,7 +183,8 @@ final class AdminJarBuilder {
                 File parent = file.getParentFile();
                 final HtmlBuilder builder = new HtmlBuilder(100);
                 while (!parent.equals(rootDir)) {
-                    builder.add(parent.getName(), CoreConstants.SLASH, name);
+                    final String parentName = parent.getName();
+                    builder.add(parentName, CoreConstants.SLASH, name);
                     name = builder.toString();
                     builder.reset();
                     parent = parent.getParentFile();
@@ -183,7 +197,9 @@ final class AdminJarBuilder {
                     jar.putNextEntry(new ZipEntry(name));
                     final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
                     if (bytes == null) {
-                        throw new IOException(Res.fmt(Res.READ_FAILED, file.getAbsolutePath()));
+                        final String path = file.getAbsolutePath();
+                        final String msg = Res.fmt(Res.READ_FAILED, path);
+                        throw new IOException(msg);
                     }
                     jar.write(bytes);
                     ++count;
@@ -207,7 +223,9 @@ final class AdminJarBuilder {
 
         for (final File test : dirs) {
             if (!test.exists() || !test.isDirectory()) {
-                Log.warning(Res.fmt(Res.DIR_NOT_FOUND, test.getAbsolutePath()));
+                final String testPath = test.getAbsolutePath();
+                final String msg = Res.fmt(Res.DIR_NOT_FOUND, testPath);
+                Log.warning(msg);
                 good = false;
                 break;
             }
@@ -255,11 +273,8 @@ final class AdminJarBuilder {
         Installations.setMyInstallation(installation);
 
         new AdminJarBuilder().build("dev.mathops.app.adm.AdminApp", "ADMIN.jar");
-        new AdminJarBuilder().build("dev.mathops.app.assessment.problemauthor.ProblemAuthor", "problem_author.jar");
-        new AdminJarBuilder().build("dev.mathops.app.assessment.localtesting.LocalTestingApp", "exam_tester.jar");
-        new AdminJarBuilder().build("dev.mathops.app.assessment.qualitycontrol.QualityControlScanner",
-                "quality_control.jar");
 
-        Log.finest(Res.get(Res.FINISHED), CoreConstants.CRLF);
+        final String msg = Res.get(Res.FINISHED);
+        Log.finest(msg, CoreConstants.CRLF);
     }
 }

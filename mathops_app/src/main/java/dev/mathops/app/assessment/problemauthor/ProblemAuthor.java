@@ -3,10 +3,12 @@ package dev.mathops.app.assessment.problemauthor;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.EPath;
 import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.Installations;
 
 import javax.swing.JFileChooser;
 import java.awt.EventQueue;
 import java.io.File;
+import java.nio.file.FileSystems;
 
 /**
  * The main application.
@@ -27,9 +29,26 @@ final class ProblemAuthor implements Runnable {
     @Override
     public void run() {
 
-        final File src1 = PathList.getInstance().get(EPath.SOURCE_1_PATH);
-        final File src2 = PathList.getInstance().get(EPath.SOURCE_2_PATH);
-        final File src3 = PathList.getInstance().get(EPath.SOURCE_3_PATH);
+        final PathList pathList = PathList.getInstance();
+        if (pathList.get(EPath.SOURCE_1_PATH) == null) {
+
+            final File currentDir = FileSystems.getDefault().getPath("").toFile();
+            if (currentDir.exists()) {
+                pathList.init(currentDir);
+
+                if (pathList.get(EPath.SOURCE_1_PATH) == null) {
+                    final String homePath = System.getProperty("java.home");
+                    final File homeDir = new File(homePath);
+                    if (homeDir.exists()) {
+                        pathList.init(homeDir);
+                    }
+                }
+            }
+        }
+
+        final File src1 = pathList.get(EPath.SOURCE_1_PATH);
+        final File src2 = pathList.get(EPath.SOURCE_2_PATH);
+        final File src3 = pathList.get(EPath.SOURCE_3_PATH);
 
         final File src1Inst = src1 == null ? null : new File(src1, "instruction");
         final File src2Inst = src2 == null ? null : new File(src2, "instruction");

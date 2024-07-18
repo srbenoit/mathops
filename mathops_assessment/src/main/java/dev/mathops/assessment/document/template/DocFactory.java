@@ -127,6 +127,9 @@ public enum DocFactory {
     private static final String UNDER = "under";
 
     /** A commonly-used string. */
+    private static final String FUNCTION_PLOT = "function-plot";
+
+    /** A commonly-used string. */
     private static final String FORMULA = "formula";
 
     /** A commonly-used string. */
@@ -2510,7 +2513,7 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if (FORMULA.equalsIgnoreCase(childTag)) {
+                if (FORMULA.equalsIgnoreCase(childTag) || FUNCTION_PLOT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractGraphFormula(evalContext, nonempty, graph, mode);
                 } else if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, nonempty, graph, mode);

@@ -155,6 +155,8 @@ public final class RamWorkSite extends AbstractSite {
                         PageItemBank.showPage(cache, this, req, resp, session);
                     } else if ("qtiitembank.html".equals(subpath)) {
                         PageQTIItemBank.showPage(cache, this, req, resp, session, null);
+                    } else if ("authoring.html".equals(subpath)) {
+                        PageAuthoring.showPage(cache, this, req, resp);
 
                     } else if ("item.html".equals(subpath)) {
                         PageItem.showPage(cache, this, req, resp, session);
