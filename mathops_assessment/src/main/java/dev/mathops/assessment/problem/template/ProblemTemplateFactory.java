@@ -1141,7 +1141,7 @@ public enum ProblemTemplateFactory {
                                                                  final EParserMode mode) {
 
         // FIXME: This has a Formula in attribute - need to wrap the children content in a
-        // <doc> tag and allow the "correct" formula to be a child element
+        //  <doc> tag and allow the "correct" formula to be a child element
 
         List<ProblemChoiceTemplate> choices = new ArrayList<>(5);
 
@@ -1204,8 +1204,14 @@ public enum ProblemTemplateFactory {
                         } else if ("FALSE".equalsIgnoreCase(correctStr)) {
                             correct = new Formula(new ConstBooleanValue(Boolean.FALSE));
                         } else if (correctStr != null) {
-                            elem.logError("Invalid &lt;correct&gt; attribute value in &lt;choice&gt;.");
-                            valid = false;
+                            correct = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
+                            if (correct == null) {
+                                elem.logError("Invalid &lt;correct&gt; attribute value in &lt;choice&gt;.");
+                                valid = false;
+                            } else if (mode.reportDeprecated) {
+                                nonempty.logError("Non-constant correctness formula defined as attribute on choice; "
+                                        + "should be in <correct> child element");
+                            }
                         }
 
                         for (final IElement grandchild : nonempty.getElementChildrenAsList()) {

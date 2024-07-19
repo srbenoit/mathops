@@ -39,22 +39,22 @@ enum PageAuthoring {
 
         htm.sH(3).add("Third-Party Software:").eH(3);
 
-        htm.sP("indent").addln("<ul>")
+        htm.addln("<ul class='indent0' style='margin-top:0;'>")
                 .addln("<li><a href='https://www.oracle.com/java/technologies/' target='_blank'>",
                         "Java SE</a> (version 21 or greater is needed)</li>")
                 .addln("<li><a href='https://notepad-plus-plus.org/' target='_blank'>",
                         "Notepad++</a> (a free editor that works well with XML)</li>")
-                .addln("</ul>").eP();
+                .addln("</ul>");
 
         htm.sH(3).add("Authoring Software:").eH(3);
-        htm.sP().add("Download these to a directory on your local system, then edit 'paths.properties' with the path ",
-                "of your item bank (the directory that contains the 'math' directory)").eP();
+        htm.sP("indent0").add("Download these to a directory on your local system, then edit 'paths.properties' with ",
+                "the path of your item bank (the directory that contains the 'math' directory)").eP();
 
-        htm.sP("indent").addln("<ul>")
+        htm.addln("<ul class='indent0' style='margin-top:0;'>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Software/ADMIN.jar'>",
                         "ADMIN.jar</a></li>")
-                .addln("<li><a href='/www/media/ItemAuthoring/Software/flatlaf3.4.jar'>",
-                        "flatlaf3.4.jar</a></li>")
+                .addln("<li><a href='/www/media/ItemAuthoring/Software/flatlaf-3.4.jar'>",
+                        "flatlaf-3.4.jar</a></li>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Software/mathops_commons.jar'>",
                         "mathops_commons.jar</a></li>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Software/mathops_persistence.jar'>",
@@ -71,18 +71,18 @@ enum PageAuthoring {
                         "QualityControl.bat</a></li>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Software/ExamTester.bat'>",
                         "ExamTester.bat</a></li>")
-                .addln("</ul>").eP();
+                .addln("</ul>");
 
         htm.sH(3).add("Documentation:").eH(3);
 
-        htm.sP("indent").addln("<ul>")
+        htm.addln("<ul class='indent0' style='margin-top:0;'>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Problem Authoring Reference.pdf'>",
                         "Problem Authoring Reference</a> (Updated July 18, 2024)</li>")
-                .addln("</ul>").eP();
+                .addln("</ul>");
 
         htm.sH(3).add("Tutorials:").eH(3);
 
-        htm.sP("indent").addln("<ul>")
+        htm.addln("<ul class='indent0' style='margin-top:0;'>")
                 .addln("<li><a href='/www/media/ItemAuthoring/01-Getting Started.mp4'>",
                         "01: Getting Started</a> &nbsp; ",
                         "<a href='/www/media/ItemAuthoring/01-Getting Started.pdf'>(slides)</a></li>")
@@ -102,8 +102,17 @@ enum PageAuthoring {
                 .addln("<li><a href='/www/media/ItemAuthoring/06-Variables.mp4'>",
                         "06: Variables</a> &nbsp; ",
                         "<a href='/www/media/ItemAuthoring/06-Variables.pdf'>(slides)</a></li>")
+                .addln("<li><a href='/www/media/ItemAuthoring/07-Expressions.mp4'>",
+                        "07: Expressions</a> &nbsp; ",
+                        "<a href='/www/media/ItemAuthoring/07-Expressions.pdf'>(slides)</a></li>")
+                .addln("<li><a href='/www/media/ItemAuthoring/08-Document Content Part 1.mp4'>",
+                        "08: Document Content, Part 1: Overall Structure and Block-Level Elements</a> &nbsp; ",
+                        "<a href='/www/media/ItemAuthoring/08-Document Content Part 1.pdf'>(slides)</a></li>")
+                .addln("<li><a href='/www/media/ItemAuthoring/09-Document Content Part 2.mp4'>",
+                        "09: Document Content, Part 2: Flow-Level Elements</a> &nbsp; ",
+                        "<a href='/www/media/ItemAuthoring/09-Document Content Part 2.pdf'>(slides)</a></li>")
                 .addln("<li>... more to come soon ...</li>")
-                .addln("</ul>").eP();
+                .addln("</ul>");
 
         // TODO: Current library (read-only)
 

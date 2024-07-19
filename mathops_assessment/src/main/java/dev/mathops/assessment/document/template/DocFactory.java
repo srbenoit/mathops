@@ -1326,8 +1326,8 @@ public enum DocFactory {
                             root.tag = childTag;
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, root, true, mode);
 
-                            if (valid && (base != null && root.getFontSize() == base.getFontSize()
-                                    && base.getFontSize() > 8)) {
+                            if (valid && (base == null || (root.getFontSize() == base.getFontSize()
+                                    && base.getFontSize() > 8))) {
                                 root.setFontScale(0.75f);
                             }
                         } else {
