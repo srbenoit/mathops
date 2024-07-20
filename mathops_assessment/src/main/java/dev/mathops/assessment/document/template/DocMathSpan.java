@@ -28,9 +28,6 @@ import java.util.List;
 public final class DocMathSpan extends AbstractDocSpanBase {
 
     /** The color to use for math spans. */
-//    static final String MATH_COLOR_NAME = "DeepSkyBlue4";
-
-    /** The color to use for math spans. */
     static final String MATH_COLOR_NAME = "0070C0";
 
     /** Version number for serialization. */

@@ -890,15 +890,10 @@ public final class DocFence extends AbstractDocSpanBase {
         final int size = getChildren().size();
 
         for (final AbstractDocObjectTemplate child : getChildren()) {
-            ++count;
-
-            if ((count != 1) && (count != size)) {
-
-                if (child instanceof DocText) {
-                    child.toXml(xml, 0);
-                } else {
-                    child.toXml(xml, indent + 1);
-                }
+            if (child instanceof DocText) {
+                child.toXml(xml, 0);
+            } else {
+                child.toXml(xml, indent + 1);
             }
         }
 
