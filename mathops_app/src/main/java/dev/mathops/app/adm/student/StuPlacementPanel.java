@@ -54,12 +54,6 @@ class StuPlacementPanel extends AdminPanelBase {
     /** Scroll pane for earned placement results. */
     private final JScrollPane tutorialsScroll;
 
-    /** A table that shows all transfer credit. */
-    private final JTableTransferCredit transferTable;
-
-    /** Scroll pane for transfer credit results. */
-    private final JScrollPane transferScroll;
-
     /** An error message. */
     private final JLabel error;
 
@@ -149,17 +143,6 @@ class StuPlacementPanel extends AdminPanelBase {
 
         pane4.add(this.tutorialsScroll, BorderLayout.WEST);
 
-        pane5.add(makeHeader("Transfer Credit", true), BorderLayout.NORTH);
-
-        this.transferTable = new JTableTransferCredit();
-        this.transferTable.setFillsViewportHeight(true);
-
-        this.transferScroll = new JScrollPane(this.transferTable);
-        this.transferScroll
-                .setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
-
-        pane5.add(this.transferScroll, BorderLayout.WEST);
-
         this.error = makeError();
         add(this.error, BorderLayout.SOUTH);
     }
@@ -181,12 +164,8 @@ class StuPlacementPanel extends AdminPanelBase {
                     this.placementAttemptsTable.getPreferredScrollSize(this.placementScroll, 2));
             this.challengeScroll.setPreferredSize(
                     this.challengeAttemptsTable.getPreferredScrollSize(this.challengeScroll, 2));
-            this.earnedScroll.setPreferredSize(
-                    this.earedPlacementTable.getPreferredScrollSize(this.earnedScroll, 2));
-            this.tutorialsScroll.setPreferredSize(
-                    this.tutorialsTable.getPreferredScrollSize(this.tutorialsScroll, 2));
-            this.transferScroll.setPreferredSize(
-                    this.transferTable.getPreferredScrollSize(this.transferScroll, 2));
+            this.earnedScroll.setPreferredSize(this.earedPlacementTable.getPreferredScrollSize(this.earnedScroll, 2));
+            this.tutorialsScroll.setPreferredSize(this.tutorialsTable.getPreferredScrollSize(this.tutorialsScroll, 2));
         }
     }
 
@@ -202,7 +181,6 @@ class StuPlacementPanel extends AdminPanelBase {
         this.challengeAttemptsTable.clear();
         this.earedPlacementTable.clear();
         this.tutorialsTable.clear();
-        this.transferTable.clear();
     }
 
     /**
@@ -244,7 +222,5 @@ class StuPlacementPanel extends AdminPanelBase {
         this.challengeAttemptsTable.addData(data.studentChallengeAttempts, 2);
         this.earedPlacementTable.addData(data.studentPlacementCredit, 5);
         this.tutorialsTable.addData(data.studentExams, 2);
-        this.transferTable.addData(data.studentTransferCredit, 2);
-
     }
 }

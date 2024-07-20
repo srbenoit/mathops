@@ -42,6 +42,12 @@ class StuCoursesPanel extends AdminPanelBase {
     /** Scroll pane for the history table. */
     private final JScrollPane historyScroll;
 
+    /** A table that shows all transfer credit. */
+    private final JTableTransferCredit transferTable;
+
+    /** Scroll pane for transfer credit results. */
+    private final JScrollPane transferScroll;
+
     /** The current course table. */
     private final JTableCurrentCourses currentTable;
 
@@ -66,7 +72,7 @@ class StuCoursesPanel extends AdminPanelBase {
     /**
      * Constructs a new {@code AdminCoursePanel}.
      *
-     * @param theConn          the database connection
+     * @param theConn the database connection
      */
     StuCoursesPanel(final DbConnection theConn) {
 
@@ -91,6 +97,21 @@ class StuCoursesPanel extends AdminPanelBase {
 
         final Dimension histPref = this.historyTable.getPreferredSize();
         this.historyScroll.setPreferredSize(new Dimension(histPref.width, histPref.height + 30));
+
+        final JPanel lowerLeft = makeOffWhitePanel(new BorderLayout(5, 5));
+        lowerLeft.setBackground(Skin.LIGHTEST);
+        left.add(lowerLeft, BorderLayout.SOUTH);
+
+        lowerLeft.add(makeHeader("Transfer Credit", true), BorderLayout.NORTH);
+
+        this.transferTable = new JTableTransferCredit();
+        this.transferTable.setFillsViewportHeight(true);
+
+        this.transferScroll = new JScrollPane(this.transferTable);
+        this.transferScroll
+                .setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
+
+        lowerLeft.add(this.transferScroll, BorderLayout.CENTER);
 
         // Center: current registrations
 
@@ -149,6 +170,7 @@ class StuCoursesPanel extends AdminPanelBase {
             populateDisplay(data);
 
             this.historyScroll.setPreferredSize(this.historyTable.getPreferredScrollSize(this.historyScroll, 3));
+            this.transferScroll.setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
             this.currentScroll.setPreferredSize(this.currentTable.getPreferredScrollSize(this.currentScroll, 3));
             this.droppedScroll.setPreferredSize(this.currentTable.getPreferredScrollSize(this.droppedScroll, 3));
         }
@@ -160,6 +182,7 @@ class StuCoursesPanel extends AdminPanelBase {
     private void clearDisplay() {
 
         this.historyTable.clear();
+        this.transferTable.clear();
         this.currentTable.clear();
 
         this.currentHeader.setText("Current Courses");
@@ -224,9 +247,11 @@ class StuCoursesPanel extends AdminPanelBase {
 
             this.currentTable.addData(currentTerm, 2);
             this.historyTable.addData(priorTerms, 2);
+            this.transferTable.addData(data.studentTransferCredit, 2);
             this.droppedTable.addData(dropped, 2);
 
             this.split.setDividerLocation(0.5);
         }
     }
 }
+
